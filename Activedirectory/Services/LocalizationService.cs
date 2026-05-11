@@ -243,6 +243,17 @@ Compte de service pour le centre de distribution de clés Kerberos.
                 ["Desc.Users.GroupPolicyCreatorOwners"] = "Membres de ce groupe peuvent modifier la stratégie de groupe pour le domaine",
                 ["Desc.Users.ReadOnlyDCs"] = "Membres de ce groupe sont des contrôleurs de domaine en lecture seule dans le domaine",
                 ["Desc.Users.DnsAdmins"] = "Groupe d'accès administratif DNS",
+                ["Desc.Users.DefaultAccount"] = "Compte système géré par Windows",
+                ["Desc.Users.WDAGUtilityAccount"] = "Compte utilisé par Windows Defender Application Guard",
+                ["Desc.Users.CertPublishers"] = "Membres de ce groupe sont autorisés à publier des certificats dans l'annuaire",
+                ["Desc.Users.RASandIAS"] = "Serveurs de ce groupe peuvent accéder aux propriétés d'accès à distance des utilisateurs",
+                ["Desc.Users.AllowedRODCReplication"] = "Mots de passe de ce groupe peuvent être répliqués sur tous les RODC du domaine",
+                ["Desc.Users.DeniedRODCReplication"] = "Mots de passe de ce groupe ne peuvent pas être répliqués sur les RODC du domaine",
+                ["Desc.Users.DnsUpdateProxy"] = "Clients DNS autorisés à effectuer des mises à jour dynamiques DNS pour le compte d'autres clients",
+                ["Desc.Users.CloneableDCs"] = "Membres de ce groupe qui sont des contrôleurs de domaine peuvent être clonés",
+                ["Desc.Users.ProtectedUsers"] = "Membres de ce groupe bénéficient de protections supplémentaires contre les attaques de vol d'identifiants",
+                ["Desc.Users.KeyAdmins"] = "Membres de ce groupe peuvent effectuer des actions administratives sur les objets clés du domaine",
+                ["Desc.Users.EnterpriseKeyAdmins"] = "Membres de ce groupe peuvent effectuer des actions administratives sur les objets clés dans la forêt",
                 ["Desc.Computers"] = @"# Container Computers
 
 Container par défaut pour les ordinateurs joints au domaine.
@@ -617,6 +628,17 @@ Service account for the Kerberos Key Distribution Center.
                 ["Desc.Users.GroupPolicyCreatorOwners"] = "Members of this group can modify group policy for the domain",
                 ["Desc.Users.ReadOnlyDCs"] = "Members of this group are Read-Only Domain Controllers in the domain",
                 ["Desc.Users.DnsAdmins"] = "DNS administrative access group",
+                ["Desc.Users.DefaultAccount"] = "System-managed account used by Windows",
+                ["Desc.Users.WDAGUtilityAccount"] = "Account used by Windows Defender Application Guard",
+                ["Desc.Users.CertPublishers"] = "Members of this group are permitted to publish certificates to the directory",
+                ["Desc.Users.RASandIAS"] = "Servers in this group can access remote access properties of users",
+                ["Desc.Users.AllowedRODCReplication"] = "Passwords for members of this group can be replicated to all RODCs in the domain",
+                ["Desc.Users.DeniedRODCReplication"] = "Passwords for members of this group cannot be replicated to any RODC in the domain",
+                ["Desc.Users.DnsUpdateProxy"] = "DNS clients permitted to perform dynamic DNS updates on behalf of other clients",
+                ["Desc.Users.CloneableDCs"] = "Members of this group that are domain controllers may be cloned",
+                ["Desc.Users.ProtectedUsers"] = "Members of this group are afforded additional protections against credential theft attacks",
+                ["Desc.Users.KeyAdmins"] = "Members of this group can perform administrative actions on key objects within the domain",
+                ["Desc.Users.EnterpriseKeyAdmins"] = "Members of this group can perform administrative actions on key objects within the forest",
                 ["Desc.Computers"] = @"# Computers Container
 
 Default container for computers joined to the domain.

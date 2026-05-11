@@ -689,19 +689,15 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void ExpandAll()
         {
-            if (SelectedNode != null)
-            {
-                ExpandAllRecursive(SelectedNode);
-            }
+            foreach (var root in RootNodes)
+                ExpandAllRecursive(root);
         }
 
         [RelayCommand]
         private void CollapseAll()
         {
-            if (SelectedNode != null)
-            {
-                CollapseAllRecursive(SelectedNode);
-            }
+            foreach (var root in RootNodes)
+                CollapseAllRecursive(root);
         }
 
         private void ExpandAllRecursive(ADTreeNode node)

@@ -3,16 +3,40 @@
   "WorkspaceRootPath": "C:\\Users\\devops\\source\\repos\\Activedirectory\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\mainwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\mainwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\newdomaindialog.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\newdomaindialog.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\graphwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\graphwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\graphwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\graphwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\graph\\graphcanvas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\graph\\graphcanvas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\newdomaindialog.axaml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\newdomaindialog.axaml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\services\\localizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\services\\localizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\services\\adimportpowershellservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\services\\adimportpowershellservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\mainwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\mainwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\mainwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\mainwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\app.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
@@ -25,10 +49,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\aboutdialog.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\aboutdialog.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\graphwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\graphwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\devops\\source\\repos\\Activedirectory\\example.mockad.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
@@ -45,10 +65,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\models\\tierconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\models\\tierconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\services\\localizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\services\\localizationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\helpers\\localizationproxy.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -71,10 +87,6 @@
       "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\graphwindow.axaml||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\graph\\graphcanvas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\graph\\graphcanvas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\viewmodels\\graphviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\viewmodels\\graphviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -93,10 +105,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\relationswindow.axaml||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\relationswindow.axaml||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\graphwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\graphwindow.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\graph\\forcesimulation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -119,16 +127,8 @@
       "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\tierconfigurationwindow.axaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\newdomaindialog.axaml||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\newdomaindialog.axaml||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\converters\\localizeconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\converters\\localizeconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\views\\newdomaindialog.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|solutionrelative:activedirectory\\views\\newdomaindialog.axaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F0165EA2-4498-ADA2-9E8B-1B46390E96C6}|Activedirectory\\SMAD-X.csproj|c:\\users\\devops\\source\\repos\\activedirectory\\activedirectory\\models\\adtreenode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -186,11 +186,39 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 4,
           "Children": [
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
+              "Title": "NewDomainDialog.axaml.cs",
+              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\NewDomainDialog.axaml.cs",
+              "RelativeDocumentMoniker": "Activedirectory\\Views\\NewDomainDialog.axaml.cs",
+              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\NewDomainDialog.axaml.cs",
+              "RelativeToolTip": "Activedirectory\\Views\\NewDomainDialog.axaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADEAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-07T07:14:11.383Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "GraphWindow.axaml.cs",
+              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\GraphWindow.axaml.cs",
+              "RelativeDocumentMoniker": "Activedirectory\\Views\\GraphWindow.axaml.cs",
+              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\GraphWindow.axaml.cs",
+              "RelativeToolTip": "Activedirectory\\Views\\GraphWindow.axaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAIBJwD4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-07T12:43:57.707Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "ADImportPowerShellService.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Services\\ADImportPowerShellService.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Services\\ADImportPowerShellService.cs",
@@ -198,36 +226,73 @@
               "RelativeToolTip": "Activedirectory\\Services\\ADImportPowerShellService.cs",
               "ViewState": "AgIAAOEAAAAAAAAAAAAvwPAAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-11T11:54:36.618Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-11T11:54:36.618Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "MainWindow.axaml.cs",
-              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\MainWindow.axaml.cs",
-              "RelativeDocumentMoniker": "Activedirectory\\Views\\MainWindow.axaml.cs",
-              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\MainWindow.axaml.cs",
-              "RelativeToolTip": "Activedirectory\\Views\\MainWindow.axaml.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAnwLoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-04T13:45:44.863Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "MainWindow.axaml",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\MainWindow.axaml",
               "RelativeDocumentMoniker": "Activedirectory\\Views\\MainWindow.axaml",
               "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\MainWindow.axaml",
               "RelativeToolTip": "Activedirectory\\Views\\MainWindow.axaml",
-              "ViewState": "AgIAAHsAAAAAAAAAAAAMwBUBAAA5AAAAAAAAAA==",
+              "ViewState": "AgIAAH0AAAAAAAAAAAAowBsBAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-05-04T13:07:35.045Z"
+              "WhenOpened": "2026-05-04T13:07:35.045Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 3,
+              "Title": "GraphWindow.axaml",
+              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\GraphWindow.axaml",
+              "RelativeDocumentMoniker": "Activedirectory\\Views\\GraphWindow.axaml",
+              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\GraphWindow.axaml",
+              "RelativeToolTip": "Activedirectory\\Views\\GraphWindow.axaml",
+              "ViewState": "AgIAAC4AAAAAAAAAAABBwAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-05-11T11:16:10.851Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "GraphCanvas.cs",
+              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Graph\\GraphCanvas.cs",
+              "RelativeDocumentMoniker": "Activedirectory\\Graph\\GraphCanvas.cs",
+              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Graph\\GraphCanvas.cs",
+              "RelativeToolTip": "Activedirectory\\Graph\\GraphCanvas.cs",
+              "ViewState": "AgIAAKECAAAAAAAAAAAswIoCAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-07T12:57:26.885Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "NewDomainDialog.axaml",
+              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\NewDomainDialog.axaml",
+              "RelativeDocumentMoniker": "Activedirectory\\Views\\NewDomainDialog.axaml",
+              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\NewDomainDialog.axaml",
+              "RelativeToolTip": "Activedirectory\\Views\\NewDomainDialog.axaml",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAAAGoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-05-07T07:14:00.914Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "LocalizationService.cs",
+              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Services\\LocalizationService.cs",
+              "RelativeDocumentMoniker": "Activedirectory\\Services\\LocalizationService.cs",
+              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Services\\LocalizationService.cs",
+              "RelativeToolTip": "Activedirectory\\Services\\LocalizationService.cs",
+              "ViewState": "AgIAAP4AAAAAAAAAAIBJwFsDAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-07T07:30:01.659Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
               "Title": "GraphBuilder.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Graph\\GraphBuilder.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Graph\\GraphBuilder.cs",
@@ -239,7 +304,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 8,
+              "Title": "MainWindow.axaml.cs",
+              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\MainWindow.axaml.cs",
+              "RelativeDocumentMoniker": "Activedirectory\\Views\\MainWindow.axaml.cs",
+              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\MainWindow.axaml.cs",
+              "RelativeToolTip": "Activedirectory\\Views\\MainWindow.axaml.cs",
+              "ViewState": "AgIAAMIAAAAAAAAAAABBwOIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-04T13:45:44.863Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "App.axaml",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\App.axaml",
               "RelativeDocumentMoniker": "Activedirectory\\App.axaml",
@@ -251,7 +328,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 11,
               "Title": "AboutDialog.axaml",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\AboutDialog.axaml",
               "RelativeDocumentMoniker": "Activedirectory\\Views\\AboutDialog.axaml",
@@ -263,7 +340,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 10,
               "Title": "ADPowerShellExportService.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Services\\ADPowerShellExportService.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Services\\ADPowerShellExportService.cs",
@@ -275,19 +352,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "GraphWindow.axaml",
-              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\GraphWindow.axaml",
-              "RelativeDocumentMoniker": "Activedirectory\\Views\\GraphWindow.axaml",
-              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\GraphWindow.axaml",
-              "RelativeToolTip": "Activedirectory\\Views\\GraphWindow.axaml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-05-11T11:16:10.851Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 15,
               "Title": "TierConfiguration.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Models\\TierConfiguration.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Models\\TierConfiguration.cs",
@@ -299,20 +364,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "LocalizationService.cs",
-              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Services\\LocalizationService.cs",
-              "RelativeDocumentMoniker": "Activedirectory\\Services\\LocalizationService.cs",
-              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Services\\LocalizationService.cs",
-              "RelativeToolTip": "Activedirectory\\Services\\LocalizationService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAxwEUDAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-07T07:30:01.659Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 16,
               "Title": "LocalizationProxy.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Helpers\\LocalizationProxy.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Helpers\\LocalizationProxy.cs",
@@ -324,7 +376,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 17,
               "Title": "GraphEdge.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Graph\\GraphEdge.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Graph\\GraphEdge.cs",
@@ -336,31 +388,32 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 18,
               "Title": "MainWindowViewModel.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\ViewModels\\MainWindowViewModel.cs",
               "RelativeDocumentMoniker": "Activedirectory\\ViewModels\\MainWindowViewModel.cs",
               "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\ViewModels\\MainWindowViewModel.cs",
               "RelativeToolTip": "Activedirectory\\ViewModels\\MainWindowViewModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAxwNUCAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAALMCAAAAAAAAAIBJwNECAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-04T12:45:17.871Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 19,
               "Title": "ADDataService.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Services\\ADDataService.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Services\\ADDataService.cs",
               "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Services\\ADDataService.cs",
               "RelativeToolTip": "Activedirectory\\Services\\ADDataService.cs",
-              "ViewState": "AgIAANoBAAAAAAAAAAAcwG4BAAASAAAAAAAAAA==",
+              "ViewState": "AgIAAKsCAAAAAAAAAABBwMYBAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-04T12:49:09.245Z"
+              "WhenOpened": "2026-05-04T12:49:09.245Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 20,
               "Title": "GraphWindow.axaml",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\GraphWindow.axaml",
               "RelativeDocumentMoniker": "Activedirectory\\Views\\GraphWindow.axaml",
@@ -372,19 +425,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "GraphCanvas.cs",
-              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Graph\\GraphCanvas.cs",
-              "RelativeDocumentMoniker": "Activedirectory\\Graph\\GraphCanvas.cs",
-              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Graph\\GraphCanvas.cs",
-              "RelativeToolTip": "Activedirectory\\Graph\\GraphCanvas.cs",
-              "ViewState": "AgIAAD0AAAAAAAAAAAAvwIcCAAAdAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-07T12:57:26.885Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 21,
               "Title": "GraphViewModel.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\ViewModels\\GraphViewModel.cs",
               "RelativeDocumentMoniker": "Activedirectory\\ViewModels\\GraphViewModel.cs",
@@ -396,7 +437,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 22,
               "Title": "GraphFilter.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Graph\\GraphFilter.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Graph\\GraphFilter.cs",
@@ -408,7 +449,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 23,
               "Title": "RelationsViewModel.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\ViewModels\\RelationsViewModel.cs",
               "RelativeDocumentMoniker": "Activedirectory\\ViewModels\\RelationsViewModel.cs",
@@ -420,7 +461,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 24,
               "Title": "ADObject.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Models\\ADObject.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Models\\ADObject.cs",
@@ -432,7 +473,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 25,
               "Title": "RelationsWindow.axaml",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\RelationsWindow.axaml",
               "RelativeDocumentMoniker": "Activedirectory\\Views\\RelationsWindow.axaml",
@@ -444,19 +485,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
-              "Title": "GraphWindow.axaml.cs",
-              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\GraphWindow.axaml.cs",
-              "RelativeDocumentMoniker": "Activedirectory\\Views\\GraphWindow.axaml.cs",
-              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\GraphWindow.axaml.cs",
-              "RelativeToolTip": "Activedirectory\\Views\\GraphWindow.axaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-07T12:43:57.707Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 26,
               "Title": "ForceSimulation.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Graph\\ForceSimulation.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Graph\\ForceSimulation.cs",
@@ -468,7 +497,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 27,
               "Title": "GraphNode.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Graph\\GraphNode.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Graph\\GraphNode.cs",
@@ -480,7 +509,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 28,
               "Title": "AboutDialog.axaml.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\AboutDialog.axaml.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Views\\AboutDialog.axaml.cs",
@@ -492,7 +521,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 29,
               "Title": "AboutDialog.axaml",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\AboutDialog.axaml",
               "RelativeDocumentMoniker": "Activedirectory\\Views\\AboutDialog.axaml",
@@ -504,7 +533,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 30,
               "Title": "TierConfigurationWindow.axaml",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\TierConfigurationWindow.axaml",
               "RelativeDocumentMoniker": "Activedirectory\\Views\\TierConfigurationWindow.axaml",
@@ -516,20 +545,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
-              "Title": "NewDomainDialog.axaml",
-              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\NewDomainDialog.axaml",
-              "RelativeDocumentMoniker": "Activedirectory\\Views\\NewDomainDialog.axaml",
-              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\NewDomainDialog.axaml",
-              "RelativeToolTip": "Activedirectory\\Views\\NewDomainDialog.axaml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAxwGoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-05-07T07:14:00.914Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 31,
               "Title": "LocalizeConverter.cs",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Converters\\LocalizeConverter.cs",
               "RelativeDocumentMoniker": "Activedirectory\\Converters\\LocalizeConverter.cs",
@@ -538,19 +554,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-07T07:30:08.661Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 31,
-              "Title": "NewDomainDialog.axaml.cs",
-              "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\NewDomainDialog.axaml.cs",
-              "RelativeDocumentMoniker": "Activedirectory\\Views\\NewDomainDialog.axaml.cs",
-              "ToolTip": "C:\\Users\\devops\\source\\repos\\Activedirectory\\Activedirectory\\Views\\NewDomainDialog.axaml.cs",
-              "RelativeToolTip": "Activedirectory\\Views\\NewDomainDialog.axaml.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAuwD8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-07T07:14:11.383Z",
-              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -698,7 +701,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 13,
               "Title": "README.md",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\README.md",
               "RelativeDocumentMoniker": "README.md",
@@ -710,7 +713,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 12,
               "Title": "example.mockad.json",
               "DocumentMoniker": "C:\\Users\\devops\\source\\repos\\Activedirectory\\example.mockad.json",
               "RelativeDocumentMoniker": "example.mockad.json",

@@ -118,6 +118,11 @@
                         ToolTip.Tip="{Binding ToolbarRelations}" Padding="10,5" Background="#D0E8FF"/>
                 <Button Content="{Binding ToolbarGraph, StringFormat='🕸️ {0}'}" Command="{Binding #MainWindowRoot.DataContext.ShowGraphViewCommand}"
                         ToolTip.Tip="{Binding ToolbarGraph}" Padding="10,5" Background="#2D1B4E" Foreground="White"/>
+                <Separator Width="1" Height="30"/>
+                <Button Content="📷 Export PNG"
+                        ToolTip.Tip="Exporter l'arborescence (expand all) en image PNG"
+                        Click="OnExportTreePngClick" Padding="10,5"
+                        Background="#1E5631" Foreground="White"/>
             </StackPanel>
         </Grid>
 
@@ -129,7 +134,8 @@
                     <TextBlock Grid.Row="0" Text="{Binding TreeViewTitle}" 
                                FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
 
-                    <TreeView Grid.Row="1" 
+                    <TreeView Grid.Row="1"
+                              x:Name="MainTreeView"
                               ItemsSource="{Binding #MainWindowRoot.DataContext.RootNodes}"
                               SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedNode, Mode=TwoWay}">
                         <TreeView.ItemTemplate>

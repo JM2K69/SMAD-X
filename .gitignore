@@ -1,0 +1,42 @@
+# Scripts PowerShell
+*.ps1
+*.psm1
+*.psd1
+
+# Répertoires de build
+bin/
+obj/
+
+# Fichiers Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Fichiers NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Fichiers de configuration locaux
+appsettings.Development.json
+launchSettings.json
+
+# Fichiers système
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Fichiers macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+logs/

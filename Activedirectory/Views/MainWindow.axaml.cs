@@ -1,9 +1,12 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform.Storage;
 using SMADX.ViewModels;
 using SMADX.Services;
 using System;
+using System.IO;
 
 namespace SMADX.Views
 {
@@ -181,6 +184,43 @@ namespace SMADX.Views
         private void OnEnglishLanguageClick(object? sender, RoutedEventArgs e)
         {
             LocalizationService.Instance.SetLanguage("en-US");
+        }
+
+        private async void OnExportTreePngClick(object? sender, RoutedEventArgs e)
+        {
+            // Expand all nodes
+            if (DataContext is MainWindowViewModel vm)
+                vm.ExpandAllCommand.Execute(null);
+
+            // Laisser Avalonia re-mesurer et rendre tous les nœuds
+            await System.Threading.Tasks.Task.Delay(400);
+
+            var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title             = "Exporter l'arborescence en PNG",
+                SuggestedFileName = "arborescence_ad.png",
+                DefaultExtension  = "png",
+                FileTypeChoices   = new[]
+                {
+                    new FilePickerFileType("Image PNG") { Patterns = new[] { "*.png" } }
+                }
+            });
+
+            if (file is null) return;
+
+            var tree = this.FindControl<TreeView>("MainTreeView")!;
+
+            int width  = (int)Math.Max(tree.Bounds.Width,  200);
+            int height = (int)Math.Max(tree.Bounds.Height, 200);
+
+            using var bitmap = new RenderTargetBitmap(
+                new Avalonia.PixelSize(width, height),
+                new Avalonia.Vector(96, 96));
+
+            bitmap.Render(tree);
+
+            using var fs = File.Create(file.Path.LocalPath);
+            bitmap.Save(fs);
         }
     }
 }

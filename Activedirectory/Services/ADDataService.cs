@@ -259,6 +259,94 @@ namespace SMADX.Services
             };
             usersContainer.Children.Add(dnsAdmins);
 
+            var certPublishers = new ADObject("Cert Publishers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.CertPublishers"],
+                Tier = GetTier("Tier 0"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(certPublishers);
+
+            var rasAndIas = new ADObject("RAS and IAS Servers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.RASandIAS"],
+                Tier = GetTier("Tier 1"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(rasAndIas);
+
+            var allowedRODC = new ADObject("Allowed RODC Password Replication Group", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.AllowedRODCReplication"],
+                Tier = GetTier("Tier 1"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(allowedRODC);
+
+            var deniedRODC = new ADObject("Denied RODC Password Replication Group", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.DeniedRODCReplication"],
+                Tier = GetTier("Tier 0"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(deniedRODC);
+
+            var cloneableDCs = new ADObject("Cloneable Domain Controllers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.CloneableDCs"],
+                Tier = GetTier("Tier 0"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(cloneableDCs);
+
+            var protectedUsers = new ADObject("Protected Users", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.ProtectedUsers"],
+                Tier = GetTier("Tier 0"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(protectedUsers);
+
+            var keyAdmins = new ADObject("Key Admins", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.KeyAdmins"],
+                Tier = GetTier("Tier 0"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(keyAdmins);
+
+            var enterpriseKeyAdmins = new ADObject("Enterprise Key Admins", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.EnterpriseKeyAdmins"],
+                Tier = GetTier("Tier 0"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(enterpriseKeyAdmins);
+
+            var dnsUpdateProxy = new ADObject("DnsUpdateProxy", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.DnsUpdateProxy"],
+                Tier = GetTier("Tier 1"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(dnsUpdateProxy);
+
+            var defaultAccount = new ADObject("DefaultAccount", ADObjectType.User)
+            {
+                Description = loc["Desc.Users.DefaultAccount"],
+                Tier = GetTier("Tier 2"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(defaultAccount);
+
+            var wdagUtility = new ADObject("WDAGUtilityAccount", ADObjectType.User)
+            {
+                Description = loc["Desc.Users.WDAGUtilityAccount"],
+                Tier = GetTier("Tier 2"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(wdagUtility);
+
             // 3. Container Computers (ordinateurs par défaut)
             var computersContainer = new ADObject("Computers", ADObjectType.Container)
             {
@@ -368,18 +456,201 @@ namespace SMADX.Services
             };
 
             // Containers par défaut (comme dans un vrai AD)
+            var loc = LocalizationService.Instance;
+
             var usersContainer = new ADObject("Users", ADObjectType.Container)
             {
-                Description = @"# Container Users
-
-Container par défaut pour les utilisateurs. 
-
-> **Note** : Dans un AD réel, ce container existe automatiquement.
-> Il ne peut pas contenir d'OUs, uniquement des Users, Groups, Computers.",
+                Description = loc["Desc.Users"],
                 Tier = "Tier 2",
                 Parent = domain
             };
             domain.Children.Add(usersContainer);
+
+            // Comptes par défaut
+            var administrator = new ADObject("Administrator", ADObjectType.User)
+            {
+                Description = loc["Desc.Users.Administrator"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(administrator);
+
+            var guest = new ADObject("Guest", ADObjectType.User)
+            {
+                Description = loc["Desc.Users.Guest"],
+                Tier = "Tier 2",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(guest);
+
+            var krbtgt = new ADObject("krbtgt", ADObjectType.User)
+            {
+                Description = loc["Desc.Users.Krbtgt"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(krbtgt);
+
+            var defaultAccount = new ADObject("DefaultAccount", ADObjectType.User)
+            {
+                Description = loc["Desc.Users.DefaultAccount"],
+                Tier = "Tier 2",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(defaultAccount);
+
+            var wdagUtility = new ADObject("WDAGUtilityAccount", ADObjectType.User)
+            {
+                Description = loc["Desc.Users.WDAGUtilityAccount"],
+                Tier = "Tier 2",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(wdagUtility);
+
+            // Groupes de domaine par défaut
+            var domainAdminsUsers = new ADObject("Domain Admins", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.DomainAdmins"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(domainAdminsUsers);
+
+            var domainUsers = new ADObject("Domain Users", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.DomainUsers"],
+                Tier = "Tier 2",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(domainUsers);
+
+            var domainComputers = new ADObject("Domain Computers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.DomainComputers"],
+                Tier = "Tier 2",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(domainComputers);
+
+            var domainControllers = new ADObject("Domain Controllers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.DomainControllers"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(domainControllers);
+
+            var schemaAdmins = new ADObject("Schema Admins", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.SchemaAdmins"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(schemaAdmins);
+
+            var enterpriseAdmins = new ADObject("Enterprise Admins", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.EnterpriseAdmins"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(enterpriseAdmins);
+
+            var groupPolicyCreatorOwners = new ADObject("Group Policy Creator Owners", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.GroupPolicyCreatorOwners"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(groupPolicyCreatorOwners);
+
+            var readOnlyDCs = new ADObject("Read-only Domain Controllers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.ReadOnlyDCs"],
+                Tier = "Tier 1",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(readOnlyDCs);
+
+            var dnsAdmins = new ADObject("DnsAdmins", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.DnsAdmins"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(dnsAdmins);
+
+            var certPublishers = new ADObject("Cert Publishers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.CertPublishers"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(certPublishers);
+
+            var rasAndIas = new ADObject("RAS and IAS Servers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.RASandIAS"],
+                Tier = "Tier 1",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(rasAndIas);
+
+            var allowedRODC = new ADObject("Allowed RODC Password Replication Group", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.AllowedRODCReplication"],
+                Tier = "Tier 1",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(allowedRODC);
+
+            var deniedRODC = new ADObject("Denied RODC Password Replication Group", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.DeniedRODCReplication"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(deniedRODC);
+
+            var cloneableDCs = new ADObject("Cloneable Domain Controllers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.CloneableDCs"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(cloneableDCs);
+
+            var protectedUsers = new ADObject("Protected Users", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.ProtectedUsers"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(protectedUsers);
+
+            var keyAdmins = new ADObject("Key Admins", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.KeyAdmins"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(keyAdmins);
+
+            var enterpriseKeyAdmins = new ADObject("Enterprise Key Admins", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.EnterpriseKeyAdmins"],
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(enterpriseKeyAdmins);
+
+            var dnsUpdateProxy = new ADObject("DnsUpdateProxy", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.DnsUpdateProxy"],
+                Tier = "Tier 1",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(dnsUpdateProxy);
 
             var computersContainer = new ADObject("Computers", ADObjectType.Container)
             {
@@ -410,13 +681,13 @@ Container par défaut pour les ordinateurs joints au domaine.
             };
             adminOU.Children.Add(adminUser);
 
-            var domainAdmins = new ADObject("Domain Admins", ADObjectType.Group)
+            var adminOUDomainAdmins = new ADObject("Domain Admins", ADObjectType.Group)
             {
                 Description = "Groupe des administrateurs de domaine",
                 Tier = "Tier 0",
                 Parent = adminOU
             };
-            adminOU.Children.Add(domainAdmins);
+            adminOU.Children.Add(adminOUDomainAdmins);
 
             // OU Servers
             var serversOU = new ADObject("Servers", ADObjectType.OrganizationalUnit)
@@ -581,7 +852,6 @@ Politique appliquée à tous les utilisateurs standard Tier 2.",
             psoContainer.Children.Add(psoUsers);
 
             // Container Policies (SYSVOL) — 2 GPOs par défaut Microsoft
-            var loc = LocalizationService.Instance;
             var policiesContainer = new ADObject("Policies", ADObjectType.Container)
             {
                 Description = loc["Desc.GPOPoliciesContainer"],
@@ -754,6 +1024,50 @@ Politique appliquée à tous les utilisateurs standard Tier 2.",
             else if (obj.Name == "DnsAdmins")
             {
                 obj.Description = loc["Desc.Users.DnsAdmins"];
+            }
+            else if (obj.Name == "Cert Publishers")
+            {
+                obj.Description = loc["Desc.Users.CertPublishers"];
+            }
+            else if (obj.Name == "RAS and IAS Servers")
+            {
+                obj.Description = loc["Desc.Users.RASandIAS"];
+            }
+            else if (obj.Name == "Allowed RODC Password Replication Group")
+            {
+                obj.Description = loc["Desc.Users.AllowedRODCReplication"];
+            }
+            else if (obj.Name == "Denied RODC Password Replication Group")
+            {
+                obj.Description = loc["Desc.Users.DeniedRODCReplication"];
+            }
+            else if (obj.Name == "Cloneable Domain Controllers")
+            {
+                obj.Description = loc["Desc.Users.CloneableDCs"];
+            }
+            else if (obj.Name == "Protected Users")
+            {
+                obj.Description = loc["Desc.Users.ProtectedUsers"];
+            }
+            else if (obj.Name == "Key Admins")
+            {
+                obj.Description = loc["Desc.Users.KeyAdmins"];
+            }
+            else if (obj.Name == "Enterprise Key Admins")
+            {
+                obj.Description = loc["Desc.Users.EnterpriseKeyAdmins"];
+            }
+            else if (obj.Name == "DnsUpdateProxy")
+            {
+                obj.Description = loc["Desc.Users.DnsUpdateProxy"];
+            }
+            else if (obj.Name == "DefaultAccount")
+            {
+                obj.Description = loc["Desc.Users.DefaultAccount"];
+            }
+            else if (obj.Name == "WDAGUtilityAccount")
+            {
+                obj.Description = loc["Desc.Users.WDAGUtilityAccount"];
             }
             else if (obj.Name == "Computers" && obj.Type == ADObjectType.Container)
             {
