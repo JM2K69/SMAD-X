@@ -1,0 +1,140 @@
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System;
+
+namespace Activedirectory.Views
+{
+    public partial class ColorPickerDialog : Window
+    {
+        public ColorPickerDialog()
+        {
+            InitializeComponent();
+            DataContext = new ColorPickerViewModel();
+        }
+
+        public ColorPickerDialog(string initialColor) : this()
+        {
+            if (DataContext is ColorPickerViewModel vm)
+            {
+                vm.HexColor = initialColor;
+            }
+        }
+
+        public string? SelectedColor { get; private set; }
+
+        private void OnOkClick(object? sender, RoutedEventArgs e)
+        {
+            if (DataContext is ColorPickerViewModel vm)
+            {
+                SelectedColor = vm.HexColor;
+            }
+            Close(SelectedColor);
+        }
+
+        private void OnCancelClick(object? sender, RoutedEventArgs e)
+        {
+            Close(null);
+        }
+
+        private void OnPresetColorClick(object? sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string color)
+            {
+                if (DataContext is ColorPickerViewModel vm)
+                {
+                    vm.HexColor = color;
+                }
+            }
+        }
+    }
+
+    public partial class ColorPickerViewModel : ObservableObject
+    {
+        [ObservableProperty]
+        private int _red = 128;
+
+        [ObservableProperty]
+        private int _green = 128;
+
+        [ObservableProperty]
+        private int _blue = 128;
+
+        [ObservableProperty]
+        private string _hexColor = "#808080";
+
+        partial void OnRedChanged(int value)
+        {
+            UpdateHexColor();
+        }
+
+        partial void OnGreenChanged(int value)
+        {
+            UpdateHexColor();
+        }
+
+        partial void OnBlueChanged(int value)
+        {
+            UpdateHexColor();
+        }
+
+        partial void OnHexColorChanged(string value)
+        {
+            if (value.StartsWith("#") && value.Length == 7)
+            {
+                try
+                {
+                    var color = Color.Parse(value);
+                    if (_red != color.R || _green != color.G || _blue != color.B)
+                    {
+                        _red = color.R;
+                        _green = color.G;
+                        _blue = color.B;
+                        OnPropertyChanged(nameof(Red));
+                        OnPropertyChanged(nameof(Green));
+                        OnPropertyChanged(nameof(Blue));
+                        OnPropertyChanged(nameof(PreviewBrush));
+                    }
+                }
+                catch { }
+            }
+        }
+
+        private void UpdateHexColor()
+        {
+            var newHex = $"#{Red:X2}{Green:X2}{Blue:X2}";
+            if (_hexColor != newHex)
+            {
+                _hexColor = newHex;
+                OnPropertyChanged(nameof(HexColor));
+                OnPropertyChanged(nameof(PreviewBrush));
+            }
+        }
+
+        public SolidColorBrush PreviewBrush
+        {
+            get
+            {
+                try
+                {
+                    return new SolidColorBrush(Color.Parse(HexColor));
+                }
+                catch
+                {
+                    return new SolidColorBrush(Colors.Gray);
+                }
+            }
+        }
+
+        // Couleurs prédéfinies
+        public string[] PresetColors { get; } = new[]
+        {
+            "#FF0000", "#FF8800", "#FFFF00", "#88FF00", "#00FF00", "#00FF88",
+            "#00FFFF", "#0088FF", "#0000FF", "#8800FF", "#FF00FF", "#FF0088",
+            "#800000", "#808000", "#008000", "#008080", "#000080", "#800080",
+            "#000000", "#404040", "#808080", "#C0C0C0", "#FFFFFF", "#FFA500"
+        };
+    }
+}

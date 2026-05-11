@@ -1,0 +1,177 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using SMADX.Models;
+
+namespace SMADX.Graph
+{
+    /// <summary>
+    /// Construit le graphe de relations depuis l'arbre ADObject et applique un layout force-directed
+    /// </summary>
+    public class GraphBuilder
+    {
+        public List<GraphNode> Nodes { get; } = new();
+        public List<GraphEdge> Edges { get; } = new();
+
+        private readonly Dictionary<string, GraphNode> _nodeMap = new();
+
+        public void Build(ADObject root, GraphFilter filter)
+        {
+            Nodes.Clear();
+            Edges.Clear();
+            _nodeMap.Clear();
+
+            // Collecter tous les objets
+            var allObjects = new List<ADObject>();
+            CollectAll(root, allObjects);
+
+            // Créer les nœuds
+            foreach (var obj in allObjects)
+            {
+                var node = new GraphNode(obj.Id.ToString(), obj.Name, obj.Type, obj.Tier);
+                Nodes.Add(node);
+                _nodeMap[obj.Name] = node; // index par nom pour résoudre les relations
+            }
+
+            // Créer les arêtes de hiérarchie parent-enfant (optionnel selon filtre)
+            if (filter.ShowHierarchy)
+            {
+                foreach (var obj in allObjects)
+                {
+                    foreach (var child in obj.Children)
+                    {
+                        if (_nodeMap.TryGetValue(obj.Name, out var srcNode) &&
+                            _nodeMap.TryGetValue(child.Name, out var tgtNode))
+                        {
+                            Edges.Add(new GraphEdge(srcNode, tgtNode, EdgeType.ParentChild));
+                        }
+                    }
+                }
+            }
+
+            // Arêtes MemberOf
+            if (filter.ShowMemberOf)
+            {
+                foreach (var obj in allObjects.Where(o =>
+                    (o.Type == ADObjectType.User || o.Type == ADObjectType.Group) && o.MemberOf.Count > 0))
+                {
+                    if (!_nodeMap.TryGetValue(obj.Name, out var srcNode)) continue;
+                    foreach (var grp in obj.MemberOf)
+                    {
+                        if (_nodeMap.TryGetValue(grp, out var tgtNode))
+                            Edges.Add(new GraphEdge(srcNode, tgtNode, EdgeType.MemberOf));
+                    }
+                }
+            }
+
+            // Arêtes GPO Links (Domain + OU)
+            if (filter.ShowGpoLinks)
+            {
+                foreach (var container in allObjects.Where(o =>
+                    (o.Type == ADObjectType.OrganizationalUnit || o.Type == ADObjectType.Domain)
+                    && o.LinkedGPOs.Count > 0))
+                {
+                    if (!_nodeMap.TryGetValue(container.Name, out var srcNode)) continue;
+                    foreach (var gpo in container.LinkedGPOs)
+                    {
+                        if (_nodeMap.TryGetValue(gpo, out var tgtNode))
+                            Edges.Add(new GraphEdge(srcNode, tgtNode, EdgeType.GpoLink));
+                    }
+                }
+            }
+
+            // Arêtes GPO Héritage : une GPO liée à un Domain/OU est héritée par toutes les OU enfants
+            if (filter.ShowGpoInheritance)
+            {
+                foreach (var container in allObjects.Where(o =>
+                    o.Type == ADObjectType.OrganizationalUnit || o.Type == ADObjectType.Domain))
+                {
+                    foreach (var gpoName in container.LinkedGPOs)
+                    {
+                        if (!_nodeMap.TryGetValue(gpoName, out var gpoNode)) continue;
+                        PropagateGpoInheritance(container, gpoNode, gpoName, filter);
+                    }
+                }
+            }
+
+            // Arêtes PSO Subjects
+            if (filter.ShowPsoLinks)
+            {
+                foreach (var pso in allObjects.Where(o =>
+                    o.Type == ADObjectType.PasswordSettingsObject && o.PSOAppliesTo.Count > 0))
+                {
+                    if (!_nodeMap.TryGetValue(pso.Name, out var srcNode)) continue;
+                    foreach (var t in pso.PSOAppliesTo)
+                    {
+                        if (_nodeMap.TryGetValue(t, out var tgtNode))
+                            Edges.Add(new GraphEdge(srcNode, tgtNode, EdgeType.PsoSubject));
+                    }
+                }
+            }
+
+            // Supprimer les nœuds isolés si le filtre le demande
+            if (!filter.ShowIsolated)
+            {
+                var connected = new HashSet<GraphNode>(
+                    Edges.SelectMany(e => new[] { e.Source, e.Target }));
+                Nodes.RemoveAll(n => !connected.Contains(n));
+            }
+
+            ApplyInitialLayout();
+        }
+
+        /// <summary>
+        /// Positionne les nœuds en cercle avant la simulation
+        /// </summary>
+        private void ApplyInitialLayout()
+        {
+            var rng = new Random(42);
+            for (int i = 0; i < Nodes.Count; i++)
+            {
+                double angle = 2 * Math.PI * i / Math.Max(1, Nodes.Count);
+                double r = 200 + rng.NextDouble() * 100;
+                Nodes[i].X = Math.Cos(angle) * r;
+                Nodes[i].Y = Math.Sin(angle) * r;
+            }
+        }
+
+        /// <summary>
+        /// Propage une arête d'héritage GPO depuis le conteneur parent vers ses OU descendantes directes.
+        /// Les OU qui ont leur propre lien direct vers cette même GPO ne reçoivent pas d'arête d'héritage (déjà couverte).
+        /// </summary>
+        private void PropagateGpoInheritance(
+            ADObject parent,
+            GraphNode gpoNode,
+            string gpoName,
+            GraphFilter filter)
+        {
+            foreach (var child in parent.Children.Where(c => c.Type == ADObjectType.OrganizationalUnit))
+            {
+                if (!_nodeMap.TryGetValue(child.Name, out var childNode)) continue;
+
+                // Ne pas dupliquer : si l'OU a déjà un lien direct avec cette GPO, on ne trace pas l'héritage
+                bool hasDirectLink = child.LinkedGPOs.Contains(gpoName);
+                if (!hasDirectLink)
+                {
+                    // Eviter les doublons d'arêtes d'héritage
+                    bool alreadyExists = Edges.Any(e =>
+                        e.Type == EdgeType.GpoInheritance &&
+                        e.Source == childNode &&
+                        e.Target == gpoNode);
+                    if (!alreadyExists)
+                        Edges.Add(new GraphEdge(childNode, gpoNode, EdgeType.GpoInheritance, gpoName));
+                }
+
+                // Continuer la propagation vers les sous-OUs
+                PropagateGpoInheritance(child, gpoNode, gpoName, filter);
+            }
+        }
+
+        private static void CollectAll(ADObject obj, List<ADObject> result)
+        {
+            result.Add(obj);
+            foreach (var child in obj.Children)
+                CollectAll(child, result);
+        }
+    }
+}

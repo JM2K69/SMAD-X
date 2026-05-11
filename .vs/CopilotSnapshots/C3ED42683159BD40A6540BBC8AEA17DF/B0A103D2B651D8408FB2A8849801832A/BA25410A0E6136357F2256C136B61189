@@ -1,0 +1,160 @@
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System;
+
+namespace Activedirectory.Views
+{
+    public partial class ColorPickerDialog : Window
+    {
+        public ColorPickerDialog()
+        {
+            InitializeComponent();
+            DataContext = new ColorPickerViewModel();
+        }
+
+        public ColorPickerDialog(string initialColor) : this()
+        {
+            if (DataContext is ColorPickerViewModel vm)
+            {
+                vm.SetColor(initialColor);
+            }
+        }
+
+        public string? SelectedColor { get; private set; }
+
+        private void OnOkClick(object? sender, RoutedEventArgs e)
+        {
+            if (DataContext is ColorPickerViewModel vm)
+            {
+                SelectedColor = vm.GetHexColor();
+            }
+            Close(SelectedColor);
+        }
+
+        private void OnCancelClick(object? sender, RoutedEventArgs e)
+        {
+            Close(null);
+        }
+
+        private void OnPresetColorClick(object? sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string color)
+            {
+                if (DataContext is ColorPickerViewModel vm)
+                {
+                    vm.SetColor(color);
+                }
+            }
+        }
+    }
+
+    public partial class ColorPickerViewModel : ObservableObject
+    {
+        [ObservableProperty]
+        private int red = 128;
+
+        [ObservableProperty]
+        private int green = 128;
+
+        [ObservableProperty]
+        private int blue = 128;
+
+        [ObservableProperty]
+        private string hexColor = "#808080";
+
+        public void SetColor(string hexValue)
+        {
+            if (hexValue.StartsWith("#") && hexValue.Length == 7)
+            {
+                try
+                {
+                    var color = Color.Parse(hexValue);
+                    Red = color.R;
+                    Green = color.G;
+                    Blue = color.B;
+                    HexColor = hexValue;
+                    OnPropertyChanged(nameof(PreviewBrush));
+                }
+                catch { }
+            }
+        }
+
+        public string GetHexColor()
+        {
+            return $"#{Red:X2}{Green:X2}{Blue:X2}";
+        }
+
+        partial void OnRedChanged(int value)
+        {
+            UpdateHexColorFromRgb();
+        }
+
+        partial void OnGreenChanged(int value)
+        {
+            UpdateHexColorFromRgb();
+        }
+
+        partial void OnBlueChanged(int value)
+        {
+            UpdateHexColorFromRgb();
+        }
+
+        partial void OnHexColorChanged(string value)
+        {
+            if (value.StartsWith("#") && value.Length == 7)
+            {
+                try
+                {
+                    var color = Color.Parse(value);
+                    if (red != color.R || green != color.G || blue != color.B)
+                    {
+                        red = color.R;
+                        green = color.G;
+                        blue = color.B;
+                        OnPropertyChanged(nameof(Red));
+                        OnPropertyChanged(nameof(Green));
+                        OnPropertyChanged(nameof(Blue));
+                        OnPropertyChanged(nameof(PreviewBrush));
+                    }
+                }
+                catch { }
+            }
+        }
+
+        private void UpdateHexColorFromRgb()
+        {
+            var newHex = $"#{Red:X2}{Green:X2}{Blue:X2}";
+            if (HexColor != newHex)
+            {
+                HexColor = newHex;
+                OnPropertyChanged(nameof(PreviewBrush));
+            }
+        }
+
+        public SolidColorBrush PreviewBrush
+        {
+            get
+            {
+                try
+                {
+                    return new SolidColorBrush(Color.Parse(HexColor));
+                }
+                catch
+                {
+                    return new SolidColorBrush(Colors.Gray);
+                }
+            }
+        }
+
+        public string[] PresetColors { get; } = new[]
+        {
+            "#FF0000", "#FF8800", "#FFFF00", "#88FF00", "#00FF00", "#00FF88",
+            "#00FFFF", "#0088FF", "#0000FF", "#8800FF", "#FF00FF", "#FF0088",
+            "#800000", "#808000", "#008000", "#008080", "#000080", "#800080",
+            "#000000", "#404040", "#808080", "#C0C0C0", "#FFFFFF", "#FFA500"
+        };
+    }
+}

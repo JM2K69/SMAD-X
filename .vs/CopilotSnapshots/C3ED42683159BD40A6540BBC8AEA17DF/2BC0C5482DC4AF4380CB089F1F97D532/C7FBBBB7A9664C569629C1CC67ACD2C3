@@ -1,0 +1,199 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Activedirectory.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="800"
+        x:Class="Activedirectory.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="MockAD - Active Directory Simulator"
+        Width="1400" Height="800">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Window.Styles>
+        <Style Selector="TreeViewItem">
+            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Menu et Toolbar -->
+        <Grid Grid.Row="0" RowDefinitions="Auto,Auto" Background="#F0F0F0">
+            <!-- Menu principal -->
+            <Menu Grid.Row="0">
+                <MenuItem Header="Fichier">
+                    <MenuItem Header="Nouvelle structure" Command="{Binding InitializeSampleDataCommand}" InputGesture="Ctrl+N"/>
+                    <Separator/>
+                    <MenuItem Header="Ouvrir..." Command="{Binding LoadFromFileCommand}" InputGesture="Ctrl+O"/>
+                    <MenuItem Header="Enregistrer..." Command="{Binding SaveToFileCommand}" InputGesture="Ctrl+S"/>
+                    <Separator/>
+                    <MenuItem Header="Quitter" Click="OnExitClick" InputGesture="Alt+F4"/>
+                </MenuItem>
+                <MenuItem Header="Édition">
+                    <MenuItem Header="Copier" Command="{Binding CopyObjectCommand}" InputGesture="Ctrl+C"/>
+                    <MenuItem Header="Coller" Command="{Binding PasteObjectCommand}" InputGesture="Ctrl+V"/>
+                    <Separator/>
+                    <MenuItem Header="Renommer" Command="{Binding RenameObjectCommand}" InputGesture="F2"/>
+                    <MenuItem Header="Supprimer" Command="{Binding DeleteObjectCommand}" InputGesture="Delete"/>
+                </MenuItem>
+                <MenuItem Header="Affichage">
+                    <MenuItem Header="Développer tout" Command="{Binding ExpandAllCommand}"/>
+                    <MenuItem Header="Réduire tout" Command="{Binding CollapseAllCommand}"/>
+                    <Separator/>
+                    <MenuItem Header="Thème">
+                        <MenuItem Header="Thème clair" Click="OnLightThemeClick"/>
+                        <MenuItem Header="Thème sombre" Click="OnDarkThemeClick"/>
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="Configuration">
+                    <MenuItem Header="Gérer les Tiers..." Click="OnTierConfigClick"/>
+                </MenuItem>
+                <MenuItem Header="Aide">
+                    <MenuItem Header="À propos de MockAD" Click="OnAboutClick"/>
+                    <MenuItem Header="Raccourcis clavier" Click="OnShortcutsClick"/>
+                </MenuItem>
+            </Menu>
+
+            <!-- Toolbar -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5" Spacing="5">
+                <Button Content="📁 OU" Command="{Binding AddOrganizationalUnitCommand}" 
+                        ToolTip.Tip="Ajouter une Unité Organisationnelle" Padding="10,5"/>
+                <Button Content="👤 Utilisateur" Command="{Binding AddUserCommand}" 
+                        ToolTip.Tip="Ajouter un Utilisateur" Padding="10,5"/>
+                <Button Content="👥 Groupe" Command="{Binding AddGroupCommand}" 
+                        ToolTip.Tip="Ajouter un Groupe" Padding="10,5"/>
+                <Button Content="💻 Ordinateur" Command="{Binding AddComputerCommand}" 
+                        ToolTip.Tip="Ajouter un Ordinateur" Padding="10,5"/>
+                <Button Content="🔐 GMSA" Command="{Binding AddGMSACommand}" 
+                        ToolTip.Tip="Ajouter un GMSA" Padding="10,5"/>
+                <Button Content="📋 Policy" Command="{Binding AddPolicyCommand}" 
+                        ToolTip.Tip="Ajouter une Policy" Padding="10,5"/>
+                <Separator Width="1" Height="30"/>
+                <Button Content="🗑️ Supprimer" Command="{Binding DeleteObjectCommand}" 
+                        ToolTip.Tip="Supprimer l'objet sélectionné" Padding="10,5"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Zone principale : TreeView + Détails -->
+        <Grid Grid.Row="1" ColumnDefinitions="400,5,*">
+            <!-- TreeView -->
+            <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Padding="5">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Grid.Row="0" Text="Structure Active Directory" 
+                               FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
+
+                    <TreeView Grid.Row="1" 
+                              ItemsSource="{Binding RootNodes}"
+                              SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                              Background="White">
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding Children}">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <TextBlock Text="{Binding Icon}" FontSize="16"/>
+                                    <TextBlock Text="{Binding Data.Name}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Data.Tier}" 
+                                               Foreground="{Binding TierColor}"
+                                               FontSize="10" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Grid>
+            </Border>
+
+            <!-- Séparateur -->
+            <GridSplitter Grid.Column="1" Background="LightGray" ResizeDirection="Columns"/>
+
+            <!-- Panneau de détails -->
+            <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" Padding="10">
+                <ScrollViewer>
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Détails de l'objet" FontWeight="Bold" FontSize="16"/>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="Nom :" FontWeight="SemiBold"/>
+                            <TextBox Text="{Binding SelectedObjectName, Mode=TwoWay}" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="Type :" FontWeight="SemiBold"/>
+                            <TextBox Text="{Binding SelectedObjectType}" IsReadOnly="True"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="Distinguished Name :" FontWeight="SemiBold"/>
+                            <TextBox Text="{Binding SelectedObjectDistinguishedName}" 
+                                     IsReadOnly="True" TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="Tier :" FontWeight="SemiBold"/>
+                            <ComboBox SelectedItem="{Binding SelectedObjectTier, Mode=TwoWay}"
+                                      ItemsSource="{Binding AvailableTiers}"
+                                      Width="200" HorizontalAlignment="Left"/>
+                        </StackPanel>
+
+                        <Separator/>
+
+                        <StackPanel Spacing="5">
+                            <DockPanel>
+                                <TextBlock Text="Description (Markdown) :" FontWeight="SemiBold" 
+                                           DockPanel.Dock="Left"/>
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="5">
+                                    <Button Command="{Binding ToggleMarkdownEditCommand}"
+                                            HorizontalAlignment="Right"
+                                            Padding="8,4">
+                                        <StackPanel Orientation="Horizontal" Spacing="3">
+                                            <TextBlock Text="{Binding IsMarkdownEditMode}" IsVisible="False"/>
+                                            <TextBlock Text="✏️ Éditer" IsVisible="{Binding !IsMarkdownEditMode}"/>
+                                            <TextBlock Text="📖 Prévisualiser" IsVisible="{Binding IsMarkdownEditMode}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </DockPanel>
+
+                            <TextBox Text="{Binding SelectedObjectDescription, Mode=TwoWay}" 
+                                     AcceptsReturn="True" 
+                                     TextWrapping="Wrap"
+                                     Height="300"
+                                     IsVisible="{Binding IsMarkdownEditMode}"/>
+
+                            <Border BorderBrush="LightGray" BorderThickness="1" 
+                                    Padding="10" Height="300"
+                                    IsVisible="{Binding !IsMarkdownEditMode}">
+                                <ScrollViewer>
+                                    <ContentControl Content="{Binding SelectedObjectDescription, Converter={StaticResource MarkdownConverter}}"/>
+                                </ScrollViewer>
+                            </Border>
+                        </StackPanel>
+
+                        <Separator/>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="Actions :" FontWeight="SemiBold"/>
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <Button Content="Renommer" Command="{Binding RenameObjectCommand}" Padding="10,5"/>
+                                <Button Content="Copier" Command="{Binding CopyObjectCommand}" Padding="10,5"/>
+                                <Button Content="Supprimer" Command="{Binding DeleteObjectCommand}" 
+                                        Padding="10,5" Background="#FFDDDD"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- Barre d'état -->
+        <Grid Grid.Row="2" Background="#F0F0F0" Height="30" ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" 
+                       VerticalAlignment="Center" Margin="10,0"/>
+            <TextBlock Grid.Column="1" Text="{Binding ObjectCountsSummary}" 
+                       VerticalAlignment="Center" Margin="10,0" FontSize="11"/>
+        </Grid>
+    </Grid>
+</Window>

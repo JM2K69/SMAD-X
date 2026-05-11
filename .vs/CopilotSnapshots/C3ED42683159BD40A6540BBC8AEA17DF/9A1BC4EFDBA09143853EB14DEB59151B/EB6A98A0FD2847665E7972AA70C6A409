@@ -1,0 +1,20 @@
+﻿using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Activedirectory.ViewModels;
+
+namespace Activedirectory.Views
+{
+    public partial class TierConfigurationWindow : Window
+    {
+        public TierConfigurationWindow()
+        {
+            InitializeComponent();
+            DataContext = new TierConfigurationViewModel();
+        }
+
+        private void OnCloseClick(object? sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+    }
+}

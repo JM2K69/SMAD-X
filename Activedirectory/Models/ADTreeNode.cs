@@ -1,0 +1,74 @@
+using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace SMADX.Models
+{
+    /// <summary>
+    /// Nœud pour l'affichage dans le TreeView avec support de l'édition
+    /// </summary>
+    public partial class ADTreeNode : ObservableObject
+    {
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(TierColor))]
+        private ADObject _data;
+
+        [ObservableProperty]
+        private ObservableCollection<ADTreeNode> _children = new ObservableCollection<ADTreeNode>();
+
+        [ObservableProperty]
+        private bool _isExpanded;
+
+        [ObservableProperty]
+        private bool _isSelected;
+
+        [ObservableProperty]
+        private bool _isEditing;
+
+        public ADTreeNode? Parent { get; set; }
+
+        public ADTreeNode(ADObject data)
+        {
+            _data = data;
+
+            // S'abonner aux changements de propriétés de Data
+            _data.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(ADObject.TierColor))
+                {
+                    OnPropertyChanged(nameof(TierColor));
+                }
+            };
+
+            foreach (var child in data.Children)
+            {
+                var childNode = new ADTreeNode(child)
+                {
+                    Parent = this
+                };
+                _children.Add(childNode);
+            }
+        }
+
+        /// <summary>
+        /// Icône basée sur le type d'objet
+        /// </summary>
+        public string Icon => Data.Type switch
+        {
+            ADObjectType.Domain => "🌐",
+            ADObjectType.OrganizationalUnit => "📁",
+            ADObjectType.Container => "📦",
+            ADObjectType.User => "👤",
+            ADObjectType.Group => "👥",
+            ADObjectType.Computer => "💻",
+            ADObjectType.GMSA => "🔐",
+            ADObjectType.Policy => "📋",
+            ADObjectType.PasswordSettingsObject => "🔑",
+            _ => "❓"
+        };
+
+        /// <summary>
+        /// Couleur basée sur le Tier
+        /// </summary>
+        public string TierColor => Data.TierColor;
+    }
+}

@@ -1,0 +1,348 @@
+﻿using SMADX.Models;
+using System.Collections.Generic;
+
+namespace SMADX.Services
+{
+    /// <summary>
+    /// Service qui applique le modèle de sécurité HardenAD (ESAE / Tier Model) sur une structure AD.
+    /// Basé sur le projet open-source HardenAD de Loïc Veirman (https://github.com/LoicVeirman/HardenAD).
+    ///
+    /// Le modèle organise le domaine en trois plans d'administration :
+    ///   • ControlPlane   (Tier 0) – Ressources critiques : DCs, comptes admin T0, GMSA
+    ///   • ManagementPlane(Tier 1) – Serveurs membres, admins T1, services
+    ///   • UserPlane      (Tier 2) – Postes de travail, utilisateurs standards
+    ///
+    /// Des groupes de délégation et des GPOs de durcissement sont créés automatiquement.
+    /// </summary>
+    public class HardenADService
+    {
+        private static HardenADService? _instance;
+        public static HardenADService Instance => _instance ??= new HardenADService();
+
+        private HardenADService() { }
+
+        /// <summary>
+        /// Applique la structure HardenAD sur le domaine fourni.
+        /// Les objets existants (Builtin, System, etc.) sont conservés.
+        /// Les nouvelles OUs / groupes / GPOs HardenAD sont ajoutés.
+        /// </summary>
+        public void Apply(ADObject domain)
+        {
+            // ──────────────────────────────────────────────────────────────────
+            // 1. OU ControlPlane – Tier 0
+            // ──────────────────────────────────────────────────────────────────
+            var cp = AddOU(domain, "ControlPlane",
+                "## OU ControlPlane (Tier 0)\n\n" +
+                "Contient tous les objets de niveau **Tier 0** : contrôleurs de domaine, " +
+                "comptes administrateurs privilégiés, GMSA critiques.\n\n" +
+                "> ⚠️ **HardenAD** : accès strictement restreint via Authentication Policy Silo T0.",
+                "Tier 0");
+
+            var cpAccounts = AddOU(cp, "Accounts", "Comptes Tier 0", "Tier 0");
+            AddOU(cpAccounts, "Admins",
+                "Comptes administrateurs Tier 0 (accès exclusif aux DCs et ressources critiques).", "Tier 0");
+            AddOU(cpAccounts, "Services",
+                "Comptes de service Tier 0 (services système critiques).", "Tier 0");
+
+            var cpGroups = AddOU(cp, "Groups", "Groupes Tier 0", "Tier 0");
+            var cpGSec = AddOU(cpGroups, "Security", "Groupes de sécurité Tier 0", "Tier 0");
+            AddOU(cpGroups, "Distribution", "Groupes de distribution Tier 0", "Tier 0");
+
+            var cpResources = AddOU(cp, "Resources", "Ressources Tier 0", "Tier 0");
+            AddOU(cpResources, "Computers",
+                "Contrôleurs de domaine et serveurs d'authentification (ex: ADFS, PKI).", "Tier 0");
+            AddOU(cpResources, "GMSA",
+                "Group Managed Service Accounts (GMSA) pour les services Tier 0.", "Tier 0");
+
+            // Groupes de délégation T0
+            AddGroup(cpGSec, "T0-Admins",
+                "Membres : administrateurs du ControlPlane (Tier 0). " +
+                "Associé à l'Authentication Policy Silo T0.", "Tier 0");
+            AddGroup(cpGSec, "T0-DelegDCAdmin",
+                "Délégation : administration des contrôleurs de domaine.", "Tier 0");
+            AddGroup(cpGSec, "T0-DelegGPOAdmin",
+                "Délégation : administration des GPOs liées au ControlPlane.", "Tier 0");
+            AddGroup(cpGSec, "T0-AuthSilo",
+                "Authentication Policy Silo T0 – restreint la connexion interactive des comptes T0.", "Tier 0");
+
+            // GPOs HardenAD pour le ControlPlane
+            AddGPO(cp, "HAD-ControlPlane-DCHardening",
+                "**GPO HardenAD** : Durcissement des contrôleurs de domaine.\n\n" +
+                "- Audit avancé (Logon, Object Access, Privilege Use)\n" +
+                "- Restriction NTLM vers DCs\n" +
+                "- Protected Users activé pour comptes T0\n" +
+                "- Credential Guard & Device Guard", "Tier 0");
+            AddGPO(cp, "HAD-ControlPlane-AdminWorkstation",
+                "**GPO HardenAD** : Postes d'administration Tier 0 (PAW - Privileged Access Workstation).\n\n" +
+                "- Accès réseau restreint (whitelist)\n" +
+                "- AppLocker / WDAC activé\n" +
+                "- Windows Defender Credential Guard", "Tier 0");
+
+            // ──────────────────────────────────────────────────────────────────
+            // 2. OU ManagementPlane – Tier 1
+            // ──────────────────────────────────────────────────────────────────
+            var mp = AddOU(domain, "ManagementPlane",
+                "## OU ManagementPlane (Tier 1)\n\n" +
+                "Contient les serveurs membres, les comptes administrateurs Tier 1 " +
+                "et les services applicatifs.\n\n" +
+                "> ⚠️ **HardenAD** : Les comptes T1 ne peuvent pas se connecter aux ressources T0.",
+                "Tier 1");
+
+            var mpAccounts = AddOU(mp, "Accounts", "Comptes Tier 1", "Tier 1");
+            AddOU(mpAccounts, "Admins",
+                "Comptes administrateurs Tier 1 (administration des serveurs membres).", "Tier 1");
+            AddOU(mpAccounts, "Services",
+                "Comptes de service Tier 1 (services applicatifs sur serveurs).", "Tier 1");
+
+            var mpGroups = AddOU(mp, "Groups", "Groupes Tier 1", "Tier 1");
+            var mpGSec = AddOU(mpGroups, "Security", "Groupes de sécurité Tier 1", "Tier 1");
+            AddOU(mpGroups, "Distribution", "Groupes de distribution Tier 1", "Tier 1");
+
+            var mpResources = AddOU(mp, "Resources", "Ressources Tier 1", "Tier 1");
+            AddOU(mpResources, "Servers",
+                "Serveurs membres du domaine (fichiers, impression, applications).", "Tier 1");
+            AddOU(mpResources, "GMSA",
+                "Group Managed Service Accounts (GMSA) pour les services Tier 1.", "Tier 1");
+
+            // Groupes de délégation T1
+            AddGroup(mpGSec, "T1-Admins",
+                "Membres : administrateurs du ManagementPlane (Tier 1).", "Tier 1");
+            AddGroup(mpGSec, "T1-DelegServerAdmin",
+                "Délégation : administration des serveurs membres Tier 1.", "Tier 1");
+            AddGroup(mpGSec, "T1-DelegGPOAdmin",
+                "Délégation : administration des GPOs liées au ManagementPlane.", "Tier 1");
+            AddGroup(mpGSec, "T1-AuthSilo",
+                "Authentication Policy Silo T1 – restreint la connexion interactive des comptes T1.", "Tier 1");
+
+            // GPOs HardenAD pour le ManagementPlane
+            AddGPO(mp, "HAD-ManagementPlane-ServerHardening",
+                "**GPO HardenAD** : Durcissement des serveurs membres Tier 1.\n\n" +
+                "- Audit avancé des accès\n" +
+                "- Désactivation des protocoles faibles (LM, NTLMv1)\n" +
+                "- Windows Firewall : profil Domain strict\n" +
+                "- SMB Signing obligatoire", "Tier 1");
+
+            // ──────────────────────────────────────────────────────────────────
+            // 3. OU UserPlane – Tier 2
+            // ──────────────────────────────────────────────────────────────────
+            var up = AddOU(domain, "UserPlane",
+                "## OU UserPlane (Tier 2)\n\n" +
+                "Contient les utilisateurs standards et leurs postes de travail.\n\n" +
+                "> ⚠️ **HardenAD** : Les comptes T2 ne peuvent pas administrer les ressources T0/T1.",
+                "Tier 2");
+
+            var upAccounts = AddOU(up, "Accounts", "Comptes Tier 2", "Tier 2");
+            AddOU(upAccounts, "Users",
+                "Utilisateurs standards de l'organisation.", "Tier 2");
+            AddOU(upAccounts, "Admins",
+                "Comptes helpdesk / support Tier 2 (administration des postes utilisateurs).", "Tier 2");
+
+            var upGroups = AddOU(up, "Groups", "Groupes Tier 2", "Tier 2");
+            var upGSec = AddOU(upGroups, "Security", "Groupes de sécurité Tier 2", "Tier 2");
+            AddOU(upGroups, "Distribution", "Groupes de distribution Tier 2", "Tier 2");
+
+            var upResources = AddOU(up, "Resources", "Ressources Tier 2", "Tier 2");
+            AddOU(upResources, "Workstations",
+                "Postes de travail des utilisateurs.", "Tier 2");
+            AddOU(upResources, "Laptops",
+                "Ordinateurs portables des utilisateurs.", "Tier 2");
+
+            // Groupes de délégation T2
+            AddGroup(upGSec, "T2-Users",
+                "Membres : tous les utilisateurs standards du domaine.", "Tier 2");
+            AddGroup(upGSec, "T2-Helpdesk",
+                "Délégation : support et administration des postes de travail Tier 2.", "Tier 2");
+            AddGroup(upGSec, "T2-DelegGPOAdmin",
+                "Délégation : administration des GPOs liées au UserPlane.", "Tier 2");
+
+            // GPOs HardenAD pour le UserPlane
+            AddGPO(up, "HAD-UserPlane-WorkstationHardening",
+                "**GPO HardenAD** : Durcissement des postes de travail.\n\n" +
+                "- Restriction des droits locaux\n" +
+                "- Windows Defender Antivirus (paramètres renforcés)\n" +
+                "- Désactivation AutoRun / AutoPlay\n" +
+                "- Contrôle UAC niveau maximal\n" +
+                "- LAPS activé pour comptes locaux", "Tier 2");
+
+            // ──────────────────────────────────────────────────────────────────
+            // 4. OU Quarantine – objets non classifiés
+            // ──────────────────────────────────────────────────────────────────
+            var quarantine = AddOU(domain, "Quarantine",
+                "## OU Quarantine\n\n" +
+                "**HardenAD** : Réception temporaire des objets non classifiés.\n\n" +
+                "Tout objet créé sans OU cible explicite atterrit ici. " +
+                "Un processus de classification doit l'affecter à l'OU appropriée.\n\n" +
+                "> 🔒 GPO de blocage appliquée : aucun logon interactif autorisé.",
+                null);
+            AddGPO(quarantine, "HAD-Quarantine-BlockLogon",
+                "**GPO HardenAD** : Bloque toute connexion interactive pour les objets en quarantaine.", null);
+
+            // ──────────────────────────────────────────────────────────────────
+            // 5. GPOs globales au niveau du domaine
+            // ──────────────────────────────────────────────────────────────────
+            AddGPO(domain, "HAD-Domain-Baseline",
+                "**GPO HardenAD** : Politique de base du domaine.\n\n" +
+                "- Politique de mot de passe renforcée (min 14 chars, complexité)\n" +
+                "- Verrouillage de compte (5 tentatives / 30 min)\n" +
+                "- Kerberos : durée de vie des tickets réduite\n" +
+                "- Désactivation LAN Manager (LM/NTLMv1)\n" +
+                "- SMB : signature obligatoire\n" +
+                "- LDAP Signing & Channel Binding obligatoires", "Tier 0");
+
+            AddGPO(domain, "HAD-Domain-AuditPolicy",
+                "**GPO HardenAD** : Politique d'audit avancé du domaine.\n\n" +
+                "- Account Logon : Success + Failure\n" +
+                "- Account Management : Success + Failure\n" +
+                "- DS Access : Success + Failure\n" +
+                "- Logon/Logoff : Success + Failure\n" +
+                "- Object Access : Success + Failure\n" +
+                "- Policy Change : Success + Failure\n" +
+                "- Privilege Use : Success + Failure\n" +
+                "- System : Success + Failure", "Tier 0");
+
+            // ──────────────────────────────────────────────────────────────────
+            // 6. PSO pour comptes privilégiés
+            // ──────────────────────────────────────────────────────────────────
+            var psc = FindOrCreatePasswordSettingsContainer(domain);
+            if (psc != null)
+            {
+                AddPSO(psc, "HAD-PSO-T0Admins",
+                    "**PSO HardenAD** : Politique de mot de passe pour les administrateurs Tier 0.\n\n" +
+                    "- Longueur minimale : 20 caractères\n- Complexité : activée\n" +
+                    "- Historique : 24 mots de passe\n- Âge max : 60 jours\n- Verrouillage : 3 tentatives",
+                    precedence: 10, minLength: 20, history: 24, maxAgeDays: 60, lockout: 3);
+
+                AddPSO(psc, "HAD-PSO-T1Admins",
+                    "**PSO HardenAD** : Politique de mot de passe pour les administrateurs Tier 1.\n\n" +
+                    "- Longueur minimale : 16 caractères\n- Complexité : activée\n" +
+                    "- Historique : 12 mots de passe\n- Âge max : 90 jours\n- Verrouillage : 5 tentatives",
+                    precedence: 20, minLength: 16, history: 12, maxAgeDays: 90, lockout: 5);
+
+                AddPSO(psc, "HAD-PSO-ServiceAccounts",
+                    "**PSO HardenAD** : Politique de mot de passe pour les comptes de service.\n\n" +
+                    "- Longueur minimale : 32 caractères\n- Complexité : activée\n" +
+                    "- Historique : 24 mots de passe\n- Âge max : 365 jours (rotation annuelle)\n- Verrouillage : désactivé",
+                    precedence: 5, minLength: 32, history: 24, maxAgeDays: 365, lockout: 0);
+            }
+
+            // Mettre à jour tous les DNs
+            domain.UpdateDistinguishedName();
+            UpdateAllDistinguishedNames(domain);
+        }
+
+        // ──────────────────────────────────────────────────────────────────────
+        // Méthodes utilitaires privées
+        // ──────────────────────────────────────────────────────────────────────
+
+        private static ADObject AddOU(ADObject parent, string name, string description, string? tier)
+        {
+            var ou = new ADObject(name, ADObjectType.OrganizationalUnit)
+            {
+                Description = description,
+                Tier = tier,
+                Parent = parent
+            };
+            parent.Children.Add(ou);
+            return ou;
+        }
+
+        private static ADObject AddGroup(ADObject parent, string name, string description, string? tier)
+        {
+            var group = new ADObject(name, ADObjectType.Group)
+            {
+                Description = description,
+                Tier = tier,
+                Parent = parent
+            };
+            parent.Children.Add(group);
+            return group;
+        }
+
+        private static ADObject AddGPO(ADObject parent, string name, string description, string? tier)
+        {
+            var gpo = new ADObject(name, ADObjectType.Policy)
+            {
+                Description = description,
+                Tier = tier,
+                Parent = parent
+            };
+            parent.Children.Add(gpo);
+            return gpo;
+        }
+
+        private static void AddPSO(ADObject parent, string name, string description,
+            int precedence, int minLength, int history, int maxAgeDays, int lockout)
+        {
+            var pso = new ADObject(name, ADObjectType.PasswordSettingsObject)
+            {
+                Description = description,
+                Tier = "Tier 0",
+                Parent = parent,
+                PSOPrecedence = precedence,
+                PSOMinPasswordLength = minLength,
+                PSOPasswordHistoryCount = history,
+                PSOComplexityEnabled = true,
+                PSOMaxPasswordAgeDays = maxAgeDays,
+                PSOMinPasswordAgeDays = 1,
+                PSOLockoutThreshold = lockout,
+                PSOLockoutDurationMinutes = lockout > 0 ? 30 : 0,
+                PSOLockoutObservationWindowMinutes = lockout > 0 ? 30 : 0
+            };
+            parent.Children.Add(pso);
+        }
+
+        /// <summary>Recherche le container Password Settings Container sous System.</summary>
+        private static ADObject? FindOrCreatePasswordSettingsContainer(ADObject domain)
+        {
+            foreach (var child in domain.Children)
+            {
+                if (child.Name == "System" && child.Type == ADObjectType.Container)
+                {
+                    foreach (var sub in child.Children)
+                    {
+                        if (sub.Name == "Password Settings Container")
+                            return sub;
+                    }
+                    // Créer le PSC s'il n'existe pas encore
+                    var psc = new ADObject("Password Settings Container", ADObjectType.Container)
+                    {
+                        Description = "Container des Password Settings Objects (PSO).",
+                        Parent = child
+                    };
+                    child.Children.Add(psc);
+                    return psc;
+                }
+            }
+            return null;
+        }
+
+        private static void UpdateAllDistinguishedNames(ADObject obj)
+        {
+            obj.UpdateDistinguishedName();
+            foreach (var child in obj.Children)
+                UpdateAllDistinguishedNames(child);
+        }
+
+        /// <summary>
+        /// Retourne un résumé textuel des éléments que HardenAD va ajouter.
+        /// </summary>
+        public static IEnumerable<string> GetImpactSummary()
+        {
+            return new[]
+            {
+                "📁 OU=ControlPlane (Tier 0)  →  Accounts/Admins, Accounts/Services, Groups, Resources/Computers, Resources/GMSA",
+                "   🔐 Groupes : T0-Admins, T0-DelegDCAdmin, T0-DelegGPOAdmin, T0-AuthSilo",
+                "   📋 GPOs   : HAD-ControlPlane-DCHardening, HAD-ControlPlane-AdminWorkstation",
+                "📁 OU=ManagementPlane (Tier 1)  →  Accounts/Admins, Accounts/Services, Groups, Resources/Servers, Resources/GMSA",
+                "   🔐 Groupes : T1-Admins, T1-DelegServerAdmin, T1-DelegGPOAdmin, T1-AuthSilo",
+                "   📋 GPOs   : HAD-ManagementPlane-ServerHardening",
+                "📁 OU=UserPlane (Tier 2)  →  Accounts/Users, Accounts/Admins, Groups, Resources/Workstations, Resources/Laptops",
+                "   🔐 Groupes : T2-Users, T2-Helpdesk, T2-DelegGPOAdmin",
+                "   📋 GPOs   : HAD-UserPlane-WorkstationHardening",
+                "📁 OU=Quarantine  →  GPO HAD-Quarantine-BlockLogon",
+                "📋 GPOs domaine : HAD-Domain-Baseline, HAD-Domain-AuditPolicy",
+                "🔑 PSOs : HAD-PSO-T0Admins (20 chars), HAD-PSO-T1Admins (16 chars), HAD-PSO-ServiceAccounts (32 chars)",
+            };
+        }
+    }
+}

@@ -1,0 +1,171 @@
+{
+  "Id": "999ed711-01fb-4524-b9e1-2f3de8625589",
+  "Type": "Domain",
+  "Children": [
+    {
+      "Id": "8c39578f-d96d-496c-9e8c-24deb7677ab2",
+      "Type": "OrganizationalUnit",
+      "Children": [
+        {
+          "Id": "cd34e3f3-f62f-4737-b7a9-51819ccd240e",
+          "Type": "User",
+          "Children": [],
+          "CreatedDate": "2026-05-04T14:40:59.7665564+00:00",
+          "ModifiedDate": "2026-05-04T14:40:59.7665571+00:00",
+          "Name": "Administrator",
+          "Description": "Compte administrateur principal",
+          "DistinguishedName": "CN=Administrator,OU=Admin,DC=contoso,DC=com",
+          "Tier": "Tier 0"
+        },
+        {
+          "Id": "a951be9f-0ead-410d-a967-7e9179ddfcf4",
+          "Type": "Group",
+          "Children": [],
+          "CreatedDate": "2026-05-04T14:40:59.7665597+00:00",
+          "ModifiedDate": "2026-05-04T14:40:59.7665598+00:00",
+          "Name": "Domain Admins",
+          "Description": "Groupe des administrateurs de domaine",
+          "DistinguishedName": "CN=Domain Admins,OU=Admin,DC=contoso,DC=com",
+          "Tier": "Tier 0"
+        }
+      ],
+      "CreatedDate": "2026-05-04T14:40:59.7661779+00:00",
+      "ModifiedDate": "2026-05-04T14:40:59.7661788+00:00",
+      "Name": "Admin",
+      "Description": "## OU Administration\n\nContient les comptes administrateurs Tier 0.",
+      "DistinguishedName": "OU=Admin,DC=contoso,DC=com",
+      "Tier": "Tier 0"
+    },
+    {
+      "Id": "dce79f2a-5c1a-4f04-a204-7f1a0e053316",
+      "Type": "OrganizationalUnit",
+      "Children": [
+        {
+          "Id": "ca2cb8ad-15df-4583-90c4-bba76acfe22d",
+          "Type": "Computer",
+          "Children": [],
+          "CreatedDate": "2026-05-04T14:40:59.7665616+00:00",
+          "ModifiedDate": "2026-05-04T14:40:59.7665616+00:00",
+          "Name": "SRV-FILE-01",
+          "Description": "Serveur de fichiers principal",
+          "DistinguishedName": "CN=SRV-FILE-01,OU=Servers,DC=contoso,DC=com",
+          "Tier": "Tier 1"
+        },
+        {
+          "Id": "81144949-343f-4800-8e7c-27ab2d345cbe",
+          "Type": "Computer",
+          "Children": [],
+          "CreatedDate": "2026-05-04T14:40:59.7665733+00:00",
+          "ModifiedDate": "2026-05-04T14:40:59.7665735+00:00",
+          "Name": "SRV-APP-01",
+          "Description": "Serveur d\u0027applications",
+          "DistinguishedName": "CN=SRV-APP-01,OU=Servers,DC=contoso,DC=com",
+          "Tier": "Tier 1"
+        },
+        {
+          "Id": "9b4242b3-c91f-4e0b-97a8-4c3ad59245da",
+          "Type": "GMSA",
+          "Children": [],
+          "CreatedDate": "2026-05-04T14:40:59.7665843+00:00",
+          "ModifiedDate": "2026-05-04T14:40:59.7665843+00:00",
+          "Name": "svc-webapp",
+          "Description": "Compte de service g\u00E9r\u00E9 pour l\u0027application web",
+          "DistinguishedName": "CN=svc-webapp,OU=Servers,DC=contoso,DC=com",
+          "Tier": "Tier 1"
+        }
+      ],
+      "CreatedDate": "2026-05-04T14:40:59.7665607+00:00",
+      "ModifiedDate": "2026-05-04T14:40:59.7665608+00:00",
+      "Name": "Servers",
+      "Description": "## Serveurs d\u0027infrastructure\n\n- Serveurs de fichiers\n- Serveurs d\u0027applications",
+      "DistinguishedName": "OU=Servers,DC=contoso,DC=com",
+      "Tier": "Tier 1"
+    },
+    {
+      "Id": "d4d88216-ab9f-4936-906a-fe78843f43d8",
+      "Type": "OrganizationalUnit",
+      "Children": [
+        {
+          "Id": "86c9eaff-5a19-4349-8365-ede8a88dacc8",
+          "Type": "User",
+          "Children": [],
+          "CreatedDate": "2026-05-04T14:40:59.7665796+00:00",
+          "ModifiedDate": "2026-05-04T14:40:59.7665796+00:00",
+          "Name": "jdoe",
+          "Description": "John Doe - D\u00E9veloppeur",
+          "DistinguishedName": "CN=jdoe,OU=Users,DC=contoso,DC=com",
+          "Tier": "Tier 2"
+        },
+        {
+          "Id": "3c3c25ea-8d18-487a-809d-824c79cd3471",
+          "Type": "User",
+          "Children": [],
+          "CreatedDate": "2026-05-04T14:40:59.7665805+00:00",
+          "ModifiedDate": "2026-05-04T14:40:59.7665816+00:00",
+          "Name": "asmith",
+          "Description": "Alice Smith - Manager",
+          "DistinguishedName": "CN=asmith,OU=Users,DC=contoso,DC=com",
+          "Tier": "Tier 2"
+        }
+      ],
+      "CreatedDate": "2026-05-04T14:40:59.7665784+00:00",
+      "ModifiedDate": "2026-05-04T14:40:59.7665786+00:00",
+      "Name": "Users",
+      "Description": "## Utilisateurs de l\u0027organisation",
+      "DistinguishedName": "OU=Users,DC=contoso,DC=com",
+      "Tier": "Tier 2"
+    },
+    {
+      "Id": "ec1c8bca-fac9-4f8e-a1a6-348c448f3567",
+      "Type": "OrganizationalUnit",
+      "Children": [
+        {
+          "Id": "85ac9503-b91f-4399-b730-779486a0bde3",
+          "Type": "Computer",
+          "Children": [],
+          "CreatedDate": "2026-05-04T14:40:59.7665834+00:00",
+          "ModifiedDate": "2026-05-04T14:40:59.7665835+00:00",
+          "Name": "WKS-001",
+          "Description": "Poste de John Doe",
+          "DistinguishedName": "CN=WKS-001,OU=Workstations,DC=contoso,DC=com",
+          "Tier": "Tier 2"
+        }
+      ],
+      "CreatedDate": "2026-05-04T14:40:59.7665826+00:00",
+      "ModifiedDate": "2026-05-04T14:40:59.7665827+00:00",
+      "Name": "Workstations",
+      "Description": "Postes de travail des utilisateurs",
+      "DistinguishedName": "OU=Workstations,DC=contoso,DC=com",
+      "Tier": "Tier 2"
+    },
+    {
+      "Id": "73d874fb-1770-47fe-a6b1-3c1342460acd",
+      "Type": "OrganizationalUnit",
+      "Children": [
+        {
+          "Id": "58b6c046-8a00-46d1-ad2f-269754b8b3a4",
+          "Type": "Policy",
+          "Children": [],
+          "CreatedDate": "2026-05-04T14:40:59.7665865+00:00",
+          "ModifiedDate": "2026-05-04T14:40:59.7665866+00:00",
+          "Name": "Password Policy",
+          "Description": "Strat\u00E9gie de mot de passe : complexit\u00E9 requise, 90 jours d\u0027expiration",
+          "DistinguishedName": "CN=Password Policy,OU=Policies,DC=contoso,DC=com",
+          "Tier": "Tier 0"
+        }
+      ],
+      "CreatedDate": "2026-05-04T14:40:59.766585+00:00",
+      "ModifiedDate": "2026-05-04T14:40:59.7665851+00:00",
+      "Name": "Policies",
+      "Description": "Strat\u00E9gies de groupe",
+      "DistinguishedName": "OU=Policies,DC=contoso,DC=com",
+      "Tier": "Tier 0"
+    }
+  ],
+  "CreatedDate": "2026-05-04T14:40:59.7639749+00:00",
+  "ModifiedDate": "2026-05-04T14:40:59.7657226+00:00",
+  "Name": "contoso.com",
+  "Description": "# Domaine Contoso\n\nDomaine de test pour MockAD.",
+  "DistinguishedName": "DC=contoso,DC=com",
+  "Tier": ""
+}

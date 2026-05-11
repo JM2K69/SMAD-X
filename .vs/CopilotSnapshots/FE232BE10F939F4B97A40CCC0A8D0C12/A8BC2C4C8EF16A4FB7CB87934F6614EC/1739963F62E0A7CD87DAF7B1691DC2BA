@@ -1,0 +1,94 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Activedirectory.ViewModels"
+        x:Class="Activedirectory.Views.GraphWindow"
+        x:Name="GraphWindowRoot"
+        Title="{Binding Source={StaticResource Loc}, Path=GraphTitle}"
+        Width="1200" Height="780"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        Background="#12141A">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- ═══ TOOLBAR ═══ -->
+        <Border Grid.Row="0" Background="#1E2230" Padding="8,6">
+            <DockPanel>
+                <!-- Stats (droite) — DockPanel.Dock="Right" doit être AVANT les éléments Left -->
+                <TextBlock DockPanel.Dock="Right"
+                           Text="{Binding StatsText}"
+                           Foreground="#666888" VerticalAlignment="Center"
+                           FontSize="11" Margin="0,0,8,0"/>
+
+                <!-- Boutons de contrôle -->
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="4">
+                    <Button x:Name="BtnFitView"
+                            Content="{Binding Source={StaticResource Loc}, Path=GraphFitView}"
+                            ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=GraphFitViewTooltip}"
+                            Click="OnFitView" Padding="10,5"
+                            Background="#0078D4" Foreground="White"/>
+                    <Button x:Name="BtnZoomIn"
+                            Content="{Binding Source={StaticResource Loc}, Path=GraphZoomIn}"
+                            Click="OnZoomIn" Padding="10,5"
+                            Background="#2D3250" Foreground="White"/>
+                    <Button x:Name="BtnZoomOut"
+                            Content="{Binding Source={StaticResource Loc}, Path=GraphZoomOut}"
+                            Click="OnZoomOut" Padding="10,5"
+                            Background="#2D3250" Foreground="White"/>
+                    <Button x:Name="BtnRelayout"
+                            Content="{Binding Source={StaticResource Loc}, Path=GraphRelayout}"
+                            ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=GraphRelayoutTooltip}"
+                            Click="OnRelayout" Padding="10,5"
+                            Background="#2D3250" Foreground="White"/>
+                    <Button x:Name="BtnRefresh"
+                            Content="{Binding Source={StaticResource Loc}, Path=GraphReload}"
+                            ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=GraphReloadTooltip}"
+                            Click="OnRefresh" Padding="10,5"
+                            Background="#2D3250" Foreground="White"/>
+                    <Separator Width="1" Height="24" Background="#444"/>
+                </StackPanel>
+
+                <!-- Filtres -->
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="12" Margin="4,0">
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=GraphFilters}"
+                               Foreground="#AAAAAA" VerticalAlignment="Center" FontSize="12"/>
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterMemberOf}"
+                              IsChecked="{Binding #GraphWindowRoot.DataContext.ShowMemberOf, Mode=TwoWay}"
+                              Foreground="#BB86FC" VerticalAlignment="Center"/>
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterGpoLinks}"
+                              IsChecked="{Binding #GraphWindowRoot.DataContext.ShowGpoLinks, Mode=TwoWay}"
+                              Foreground="#FFB347" VerticalAlignment="Center"/>
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterPso}"
+                              IsChecked="{Binding #GraphWindowRoot.DataContext.ShowPsoLinks, Mode=TwoWay}"
+                              Foreground="#FF6B6B" VerticalAlignment="Center"/>
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterHierarchy}"
+                              IsChecked="{Binding #GraphWindowRoot.DataContext.ShowHierarchy, Mode=TwoWay}"
+                              Foreground="#888888" VerticalAlignment="Center"/>
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterIsolated}"
+                              IsChecked="{Binding #GraphWindowRoot.DataContext.ShowIsolated, Mode=TwoWay}"
+                              Foreground="#AAAAAA" VerticalAlignment="Center"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ═══ CANVAS GRAPHE ═══ -->
+        <Border Grid.Row="1" Background="#12141A" ClipToBounds="True">
+            <ContentControl x:Name="GraphHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </Border>
+
+        <!-- ═══ BARRE D'INFO NŒUD SÉLECTIONNÉ ═══ -->
+        <Border Grid.Row="2" Background="#1A1C2A" Padding="10,6">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0"
+                           Text="{Binding SelectedNodeInfo}"
+                           Foreground="#CCCCCC" VerticalAlignment="Center" FontSize="12"
+                           FontFamily="Consolas"/>
+                <Button Grid.Column="1"
+                        Content="{Binding Source={StaticResource Loc}, Path=GraphClose}"
+                        Click="OnClose"
+                        Padding="14,5" Background="#0078D4" Foreground="White"/>
+            </Grid>
+        </Border>
+
+    </Grid>
+</Window>

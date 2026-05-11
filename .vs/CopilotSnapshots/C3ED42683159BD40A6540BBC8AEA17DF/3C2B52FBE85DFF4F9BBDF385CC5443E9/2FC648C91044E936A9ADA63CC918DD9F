@@ -1,0 +1,69 @@
+﻿using Avalonia;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Styling;
+using System;
+
+namespace Activedirectory.Services
+{
+    public enum AppTheme
+    {
+        Light,
+        Dark
+    }
+
+    public class ThemeService
+    {
+        private static ThemeService? _instance;
+        public static ThemeService Instance => _instance ??= new ThemeService();
+
+        private AppTheme _currentTheme = AppTheme.Light;
+
+        public AppTheme CurrentTheme
+        {
+            get => _currentTheme;
+            set
+            {
+                if (_currentTheme != value)
+                {
+                    _currentTheme = value;
+                    ApplyTheme(value);
+                    ThemeChanged?.Invoke(this, value);
+                }
+            }
+        }
+
+        public event EventHandler<AppTheme>? ThemeChanged;
+
+        private ThemeService()
+        {
+            // Charger le thème clair par défaut au démarrage
+            ApplyTheme(AppTheme.Light);
+        }
+
+        private void ApplyTheme(AppTheme theme)
+        {
+            var app = Application.Current;
+            if (app == null) return;
+
+            // Supprimer les thèmes existants
+            app.Styles.RemoveAll(s => s is StyleInclude style && 
+                (style.Source?.ToString().Contains("DarkTheme.axaml") == true ||
+                 style.Source?.ToString().Contains("LightTheme.axaml") == true));
+
+            // Ajouter le nouveau thème
+            var themeUri = theme == AppTheme.Dark
+                ? new Uri("avaloniaresource:///Styles/DarkTheme.axaml")
+                : new Uri("avaloniaresource:///Styles/LightTheme.axaml");
+
+            app.Styles.Add(new StyleInclude(themeUri)
+            {
+                Source = themeUri
+            });
+        }
+
+        public void ToggleTheme()
+        {
+            CurrentTheme = CurrentTheme == AppTheme.Light ? AppTheme.Dark : AppTheme.Light;
+        }
+    }
+}

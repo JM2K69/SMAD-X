@@ -1,0 +1,205 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Activedirectory.ViewModels"
+        x:Class="Activedirectory.Views.RelationsWindow"
+        x:DataType="vm:RelationsViewModel"
+        Title="🔗 Relations entre objets AD"
+        Width="860" Height="620"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <TabControl Grid.Row="0" Margin="10">
+
+            <!-- ===== ONGLET MEMBERSHIPS ===== -->
+            <TabItem Header="👥 Appartenances aux groupes">
+                <Grid RowDefinitions="Auto,*,Auto" Margin="8">
+
+                    <!-- Formulaire d'ajout -->
+                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1"
+                            CornerRadius="4" Padding="10" Margin="0,0,0,8">
+                        <Grid ColumnDefinitions="*,20,*,20,Auto" RowDefinitions="Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Objet source (user/groupe)"
+                                       FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Groupe cible"
+                                       FontWeight="SemiBold" Margin="0,0,0,4"/>
+
+                            <ComboBox Grid.Row="1" Grid.Column="0"
+                                      SelectedItem="{Binding MembershipSource, Mode=TwoWay}"
+                                      ItemsSource="{Binding AvailableMembershipTargets}"
+                                      PlaceholderText="Choisir un objet..."
+                                      HorizontalAlignment="Stretch"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="1"
+                                       Text="→" FontSize="18" VerticalAlignment="Center"
+                                       HorizontalAlignment="Center" Foreground="#0078D4"/>
+
+                            <ComboBox Grid.Row="1" Grid.Column="2"
+                                      SelectedItem="{Binding MembershipTarget, Mode=TwoWay}"
+                                      ItemsSource="{Binding AvailableGroups}"
+                                      PlaceholderText="Choisir un groupe..."
+                                      HorizontalAlignment="Stretch"/>
+
+                            <Button Grid.Row="1" Grid.Column="4"
+                                    Content="➕ Ajouter"
+                                    Command="{Binding AddMembershipCommand}"
+                                    Padding="12,6" Background="#0078D4" Foreground="White"
+                                    VerticalAlignment="Bottom"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Liste des relations -->
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding Memberships}"
+                              SelectedItem="{Binding SelectedMembership, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              CanUserReorderColumns="False"
+                              CanUserResizeColumns="True"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="200"/>
+                            <DataGridTextColumn Header="Type" Binding="{Binding SourceType}" Width="100"/>
+                            <DataGridTextColumn Header="→ Groupe" Binding="{Binding Target}" Width="200"/>
+                            <DataGridTextColumn Header="Relation" Binding="{Binding RelationType}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Actions -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                        <Button Content="🗑️ Supprimer la sélection"
+                                Command="{Binding RemoveMembershipCommand}"
+                                Padding="10,5" Background="#FFDDDD"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ===== ONGLET GPO LINKS ===== -->
+            <TabItem Header="📋 Liens GPO → OU">
+                <Grid RowDefinitions="Auto,*,Auto" Margin="8">
+
+                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1"
+                            CornerRadius="4" Padding="10" Margin="0,0,0,8">
+                        <Grid ColumnDefinitions="*,20,*,20,Auto" RowDefinitions="Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="GPO"
+                                       FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="OU cible"
+                                       FontWeight="SemiBold" Margin="0,0,0,4"/>
+
+                            <ComboBox Grid.Row="1" Grid.Column="0"
+                                      SelectedItem="{Binding GpoLinkGpo, Mode=TwoWay}"
+                                      ItemsSource="{Binding AvailableGPOs}"
+                                      PlaceholderText="Choisir une GPO..."
+                                      HorizontalAlignment="Stretch"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="1"
+                                       Text="→" FontSize="18" VerticalAlignment="Center"
+                                       HorizontalAlignment="Center" Foreground="#107C10"/>
+
+                            <ComboBox Grid.Row="1" Grid.Column="2"
+                                      SelectedItem="{Binding GpoLinkOu, Mode=TwoWay}"
+                                      ItemsSource="{Binding AvailableOUs}"
+                                      PlaceholderText="Choisir une OU..."
+                                      HorizontalAlignment="Stretch"/>
+
+                            <Button Grid.Row="1" Grid.Column="4"
+                                    Content="➕ Lier"
+                                    Command="{Binding AddGpoLinkCommand}"
+                                    Padding="12,6" Background="#107C10" Foreground="White"
+                                    VerticalAlignment="Bottom"/>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding GpoLinks}"
+                              SelectedItem="{Binding SelectedGpoLink, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              CanUserReorderColumns="False"
+                              CanUserResizeColumns="True"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="OU" Binding="{Binding Source}" Width="220"/>
+                            <DataGridTextColumn Header="→ GPO liée" Binding="{Binding Target}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                        <Button Content="🗑️ Supprimer la sélection"
+                                Command="{Binding RemoveGpoLinkCommand}"
+                                Padding="10,5" Background="#FFDDDD"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- ===== ONGLET PSO ===== -->
+            <TabItem Header="🔑 PSO → Utilisateurs/Groupes">
+                <Grid RowDefinitions="Auto,*,Auto" Margin="8">
+
+                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1"
+                            CornerRadius="4" Padding="10" Margin="0,0,0,8">
+                        <Grid ColumnDefinitions="*,20,*,20,Auto" RowDefinitions="Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="PSO"
+                                       FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Utilisateur / Groupe cible"
+                                       FontWeight="SemiBold" Margin="0,0,0,4"/>
+
+                            <ComboBox Grid.Row="1" Grid.Column="0"
+                                      SelectedItem="{Binding PsoLinkPso, Mode=TwoWay}"
+                                      ItemsSource="{Binding AvailablePSOs}"
+                                      PlaceholderText="Choisir un PSO..."
+                                      HorizontalAlignment="Stretch"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="1"
+                                       Text="→" FontSize="18" VerticalAlignment="Center"
+                                       HorizontalAlignment="Center" Foreground="#CA5010"/>
+
+                            <ComboBox Grid.Row="1" Grid.Column="2"
+                                      SelectedItem="{Binding PsoLinkTarget, Mode=TwoWay}"
+                                      ItemsSource="{Binding AvailableMembershipTargets}"
+                                      PlaceholderText="Choisir un utilisateur ou groupe..."
+                                      HorizontalAlignment="Stretch"/>
+
+                            <Button Grid.Row="1" Grid.Column="4"
+                                    Content="➕ Appliquer"
+                                    Command="{Binding AddPsoLinkCommand}"
+                                    Padding="12,6" Background="#CA5010" Foreground="White"
+                                    VerticalAlignment="Bottom"/>
+                        </Grid>
+                    </Border>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding PsoLinks}"
+                              SelectedItem="{Binding SelectedPsoLink, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              CanUserReorderColumns="False"
+                              CanUserResizeColumns="True"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="PSO" Binding="{Binding Source}" Width="200"/>
+                            <DataGridTextColumn Header="→ Sujet (User/Groupe)" Binding="{Binding Target}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                        <Button Content="🗑️ Supprimer la sélection"
+                                Command="{Binding RemovePsoLinkCommand}"
+                                Padding="10,5" Background="#FFDDDD"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+
+        <!-- Barre de statut + bouton Fermer -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="10,0,10,10">
+            <Border Grid.Column="0" Background="#F3F3F3" CornerRadius="4" Padding="8,4">
+                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12"/>
+            </Border>
+            <Button Grid.Column="1" Content="✔ Fermer" Click="OnCloseClick"
+                    Padding="16,6" Margin="10,0,0,0" Background="#0078D4" Foreground="White"/>
+        </Grid>
+    </Grid>
+</Window>

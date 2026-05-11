@@ -1,0 +1,28 @@
+{
+  "Id": "00000000-0000-0000-0000-000000000001",
+  "Name": "contoso.com",
+  "Type": "Domain",
+  "Description": "# Domaine Contoso\n\nDomaine de test pour MockAD - exemple pour la documentation.",
+  "DistinguishedName": "DC=contoso.com",
+  "Tier": "",
+  "Children": [
+    {
+      "Id": "00000000-0000-0000-0000-000000000002",
+      "Name": "Admin",
+      "Type": "OrganizationalUnit",
+      "Description": "## Administration Tier 0\n\nContient tous les comptes et ressources critiques pour l'infrastructure AD.",
+      "DistinguishedName": "OU=Admin,DC=contoso.com",
+      "Tier": "Tier 0",
+      "Children": []
+    },
+    {
+      "Id": "00000000-0000-0000-0000-000000000003",
+      "Name": "Users",
+      "Type": "OrganizationalUnit",
+      "Description": "## Utilisateurs de l'organisation\n\nContient tous les comptes utilisateurs standard (Tier 2).",
+      "DistinguishedName": "OU=Users,DC=contoso.com",
+      "Tier": "Tier 2",
+      "Children": []
+    }
+  ]
+}

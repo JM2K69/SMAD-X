@@ -1,0 +1,17 @@
+﻿namespace Activedirectory.Models
+{
+    /// <summary>
+    /// Types d'objets Active Directory
+    /// </summary>
+    public enum ADObjectType
+    {
+        Domain,
+        OrganizationalUnit,
+        User,
+        Group,
+        Computer,
+        GMSA,
+        Policy,
+        PasswordSettingsObject
+    }
+}

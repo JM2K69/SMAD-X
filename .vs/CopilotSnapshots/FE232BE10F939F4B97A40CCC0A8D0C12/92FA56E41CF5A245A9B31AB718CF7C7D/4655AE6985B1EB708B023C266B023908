@@ -1,0 +1,82 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Activedirectory.ViewModels"
+        x:Class="Activedirectory.Views.GraphWindow"
+        Title="🔗 Vue graphique des relations AD"
+        Width="1200" Height="780"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        Background="#12141A">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- ═══ TOOLBAR ═══ -->
+        <Border Grid.Row="0" Background="#1E2230" Padding="8,6">
+            <DockPanel>
+                <!-- Boutons de contrôle -->
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="4">
+                    <Button x:Name="BtnFitView" Content="⊡ Ajuster" Padding="10,5"
+                            ToolTip.Tip="Zoom pour tout voir" Click="OnFitView"
+                            Background="#0078D4" Foreground="White"/>
+                    <Button x:Name="BtnZoomIn" Content="🔍+" Padding="10,5"
+                            Click="OnZoomIn" Background="#2D3250" Foreground="White"/>
+                    <Button x:Name="BtnZoomOut" Content="🔍−" Padding="10,5"
+                            Click="OnZoomOut" Background="#2D3250" Foreground="White"/>
+                    <Button x:Name="BtnRelayout" Content="↺ Re-layout" Padding="10,5"
+                            ToolTip.Tip="Recalculer la disposition" Click="OnRelayout"
+                            Background="#2D3250" Foreground="White"/>
+                    <Button x:Name="BtnRefresh" Content="🔄 Recharger" Padding="10,5"
+                            ToolTip.Tip="Recharger depuis les données AD" Click="OnRefresh"
+                            Background="#2D3250" Foreground="White"/>
+                    <Separator Width="1" Height="24" Background="#444"/>
+                </StackPanel>
+
+                <!-- Filtres -->
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="12" Margin="4,0">
+                    <TextBlock Text="Filtres :" Foreground="#AAAAAA" VerticalAlignment="Center" FontSize="12"/>
+                    <CheckBox Content="👥 MemberOf"
+                              IsChecked="{Binding ShowMemberOf, Mode=TwoWay}"
+                              Foreground="#BB86FC" VerticalAlignment="Center"/>
+                    <CheckBox Content="📋 GPO Links"
+                              IsChecked="{Binding ShowGpoLinks, Mode=TwoWay}"
+                              Foreground="#FFB347" VerticalAlignment="Center"/>
+                    <CheckBox Content="🔑 PSO"
+                              IsChecked="{Binding ShowPsoLinks, Mode=TwoWay}"
+                              Foreground="#FF6B6B" VerticalAlignment="Center"/>
+                    <CheckBox Content="📂 Hiérarchie"
+                              IsChecked="{Binding ShowHierarchy, Mode=TwoWay}"
+                              Foreground="#888888" VerticalAlignment="Center"/>
+                    <CheckBox Content="Isolés"
+                              IsChecked="{Binding ShowIsolated, Mode=TwoWay}"
+                              Foreground="#AAAAAA" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Stats (droite) -->
+                <TextBlock DockPanel.Dock="Right"
+                           Text="{Binding StatsText}"
+                           Foreground="#666888" VerticalAlignment="Center"
+                           FontSize="11" Margin="0,0,8,0"/>
+            </DockPanel>
+        </Border>
+
+        <!-- ═══ CANVAS GRAPHE ═══ -->
+        <Border Grid.Row="1" Background="#12141A" ClipToBounds="True">
+            <Grid>
+                <!-- Canvas custom rendu par code -->
+                <ContentControl x:Name="GraphHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            </Grid>
+        </Border>
+
+        <!-- ═══ BARRE D'INFO NŒUD SÉLECTIONNÉ ═══ -->
+        <Border Grid.Row="2" Background="#1A1C2A" Padding="10,6">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0"
+                           Text="{Binding SelectedNodeInfo}"
+                           Foreground="#CCCCCC" VerticalAlignment="Center" FontSize="12"
+                           FontFamily="Consolas"/>
+                <Button Grid.Column="1" Content="✕ Fermer" Click="OnClose"
+                        Padding="14,5" Background="#0078D4" Foreground="White"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

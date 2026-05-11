@@ -1,0 +1,120 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
+
+namespace Activedirectory.Models
+{
+    /// <summary>
+    /// Représente un objet Active Directory (Domain, OU, User, Group, Computer, etc.)
+    /// </summary>
+    public class ADObject
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+
+        public string Name { get; set; } = string.Empty;
+
+        public ADObjectType Type { get; set; }
+
+        public string Description { get; set; } = string.Empty;
+
+        public string DistinguishedName { get; set; } = string.Empty;
+
+        public string Tier { get; set; } = string.Empty; // For tiering model (Tier 0, Tier 1, Tier 2)
+
+        public ObservableCollection<ADObject> Children { get; set; } = new ObservableCollection<ADObject>();
+
+        [JsonIgnore]
+        public ADObject? Parent { get; set; }
+
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+
+        public DateTime ModifiedDate { get; set; } = DateTime.Now;
+
+        public ADObject()
+        {
+        }
+
+        public ADObject(string name, ADObjectType type)
+        {
+            Name = name;
+            Type = type;
+        }
+
+        /// <summary>
+        /// Calcule le Distinguished Name basé sur la hiérarchie
+        /// </summary>
+        public void UpdateDistinguishedName()
+        {
+            var parts = new System.Collections.Generic.List<string>();
+            var current = this;
+
+            while (current != null)
+            {
+                var prefix = current.Type switch
+                {
+                    ADObjectType.Domain => "DC=",
+                    ADObjectType.OrganizationalUnit => "OU=",
+                    ADObjectType.User => "CN=",
+                    ADObjectType.Group => "CN=",
+                    ADObjectType.Computer => "CN=",
+                    ADObjectType.GMSA => "CN=",
+                    ADObjectType.Policy => "CN=",
+                    _ => "CN="
+                };
+                parts.Add(prefix + current.Name);
+                current = current.Parent;
+            }
+
+            parts.Reverse();
+            DistinguishedName = string.Join(",", parts);
+        }
+
+        /// <summary>
+        /// Clone l'objet et tous ses enfants
+        /// </summary>
+        public ADObject Clone()
+        {
+            var clone = new ADObject
+            {
+                Id = Guid.NewGuid(),
+                Name = Name + " (Copy)",
+                Type = Type,
+                Description = Description,
+                Tier = Tier,
+                CreatedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now
+            };
+
+            foreach (var child in Children)
+            {
+                var childClone = child.Clone();
+                childClone.Parent = clone;
+                clone.Children.Add(childClone);
+            }
+
+            return clone;
+        }
+
+        /// <summary>
+        /// Compte récursivement les objets par type
+        /// </summary>
+        public System.Collections.Generic.Dictionary<ADObjectType, int> CountObjectsByType()
+        {
+            var counts = new System.Collections.Generic.Dictionary<ADObjectType, int>();
+            CountRecursive(this, counts);
+            return counts;
+        }
+
+        private static void CountRecursive(ADObject obj, System.Collections.Generic.Dictionary<ADObjectType, int> counts)
+        {
+            if (!counts.ContainsKey(obj.Type))
+                counts[obj.Type] = 0;
+            counts[obj.Type]++;
+
+            foreach (var child in obj.Children)
+            {
+                CountRecursive(child, counts);
+            }
+        }
+    }
+}

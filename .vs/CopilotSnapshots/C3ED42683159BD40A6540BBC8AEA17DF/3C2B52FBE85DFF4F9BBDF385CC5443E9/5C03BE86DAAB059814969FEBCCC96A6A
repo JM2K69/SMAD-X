@@ -1,0 +1,157 @@
+﻿using Avalonia.Controls;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
+using System;
+using System.Globalization;
+using System.Text.RegularExpressions;
+
+namespace Activedirectory.Converters
+{
+    /// <summary>
+    /// Convertisseur simple pour afficher du Markdown dans Avalonia
+    /// </summary>
+    public class MarkdownConverter : IValueConverter
+    {
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            if (value is not string markdown || string.IsNullOrWhiteSpace(markdown))
+                return new StackPanel();
+
+            var stackPanel = new StackPanel { Spacing = 8 };
+            var lines = markdown.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+
+                // Titres (# ## ###)
+                if (line.StartsWith("### "))
+                {
+                    stackPanel.Children.Add(new TextBlock
+                    {
+                        Text = line.Substring(4),
+                        FontSize = 16,
+                        FontWeight = FontWeight.Bold,
+                        Margin = new Avalonia.Thickness(0, 12, 0, 4)
+                    });
+                }
+                else if (line.StartsWith("## "))
+                {
+                    stackPanel.Children.Add(new TextBlock
+                    {
+                        Text = line.Substring(3),
+                        FontSize = 18,
+                        FontWeight = FontWeight.Bold,
+                        Margin = new Avalonia.Thickness(0, 14, 0, 4)
+                    });
+                }
+                else if (line.StartsWith("# "))
+                {
+                    stackPanel.Children.Add(new TextBlock
+                    {
+                        Text = line.Substring(2),
+                        FontSize = 20,
+                        FontWeight = FontWeight.Bold,
+                        Margin = new Avalonia.Thickness(0, 16, 0, 6)
+                    });
+                }
+                // Listes à puces (- ou *)
+                else if (line.TrimStart().StartsWith("- ") || line.TrimStart().StartsWith("* "))
+                {
+                    var indent = line.Length - line.TrimStart().Length;
+                    var text = line.TrimStart().Substring(2);
+
+                    stackPanel.Children.Add(new TextBlock
+                    {
+                        Text = "• " + ProcessInlineMarkdown(text),
+                        Margin = new Avalonia.Thickness(indent * 10 + 10, 2, 0, 2),
+                        TextWrapping = TextWrapping.Wrap
+                    });
+                }
+                // Listes numérotées
+                else if (Regex.IsMatch(line.TrimStart(), @"^\d+\.\s"))
+                {
+                    var indent = line.Length - line.TrimStart().Length;
+                    var match = Regex.Match(line.TrimStart(), @"^(\d+)\.\s(.*)$");
+                    if (match.Success)
+                    {
+                        stackPanel.Children.Add(new TextBlock
+                        {
+                            Text = match.Groups[1].Value + ". " + ProcessInlineMarkdown(match.Groups[2].Value),
+                            Margin = new Avalonia.Thickness(indent * 10 + 10, 2, 0, 2),
+                            TextWrapping = TextWrapping.Wrap
+                        });
+                    }
+                }
+                // Code block (```)
+                else if (line.Trim().StartsWith("```"))
+                {
+                    var codeLines = new System.Collections.Generic.List<string>();
+                    i++; // Skip opening ```
+                    while (i < lines.Length && !lines[i].Trim().StartsWith("```"))
+                    {
+                        codeLines.Add(lines[i]);
+                        i++;
+                    }
+
+                    stackPanel.Children.Add(new Border
+                    {
+                        Background = new SolidColorBrush(Color.Parse("#F5F5F5")),
+                        BorderBrush = new SolidColorBrush(Color.Parse("#DDDDDD")),
+                        BorderThickness = new Avalonia.Thickness(1),
+                        Padding = new Avalonia.Thickness(10),
+                        Margin = new Avalonia.Thickness(0, 4, 0, 4),
+                        Child = new TextBlock
+                        {
+                            Text = string.Join(Environment.NewLine, codeLines),
+                            FontFamily = new FontFamily("Consolas, Courier New, monospace"),
+                            TextWrapping = TextWrapping.NoWrap
+                        }
+                    });
+                }
+                // Ligne vide
+                else if (string.IsNullOrWhiteSpace(line))
+                {
+                    stackPanel.Children.Add(new TextBlock
+                    {
+                        Text = " ",
+                        FontSize = 4
+                    });
+                }
+                // Texte normal
+                else
+                {
+                    stackPanel.Children.Add(new TextBlock
+                    {
+                        Text = ProcessInlineMarkdown(line),
+                        TextWrapping = TextWrapping.Wrap,
+                        Margin = new Avalonia.Thickness(0, 2, 0, 2)
+                    });
+                }
+            }
+
+            return stackPanel;
+        }
+
+        private string ProcessInlineMarkdown(string text)
+        {
+            // Gras **texte** ou __texte__
+            text = Regex.Replace(text, @"\*\*(.+?)\*\*", "$1");
+            text = Regex.Replace(text, @"__(.+?)__", "$1");
+
+            // Italique *texte* ou _texte_
+            text = Regex.Replace(text, @"\*(.+?)\*", "$1");
+            text = Regex.Replace(text, @"_(.+?)_", "$1");
+
+            // Code inline `code`
+            text = Regex.Replace(text, @"`(.+?)`", "$1");
+
+            return text;
+        }
+
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

@@ -1,0 +1,577 @@
+﻿using System;
+using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using Activedirectory.Models;
+
+namespace Activedirectory.Services
+{
+    /// <summary>
+    /// Service pour sauvegarder et charger les structures AD en JSON
+    /// </summary>
+    public class ADDataService
+    {
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            WriteIndented = true,
+            Converters = { new JsonStringEnumConverter() }
+        };
+
+        /// <summary>
+        /// Sauvegarde la structure AD dans un fichier JSON
+        /// </summary>
+        public async Task<bool> SaveToFileAsync(ADObject root, string filePath)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(root, JsonOptions);
+                await File.WriteAllTextAsync(filePath, json);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la sauvegarde : {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Charge la structure AD depuis un fichier JSON
+        /// </summary>
+        public async Task<ADObject?> LoadFromFileAsync(string filePath)
+        {
+            try
+            {
+                if (!File.Exists(filePath))
+                    return null;
+
+                var json = await File.ReadAllTextAsync(filePath);
+                var root = JsonSerializer.Deserialize<ADObject>(json, JsonOptions);
+
+                if (root != null)
+                {
+                    RestoreParentReferences(root, null);
+                }
+
+                return root;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement : {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Restaure les références parent après désérialisation
+        /// </summary>
+        private void RestoreParentReferences(ADObject current, ADObject? parent)
+        {
+            current.Parent = parent;
+
+            foreach (var child in current.Children)
+            {
+                RestoreParentReferences(child, current);
+            }
+        }
+
+        /// <summary>
+        /// Crée une structure AD vierge conforme à une installation fraîche d'Active Directory
+        /// </summary>
+        /// <param name="domainName">Nom du domaine (FQDN)</param>
+        /// <param name="enableTiering">Si true, affecte automatiquement les tiers aux objets</param>
+        public ADObject CreateFreshDomainStructure(string domainName, bool enableTiering = true)
+        {
+            var domain = new ADObject(domainName, ADObjectType.Domain)
+            {
+                Description = $"# Domaine {domainName}\n\nDomaine Active Directory créé avec MockAD."
+            };
+
+            // Helper pour affecter un tier seulement si le tiering est activé
+            string? GetTier(string tier) => enableTiering ? tier : null;
+
+            // 1. Container Builtin (groupes intégrés système)
+            var builtinContainer = new ADObject("Builtin", ADObjectType.Container)
+            {
+                Description = @"# Container Builtin
+
+Contient les groupes de sécurité intégrés du domaine.
+
+> **Note** : Ces groupes sont créés automatiquement lors de l'installation d'Active Directory.",
+                Parent = domain
+            };
+            domain.Children.Add(builtinContainer);
+
+            // Groupes Builtin
+            var builtinAdmins = new ADObject("Administrators", ADObjectType.Group)
+            {
+                Description = "Membres de ce groupe ont un accès complet et illimité à l'ordinateur/domaine",
+                Tier = GetTier("Tier 0"),
+                Parent = builtinContainer
+            };
+            builtinContainer.Children.Add(builtinAdmins);
+
+            var builtinUsers = new ADObject("Users", ADObjectType.Group)
+            {
+                Description = "Les utilisateurs ne peuvent pas apporter des modifications accidentelles ou intentionnelles au système",
+                Tier = GetTier("Tier 2"),
+                Parent = builtinContainer
+            };
+            builtinContainer.Children.Add(builtinUsers);
+
+            var builtinGuests = new ADObject("Guests", ADObjectType.Group)
+            {
+                Description = "Les invités ont les mêmes droits que les membres du groupe Utilisateurs par défaut",
+                Tier = GetTier("Tier 2"),
+                Parent = builtinContainer
+            };
+            builtinContainer.Children.Add(builtinGuests);
+
+            var serverOps = new ADObject("Server Operators", ADObjectType.Group)
+            {
+                Description = "Peuvent administrer les serveurs de domaine",
+                Tier = GetTier("Tier 1"),
+                Parent = builtinContainer
+            };
+            builtinContainer.Children.Add(serverOps);
+
+            var accountOps = new ADObject("Account Operators", ADObjectType.Group)
+            {
+                Description = "Peuvent administrer les comptes utilisateurs et groupes du domaine",
+                Tier = GetTier("Tier 1"),
+                Parent = builtinContainer
+            };
+            builtinContainer.Children.Add(accountOps);
+
+            var backupOps = new ADObject("Backup Operators", ADObjectType.Group)
+            {
+                Description = "Peuvent sauvegarder et restaurer tous les fichiers sur les contrôleurs de domaine",
+                Tier = GetTier("Tier 0"),
+                Parent = builtinContainer
+            };
+            builtinContainer.Children.Add(backupOps);
+
+            // 2. Container Users (utilisateurs et groupes par défaut)
+            var usersContainer = new ADObject("Users", ADObjectType.Container)
+            {
+                Description = @"# Container Users
+
+Container par défaut pour les utilisateurs et groupes du domaine.
+
+> **Note** : Lors de la création d'un nouvel utilisateur sans spécifier d'emplacement, il est placé ici par défaut.",
+                Tier = GetTier("Tier 2"),
+                Parent = domain
+            };
+            domain.Children.Add(usersContainer);
+
+            // Compte Administrator
+            var administrator = new ADObject("Administrator", ADObjectType.User)
+            {
+                Description = "Compte administrateur intégré pour administrer l'ordinateur/le domaine",
+                Tier = GetTier("Tier 0"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(administrator);
+
+            // Compte Guest
+            var guest = new ADObject("Guest", ADObjectType.User)
+            {
+                Description = "Compte invité intégré pour l'accès invité à l'ordinateur/au domaine",
+                Tier = GetTier("Tier 2"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(guest);
+
+            // Compte Krbtgt
+            var krbtgt = new ADObject("krbtgt", ADObjectType.User)
+            {
+                Description = @"# Compte de service Kerberos
+
+Compte de service pour le centre de distribution de clés Kerberos.
+
+> ⚠️ **Critique** : Ne jamais supprimer ou désactiver ce compte ! Il est essentiel au fonctionnement de Kerberos.",
+                Tier = GetTier("Tier 0"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(krbtgt);
+
+            // Groupes du domaine
+            var domainAdmins = new ADObject("Domain Admins", ADObjectType.Group)
+            {
+                Description = "Administrateurs désignés du domaine",
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(domainAdmins);
+
+            var domainUsers = new ADObject("Domain Users", ADObjectType.Group)
+            {
+                Description = "Tous les utilisateurs du domaine",
+                Tier = "Tier 2",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(domainUsers);
+
+            var domainComputers = new ADObject("Domain Computers", ADObjectType.Group)
+            {
+                Description = "Tous les postes de travail et serveurs joints au domaine",
+                Tier = "Tier 2",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(domainComputers);
+
+            var domainControllers = new ADObject("Domain Controllers", ADObjectType.Group)
+            {
+                Description = "Tous les contrôleurs de domaine du domaine",
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(domainControllers);
+
+            var schemaAdmins = new ADObject("Schema Admins", ADObjectType.Group)
+            {
+                Description = "Administrateurs du schéma désignés du domaine",
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(schemaAdmins);
+
+            var enterpriseAdmins = new ADObject("Enterprise Admins", ADObjectType.Group)
+            {
+                Description = "Administrateurs d'entreprise désignés de l'entreprise",
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(enterpriseAdmins);
+
+            var groupPolicyCreatorOwners = new ADObject("Group Policy Creator Owners", ADObjectType.Group)
+            {
+                Description = "Membres de ce groupe peuvent modifier la stratégie de groupe pour le domaine",
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(groupPolicyCreatorOwners);
+
+            var readOnlyDCs = new ADObject("Read-only Domain Controllers", ADObjectType.Group)
+            {
+                Description = "Membres de ce groupe sont des contrôleurs de domaine en lecture seule dans le domaine",
+                Tier = "Tier 1",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(readOnlyDCs);
+
+            var dnsAdmins = new ADObject("DnsAdmins", ADObjectType.Group)
+            {
+                Description = "Groupe d'accès administratif DNS",
+                Tier = "Tier 0",
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(dnsAdmins);
+
+            // 3. Container Computers (ordinateurs par défaut)
+            var computersContainer = new ADObject("Computers", ADObjectType.Container)
+            {
+                Description = @"# Container Computers
+
+Container par défaut pour les ordinateurs joints au domaine.
+
+> **Note** : Lors de la jonction d'un ordinateur au domaine sans spécifier d'emplacement, il est placé ici par défaut.",
+                Tier = "Tier 2",
+                Parent = domain
+            };
+            domain.Children.Add(computersContainer);
+
+            // 4. OU Domain Controllers
+            var domainControllersOU = new ADObject("Domain Controllers", ADObjectType.OrganizationalUnit)
+            {
+                Description = @"# OU Domain Controllers
+
+Unité d'organisation par défaut pour les contrôleurs de domaine.
+
+> **Note** : Tous les contrôleurs de domaine sont automatiquement placés dans cette OU lors de leur promotion.",
+                Tier = "Tier 0",
+                Parent = domain
+            };
+            domain.Children.Add(domainControllersOU);
+
+            // 5. Container System (objets système)
+            var systemContainer = new ADObject("System", ADObjectType.Container)
+            {
+                Description = @"# Container System
+
+Container système d'Active Directory contenant les objets de configuration et les paramètres système.
+
+> **Note** : Ce container contient notamment les objets de configuration, les services, les stratégies de mots de passe, etc.",
+                Parent = domain
+            };
+            domain.Children.Add(systemContainer);
+
+            // Password Settings Container
+            var psoContainer = new ADObject("Password Settings Container", ADObjectType.Container)
+            {
+                Description = @"# Password Settings Container
+
+Container système contenant tous les Password Settings Objects (PSO) du domaine.
+
+> **Emplacement** : `CN=Password Settings Container,CN=System,DC=domaine,DC=com`
+
+Les PSOs permettent de définir des politiques de mot de passe granulaires.",
+                Parent = systemContainer
+            };
+            systemContainer.Children.Add(psoContainer);
+
+            // 6. Container ForeignSecurityPrincipals
+            var fspContainer = new ADObject("ForeignSecurityPrincipals", ADObjectType.Container)
+            {
+                Description = @"# Foreign Security Principals
+
+Container pour les principaux de sécurité provenant de domaines externes approuvés.
+
+> **Note** : Utilisé dans les environnements multi-domaines et multi-forêts.",
+                Parent = domain
+            };
+            domain.Children.Add(fspContainer);
+
+            // Mettre à jour tous les DN
+            UpdateDistinguishedNamesRecursive(domain);
+
+            return domain;
+        }
+
+        /// <summary>
+        /// Crée une structure AD d'exemple
+        /// </summary>
+        public ADObject CreateSampleStructure()
+        {
+            var domain = new ADObject("contoso.com", ADObjectType.Domain)
+            {
+                Description = "# Domaine Contoso\n\nDomaine de test pour MockAD.",
+                //Tier = "Tier 0"
+            };
+
+            // Containers par défaut (comme dans un vrai AD)
+            var usersContainer = new ADObject("Users", ADObjectType.Container)
+            {
+                Description = @"# Container Users
+
+Container par défaut pour les utilisateurs. 
+
+> **Note** : Dans un AD réel, ce container existe automatiquement.
+> Il ne peut pas contenir d'OUs, uniquement des Users, Groups, Computers.",
+                Tier = "Tier 2",
+                Parent = domain
+            };
+            domain.Children.Add(usersContainer);
+
+            var computersContainer = new ADObject("Computers", ADObjectType.Container)
+            {
+                Description = @"# Container Computers
+
+Container par défaut pour les ordinateurs joints au domaine.
+
+> **Note** : Les ordinateurs sont automatiquement créés ici par défaut lors de leur jonction au domaine.",
+                Tier = "Tier 2",
+                Parent = domain
+            };
+            domain.Children.Add(computersContainer);
+
+            // OU Admin
+            var adminOU = new ADObject("Admin", ADObjectType.OrganizationalUnit)
+            {
+                Description = "## OU Administration\n\nContient les comptes administrateurs Tier 0.",
+                Tier = "Tier 0",
+                Parent = domain
+            };
+            domain.Children.Add(adminOU);
+
+            var adminUser = new ADObject("Administrator", ADObjectType.User)
+            {
+                Description = "Compte administrateur principal",
+                Tier = "Tier 0",
+                Parent = adminOU
+            };
+            adminOU.Children.Add(adminUser);
+
+            var domainAdmins = new ADObject("Domain Admins", ADObjectType.Group)
+            {
+                Description = "Groupe des administrateurs de domaine",
+                Tier = "Tier 0",
+                Parent = adminOU
+            };
+            adminOU.Children.Add(domainAdmins);
+
+            // OU Servers
+            var serversOU = new ADObject("Servers", ADObjectType.OrganizationalUnit)
+            {
+                Description = "## Serveurs d'infrastructure\n\n- Serveurs de fichiers\n- Serveurs d'applications",
+                Tier = "Tier 1",
+                Parent = domain
+            };
+            domain.Children.Add(serversOU);
+
+            var fileServer = new ADObject("SRV-FILE-01", ADObjectType.Computer)
+            {
+                Description = "Serveur de fichiers principal",
+                Tier = "Tier 1",
+                Parent = serversOU
+            };
+            serversOU.Children.Add(fileServer);
+
+            var appServer = new ADObject("SRV-APP-01", ADObjectType.Computer)
+            {
+                Description = "Serveur d'applications",
+                Tier = "Tier 1",
+                Parent = serversOU
+            };
+            serversOU.Children.Add(appServer);
+
+            // OU Users
+            var usersOU = new ADObject("Users", ADObjectType.OrganizationalUnit)
+            {
+                Description = "## Utilisateurs de l'organisation",
+                Tier = "Tier 2",
+                Parent = domain
+            };
+            domain.Children.Add(usersOU);
+
+            var user1 = new ADObject("jdoe", ADObjectType.User)
+            {
+                Description = "John Doe - Développeur",
+                Tier = "Tier 2",
+                Parent = usersOU
+            };
+            usersOU.Children.Add(user1);
+
+            var user2 = new ADObject("asmith", ADObjectType.User)
+            {
+                Description = "Alice Smith - Manager",
+                Tier = "Tier 2",
+                Parent = usersOU
+            };
+            usersOU.Children.Add(user2);
+
+            // OU Workstations
+            var workstationsOU = new ADObject("Workstations", ADObjectType.OrganizationalUnit)
+            {
+                Description = "Postes de travail des utilisateurs",
+                Tier = "Tier 2",
+                Parent = domain
+            };
+            domain.Children.Add(workstationsOU);
+
+            var workstation1 = new ADObject("WKS-001", ADObjectType.Computer)
+            {
+                Description = "Poste de John Doe",
+                Tier = "Tier 2",
+                Parent = workstationsOU
+            };
+            workstationsOU.Children.Add(workstation1);
+
+            // GMSA
+            var gmsa = new ADObject("svc-webapp", ADObjectType.GMSA)
+            {
+                Description = "Compte de service géré pour l'application web",
+                Tier = "Tier 1",
+                Parent = serversOU
+            };
+            serversOU.Children.Add(gmsa);
+
+            // Policies
+            var policies = new ADObject("Policies", ADObjectType.OrganizationalUnit)
+            {
+                Description = "Stratégies de groupe",
+                Tier = "Tier 0",
+                Parent = domain
+            };
+            domain.Children.Add(policies);
+
+            var passwordPolicy = new ADObject("Password Policy", ADObjectType.Policy)
+            {
+                Description = "Stratégie de mot de passe : complexité requise, 90 jours d'expiration",
+                Tier = "Tier 0",
+                Parent = policies
+            };
+            policies.Children.Add(passwordPolicy);
+
+            // Container System (contient les objets système d'AD)
+            var systemContainer = new ADObject("System", ADObjectType.Container)
+            {
+                Description = @"# Container System
+
+Container système d'Active Directory contenant les objets de configuration et les paramètres système.
+
+> **Note** : Dans un AD réel, ce container existe automatiquement et contient notamment le ""Password Settings Container"".",
+                Parent = domain
+            };
+            domain.Children.Add(systemContainer);
+
+            // Password Settings Container (sous-container du System container)
+            var psoContainer = new ADObject("Password Settings Container", ADObjectType.Container)
+            {
+                Description = @"# Password Settings Container
+
+Container système contenant tous les Password Settings Objects (PSO) du domaine.
+
+> **Emplacement réel dans AD** : `CN=Password Settings Container,CN=System,DC=domaine,DC=com`
+
+Les PSOs permettent de définir des politiques de mot de passe granulaires qui s'appliquent à des utilisateurs ou groupes spécifiques, contrairement à la politique de domaine par défaut.",
+                Parent = systemContainer
+            };
+            systemContainer.Children.Add(psoContainer);
+
+            // Password Settings Objects (PSO) - stockés dans le Password Settings Container
+            var psoAdmin = new ADObject("PSO-Tier0-Admins", ADObjectType.PasswordSettingsObject)
+            {
+                Description = @"# PSO pour Administrateurs Tier 0
+
+## Paramètres de sécurité renforcés
+- **Longueur minimale** : 16 caractères
+- **Complexité** : Activée
+- **Historique** : 24 mots de passe
+- **Âge maximum** : 60 jours
+- **Âge minimum** : 2 jours
+- **Verrouillage** : 3 tentatives
+- **Durée de verrouillage** : 1 heure
+
+> ⚠️ **Important** : Cette politique s'applique uniquement aux comptes administrateurs Tier 0",
+                Tier = "Tier 0",
+                Parent = psoContainer
+            };
+            psoContainer.Children.Add(psoAdmin);
+
+            var psoUsers = new ADObject("PSO-Standard-Users", ADObjectType.PasswordSettingsObject)
+            {
+                Description = @"# PSO pour Utilisateurs Standard
+
+## Paramètres de sécurité standard
+- **Longueur minimale** : 12 caractères
+- **Complexité** : Activée
+- **Historique** : 12 mots de passe
+- **Âge maximum** : 90 jours
+- **Âge minimum** : 1 jour
+- **Verrouillage** : 5 tentatives
+- **Durée de verrouillage** : 30 minutes
+
+Politique appliquée à tous les utilisateurs standard Tier 2.",
+                Tier = "Tier 2",
+                Parent = psoContainer
+            };
+            psoContainer.Children.Add(psoUsers);
+
+            // Mettre à jour tous les DN
+            UpdateDistinguishedNamesRecursive(domain);
+
+            return domain;
+        }
+
+        private void UpdateDistinguishedNamesRecursive(ADObject obj)
+        {
+            obj.UpdateDistinguishedName();
+            foreach (var child in obj.Children)
+            {
+                UpdateDistinguishedNamesRecursive(child);
+            }
+        }
+    }
+}

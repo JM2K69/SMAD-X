@@ -1,0 +1,245 @@
+﻿using System;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SMADX.Services
+{
+    /// <summary>
+    /// Génère un script PowerShell qui interroge un domaine AD réel
+    /// et produit un fichier JSON importable dans Active Directory Simulator.
+    /// </summary>
+    public class ADImportPowerShellService
+    {
+        public async Task<bool> GenerateImportScriptAsync(string filePath)
+        {
+            try
+            {
+                var script = BuildScript();
+                await File.WriteAllTextAsync(filePath, script, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur génération script import : {ex.Message}");
+                return false;
+            }
+        }
+
+        private static string BuildScript()
+        {
+            var s = new StringBuilder();
+            L(s, "<#");
+            L(s, ".SYNOPSIS");
+            L(s, "    Export Active Directory vers un fichier JSON importable dans Active Directory Simulator.");
+            L(s, "");
+            L(s, ".DESCRIPTION");
+            L(s, "    Ce script lit la structure d'un domaine Active Directory (OUs, Containers, Users,");
+            L(s, "    Groups, Computers, GMSAs, GPOs, PSOs) et produit un JSON au format attendu");
+            L(s, "    par Active Directory Simulator.");
+            L(s, "");
+            L(s, ".PARAMETER OutputPath");
+            L(s, "    Chemin du fichier JSON de sortie. Par defaut : .\\AD_Export.json");
+            L(s, "");
+            L(s, ".PARAMETER DomainDN");
+            L(s, "    DN du domaine cible. Par defaut : domaine courant detecte automatiquement.");
+            L(s, "");
+            L(s, ".EXAMPLE");
+            L(s, "    .\\Export-ADToSimulator.ps1");
+            L(s, "    .\\Export-ADToSimulator.ps1 -OutputPath C:\\Exports\\mon_domaine.json");
+            L(s, "");
+            L(s, ".NOTES");
+            L(s, "    Requires : ActiveDirectory PowerShell module (RSAT)");
+            L(s, "    Rights   : Domain Read");
+            L(s, "#>");
+            L(s, "");
+            L(s, "param(");
+            L(s, "    [string]$OutputPath = '.\\AD_Export.json',");
+            L(s, "    [string]$DomainDN   = ''");
+            L(s, ")");
+            L(s, "");
+            L(s, "Set-StrictMode -Version Latest");
+            L(s, "$ErrorActionPreference = 'Stop'");
+            L(s, "");
+            L(s, "# ── 1. Prerequis ─────────────────────────────────────────────────────────────");
+            L(s, "if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {");
+            L(s, "    Write-Error 'Le module ActiveDirectory (RSAT) est requis.'");
+            L(s, "    exit 1");
+            L(s, "}");
+            L(s, "Import-Module ActiveDirectory -ErrorAction Stop");
+            L(s, "");
+            L(s, "# ── 2. Domaine cible ─────────────────────────────────────────────────────────");
+            L(s, "if ([string]::IsNullOrWhiteSpace($DomainDN)) {");
+            L(s, "    $domain     = Get-ADDomain");
+            L(s, "    $DomainDN   = $domain.DistinguishedName");
+            L(s, "    $domainName = $domain.DNSRoot");
+            L(s, "} else {");
+            L(s, "    $domainName = ($DomainDN -replace 'DC=','' -replace ',DC=','.').Trim(',').Trim()");
+            L(s, "}");
+            L(s, "Write-Host \"Domaine cible : $domainName ($DomainDN)\" -ForegroundColor Cyan");
+            L(s, "");
+            L(s, "# ── 3. Helpers ───────────────────────────────────────────────────────────────");
+            L(s, "function ConvertTo-JsonString([string]$str) {");
+            L(s, "    if ($null -eq $str) { return '' }");
+            L(s, "    $str = $str.Replace('\\','\\\\').Replace('\"','\\\"').Replace(\"`n\",'\\n').Replace(\"`r\",'\\r').Replace(\"`t\",'\\t')");
+            L(s, "    return $str");
+            L(s, "}");
+            L(s, "");
+            L(s, "function Format-Date($d) {");
+            L(s, "    if ($null -eq $d) { return (Get-Date -Format 'o') }");
+            L(s, "    try { return ([datetime]$d).ToString('o') } catch { return (Get-Date -Format 'o') }");
+            L(s, "}");
+            L(s, "");
+            L(s, "function Get-SimType([string]$objectClass) {");
+            L(s, "    switch ($objectClass) {");
+            L(s, "        'organizationalUnit'                  { return 'OrganizationalUnit' }");
+            L(s, "        'container'                           { return 'Container' }");
+            L(s, "        'builtinDomain'                       { return 'Container' }");
+            L(s, "        'user'                                { return 'User' }");
+            L(s, "        'group'                               { return 'Group' }");
+            L(s, "        'computer'                            { return 'Computer' }");
+            L(s, "        'msDS-GroupManagedServiceAccount'     { return 'GMSA' }");
+            L(s, "        'groupPolicyContainer'                { return 'Policy' }");
+            L(s, "        'msDS-PasswordSettings'               { return 'PasswordSettingsObject' }");
+            L(s, "        default                               { return 'Container' }");
+            L(s, "    }");
+            L(s, "}");
+            L(s, "");
+            L(s, "# ── 4. Collecte des GPOs ─────────────────────────────────────────────────────");
+            L(s, "Write-Host 'Collecte des GPOs...' -ForegroundColor Yellow");
+            L(s, "$gpoMap = @{}");
+            L(s, "try {");
+            L(s, "    Get-ADObject -Filter { objectClass -eq 'groupPolicyContainer' } `");
+            L(s, "                 -SearchBase $DomainDN `");
+            L(s, "                 -Properties DisplayName,cn | ForEach-Object {");
+            L(s, "        $gpoMap[$_.DistinguishedName] = if ($_.DisplayName) { $_.DisplayName } else { $_.cn }");
+            L(s, "    }");
+            L(s, "} catch { Write-Warning \"Impossible de lire les GPOs : $_\" }");
+            L(s, "");
+            L(s, "# ── 5. Liens GPO ─────────────────────────────────────────────────────────────");
+            L(s, "function Get-GPOLinksForDN([string]$dn) {");
+            L(s, "    try {");
+            L(s, "        $obj = Get-ADObject -Identity $dn -Properties gpLink");
+            L(s, "        if ($obj.gpLink) {");
+            L(s, "            $links = [regex]::Matches($obj.gpLink, '\\[LDAP://([^\\]]+);') | ForEach-Object { $_.Groups[1].Value }");
+            L(s, "            return @($links | ForEach-Object { if ($gpoMap.ContainsKey($_)) { $gpoMap[$_] } else { $_ } })");
+            L(s, "        }");
+            L(s, "    } catch {}");
+            L(s, "    return @()");
+            L(s, "}");
+            L(s, "");
+            L(s, "# ── 6. PSOs ──────────────────────────────────────────────────────────────────");
+            L(s, "Write-Host 'Collecte des PSOs...' -ForegroundColor Yellow");
+            L(s, "$psoObjects = @()");
+            L(s, "try {");
+            L(s, "    $psoObjects = Get-ADFineGrainedPasswordPolicy -Filter * | Select-Object `");
+            L(s, "        Name,DistinguishedName,Precedence,MinPasswordLength,PasswordHistoryCount,");
+            L(s, "        ComplexityEnabled,MaxPasswordAge,MinPasswordAge,LockoutThreshold,");
+            L(s, "        LockoutDuration,LockoutObservationWindow,AppliesTo");
+            L(s, "} catch { Write-Warning \"Impossible de lire les PSOs : $_\" }");
+            L(s, "");
+
+            L(s, "# ── 8. Construction recursive ────────────────────────────────────────────────");
+            L(s, "function Build-NodeJson {");
+            L(s, "    param([string]$dn, [string]$name, [string]$simType, [object]$adObj, [int]$depth = 0)");
+            L(s, "");
+            L(s, "    $id          = [guid]::NewGuid().ToString()");
+            L(s, "    $description = if ($adObj -and $adObj.Description) { ConvertTo-JsonString (($adObj.Description | Out-String).Trim()) } else { '' }");
+            L(s, "    $created     = Format-Date (if ($adObj) { $adObj.WhenCreated } else { $null })");
+            L(s, "    $modified    = Format-Date (if ($adObj) { $adObj.WhenChanged } else { $null })");
+            L(s, "");
+            L(s, "    # MemberOf");
+            L(s, "    $memberOfJson = '[]'");
+            L(s, "    if ($adObj -and $adObj.MemberOf) {");
+            L(s, "        $names = foreach ($gdn in $adObj.MemberOf) {");
+            L(s, "            try { $o = Get-ADObject -Identity $gdn -Properties SAMAccountName; $o.SAMAccountName } catch {}");
+            L(s, "        }");
+            L(s, "        $names = @($names | Where-Object { $_ })");
+            L(s, "        if ($names.Count -gt 0) {");
+            L(s, "            $memberOfJson = '[' + (($names | ForEach-Object { \"\\\"$(ConvertTo-JsonString $_)\\\"\" }) -join ',') + ']'");
+            L(s, "        }");
+            L(s, "    }");
+            L(s, "");
+            L(s, "    # LinkedGPOs");
+            L(s, "    $linkedGPOJson = '[]'");
+            L(s, "    if ($simType -in @('OrganizationalUnit','Domain')) {");
+            L(s, "        $links = Get-GPOLinksForDN $dn");
+            L(s, "        if ($links.Count -gt 0) {");
+            L(s, "            $linkedGPOJson = '[' + (($links | ForEach-Object { \"\\\"$(ConvertTo-JsonString $_)\\\"\" }) -join ',') + ']'");
+            L(s, "        }");
+            L(s, "    }");
+            L(s, "");
+            L(s, "    # PSO fields");
+            L(s, "    $psoAppliesToJson = '[]'");
+            L(s, "    $psoPrec = $psoMinLen = $psoHistory = $psoComplex = $psoMaxAge = $psoMinAge = $psoLockThr = $psoLockDur = $psoLockObs = 'null'");
+            L(s, "    if ($simType -eq 'PasswordSettingsObject') {");
+            L(s, "        $pso = $psoObjects | Where-Object { $_.DistinguishedName -eq $dn } | Select-Object -First 1");
+            L(s, "        if ($pso) {");
+            L(s, "            $psoPrec    = $pso.Precedence");
+            L(s, "            $psoMinLen  = $pso.MinPasswordLength");
+            L(s, "            $psoHistory = $pso.PasswordHistoryCount");
+            L(s, "            $psoComplex = ($pso.ComplexityEnabled).ToString().ToLower()");
+            L(s, "            $psoMaxAge  = if ($pso.MaxPasswordAge) { [int]$pso.MaxPasswordAge.TotalDays } else { 'null' }");
+            L(s, "            $psoMinAge  = if ($pso.MinPasswordAge) { [int]$pso.MinPasswordAge.TotalDays } else { 'null' }");
+            L(s, "            $psoLockThr = $pso.LockoutThreshold");
+            L(s, "            $psoLockDur = if ($pso.LockoutDuration) { [int]$pso.LockoutDuration.TotalMinutes } else { 'null' }");
+            L(s, "            $psoLockObs = if ($pso.LockoutObservationWindow) { [int]$pso.LockoutObservationWindow.TotalMinutes } else { 'null' }");
+            L(s, "            $sams = foreach ($sdn in $pso.AppliesTo) {");
+            L(s, "                try { $o = Get-ADObject -Identity $sdn -Properties SAMAccountName; $o.SAMAccountName } catch {}");
+            L(s, "            }");
+            L(s, "            $sams = @($sams | Where-Object { $_ })");
+            L(s, "            if ($sams.Count -gt 0) {");
+            L(s, "                $psoAppliesToJson = '[' + (($sams | ForEach-Object { \"\\\"$(ConvertTo-JsonString $_)\\\"\" }) -join ',') + ']'");
+            L(s, "            }");
+            L(s, "        }");
+            L(s, "    }");
+            L(s, "");
+            L(s, "    # Enfants (OUs/Containers + feuilles)");
+            L(s, "    $childParts = [System.Collections.Generic.List[string]]::new()");
+            L(s, "");
+            L(s, "    try {");
+            L(s, "        $subOUs = Get-ADObject -Filter { (objectClass -eq 'organizationalUnit') -or (objectClass -eq 'container') -or (objectClass -eq 'builtinDomain') } `");
+            L(s, "                               -SearchBase $dn -SearchScope OneLevel `");
+            L(s, "                               -Properties WhenCreated,WhenChanged,Description,gpLink");
+            L(s, "        foreach ($c in $subOUs) {");
+            L(s, "            $childParts.Add((Build-NodeJson -dn $c.DistinguishedName -name $c.Name -simType (Get-SimType $c.ObjectClass) -adObj $c -depth ($depth+1)))");
+            L(s, "        }");
+            L(s, "    } catch {}");
+            L(s, "");
+            L(s, "    try {");
+            L(s, "        $leaves = Get-ADObject -Filter { (objectClass -eq 'user') -or (objectClass -eq 'group') -or (objectClass -eq 'computer') -or (objectClass -eq 'msDS-GroupManagedServiceAccount') -or (objectClass -eq 'groupPolicyContainer') -or (objectClass -eq 'msDS-PasswordSettings') } `");
+            L(s, "                               -SearchBase $dn -SearchScope OneLevel `");
+            L(s, "                               -Properties SAMAccountName,MemberOf,WhenCreated,WhenChanged,Description,ObjectClass");
+            L(s, "        foreach ($l in $leaves) {");
+            L(s, "            $childParts.Add((Build-NodeJson -dn $l.DistinguishedName -name $l.Name -simType (Get-SimType $l.ObjectClass) -adObj $l -depth ($depth+1)))");
+            L(s, "        }");
+            L(s, "    } catch {}");
+            L(s, "");
+            L(s, "    $childrenJson = if ($childParts.Count -gt 0) { '[' + ($childParts -join ',') + ']' } else { '[]' }");
+            L(s, "");
+            L(s, "    return \"{`\"Id`\":`\"$id`\",`\"Name`\":`\"$(ConvertTo-JsonString $name)`\",`\"Type`\":`\"$simType`\",`\"Description`\":`\"$description`\",`\"DistinguishedName`\":`\"$(ConvertTo-JsonString $dn)`\",`\"Tier`\":$tierJson,`\"Children`\":$childrenJson,`\"MemberOf`\":$memberOfJson,`\"LinkedGPOs`\":$linkedGPOJson,`\"PSOAppliesTo`\":$psoAppliesToJson,`\"PSOPrecedence`\":$psoPrec,`\"PSOMinPasswordLength`\":$psoMinLen,`\"PSOPasswordHistoryCount`\":$psoHistory,`\"PSOComplexityEnabled`\":$psoComplex,`\"PSOMaxPasswordAgeDays`\":$psoMaxAge,`\"PSOMinPasswordAgeDays`\":$psoMinAge,`\"PSOLockoutThreshold`\":$psoLockThr,`\"PSOLockoutDurationMinutes`\":$psoLockDur,`\"PSOLockoutObservationWindowMinutes`\":$psoLockObs,`\"CreatedDate`\":`\"$created`\",`\"ModifiedDate`\":`\"$modified`\"}\"");
+            L(s, "}");
+            L(s, "");
+            L(s, "# ── 9. Racine Domain ─────────────────────────────────────────────────────────");
+            L(s, "Write-Host 'Construction de l arbre...' -ForegroundColor Yellow");
+            L(s, "$domainAdObj = Get-ADDomain");
+            L(s, "$rootJson    = Build-NodeJson -dn $DomainDN -name $domainName -simType 'Domain' -adObj $domainAdObj -depth 0");
+            L(s, "");
+            L(s, "# ── 10. Ecriture ─────────────────────────────────────────────────────────────");
+            L(s, "$outDir = Split-Path $OutputPath -Parent");
+            L(s, "if ($outDir -and -not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }");
+            L(s, "$rootJson | Out-File -FilePath $OutputPath -Encoding UTF8 -Force");
+            L(s, "");
+            L(s, "Write-Host ''");
+            L(s, "Write-Host '====================================' -ForegroundColor Green");
+            L(s, "Write-Host ' Export termine avec succes !'       -ForegroundColor Green");
+            L(s, "Write-Host \" Fichier : $OutputPath\"             -ForegroundColor Green");
+            L(s, "Write-Host '====================================' -ForegroundColor Green");
+            L(s, "Write-Host ' Importez ce fichier dans Active Directory Simulator' -ForegroundColor Cyan");
+            L(s, "Write-Host ' via : Fichier > Ouvrir / File > Open'                -ForegroundColor Cyan");
+            return s.ToString();
+        }
+
+        private static void L(StringBuilder sb, string line) => sb.AppendLine(line);
+    }
+}

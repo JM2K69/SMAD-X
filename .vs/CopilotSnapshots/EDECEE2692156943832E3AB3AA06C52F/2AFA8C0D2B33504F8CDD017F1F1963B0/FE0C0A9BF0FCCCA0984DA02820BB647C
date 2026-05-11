@@ -1,0 +1,70 @@
+﻿using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Activedirectory.ViewModels;
+
+namespace Activedirectory.Views
+{
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+            this.KeyDown += OnKeyDown;
+        }
+
+        private void OnExitClick(object? sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void OnKeyDown(object? sender, KeyEventArgs e)
+        {
+            if (DataContext is not MainWindowViewModel viewModel)
+                return;
+
+            // Ctrl+C - Copier
+            if (e.Key == Key.C && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            {
+                viewModel.CopyObjectCommand.Execute(null);
+                e.Handled = true;
+            }
+            // Ctrl+V - Coller
+            else if (e.Key == Key.V && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            {
+                viewModel.PasteObjectCommand.Execute(null);
+                e.Handled = true;
+            }
+            // Delete - Supprimer
+            else if (e.Key == Key.Delete)
+            {
+                viewModel.DeleteObjectCommand.Execute(null);
+                e.Handled = true;
+            }
+            // F2 - Renommer
+            else if (e.Key == Key.F2)
+            {
+                viewModel.RenameObjectCommand.Execute(null);
+                e.Handled = true;
+            }
+            // Ctrl+S - Sauvegarder
+            else if (e.Key == Key.S && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            {
+                viewModel.SaveToFileCommand.Execute(null);
+                e.Handled = true;
+            }
+            // Ctrl+O - Ouvrir
+            else if (e.Key == Key.O && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            {
+                viewModel.LoadFromFileCommand.Execute(null);
+                e.Handled = true;
+            }
+            // Ctrl+N - Nouvelle structure
+            else if (e.Key == Key.N && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            {
+                viewModel.InitializeSampleDataCommand.Execute(null);
+                e.Handled = true;
+            }
+        }
+    }
+}

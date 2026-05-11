@@ -1,0 +1,103 @@
+﻿using Avalonia.Controls;
+using Avalonia.Interactivity;
+using System.Collections.ObjectModel;
+using System.Linq;
+using SMADX.Services;
+
+namespace SMADX.Views
+{
+    public partial class NewDomainDialog : Window
+    {
+        public string? DomainName { get; private set; }
+        public bool EnableTiering { get; private set; }
+        public bool ApplyHardenAD { get; private set; }
+
+        private CheckBox? _applyHardenADCheckBox;
+        private CheckBox? _enableTieringCheckBox;
+        private TextBox? _domainNameTextBox;
+        private TextBlock? _validationMessage;
+        private Border? _hardenADImpactPanel;
+        private ItemsControl? _hardenADImpactList;
+
+        public NewDomainDialog()
+        {
+            InitializeComponent();
+
+            _applyHardenADCheckBox = this.FindControl<CheckBox>("ApplyHardenADCheckBox");
+            _enableTieringCheckBox = this.FindControl<CheckBox>("EnableTieringCheckBox");
+            _domainNameTextBox     = this.FindControl<TextBox>("DomainNameTextBox");
+            _validationMessage     = this.FindControl<TextBlock>("ValidationMessage");
+            _hardenADImpactPanel   = this.FindControl<Border>("HardenADImpactPanel");
+            _hardenADImpactList    = this.FindControl<ItemsControl>("HardenADImpactList");
+
+            // Focus sur le champ de texte au démarrage
+            _domainNameTextBox?.AttachedToVisualTree += (s, e) =>
+            {
+                _domainNameTextBox.Focus();
+                _domainNameTextBox.SelectAll();
+            };
+        }
+
+        private void OnHardenADCheckedChanged(object? sender, RoutedEventArgs e)
+        {
+            var isChecked = _applyHardenADCheckBox?.IsChecked ?? false;
+
+            if (_hardenADImpactPanel != null)
+                _hardenADImpactPanel.IsVisible = isChecked;
+
+            if (isChecked && _hardenADImpactList != null)
+            {
+                _hardenADImpactList.ItemsSource =
+                    new ObservableCollection<string>(HardenADService.GetImpactSummary());
+                Height = 720;
+            }
+            else
+            {
+                Height = 560;
+            }
+        }
+
+        private void OnCreateClick(object? sender, RoutedEventArgs e)
+        {
+            var domainName = _domainNameTextBox?.Text?.Trim();
+            var loc = LocalizationService.Instance;
+
+            // Validation
+            if (string.IsNullOrWhiteSpace(domainName))
+            {
+                SetValidation(loc["Dialog.NewDomain.ValidationEmpty"]);
+                return;
+            }
+
+            if (!domainName.Contains('.'))
+            {
+                SetValidation(loc["Dialog.NewDomain.ValidationNoDot"]);
+                return;
+            }
+
+            if (domainName.Any(c => !char.IsLetterOrDigit(c) && c != '.' && c != '-'))
+            {
+                SetValidation(loc["Dialog.NewDomain.ValidationInvalidChars"]);
+                return;
+            }
+
+            DomainName = domainName;
+            EnableTiering = _enableTieringCheckBox?.IsChecked ?? true;
+            ApplyHardenAD = _applyHardenADCheckBox?.IsChecked ?? false;
+            Close(true);
+        }
+
+        private void SetValidation(string message)
+        {
+            if (_validationMessage == null) return;
+            _validationMessage.Text = message;
+            _validationMessage.IsVisible = true;
+        }
+
+        private void OnCancelClick(object? sender, RoutedEventArgs e)
+        {
+            Close(false);
+        }
+    }
+}
+

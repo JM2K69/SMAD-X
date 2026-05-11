@@ -1,0 +1,74 @@
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Linq;
+
+namespace Activedirectory.Models
+{
+    /// <summary>
+    /// Configuration d'un tier (niveau de sécurité)
+    /// </summary>
+    public partial class TierConfiguration : ObservableObject
+    {
+        [ObservableProperty]
+        private string _name = string.Empty;
+
+        [ObservableProperty]
+        private string _color = "#808080";
+
+        [ObservableProperty]
+        private string _description = string.Empty;
+
+        [ObservableProperty]
+        private int _level = 0;
+
+        public TierConfiguration()
+        {
+        }
+
+        public TierConfiguration(string name, string color, string description, int level)
+        {
+            Name = name;
+            Color = color;
+            Description = description;
+            Level = level;
+        }
+    }
+
+    /// <summary>
+    /// Service de gestion des configurations de tiers
+    /// </summary>
+    public class TierConfigurationService
+    {
+        private static TierConfigurationService? _instance;
+        public static TierConfigurationService Instance => _instance ??= new TierConfigurationService();
+
+        public ObservableCollection<TierConfiguration> Tiers { get; private set; }
+
+        private TierConfigurationService()
+        {
+            // Configurations par défaut
+            Tiers = new ObservableCollection<TierConfiguration>
+            {
+                new TierConfiguration("Tier 0", "#C0392B", "Administration et contrôle de domaine", 0),
+                new TierConfiguration("Tier 1", "#E67E22", "Serveurs et infrastructure", 1),
+                new TierConfiguration("Tier 2", "#27AE60", "Postes de travail utilisateurs", 2)
+            };
+        }
+
+        public string GetTierColor(string tierName)
+        {
+            var tier = Tiers.FirstOrDefault(t => t.Name == tierName);
+            return tier?.Color ?? "#808080";
+        }
+
+        public void AddTier(TierConfiguration tier)
+        {
+            Tiers.Add(tier);
+        }
+
+        public void RemoveTier(TierConfiguration tier)
+        {
+            Tiers.Remove(tier);
+        }
+    }
+}

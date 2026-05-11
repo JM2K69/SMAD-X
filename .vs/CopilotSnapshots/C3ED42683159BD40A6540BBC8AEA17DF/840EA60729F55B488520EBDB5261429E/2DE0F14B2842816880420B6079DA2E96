@@ -1,0 +1,106 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="using:Activedirectory.Services"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
+        x:Class="Activedirectory.Views.NewDomainDialog"
+        Title="{Binding Source={StaticResource Loc}, Path=DialogNewDomainTitle}"
+        Width="500" Height="300"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+
+    <Grid Margin="20" RowDefinitions="Auto,Auto,Auto,*,Auto" DataContext="{StaticResource Loc}">
+
+        <!-- Titre -->
+        <TextBlock Grid.Row="0" 
+                   Text="{Binding DialogNewDomainHeader}" 
+                   FontSize="18" 
+                   FontWeight="Bold" 
+                   Margin="0,0,0,20"/>
+
+        <!-- Description -->
+        <TextBlock Grid.Row="1" 
+                   Text="{Binding DialogNewDomainDescription}"
+                   TextWrapping="Wrap" 
+                   Margin="0,0,0,20"/>
+
+        <!-- Saisie du nom de domaine -->
+        <StackPanel Grid.Row="2" Spacing="10" Margin="0,0,0,20">
+            <TextBlock Text="{Binding DialogNewDomainDomainName}" FontWeight="SemiBold"/>
+            <TextBox Name="DomainNameTextBox" 
+                     Watermark="{Binding DialogNewDomainDomainPlaceholder}"
+                     Text="contoso.com"/>
+
+            <TextBlock Name="ValidationMessage" 
+                       Foreground="Red" 
+                       FontSize="12" 
+                       IsVisible="False"
+                       Text="Le nom de domaine doit contenir au moins un point (ex: contoso.com)"/>
+
+            <!-- Option Tiering -->
+            <CheckBox Name="EnableTieringCheckBox" 
+                      Content="{Binding DialogNewDomainEnableTiering}" 
+                      IsChecked="True"
+                      Margin="0,10,0,0"
+                      ToolTip.Tip="{Binding DialogNewDomainTieringTooltip}"/>
+        </StackPanel>
+
+        <!-- Aperçu -->
+        <Border Grid.Row="3" 
+                BorderBrush="#CCCCCC" 
+                BorderThickness="1" 
+                Background="#F9F9F9" 
+                Padding="10"
+                Margin="0,0,0,20">
+            <ScrollViewer MaxHeight="150">
+                <TextBlock TextWrapping="Wrap" FontSize="11" FontFamily="Consolas">
+                    <Run Text="{Binding DialogNewDomainStructurePreview}" FontWeight="Bold"/>
+                    <LineBreak/>
+                    <Run Text="📦 Users (container par défaut)"/>
+                    <LineBreak/>
+                    <Run Text="   ├─ 👤 Administrator"/>
+                    <LineBreak/>
+                    <Run Text="   ├─ 👤 Guest"/>
+                    <LineBreak/>
+                    <Run Text="   ├─ 🔐 Krbtgt (Kerberos)"/>
+                    <LineBreak/>
+                    <Run Text="   └─ 👥 Domain Admins, Enterprise Admins, etc."/>
+                    <LineBreak/>
+                    <Run Text="📦 Computers (container par défaut)"/>
+                    <LineBreak/>
+                    <Run Text="   └─ 💻 WORKSTATION-01 (exemple)"/>
+                    <LineBreak/>
+                    <Run Text="📦 Builtin (groupes intégrés)"/>
+                    <LineBreak/>
+                    <Run Text="   └─ 👥 Administrators, Users, Server Operators, etc."/>
+                    <LineBreak/>
+                    <Run Text="📁 Domain Controllers (OU)"/>
+                    <LineBreak/>
+                    <Run Text="   └─ 💻 DC01 (contrôleur de domaine principal)"/>
+                    <LineBreak/>
+                    <Run Text="📦 System (container système)"/>
+                    <LineBreak/>
+                    <Run Text="   └─ 📦 Password Settings Container"/>
+                    <LineBreak/>
+                    <Run Text="📦 ForeignSecurityPrincipals"/>
+                </TextBlock>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Boutons -->
+        <StackPanel Grid.Row="4" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right" 
+                    Spacing="10">
+            <Button Content="{Binding DialogNewDomainCancel}" 
+                    Width="100" 
+                    Click="OnCancelClick"/>
+            <Button Content="{Binding DialogNewDomainCreate}" 
+                    Width="100" 
+                    Click="OnCreateClick"
+                    IsDefault="True"/>
+        </StackPanel>
+
+    </Grid>
+</Window>

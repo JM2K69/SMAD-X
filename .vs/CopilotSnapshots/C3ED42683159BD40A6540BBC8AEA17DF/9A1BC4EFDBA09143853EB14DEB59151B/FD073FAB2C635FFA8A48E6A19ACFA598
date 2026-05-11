@@ -1,0 +1,41 @@
+﻿using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Activedirectory.ViewModels;
+using Avalonia.Input;
+using Activedirectory.Models;
+using System;
+
+namespace Activedirectory.Views
+{
+    public partial class TierConfigurationWindow : Window
+    {
+        private TierConfiguration? _draggedItem;
+        private bool _isDragging;
+        private Avalonia.Point _dragStartPoint;
+
+        public TierConfigurationWindow()
+        {
+            InitializeComponent();
+            DataContext = new TierConfigurationViewModel();
+        }
+
+        private void OnCloseClick(object? sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private async void OnSelectColorClick(object? sender, RoutedEventArgs e)
+        {
+            if (DataContext is TierConfigurationViewModel vm)
+            {
+                var dialog = new ColorPickerDialog(vm.NewTierColor ?? "#808080");
+                var result = await dialog.ShowDialog<string?>(this);
+
+                if (result != null)
+                {
+                    vm.NewTierColor = result;
+                }
+            }
+        }
+    }
+}
