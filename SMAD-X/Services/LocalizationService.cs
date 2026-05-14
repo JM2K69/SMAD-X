@@ -231,33 +231,411 @@ Contient les groupes de sécurité intégrés du domaine.
 Container par défaut pour les utilisateurs et groupes du domaine.
 
 > **Note** : Lors de la création d'un nouvel utilisateur sans spécifier d'emplacement, il est placé ici par défaut.",
-                ["Desc.Users.Administrator"] = "Compte administrateur intégré pour administrer l'ordinateur/le domaine",
-                ["Desc.Users.Guest"] = "Compte invité intégré pour l'accès invité à l'ordinateur/au domaine",
-                ["Desc.Users.Krbtgt"] = @"# Compte de service Kerberos
+                ["Desc.Users.Administrator"] = @"# 👤 Compte Administrator
 
-Compte de service pour le centre de distribution de clés Kerberos.
+Compte administrateur **intégré** créé automatiquement lors de la promotion du domaine.
 
-> ⚠️ **Critique** : Ne jamais supprimer ou désactiver ce compte ! Il est essentiel au fonctionnement de Kerberos.",
-                ["Desc.Users.DomainAdmins"] = "Administrateurs désignés du domaine",
-                ["Desc.Users.DomainUsers"] = "Tous les utilisateurs du domaine",
-                ["Desc.Users.DomainComputers"] = "Tous les postes de travail et serveurs joints au domaine",
-                ["Desc.Users.DomainControllers"] = "Tous les contrôleurs de domaine du domaine",
-                ["Desc.Users.SchemaAdmins"] = "Administrateurs du schéma désignés du domaine",
-                ["Desc.Users.EnterpriseAdmins"] = "Administrateurs d'entreprise désignés de l'entreprise",
-                ["Desc.Users.GroupPolicyCreatorOwners"] = "Membres de ce groupe peuvent modifier la stratégie de groupe pour le domaine",
-                ["Desc.Users.ReadOnlyDCs"] = "Membres de ce groupe sont des contrôleurs de domaine en lecture seule dans le domaine",
-                ["Desc.Users.DnsAdmins"] = "Groupe d'accès administratif DNS",
-                ["Desc.Users.DefaultAccount"] = "Compte système géré par Windows",
-                ["Desc.Users.WDAGUtilityAccount"] = "Compte utilisé par Windows Defender Application Guard",
-                ["Desc.Users.CertPublishers"] = "Membres de ce groupe sont autorisés à publier des certificats dans l'annuaire",
-                ["Desc.Users.RASandIAS"] = "Serveurs de ce groupe peuvent accéder aux propriétés d'accès à distance des utilisateurs",
-                ["Desc.Users.AllowedRODCReplication"] = "Mots de passe de ce groupe peuvent être répliqués sur tous les RODC du domaine",
-                ["Desc.Users.DeniedRODCReplication"] = "Mots de passe de ce groupe ne peuvent pas être répliqués sur les RODC du domaine",
-                ["Desc.Users.DnsUpdateProxy"] = "Clients DNS autorisés à effectuer des mises à jour dynamiques DNS pour le compte d'autres clients",
-                ["Desc.Users.CloneableDCs"] = "Membres de ce groupe qui sont des contrôleurs de domaine peuvent être clonés",
-                ["Desc.Users.ProtectedUsers"] = "Membres de ce groupe bénéficient de protections supplémentaires contre les attaques de vol d'identifiants",
-                ["Desc.Users.KeyAdmins"] = "Membres de ce groupe peuvent effectuer des actions administratives sur les objets clés du domaine",
-                ["Desc.Users.EnterpriseKeyAdmins"] = "Membres de ce groupe peuvent effectuer des actions administratives sur les objets clés dans la forêt",
+## Rôle
+- Accès complet et illimité à toutes les ressources du domaine
+- Seul compte qui ne peut pas être verrouillé par la politique de verrouillage de compte
+- Membre permanent du groupe **Domain Admins** et **Administrators**
+
+## Appartenance par défaut
+| Groupe | Portée |
+|---|---|
+| Administrators | Domaine local |
+| Domain Admins | Global |
+| Group Policy Creator Owners | Global |
+| Schema Admins (forêt racine) | Universel |
+| Enterprise Admins (forêt racine) | Universel |
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Compte critique**
+
+- **Renommer** ce compte pour ne pas exposer le nom prévisible `Administrator`
+- **Désactiver** ce compte en production et créer un compte nommé dédié pour l'administration
+- Activer la **politique de verrouillage** pour les attaques par force brute (via Fine-Grained Password Policy)
+- Ce compte est une cible privilégiée des attaques **Pass-the-Hash** et **Mimikatz**
+- Surveiller avec des alertes sur toute ouverture de session de ce compte
+- Activer **Protected Users** (Windows Server 2012 R2+) ne s'applique pas à Administrator — gérer manuellement",
+
+                ["Desc.Users.Guest"] = @"# 👤 Compte Guest
+
+Compte invité **intégré** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Permet un accès anonyme et limité au domaine sans mot de passe
+- Droits équivalents au groupe **Guests** (très restreints)
+- Ne peut pas changer son mot de passe ni accéder aux paramètres du système
+
+## Appartenance par défaut
+| Groupe | Portée |
+|---|---|
+| Guests | Domaine local |
+| Domain Guests | Global |
+
+## ⚠️ Sécurité
+> 🔴 **Désactiver immédiatement en production**
+
+- Ce compte est **désactivé par défaut** depuis Windows Server 2008 — vérifier qu'il le reste
+- Ne jamais activer ce compte dans un environnement de production
+- Vecteur d'attaque classique pour l'accès non authentifié
+- Surveiller toute tentative d'activation ou d'utilisation de ce compte (Event ID 4722, 4624)",
+
+                ["Desc.Users.Krbtgt"] = @"# 🔑 Compte krbtgt
+
+Compte de service **Kerberos Key Distribution Center (KDC)** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Utilisé exclusivement par le service **KDC** pour signer et chiffrer les tickets Kerberos (TGT)
+- Son mot de passe sert de clé de chiffrement pour tous les **Ticket Granting Tickets** du domaine
+- Désactivé par défaut — ne jamais activer
+
+## Appartenance par défaut
+| Groupe | Portée |
+|---|---|
+| Domain Users | Global |
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Compte ultra-critique**
+
+- **Ne jamais supprimer** ce compte — cela rend le domaine inutilisable
+- **Ne jamais activer** ce compte interactivement
+- La compromission de ce compte permet de créer des **Golden Tickets** (attaque Mimikatz)
+- **Renouveler le mot de passe DEUX FOIS** après une compromission suspectée (deux resets consécutifs nécessaires pour invalider les tickets existants)
+- Renouvellement préventif recommandé **tous les 180 jours** en production
+- Surveiller les modifications du mot de passe (Event ID 4723, 4724)
+- Depuis Windows Server 2016 : utiliser le **RODC krbtgt account** séparé pour les RODCs",
+
+                ["Desc.Users.DomainAdmins"] = @"# 👥 Groupe Domain Admins
+
+Groupe **global** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Administrateurs désignés du domaine
+- Membres automatiquement ajoutés au groupe **Administrators** de chaque machine jointe au domaine
+- Contrôle total sur tous les objets du domaine
+
+## Appartenance par défaut
+Membres : **Administrator**
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Groupe ultra-privilégié**
+
+- Limiter le nombre de membres au strict minimum (principe du moindre privilège)
+- Ne jamais utiliser un compte Domain Admin pour les tâches quotidiennes
+- Utiliser des comptes dédiés à l'administration (PAW — Privileged Access Workstation)
+- Activer la surveillance de toute modification de ce groupe (Event ID 4728, 4729)
+- Les membres de Domain Admins sont membres de **Administrators** sur **toutes** les machines du domaine — vecteur de mouvement latéral majeur",
+
+                ["Desc.Users.DomainUsers"] = @"# 👥 Groupe Domain Users
+
+Groupe **global** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Contient **tous** les comptes utilisateurs du domaine (ajout automatique)
+- Utilisé comme groupe de base pour les permissions sur les ressources partagées
+- Membre du groupe **Users** local de chaque machine jointe
+
+## ⚠️ Sécurité
+> 🟢 **Tier 2 — Groupe standard**
+
+- Éviter d'accorder des permissions élevées à ce groupe — il contient tous les utilisateurs
+- Surveiller les ressources accessibles par ce groupe (audit des partages, des GPOs)
+- Utile pour définir des politiques s'appliquant à tous les utilisateurs du domaine",
+
+                ["Desc.Users.DomainComputers"] = @"# 👥 Groupe Domain Computers
+
+Groupe **global** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Contient **tous** les ordinateurs joints au domaine (hors contrôleurs de domaine)
+- Ajout automatique lors de la jonction d'un poste au domaine
+
+## ⚠️ Sécurité
+> 🟢 **Tier 2 — Groupe standard**
+
+- Peut être utilisé pour appliquer des politiques à l'ensemble des postes
+- Surveiller les ajouts inattendus (jonction de machines non autorisées)",
+
+                ["Desc.Users.DomainControllers"] = @"# 👥 Groupe Domain Controllers
+
+Groupe **global** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Contient **tous** les contrôleurs de domaine (DC) du domaine
+- Ajout automatique lors de la promotion d'un serveur en DC
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Groupe critique**
+
+- Surveiller toute modification (ajout/suppression de DC) — Event ID 4728, 4729
+- Un contrôleur de domaine compromis compromet l'intégralité du domaine",
+
+                ["Desc.Users.SchemaAdmins"] = @"# 👥 Groupe Schema Admins
+
+Groupe **universel** créé automatiquement. Existe uniquement dans le **domaine racine de la forêt**.
+
+## Rôle
+- Seuls membres autorisés à modifier le **schéma Active Directory** (structure des classes et attributs)
+- Modifications du schéma sont irréversibles et s'appliquent à toute la forêt
+
+## Appartenance par défaut
+Membres : **Administrator** (domaine racine uniquement)
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Groupe ultra-critique (forêt entière)**
+
+- **Maintenir vide** en permanence — n'ajouter des membres que le temps d'une modification de schéma planifiée
+- Toute modification du schéma doit être testée en environnement de test d'abord
+- Surveiller toute modification de ce groupe — Event ID 4728, 4729
+- Activer un processus de change management strict pour les modifications de schéma",
+
+                ["Desc.Users.EnterpriseAdmins"] = @"# 👥 Groupe Enterprise Admins
+
+Groupe **universel** créé automatiquement. Existe uniquement dans le **domaine racine de la forêt**.
+
+## Rôle
+- Administrateurs de l'entreprise avec contrôle sur **tous les domaines de la forêt**
+- Peut ajouter/supprimer des domaines de la forêt
+- Automatiquement membre de **Administrators** dans chaque domaine de la forêt
+
+## Appartenance par défaut
+Membres : **Administrator** (domaine racine uniquement)
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Groupe ultra-critique (forêt entière)**
+
+- **Maintenir vide** en permanence — n'ajouter des membres que pour des opérations de niveau forêt
+- Vecteur d'attaque transversal à tous les domaines de la forêt
+- Surveiller toute modification — Event ID 4728, 4729
+- Les membres ont un accès administrateur sur **tous** les contrôleurs de domaine de la forêt",
+
+                ["Desc.Users.GroupPolicyCreatorOwners"] = @"# 👥 Groupe Group Policy Creator Owners
+
+Groupe **global** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Membres autorisés à créer et modifier des **GPOs** dans le domaine
+- Un membre peut modifier uniquement les GPOs qu'il a créées (sauf Domain Admins)
+
+## Appartenance par défaut
+Membres : **Administrator**
+
+## ⚠️ Sécurité
+> 🟠 **Tier 1 — Groupe à surveiller**
+
+- Limiter les membres — la création de GPOs malveillantes est un vecteur d'attaque courant
+- Surveiller la création de nouvelles GPOs et leurs liaisons (Event ID 5136, 5137)
+- Toute GPO liée à l'OU Domain Controllers est potentiellement dangereuse",
+
+                ["Desc.Users.ReadOnlyDCs"] = @"# 👥 Groupe Read-Only Domain Controllers
+
+Groupe **global** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Contient les **RODC** (Read-Only Domain Controllers) du domaine
+- Les RODCs répliquent uniquement les objets autorisés via la **Password Replication Policy**
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Groupe critique**
+
+- Surveiller les ajouts à ce groupe
+- La compromission d'un RODC expose uniquement les comptes dont le mot de passe est mis en cache sur ce RODC
+- Configurer soigneusement la **Allowed RODC Password Replication Group** pour limiter l'exposition",
+
+                ["Desc.Users.DnsAdmins"] = @"# 👥 Groupe DnsAdmins
+
+Groupe **domaine local** créé automatiquement lors de l'installation du rôle DNS.
+
+## Rôle
+- Accès administratif complet au service **DNS** du domaine
+- Permet de gérer les zones, enregistrements et configuration DNS
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Escalade de privilèges connue**
+
+- Vecteur d'**escalade de privilèges critique** : un membre DnsAdmins peut charger une DLL malveillante dans le service DNS (qui tourne sous SYSTEM sur les DCs)
+- **CVE** : Technique documentée par Shay Ber (2017) — `dnscmd /config /serverlevelplugindll`
+- Limiter au strict minimum les membres de ce groupe
+- Surveiller l'utilisation de `dnscmd` par les membres (Event ID 4688)
+- Envisager de déléguer la gestion DNS différemment si possible",
+
+                ["Desc.Users.DefaultAccount"] = @"# 👤 Compte DefaultAccount
+
+Compte **système géré** créé automatiquement par Windows.
+
+## Rôle
+- Compte interne utilisé par le système Windows pour certains processus
+- Désactivé par défaut
+- Géré automatiquement par Windows — ne pas modifier
+
+## ⚠️ Sécurité
+> 🟡 **Maintenir désactivé**
+
+- Ne jamais activer ce compte manuellement
+- Surveiller toute modification (activation, changement de mot de passe)",
+
+                ["Desc.Users.WDAGUtilityAccount"] = @"# 👤 Compte WDAGUtilityAccount
+
+Compte système pour **Windows Defender Application Guard (WDAG)**.
+
+## Rôle
+- Utilisé par la fonctionnalité WDAG pour isoler les sessions de navigation dans un conteneur Hyper-V
+- Géré automatiquement par Windows — ne pas modifier
+- Désactivé si WDAG n'est pas utilisé
+
+## ⚠️ Sécurité
+> 🟡 **Compte système — ne pas modifier**
+
+- Ne jamais activer ou modifier ce compte manuellement
+- Sa présence est normale dans les domaines Windows 10/11 et Windows Server 2016+",
+
+                ["Desc.Users.CertPublishers"] = @"# 👥 Groupe Cert Publishers
+
+Groupe **domaine local** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Membres autorisés à **publier des certificats** dans Active Directory (attribut `userCertificate`)
+- Typiquement : les serveurs **Certificate Authority (CA)** enterprise
+
+## ⚠️ Sécurité
+> 🟠 **Tier 1 — Lié à l'infrastructure PKI**
+
+- Limiter les membres aux serveurs CA uniquement
+- La compromission d'un CA enterprise permet d'émettre des certificats frauduleux
+- Surveiller les modifications de ce groupe — Event ID 4728, 4729
+- Voir **ESC4** et autres techniques d'attaque PKI documentées dans **Certify/Certipy**",
+
+                ["Desc.Users.RASandIAS"] = @"# 👥 Groupe RAS and IAS Servers
+
+Groupe **domaine local** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Membres autorisés à accéder aux **propriétés d'accès réseau** des comptes utilisateurs
+- Utilisé par les serveurs **NPS (Network Policy Server)**, **RADIUS** et **VPN**
+
+## ⚠️ Sécurité
+> 🟠 **Tier 1 — Accès aux attributs d'authentification réseau**
+
+- Limiter aux serveurs NPS/RADIUS légitimes
+- Un serveur RAS compromis peut intercepter ou manipuler les connexions VPN",
+
+                ["Desc.Users.AllowedRODCReplication"] = @"# 👥 Groupe Allowed RODC Password Replication Group
+
+Groupe **domaine local** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Définit les comptes dont les **mots de passe PEUVENT être mis en cache** sur les RODCs
+- Vide par défaut — aucun mot de passe n'est répliqué sur les RODCs par défaut
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Contrôle de la réplication RODC**
+
+- **Ne jamais ajouter** de comptes Tier 0 (admins, krbtgt, service accounts critiques)
+- La compromission d'un RODC expose uniquement les comptes dont le hash est présent dans son cache
+- Utiliser le groupe **Denied RODC Password Replication Group** pour protéger les comptes sensibles
+- Auditer régulièrement les comptes mis en cache sur chaque RODC via `Get-ADDomainControllerPasswordReplicationPolicy`",
+
+                ["Desc.Users.DeniedRODCReplication"] = @"# 👥 Groupe Denied RODC Password Replication Group
+
+Groupe **domaine local** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Définit les comptes dont les **mots de passe NE PEUVENT PAS être mis en cache** sur les RODCs
+- Protège les comptes critiques contre l'exposition en cas de compromission d'un RODC
+
+## Membres par défaut
+`krbtgt`, `Domain Admins`, `Schema Admins`, `Enterprise Admins`, `Group Policy Creator Owners`, `Read-Only Domain Controllers`
+
+## ⚠️ Sécurité
+> 🟢 **Bonne pratique — maintenir à jour**
+
+- Ajouter tous les comptes de service critiques et comptes Tier 0 à ce groupe
+- Ne jamais retirer les membres par défaut
+- Auditer régulièrement la liste pour s'assurer qu'elle est exhaustive",
+
+                ["Desc.Users.DnsUpdateProxy"] = @"# 👥 Groupe DnsUpdateProxy
+
+Groupe **global** créé automatiquement lors de la promotion du domaine.
+
+## Rôle
+- Membres autorisés à **enregistrer des enregistrements DNS** pour le compte d'autres clients
+- Utilisé typiquement par les serveurs **DHCP** pour la mise à jour dynamique DNS
+
+## ⚠️ Sécurité
+> 🟠 **Tier 1 — Risque de squatting DNS**
+
+- **Limiter** les membres aux seuls serveurs DHCP autorisés
+- Les enregistrements créés par ce groupe sont initialement sans propriétaire — vecteur de **DNS hijacking**
+- Configurer le serveur DHCP avec un compte dédié plutôt que d'utiliser ce groupe si possible
+- Si utilisé, activer le **DNS dynamic update credentials** sur le serveur DHCP",
+
+                ["Desc.Users.CloneableDCs"] = @"# 👥 Groupe Cloneable Domain Controllers
+
+Groupe **global** créé automatiquement lors de la promotion du domaine (Windows Server 2012+).
+
+## Rôle
+- Membres (DCs) qui peuvent être **clonés** pour déployer rapidement des contrôleurs de domaine supplémentaires
+- Fonctionnalité de clonage basée sur Hyper-V
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Fonctionnalité de clonage de DC**
+
+- Limiter aux DCs qui doivent réellement être clonés
+- Un clone de DC hérite des secrets du DC source — processus à encadrer strictement
+- Vérifier que l'hôte Hyper-V est sécurisé avant tout clonage",
+
+                ["Desc.Users.ProtectedUsers"] = @"# 👥 Groupe Protected Users
+
+Groupe **universel** créé automatiquement (Windows Server 2012 R2+).
+
+## Rôle
+- Les membres bénéficient de **protections Kerberos renforcées** automatiquement :
+  - Pas de délégation Kerberos
+  - Pas de RC4 pour l'authentification (Kerberos AES uniquement)
+  - Pas de mise en cache des credentials NTLM
+  - TGT réduit à 4 heures (non renouvelable)
+  - Pas d'authentification NTLM, Digest, CredSSP
+
+## ⚠️ Sécurité
+> 🟢 **Bonne pratique — ajouter les comptes sensibles**
+
+- **Ajouter** tous les comptes d'administration Tier 0 et Tier 1
+- **Tester** avant d'ajouter des comptes de service — incompatible avec certains protocoles legacy
+- **Ne pas ajouter** : comptes de service utilisant NTLM, délégation Kerberos, ou authentification avec mot de passe en clair
+- Protège contre **Pass-the-Hash**, **Pass-the-Ticket**, **Overpass-the-Hash**",
+
+                ["Desc.Users.KeyAdmins"] = @"# 👥 Groupe Key Admins
+
+Groupe **global** créé automatiquement (Windows Server 2016+).
+
+## Rôle
+- Membres autorisés à effectuer des actions administratives sur les **attributs msDS-KeyCredentialLink**
+- Utilisé pour la gestion des **Windows Hello for Business** et des clés FIDO2 au niveau du domaine
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Risque Shadow Credentials**
+
+- Vecteur d'attaque **Shadow Credentials** : un membre peut ajouter des credentials alternatifs à n'importe quel compte du domaine
+- Attaque documentée : `Whisker`, `pyWhisker`
+- Surveiller les modifications de l'attribut `msDS-KeyCredentialLink` — Event ID 5136
+- Limiter les membres au strict minimum",
+
+                ["Desc.Users.EnterpriseKeyAdmins"] = @"# 👥 Groupe Enterprise Key Admins
+
+Groupe **universel** créé automatiquement (Windows Server 2016+). Domaine racine de la forêt.
+
+## Rôle
+- Équivalent de **Key Admins** mais avec portée sur **tous les domaines de la forêt**
+- Gestion des attributs `msDS-KeyCredentialLink` au niveau forêt
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Risque Shadow Credentials (forêt entière)**
+
+- Même vecteur d'attaque que **Key Admins** mais avec portée forêt
+- **Maintenir vide** en permanence sauf besoin opérationnel spécifique
+- Surveiller toute modification — Event ID 4728, 4729 et 5136",
                 ["Desc.Computers"] = @"# Container Computers
 
 Container par défaut pour les ordinateurs joints au domaine.
@@ -630,33 +1008,411 @@ Contains built-in security groups of the domain.
 Default container for domain users and groups.
 
 > **Note**: When creating a new user without specifying a location, it is placed here by default.",
-                ["Desc.Users.Administrator"] = "Built-in administrator account for administering the computer/domain",
-                ["Desc.Users.Guest"] = "Built-in guest account for guest access to the computer/domain",
-                ["Desc.Users.Krbtgt"] = @"# Kerberos Service Account
+                ["Desc.Users.Administrator"] = @"# 👤 Administrator Account
 
-Service account for the Kerberos Key Distribution Center.
+**Built-in** administrator account created automatically when the domain is promoted.
 
-> ⚠️ **Critical**: Never delete or disable this account! It is essential for Kerberos operation.",
-                ["Desc.Users.DomainAdmins"] = "Designated administrators of the domain",
-                ["Desc.Users.DomainUsers"] = "All domain users",
-                ["Desc.Users.DomainComputers"] = "All workstations and servers joined to the domain",
-                ["Desc.Users.DomainControllers"] = "All domain controllers in the domain",
-                ["Desc.Users.SchemaAdmins"] = "Designated schema administrators of the domain",
-                ["Desc.Users.EnterpriseAdmins"] = "Designated enterprise administrators of the enterprise",
-                ["Desc.Users.GroupPolicyCreatorOwners"] = "Members of this group can modify group policy for the domain",
-                ["Desc.Users.ReadOnlyDCs"] = "Members of this group are Read-Only Domain Controllers in the domain",
-                ["Desc.Users.DnsAdmins"] = "DNS administrative access group",
-                ["Desc.Users.DefaultAccount"] = "System-managed account used by Windows",
-                ["Desc.Users.WDAGUtilityAccount"] = "Account used by Windows Defender Application Guard",
-                ["Desc.Users.CertPublishers"] = "Members of this group are permitted to publish certificates to the directory",
-                ["Desc.Users.RASandIAS"] = "Servers in this group can access remote access properties of users",
-                ["Desc.Users.AllowedRODCReplication"] = "Passwords for members of this group can be replicated to all RODCs in the domain",
-                ["Desc.Users.DeniedRODCReplication"] = "Passwords for members of this group cannot be replicated to any RODC in the domain",
-                ["Desc.Users.DnsUpdateProxy"] = "DNS clients permitted to perform dynamic DNS updates on behalf of other clients",
-                ["Desc.Users.CloneableDCs"] = "Members of this group that are domain controllers may be cloned",
-                ["Desc.Users.ProtectedUsers"] = "Members of this group are afforded additional protections against credential theft attacks",
-                ["Desc.Users.KeyAdmins"] = "Members of this group can perform administrative actions on key objects within the domain",
-                ["Desc.Users.EnterpriseKeyAdmins"] = "Members of this group can perform administrative actions on key objects within the forest",
+## Role
+- Full and unrestricted access to all domain resources
+- The only account that cannot be locked out by the account lockout policy
+- Permanent member of **Domain Admins** and **Administrators**
+
+## Default Group Membership
+| Group | Scope |
+|---|---|
+| Administrators | Domain local |
+| Domain Admins | Global |
+| Group Policy Creator Owners | Global |
+| Schema Admins (forest root) | Universal |
+| Enterprise Admins (forest root) | Universal |
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Critical account**
+
+- **Rename** this account to avoid exposing the predictable `Administrator` name
+- **Disable** this account in production and create a dedicated named account for administration
+- Enable **lockout policy** against brute-force attacks (via Fine-Grained Password Policy)
+- This account is a prime target for **Pass-the-Hash** and **Mimikatz** attacks
+- Monitor with alerts on any logon event for this account
+- **Protected Users** group (Windows Server 2012 R2+) does not apply to Administrator — manage manually",
+
+                ["Desc.Users.Guest"] = @"# 👤 Guest Account
+
+**Built-in** guest account created automatically when the domain is promoted.
+
+## Role
+- Allows anonymous and limited access to the domain without a password
+- Rights equivalent to the **Guests** group (very restricted)
+- Cannot change its own password or access system settings
+
+## Default Group Membership
+| Group | Scope |
+|---|---|
+| Guests | Domain local |
+| Domain Guests | Global |
+
+## ⚠️ Security
+> 🔴 **Disable immediately in production**
+
+- This account is **disabled by default** since Windows Server 2008 — verify it stays disabled
+- Never enable this account in a production environment
+- Classic attack vector for unauthenticated access
+- Monitor any activation or usage attempt (Event ID 4722, 4624)",
+
+                ["Desc.Users.Krbtgt"] = @"# 🔑 krbtgt Account
+
+**Kerberos Key Distribution Center (KDC)** service account created automatically when the domain is promoted.
+
+## Role
+- Used exclusively by the **KDC** service to sign and encrypt Kerberos tickets (TGT)
+- Its password serves as the encryption key for all **Ticket Granting Tickets** in the domain
+- Disabled by default — never enable
+
+## Default Group Membership
+| Group | Scope |
+|---|---|
+| Domain Users | Global |
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Ultra-critical account**
+
+- **Never delete** this account — it renders the domain unusable
+- **Never enable** this account interactively
+- Compromising this account allows creating **Golden Tickets** (Mimikatz attack)
+- **Reset the password TWICE** after a suspected compromise (two consecutive resets required to invalidate existing tickets)
+- Preventive rotation recommended **every 180 days** in production
+- Monitor password changes (Event ID 4723, 4724)
+- Since Windows Server 2016: use the separate **RODC krbtgt account** for RODCs",
+
+                ["Desc.Users.DomainAdmins"] = @"# 👥 Domain Admins Group
+
+**Global** group created automatically when the domain is promoted.
+
+## Role
+- Designated administrators of the domain
+- Members are automatically added to the **Administrators** group on every domain-joined machine
+- Full control over all objects in the domain
+
+## Default Membership
+Members: **Administrator**
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Ultra-privileged group**
+
+- Limit membership to the bare minimum (principle of least privilege)
+- Never use a Domain Admin account for day-to-day tasks
+- Use dedicated administration accounts (PAW — Privileged Access Workstation)
+- Enable monitoring for any modification (Event ID 4728, 4729)
+- Domain Admin members are **Administrators** on **every** machine in the domain — major lateral movement vector",
+
+                ["Desc.Users.DomainUsers"] = @"# 👥 Domain Users Group
+
+**Global** group created automatically when the domain is promoted.
+
+## Role
+- Contains **all** domain user accounts (added automatically)
+- Used as the base group for permissions on shared resources
+- Member of the local **Users** group on every domain-joined machine
+
+## ⚠️ Security
+> 🟢 **Tier 2 — Standard group**
+
+- Avoid granting elevated permissions to this group — it contains all users
+- Audit resources accessible by this group (shares, GPOs)
+- Useful for applying policies to all domain users",
+
+                ["Desc.Users.DomainComputers"] = @"# 👥 Domain Computers Group
+
+**Global** group created automatically when the domain is promoted.
+
+## Role
+- Contains **all** computers joined to the domain (excluding domain controllers)
+- Automatically added when a workstation joins the domain
+
+## ⚠️ Security
+> 🟢 **Tier 2 — Standard group**
+
+- Can be used to apply policies to all workstations
+- Monitor unexpected additions (unauthorized machine joins)",
+
+                ["Desc.Users.DomainControllers"] = @"# 👥 Domain Controllers Group
+
+**Global** group created automatically when the domain is promoted.
+
+## Role
+- Contains **all** domain controllers (DCs) in the domain
+- Automatically added when a server is promoted to DC
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Critical group**
+
+- Monitor any modification (DC added/removed) — Event ID 4728, 4729
+- A compromised domain controller compromises the entire domain",
+
+                ["Desc.Users.SchemaAdmins"] = @"# 👥 Schema Admins Group
+
+**Universal** group created automatically. Exists only in the **forest root domain**.
+
+## Role
+- Only members authorized to modify the **Active Directory schema** (class/attribute structure)
+- Schema modifications are irreversible and apply to the entire forest
+
+## Default Membership
+Members: **Administrator** (forest root only)
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Ultra-critical group (entire forest)**
+
+- **Keep empty** at all times — only add members for the duration of a planned schema modification
+- All schema changes must be tested in a test environment first
+- Monitor any modification — Event ID 4728, 4729
+- Enforce strict change management for schema modifications",
+
+                ["Desc.Users.EnterpriseAdmins"] = @"# 👥 Enterprise Admins Group
+
+**Universal** group created automatically. Exists only in the **forest root domain**.
+
+## Role
+- Enterprise administrators with control over **all domains in the forest**
+- Can add/remove domains from the forest
+- Automatically member of **Administrators** in every domain in the forest
+
+## Default Membership
+Members: **Administrator** (forest root only)
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Ultra-critical group (entire forest)**
+
+- **Keep empty** at all times — only add members for forest-level operations
+- Cross-forest attack vector affecting all domains
+- Monitor any modification — Event ID 4728, 4729
+- Members have administrator access on **all** domain controllers in the forest",
+
+                ["Desc.Users.GroupPolicyCreatorOwners"] = @"# 👥 Group Policy Creator Owners
+
+**Global** group created automatically when the domain is promoted.
+
+## Role
+- Members authorized to create and modify **GPOs** in the domain
+- A member can only modify GPOs they created (except Domain Admins)
+
+## Default Membership
+Members: **Administrator**
+
+## ⚠️ Security
+> 🟠 **Tier 1 — Group to monitor**
+
+- Limit members — creating malicious GPOs is a common attack vector
+- Monitor GPO creation and linking (Event ID 5136, 5137)
+- Any GPO linked to the Domain Controllers OU is potentially dangerous",
+
+                ["Desc.Users.ReadOnlyDCs"] = @"# 👥 Read-Only Domain Controllers Group
+
+**Global** group created automatically when the domain is promoted.
+
+## Role
+- Contains **RODCs** (Read-Only Domain Controllers) in the domain
+- RODCs replicate only objects authorized via the **Password Replication Policy**
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Critical group**
+
+- Monitor additions to this group
+- Compromising a RODC exposes only the accounts whose passwords are cached on that RODC
+- Carefully configure the **Allowed RODC Password Replication Group** to limit exposure",
+
+                ["Desc.Users.DnsAdmins"] = @"# 👥 DnsAdmins Group
+
+**Domain local** group created automatically when the DNS role is installed.
+
+## Role
+- Full administrative access to the domain **DNS** service
+- Allows managing zones, records and DNS configuration
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Known privilege escalation path**
+
+- **Critical privilege escalation** vector: a DnsAdmins member can load a malicious DLL into the DNS service (which runs as SYSTEM on DCs)
+- **CVE**: Documented technique by Shay Ber (2017) — `dnscmd /config /serverlevelplugindll`
+- Minimize membership in this group
+- Monitor use of `dnscmd` by members (Event ID 4688)
+- Consider delegating DNS management differently if possible",
+
+                ["Desc.Users.DefaultAccount"] = @"# 👤 DefaultAccount
+
+**System-managed** account created automatically by Windows.
+
+## Role
+- Internal account used by Windows for certain processes
+- Disabled by default
+- Managed automatically by Windows — do not modify
+
+## ⚠️ Security
+> 🟡 **Keep disabled**
+
+- Never enable this account manually
+- Monitor any modification (activation, password change)",
+
+                ["Desc.Users.WDAGUtilityAccount"] = @"# 👤 WDAGUtilityAccount
+
+System account for **Windows Defender Application Guard (WDAG)**.
+
+## Role
+- Used by the WDAG feature to isolate browsing sessions in a Hyper-V container
+- Managed automatically by Windows — do not modify
+- Disabled if WDAG is not in use
+
+## ⚠️ Security
+> 🟡 **System account — do not modify**
+
+- Never enable or modify this account manually
+- Its presence is normal in Windows 10/11 and Windows Server 2016+ domains",
+
+                ["Desc.Users.CertPublishers"] = @"# 👥 Cert Publishers Group
+
+**Domain local** group created automatically when the domain is promoted.
+
+## Role
+- Members authorized to **publish certificates** in Active Directory (`userCertificate` attribute)
+- Typically: enterprise **Certificate Authority (CA)** servers
+
+## ⚠️ Security
+> 🟠 **Tier 1 — Linked to PKI infrastructure**
+
+- Limit membership to CA servers only
+- Compromising an enterprise CA allows issuing fraudulent certificates
+- Monitor modifications — Event ID 4728, 4729
+- See **ESC4** and other PKI attack techniques documented in **Certify/Certipy**",
+
+                ["Desc.Users.RASandIAS"] = @"# 👥 RAS and IAS Servers Group
+
+**Domain local** group created automatically when the domain is promoted.
+
+## Role
+- Members authorized to access **remote access properties** of user accounts
+- Used by **NPS (Network Policy Server)**, **RADIUS** and **VPN** servers
+
+## ⚠️ Security
+> 🟠 **Tier 1 — Access to network authentication attributes**
+
+- Limit to legitimate NPS/RADIUS servers only
+- A compromised RAS server can intercept or manipulate VPN connections",
+
+                ["Desc.Users.AllowedRODCReplication"] = @"# 👥 Allowed RODC Password Replication Group
+
+**Domain local** group created automatically when the domain is promoted.
+
+## Role
+- Defines accounts whose **passwords CAN be cached** on RODCs
+- Empty by default — no passwords are replicated to RODCs by default
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Controls RODC replication**
+
+- **Never add** Tier 0 accounts (admins, krbtgt, critical service accounts)
+- Compromising a RODC only exposes accounts whose hash is in its cache
+- Use the **Denied RODC Password Replication Group** to protect sensitive accounts
+- Regularly audit cached accounts on each RODC via `Get-ADDomainControllerPasswordReplicationPolicy`",
+
+                ["Desc.Users.DeniedRODCReplication"] = @"# 👥 Denied RODC Password Replication Group
+
+**Domain local** group created automatically when the domain is promoted.
+
+## Role
+- Defines accounts whose **passwords CANNOT be cached** on RODCs
+- Protects critical accounts from exposure in case of RODC compromise
+
+## Default Members
+`krbtgt`, `Domain Admins`, `Schema Admins`, `Enterprise Admins`, `Group Policy Creator Owners`, `Read-Only Domain Controllers`
+
+## ⚠️ Security
+> 🟢 **Best practice — keep up to date**
+
+- Add all critical service accounts and Tier 0 accounts to this group
+- Never remove the default members
+- Regularly audit the list to ensure it is comprehensive",
+
+                ["Desc.Users.DnsUpdateProxy"] = @"# 👥 DnsUpdateProxy Group
+
+**Global** group created automatically when the domain is promoted.
+
+## Role
+- Members authorized to **register DNS records** on behalf of other clients
+- Typically used by **DHCP** servers for dynamic DNS updates
+
+## ⚠️ Security
+> 🟠 **Tier 1 — DNS squatting risk**
+
+- **Limit** members to authorized DHCP servers only
+- Records created by this group are initially ownerless — vector for **DNS hijacking**
+- Configure the DHCP server with a dedicated account rather than using this group if possible
+- If used, enable **DNS dynamic update credentials** on the DHCP server",
+
+                ["Desc.Users.CloneableDCs"] = @"# 👥 Cloneable Domain Controllers Group
+
+**Global** group created automatically when the domain is promoted (Windows Server 2012+).
+
+## Role
+- Members (DCs) that can be **cloned** to rapidly deploy additional domain controllers
+- Cloning feature based on Hyper-V
+
+## ⚠️ Security
+> 🔴 **Tier 0 — DC cloning feature**
+
+- Limit to DCs that actually need to be cloned
+- A DC clone inherits the source DC's secrets — process must be strictly controlled
+- Verify that the Hyper-V host is secured before any cloning",
+
+                ["Desc.Users.ProtectedUsers"] = @"# 👥 Protected Users Group
+
+**Universal** group created automatically (Windows Server 2012 R2+).
+
+## Role
+- Members automatically benefit from **enhanced Kerberos protections**:
+  - No Kerberos delegation
+  - No RC4 for authentication (Kerberos AES only)
+  - No NTLM credential caching
+  - TGT reduced to 4 hours (non-renewable)
+  - No NTLM, Digest, CredSSP authentication
+
+## ⚠️ Security
+> 🟢 **Best practice — add sensitive accounts**
+
+- **Add** all Tier 0 and Tier 1 administration accounts
+- **Test** before adding service accounts — incompatible with some legacy protocols
+- **Do not add**: service accounts using NTLM, Kerberos delegation, or plaintext password authentication
+- Protects against **Pass-the-Hash**, **Pass-the-Ticket**, **Overpass-the-Hash**",
+
+                ["Desc.Users.KeyAdmins"] = @"# 👥 Key Admins Group
+
+**Global** group created automatically (Windows Server 2016+).
+
+## Role
+- Members authorized to perform administrative actions on **msDS-KeyCredentialLink** attributes
+- Used for managing **Windows Hello for Business** and FIDO2 keys at the domain level
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Shadow Credentials risk**
+
+- **Shadow Credentials** attack vector: a member can add alternative credentials to any domain account
+- Documented attack: `Whisker`, `pyWhisker`
+- Monitor modifications to the `msDS-KeyCredentialLink` attribute — Event ID 5136
+- Minimize membership",
+
+                ["Desc.Users.EnterpriseKeyAdmins"] = @"# 👥 Enterprise Key Admins Group
+
+**Universal** group created automatically (Windows Server 2016+). Forest root domain.
+
+## Role
+- Equivalent of **Key Admins** but with scope across **all forest domains**
+- Manages `msDS-KeyCredentialLink` attributes at forest level
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Shadow Credentials risk (entire forest)**
+
+- Same attack vector as **Key Admins** but with forest-wide scope
+- **Keep empty** at all times unless there is a specific operational need
+- Monitor any modification — Event ID 4728, 4729 and 5136",
                 ["Desc.Computers"] = @"# Computers Container
 
 Default container for computers joined to the domain.
