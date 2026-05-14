@@ -25,7 +25,7 @@ namespace SMADX.ViewModels
     {
         private readonly ADObject _root;
 
-        // --- Onglet Memberships ---
+        // --- Onglet User → Group ---
         public ObservableCollection<RelationEntry> Memberships { get; } = new();
         private RelationEntry? _selectedMembership;
         public RelationEntry? SelectedMembership
@@ -44,6 +44,27 @@ namespace SMADX.ViewModels
         {
             get => _membershipTarget;
             set => SetProperty(ref _membershipTarget, value);
+        }
+
+        // --- Onglet Group → Group (imbrication) ---
+        public ObservableCollection<RelationEntry> GroupNestings { get; } = new();
+        private RelationEntry? _selectedGroupNesting;
+        public RelationEntry? SelectedGroupNesting
+        {
+            get => _selectedGroupNesting;
+            set => SetProperty(ref _selectedGroupNesting, value);
+        }
+        private string _nestingSource = string.Empty;
+        public string NestingSource
+        {
+            get => _nestingSource;
+            set => SetProperty(ref _nestingSource, value);
+        }
+        private string _nestingTarget = string.Empty;
+        public string NestingTarget
+        {
+            get => _nestingTarget;
+            set => SetProperty(ref _nestingTarget, value);
         }
 
         // --- Onglet GPO Links ---
@@ -150,20 +171,34 @@ namespace SMADX.ViewModels
         private void LoadRelations()
         {
             Memberships.Clear();
+            GroupNestings.Clear();
             GpoLinks.Clear();
             PsoLinks.Clear();
 
             foreach (var obj in CollectAll(_root))
             {
-                if (obj.Type == ADObjectType.User || obj.Type == ADObjectType.Group)
+                // User → Group
+                if (obj.Type == ADObjectType.User)
                 {
                     foreach (var grp in obj.MemberOf)
                         Memberships.Add(new RelationEntry
                         {
                             Source = obj.Name,
-                            SourceType = obj.Type.ToString(),
+                            SourceType = "User",
                             Target = grp,
                             RelationType = "MemberOf"
+                        });
+                }
+                // Group → Group
+                if (obj.Type == ADObjectType.Group)
+                {
+                    foreach (var grp in obj.MemberOf)
+                        GroupNestings.Add(new RelationEntry
+                        {
+                            Source = obj.Name,
+                            SourceType = "Group",
+                            Target = grp,
+                            RelationType = "Group in Group"
                         });
                 }
                 if (obj.Type == ADObjectType.OrganizationalUnit || obj.Type == ADObjectType.Domain)
@@ -191,14 +226,14 @@ namespace SMADX.ViewModels
             }
         }
 
-        // --- Commandes Memberships ---
+        // --- Commandes User → Group ---
 
         [RelayCommand]
         private void AddMembership()
         {
             if (string.IsNullOrWhiteSpace(MembershipSource) || string.IsNullOrWhiteSpace(MembershipTarget))
             {
-                StatusMessage = "Sélectionnez un objet source et un groupe cible.";
+                StatusMessage = "Sélectionnez un utilisateur source et un groupe cible.";
                 return;
             }
             if (MembershipSource == MembershipTarget)
@@ -209,6 +244,11 @@ namespace SMADX.ViewModels
 
             var source = FindObject(MembershipSource);
             if (source == null) { StatusMessage = $"Objet '{MembershipSource}' introuvable."; return; }
+            if (source.Type != ADObjectType.User)
+            {
+                StatusMessage = "La source doit être un utilisateur. Pour Group→Group, utilisez l'onglet dédié.";
+                return;
+            }
             if (source.MemberOf.Contains(MembershipTarget))
             {
                 StatusMessage = "Cette relation existe déjà.";
@@ -219,7 +259,7 @@ namespace SMADX.ViewModels
             Memberships.Add(new RelationEntry
             {
                 Source = MembershipSource,
-                SourceType = source.Type.ToString(),
+                SourceType = "User",
                 Target = MembershipTarget,
                 RelationType = "MemberOf"
             });
@@ -236,6 +276,58 @@ namespace SMADX.ViewModels
             source?.MemberOf.Remove(SelectedMembership.Target);
             Memberships.Remove(SelectedMembership);
             StatusMessage = "✔ Relation supprimée.";
+        }
+
+        // --- Commandes Group → Group ---
+
+        [RelayCommand]
+        private void AddGroupNesting()
+        {
+            if (string.IsNullOrWhiteSpace(NestingSource) || string.IsNullOrWhiteSpace(NestingTarget))
+            {
+                StatusMessage = "Sélectionnez le groupe source et le groupe cible (parent).";
+                return;
+            }
+            if (NestingSource == NestingTarget)
+            {
+                StatusMessage = "Un groupe ne peut pas être membre de lui-même.";
+                return;
+            }
+
+            var source = FindObject(NestingSource);
+            if (source == null) { StatusMessage = $"Groupe '{NestingSource}' introuvable."; return; }
+            if (source.Type != ADObjectType.Group)
+            {
+                StatusMessage = "La source doit être un groupe.";
+                return;
+            }
+            if (source.MemberOf.Contains(NestingTarget))
+            {
+                StatusMessage = "Cette imbrication existe déjà.";
+                return;
+            }
+
+            source.MemberOf.Add(NestingTarget);
+            GroupNestings.Add(new RelationEntry
+            {
+                Source = NestingSource,
+                SourceType = "Group",
+                Target = NestingTarget,
+                RelationType = "Group in Group"
+            });
+            StatusMessage = $"✔ {NestingSource} ⊂ {NestingTarget} ajouté.";
+            NestingSource = string.Empty;
+            NestingTarget = string.Empty;
+        }
+
+        [RelayCommand]
+        private void RemoveGroupNesting()
+        {
+            if (SelectedGroupNesting == null) return;
+            var source = FindObject(SelectedGroupNesting.Source);
+            source?.MemberOf.Remove(SelectedGroupNesting.Target);
+            GroupNestings.Remove(SelectedGroupNesting);
+            StatusMessage = "✔ Imbrication supprimée.";
         }
 
         // --- Commandes GPO Links ---

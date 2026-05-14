@@ -1,7 +1,299 @@
 # SMAD-X — Expert Active Directory Simulator
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-2.0.0-blue"/>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.3.0-blue"/>
+  <img alt=".NET" src="https://img.shields.io/badge/.NET-10-purple"/>
+  <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-11-blueviolet"/>
+  <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey"/>
+  <img alt="Language" src="https://img.shields.io/badge/language-FR%20%7C%20EN-green"/>
+  <img alt="License" src="https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg"/>
+</p>
+
+> 🇫🇷 La documentation en français est disponible dans [ReadmeFR.md](./ReadmeFR.md).
+
+**SMAD-X** (*Simulate, Model and Audit Active Directory eXpert*) is an expert Active Directory simulator built with Avalonia UI and .NET 10. It generates an AD structure faithful to a fresh Windows Server installation and lets you visualize, document and export it without any real infrastructure.
+
+---
+
+## 🎯 Features
+
+### 🏗️ Complete and Faithful Default AD Structure
+- Automatic generation of all containers and objects present in a freshly promoted AD domain:
+  - **Builtin**: Administrators, Users, Guests, Server Operators, Account Operators, Backup Operators, …
+  - **Users**: Administrator, Guest, krbtgt, DefaultAccount, WDAGUtilityAccount + 16 default domain groups (Domain Admins, Schema Admins, Enterprise Admins, Protected Users, Key Admins, Cloneable Domain Controllers, Denied/Allowed RODC Password Replication Group, …)
+  - **Computers**: default container for domain-joined workstations
+  - **Domain Controllers** (OU): DC01 with all FSMO roles
+  - **System**: Password Settings Container, Policies (Default Domain Policy, Default Domain Controllers Policy)
+  - **ForeignSecurityPrincipals**
+- Create a custom domain via `File > New Domain`
+- Distinguished Names computed automatically
+
+### 🌐 Interactive Relationship Graph
+- Force-directed visualization of all relationships between objects
+- Separate rendering of **User → Group** memberships and **Group → Group** nesting
+- Filters by object type (User, Group, Computer, OU, GPO, PSO…) and by tier
+- Pan, zoom and node selection
+
+### 🔗 Relationship Management
+- **User → Group**: dedicated tab to assign users to groups
+- **Group → Group**: dedicated tab to manage group nesting (groups inside groups)
+- **GPO**: Group Policy Object links to domains and OUs, with visual badge `🔗 GPO` in the tree
+- **PSO**: Password Settings Object assignment to users and groups
+- GPOs are created under `System\Policies` to match the real AD structure
+
+### 📤 Export
+- **Native JSON** (`.smadx.json`): full save and reload of the structure
+- **PowerShell**: ready-to-deploy scripts to create the structure in a real AD
+  - AD structure export (OUs, users, groups)
+  - Linked GPOs export
+  - PSOs export
+
+### 🎨 Microsoft Tiering Model
+- **Tier 0**: Domain controllers, critical accounts and systems
+- **Tier 1**: Infrastructure and application servers
+- **Tier 2**: Workstations and standard users
+- Per-tier colors configurable through the UI
+
+### 📝 Built-in Markdown Documentation
+- Every object has a rich Markdown description
+- Edit / Preview toggle
+- Pre-filled and localized descriptions for all default objects
+
+### 🌙 Light / Dark Theme
+- Switch between Light and Dark themes at runtime
+- No restart required
+
+### 🌍 Multilingual Support
+- Full interface available in **French** and **English**
+- Language switch at runtime — no restart required
+
+### ✅ Active Directory Validation
+- Name validation following AD rules (forbidden characters, length, uniqueness)
+- Container rules enforced (e.g. a Container can only hold CN objects, not OUs)
+
+---
+
+## 🚀 Quick Start
+
+1. **Prerequisites**
+   - .NET 10 SDK
+   - Windows, macOS or Linux
+
+2. **Build**
+   ```bash
+   dotnet build
+   ```
+
+3. **Run**
+   ```bash
+   dotnet run --project SMAD-X/SMAD-X.csproj
+   ```
+
+---
+
+## 📖 Usage
+
+### Default Structure on Startup
+
+On launch, SMAD-X automatically loads a `contoso.com` domain with a complete AD structure faithful to a fresh Windows Server installation (all default containers, accounts and groups).
+
+### Create a New Domain
+
+`File > New Domain` → enter the FQDN (e.g. `corp.local`) and choose whether tiering should be assigned automatically.
+
+### Add Objects
+
+- Select a parent node in the tree
+- Use the toolbar buttons: 📁 OU, 👤 User, 👥 Group, 💻 Computer, 🔑 GMSA…
+- The object is created as a child of the selected node, with its DN computed automatically
+
+### Copy / Paste
+
+| Action | Shortcut |
+|---|---|
+| Copy an object (and its children) | `Ctrl+C` |
+| Paste into the selected container | `Ctrl+V` |
+| Delete | `Del` |
+
+### Edit an Object
+
+1. Select the object in the tree
+2. The right panel shows its properties (Name, Type, Tier, DN, Description…)
+3. Edit directly — changes are applied immediately
+
+### Markdown Documentation
+
+1. Select an object
+2. In the details panel, toggle between `✏️ Edit` and `📖 Preview`
+3. Write your documentation in Markdown — rendered in real time
+
+### Graph View
+
+`View > Graph View`: force-directed visualization of all relationships.  
+Filter by object type or tier using the sidebar checkboxes.  
+Toggle **Group nesting** to display Group → Group edges separately.
+
+### Relations (GPO, PSO, MemberOf)
+
+`View > Relations`: dedicated window with four tabs:
+
+| Tab | Purpose |
+|---|---|
+| 👤 **User → Group** | Assign users to groups |
+| 👥 **Group → Group** | Manage group nesting |
+| 📋 **GPO Links → OU** | Link Group Policy Objects to OUs/Domain |
+| 🔑 **PSO Subjects** | Assign Password Settings Objects |
+
+### Save / Load
+
+| Action | Menu |
+|---|---|
+| Save | `File > Save…` (`.smadx.json`) |
+| Open | `File > Open…` |
+| Export PowerShell (structure) | `File > Export PowerShell > AD Structure` |
+| Export PowerShell (GPOs) | `File > Export PowerShell > GPOs` |
+| Export PowerShell (PSOs) | `File > Export PowerShell > PSOs` |
+
+---
+
+## 🎨 Microsoft Tiering Model
+
+| Tier | Color | Scope |
+|---|---|---|
+| **Tier 0** | 🔴 Red | Domain controllers, critical accounts and systems |
+| **Tier 1** | 🟠 Orange | Infrastructure and application servers |
+| **Tier 2** | 🟢 Green | Workstations and standard users |
+
+Colors are configurable via `Settings > Tier Configuration`.
+
+---
+
+## 🏗️ Architecture
+
+```
+SMAD-X/
+├── Models/
+│   ├── ADObject.cs                  # Core data model (DN, GPO, PSO, MemberOf…)
+│   ├── ADObjectType.cs              # AD object type enumeration
+│   ├── ADTreeNode.cs                # TreeView display node (GPO badge, tier color)
+│   └── TierConfiguration.cs        # Tier color configuration
+├── Services/
+│   ├── ADDataService.cs             # Default structure, JSON save/load
+│   ├── ADImportPowerShellService.cs # Import from PowerShell scripts
+│   ├── ADPowerShellExportService.cs # Export to PowerShell scripts
+│   ├── ADValidationService.cs       # Name validation and container rules
+│   ├── LocalizationService.cs       # FR/EN multilingual support
+│   └── ThemeService.cs              # Light/Dark theme management
+├── ViewModels/
+│   ├── MainWindowViewModel.cs       # Main ViewModel (MVVM)
+│   ├── GraphViewModel.cs            # Graph view ViewModel
+│   ├── RelationsViewModel.cs        # Relations ViewModel (User→Group, Group→Group, GPO, PSO)
+│   └── TierConfigurationViewModel.cs
+├── Views/
+│   ├── MainWindow.axaml             # Main interface with GPO badge in tree
+│   ├── GraphWindow.axaml            # Force-directed graph view
+│   ├── RelationsWindow.axaml        # Relations window (4 tabs)
+│   ├── NewDomainDialog.axaml        # New domain dialog
+│   ├── TierConfigurationWindow.axaml
+│   └── AboutDialog.axaml
+├── Graph/
+│   ├── GraphBuilder.cs              # Build graph from AD tree
+│   ├── GraphCanvas.cs               # Avalonia graph renderer (zoom/pan/hit-test)
+│   ├── GraphNode.cs / GraphEdge.cs  # Graph model
+│   ├── GraphFilter.cs               # Type/tier/nesting filters
+│   └── ForceSimulation.cs           # Force-directed algorithm
+└── Converters/
+    ├── BoolToStringConverter.cs
+    ├── LocalizeConverter.cs
+    └── MarkdownConverter.cs
+```
+
+---
+
+## 🔧 Technologies
+
+| Component | Version | Role |
+|---|---|---|
+| **.NET** | 10 | Cross-platform runtime |
+| **Avalonia UI** | 11 | Cross-platform UI framework |
+| **CommunityToolkit.Mvvm** | latest | MVVM implementation |
+| **Markdig** | latest | Markdown rendering |
+| **System.Text.Json** | built-in | JSON serialization |
+
+---
+
+## 📝 Use Cases
+
+| Profile | Use Case |
+|---|---|
+| **Trainer / Student** | Learn and teach AD concepts without real infrastructure |
+| **Administrator** | Document and audit an existing AD architecture |
+| **Architect** | Design and validate a new AD structure before deployment |
+| **Pentester / Red Team** | Visualize attack paths via group relations and tiers |
+| **Integrator** | Generate ready-to-deploy PowerShell scripts |
+
+---
+
+## 🎯 Roadmap
+
+- [x] Complete default AD structure faithful to a fresh domain
+- [x] Force-directed relationship graph view
+- [x] GPO / PSO / MemberOf management
+- [x] PowerShell export (structure, GPOs, PSOs)
+- [x] Multilingual support FR/EN
+- [x] Rich Markdown descriptions
+- [x] Import from a real Active Directory (via PowerShell)
+- [x] Group nesting (Group → Group) in graph and relations
+- [x] GPO visual badge in TreeView
+- [x] Split Relations window: User → Group and Group → Group tabs
+- [x] Light / Dark theme
+- [ ] Drag & Drop to move objects
+- [ ] Search and filtering in the tree
+- [ ] Multi-domain / forest support
+- [ ] Export to diagrams (Draw.io, Visio)
+
+---
+
+## 📄 License
+
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**.
+
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
+
+### ✅ You are free to
+- **Share** — copy and redistribute the material in any medium or format
+- **Adapt** — remix, transform, and build upon the material
+
+### ⚠️ Under the following terms
+- **Attribution** — You **must** give appropriate credit to the original author, provide a link to this repository, and indicate if changes were made.
+
+  Required attribution notice:
+  ```
+  Based on SMAD-X — Expert Active Directory Simulator
+  Original work: https://github.com/JM2K69/SMAD-X
+  Copyright (c) 2025-2026 SMAD-X Project
+  Licensed under CC BY-NC 4.0
+  ```
+
+- **NonCommercial** — You may **not** use this project or any derivative for commercial purposes without explicit prior written permission from the author.
+
+See the full [LICENSE](./LICENSE) file for details.
+
+---
+
+> This project was inspired by [MockAD-Release](https://github.com/shokkadev/MockAD-Release) by shokkadev.
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to open issues or pull requests.
+
+## 👨‍💻 Author
+
+**JM2K69**
+
+
+<p align="center">
+  <img alt="Version" src="https://img.shields.io/badge/version-0.2.0-blue"/>
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10-purple"/>
   <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-11-blueviolet"/>
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey"/>

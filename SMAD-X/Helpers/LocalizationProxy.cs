@@ -132,6 +132,8 @@ namespace SMADX.Helpers
         // Relations Window
         public string RelationsTitle => _localizationService["Relations.Title"];
         public string RelationsTabMemberships => _localizationService["Relations.TabMemberships"];
+        public string RelationsTabUserGroup => _localizationService["Relations.TabUserGroup"];
+        public string RelationsTabGroupGroup => _localizationService["Relations.TabGroupGroup"];
         public string RelationsTabGpoLinks => _localizationService["Relations.TabGpoLinks"];
         public string RelationsTabPsoLinks => _localizationService["Relations.TabPsoLinks"];
         public string RelationsColSource => _localizationService["Relations.ColSource"];
@@ -142,13 +144,21 @@ namespace SMADX.Helpers
         public string RelationsColTargetOU => _localizationService["Relations.ColTargetOU"];
         public string RelationsColPso => _localizationService["Relations.ColPso"];
         public string RelationsColTargetPso => _localizationService["Relations.ColTargetPso"];
+        public string RelationsColUser => _localizationService["Relations.ColUser"];
+        public string RelationsColGroup => _localizationService["Relations.ColGroup"];
+        public string RelationsColGroupMember => _localizationService["Relations.ColGroupMember"];
+        public string RelationsColGroupParent => _localizationService["Relations.ColGroupParent"];
         public string RelationsLabelSource => _localizationService["Relations.LabelSource"];
         public string RelationsLabelTargetGroup => _localizationService["Relations.LabelTargetGroup"];
+        public string RelationsLabelUserSource => _localizationService["Relations.LabelUserSource"];
+        public string RelationsLabelGroupMember => _localizationService["Relations.LabelGroupMember"];
+        public string RelationsLabelGroupParent => _localizationService["Relations.LabelGroupParent"];
         public string RelationsLabelGpo => _localizationService["Relations.LabelGpo"];
         public string RelationsLabelTargetOU => _localizationService["Relations.LabelTargetOU"];
         public string RelationsLabelPso => _localizationService["Relations.LabelPso"];
         public string RelationsLabelTargetPso => _localizationService["Relations.LabelTargetPso"];
         public string RelationsChooseObject => _localizationService["Relations.ChooseObject"];
+        public string RelationsChooseUser => _localizationService["Relations.ChooseUser"];
         public string RelationsChooseGroup => _localizationService["Relations.ChooseGroup"];
         public string RelationsChooseGPO => _localizationService["Relations.ChooseGPO"];
         public string RelationsChooseOU => _localizationService["Relations.ChooseOU"];
