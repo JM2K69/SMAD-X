@@ -876,23 +876,6 @@ Politique appliquée à tous les utilisateurs standard Tier 2.",
             };
             policiesContainer.Children.Add(defaultDCPolicy);
 
-            // GPO personnalisée dans une OU dédiée (exemple)
-            var customPoliciesOU = new ADObject("Group Policies", ADObjectType.OrganizationalUnit)
-            {
-                Description = "## GPOs personnalisées\n\nContient les stratégies de groupe spécifiques à contoso.com.",
-                Tier = "Tier 0",
-                Parent = domain
-            };
-            domain.Children.Add(customPoliciesOU);
-
-            var passwordPolicy = new ADObject("Password Policy", ADObjectType.Policy)
-            {
-                Description = "Stratégie de mot de passe : complexité requise, 90 jours d'expiration",
-                Tier = "Tier 0",
-                Parent = customPoliciesOU
-            };
-            customPoliciesOU.Children.Add(passwordPolicy);
-
             // ── Relations GPO ────────────────────────────────────────────────
             // Default Domain Policy → domaine entier
             domain.LinkedGPOs.Add("Default Domain Policy");

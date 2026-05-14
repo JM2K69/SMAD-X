@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SMADX.Models
@@ -39,6 +40,9 @@ namespace SMADX.Models
                 }
             };
 
+            // S'abonner aux changements de la collection LinkedGPOs
+            _data.LinkedGPOs.CollectionChanged += OnLinkedGPOsChanged;
+
             foreach (var child in data.Children)
             {
                 var childNode = new ADTreeNode(child)
@@ -48,6 +52,25 @@ namespace SMADX.Models
                 _children.Add(childNode);
             }
         }
+
+        private void OnLinkedGPOsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(HasLinkedGPOs));
+            OnPropertyChanged(nameof(LinkedGPOsSummary));
+        }
+
+        /// <summary>
+        /// Vrai si cet objet (OU ou Domain) a des GPOs liées
+        /// </summary>
+        public bool HasLinkedGPOs => Data.LinkedGPOs.Count > 0;
+
+        /// <summary>
+        /// Résumé des GPOs liées, affiché en tooltip dans le TreeView
+        /// </summary>
+        public string LinkedGPOsSummary =>
+            Data.LinkedGPOs.Count == 0
+                ? string.Empty
+                : "🔗 " + string.Join(", ", Data.LinkedGPOs);
 
         /// <summary>
         /// Icône basée sur le type d'objet

@@ -425,7 +425,71 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void AddPolicy()
         {
-            AddObject(ADObjectType.Policy);
+            if (RootNodes.Count == 0) { StatusMessage = "Aucun domaine chargé."; return; }
+
+            // Chercher le container System\Policies
+            var policiesContainer = FindPoliciesContainer(RootNodes[0].Data);
+            if (policiesContainer == null)
+            {
+                // Fallback : créer dans le nœud sélectionné comme avant
+                AddObject(ADObjectType.Policy);
+                StatusMessage = "Conteneur System\\Policies introuvable — GPO ajoutée dans le nœud sélectionné.";
+                return;
+            }
+
+            var name = _validationService.SuggestName(ADObjectType.Policy);
+            var newObject = new ADObject(name, ADObjectType.Policy)
+            {
+                Parent = policiesContainer,
+                Tier = "Tier 0"
+            };
+            policiesContainer.Children.Add(newObject);
+            newObject.UpdateDistinguishedName();
+
+            // Trouver le nœud TreeView correspondant et y insérer
+            var policiesNode = FindTreeNode(RootNodes[0], policiesContainer);
+            if (policiesNode != null)
+            {
+                var newNode = new ADTreeNode(newObject) { Parent = policiesNode };
+                policiesNode.Children.Add(newNode);
+                policiesNode.IsExpanded = true;
+                // Remonter pour s'assurer que System est développé aussi
+                if (policiesNode.Parent != null) policiesNode.Parent.IsExpanded = true;
+            }
+
+            UpdateObjectCounts();
+            StatusMessage = $"GPO '{name}' créée dans System\\Policies.";
+        }
+
+        /// <summary>Cherche récursivement le container "Policies" fils de "System"</summary>
+        private static ADObject? FindPoliciesContainer(ADObject root)
+        {
+            foreach (var child in root.Children)
+            {
+                if (child.Type == ADObjectType.Container && child.Name == "System")
+                {
+                    foreach (var sys in child.Children)
+                    {
+                        if (sys.Type == ADObjectType.Container && sys.Name == "Policies")
+                            return sys;
+                    }
+                }
+                var found = FindPoliciesContainer(child);
+                if (found != null) return found;
+            }
+            return null;
+        }
+
+        /// <summary>Cherche récursivement le ADTreeNode correspondant à un ADObject</summary>
+        private static ADTreeNode? FindTreeNode(ADTreeNode treeNode, ADObject target)
+        {
+            if (treeNode.Data == target) return treeNode;
+            foreach (var child in treeNode.Children)
+            {
+                var found = FindTreeNode(child, target);
+                if (found != null) return found;
+            }
+            return null;
         }
 
         [RelayCommand]

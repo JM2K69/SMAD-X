@@ -150,6 +150,15 @@
                                                    Foreground="{Binding TierColor}"
                                                    FontSize="10" FontWeight="SemiBold"/>
                                     </Border>
+                                    <!-- Badge GPO lié -->
+                                    <Border IsVisible="{Binding HasLinkedGPOs}"
+                                            Background="#1A6B2F" CornerRadius="3" Padding="4,1"
+                                            VerticalAlignment="Center"
+                                            ToolTip.Tip="{Binding LinkedGPOsSummary}">
+                                        <TextBlock Text="🔗 GPO"
+                                                   Foreground="#7FFF9A"
+                                                   FontSize="9" FontWeight="SemiBold"/>
+                                    </Border>
                                 </StackPanel>
                             </TreeDataTemplate>
                         </TreeView.ItemTemplate>
