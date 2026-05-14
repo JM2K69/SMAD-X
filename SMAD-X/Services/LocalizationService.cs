@@ -137,11 +137,15 @@ namespace SMADX.Services
                 ["Details.Actions"] = "Actions :",
                 ["Details.Edit"] = "✏️ Éditer",
                 ["Details.Preview"] = "📖 Prévisualiser",
+                ["Details.MemberOf"] = "👥 Membre de (groupes)",
+                ["Details.LinkedGPOs"] = "📋 GPO liées",
+                ["Details.PSOAppliesTo"] = "🔑 Appliqué à",
 
                 // Actions
                 ["Action.Rename"] = "Renommer",
                 ["Action.Copy"] = "Copier",
                 ["Action.Delete"] = "Supprimer",
+                ["Action.Manage"] = "⚙ Gérer",
                 ["Toolbar.Delete"] = "Supprimer",
                 ["Toolbar.Relations"] = "Relations",
                 ["Toolbar.Graph"] = "Graphe",
@@ -532,11 +536,15 @@ Cette GPO est **créée automatiquement** avec le domaine et s'applique uniqueme
                 ["Details.Actions"] = "Actions:",
                 ["Details.Edit"] = "✏️ Edit",
                 ["Details.Preview"] = "📖 Preview",
+                ["Details.MemberOf"] = "👥 Member of (groups)",
+                ["Details.LinkedGPOs"] = "📋 Linked GPOs",
+                ["Details.PSOAppliesTo"] = "🔑 Applies to",
 
                 // Actions
                 ["Action.Rename"] = "Rename",
                 ["Action.Copy"] = "Copy",
                 ["Action.Delete"] = "Delete",
+                ["Action.Manage"] = "⚙ Manage",
                 ["Toolbar.Delete"] = "Delete",
                 ["Toolbar.Relations"] = "Relations",
                 ["Toolbar.Graph"] = "Graph",

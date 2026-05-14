@@ -84,11 +84,15 @@ namespace SMADX.Helpers
         public string DetailsActions => _localizationService["Details.Actions"];
         public string DetailsEdit => _localizationService["Details.Edit"];
         public string DetailsPreview => _localizationService["Details.Preview"];
+        public string DetailsMemberOf => _localizationService["Details.MemberOf"];
+        public string DetailsLinkedGPOs => _localizationService["Details.LinkedGPOs"];
+        public string DetailsPSOAppliesTo => _localizationService["Details.PSOAppliesTo"];
 
         // Actions
         public string ActionRename => _localizationService["Action.Rename"];
         public string ActionCopy => _localizationService["Action.Copy"];
         public string ActionDelete => _localizationService["Action.Delete"];
+        public string ActionManage => _localizationService["Action.Manage"];
 
         // TreeView
         public string TreeViewTitle => _localizationService["TreeView.Title"];

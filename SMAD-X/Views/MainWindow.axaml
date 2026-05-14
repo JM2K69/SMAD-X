@@ -255,8 +255,8 @@
                                                         IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSupportsMemberOf}">
                                                 <Separator/>
                                                 <DockPanel>
-                                                    <TextBlock Text="👥 Membre de (groupes)" FontWeight="SemiBold" DockPanel.Dock="Left"/>
-                                                    <Button Content="⚙ Gérer" DockPanel.Dock="Right"
+                                                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DetailsMemberOf}" FontWeight="SemiBold" DockPanel.Dock="Left"/>
+                                                    <Button Content="{Binding Source={StaticResource Loc}, Path=ActionManage}" DockPanel.Dock="Right"
                                                             Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
                                                             Padding="8,3" FontSize="11"/>
                                                 </DockPanel>
@@ -276,8 +276,8 @@
                                                         IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSupportsGpoLinks}">
                                                 <Separator/>
                                                 <DockPanel>
-                                                    <TextBlock Text="📋 GPO liées" FontWeight="SemiBold" DockPanel.Dock="Left"/>
-                                                    <Button Content="⚙ Gérer" DockPanel.Dock="Right"
+                                                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DetailsLinkedGPOs}" FontWeight="SemiBold" DockPanel.Dock="Left"/>
+                                                    <Button Content="{Binding Source={StaticResource Loc}, Path=ActionManage}" DockPanel.Dock="Right"
                                                             Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
                                                             Padding="8,3" FontSize="11"/>
                                                 </DockPanel>
@@ -297,8 +297,8 @@
                                                         IsVisible="{Binding #MainWindowRoot.DataContext.SelectedIsPso}">
                                                 <Separator/>
                                                 <DockPanel>
-                                                    <TextBlock Text="🔑 Appliqué à" FontWeight="SemiBold" DockPanel.Dock="Left"/>
-                                                    <Button Content="⚙ Gérer" DockPanel.Dock="Right"
+                                                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DetailsPSOAppliesTo}" FontWeight="SemiBold" DockPanel.Dock="Left"/>
+                                                    <Button Content="{Binding Source={StaticResource Loc}, Path=ActionManage}" DockPanel.Dock="Right"
                                                             Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
                                                             Padding="8,3" FontSize="11"/>
                                                 </DockPanel>
