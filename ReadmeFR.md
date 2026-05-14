@@ -1,4 +1,4 @@
-# SMAD-X — Simulateur Expert Active Directory
+﻿# SMAD-X — Simulateur Expert Active Directory
 
 <p align="center">
   <img alt="Version" src="https://img.shields.io/badge/version-0.2.0-blue"/>
@@ -19,8 +19,8 @@
 
 ### 🏗️ Structure AD par défaut complète et fidèle
 - Génération automatique de tous les containers et objets présents dans un domaine AD fraîchement promu :
-  - **Builtin** : Administrators, Users, Guests, Server Operators, Account Operators, Backup Operators, …
-  - **Users** : Administrator, Guest, krbtgt, DefaultAccount, WDAGUtilityAccount + 16 groupes de domaine (Domain Admins, Schema Admins, Enterprise Admins, Protected Users, Key Admins, Cloneable Domain Controllers, Denied/Allowed RODC Password Replication Group, …)
+  - **Builtin** : Administrators, Users, Guests, Server Operators, Account Operators, Backup Operators…
+  - **Users** : Administrator, Guest, krbtgt, DefaultAccount, WDAGUtilityAccount + 16 groupes de domaine (Domain Admins, Schema Admins, Enterprise Admins, Protected Users, Key Admins, Cloneable Domain Controllers, Denied/Allowed RODC Password Replication Group…)
   - **Computers** : container par défaut pour les postes joints au domaine
   - **Domain Controllers** (OU) : DC01 avec tous les rôles FSMO
   - **System** : Password Settings Container, Policies (Default Domain Policy, Default Domain Controllers Policy)
@@ -36,7 +36,7 @@
 
 ### 🔗 Gestion des relations
 - **User → Groupe** : onglet dédié pour affecter des utilisateurs à des groupes
-- **Groupe → Groupe** : onglet dédié pour gérer l'imbrication de groupes (groupes dans des groupes)
+- **Groupe → Groupe** : onglet dédié pour gérer l'imbrication de groupes
 - **GPO** : liaisons des stratégies de groupe aux domaines et OUs, avec badge visuel `🔗 GPO` dans l'arborescence
 - **PSO** : application des Password Settings Objects aux utilisateurs et groupes
 - Les GPOs sont créées sous `System\Policies` pour correspondre à la structure AD réelle
@@ -55,54 +55,39 @@
 - Couleurs configurables par tier via l'interface
 
 ### 📝 Documentation Markdown intégrée
-- Chaque objet dispose d'une description Markdown enrichie
+- Chaque objet dispose d'une description Markdown enrichie avec rôle et **notes de sécurité**
 - Mode édition / mode prévisualisation
 - Descriptions pré-remplies et localisées pour tous les objets par défaut
 
 ### 🌙 Thème Clair / Sombre
-- Basculement entre le thème clair et le thème sombre à la volée
-- Aucun redémarrage requis
+- Basculement entre le thème clair et le thème sombre à la volée — sans redémarrage
 
 ### 🌍 Support multilingue
-- Interface entièrement disponible en **Français** et en **English**
-- Changement de langue à chaud — sans redémarrage
+- Interface entièrement disponible en **Français** et en **English** — changement à chaud
 
 ### ✅ Validation Active Directory
 - Validation des noms selon les règles AD (caractères interdits, longueur, unicité)
-- Règles de conteneurs respectées (ex : un container ne peut contenir que des CN, pas des OUs)
+- Règles de conteneurs respectées
 
 ---
 
 ## 🚀 Démarrage rapide
 
-1. **Prérequis**
-   - .NET 10 SDK
-   - Windows, macOS ou Linux
-
-2. **Compilation**
-   ```bash
-   dotnet build
-   ```
-
-3. **Exécution**
-   ```bash
-   dotnet run --project SMAD-X/SMAD-X.csproj
-   ```
+1. **Prérequis** : .NET 10 SDK — Windows, macOS ou Linux
+2. **Compilation** : `dotnet build`
+3. **Exécution** : `dotnet run --project SMAD-X/SMAD-X.csproj`
 
 ---
 
 ## 📖 Utilisation
 
 ### Structure par défaut au démarrage
-
-Au lancement, SMAD-X charge automatiquement un domaine `contoso.com` avec une structure AD complète et fidèle à une installation fraîche de Windows Server (tous les containers, comptes et groupes par défaut).
+Au lancement, SMAD-X charge automatiquement un domaine `contoso.com` avec une structure AD complète et fidèle à une installation fraîche de Windows Server.
 
 ### Créer un nouveau domaine
-
 `Fichier > Nouveau domaine` → saisissez le FQDN (ex : `corp.local`) et choisissez si le tiering doit être activé automatiquement.
 
 ### Ajouter des objets
-
 - Sélectionnez un nœud parent dans l'arborescence
 - Utilisez les boutons de la barre d'outils : 📁 OU, 👤 Utilisateur, 👥 Groupe, 💻 Ordinateur, 🔑 GMSA…
 - L'objet est créé comme enfant du nœud sélectionné, avec son DN calculé automatiquement
@@ -115,26 +100,12 @@ Au lancement, SMAD-X charge automatiquement un domaine `contoso.com` avec une st
 | Coller dans le conteneur sélectionné | `Ctrl+V` |
 | Supprimer | `Suppr` |
 
-### Modifier un objet
-
-1. Sélectionnez l'objet dans l'arborescence
-2. Le panneau de droite affiche ses propriétés (Nom, Type, Tier, DN, Description…)
-3. Modifiez directement — les changements sont appliqués immédiatement
-
-### Documentation Markdown
-
-1. Sélectionnez un objet
-2. Dans le panneau de détails, basculez entre `✏️ Éditer` et `📖 Prévisualiser`
-3. Écrivez votre documentation en Markdown — rendu en temps réel
-
 ### Vue Graphe
-
-`Affichage > Vue Graphe` : visualisation force-directed de toutes les relations.  
-Filtrez par type d'objet ou par tier via les cases à cocher de la barre latérale.  
+`Affichage > Vue Graphe` : visualisation force-directed de toutes les relations.
+Filtrez par type d'objet ou par tier via les cases à cocher.
 Activez **Imbrication de groupes** pour afficher séparément les arêtes Groupe → Groupe.
 
-### Relations (GPO, PSO, MemberOf)
-
+### Fenêtre Relations
 `Affichage > Relations` : fenêtre dédiée avec quatre onglets :
 
 | Onglet | Rôle |
@@ -153,6 +124,55 @@ Activez **Imbrication de groupes** pour afficher séparément les arêtes Groupe
 | Exporter PowerShell (structure) | `Fichier > Exporter PowerShell > Structure AD` |
 | Exporter PowerShell (GPOs) | `Fichier > Exporter PowerShell > GPOs` |
 | Exporter PowerShell (PSOs) | `Fichier > Exporter PowerShell > PSOs` |
+
+---
+
+## 🔐 Comptes et groupes par défaut — Référence sécurité
+
+Chaque objet par défaut dispose d'une description Markdown intégrée dans l'application, incluant son rôle et des recommandations de sécurité.
+
+### 🔴 Tier 0 — Critiques (Domaine / Forêt)
+
+| Objet | Type | Rôle | Points de sécurité clés |
+|---|---|---|---|
+| **Administrator** | Compte | Accès complet au domaine | Renommer, désactiver si inutilisé, surveiller PtH / Mimikatz (Event 4624 type 3) |
+| **krbtgt** | Compte | Signe tous les tickets Kerberos (TGT) | Ne jamais supprimer/activer — Golden Ticket — renouveler tous les 180j (double rotation) |
+| **Domain Admins** | Groupe | Contrôle total du domaine | Limiter les membres, utiliser PAW, surveiller Event 4728/4729 |
+| **Enterprise Admins** | Groupe | Contrôle total de la forêt | Maintenir **vide** — membres uniquement pour opérations forêt |
+| **Schema Admins** | Groupe | Modification du schéma AD | Maintenir **vide** — modifications irréversibles |
+| **Domain Controllers** | Groupe | Tous les DCs | Un DC compromis = domaine compromis |
+| **Read-Only Domain Controllers** | Groupe | Contient les RODCs | Gérer soigneusement la Password Replication Policy |
+| **DnsAdmins** | Groupe | Administration DNS | Escalade de privilèges via DLL injection (Shay Ber 2017 — Event 4662) |
+| **Key Admins** | Groupe | Gestion msDS-KeyCredentialLink | Attaque Shadow Credentials (Whisker / pyWhisker) |
+| **Enterprise Key Admins** | Groupe | Key Admins, portée forêt | Shadow Credentials — portée forêt — maintenir **vide** |
+| **Cloneable Domain Controllers** | Groupe | Clonage de DCs | Le DC cloné hérite des secrets du DC source — contrôler l'appartenance |
+
+### 🟠 Tier 1 — Privilèges élevés
+
+| Objet | Risque principal |
+|---|---|
+| **Group Policy Creator Owners** | Déploiement de GPO malveillante — surveiller Event 5136/5137 |
+| **Cert Publishers** | Escalade PKI ESC1–ESC8 (Certify / Certipy) |
+| **RAS and IAS Servers** | Interception VPN/RADIUS si compromis |
+| **DnsUpdateProxy** | DNS hijacking via enregistrements sans propriétaire |
+| **Allowed RODC Replication** | Ne jamais y placer des comptes Tier 0 |
+
+### 🟡 Tier 2 — Surveillance requise
+
+| Objet | Note |
+|---|---|
+| **Protected Users** | Ajouter tous les comptes Tier 0/1 — bloque PtH, PtT, OverPtH, RC4, DES |
+| **Denied RODC Replication** | Maintenir à jour avec tous les comptes critiques |
+| **Domain Users** | Groupe par défaut de tous les comptes du domaine — auditer les appartenances |
+| **Domain Computers** | Toutes les machines jointes au domaine — surveiller les jonctions non autorisées |
+
+### 🟢 Système / Risque faible
+
+| Objet | Note |
+|---|---|
+| **Guest** | Désactivé par défaut depuis Server 2008 — ne pas activer |
+| **DefaultAccount** | Compte système — ne pas modifier |
+| **WDAGUtilityAccount** | Windows Defender Application Guard — ne pas modifier |
 
 ---
 
@@ -182,7 +202,7 @@ SMAD-X/
 │   ├── ADImportPowerShellService.cs # Import depuis scripts PowerShell
 │   ├── ADPowerShellExportService.cs # Export vers scripts PowerShell
 │   ├── ADValidationService.cs       # Validation des noms et règles de conteneurs
-│   ├── LocalizationService.cs       # Support multilingue FR/EN
+│   ├── LocalizationService.cs       # Support multilingue FR/EN + descriptions sécurité
 │   └── ThemeService.cs              # Gestion du thème clair/sombre
 ├── ViewModels/
 │   ├── MainWindowViewModel.cs       # ViewModel principal (MVVM)
@@ -229,7 +249,7 @@ SMAD-X/
 | **Formateur / Étudiant** | Apprendre et enseigner les concepts AD sans infrastructure |
 | **Administrateur** | Documenter et auditer une architecture AD existante |
 | **Architecte** | Concevoir et valider une nouvelle structure avant déploiement |
-| **Pentester / Red Team** | Visualiser les chemins d'attaque via les relations de groupes et tiers |
+| **Pentester / Red Team** | Visualiser les chemins d'attaque via les relations, les tiers et les notes de sécurité des comptes par défaut |
 | **Intégrateur** | Générer des scripts PowerShell prêts à déployer |
 
 ---
@@ -237,11 +257,11 @@ SMAD-X/
 ## 🎯 Feuille de route
 
 - [x] Structure AD par défaut complète et fidèle
-- [x] Vue graphe de relations (force-directed)
+- [x] Vue graphe de relations force-directed
 - [x] Gestion GPO / PSO / MemberOf
 - [x] Export PowerShell (structure, GPOs, PSOs)
 - [x] Support multilingue FR/EN
-- [x] Descriptions Markdown enrichies
+- [x] Descriptions Markdown enrichies avec notes de sécurité pour tous les comptes/groupes par défaut
 - [x] Import depuis un Active Directory réel (via PowerShell)
 - [x] Imbrication de groupes (Groupe → Groupe) dans le graphe et les relations
 - [x] Badge GPO visuel dans l'arborescence
@@ -265,23 +285,20 @@ Ce projet est sous licence **Creative Commons Attribution-NonCommercial 4.0 Inte
 - **Adapter** — remixer, transformer et créer à partir du matériel
 
 ### ⚠️ Sous les conditions suivantes
-- **Attribution** — Vous **devez** créditer l'auteur original, fournir un lien vers ce dépôt et indiquer si des modifications ont été effectuées.
-
-  Mention obligatoire :
+- **Attribution** — Vous devez créditer l'auteur original, fournir un lien vers ce dépôt et indiquer si des modifications ont été effectuées.
   ```
   Basé sur SMAD-X — Expert Active Directory Simulator
   Œuvre originale : https://github.com/JM2K69/SMAD-X
   Copyright (c) 2025-2026 SMAD-X Project
   Sous licence CC BY-NC 4.0
   ```
-
-- **Non commercial** — Vous ne pouvez **pas** utiliser ce projet ou tout dérivé à des fins commerciales sans autorisation écrite préalable de l'auteur.
+- **Non commercial** — Vous ne pouvez pas utiliser ce projet à des fins commerciales sans autorisation écrite préalable.
 
 Consultez le fichier [LICENSE](./LICENSE) pour les détails complets.
 
 ---
 
-> Ce projet est inspiré de [MockAD-Release](https://github.com/shokkadev/MockAD-Release) par shokkadev.
+> Inspiré de [MockAD-Release](https://github.com/shokkadev/MockAD-Release) par shokkadev.
 
 ## 🤝 Contribution
 
