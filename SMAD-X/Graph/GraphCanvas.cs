@@ -193,8 +193,8 @@ namespace SMADX.Graph
                 return;
             }
 
-            var transform = Matrix.CreateTranslation(_offsetX, _offsetY) *
-                            Matrix.CreateScale(_scale, _scale);
+            var transform = Matrix.CreateScale(_scale, _scale) *
+                            Matrix.CreateTranslation(_offsetX, _offsetY);
             using (ctx.PushTransform(transform))
             {
                 DrawEdges(ctx);
