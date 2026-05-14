@@ -7,6 +7,7 @@ namespace SMADX.Graph
     {
         public bool ShowHierarchy       { get; set; } = false;
         public bool ShowMemberOf        { get; set; } = true;
+        public bool ShowGroupNesting    { get; set; } = true;
         public bool ShowGpoLinks        { get; set; } = true;
         public bool ShowGpoInheritance  { get; set; } = true;
         public bool ShowPsoLinks        { get; set; } = true;

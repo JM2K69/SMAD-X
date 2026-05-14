@@ -43,6 +43,7 @@ namespace SMADX.Graph
         private static readonly Dictionary<EdgeType, Color> EdgeColors = new()
         {
             { EdgeType.MemberOf,        Color.FromRgb(0x88, 0x17, 0x98) },
+            { EdgeType.GroupNesting,     Color.FromRgb(0xE0, 0x40, 0xFB) },
             { EdgeType.GpoLink,         Color.FromRgb(0xB1, 0x46, 0x00) },
             { EdgeType.GpoInheritance,  Color.FromRgb(0xD0, 0x80, 0x00) },
             { EdgeType.PsoSubject,      Color.FromRgb(0xC5, 0x07, 0x1F) },
@@ -215,9 +216,10 @@ namespace SMADX.Graph
                     (edge.Source == _selectedNode || edge.Target == _selectedNode);
                 bool dimmed = _selectedNode != null && !highlighted;
                 bool isInherited = edge.Type == EdgeType.GpoInheritance;
+                bool isNesting   = edge.Type == EdgeType.GroupNesting;
 
                 byte alpha = dimmed ? (byte)20 : (byte)(highlighted ? 255 : (isInherited ? 110 : 150));
-                double width = highlighted ? 2.5 : (isInherited ? 1.2 : 1.0);
+                double width = highlighted ? 2.5 : (isInherited ? 1.2 : (isNesting ? 2.0 : 1.0));
 
                 Pen pen;
                 if (isInherited)
@@ -226,6 +228,13 @@ namespace SMADX.Graph
                         new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B)),
                         width,
                         new DashStyle(new double[] { 6, 4 }, 0));
+                }
+                else if (isNesting)
+                {
+                    pen = new Pen(
+                        new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B)),
+                        width,
+                        new DashStyle(new double[] { 3, 3 }, 0));
                 }
                 else
                 {
@@ -392,6 +401,7 @@ namespace SMADX.Graph
                 (EdgeColors[EdgeType.GpoLink],        false, "GPO lié"),
                 (EdgeColors[EdgeType.GpoInheritance], true,  "GPO hérité"),
                 (EdgeColors[EdgeType.MemberOf],       false, "MemberOf"),
+                (EdgeColors[EdgeType.GroupNesting],   true,  "Group in Group"),
                 (EdgeColors[EdgeType.PsoSubject],     false, "PSO Subject"),
             };
 

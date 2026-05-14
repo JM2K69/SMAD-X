@@ -3,6 +3,7 @@ namespace SMADX.Graph
     public enum EdgeType
     {
         MemberOf,
+        GroupNesting,      // Groupe membre d'un groupe
         GpoLink,
         GpoInheritance,   // GPO héritée d'un parent (Domain → OU ou OU parente → OU enfant)
         PsoSubject,
@@ -24,6 +25,7 @@ namespace SMADX.Graph
         public string Label => Type switch
         {
             EdgeType.MemberOf        => "MemberOf",
+            EdgeType.GroupNesting    => "Group in Group",
             EdgeType.GpoLink         => "GPO Link",
             EdgeType.GpoInheritance  => $"⬇ Héritage GPO",
             EdgeType.PsoSubject      => "PSO Subject",

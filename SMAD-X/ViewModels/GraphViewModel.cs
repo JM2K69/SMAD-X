@@ -18,6 +18,13 @@ namespace SMADX.ViewModels
             set { SetProperty(ref _showMemberOf, value); RequestRefresh(); }
         }
 
+        private bool _showGroupNesting = true;
+        public bool ShowGroupNesting
+        {
+            get => _showGroupNesting;
+            set { SetProperty(ref _showGroupNesting, value); RequestRefresh(); }
+        }
+
         private bool _showGpoLinks = true;
         public bool ShowGpoLinks
         {
@@ -85,6 +92,7 @@ namespace SMADX.ViewModels
         public Graph.GraphFilter BuildFilter() => new Graph.GraphFilter
         {
             ShowMemberOf       = ShowMemberOf,
+            ShowGroupNesting   = ShowGroupNesting,
             ShowGpoLinks       = ShowGpoLinks,
             ShowGpoInheritance = ShowGpoInheritance,
             ShowPsoLinks       = ShowPsoLinks,

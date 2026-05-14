@@ -49,17 +49,32 @@ namespace SMADX.Graph
                 }
             }
 
-            // Arêtes MemberOf
+            // Arêtes MemberOf (User/Group → Group)
             if (filter.ShowMemberOf)
             {
                 foreach (var obj in allObjects.Where(o =>
-                    (o.Type == ADObjectType.User || o.Type == ADObjectType.Group) && o.MemberOf.Count > 0))
+                    o.Type == ADObjectType.User && o.MemberOf.Count > 0))
                 {
                     if (!_nodeMap.TryGetValue(obj.Name, out var srcNode)) continue;
                     foreach (var grp in obj.MemberOf)
                     {
                         if (_nodeMap.TryGetValue(grp, out var tgtNode))
                             Edges.Add(new GraphEdge(srcNode, tgtNode, EdgeType.MemberOf));
+                    }
+                }
+            }
+
+            // Arêtes Group-in-Group (Group → Group)
+            if (filter.ShowGroupNesting)
+            {
+                foreach (var obj in allObjects.Where(o =>
+                    o.Type == ADObjectType.Group && o.MemberOf.Count > 0))
+                {
+                    if (!_nodeMap.TryGetValue(obj.Name, out var srcNode)) continue;
+                    foreach (var grp in obj.MemberOf)
+                    {
+                        if (_nodeMap.TryGetValue(grp, out var tgtNode))
+                            Edges.Add(new GraphEdge(srcNode, tgtNode, EdgeType.GroupNesting));
                     }
                 }
             }
