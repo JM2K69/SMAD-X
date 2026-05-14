@@ -66,8 +66,8 @@ namespace SMADX.Services
 
             // Ajouter le nouveau thème
             var themeUri = theme == AppTheme.Dark
-                ? new Uri("avares://SMADX/Styles/DarkTheme.axaml")
-                : new Uri("avares://SMADX/Styles/LightTheme.axaml");
+                ? new Uri("avares://SMAD-X/Styles/DarkTheme.axaml")
+                : new Uri("avares://SMAD-X/Styles/LightTheme.axaml");
 
             app.Styles.Add(new StyleInclude(themeUri)
             {
