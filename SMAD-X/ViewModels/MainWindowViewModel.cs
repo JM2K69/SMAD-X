@@ -35,6 +35,21 @@ namespace SMADX.ViewModels
         [NotifyPropertyChangedFor(nameof(SelectedMemberOf))]
         [NotifyPropertyChangedFor(nameof(SelectedLinkedGPOs))]
         [NotifyPropertyChangedFor(nameof(SelectedPSOAppliesTo))]
+        [NotifyPropertyChangedFor(nameof(CanAddOU))]
+        [NotifyPropertyChangedFor(nameof(CanAddContainer))]
+        [NotifyPropertyChangedFor(nameof(CanAddUser))]
+        [NotifyPropertyChangedFor(nameof(CanAddGroup))]
+        [NotifyPropertyChangedFor(nameof(CanAddComputer))]
+        [NotifyPropertyChangedFor(nameof(CanAddGMSA))]
+        [NotifyPropertyChangedFor(nameof(CanAddPolicy))]
+        [NotifyPropertyChangedFor(nameof(CanAddPSO))]
+        [NotifyPropertyChangedFor(nameof(CanDeleteSelected))]
+        [NotifyPropertyChangedFor(nameof(CanCopySelected))]
+        [NotifyPropertyChangedFor(nameof(CanManageRelations))]
+        [NotifyPropertyChangedFor(nameof(CanAddToGroup))]
+        [NotifyPropertyChangedFor(nameof(CanAddAnyChild))]
+        [NotifyPropertyChangedFor(nameof(CanAddMember))]
+        [NotifyPropertyChangedFor(nameof(CanAddGroupToGroup))]
         private ADTreeNode? _selectedNode;
 
         public string SelectedObjectName 
@@ -95,6 +110,39 @@ namespace SMADX.ViewModels
         private string _statusMessage = string.Empty;
 
         // --- Propriétés de relations contextuelles pour le panneau de détails ---
+
+        // ─── Propriétés pour activer/griser le menu contextuel ───────────────────
+
+        private bool CanAdd(ADObjectType childType) =>
+            SelectedNode != null &&
+            _validationService.ValidateContainerRule(SelectedNode.Data.Type, childType, out _);
+
+        public bool CanAddOU        => CanAdd(ADObjectType.OrganizationalUnit);
+        public bool CanAddContainer => CanAdd(ADObjectType.Container);
+        public bool CanAddUser      => CanAdd(ADObjectType.User);
+        public bool CanAddGroup     => CanAdd(ADObjectType.Group);
+        public bool CanAddComputer  => CanAdd(ADObjectType.Computer);
+        public bool CanAddGMSA      => CanAdd(ADObjectType.GMSA);
+        public bool CanAddPolicy    => CanAdd(ADObjectType.Policy);
+        public bool CanAddPSO       => CanAdd(ADObjectType.PasswordSettingsObject);
+        public bool CanDeleteSelected  => SelectedNode != null && SelectedNode.Parent != null;
+        public bool CanCopySelected    => SelectedNode != null;
+        public bool CanManageRelations => SelectedNode != null;
+        /// <summary>Vrai si au moins un type enfant peut être ajouté (pour afficher le séparateur)</summary>
+        public bool CanAddAnyChild  => CanAddOU || CanAddContainer || CanAddUser || CanAddGroup ||
+                                       CanAddComputer || CanAddGMSA || CanAddPolicy || CanAddPSO;
+        /// <summary>Vrai si l'objet sélectionné peut être ajouté à un groupe (User, Computer, GMSA)</summary>
+        public bool CanAddToGroup =>
+            SelectedNode != null &&
+            (SelectedNode.Data.Type == ADObjectType.User ||
+             SelectedNode.Data.Type == ADObjectType.Computer ||
+             SelectedNode.Data.Type == ADObjectType.GMSA);
+        /// <summary>Vrai si l'objet sélectionné est un groupe (peut être imbriqué dans un autre groupe)</summary>
+        public bool CanAddGroupToGroup =>
+            SelectedNode != null &&
+            SelectedNode.Data.Type == ADObjectType.Group;
+
+        // ─────────────────────────────────────────────────────────────────────────
 
         /// <summary>Vrai si l'objet sélectionné supporte MemberOf (User/Group)</summary>
         public bool SelectedSupportsMemberOf =>
@@ -736,6 +784,39 @@ namespace SMADX.ViewModels
             OnPropertyChanged(nameof(SelectedMemberOf));
             OnPropertyChanged(nameof(SelectedLinkedGPOs));
             OnPropertyChanged(nameof(SelectedPSOAppliesTo));
+            StatusMessage = "Relations mises à jour.";
+        }
+
+        [RelayCommand]
+        private async Task AddToGroup()
+        {
+            if (SelectedNode == null) return;
+            var mainWindow = GetMainWindow();
+            if (mainWindow == null || RootNodes.Count == 0) return;
+
+            var vm = new RelationsViewModel(RootNodes[0].Data);
+            vm.PreselectSource(SelectedNode.Data);
+            var dialog = new Views.RelationsWindow { DataContext = vm };
+            await dialog.ShowDialog(mainWindow);
+
+            OnPropertyChanged(nameof(SelectedMemberOf));
+            StatusMessage = "Relations mises à jour.";
+        }
+
+        [RelayCommand]
+        private async Task AddMember()
+        {
+            if (SelectedNode == null) return;
+            var mainWindow = GetMainWindow();
+            if (mainWindow == null || RootNodes.Count == 0) return;
+
+            var vm = new RelationsViewModel(RootNodes[0].Data);
+            // Pré-sélectionner le groupe courant comme cible dans l'onglet memberships
+            vm.PreselectTarget(SelectedNode.Data);
+            var dialog = new Views.RelationsWindow { DataContext = vm };
+            await dialog.ShowDialog(mainWindow);
+
+            OnPropertyChanged(nameof(SelectedMemberOf));
             StatusMessage = "Relations mises à jour.";
         }
 

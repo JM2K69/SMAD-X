@@ -131,6 +131,24 @@ namespace SMADX.ViewModels
             LoadRelations();
         }
 
+        /// <summary>Pré-sélectionne l'objet source dans l'onglet Memberships</summary>
+        public void PreselectSource(ADObject obj)
+        {
+            MembershipSource = obj.Name;
+        }
+
+        /// <summary>Pré-sélectionne le groupe cible dans l'onglet Memberships</summary>
+        public void PreselectTarget(ADObject obj)
+        {
+            MembershipTarget = obj.Name;
+        }
+
+        /// <summary>Pré-sélectionne le groupe source dans l'onglet Group-in-Group</summary>
+        public void PreselectNestingSource(ADObject obj)
+        {
+            NestingSource = obj.Name;
+        }
+
         private void BuildSuggestions()
         {
             var all = CollectAll(_root).ToList();

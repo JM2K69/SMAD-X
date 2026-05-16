@@ -138,6 +138,77 @@
                               x:Name="MainTreeView"
                               ItemsSource="{Binding #MainWindowRoot.DataContext.RootNodes}"
                               SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedNode, Mode=TwoWay}">
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <!-- Ajouter OU -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddOU}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddOrganizationalUnitCommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddOU}"/>
+                                <!-- Ajouter Container -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddContainer}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddContainerCommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddContainer}"/>
+                                <!-- Ajouter Utilisateur -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddUser}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddUserCommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddUser}"/>
+                                <!-- Ajouter Groupe -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddGroup}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddGroupCommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddGroup}"/>
+                                <!-- Ajouter Ordinateur -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddComputer}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddComputerCommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddComputer}"/>
+                                <!-- Ajouter GMSA -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddGMSA}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddGMSACommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddGMSA}"/>
+                                <!-- Ajouter GPO -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddPolicy}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddPolicyCommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddPolicy}"/>
+                                <!-- Ajouter PSO -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddPSO}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddPasswordSettingsObjectCommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddPSO}"/>
+                                <!-- Séparateur entre ajout enfant et actions objet -->
+                                <Separator IsVisible="{Binding #MainWindowRoot.DataContext.CanAddAnyChild}"/>
+                                <!-- Ajouter au groupe (User / Computer / GMSA) -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddToGroup}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddToGroupCommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddToGroup}"/>
+                                <!-- Ajouter des membres (Group) -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddMember}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddMemberCommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddMember}"/>
+                                <!-- Séparateur avant édition -->
+                                <Separator IsVisible="{Binding #MainWindowRoot.DataContext.CanAddToGroup}"/>
+                                <Separator IsVisible="{Binding #MainWindowRoot.DataContext.CanAddMember}"/>
+                                <!-- Renommer -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuRename}"
+                                          Command="{Binding #MainWindowRoot.DataContext.RenameObjectCommand}"
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}"/>
+                                <!-- Copier -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuCopy}"
+                                          Command="{Binding #MainWindowRoot.DataContext.CopyObjectCommand}"
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}"/>
+                                <!-- Coller -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuPaste}"
+                                          Command="{Binding #MainWindowRoot.DataContext.PasteObjectCommand}"
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}"/>
+                                <Separator/>
+                                <!-- Supprimer -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuDelete}"
+                                          Command="{Binding #MainWindowRoot.DataContext.DeleteObjectCommand}"
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanDeleteSelected}"/>
+                                <Separator/>
+                                <!-- Gérer les relations -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuManageRelations}"
+                                          Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanManageRelations}"/>
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
                         <TreeView.ItemTemplate>
                             <TreeDataTemplate ItemsSource="{Binding Children}">
                                 <StackPanel Orientation="Horizontal" Spacing="5">

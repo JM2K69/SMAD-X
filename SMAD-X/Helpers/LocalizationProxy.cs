@@ -206,5 +206,22 @@ namespace SMADX.Helpers
         public string AboutFeature6 => _localizationService["About.Feature6"];
         public string AboutCopyright => _localizationService["About.Copyright"];
         public string AboutClose => _localizationService["About.Close"];
+
+        // Context Menu
+        public string ContextMenuAddOU             => _localizationService["ContextMenu.AddOU"];
+        public string ContextMenuAddContainer      => _localizationService["ContextMenu.AddContainer"];
+        public string ContextMenuAddUser           => _localizationService["ContextMenu.AddUser"];
+        public string ContextMenuAddGroup          => _localizationService["ContextMenu.AddGroup"];
+        public string ContextMenuAddComputer       => _localizationService["ContextMenu.AddComputer"];
+        public string ContextMenuAddGMSA           => _localizationService["ContextMenu.AddGMSA"];
+        public string ContextMenuAddPolicy         => _localizationService["ContextMenu.AddPolicy"];
+        public string ContextMenuAddPSO            => _localizationService["ContextMenu.AddPSO"];
+        public string ContextMenuRename            => _localizationService["ContextMenu.Rename"];
+        public string ContextMenuCopy              => _localizationService["ContextMenu.Copy"];
+        public string ContextMenuPaste             => _localizationService["ContextMenu.Paste"];
+        public string ContextMenuDelete            => _localizationService["ContextMenu.Delete"];
+        public string ContextMenuManageRelations   => _localizationService["ContextMenu.ManageRelations"];
+        public string ContextMenuAddToGroup         => _localizationService["ContextMenu.AddToGroup"];
+        public string ContextMenuAddMember           => _localizationService["ContextMenu.AddMember"];
     }
 }
