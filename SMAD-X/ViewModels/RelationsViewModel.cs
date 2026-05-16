@@ -131,6 +131,13 @@ namespace SMADX.ViewModels
             LoadRelations();
         }
 
+        private int _selectedTabIndex = 0;
+        public int SelectedTabIndex
+        {
+            get => _selectedTabIndex;
+            set => SetProperty(ref _selectedTabIndex, value);
+        }
+
         /// <summary>Pré-sélectionne l'objet source dans l'onglet Memberships</summary>
         public void PreselectSource(ADObject obj)
         {
@@ -147,6 +154,7 @@ namespace SMADX.ViewModels
         public void PreselectNestingSource(ADObject obj)
         {
             NestingSource = obj.Name;
+            SelectedTabIndex = 1;
         }
 
         private void BuildSuggestions()

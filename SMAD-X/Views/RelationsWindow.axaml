@@ -29,7 +29,8 @@
 
     <Grid RowDefinitions="*,Auto">
 
-        <TabControl Grid.Row="0" Margin="10">
+        <TabControl Grid.Row="0" Margin="10"
+                    SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
 
             <!-- ===== ONGLET USER → GROUP ===== -->
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=RelationsTabUserGroup}">

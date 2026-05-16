@@ -182,6 +182,10 @@
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddMember}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddMemberCommand}"
                                           IsVisible="{Binding #MainWindowRoot.DataContext.CanAddMember}"/>
+                                <!-- Imbrication groupe dans groupe -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddGroupToGroup}"
+                                          Command="{Binding #MainWindowRoot.DataContext.AddGroupToGroupCommand}"
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddGroupToGroup}"/>
                                 <!-- Séparateur avant édition -->
                                 <Separator IsVisible="{Binding #MainWindowRoot.DataContext.CanAddToGroup}"/>
                                 <Separator IsVisible="{Binding #MainWindowRoot.DataContext.CanAddMember}"/>

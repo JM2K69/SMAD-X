@@ -223,5 +223,6 @@ namespace SMADX.Helpers
         public string ContextMenuManageRelations   => _localizationService["ContextMenu.ManageRelations"];
         public string ContextMenuAddToGroup         => _localizationService["ContextMenu.AddToGroup"];
         public string ContextMenuAddMember           => _localizationService["ContextMenu.AddMember"];
+        public string ContextMenuAddGroupToGroup      => _localizationService["ContextMenu.AddGroupToGroup"];
     }
 }

@@ -141,6 +141,10 @@ namespace SMADX.ViewModels
         public bool CanAddGroupToGroup =>
             SelectedNode != null &&
             SelectedNode.Data.Type == ADObjectType.Group;
+        /// <summary>Vrai si l'objet sélectionné est un groupe (peut recevoir des membres)</summary>
+        public bool CanAddMember =>
+            SelectedNode != null &&
+            SelectedNode.Data.Type == ADObjectType.Group;
 
         // ─────────────────────────────────────────────────────────────────────────
 
@@ -811,12 +815,27 @@ namespace SMADX.ViewModels
             if (mainWindow == null || RootNodes.Count == 0) return;
 
             var vm = new RelationsViewModel(RootNodes[0].Data);
-            // Pré-sélectionner le groupe courant comme cible dans l'onglet memberships
             vm.PreselectTarget(SelectedNode.Data);
             var dialog = new Views.RelationsWindow { DataContext = vm };
             await dialog.ShowDialog(mainWindow);
 
             OnPropertyChanged(nameof(SelectedMemberOf));
+            StatusMessage = "Relations mises à jour.";
+        }
+
+        [RelayCommand]
+        private async Task AddGroupToGroup()
+        {
+            if (SelectedNode == null) return;
+            var mainWindow = GetMainWindow();
+            if (mainWindow == null || RootNodes.Count == 0) return;
+
+            var vm = new RelationsViewModel(RootNodes[0].Data);
+            // Pré-sélectionner le groupe courant comme source dans l'onglet Group-in-Group
+            vm.PreselectNestingSource(SelectedNode.Data);
+            var dialog = new Views.RelationsWindow { DataContext = vm };
+            await dialog.ShowDialog(mainWindow);
+
             StatusMessage = "Relations mises à jour.";
         }
 
