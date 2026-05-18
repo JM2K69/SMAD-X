@@ -46,6 +46,10 @@ jobs:
           -p:DebugSymbols=false
           -o publish/${{ matrix.rid }}
 
+      - name: Remove PDB files
+        shell: pwsh
+        run: Get-ChildItem -Path publish/${{ matrix.rid }} -Recurse -Filter *.pdb | Remove-Item -Force
+
       - name: Zip artifact (Windows)
         if: matrix.rid == 'win-x64'
         shell: pwsh

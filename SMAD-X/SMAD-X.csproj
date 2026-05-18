@@ -16,6 +16,8 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
+    <IncludeSymbols>false</IncludeSymbols>
+    <StripSymbols>true</StripSymbols>
   </PropertyGroup>
 
   <ItemGroup>
