@@ -4,6 +4,7 @@
         x:Class="SMADX.Views.GraphWindow"
         x:Name="GraphWindowRoot"
         Title="{Binding Source={StaticResource Loc}, Path=GraphTitle}"
+        Icon="/Assets/icone.ico"
         Width="1250" Height="780"
         WindowStartupLocation="CenterOwner"
         CanResize="True"

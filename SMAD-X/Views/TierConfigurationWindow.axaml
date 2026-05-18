@@ -9,6 +9,7 @@
         x:DataType="vm:TierConfigurationViewModel"
         x:Name="TierConfigWindow"
         Title="{Binding Source={StaticResource Loc}, Path=TierConfigTitle}"
+        Icon="/Assets/icone.ico"
         Width="800" Height="600"
         WindowStartupLocation="CenterOwner">
 

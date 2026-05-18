@@ -9,6 +9,7 @@
         x:DataType="vm:RelationsViewModel"
         x:Name="RelationsWindowRoot"
         Title="{Binding Source={StaticResource Loc}, Path=RelationsTitle}"
+        Icon="/Assets/icone.ico"
         Width="860" Height="640"
         WindowStartupLocation="CenterOwner"
         CanResize="True">

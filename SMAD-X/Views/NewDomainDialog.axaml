@@ -6,6 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
         x:Class="SMADX.Views.NewDomainDialog"
         Title="{Binding Source={StaticResource Loc}, Path=DialogNewDomainTitle}"
+        Icon="/Assets/icone.ico"
         Width="500" Height="300"
         WindowStartupLocation="CenterOwner"
         CanResize="False">

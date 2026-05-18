@@ -7,6 +7,7 @@
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <AssemblyName>SMAD-X</AssemblyName>
     <RootNamespace>SMADX</RootNamespace>
+    <ApplicationIcon>Assets\icone.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

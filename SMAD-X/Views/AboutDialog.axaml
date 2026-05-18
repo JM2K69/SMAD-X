@@ -5,6 +5,7 @@
         mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
         x:Class="SMADX.Views.AboutDialog"
         Title="{Binding Source={StaticResource Loc}, Path=AboutTitle}"
+        Icon="/Assets/icone.ico"
         Width="650" Height="550"
         WindowStartupLocation="CenterOwner"
         CanResize="False">
