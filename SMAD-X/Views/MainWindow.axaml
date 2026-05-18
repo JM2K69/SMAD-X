@@ -17,12 +17,11 @@
     </Design.DataContext>
 
     <Window.Styles>
+        <!-- Bindings MVVM pour TreeViewItem — les couleurs sont dans AppStyles.axaml -->
         <Style Selector="TreeViewItem">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-            <Setter Property="Foreground" Value="#1A1A1A"/>
         </Style>
-        <!-- La couleur des MenuFlyout est gérée par les fichiers de thème (DarkTheme/LightTheme) -->
     </Window.Styles>
 
     <Grid RowDefinitions="Auto,*,Auto">

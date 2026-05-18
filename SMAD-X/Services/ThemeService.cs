@@ -1,5 +1,4 @@
 using Avalonia;
-using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Styling;
 using System;
 
@@ -16,68 +15,30 @@ namespace SMADX.Services
         private static ThemeService? _instance;
         public static ThemeService Instance => _instance ??= new ThemeService();
 
-        private AppTheme _currentTheme = AppTheme.Light;
-
-        public AppTheme CurrentTheme
-        {
-            get => _currentTheme;
-            set
-            {
-                if (_currentTheme != value)
-                {
-                    _currentTheme = value;
-                    ApplyTheme(value);
-                    ThemeChanged?.Invoke(this, value);
-                }
-            }
-        }
+        public AppTheme CurrentTheme =>
+            Application.Current?.RequestedThemeVariant == ThemeVariant.Dark
+                ? AppTheme.Dark
+                : AppTheme.Light;
 
         public event EventHandler<AppTheme>? ThemeChanged;
 
-        private ThemeService()
-        {
-            // Charger le thème clair par défaut au démarrage
-            ApplyTheme(AppTheme.Light);
-        }
+        private ThemeService() { }
 
-        private void ApplyTheme(AppTheme theme)
+        public void ApplyTheme(AppTheme theme)
         {
             var app = Application.Current;
             if (app == null) return;
 
-            // Supprimer les thèmes existants
-            var stylesToRemove = new System.Collections.Generic.List<IStyle>();
-            foreach (var style in app.Styles)
-            {
-                if (style is StyleInclude styleInclude)
-                {
-                    var source = styleInclude.Source?.ToString() ?? "";
-                    if (source.Contains("DarkTheme.axaml") || source.Contains("LightTheme.axaml"))
-                    {
-                        stylesToRemove.Add(style);
-                    }
-                }
-            }
+            app.RequestedThemeVariant = theme == AppTheme.Dark
+                ? ThemeVariant.Dark
+                : ThemeVariant.Light;
 
-            foreach (var style in stylesToRemove)
-            {
-                app.Styles.Remove(style);
-            }
-
-            // Ajouter le nouveau thème
-            var themeUri = theme == AppTheme.Dark
-                ? new Uri("avares://SMAD-X/Styles/DarkTheme.axaml")
-                : new Uri("avares://SMAD-X/Styles/LightTheme.axaml");
-
-            app.Styles.Add(new StyleInclude(themeUri)
-            {
-                Source = themeUri
-            });
+            ThemeChanged?.Invoke(this, theme);
         }
 
         public void ToggleTheme()
         {
-            CurrentTheme = CurrentTheme == AppTheme.Light ? AppTheme.Dark : AppTheme.Light;
+            ApplyTheme(CurrentTheme == AppTheme.Light ? AppTheme.Dark : AppTheme.Light);
         }
     }
 }
