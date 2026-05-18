@@ -25,6 +25,9 @@ namespace SMADX.Models
         [ObservableProperty]
         private bool _isEditing;
 
+        [ObservableProperty]
+        private bool _isVisible = true;
+
         public ADTreeNode? Parent { get; set; }
 
         public ADTreeNode(ADObject data)

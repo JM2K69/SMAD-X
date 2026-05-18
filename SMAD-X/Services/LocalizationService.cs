@@ -172,6 +172,7 @@ namespace SMADX.Services
 
                 // TreeView
                 ["TreeView.Title"] = "Structure Active Directory",
+                ["TreeView.SearchPlaceholder"] = "Rechercher (nom, type, description)...",
 
                 // Types d'objets
                 ["Type.Domain"] = "Domaine",
@@ -967,8 +968,7 @@ Cette GPO est **créée automatiquement** avec le domaine et s'applique uniqueme
 
                 // TreeView
                 ["TreeView.Title"] = "Active Directory Structure",
-
-                // Object types
+                ["TreeView.SearchPlaceholder"] = "Search (name, type, description)...",
                 ["Type.Domain"] = "Domain",
                 ["Type.OU"] = "Organizational Unit",
                 ["Type.Container"] = "Container",

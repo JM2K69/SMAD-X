@@ -95,7 +95,8 @@ namespace SMADX.Helpers
         public string ActionManage => _localizationService["Action.Manage"];
 
         // TreeView
-        public string TreeViewTitle => _localizationService["TreeView.Title"];
+        public string TreeViewTitle        => _localizationService["TreeView.Title"];
+        public string SearchPlaceholder    => _localizationService["TreeView.SearchPlaceholder"];
 
         // Tier Configuration
         public string TierConfigTitle => _localizationService["TierConfig.Title"];
