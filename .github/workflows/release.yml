@@ -42,6 +42,7 @@ jobs:
           -r ${{ matrix.rid }}
           --self-contained true
           -p:PublishSingleFile=true
+          -p:EnableCompressionInSingleFile=true
           -p:DebugType=none
           -p:DebugSymbols=false
           -o publish/${{ matrix.rid }}
