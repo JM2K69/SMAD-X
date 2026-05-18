@@ -1,9 +1,9 @@
 ﻿# SMAD-X — Expert Active Directory Simulator
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-0.2.0-blue"/>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.3.0-blue"/>
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10-purple"/>
-  <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-11-blueviolet"/>
+  <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-12.0.3-blueviolet"/>
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey"/>
   <img alt="Language" src="https://img.shields.io/badge/language-FR%20%7C%20EN-green"/>
   <img alt="License" src="https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg"/>
@@ -61,6 +61,12 @@
 
 ### 🌙 Light / Dark Theme
 - Switch between Light and Dark themes at runtime — no restart required
+- Native Avalonia FluentTheme — menus and popups always rendered in the correct theme
+
+### 🔍 Live Search in Tree
+- Search bar above the TreeView: filter nodes by **name**, **type** or **description**
+- Non-matching nodes are hidden; parent nodes are automatically expanded
+- Clear button to reset the filter instantly
 
 ### 🌍 Multilingual Support
 - Full interface available in **French** and **English** — language switch at runtime
@@ -235,7 +241,7 @@ SMAD-X/
 | Component | Version | Role |
 |---|---|---|
 | **.NET** | 10 | Cross-platform runtime |
-| **Avalonia UI** | 11 | Cross-platform UI framework |
+| **Avalonia UI** | 12.0.3 | Cross-platform UI framework |
 | **CommunityToolkit.Mvvm** | latest | MVVM implementation |
 | **Markdig** | latest | Markdown rendering |
 | **System.Text.Json** | built-in | JSON serialization |
@@ -266,9 +272,10 @@ SMAD-X/
 - [x] Group nesting (Group → Group) in graph and relations
 - [x] GPO visual badge in TreeView
 - [x] Split Relations window: User → Group and Group → Group tabs
-- [x] Light / Dark theme
+- [x] Avalonia upgrade to 12.0.3 (FluentTheme, performance improvements)
+- [x] Light / Dark theme (native Avalonia FluentTheme)
+- [x] Search and filtering in the tree (live search by name / type / description)
 - [ ] Drag & Drop to move objects
-- [ ] Search and filtering in the tree
 - [ ] Multi-domain / forest support
 - [ ] Export to diagrams (Draw.io, Visio)
 

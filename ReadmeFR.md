@@ -1,9 +1,9 @@
 ﻿# SMAD-X — Simulateur Expert Active Directory
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-0.2.0-blue"/>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.3.0-blue"/>
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10-purple"/>
-  <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-11-blueviolet"/>
+  <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-12.0.3-blueviolet"/>
   <img alt="Plateforme" src="https://img.shields.io/badge/plateforme-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey"/>
   <img alt="Langue" src="https://img.shields.io/badge/langue-FR%20%7C%20EN-green"/>
   <img alt="Licence" src="https://img.shields.io/badge/Licence-CC%20BY--NC%204.0-lightgrey.svg"/>
@@ -61,6 +61,12 @@
 
 ### 🌙 Thème Clair / Sombre
 - Basculement entre le thème clair et le thème sombre à la volée — sans redémarrage
+- Thème natif Avalonia FluentTheme — menus et popups toujours rendus dans le bon thème
+
+### 🔍 Recherche live dans l’arborescence
+- Barre de recherche au-dessus du TreeView : filtrer les nœuds par **nom**, **type** ou **description**
+- Les nœuds non correspondants sont masqués ; les parents sont automatiquement dépliés
+- Bouton d’effacement pour réinitialiser le filtre instantanément
 
 ### 🌍 Support multilingue
 - Interface entièrement disponible en **Français** et en **English** — changement à chaud
@@ -235,7 +241,7 @@ SMAD-X/
 | Composant | Version | Rôle |
 |---|---|---|
 | **.NET** | 10 | Runtime cross-platform |
-| **Avalonia UI** | 11 | Framework UI cross-platform |
+| **Avalonia UI** | 12.0.3 | Framework UI cross-platform |
 | **CommunityToolkit.Mvvm** | latest | Implémentation MVVM |
 | **Markdig** | latest | Rendu Markdown |
 | **System.Text.Json** | intégré | Sérialisation JSON |
