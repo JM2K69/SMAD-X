@@ -47,26 +47,12 @@ namespace SMADX.Views
 
         private void OnContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (sender is not ContextMenu cm) return;
-            // Force foreground color since ContextMenu popup may not re-inherit theme after another window closes
-            var isDark = ThemeService.Instance.CurrentTheme == AppTheme.Dark;
-            cm.Foreground = new Avalonia.Media.SolidColorBrush(
-                isDark ? Avalonia.Media.Colors.White : Avalonia.Media.Colors.Black);
-            foreach (var item in cm.Items)
-                if (item is MenuItem mi)
-                    mi.Foreground = cm.Foreground;
+            // Nothing needed — emoji are now in MenuItem.Icon which is theme-independent
         }
 
         private void ApplyThemeToContextMenu(ThemeVariant variant)
         {
-            var tree = this.FindControl<TreeView>("MainTreeView");
-            if (tree?.ContextMenu is not { } cm) return;
-            var isDark = variant == ThemeVariant.Dark;
-            cm.Foreground = new Avalonia.Media.SolidColorBrush(
-                isDark ? Avalonia.Media.Colors.White : Avalonia.Media.Colors.Black);
-            foreach (var item in cm.Items)
-                if (item is MenuItem mi)
-                    mi.Foreground = cm.Foreground;
+            // Nothing needed — emoji are now in MenuItem.Icon which is theme-independent
         }
 
         private void OnExitClick(object? sender, RoutedEventArgs e)
