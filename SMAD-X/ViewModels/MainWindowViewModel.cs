@@ -306,7 +306,7 @@ namespace SMADX.ViewModels
                     Title = "Charger une structure AD",
                     FileTypeFilter = new[] 
                     { 
-                        new FilePickerFileType("SMAD-X JSON") { Patterns = new[] { "*.smadx.json", "*.mockad.json" } },
+                        new FilePickerFileType("SMAD-X JSON") { Patterns = new[] { "*.smadx.json" } },
                         new FilePickerFileType("Tous les fichiers") { Patterns = new[] { "*" } }
                     },
                     AllowMultiple = false

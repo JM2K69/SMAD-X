@@ -22,23 +22,7 @@
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
             <Setter Property="Foreground" Value="#1A1A1A"/>
         </Style>
-        <!-- Force le foreground des boutons toolbar (normal + survol) pour éviter la pollution visuelle après GraphWindow -->
-        <Style Selector="#Toolbar Button">
-            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
-        </Style>
-        <Style Selector="#Toolbar Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
-        </Style>
-        <!-- Corrige la bande blanche en haut du popup de menu en thème sombre -->
-        <Style Selector="MenuFlyoutPresenter">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"/>
-            <Setter Property="Padding" Value="0"/>
-        </Style>
-        <Style Selector="Popup > Border">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"/>
-        </Style>
+        <!-- La couleur des MenuFlyout est gérée par les fichiers de thème (DarkTheme/LightTheme) -->
     </Window.Styles>
 
     <Grid RowDefinitions="Auto,*,Auto">

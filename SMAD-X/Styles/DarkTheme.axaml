@@ -100,10 +100,12 @@
 
     <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="#505050"/>
+        <Setter Property="Foreground" Value="#FFFFFF"/>
     </Style>
 
     <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
         <Setter Property="Background" Value="#2D2D30"/>
+        <Setter Property="Foreground" Value="#FFFFFF"/>
     </Style>
 
     <!-- ComboBox -->
@@ -172,4 +174,20 @@
     <Style Selector="Separator">
         <Setter Property="Background" Value="#3F3F46"/>
     </Style>
+
+    <!-- Context menu / flyout popup -->
+    <Style Selector="MenuFlyoutPresenter">
+        <Setter Property="Background" Value="#2D2D30"/>
+        <Setter Property="BorderBrush" Value="#3F3F46"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="0,4"/>
+    </Style>
+
+    <!-- Kill the grey top-border injected by the generic Border style -->
+    <Style Selector="MenuFlyoutPresenter > Border">
+        <Setter Property="Background" Value="#2D2D30"/>
+        <Setter Property="BorderBrush" Value="#3F3F46"/>
+    </Style>
+
+
 </Styles>

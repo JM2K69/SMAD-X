@@ -15,11 +15,15 @@ namespace SMADX.Graph
 
         private readonly Dictionary<string, GraphNode> _nodeMap = new();
 
+        // Index nom → ADObject pour la résolution transitive
+        private readonly Dictionary<string, ADObject> _objectMap = new();
+
         public void Build(ADObject root, GraphFilter filter)
         {
             Nodes.Clear();
             Edges.Clear();
             _nodeMap.Clear();
+            _objectMap.Clear();
 
             // Collecter tous les objets
             var allObjects = new List<ADObject>();
@@ -30,10 +34,11 @@ namespace SMADX.Graph
             {
                 var node = new GraphNode(obj.Id.ToString(), obj.Name, obj.Type, obj.Tier);
                 Nodes.Add(node);
-                _nodeMap[obj.Name] = node; // index par nom pour résoudre les relations
+                _nodeMap[obj.Name]   = node;
+                _objectMap[obj.Name] = obj;
             }
 
-            // Créer les arêtes de hiérarchie parent-enfant (optionnel selon filtre)
+            // Arêtes de hiérarchie parent-enfant (optionnel)
             if (filter.ShowHierarchy)
             {
                 foreach (var obj in allObjects)
@@ -49,37 +54,75 @@ namespace SMADX.Graph
                 }
             }
 
-            // Arêtes MemberOf (User/Group → Group)
+            // ── MemberOf transitif (User/Computer/GMSA → Group, profondeur illimitée) ──
             if (filter.ShowMemberOf)
             {
                 foreach (var obj in allObjects.Where(o =>
-                    o.Type == ADObjectType.User && o.MemberOf.Count > 0))
+                    o.Type is ADObjectType.User or ADObjectType.Computer or ADObjectType.GMSA
+                    && o.MemberOf.Count > 0))
                 {
                     if (!_nodeMap.TryGetValue(obj.Name, out var srcNode)) continue;
-                    foreach (var grp in obj.MemberOf)
+
+                    // Résolution transitive : BFS sur toute la chaîne de groupes
+                    var visited = new HashSet<string>();
+                    var queue   = new Queue<string>(obj.MemberOf);
+
+                    while (queue.Count > 0)
                     {
-                        if (_nodeMap.TryGetValue(grp, out var tgtNode))
+                        var grpName = queue.Dequeue();
+                        if (!visited.Add(grpName)) continue;
+                        if (!_nodeMap.TryGetValue(grpName, out var tgtNode)) continue;
+
+                        // Arête directe ou transitive vers ce groupe
+                        bool alreadyEdge = Edges.Any(e =>
+                            e.Type == EdgeType.MemberOf &&
+                            e.Source == srcNode &&
+                            e.Target == tgtNode);
+                        if (!alreadyEdge)
                             Edges.Add(new GraphEdge(srcNode, tgtNode, EdgeType.MemberOf));
+
+                        // Continuer vers les groupes parents de ce groupe
+                        if (_objectMap.TryGetValue(grpName, out var grpObj))
+                            foreach (var parent in grpObj.MemberOf)
+                                if (!visited.Contains(parent))
+                                    queue.Enqueue(parent);
                     }
                 }
             }
 
-            // Arêtes Group-in-Group (Group → Group)
+            // ── Group-in-Group transitif (profondeur illimitée) ──
             if (filter.ShowGroupNesting)
             {
                 foreach (var obj in allObjects.Where(o =>
                     o.Type == ADObjectType.Group && o.MemberOf.Count > 0))
                 {
                     if (!_nodeMap.TryGetValue(obj.Name, out var srcNode)) continue;
-                    foreach (var grp in obj.MemberOf)
+
+                    var visited = new HashSet<string>();
+                    var queue   = new Queue<string>(obj.MemberOf);
+
+                    while (queue.Count > 0)
                     {
-                        if (_nodeMap.TryGetValue(grp, out var tgtNode))
+                        var grpName = queue.Dequeue();
+                        if (!visited.Add(grpName)) continue;
+                        if (!_nodeMap.TryGetValue(grpName, out var tgtNode)) continue;
+
+                        bool alreadyEdge = Edges.Any(e =>
+                            e.Type == EdgeType.GroupNesting &&
+                            e.Source == srcNode &&
+                            e.Target == tgtNode);
+                        if (!alreadyEdge)
                             Edges.Add(new GraphEdge(srcNode, tgtNode, EdgeType.GroupNesting));
+
+                        if (_objectMap.TryGetValue(grpName, out var grpObj))
+                            foreach (var parent in grpObj.MemberOf)
+                                if (!visited.Contains(parent))
+                                    queue.Enqueue(parent);
                     }
                 }
             }
 
-            // Arêtes GPO Links (Domain + OU)
+            // ── GPO Links (Domain + OU) ──
             if (filter.ShowGpoLinks)
             {
                 foreach (var container in allObjects.Where(o =>
@@ -95,21 +138,23 @@ namespace SMADX.Graph
                 }
             }
 
-            // Arêtes GPO Héritage : une GPO liée à un Domain/OU est héritée par toutes les OU enfants
+            // ── GPO Héritage : propagation récursive sur toute la profondeur ──
             if (filter.ShowGpoInheritance)
             {
+                // Ne lancer la propagation que depuis les racines (Domain, ou OUs sans parent OU)
                 foreach (var container in allObjects.Where(o =>
-                    o.Type == ADObjectType.OrganizationalUnit || o.Type == ADObjectType.Domain))
+                    o.Type == ADObjectType.Domain ||
+                    (o.Type == ADObjectType.OrganizationalUnit && o.LinkedGPOs.Count > 0)))
                 {
                     foreach (var gpoName in container.LinkedGPOs)
                     {
                         if (!_nodeMap.TryGetValue(gpoName, out var gpoNode)) continue;
-                        PropagateGpoInheritance(container, gpoNode, gpoName, filter);
+                        PropagateGpoInheritance(container, gpoNode, gpoName);
                     }
                 }
             }
 
-            // Arêtes PSO Subjects
+            // ── PSO Subjects ──
             if (filter.ShowPsoLinks)
             {
                 foreach (var pso in allObjects.Where(o =>
@@ -151,34 +196,39 @@ namespace SMADX.Graph
         }
 
         /// <summary>
-        /// Propage une arête d'héritage GPO depuis le conteneur parent vers ses OU descendantes directes.
-        /// Les OU qui ont leur propre lien direct vers cette même GPO ne reçoivent pas d'arête d'héritage (déjà couverte).
+        /// Propage une arête d'héritage GPO de manière récursive et illimitée en profondeur.
+        /// Traverse tous les types de conteneurs enfants (OU et Container) pour ne pas rater
+        /// des OUs imbriquées dans des Containers intermédiaires.
         /// </summary>
-        private void PropagateGpoInheritance(
-            ADObject parent,
-            GraphNode gpoNode,
-            string gpoName,
-            GraphFilter filter)
+        private void PropagateGpoInheritance(ADObject parent, GraphNode gpoNode, string gpoName)
         {
-            foreach (var child in parent.Children.Where(c => c.Type == ADObjectType.OrganizationalUnit))
+            foreach (var child in parent.Children)
             {
-                if (!_nodeMap.TryGetValue(child.Name, out var childNode)) continue;
-
-                // Ne pas dupliquer : si l'OU a déjà un lien direct avec cette GPO, on ne trace pas l'héritage
-                bool hasDirectLink = child.LinkedGPOs.Contains(gpoName);
-                if (!hasDirectLink)
+                // Ajouter une arête d'héritage uniquement pour les OUs
+                if (child.Type == ADObjectType.OrganizationalUnit)
                 {
-                    // Eviter les doublons d'arêtes d'héritage
-                    bool alreadyExists = Edges.Any(e =>
-                        e.Type == EdgeType.GpoInheritance &&
-                        e.Source == childNode &&
-                        e.Target == gpoNode);
-                    if (!alreadyExists)
-                        Edges.Add(new GraphEdge(childNode, gpoNode, EdgeType.GpoInheritance, gpoName));
-                }
+                    if (!_nodeMap.TryGetValue(child.Name, out var childNode)) continue;
 
-                // Continuer la propagation vers les sous-OUs
-                PropagateGpoInheritance(child, gpoNode, gpoName, filter);
+                    bool hasDirectLink = child.LinkedGPOs.Contains(gpoName);
+                    if (!hasDirectLink)
+                    {
+                        bool alreadyExists = Edges.Any(e =>
+                            e.Type == EdgeType.GpoInheritance &&
+                            e.Source == childNode &&
+                            e.Target == gpoNode);
+                        if (!alreadyExists)
+                            Edges.Add(new GraphEdge(childNode, gpoNode, EdgeType.GpoInheritance, gpoName));
+                    }
+
+                    // Continuer la propagation dans la sous-OU
+                    PropagateGpoInheritance(child, gpoNode, gpoName);
+                }
+                else if (child.Type == ADObjectType.Container)
+                {
+                    // Traverser les Containers sans ajouter d'arête (ils n'héritent pas les GPOs)
+                    // mais les OUs imbriquées dedans doivent quand même hériter
+                    PropagateGpoInheritance(child, gpoNode, gpoName);
+                }
             }
         }
 
