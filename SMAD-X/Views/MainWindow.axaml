@@ -21,6 +21,7 @@
         <Style Selector="TreeViewItem">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+            <Setter Property="IsVisible" Value="{Binding IsVisible}"/>
         </Style>
     </Window.Styles>
 
@@ -113,11 +114,36 @@
         <Grid Grid.Row="1" ColumnDefinitions="400,5,*">
             <!-- TreeView -->
             <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Padding="5">
-                <Grid RowDefinitions="Auto,*" DataContext="{StaticResource Loc}">
+                <Grid RowDefinitions="Auto,Auto,*" DataContext="{StaticResource Loc}">
                     <TextBlock Grid.Row="0" Text="{Binding TreeViewTitle}" 
-                               FontWeight="Bold" FontSize="14" Margin="0,0,0,10"/>
+                               FontWeight="Bold" FontSize="14" Margin="0,0,0,6"/>
 
-                    <TreeView Grid.Row="1"
+                    <!-- ═══ BARRE DE RECHERCHE ═══ -->
+                    <Border Grid.Row="1" Margin="0,0,0,8" CornerRadius="4"
+                            BorderThickness="1" BorderBrush="{DynamicResource AppSeparatorBrush}">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <TextBlock Grid.Column="0" Text="🔍" FontSize="13"
+                                       FontFamily="Segoe UI Emoji"
+                                       VerticalAlignment="Center" Margin="8,0,4,0"
+                                       Foreground="{DynamicResource AppTreeFgBrush}"/>
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding #MainWindowRoot.DataContext.SearchText, Mode=TwoWay}"
+                                     Watermark="{Binding SearchPlaceholder}"
+                                     BorderThickness="0" Background="Transparent"
+                                     Padding="2,6" FontSize="13"
+                                     VerticalAlignment="Center"/>
+                            <Button Grid.Column="2"
+                                    Content="✕"
+                                    Command="{Binding #MainWindowRoot.DataContext.ClearSearchCommand}"
+                                    IsVisible="{Binding #MainWindowRoot.DataContext.SearchText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                    Background="Transparent" BorderThickness="0"
+                                    Padding="6,4" FontSize="11"
+                                    Foreground="{DynamicResource AppTreeFgBrush}"
+                                    ToolTip.Tip="Effacer la recherche"/>
+                        </Grid>
+                    </Border>
+
+                    <TreeView Grid.Row="2"
                               x:Name="MainTreeView"
                               ItemsSource="{Binding #MainWindowRoot.DataContext.RootNodes}"
                               SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedNode, Mode=TwoWay}">

@@ -109,6 +109,53 @@ namespace SMADX.ViewModels
         [ObservableProperty]
         private string _statusMessage = string.Empty;
 
+        // ─── Recherche ────────────────────────────────────────────────────────────
+
+        private string _searchText = string.Empty;
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (SetProperty(ref _searchText, value))
+                    ApplySearch();
+            }
+        }
+
+        [RelayCommand]
+        private void ClearSearch() => SearchText = string.Empty;
+
+        /// <summary>
+        /// Applique le filtre de recherche : met à jour IsVisible sur les nœuds,
+        /// et expand les parents des nœuds correspondants.
+        /// </summary>
+        private void ApplySearch()
+        {
+            var query = _searchText.Trim();
+            foreach (var root in RootNodes)
+                ApplySearchToNode(root, query);
+        }
+
+        private bool ApplySearchToNode(ADTreeNode node, string query)
+        {
+            bool selfMatch = string.IsNullOrEmpty(query) ||
+                             node.Data.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                             node.Data.Type.ToString().Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                             (!string.IsNullOrEmpty(node.Data.Description) &&
+                              node.Data.Description.Contains(query, StringComparison.OrdinalIgnoreCase));
+
+            bool anyChildMatch = false;
+            foreach (var child in node.Children)
+                if (ApplySearchToNode(child, query))
+                    anyChildMatch = true;
+
+            node.IsVisible = selfMatch || anyChildMatch;
+            if (anyChildMatch && !string.IsNullOrEmpty(query))
+                node.IsExpanded = true;
+
+            return node.IsVisible;
+        }
+
         // --- Propriétés de relations contextuelles pour le panneau de détails ---
 
         // ─── Propriétés pour activer/griser le menu contextuel ───────────────────
