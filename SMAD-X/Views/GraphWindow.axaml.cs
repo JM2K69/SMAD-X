@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Styling;
 using SMADX.ViewModels;
 using SMADX.Graph;
 
@@ -52,10 +53,7 @@ namespace SMADX.Views
         private void OnFitView(object? sender, RoutedEventArgs e) => _canvas.FitView();
         private void OnZoomIn(object? sender, RoutedEventArgs e)   => _canvas.ZoomIn();
         private void OnZoomOut(object? sender, RoutedEventArgs e)  => _canvas.ZoomOut();
-        private void OnRelayout(object? sender, RoutedEventArgs e)
-        {
-            _canvas.ReLayout();
-        }
+        private void OnRelayout(object? sender, RoutedEventArgs e) => _canvas.ReLayout();
         private void OnRefresh(object? sender, RoutedEventArgs e)  => ReloadGraph();
         private void OnClose(object? sender, RoutedEventArgs e)    => Close();
     }

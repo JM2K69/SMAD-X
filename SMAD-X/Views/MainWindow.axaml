@@ -17,12 +17,11 @@
     </Design.DataContext>
 
     <Window.Styles>
+        <!-- Bindings MVVM pour TreeViewItem — les couleurs sont dans AppStyles.axaml -->
         <Style Selector="TreeViewItem">
             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-            <Setter Property="Foreground" Value="#1A1A1A"/>
         </Style>
-        <!-- La couleur des MenuFlyout est gérée par les fichiers de thème (DarkTheme/LightTheme) -->
     </Window.Styles>
 
     <Grid RowDefinitions="Auto,*,Auto">
@@ -127,74 +126,106 @@
                                 <!-- Ajouter OU -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddOU}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddOrganizationalUnitCommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddOU}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddOU}">
+                                    <MenuItem.Icon><TextBlock Text="📁" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Ajouter Container -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddContainer}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddContainerCommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddContainer}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddContainer}">
+                                    <MenuItem.Icon><TextBlock Text="📦" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Ajouter Utilisateur -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddUser}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddUserCommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddUser}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddUser}">
+                                    <MenuItem.Icon><TextBlock Text="👤" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Ajouter Groupe -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddGroup}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddGroupCommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddGroup}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddGroup}">
+                                    <MenuItem.Icon><TextBlock Text="👥" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Ajouter Ordinateur -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddComputer}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddComputerCommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddComputer}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddComputer}">
+                                    <MenuItem.Icon><TextBlock Text="💻" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Ajouter GMSA -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddGMSA}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddGMSACommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddGMSA}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddGMSA}">
+                                    <MenuItem.Icon><TextBlock Text="🔐" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Ajouter GPO -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddPolicy}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddPolicyCommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddPolicy}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddPolicy}">
+                                    <MenuItem.Icon><TextBlock Text="📋" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Ajouter PSO -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddPSO}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddPasswordSettingsObjectCommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddPSO}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddPSO}">
+                                    <MenuItem.Icon><TextBlock Text="🔑" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Séparateur entre ajout enfant et actions objet -->
                                 <Separator IsVisible="{Binding #MainWindowRoot.DataContext.CanAddAnyChild}"/>
                                 <!-- Ajouter au groupe (User / Computer / GMSA) -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddToGroup}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddToGroupCommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddToGroup}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddToGroup}">
+                                    <MenuItem.Icon><TextBlock Text="👥" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Ajouter des membres (Group) -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddMember}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddMemberCommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddMember}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddMember}">
+                                    <MenuItem.Icon><TextBlock Text="👤" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Imbrication groupe dans groupe -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuAddGroupToGroup}"
                                           Command="{Binding #MainWindowRoot.DataContext.AddGroupToGroupCommand}"
-                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddGroupToGroup}"/>
+                                          IsVisible="{Binding #MainWindowRoot.DataContext.CanAddGroupToGroup}">
+                                    <MenuItem.Icon><TextBlock Text="👥" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Séparateur avant édition -->
                                 <Separator IsVisible="{Binding #MainWindowRoot.DataContext.CanAddToGroup}"/>
                                 <Separator IsVisible="{Binding #MainWindowRoot.DataContext.CanAddMember}"/>
                                 <!-- Renommer -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuRename}"
                                           Command="{Binding #MainWindowRoot.DataContext.RenameObjectCommand}"
-                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}"/>
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}">
+                                    <MenuItem.Icon><TextBlock Text="✏️" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Copier -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuCopy}"
                                           Command="{Binding #MainWindowRoot.DataContext.CopyObjectCommand}"
-                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}"/>
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}">
+                                    <MenuItem.Icon><TextBlock Text="📋" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <!-- Coller -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuPaste}"
                                           Command="{Binding #MainWindowRoot.DataContext.PasteObjectCommand}"
-                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}"/>
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}">
+                                    <MenuItem.Icon><TextBlock Text="📌" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <Separator/>
                                 <!-- Supprimer -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuDelete}"
                                           Command="{Binding #MainWindowRoot.DataContext.DeleteObjectCommand}"
-                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanDeleteSelected}"/>
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanDeleteSelected}">
+                                    <MenuItem.Icon><TextBlock Text="🗑️" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                                 <Separator/>
                                 <!-- Gérer les relations -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuManageRelations}"
                                           Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
-                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanManageRelations}"/>
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanManageRelations}">
+                                    <MenuItem.Icon><TextBlock Text="🔗" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
                             </ContextMenu>
                         </TreeView.ContextMenu>
                         <TreeView.ItemTemplate>

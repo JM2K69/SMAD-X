@@ -1,0 +1,111 @@
+<Styles xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<!--
+		AppStyles.axaml — surcharges applicatives au-dessus de FluentTheme.
+		Les couleurs sensibles au thème utilisent ThemeVariant pour éviter
+		tout sélecteur générique qui contaminerait les composants internes.
+	-->
+
+	<!-- ══════════════════════════════════════════════════════════
+		 RESSOURCES PAR VARIANTE DE THÈME
+		 ══════════════════════════════════════════════════════════ -->
+	<Styles.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+
+				<!-- ── Thème Clair ───────────────────────────────── -->
+				<ResourceDictionary x:Key="Light">
+					<SolidColorBrush x:Key="AppAccentBrush"         Color="#007ACC"/>
+					<SolidColorBrush x:Key="AppSelectionBrush"      Color="#CCE4F7"/>
+					<SolidColorBrush x:Key="AppTreeBgBrush"         Color="#FFFFFF"/>
+					<SolidColorBrush x:Key="AppTreeFgBrush"         Color="#1E1E1E"/>
+					<SolidColorBrush x:Key="AppSelectedItemBrush"   Color="#CCE4F7"/>
+					<SolidColorBrush x:Key="AppSelectedItemFgBrush" Color="#000000"/>
+					<SolidColorBrush x:Key="AppToolbarBgBrush"      Color="#F0F0F0"/>
+					<SolidColorBrush x:Key="AppTierFgBrush"         Color="#005F9E"/>
+					<SolidColorBrush x:Key="AppSeparatorBrush"      Color="#CCCCCC"/>
+				</ResourceDictionary>
+
+				<!-- ── Thème Sombre ──────────────────────────────── -->
+				<ResourceDictionary x:Key="Dark">
+					<SolidColorBrush x:Key="AppAccentBrush"         Color="#007ACC"/>
+					<SolidColorBrush x:Key="AppSelectionBrush"      Color="#094771"/>
+					<SolidColorBrush x:Key="AppTreeBgBrush"         Color="#1E1E1E"/>
+					<SolidColorBrush x:Key="AppTreeFgBrush"         Color="#E0E0E0"/>
+					<SolidColorBrush x:Key="AppSelectedItemBrush"   Color="#094771"/>
+					<SolidColorBrush x:Key="AppSelectedItemFgBrush" Color="#FFFFFF"/>
+					<SolidColorBrush x:Key="AppToolbarBgBrush"      Color="#2D2D30"/>
+					<SolidColorBrush x:Key="AppTierFgBrush"         Color="#7FFF9A"/>
+					<SolidColorBrush x:Key="AppSeparatorBrush"      Color="#3F3F46"/>
+				</ResourceDictionary>
+
+			</ResourceDictionary.ThemeDictionaries>
+		</ResourceDictionary>
+	</Styles.Resources>
+
+	<!-- ══════════════════════════════════════════════════════════
+		 TREEVIEW
+		 ══════════════════════════════════════════════════════════ -->
+	<Style Selector="TreeView">
+		<Setter Property="Background" Value="{DynamicResource AppTreeBgBrush}"/>
+	</Style>
+
+	<Style Selector="TreeViewItem">
+		<Setter Property="Foreground" Value="{DynamicResource AppTreeFgBrush}"/>
+	</Style>
+
+	<Style Selector="TreeViewItem:selected /template/ Border#PART_LayoutRoot">
+		<Setter Property="Background" Value="{DynamicResource AppSelectedItemBrush}"/>
+	</Style>
+
+	<Style Selector="TreeViewItem:selected > Border > StackPanel TextBlock">
+		<Setter Property="Foreground" Value="{DynamicResource AppSelectedItemFgBrush}"/>
+	</Style>
+
+	<!-- ══════════════════════════════════════════════════════════
+		 TOOLBAR STACKPANEL
+		 ══════════════════════════════════════════════════════════ -->
+	<Style Selector="StackPanel#Toolbar">
+		<Setter Property="Background" Value="{DynamicResource AppToolbarBgBrush}"/>
+	</Style>
+
+	<!-- ══════════════════════════════════════════════════════════
+		 SÉPARATEUR
+		 ══════════════════════════════════════════════════════════ -->
+	<Style Selector="Separator">
+		<Setter Property="Background" Value="{DynamicResource AppSeparatorBrush}"/>
+	</Style>
+
+	<!-- ══════════════════════════════════════════════════════════
+		 FOCUS ACCENT
+		 ══════════════════════════════════════════════════════════ -->
+	<Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+		<Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}"/>
+	</Style>
+
+	<Style Selector="ComboBox:pointerover /template/ Border#Background">
+		<Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}"/>
+	</Style>
+
+	<Style Selector="ComboBox:focus /template/ Border#Background">
+		<Setter Property="BorderBrush" Value="{DynamicResource AppAccentBrush}"/>
+	</Style>
+
+	<Style Selector="Slider">
+		<Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}"/>
+	</Style>
+
+	<!-- ══════════════════════════════════════════════════════════
+		 CONTEXTMENU — force le foreground via ThemeVariant
+		 pour éviter la contamination après fermeture de GraphWindow
+		 ══════════════════════════════════════════════════════════ -->
+	<Style Selector="ContextMenu">
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+	</Style>
+
+	<Style Selector="ContextMenu MenuItem">
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+	</Style>
+
+</Styles>

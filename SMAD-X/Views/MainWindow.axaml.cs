@@ -3,6 +3,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using Avalonia.Styling;
 using SMADX.ViewModels;
 using SMADX.Services;
 using System;
@@ -16,6 +17,42 @@ namespace SMADX.Views
         {
             InitializeComponent();
             this.KeyDown += OnKeyDown;
+
+            // Synchronise le RequestedThemeVariant de la MainWindow avec l'app
+            // à chaque changement de thème — cela force les ContextMenu (popups)
+            // à se re-themeriser correctement même après fermeture de GraphWindow
+            ThemeService.Instance.ThemeChanged += (_, theme) =>
+            {
+                var variant = theme == AppTheme.Dark ? ThemeVariant.Dark : ThemeVariant.Light;
+                RequestedThemeVariant = variant;
+                ApplyThemeToContextMenu(variant);
+            };
+
+            // Appliquer immédiatement le variant courant à la fenêtre
+            RequestedThemeVariant = ThemeService.Instance.CurrentTheme == AppTheme.Dark
+                ? ThemeVariant.Dark
+                : ThemeVariant.Light;
+
+            // Force le bon thème sur le ContextMenu à chaque ouverture
+            // (le PopupRoot ne ré-hérite pas toujours correctement après fermeture d'une autre fenêtre)
+            this.Loaded += (_, _) =>
+            {
+                var tree = this.FindControl<TreeView>("MainTreeView");
+                if (tree?.ContextMenu is { } cm)
+                {
+                    cm.Opening += OnContextMenuOpening;
+                }
+            };
+        }
+
+        private void OnContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // Nothing needed — emoji are now in MenuItem.Icon which is theme-independent
+        }
+
+        private void ApplyThemeToContextMenu(ThemeVariant variant)
+        {
+            // Nothing needed — emoji are now in MenuItem.Icon which is theme-independent
         }
 
         private void OnExitClick(object? sender, RoutedEventArgs e)
@@ -168,12 +205,12 @@ namespace SMADX.Views
 
         private void OnLightThemeClick(object? sender, RoutedEventArgs e)
         {
-            ThemeService.Instance.CurrentTheme = AppTheme.Light;
+            ThemeService.Instance.ApplyTheme(AppTheme.Light);
         }
 
         private void OnDarkThemeClick(object? sender, RoutedEventArgs e)
         {
-            ThemeService.Instance.CurrentTheme = AppTheme.Dark;
+            ThemeService.Instance.ApplyTheme(AppTheme.Dark);
         }
 
         private void OnFrenchLanguageClick(object? sender, RoutedEventArgs e)
