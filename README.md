@@ -9,6 +9,10 @@
   <img alt="License" src="https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg"/>
 </p>
 
+<p align="center">
+  <img src="./SMAD-X.png" alt="SMAD-X screenshot" width="900"/>
+</p>
+
 > 🇫🇷 La documentation en français est disponible dans [ReadmeFR.md](./ReadmeFR.md).
 
 **SMAD-X** (*Simulate, Model and Audit Active Directory eXpert*) is an expert Active Directory simulator built with Avalonia UI and .NET 10. It generates an AD structure faithful to a fresh Windows Server installation and lets you visualize, document and export it without any real infrastructure.
