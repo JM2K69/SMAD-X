@@ -13,6 +13,10 @@
   <img src="./SMAD-X.png" alt="SMAD-X screenshot" width="900"/>
 </p>
 
+<p align="center">
+  <img src="./images/SMADX.png" alt="SMAD-X screenshot" width="900"/>
+</p>
+
 > 🇫🇷 La documentation en français est disponible dans [ReadmeFR.md](./ReadmeFR.md).
 
 **SMAD-X** (*Simulate, Model and Audit Active Directory eXpert*) is an expert Active Directory simulator built with Avalonia UI and .NET 10. It generates an AD structure faithful to a fresh Windows Server installation and lets you visualize, document and export it without any real infrastructure.
@@ -263,6 +267,10 @@ SMAD-X/
 | **Integrator** | Generate ready-to-deploy PowerShell scripts |
 
 ---
+<p align="center">
+  <img src="./images/SMADX-1.png" alt="SMAD-X screenshot" width="900"/>
+</p>
+
 
 ## 🎯 Roadmap
 
@@ -279,9 +287,7 @@ SMAD-X/
 - [x] Avalonia upgrade to 12.0.3 (FluentTheme, performance improvements)
 - [x] Light / Dark theme (native Avalonia FluentTheme)
 - [x] Search and filtering in the tree (live search by name / type / description)
-- [ ] Drag & Drop to move objects
 - [ ] Multi-domain / forest support
-- [ ] Export to diagrams (Draw.io, Visio)
 
 ---
 
