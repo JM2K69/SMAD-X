@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="./SMAD-X.png" alt="Capture d'écran SMAD-X" width="900"/>
+  <img src="./SMAD-X.png" alt="Capture d'écran SMAD-X" width="450"/>
 </p>
 
 > 🇬🇧 English documentation is available in [README.md](./README.md).
