@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
@@ -5,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Avalonia.Layout;
+using SMADX.Services;
 
 namespace SMADX.Converters
 {
@@ -13,6 +15,9 @@ namespace SMADX.Converters
     /// </summary>
     public class MarkdownConverter : IValueConverter
     {
+        private static bool IsDark =>
+            ThemeService.Instance.CurrentTheme == Services.AppTheme.Dark;
+
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is not string markdown || string.IsNullOrWhiteSpace(markdown))
@@ -46,7 +51,7 @@ namespace SMADX.Converters
                         FontSize = 16,
                         FontWeight = FontWeight.SemiBold,
                         Margin = new Avalonia.Thickness(0, 12, 0, 4),
-                        Foreground = new SolidColorBrush(Color.Parse("#4A9EFF"))
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#7DD3FC" : "#4A9EFF"))
                     });
                 }
                 else if (line.StartsWith("## "))
@@ -57,7 +62,7 @@ namespace SMADX.Converters
                         FontSize = 18,
                         FontWeight = FontWeight.SemiBold,
                         Margin = new Avalonia.Thickness(0, 14, 0, 4),
-                        Foreground = new SolidColorBrush(Color.Parse("#3A8EEF"))
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#93C5FD" : "#3A8EEF"))
                     });
                 }
                 else if (line.StartsWith("# "))
@@ -68,7 +73,7 @@ namespace SMADX.Converters
                         FontSize = 22,
                         FontWeight = FontWeight.Bold,
                         Margin = new Avalonia.Thickness(0, 16, 0, 6),
-                        Foreground = new SolidColorBrush(Color.Parse("#2A7EDF"))
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#BAE6FD" : "#2A7EDF"))
                     });
                 }
                 // Citation (>)
@@ -77,9 +82,9 @@ namespace SMADX.Converters
                     var text = line.TrimStart().Substring(2);
                     stackPanel.Children.Add(new Border
                     {
-                        BorderBrush = new SolidColorBrush(Color.Parse("#4A9EFF")),
+                        BorderBrush = new SolidColorBrush(Color.Parse(IsDark ? "#4A9EFF" : "#4A9EFF")),
                         BorderThickness = new Avalonia.Thickness(4, 0, 0, 0),
-                        Background = new SolidColorBrush(Color.Parse("#F0F8FF")),
+                        Background = new SolidColorBrush(Color.Parse(IsDark ? "#1A2D3F" : "#F0F8FF")),
                         Padding = new Avalonia.Thickness(12, 8, 12, 8),
                         Margin = new Avalonia.Thickness(0, 4, 0, 4),
                         Child = CreateInlineTextBlock(text, true)
@@ -100,7 +105,7 @@ namespace SMADX.Converters
                     panel.Children.Add(new TextBlock
                     {
                         Text = "• ",
-                        Foreground = new SolidColorBrush(Color.Parse("#4A9EFF")),
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#7DD3FC" : "#4A9EFF")),
                         FontWeight = FontWeight.Bold,
                         VerticalAlignment = VerticalAlignment.Top
                     });
@@ -125,7 +130,7 @@ namespace SMADX.Converters
                         panel.Children.Add(new TextBlock
                         {
                             Text = match.Groups[1].Value + ". ",
-                            Foreground = new SolidColorBrush(Color.Parse("#4A9EFF")),
+                            Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#7DD3FC" : "#4A9EFF")),
                             FontWeight = FontWeight.SemiBold,
                             VerticalAlignment = VerticalAlignment.Top
                         });
@@ -157,15 +162,15 @@ namespace SMADX.Converters
                             Text = language.ToUpper(),
                             FontSize = 10,
                             FontWeight = FontWeight.SemiBold,
-                            Foreground = new SolidColorBrush(Color.Parse("#888888")),
+                            Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#A0A0A0" : "#888888")),
                             Margin = new Avalonia.Thickness(0, 0, 0, 4)
                         });
                     }
 
                     codePanel.Children.Add(new Border
                     {
-                        Background = Avalonia.Media.Brushes.Transparent,
-                        BorderBrush = new SolidColorBrush(Color.Parse("#555555")),
+                        Background = new SolidColorBrush(Color.Parse(IsDark ? "#1A1A1A" : "#F8F8F8")),
+                        BorderBrush = new SolidColorBrush(Color.Parse(IsDark ? "#3F3F46" : "#CCCCCC")),
                         BorderThickness = new Avalonia.Thickness(1),
                         CornerRadius = new Avalonia.CornerRadius(4),
                         Padding = new Avalonia.Thickness(12),
@@ -178,7 +183,7 @@ namespace SMADX.Converters
                                 FontFamily = new FontFamily("Consolas, Courier New, monospace"),
                                 FontSize = 13,
                                 TextWrapping = TextWrapping.NoWrap,
-                                Foreground = new SolidColorBrush(Color.Parse("#D4D4D4"))
+                                Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#D4D4D4" : "#1E1E1E"))
                             }
                         }
                     });
@@ -266,8 +271,8 @@ namespace SMADX.Converters
             {
                 var cell = new Border
                 {
-                    Background = new SolidColorBrush(Color.Parse("#D0E4F7")),
-                    BorderBrush = new SolidColorBrush(Color.Parse("#AAAAAA")),
+                    Background = new SolidColorBrush(Color.Parse(IsDark ? "#1A3A52" : "#D0E4F7")),
+                    BorderBrush = new SolidColorBrush(Color.Parse(IsDark ? "#3F3F46" : "#AAAAAA")),
                     BorderThickness = new Avalonia.Thickness(1),
                     Padding = new Avalonia.Thickness(8, 4, 8, 4),
                     Child = new TextBlock
@@ -275,7 +280,7 @@ namespace SMADX.Converters
                         Text = c < headers.Length ? headers[c] : "",
                         FontWeight = FontWeight.Bold,
                         TextWrapping = TextWrapping.Wrap,
-                        Foreground = new SolidColorBrush(Color.Parse("#1A1A1A"))
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#E8E8E8" : "#1A1A1A"))
                     }
                 };
                 Grid.SetRow(cell, row);
@@ -293,8 +298,10 @@ namespace SMADX.Converters
                 {
                     var cell = new Border
                     {
-                        Background = new SolidColorBrush(isEven ? Color.Parse("#F5F9FF") : Color.Parse("#FFFFFF")),
-                        BorderBrush = new SolidColorBrush(Color.Parse("#CCCCCC")),
+                        Background = new SolidColorBrush(IsDark
+                            ? Color.Parse(isEven ? "#252526" : "#2D2D30")
+                            : Color.Parse(isEven ? "#F5F9FF" : "#FFFFFF")),
+                        BorderBrush = new SolidColorBrush(Color.Parse(IsDark ? "#3F3F46" : "#CCCCCC")),
                         BorderThickness = new Avalonia.Thickness(1),
                         Padding = new Avalonia.Thickness(8, 4, 8, 4),
                         Child = CreateInlineTextBlock(c < dataRow.Length ? dataRow[c] : "", false)
@@ -308,7 +315,7 @@ namespace SMADX.Converters
 
             return new Border
             {
-                BorderBrush = new SolidColorBrush(Color.Parse("#AAAAAA")),
+                BorderBrush = new SolidColorBrush(Color.Parse(IsDark ? "#3F3F46" : "#AAAAAA")),
                 BorderThickness = new Avalonia.Thickness(1),
                 CornerRadius = new Avalonia.CornerRadius(4),
                 ClipToBounds = true,
@@ -325,13 +332,14 @@ namespace SMADX.Converters
             var textBlock = new TextBlock
             {
                 TextWrapping = TextWrapping.Wrap,
-                Margin = new Avalonia.Thickness(0, 2, 0, 2)
+                Margin = new Avalonia.Thickness(0, 2, 0, 2),
+                Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#E0E0E0" : "#1A1A1A"))
             };
 
             if (isQuote)
             {
                 textBlock.FontStyle = FontStyle.Italic;
-                textBlock.Foreground = new SolidColorBrush(Color.Parse("#555555"));
+                textBlock.Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#A8C7E8" : "#555555"));
             }
 
             // Utiliser Inlines pour supporter le formatage riche
@@ -347,7 +355,10 @@ namespace SMADX.Converters
                 if (match.Index > lastIndex)
                 {
                     var normalText = text.Substring(lastIndex, match.Index - lastIndex);
-                    inlines.Add(new Avalonia.Controls.Documents.Run(normalText));
+                    inlines.Add(new Avalonia.Controls.Documents.Run(normalText)
+                    {
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#E0E0E0" : "#1A1A1A"))
+                    });
                 }
 
                 // ***gras et italique***
@@ -356,7 +367,8 @@ namespace SMADX.Converters
                     inlines.Add(new Avalonia.Controls.Documents.Run(match.Groups[2].Value)
                     {
                         FontWeight = FontWeight.Bold,
-                        FontStyle = FontStyle.Italic
+                        FontStyle = FontStyle.Italic,
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#F0F0F0" : "#1A1A1A"))
                     });
                 }
                 // **gras**
@@ -365,7 +377,7 @@ namespace SMADX.Converters
                     inlines.Add(new Avalonia.Controls.Documents.Run(match.Groups[4].Value)
                     {
                         FontWeight = FontWeight.Bold,
-                        Foreground = new SolidColorBrush(Color.Parse("#1A1A1A"))
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#F0F0F0" : "#1A1A1A"))
                     });
                 }
                 // *italique*
@@ -373,7 +385,8 @@ namespace SMADX.Converters
                 {
                     inlines.Add(new Avalonia.Controls.Documents.Run(match.Groups[6].Value)
                     {
-                        FontStyle = FontStyle.Italic
+                        FontStyle = FontStyle.Italic,
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#E0E0E0" : "#1A1A1A"))
                     });
                 }
                 // __gras__
@@ -381,7 +394,8 @@ namespace SMADX.Converters
                 {
                     inlines.Add(new Avalonia.Controls.Documents.Run(match.Groups[8].Value)
                     {
-                        FontWeight = FontWeight.Bold
+                        FontWeight = FontWeight.Bold,
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#F0F0F0" : "#1A1A1A"))
                     });
                 }
                 // _italique_
@@ -389,7 +403,8 @@ namespace SMADX.Converters
                 {
                     inlines.Add(new Avalonia.Controls.Documents.Run(match.Groups[10].Value)
                     {
-                        FontStyle = FontStyle.Italic
+                        FontStyle = FontStyle.Italic,
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#E0E0E0" : "#1A1A1A"))
                     });
                 }
                 // `code inline`
@@ -399,8 +414,8 @@ namespace SMADX.Converters
                     {
                         FontFamily = new FontFamily("Consolas, Courier New, monospace"),
                         FontSize = 13,
-                        Background = new SolidColorBrush(Color.Parse("#F5F5F5")),
-                        Foreground = new SolidColorBrush(Color.Parse("#E01E5A"))
+                        Background = new SolidColorBrush(Color.Parse(IsDark ? "#2D2D30" : "#F5F5F5")),
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#FF7EB3" : "#E01E5A"))
                     };
                     inlines.Add(codeRun);
                 }
@@ -409,7 +424,7 @@ namespace SMADX.Converters
                 {
                     inlines.Add(new Avalonia.Controls.Documents.Run(match.Groups[13].Value)
                     {
-                        Foreground = new SolidColorBrush(Color.Parse("#0066CC")),
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#5BB8FF" : "#0066CC")),
                         TextDecorations = Avalonia.Media.TextDecorations.Underline
                     });
                 }

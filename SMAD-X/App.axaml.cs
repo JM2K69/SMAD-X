@@ -1,8 +1,8 @@
+using SMADX.Services;
 using SMADX.ViewModels;
 using SMADX.Views;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using System.Linq;
@@ -18,6 +18,8 @@ namespace SMADX
 
         public override void OnFrameworkInitializationCompleted()
         {
+            ThemeService.Instance.ApplyTheme(AppTheme.Dark);
+
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 desktop.MainWindow = new MainWindow

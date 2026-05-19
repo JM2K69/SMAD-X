@@ -128,7 +128,7 @@
                                        Foreground="{DynamicResource AppTreeFgBrush}"/>
                             <TextBox Grid.Column="1"
                                      Text="{Binding #MainWindowRoot.DataContext.SearchText, Mode=TwoWay}"
-                                     Watermark="{Binding SearchPlaceholder}"
+                                     PlaceholderText="{Binding SearchPlaceholder}"
                                      BorderThickness="0" Background="Transparent"
                                      Padding="2,6" FontSize="13"
                                      VerticalAlignment="Center"/>
