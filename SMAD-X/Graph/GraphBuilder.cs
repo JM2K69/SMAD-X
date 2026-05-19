@@ -204,7 +204,6 @@ namespace SMADX.Graph
         {
             foreach (var child in parent.Children)
             {
-                // Ajouter une arête d'héritage uniquement pour les OUs
                 if (child.Type == ADObjectType.OrganizationalUnit)
                 {
                     if (!_nodeMap.TryGetValue(child.Name, out var childNode)) continue;
@@ -220,14 +219,25 @@ namespace SMADX.Graph
                             Edges.Add(new GraphEdge(childNode, gpoNode, EdgeType.GpoInheritance, gpoName));
                     }
 
-                    // Continuer la propagation dans la sous-OU
+                    // Propager dans la sous-OU (OUs imbriquées + objets enfants)
                     PropagateGpoInheritance(child, gpoNode, gpoName);
                 }
                 else if (child.Type == ADObjectType.Container)
                 {
-                    // Traverser les Containers sans ajouter d'arête (ils n'héritent pas les GPOs)
-                    // mais les OUs imbriquées dedans doivent quand même hériter
+                    // Traverser les Containers sans ajouter d'arête
                     PropagateGpoInheritance(child, gpoNode, gpoName);
+                }
+                else if (child.Type is ADObjectType.Computer or ADObjectType.User or ADObjectType.GMSA)
+                {
+                    // Les objets dans une OU héritent des GPOs de leur OU parente
+                    if (!_nodeMap.TryGetValue(child.Name, out var childNode)) continue;
+
+                    bool alreadyExists = Edges.Any(e =>
+                        e.Type == EdgeType.GpoInheritance &&
+                        e.Source == childNode &&
+                        e.Target == gpoNode);
+                    if (!alreadyExists)
+                        Edges.Add(new GraphEdge(childNode, gpoNode, EdgeType.GpoInheritance, gpoName));
                 }
             }
         }

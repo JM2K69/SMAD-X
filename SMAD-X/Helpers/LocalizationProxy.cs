@@ -71,6 +71,21 @@ namespace SMADX.Helpers
         public string ToolbarDelete => _localizationService["Toolbar.Delete"];
         public string ToolbarRelations => _localizationService["Toolbar.Relations"];
         public string ToolbarGraph => _localizationService["Toolbar.Graph"];
+
+        // Tooltips toolbar
+        public string TooltipAddOU => _localizationService["Tooltip.AddOU"];
+        public string TooltipAddContainer => _localizationService["Tooltip.AddContainer"];
+        public string TooltipAddUser => _localizationService["Tooltip.AddUser"];
+        public string TooltipAddGroup => _localizationService["Tooltip.AddGroup"];
+        public string TooltipAddComputer => _localizationService["Tooltip.AddComputer"];
+        public string TooltipAddGMSA => _localizationService["Tooltip.AddGMSA"];
+        public string TooltipAddPolicy => _localizationService["Tooltip.AddPolicy"];
+        public string TooltipAddPSO => _localizationService["Tooltip.AddPSO"];
+        public string TooltipDelete => _localizationService["Tooltip.Delete"];
+        public string TooltipRelations => _localizationService["Tooltip.Relations"];
+        public string TooltipGraph => _localizationService["Tooltip.Graph"];
+        public string TooltipExportPNG => _localizationService["Tooltip.ExportPNG"];
+        public string TooltipClearSearch => _localizationService["Tooltip.ClearSearch"];
         public string MenuViewManageRelations => _localizationService["Menu.View.ManageRelations"];
         public string MenuViewShowGraph => _localizationService["Menu.View.ShowGraph"];
 

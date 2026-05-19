@@ -167,7 +167,21 @@ namespace SMADX.Services
                 ["ContextMenu.AddGroupToGroup"] = "Ajouter à un groupe (imbrication)",
                 ["Toolbar.Relations"] = "Relations",
                 ["Toolbar.Graph"] = "Graphe",
-                ["Menu.View.ManageRelations"] = "🔗 Gérer les relations...",
+
+                // Tooltips toolbar
+                ["Tooltip.AddOU"] = "Ajouter une Unité Organisationnelle",
+                ["Tooltip.AddContainer"] = "Ajouter un Conteneur",
+                ["Tooltip.AddUser"] = "Ajouter un Utilisateur",
+                ["Tooltip.AddGroup"] = "Ajouter un Groupe",
+                ["Tooltip.AddComputer"] = "Ajouter un Ordinateur",
+                ["Tooltip.AddGMSA"] = "Ajouter un GMSA",
+                ["Tooltip.AddPolicy"] = "Ajouter une Stratégie de Groupe (GPO)",
+                ["Tooltip.AddPSO"] = "Ajouter un Password Settings Object",
+                ["Tooltip.Delete"] = "Supprimer l'objet sélectionné",
+                ["Tooltip.Relations"] = "Gérer les relations entre objets",
+                ["Tooltip.Graph"] = "Afficher la vue graphique des relations",
+                ["Tooltip.ExportPNG"] = "Exporter l'arborescence en image PNG",
+                ["Tooltip.ClearSearch"] = "Effacer la recherche",
                 ["Menu.View.ShowGraph"] = "🕸️ Vue graphique des relations...",
 
                 // TreeView
@@ -858,7 +872,7 @@ Cette GPO est **créée automatiquement** avec le domaine et s'applique uniqueme
                 ["About.Title"] = "À propos de SMAD-X",
                 ["About.AppName"] = "SMAD-X",
                 ["About.FullName"] = "Simuler, Modéliser et Auditer Active Directory eXpert",
-                ["About.Version"] = "Version 0.3.0",
+                ["About.Version"] = "Version 0.3.1",
                 ["About.Description"] = "SMAD-X est un simulateur expert d'Active Directory conçu pour la formation, la documentation et l'expérimentation. Il génère une structure AD fidèle à une installation fraîche, avec tous les objets par défaut (Builtin, Users, Computers, System, GPOs, PSOs), et permet de la visualiser, modifier et exporter sans infrastructure réelle.",
                 ["About.Features"] = "Fonctionnalités principales :",
                 ["About.Feature1"] = "• Structure AD par défaut complète et fidèle (containers Builtin, Users, Computers, System)",
@@ -963,7 +977,21 @@ Cette GPO est **créée automatiquement** avec le domaine et s'applique uniqueme
                 ["ContextMenu.AddGroupToGroup"] = "Add to Group (nesting)",
                 ["Toolbar.Relations"] = "Relations",
                 ["Toolbar.Graph"] = "Graph",
-                ["Menu.View.ManageRelations"] = "🔗 Manage Relations...",
+
+                // Tooltips toolbar
+                ["Tooltip.AddOU"] = "Add an Organizational Unit",
+                ["Tooltip.AddContainer"] = "Add a Container",
+                ["Tooltip.AddUser"] = "Add a User",
+                ["Tooltip.AddGroup"] = "Add a Group",
+                ["Tooltip.AddComputer"] = "Add a Computer",
+                ["Tooltip.AddGMSA"] = "Add a Group Managed Service Account",
+                ["Tooltip.AddPolicy"] = "Add a Group Policy Object (GPO)",
+                ["Tooltip.AddPSO"] = "Add a Password Settings Object",
+                ["Tooltip.Delete"] = "Delete the selected object",
+                ["Tooltip.Relations"] = "Manage object relations",
+                ["Tooltip.Graph"] = "Show graph view of relations",
+                ["Tooltip.ExportPNG"] = "Export tree as PNG image",
+                ["Tooltip.ClearSearch"] = "Clear search",
                 ["Menu.View.ShowGraph"] = "🕸️ Graph View...",
 
                 // TreeView
@@ -1652,7 +1680,7 @@ This GPO is **automatically created** with the domain and applies only to the **
                 ["About.Title"] = "About SMAD-X",
                 ["About.AppName"] = "SMAD-X",
                 ["About.FullName"] = "Simulate, Model and Audit Active Directory eXpert",
-                ["About.Version"] = "Version 0.3.0",
+                ["About.Version"] = "Version 0.3.1",
                 ["About.Description"] = "SMAD-X is an expert Active Directory simulator designed for training, documentation and experimentation. It generates an AD structure faithful to a fresh installation, with all default objects (Builtin, Users, Computers, System, GPOs, PSOs), and lets you visualize, edit and export it without any real infrastructure.",
                 ["About.Features"] = "Key features:",
                 ["About.Feature1"] = "• Complete default AD structure faithful to a fresh domain (Builtin, Users, Computers, System containers)",

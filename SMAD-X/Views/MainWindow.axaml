@@ -360,7 +360,7 @@
                                                     <Button Content="{Binding ActionRename}" Command="{Binding #MainWindowRoot.DataContext.RenameObjectCommand}" Padding="10,5"/>
                                                     <Button Content="{Binding ActionCopy}" Command="{Binding #MainWindowRoot.DataContext.CopyObjectCommand}" Padding="10,5"/>
                                                     <Button Content="{Binding ActionDelete}" Command="{Binding #MainWindowRoot.DataContext.DeleteObjectCommand}" 
-                                                            Padding="10,5" Background="#FFDDDD"/>
+                                                            Padding="10,5" Background="#CC0000"/>
                                                 </StackPanel>
                                             </StackPanel>
 
