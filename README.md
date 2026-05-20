@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="./SMAD-X.png" alt="SMAD-X screenshot" width="900"/>
+  <img src="./SMAD-X.png" alt="SMAD-X screenshot" width="450"/>
 </p>
 
 <p align="center">
