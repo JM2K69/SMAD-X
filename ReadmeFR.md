@@ -4,7 +4,7 @@
   <img alt="Version" src="https://img.shields.io/badge/version-0.3.3-blue"/>
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10-purple"/>
   <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-12.0.3-blueviolet"/>
-  <img alt="Plateforme" src="https://img.shields.io/badge/plateforme-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey"/>
+  <img alt="Plateforme" src="https://img.shields.io/badge/plateforme-Windows%20%7C%20Linux%20%7C%20macOS%20Intel%2FM-lightgrey"/>
   <img alt="Langue" src="https://img.shields.io/badge/langue-FR%20%7C%20EN-green"/>
   <img alt="Licence" src="https://img.shields.io/badge/Licence-CC%20BY--NC%204.0-lightgrey.svg"/>
   <img alt="Téléchargements" src="https://img.shields.io/github/downloads/JM2K69/SMAD-X/total?label=t%C3%A9l%C3%A9chargements&color=brightgreen&logo=github"/>
