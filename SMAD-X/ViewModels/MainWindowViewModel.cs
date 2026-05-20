@@ -894,12 +894,6 @@ namespace SMADX.ViewModels
 
             var vm = new GraphViewModel(RootNodes[0].Data);
             var win = new Views.GraphWindow(vm);
-
-            // Propager la variante de thème active pour éviter la pollution
-            // des popups (ContextMenu) après fermeture de GraphWindow
-            if (Avalonia.Application.Current?.RequestedThemeVariant is { } variant)
-                win.RequestedThemeVariant = variant;
-
             win.Show(mainWindow);
         }
 

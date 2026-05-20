@@ -4,7 +4,7 @@
              xmlns:local="using:SMADX"
              xmlns:converters="using:SMADX.Converters"
              xmlns:helpers="using:SMADX.Helpers"
-             RequestedThemeVariant="Light">
+             RequestedThemeVariant="Dark">
 
     <Application.Resources>
         <converters:BoolToStringConverter x:Key="BoolToStringConverter"/>

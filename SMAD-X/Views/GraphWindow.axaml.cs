@@ -1,6 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Styling;
 using SMADX.ViewModels;
 using SMADX.Graph;
 

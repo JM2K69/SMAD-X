@@ -56,7 +56,14 @@
                         <MenuItem Header="{Binding MenuViewExpandAll}" Command="{Binding #MainWindowRoot.DataContext.ExpandAllCommand}"/>
                         <MenuItem Header="{Binding MenuViewCollapseAll}" Command="{Binding #MainWindowRoot.DataContext.CollapseAllCommand}"/>
                         <Separator/>
-                        <MenuItem Header="{Binding MenuViewManageRelations}" Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"/>
+                        <MenuItem Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}">
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="🔗" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding MenuViewManageRelations}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </MenuItem.Header>
+                        </MenuItem>
                         <MenuItem Header="{Binding MenuViewShowGraph}" Command="{Binding #MainWindowRoot.DataContext.ShowGraphViewCommand}"/>
                         <Separator/>
                         <MenuItem Header="{Binding MenuViewTheme}">
@@ -78,35 +85,83 @@
 
             <!-- Toolbar -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5" Spacing="5" x:Name="Toolbar" DataContext="{StaticResource Loc}">
-                <Button Content="{Binding ToolbarOU, StringFormat='📁 {0}'}" Command="{Binding #MainWindowRoot.DataContext.AddOrganizationalUnitCommand}" 
-                        ToolTip.Tip="Ajouter une Unité Organisationnelle" Padding="10,5"/>
-                <Button Content="{Binding ToolbarContainer, StringFormat='📦 {0}'}" Command="{Binding #MainWindowRoot.DataContext.AddContainerCommand}" 
-                        ToolTip.Tip="Ajouter un Container" Padding="10,5"/>
-                <Button Content="{Binding ToolbarUser, StringFormat='👤 {0}'}" Command="{Binding #MainWindowRoot.DataContext.AddUserCommand}" 
-                        ToolTip.Tip="Ajouter un Utilisateur" Padding="10,5"/>
-                <Button Content="{Binding ToolbarGroup, StringFormat='👥 {0}'}" Command="{Binding #MainWindowRoot.DataContext.AddGroupCommand}" 
-                        ToolTip.Tip="Ajouter un Groupe" Padding="10,5"/>
-                <Button Content="{Binding ToolbarComputer, StringFormat='💻 {0}'}" Command="{Binding #MainWindowRoot.DataContext.AddComputerCommand}" 
-                        ToolTip.Tip="Ajouter un Ordinateur" Padding="10,5"/>
-                <Button Content="{Binding ToolbarGMSA, StringFormat='🔐 {0}'}" Command="{Binding #MainWindowRoot.DataContext.AddGMSACommand}" 
-                        ToolTip.Tip="Ajouter un GMSA" Padding="10,5"/>
-                <Button Content="{Binding ToolbarPolicy, StringFormat='📋 {0}'}" Command="{Binding #MainWindowRoot.DataContext.AddPolicyCommand}" 
-                        ToolTip.Tip="Ajouter une Policy" Padding="10,5"/>
-                <Button Content="{Binding ToolbarPSO, StringFormat='🔑 {0}'}" Command="{Binding #MainWindowRoot.DataContext.AddPasswordSettingsObjectCommand}" 
-                        ToolTip.Tip="Ajouter un Password Settings Object" Padding="10,5"/>
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddOrganizationalUnitCommand}" Padding="10,5">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="📁" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarOU}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddContainerCommand}" Padding="10,5">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="📦" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarContainer}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddUserCommand}" Padding="10,5">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="👤" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarUser}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddGroupCommand}" Padding="10,5">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="👥" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarGroup}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddComputerCommand}" Padding="10,5">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="💻" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarComputer}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddGMSACommand}" Padding="10,5">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="🔐" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarGMSA}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddPolicyCommand}" Padding="10,5">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="📋" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarPolicy}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddPasswordSettingsObjectCommand}" Padding="10,5">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="🔑" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarPSO}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
                 <Separator Width="1" Height="30"/>
-                <Button Content="{Binding ToolbarDelete, StringFormat='🗑️ {0}'}" Command="{Binding #MainWindowRoot.DataContext.DeleteObjectCommand}" 
-                        ToolTip.Tip="{Binding ToolbarDelete}" Padding="10,5"/>
+                <Button Command="{Binding #MainWindowRoot.DataContext.DeleteObjectCommand}" Padding="10,5">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="🗑️" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarDelete}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
                 <Separator Width="1" Height="30"/>
-                <Button Content="{Binding ToolbarRelations, StringFormat='🔗 {0}'}" Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
-                        ToolTip.Tip="{Binding ToolbarRelations}" Padding="10,5" Background="#D0E8FF"/>
-                <Button Content="{Binding ToolbarGraph, StringFormat='🕸️ {0}'}" Command="{Binding #MainWindowRoot.DataContext.ShowGraphViewCommand}"
-                        ToolTip.Tip="{Binding ToolbarGraph}" Padding="10,5" Background="#2D1B4E" Foreground="White"/>
+                <Button Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
+                        Padding="10,5" Background="#D0E8FF" Foreground="#1E1E1E">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="🔗" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarRelations}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding #MainWindowRoot.DataContext.ShowGraphViewCommand}"
+                        Padding="10,5" Background="#2D1B4E" Foreground="White">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="🕸️" FontSize="14"/>
+                        <TextBlock Text="{Binding ToolbarGraph}" VerticalAlignment="Center" Foreground="White"/>
+                    </StackPanel>
+                </Button>
                 <Separator Width="1" Height="30"/>
-                <Button Content="📷 Export PNG"
-                        ToolTip.Tip="Exporter l'arborescence (expand all) en image PNG"
-                        Click="OnExportTreePngClick" Padding="10,5"
-                        Background="#1E5631" Foreground="White"/>
+                <Button Click="OnExportTreePngClick" Padding="10,5" Background="#1E5631">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="📷" FontSize="14"/>
+                        <TextBlock Text="Export PNG" VerticalAlignment="Center" Foreground="White"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </Grid>
 

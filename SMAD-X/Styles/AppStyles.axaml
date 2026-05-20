@@ -108,4 +108,35 @@
 		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
 	</Style>
 
+	<!-- ══════════════════════════════════════════════════════════
+		 TOOLBAR BUTTONS — empêche FluentTheme de propager
+		 ButtonForegroundPointerOver vers les TextBlock emoji/label.
+		 Trois niveaux de ciblage pour couvrir tous les cas :
+		   1. ContentPresenter du template au :pointerover/:pressed
+		   2. Tous les TextBlock enfants (hors template)
+		   3. Cas normal (pas de hover) pour baseline correcte
+		 ══════════════════════════════════════════════════════════ -->
+	<Style Selector="StackPanel#Toolbar Button">
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button:pointerover">
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button:pressed">
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button /template/ ContentPresenter">
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button:pointerover /template/ ContentPresenter">
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button:pressed /template/ ContentPresenter">
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+	</Style>
+	<!-- Cible directement les TextBlocks du contenu (emoji + label) -->
+	<Style Selector="StackPanel#Toolbar Button TextBlock">
+		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+	</Style>
+
 </Styles>

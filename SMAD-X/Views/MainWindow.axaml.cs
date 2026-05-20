@@ -17,32 +17,6 @@ namespace SMADX.Views
         {
             InitializeComponent();
             this.KeyDown += OnKeyDown;
-
-            // Synchronise le RequestedThemeVariant de la MainWindow avec l'app
-            // à chaque changement de thème — cela force les ContextMenu (popups)
-            // à se re-themeriser correctement même après fermeture de GraphWindow
-            ThemeService.Instance.ThemeChanged += (_, theme) =>
-            {
-                var variant = theme == AppTheme.Dark ? ThemeVariant.Dark : ThemeVariant.Light;
-                RequestedThemeVariant = variant;
-                ApplyThemeToContextMenu(variant);
-            };
-
-            // Appliquer immédiatement le variant courant à la fenêtre
-            RequestedThemeVariant = ThemeService.Instance.CurrentTheme == AppTheme.Dark
-                ? ThemeVariant.Dark
-                : ThemeVariant.Light;
-
-            // Force le bon thème sur le ContextMenu à chaque ouverture
-            // (le PopupRoot ne ré-hérite pas toujours correctement après fermeture d'une autre fenêtre)
-            this.Loaded += (_, _) =>
-            {
-                var tree = this.FindControl<TreeView>("MainTreeView");
-                if (tree?.ContextMenu is { } cm)
-                {
-                    cm.Opening += OnContextMenuOpening;
-                }
-            };
         }
 
         private void OnContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
