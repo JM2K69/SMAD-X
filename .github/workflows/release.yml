@@ -73,6 +73,40 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
 
     steps:
+      - name: Checkout (full history for changelog)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        shell: bash
+        run: |
+          CURRENT_TAG="${{ github.ref_name }}"
+
+          # Trouver le tag précédent (le dernier tag avant celui-ci)
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${CURRENT_TAG}$" | head -n 1)
+
+          if [ -z "$PREV_TAG" ]; then
+            echo "Pas de tag précédent trouvé, inclusion de tous les commits."
+            COMMITS=$(git log --pretty=format:"- %s (%h)" HEAD)
+          else
+            echo "Tag précédent : $PREV_TAG"
+            COMMITS=$(git log --pretty=format:"- %s (%h)" "${PREV_TAG}..HEAD")
+          fi
+
+          if [ -z "$COMMITS" ]; then
+            COMMITS="- Aucun commit entre les deux releases."
+          fi
+
+          # Stocker dans une variable multi-ligne pour GitHub Actions
+          {
+            echo "PREV_TAG=${PREV_TAG}"
+            echo "COMMITS<<EOF"
+            echo "$COMMITS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -84,6 +118,12 @@ jobs:
           name: "SMAD-X ${{ github.ref_name }}"
           body: |
             ## 🚀 SMAD-X ${{ github.ref_name }}
+
+            ### 📋 Changements depuis ${{ steps.changelog.outputs.PREV_TAG || 'le début' }}
+
+            ${{ steps.changelog.outputs.COMMITS }}
+
+            ---
 
             ### Téléchargements / Downloads
 
