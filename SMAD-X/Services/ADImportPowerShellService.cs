@@ -221,7 +221,8 @@ namespace SMADX.Services
             L(s, "        $subOUs = Get-ADObject -Filter { (objectClass -eq 'organizationalUnit') -or (objectClass -eq 'container') -or (objectClass -eq 'builtinDomain') } `");
             L(s, "                               -SearchBase $dn -SearchScope OneLevel `");
             L(s, "                               -Properties WhenCreated,WhenChanged,Description,gpLink |");
-            L(s, "                     Where-Object { $_.ObjectClass -ne 'groupPolicyContainer' }");
+            L(s, "                     Where-Object { $_.ObjectClass -ne 'groupPolicyContainer' } |");
+            L(s, "                     Where-Object { -not ($_.Name -eq 'Operations' -and $_.DistinguishedName -match 'CN=DomainUpdates') }");
             L(s, "        foreach ($c in $subOUs) {");
             L(s, "            $childParts.Add((Build-NodeJson -dn $c.DistinguishedName -name $c.Name -simType (Get-SimType $c.ObjectClass) -adObj $c -depth ($depth+1)))");
             L(s, "        }");
