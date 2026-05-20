@@ -431,15 +431,17 @@
                                                             Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
                                                             Padding="8,3" FontSize="11"/>
                                                 </DockPanel>
-                                                <ItemsControl ItemsSource="{Binding #MainWindowRoot.DataContext.SelectedMemberOf}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border Background="#EBF3FB" CornerRadius="3" Padding="6,3" Margin="0,2">
-                                                                <TextBlock Text="{Binding}" FontSize="12"/>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
+                                                <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+                                                    <ItemsControl ItemsSource="{Binding #MainWindowRoot.DataContext.SelectedMemberOf}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Background="{DynamicResource AppSelectedItemBrush}" CornerRadius="3" Padding="6,3" Margin="0,2">
+                                                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </ScrollViewer>
                                             </StackPanel>
 
                                             <!-- LinkedGPOs : OU -->
@@ -452,15 +454,17 @@
                                                             Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
                                                             Padding="8,3" FontSize="11"/>
                                                 </DockPanel>
-                                                <ItemsControl ItemsSource="{Binding #MainWindowRoot.DataContext.SelectedLinkedGPOs}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border Background="#EBF6EE" CornerRadius="3" Padding="6,3" Margin="0,2">
-                                                                <TextBlock Text="{Binding}" FontSize="12"/>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
+                                                <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+                                                    <ItemsControl ItemsSource="{Binding #MainWindowRoot.DataContext.SelectedLinkedGPOs}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Background="{DynamicResource AppSelectedItemBrush}" CornerRadius="3" Padding="6,3" Margin="0,2">
+                                                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </ScrollViewer>
                                             </StackPanel>
 
                                             <!-- PSO subjects -->
@@ -473,15 +477,17 @@
                                                             Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
                                                             Padding="8,3" FontSize="11"/>
                                                 </DockPanel>
-                                                <ItemsControl ItemsSource="{Binding #MainWindowRoot.DataContext.SelectedPSOAppliesTo}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border Background="#FEF0E6" CornerRadius="3" Padding="6,3" Margin="0,2">
-                                                                <TextBlock Text="{Binding}" FontSize="12"/>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
+                                                <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+                                                    <ItemsControl ItemsSource="{Binding #MainWindowRoot.DataContext.SelectedPSOAppliesTo}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Background="{DynamicResource AppSelectedItemBrush}" CornerRadius="3" Padding="6,3" Margin="0,2">
+                                                                    <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </ScrollViewer>
                                             </StackPanel>
                                         </StackPanel>
                                     </Grid>
