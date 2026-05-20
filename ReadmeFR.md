@@ -7,6 +7,7 @@
   <img alt="Plateforme" src="https://img.shields.io/badge/plateforme-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey"/>
   <img alt="Langue" src="https://img.shields.io/badge/langue-FR%20%7C%20EN-green"/>
   <img alt="Licence" src="https://img.shields.io/badge/Licence-CC%20BY--NC%204.0-lightgrey.svg"/>
+  <img alt="Téléchargements" src="https://img.shields.io/github/downloads/JM2K69/SMAD-X/total?label=t%C3%A9l%C3%A9chargements&color=brightgreen&logo=github"/>
 </p>
 
 <p align="center">
