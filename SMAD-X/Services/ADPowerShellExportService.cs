@@ -243,54 +243,30 @@ namespace SMADX.Services
                 script.AppendLine("}");
                 script.AppendLine();
 
-                // Fonction pour créer un PSO (Fine-Grained Password Policy)
-                script.AppendLine("# Fonction pour créer un PSO (Fine-Grained Password Policy) avec vérification");
-                script.AppendLine("function New-ADFineGrainedPasswordPolicyIfNotExists {");
+                // Fonction pour créer une GPO si elle n'existe pas
+                script.AppendLine("# Fonction pour créer une GPO si elle n'existe pas");
+                script.AppendLine("function New-GPOIfNotExists {");
                 script.AppendLine("    param(");
                 script.AppendLine("        [string]$Name,");
-                script.AppendLine("        [int]$Precedence,");
-                script.AppendLine("        [int]$MinPasswordLength = 8,");
-                script.AppendLine("        [int]$PasswordHistoryCount = 24,");
-                script.AppendLine("        [bool]$ComplexityEnabled = $true,");
-                script.AppendLine("        [int]$MaxPasswordAgeDays = 90,");
-                script.AppendLine("        [int]$MinPasswordAgeDays = 1,");
-                script.AppendLine("        [int]$LockoutThreshold = 5,");
-                script.AppendLine("        [int]$LockoutDurationMinutes = 30,");
-                script.AppendLine("        [int]$LockoutObservationWindowMinutes = 30,");
-                script.AppendLine("        [string]$Description = \"\"");
+                script.AppendLine("        [string]$Comment = \"\"");
+                script.AppendLine("        [string]$Domain = $env:USERDNSDOMAIN");
                 script.AppendLine("    )");
                 script.AppendLine();
                 script.AppendLine("    try {");
-                script.AppendLine("        $pso = Get-ADFineGrainedPasswordPolicy -Identity $Name -ErrorAction SilentlyContinue");
-                script.AppendLine("        if ($pso) {");
-                script.AppendLine("            Write-Host \"[EXISTE] PSO: $Name\" -ForegroundColor Yellow");
-                script.AppendLine("            return $true");
+                script.AppendLine("        $gpo = Get-GPO -Name $Name -Domain $Domain -ErrorAction SilentlyContinue");
+                script.AppendLine("        if ($gpo) {");
+                script.AppendLine("            Write-Host \"[EXISTE] GPO: $Name\" -ForegroundColor Yellow");
+                script.AppendLine("            return");
                 script.AppendLine("        }");
-                script.AppendLine("        else {");
-                script.AppendLine("            $params = @{");
-                script.AppendLine("                Name                        = $Name");
-                script.AppendLine("                Precedence                  = $Precedence");
-                script.AppendLine("                MinPasswordLength            = $MinPasswordLength");
-                script.AppendLine("                PasswordHistoryCount         = $PasswordHistoryCount");
-                script.AppendLine("                ComplexityEnabled            = $ComplexityEnabled");
-                script.AppendLine("                MaxPasswordAge               = (New-TimeSpan -Days $MaxPasswordAgeDays)");
-                script.AppendLine("                MinPasswordAge               = (New-TimeSpan -Days $MinPasswordAgeDays)");
-                script.AppendLine("                LockoutThreshold             = $LockoutThreshold");
-                script.AppendLine("                LockoutDuration              = (New-TimeSpan -Minutes $LockoutDurationMinutes)");
-                script.AppendLine("                LockoutObservationWindow     = (New-TimeSpan -Minutes $LockoutObservationWindowMinutes)");
-                script.AppendLine("                ReversibleEncryptionEnabled  = $false");
-                script.AppendLine("            }");
-                script.AppendLine("            if ($Description) { $params.Description = $Description }");
-                script.AppendLine("            New-ADFineGrainedPasswordPolicy @params");
-                script.AppendLine("            Write-Host \"[CRÉÉ] PSO: $Name\" -ForegroundColor Green");
-                script.AppendLine("            $script:SuccessCount++");
-                script.AppendLine("            return $true");
-                script.AppendLine("        }");
+                script.AppendLine("        $params = @{ Name = $Name; Domain = $Domain }");
+                script.AppendLine("        if ($Comment) { $params.Comment = $Comment }");
+                script.AppendLine("        New-GPO @params -ErrorAction Stop | Out-Null");
+                script.AppendLine("        Write-Host \"[CRÉÉ] GPO: $Name\" -ForegroundColor Green");
+                script.AppendLine("        $script:SuccessCount++");
                 script.AppendLine("    }");
                 script.AppendLine("    catch {");
-                script.AppendLine("        Write-Host \"[ERREUR] PSO: $Name - $_\" -ForegroundColor Red");
+                script.AppendLine("        Write-Host \"[ERREUR] GPO: $Name - $_\" -ForegroundColor Red");
                 script.AppendLine("        $script:ErrorCount++");
-                script.AppendLine("        return $false");
                 script.AppendLine("    }");
                 script.AppendLine("}");
                 script.AppendLine();
@@ -421,27 +397,18 @@ namespace SMADX.Services
                         break;
 
                     case ADObjectType.Policy:
-                        script.AppendLine($"# GPO: {child.Name} (création manuelle requise via GPMC)");
-                        script.AppendLine($"# New-GPO -Name \"{child.Name}\" -Comment \"{description}\"");
+                        script.AppendLine($"# GPO: {child.Name}");
+                        if (!string.IsNullOrWhiteSpace(child.Tier))
+                            script.AppendLine($"# Tier: {child.Tier}");
+                        script.AppendLine($"New-GPOIfNotExists -Name \"{child.Name}\" -Comment \"{description}\"");
                         script.AppendLine();
                         break;
 
                     case ADObjectType.PasswordSettingsObject:
-                        script.AppendLine($"# PSO: {child.Name}");
+                        script.AppendLine($"# PSO: {child.Name} (détecté - non recréé, les PSO sont gérés manuellement)");
                         if (!string.IsNullOrWhiteSpace(child.Tier))
                             script.AppendLine($"# Tier: {child.Tier}");
-                        script.Append($"New-ADFineGrainedPasswordPolicyIfNotExists -Name \"{child.Name}\"" +
-                            $" -Precedence {child.PSOPrecedence ?? 10}" +
-                            $" -MinPasswordLength {child.PSOMinPasswordLength ?? 8}" +
-                            $" -PasswordHistoryCount {child.PSOPasswordHistoryCount ?? 24}" +
-                            $" -ComplexityEnabled ${(child.PSOComplexityEnabled ?? true ? "true" : "false")}" +
-                            $" -MaxPasswordAgeDays {child.PSOMaxPasswordAgeDays ?? 90}" +
-                            $" -MinPasswordAgeDays {child.PSOMinPasswordAgeDays ?? 1}" +
-                            $" -LockoutThreshold {child.PSOLockoutThreshold ?? 5}" +
-                            $" -LockoutDurationMinutes {child.PSOLockoutDurationMinutes ?? 30}" +
-                            $" -LockoutObservationWindowMinutes {child.PSOLockoutObservationWindowMinutes ?? 30}" +
-                            $" -Description \"{description}\"");
-                        script.AppendLine();
+                        script.AppendLine($"# Pour créer manuellement : New-ADFineGrainedPasswordPolicy -Name \"{child.Name}\" -Precedence {child.PSOPrecedence ?? 10} ...");
                         script.AppendLine();
                         break;
                 }
@@ -539,9 +506,14 @@ namespace SMADX.Services
                     {
                         script.AppendLine($"# Lier la GPO '{gpoName}' à l'OU '{ou.Name}'");
                         script.AppendLine("try {");
-                        script.AppendLine($"    New-GPLink -Name \"{gpoName}\" -Target \"{ou.DistinguishedName}\" -LinkEnabled Yes -ErrorAction Stop");
-                        script.AppendLine($"    Write-Host \"[GPO LINK] {gpoName} → {ou.DistinguishedName}\" -ForegroundColor Green");
-                        script.AppendLine("    $script:SuccessCount++");
+                        script.AppendLine($"    $gpo = Get-GPO -Name \"{gpoName}\" -ErrorAction SilentlyContinue");
+                        script.AppendLine("    if (-not $gpo) {");
+                        script.AppendLine($"        Write-Host \"[IGNORÉ] GPO '{gpoName}' introuvable, lien ignoré.\" -ForegroundColor Yellow");
+                        script.AppendLine("    } else {");
+                        script.AppendLine($"        New-GPLink -Name \"{gpoName}\" -Target \"{ou.DistinguishedName}\" -LinkEnabled Yes -ErrorAction Stop");
+                        script.AppendLine($"        Write-Host \"[GPO LINK] {gpoName} → {ou.DistinguishedName}\" -ForegroundColor Green");
+                        script.AppendLine("        $script:SuccessCount++");
+                        script.AppendLine("    }");
                         script.AppendLine("}");
                         script.AppendLine("catch {");
                         script.AppendLine($"    Write-Host \"[ERREUR] GPO Link {gpoName} → {ou.Name} : $_\" -ForegroundColor Red");
