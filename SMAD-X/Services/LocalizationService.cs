@@ -813,7 +813,7 @@ Cette GPO est **créée automatiquement** avec le domaine et s'applique uniqueme
                 // Fenêtre Relations
                 ["Relations.Title"] = "🔗 Relations entre objets AD",
                 ["Relations.TabMemberships"] = "👥 Appartenances aux groupes",
-                ["Relations.TabUserGroup"] = "👤 User → Groupe",
+                ["Relations.TabUserGroup"] = "🖥️ Objets → Groupe",
                 ["Relations.TabGroupGroup"] = "👥 Groupe → Groupe",
                 ["Relations.TabGpoLinks"] = "📋 Liens GPO → OU",
                 ["Relations.TabPsoLinks"] = "🔑 Sujets PSO",
@@ -1622,7 +1622,7 @@ This GPO is **automatically created** with the domain and applies only to the **
                 // Relations Window
                 ["Relations.Title"] = "🔗 AD Object Relations",
                 ["Relations.TabMemberships"] = "👥 Group Memberships",
-                ["Relations.TabUserGroup"] = "👤 User → Group",
+                ["Relations.TabUserGroup"] = "🖥️ Objects → Group",
                 ["Relations.TabGroupGroup"] = "👥 Group → Group",
                 ["Relations.TabGpoLinks"] = "📋 GPO Links → OU",
                 ["Relations.TabPsoLinks"] = "🔑 PSO Subjects",

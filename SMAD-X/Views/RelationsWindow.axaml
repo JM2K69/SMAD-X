@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SMADX.ViewModels"
+        xmlns:conv="using:SMADX.Converters"
         xmlns:services="using:SMADX.Services"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -14,17 +15,57 @@
         WindowStartupLocation="CenterOwner"
         CanResize="True">
 
+    <Window.Resources>
+        <conv:ObjectTypeToIconConverter x:Key="ObjectTypeToIconConverter"/>
+    </Window.Resources>
+
     <Window.Styles>
+        <!-- En-tête de colonne : s'adapte au thème -->
         <Style Selector="Border.RelHeader">
-            <Setter Property="Background" Value="#F0F0F0"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumBrush}"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
         </Style>
+        <Style Selector="Border.RelHeader TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <!-- Ligne de données -->
         <Style Selector="Border.RelRow">
             <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="BorderBrush" Value="#EEEEEE"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        </Style>
+        <Style Selector="Border.RelRow TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+        </Style>
+        <!-- Badge type : User / Computer / Group -->
+        <Style Selector="Border.BadgeUser">
+            <Setter Property="Background" Value="#1E5A9C"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="4,1"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
+        <Style Selector="Border.BadgeComputer">
+            <Setter Property="Background" Value="#107C10"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="4,1"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
+        <Style Selector="Border.BadgeGroup">
+            <Setter Property="Background" Value="#8764B8"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="4,1"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
+        <!-- Bouton Supprimer -->
+        <Style Selector="Button.BtnDelete">
+            <Setter Property="Background" Value="#C42B1C"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.BtnDelete:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#A4201A"/>
         </Style>
     </Window.Styles>
 
@@ -33,31 +74,49 @@
         <TabControl Grid.Row="0" Margin="10"
                     SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
 
-            <!-- ===== ONGLET USER → GROUP ===== -->
+            <!-- ===== ONGLET USER / COMPUTER → GROUP ===== -->
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=RelationsTabUserGroup}">
                 <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="8">
 
-                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1"
-                            CornerRadius="4" Padding="10" Margin="0,0,0,6">
+                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                            BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
                         <Grid ColumnDefinitions="*,30,*,10,Auto" RowDefinitions="Auto,Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0"
-                                       Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelUserSource}"
+                                       Text="User / Computer"
                                        FontWeight="SemiBold" Margin="0,0,0,4"/>
                             <TextBlock Grid.Row="0" Grid.Column="2"
                                        Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelTargetGroup}"
                                        FontWeight="SemiBold" Margin="0,0,0,4"/>
                             <ComboBox Grid.Row="1" Grid.Column="0"
-                                      SelectedItem="{Binding MembershipSource, Mode=TwoWay}"
+                                      SelectedItem="{Binding MembershipSourceObject, Mode=TwoWay}"
                                       ItemsSource="{Binding AvailableUsers}"
-                                      PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseUser}"
-                                      HorizontalAlignment="Stretch"/>
+                                      PlaceholderText="Choose a user or computer..."
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ADObjectSuggestion">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="→" FontSize="18"
                                        VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#0078D4"/>
                             <ComboBox Grid.Row="1" Grid.Column="2"
-                                      SelectedItem="{Binding MembershipTarget, Mode=TwoWay}"
+                                      SelectedItem="{Binding MembershipTargetObject, Mode=TwoWay}"
                                       ItemsSource="{Binding AvailableGroups}"
                                       PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseGroup}"
-                                      HorizontalAlignment="Stretch"/>
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ADObjectSuggestion">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             <Button Grid.Row="1" Grid.Column="4"
                                     Content="{Binding Source={StaticResource Loc}, Path=RelationsAdd}"
                                     Command="{Binding #RelationsWindowRoot.DataContext.AddMembershipCommand}"
@@ -65,28 +124,40 @@
                         </Grid>
                     </Border>
 
-                    <Grid Grid.Row="1" ColumnDefinitions="200,200,*">
-                        <Border Grid.Column="0" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColUser}" FontWeight="SemiBold"/></Border>
-                        <Border Grid.Column="1" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColGroup}" FontWeight="SemiBold"/></Border>
-                        <Border Grid.Column="2" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColRelation}" FontWeight="SemiBold"/></Border>
+                    <!-- En-têtes de colonnes -->
+                    <Grid Grid.Row="1" ColumnDefinitions="80,160,160,*">
+                        <Border Grid.Column="0" Classes="RelHeader"><TextBlock Text="Type"/></Border>
+                        <Border Grid.Column="1" Classes="RelHeader"><TextBlock Text="User / Computer"/></Border>
+                        <Border Grid.Column="2" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColGroup}"/></Border>
+                        <Border Grid.Column="3" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColRelation}"/></Border>
                     </Grid>
 
                     <ListBox Grid.Row="2" ItemsSource="{Binding Memberships}" SelectedItem="{Binding SelectedMembership, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="vm:RelationEntry">
-                                <Grid ColumnDefinitions="200,200,*">
-                                    <Border Grid.Column="0" Classes="RelRow"><TextBlock Text="{Binding Source}" TextTrimming="CharacterEllipsis"/></Border>
-                                    <Border Grid.Column="1" Classes="RelRow"><TextBlock Text="{Binding Target}" TextTrimming="CharacterEllipsis"/></Border>
-                                    <Border Grid.Column="2" Classes="RelRow"><TextBlock Text="{Binding RelationType}"/></Border>
+                                <Grid ColumnDefinitions="80,160,160,*">
+                                    <Border Grid.Column="0" Classes="RelRow">
+                                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding SourceType, Converter={StaticResource ObjectTypeToIconConverter}}"
+                                                       FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding SourceType}"
+                                                       FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="#4FC3F7" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="1" Classes="RelRow"><TextBlock Text="{Binding Source}" TextTrimming="CharacterEllipsis"/></Border>
+                                    <Border Grid.Column="2" Classes="RelRow"><TextBlock Text="{Binding Target}" TextTrimming="CharacterEllipsis"/></Border>
+                                    <Border Grid.Column="3" Classes="RelRow"><TextBlock Text="{Binding RelationType}"/></Border>
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
 
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
-                        <Button Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
+                        <Button Classes="BtnDelete"
+                                Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
                                 Command="{Binding #RelationsWindowRoot.DataContext.RemoveMembershipCommand}"
-                                Padding="10,5" Background="#FFDDDD"/>
+                                Padding="10,5"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
@@ -95,8 +166,8 @@
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=RelationsTabGroupGroup}">
                 <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="8">
 
-                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1"
-                            CornerRadius="4" Padding="10" Margin="0,0,0,6">
+                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                            BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
                         <Grid ColumnDefinitions="*,30,*,10,Auto" RowDefinitions="Auto,Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0"
                                        Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelGroupMember}"
@@ -105,17 +176,35 @@
                                        Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelGroupParent}"
                                        FontWeight="SemiBold" Margin="0,0,0,4"/>
                             <ComboBox Grid.Row="1" Grid.Column="0"
-                                      SelectedItem="{Binding NestingSource, Mode=TwoWay}"
+                                      SelectedItem="{Binding NestingSourceObject, Mode=TwoWay}"
                                       ItemsSource="{Binding AvailableGroups}"
                                       PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseGroup}"
-                                      HorizontalAlignment="Stretch"/>
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ADObjectSuggestion">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="⊂" FontSize="18"
                                        VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#8764B8"/>
                             <ComboBox Grid.Row="1" Grid.Column="2"
-                                      SelectedItem="{Binding NestingTarget, Mode=TwoWay}"
+                                      SelectedItem="{Binding NestingTargetObject, Mode=TwoWay}"
                                       ItemsSource="{Binding AvailableGroups}"
                                       PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseGroup}"
-                                      HorizontalAlignment="Stretch"/>
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ADObjectSuggestion">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             <Button Grid.Row="1" Grid.Column="4"
                                     Content="{Binding Source={StaticResource Loc}, Path=RelationsAdd}"
                                     Command="{Binding #RelationsWindowRoot.DataContext.AddGroupNestingCommand}"
@@ -142,9 +231,10 @@
                     </ListBox>
 
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
-                        <Button Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
+                        <Button Classes="BtnDelete"
+                                Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
                                 Command="{Binding #RelationsWindowRoot.DataContext.RemoveGroupNestingCommand}"
-                                Padding="10,5" Background="#FFDDDD"/>
+                                Padding="10,5"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
@@ -153,8 +243,8 @@
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=RelationsTabGpoLinks}">
                 <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="8">
 
-                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1"
-                            CornerRadius="4" Padding="10" Margin="0,0,0,6">
+                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                            BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
                         <Grid ColumnDefinitions="*,30,*,10,Auto" RowDefinitions="Auto,Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0"
                                        Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelGpo}"
@@ -163,17 +253,35 @@
                                        Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelTargetOU}"
                                        FontWeight="SemiBold" Margin="0,0,0,4"/>
                             <ComboBox Grid.Row="1" Grid.Column="0"
-                                      SelectedItem="{Binding GpoLinkGpo, Mode=TwoWay}"
+                                      SelectedItem="{Binding GpoLinkGpoObject, Mode=TwoWay}"
                                       ItemsSource="{Binding AvailableGPOs}"
                                       PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseGPO}"
-                                      HorizontalAlignment="Stretch"/>
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ADObjectSuggestion">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="→" FontSize="18"
                                        VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#107C10"/>
                             <ComboBox Grid.Row="1" Grid.Column="2"
-                                      SelectedItem="{Binding GpoLinkOu, Mode=TwoWay}"
+                                      SelectedItem="{Binding GpoLinkOuObject, Mode=TwoWay}"
                                       ItemsSource="{Binding AvailableOUs}"
                                       PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseOU}"
-                                      HorizontalAlignment="Stretch"/>
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ADObjectSuggestion">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             <Button Grid.Row="1" Grid.Column="4"
                                     Content="{Binding Source={StaticResource Loc}, Path=RelationsAdd}"
                                     Command="{Binding #RelationsWindowRoot.DataContext.AddGpoLinkCommand}"
@@ -198,9 +306,10 @@
                     </ListBox>
 
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
-                        <Button Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
+                        <Button Classes="BtnDelete"
+                                Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
                                 Command="{Binding #RelationsWindowRoot.DataContext.RemoveGpoLinkCommand}"
-                                Padding="10,5" Background="#FFDDDD"/>
+                                Padding="10,5"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
@@ -209,8 +318,8 @@
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=RelationsTabPsoLinks}">
                 <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="8">
 
-                    <Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1"
-                            CornerRadius="4" Padding="10" Margin="0,0,0,6">
+                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                            BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
                         <Grid ColumnDefinitions="*,30,*,10,Auto" RowDefinitions="Auto,Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0"
                                        Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelPso}"
@@ -219,17 +328,35 @@
                                        Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelTargetPso}"
                                        FontWeight="SemiBold" Margin="0,0,0,4"/>
                             <ComboBox Grid.Row="1" Grid.Column="0"
-                                      SelectedItem="{Binding PsoLinkPso, Mode=TwoWay}"
+                                      SelectedItem="{Binding PsoLinkPsoObject, Mode=TwoWay}"
                                       ItemsSource="{Binding AvailablePSOs}"
                                       PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChoosePSO}"
-                                      HorizontalAlignment="Stretch"/>
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ADObjectSuggestion">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="→" FontSize="18"
                                        VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#CA5010"/>
                             <ComboBox Grid.Row="1" Grid.Column="2"
-                                      SelectedItem="{Binding PsoLinkTarget, Mode=TwoWay}"
+                                      SelectedItem="{Binding PsoLinkTargetObject, Mode=TwoWay}"
                                       ItemsSource="{Binding AvailableMembershipTargets}"
                                       PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseTarget}"
-                                      HorizontalAlignment="Stretch"/>
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ADObjectSuggestion">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             <Button Grid.Row="1" Grid.Column="4"
                                     Content="{Binding Source={StaticResource Loc}, Path=RelationsAdd}"
                                     Command="{Binding #RelationsWindowRoot.DataContext.AddPsoLinkCommand}"
@@ -254,9 +381,10 @@
                     </ListBox>
 
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
-                        <Button Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
+                        <Button Classes="BtnDelete"
+                                Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
                                 Command="{Binding #RelationsWindowRoot.DataContext.RemovePsoLinkCommand}"
-                                Padding="10,5" Background="#FFDDDD"/>
+                                Padding="10,5"/>
                     </StackPanel>
                 </Grid>
             </TabItem>
@@ -265,8 +393,10 @@
 
         <!-- Barre de statut + bouton Fermer -->
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="10,0,10,10">
-            <Border Grid.Column="0" Background="#F3F3F3" CornerRadius="4" Padding="8,4">
-                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12"/>
+            <Border Grid.Column="0" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
+                    CornerRadius="4" Padding="8,4">
+                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12"
+                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
             </Border>
             <Button Grid.Column="1"
                     Content="{Binding Source={StaticResource Loc}, Path=RelationsClose}"

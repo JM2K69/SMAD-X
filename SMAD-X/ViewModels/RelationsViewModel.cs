@@ -19,6 +19,27 @@ namespace SMADX.ViewModels
     }
 
     /// <summary>
+    /// Objet de suggestion dans les ComboBox (nom + type + icône)
+    /// </summary>
+    public class ADObjectSuggestion
+    {
+        public string Name { get; set; } = string.Empty;
+        public ADObjectType ObjectType { get; set; }
+        public string Icon => ObjectType switch
+        {
+            ADObjectType.Computer              => "🖥️",
+            ADObjectType.User                  => "👤",
+            ADObjectType.Group                 => "👥",
+            ADObjectType.Policy                => "📋",
+            ADObjectType.PasswordSettingsObject=> "🔑",
+            ADObjectType.OrganizationalUnit    => "📁",
+            ADObjectType.Domain                => "🌐",
+            _                                  => "📄"
+        };
+        public override string ToString() => Name;
+    }
+
+    /// <summary>
     /// ViewModel pour la fenêtre de visualisation et configuration des relations
     /// </summary>
     public partial class RelationsViewModel : ViewModelBase
@@ -109,13 +130,70 @@ namespace SMADX.ViewModels
             set => SetProperty(ref _psoLinkTarget, value);
         }
 
-        // --- Listes de suggestions ---
-        public ObservableCollection<string> AvailableUsers { get; } = new();
-        public ObservableCollection<string> AvailableGroups { get; } = new();
-        public ObservableCollection<string> AvailableOUs { get; } = new();
-        public ObservableCollection<string> AvailableGPOs { get; } = new();
-        public ObservableCollection<string> AvailablePSOs { get; } = new();
-        public ObservableCollection<string> AvailableMembershipTargets { get; } = new();
+        // --- Listes de suggestions (toutes typées) ---
+        public ObservableCollection<ADObjectSuggestion> AvailableUsers { get; } = new();
+        public ObservableCollection<ADObjectSuggestion> AvailableGroups { get; } = new();
+        public ObservableCollection<ADObjectSuggestion> AvailableOUs { get; } = new();
+        public ObservableCollection<ADObjectSuggestion> AvailableGPOs { get; } = new();
+        public ObservableCollection<ADObjectSuggestion> AvailablePSOs { get; } = new();
+        public ObservableCollection<ADObjectSuggestion> AvailableMembershipTargets { get; } = new();
+
+        // Propriétés objet liées aux ComboBox (mettent à jour la string correspondante)
+        private ADObjectSuggestion? _membershipSourceObject;
+        public ADObjectSuggestion? MembershipSourceObject
+        {
+            get => _membershipSourceObject;
+            set { SetProperty(ref _membershipSourceObject, value); MembershipSource = value?.Name ?? string.Empty; }
+        }
+
+        private ADObjectSuggestion? _membershipTargetObject;
+        public ADObjectSuggestion? MembershipTargetObject
+        {
+            get => _membershipTargetObject;
+            set { SetProperty(ref _membershipTargetObject, value); MembershipTarget = value?.Name ?? string.Empty; }
+        }
+
+        private ADObjectSuggestion? _nestingSourceObject;
+        public ADObjectSuggestion? NestingSourceObject
+        {
+            get => _nestingSourceObject;
+            set { SetProperty(ref _nestingSourceObject, value); NestingSource = value?.Name ?? string.Empty; }
+        }
+
+        private ADObjectSuggestion? _nestingTargetObject;
+        public ADObjectSuggestion? NestingTargetObject
+        {
+            get => _nestingTargetObject;
+            set { SetProperty(ref _nestingTargetObject, value); NestingTarget = value?.Name ?? string.Empty; }
+        }
+
+        private ADObjectSuggestion? _gpoLinkGpoObject;
+        public ADObjectSuggestion? GpoLinkGpoObject
+        {
+            get => _gpoLinkGpoObject;
+            set { SetProperty(ref _gpoLinkGpoObject, value); GpoLinkGpo = value?.Name ?? string.Empty; }
+        }
+
+        private ADObjectSuggestion? _gpoLinkOuObject;
+        public ADObjectSuggestion? GpoLinkOuObject
+        {
+            get => _gpoLinkOuObject;
+            set { SetProperty(ref _gpoLinkOuObject, value); GpoLinkOu = value?.Name ?? string.Empty; }
+        }
+
+        private ADObjectSuggestion? _psoLinkPsoObject;
+        public ADObjectSuggestion? PsoLinkPsoObject
+        {
+            get => _psoLinkPsoObject;
+            set { SetProperty(ref _psoLinkPsoObject, value); PsoLinkPso = value?.Name ?? string.Empty; }
+        }
+
+        private ADObjectSuggestion? _psoLinkTargetObject;
+        public ADObjectSuggestion? PsoLinkTargetObject
+        {
+            get => _psoLinkTargetObject;
+            set { SetProperty(ref _psoLinkTargetObject, value); PsoLinkTarget = value?.Name ?? string.Empty; }
+        }
 
         private string _statusMessage = string.Empty;
         public string StatusMessage
@@ -170,25 +248,27 @@ namespace SMADX.ViewModels
 
             foreach (var o in all)
             {
+                var s = new ADObjectSuggestion { Name = o.Name, ObjectType = o.Type };
                 switch (o.Type)
                 {
                     case ADObjectType.User:
-                        AvailableUsers.Add(o.Name);
-                        AvailableMembershipTargets.Add(o.Name);
+                    case ADObjectType.Computer:
+                        AvailableUsers.Add(s);
+                        AvailableMembershipTargets.Add(s);
                         break;
                     case ADObjectType.Group:
-                        AvailableGroups.Add(o.Name);
-                        AvailableMembershipTargets.Add(o.Name);
+                        AvailableGroups.Add(s);
+                        AvailableMembershipTargets.Add(s);
                         break;
                     case ADObjectType.Domain:
                     case ADObjectType.OrganizationalUnit:
-                        AvailableOUs.Add(o.Name);
+                        AvailableOUs.Add(s);
                         break;
                     case ADObjectType.Policy:
-                        AvailableGPOs.Add(o.Name);
+                        AvailableGPOs.Add(s);
                         break;
                     case ADObjectType.PasswordSettingsObject:
-                        AvailablePSOs.Add(o.Name);
+                        AvailablePSOs.Add(s);
                         break;
                 }
             }
@@ -203,14 +283,14 @@ namespace SMADX.ViewModels
 
             foreach (var obj in CollectAll(_root))
             {
-                // User → Group
-                if (obj.Type == ADObjectType.User)
+                // User / Computer → Group
+                if (obj.Type == ADObjectType.User || obj.Type == ADObjectType.Computer)
                 {
                     foreach (var grp in obj.MemberOf)
                         Memberships.Add(new RelationEntry
                         {
                             Source = obj.Name,
-                            SourceType = "User",
+                            SourceType = obj.Type == ADObjectType.Computer ? "Computer" : "User",
                             Target = grp,
                             RelationType = "MemberOf"
                         });
@@ -270,9 +350,9 @@ namespace SMADX.ViewModels
 
             var source = FindObject(MembershipSource);
             if (source == null) { StatusMessage = $"Objet '{MembershipSource}' introuvable."; return; }
-            if (source.Type != ADObjectType.User)
+            if (source.Type != ADObjectType.User && source.Type != ADObjectType.Computer)
             {
-                StatusMessage = "La source doit être un utilisateur. Pour Group→Group, utilisez l'onglet dédié.";
+                StatusMessage = "La source doit être un utilisateur ou un ordinateur. Pour Group→Group, utilisez l'onglet dédié.";
                 return;
             }
             if (source.MemberOf.Contains(MembershipTarget))
@@ -285,11 +365,13 @@ namespace SMADX.ViewModels
             Memberships.Add(new RelationEntry
             {
                 Source = MembershipSource,
-                SourceType = "User",
+                SourceType = source.Type == ADObjectType.Computer ? "Computer" : "User",
                 Target = MembershipTarget,
                 RelationType = "MemberOf"
             });
             StatusMessage = $"✔ {MembershipSource} → {MembershipTarget} ajouté.";
+            MembershipSourceObject = null;
+            MembershipTargetObject = null;
             MembershipSource = string.Empty;
             MembershipTarget = string.Empty;
         }
@@ -342,6 +424,8 @@ namespace SMADX.ViewModels
                 RelationType = "Group in Group"
             });
             StatusMessage = $"✔ {NestingSource} ⊂ {NestingTarget} ajouté.";
+            NestingSourceObject = null;
+            NestingTargetObject = null;
             NestingSource = string.Empty;
             NestingTarget = string.Empty;
         }
@@ -388,7 +472,9 @@ namespace SMADX.ViewModels
                 Target = GpoLinkGpo,
                 RelationType = "GPO Link"
             });
-            StatusMessage = $"✔ GPO '{GpoLinkGpo}' liée à '{GpoLinkOu}'.";
+            StatusMessage = $"✔ GPO '{GpoLinkGpo}' liée à '{GpoLinkOu}'."; 
+            GpoLinkGpoObject = null;
+            GpoLinkOuObject = null;
             GpoLinkOu = string.Empty;
             GpoLinkGpo = string.Empty;
         }
@@ -431,6 +517,8 @@ namespace SMADX.ViewModels
                 RelationType = "PSO Subject"
             });
             StatusMessage = $"✔ PSO '{PsoLinkPso}' appliqué à '{PsoLinkTarget}'.";
+            PsoLinkPsoObject = null;
+            PsoLinkTargetObject = null;
             PsoLinkPso = string.Empty;
             PsoLinkTarget = string.Empty;
         }

@@ -195,9 +195,9 @@ namespace SMADX.ViewModels
 
         // ─────────────────────────────────────────────────────────────────────────
 
-        /// <summary>Vrai si l'objet sélectionné supporte MemberOf (User/Group)</summary>
+        /// <summary>Vrai si l'objet sélectionné supporte MemberOf (User/Group/Computer)</summary>
         public bool SelectedSupportsMemberOf =>
-            SelectedNode?.Data?.Type is ADObjectType.User or ADObjectType.Group;
+            SelectedNode?.Data?.Type is ADObjectType.User or ADObjectType.Group or ADObjectType.Computer;
 
         /// <summary>Vrai si l'objet sélectionné est une OU ou un Domain (supporte les GPO liées)</summary>
         public bool SelectedSupportsGpoLinks =>

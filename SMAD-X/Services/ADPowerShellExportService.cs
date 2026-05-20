@@ -183,7 +183,7 @@ namespace SMADX.Services
                 script.AppendLine("    try {");
                 script.AppendLine("        $computer = Get-ADComputer -Identity $SamAccountName -ErrorAction SilentlyContinue");
                 script.AppendLine("        if ($computer) {");
-                script.AppendLine("            Write-Host \"[EXISTE] Computer: $SamAccountName\" -ForegroundColor Yellow");
+                script.AppendLine("            Write-Host \"[EXISTE] Computer: $Name\" -ForegroundColor Yellow");
                 script.AppendLine("            return $true");
                 script.AppendLine("        }");
                 script.AppendLine("        else {");
@@ -196,15 +196,49 @@ namespace SMADX.Services
                 script.AppendLine("                $params.Description = $Description");
                 script.AppendLine("            }");
                 script.AppendLine("            New-ADComputer @params");
-                script.AppendLine("            Write-Host \"[CRÉÉ] Computer: $SamAccountName\" -ForegroundColor Green");
+                script.AppendLine("            Write-Host \"[CRÉÉ] Computer: $Name\" -ForegroundColor Green");
                 script.AppendLine("            $script:SuccessCount++");
                 script.AppendLine("            return $true");
                 script.AppendLine("        }");
                 script.AppendLine("    }");
                 script.AppendLine("    catch {");
-                script.AppendLine("        Write-Host \"[ERREUR] Computer: $SamAccountName - $_\" -ForegroundColor Red");
+                script.AppendLine("        Write-Host \"[ERREUR] Computer: $Name - $_\" -ForegroundColor Red");
                 script.AppendLine("        $script:ErrorCount++");
                 script.AppendLine("        return $false");
+                script.AppendLine("    }");
+                script.AppendLine("}");
+                script.AppendLine();
+
+                // Fonction pour ajouter un membre à un groupe avec vérification
+                script.AppendLine("# Fonction pour ajouter un membre à un groupe avec vérification d'existence");
+                script.AppendLine("function Add-ADGroupMemberIfNotMember {");
+                script.AppendLine("    param(");
+                script.AppendLine("        [string]$GroupName,");
+                script.AppendLine("        [string]$MemberName");
+                script.AppendLine("    )");
+                script.AppendLine();
+                script.AppendLine("    try {");
+                script.AppendLine("        $group = Get-ADGroup -Identity $GroupName -ErrorAction SilentlyContinue");
+                script.AppendLine("        if (-not $group) {");
+                script.AppendLine("            Write-Host \"[ERREUR] Groupe '$GroupName' introuvable.\" -ForegroundColor Red");
+                script.AppendLine("            $script:ErrorCount++");
+                script.AppendLine("            return");
+                script.AppendLine("        }");
+                script.AppendLine("        $members = Get-ADGroupMember -Identity $GroupName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty SamAccountName");
+                script.AppendLine("        # Normalise : retire le $ final pour la comparaison");
+                script.AppendLine("        $memberNameNorm = $MemberName.TrimEnd('$')");
+                script.AppendLine("        $alreadyMember = $members | Where-Object { $_.TrimEnd('$') -eq $memberNameNorm }");
+                script.AppendLine("        if ($alreadyMember) {");
+                script.AppendLine("            Write-Host \"[EXISTE] $MemberName est déjà membre de $GroupName\" -ForegroundColor Yellow");
+                script.AppendLine("            return");
+                script.AppendLine("        }");
+                script.AppendLine("        Add-ADGroupMember -Identity $GroupName -Members $MemberName -ErrorAction Stop");
+                script.AppendLine("        Write-Host \"[RELATION] $MemberName → $GroupName\" -ForegroundColor Green");
+                script.AppendLine("        $script:SuccessCount++");
+                script.AppendLine("    }");
+                script.AppendLine("    catch {");
+                script.AppendLine("        Write-Host \"[ERREUR] Membership $MemberName → $GroupName : $_\" -ForegroundColor Red");
+                script.AppendLine("        $script:ErrorCount++");
                 script.AppendLine("    }");
                 script.AppendLine("}");
                 script.AppendLine();
@@ -466,7 +500,7 @@ namespace SMADX.Services
 
             // 1. Memberships : User/Group → Group
             var memberships = allObjects
-                .Where(o => (o.Type == ADObjectType.User || o.Type == ADObjectType.Group) && o.MemberOf.Count > 0)
+                .Where(o => (o.Type == ADObjectType.User || o.Type == ADObjectType.Group || o.Type == ADObjectType.Computer) && o.MemberOf.Count > 0)
                 .ToList();
 
             if (memberships.Count > 0)
@@ -478,16 +512,12 @@ namespace SMADX.Services
                 {
                     foreach (var groupName in obj.MemberOf)
                     {
+                        // Les ordinateurs utilisent leur SAMAccountName avec $ pour Add-ADGroupMember
+                        var memberRef = obj.Type == ADObjectType.Computer
+                            ? (obj.Name.EndsWith("$") ? obj.Name : $"{obj.Name}$")
+                            : obj.Name;
                         script.AppendLine($"# Ajout de {obj.Name} dans le groupe {groupName}");
-                        script.AppendLine("try {");
-                        script.AppendLine($"    Add-ADGroupMember -Identity \"{groupName}\" -Members \"{obj.Name}\" -ErrorAction Stop");
-                        script.AppendLine($"    Write-Host \"[RELATION] {obj.Name} → {groupName}\" -ForegroundColor Green");
-                        script.AppendLine("    $script:SuccessCount++");
-                        script.AppendLine("}");
-                        script.AppendLine("catch {");
-                        script.AppendLine($"    Write-Host \"[ERREUR] Membership {obj.Name} → {groupName} : $_\" -ForegroundColor Red");
-                        script.AppendLine("    $script:ErrorCount++");
-                        script.AppendLine("}");
+                        script.AppendLine($"Add-ADGroupMemberIfNotMember -GroupName \"{groupName}\" -MemberName \"{memberRef}\"");
                         script.AppendLine();
                     }
                 }
