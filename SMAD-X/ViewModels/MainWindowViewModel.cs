@@ -142,7 +142,9 @@ namespace SMADX.ViewModels
                              node.Data.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                              node.Data.Type.ToString().Contains(query, StringComparison.OrdinalIgnoreCase) ||
                              (!string.IsNullOrEmpty(node.Data.Description) &&
-                              node.Data.Description.Contains(query, StringComparison.OrdinalIgnoreCase));
+                              node.Data.Description.Contains(query, StringComparison.OrdinalIgnoreCase)) ||
+                             (!string.IsNullOrEmpty(node.Data.Tier) &&
+                              node.Data.Tier.Contains(query, StringComparison.OrdinalIgnoreCase));
 
             bool anyChildMatch = false;
             foreach (var child in node.Children)
