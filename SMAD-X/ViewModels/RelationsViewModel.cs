@@ -40,6 +40,27 @@ namespace SMADX.ViewModels
     }
 
     /// <summary>
+    /// Nœud dans le TreeView des OUs/Domaines pour la sélection GPO Link
+    /// </summary>
+    public class OuTreeNode
+    {
+        public ADObject AdObjectRef { get; }
+        public string DisplayName => AdObjectRef.Name;
+        public string Icon => AdObjectRef.Type == ADObjectType.Domain ? "🌐" : "📁";
+        public ObservableCollection<OuTreeNode> Children { get; } = new();
+
+        public OuTreeNode(ADObject obj)
+        {
+            AdObjectRef = obj;
+            foreach (var child in obj.Children)
+            {
+                if (child.Type == ADObjectType.OrganizationalUnit || child.Type == ADObjectType.Domain)
+                    Children.Add(new OuTreeNode(child));
+            }
+        }
+    }
+
+    /// <summary>
     /// ViewModel pour la fenêtre de visualisation et configuration des relations
     /// </summary>
     public partial class RelationsViewModel : ViewModelBase
@@ -138,6 +159,9 @@ namespace SMADX.ViewModels
         public ObservableCollection<ADObjectSuggestion> AvailablePSOs { get; } = new();
         public ObservableCollection<ADObjectSuggestion> AvailableMembershipTargets { get; } = new();
 
+        // Arbre des OUs/Domaines pour le TreeView GPO Link
+        public ObservableCollection<OuTreeNode> OuTreeRoots { get; } = new();
+
         // Propriétés objet liées aux ComboBox (mettent à jour la string correspondante)
         private ADObjectSuggestion? _membershipSourceObject;
         public ADObjectSuggestion? MembershipSourceObject
@@ -174,11 +198,11 @@ namespace SMADX.ViewModels
             set { SetProperty(ref _gpoLinkGpoObject, value); GpoLinkGpo = value?.Name ?? string.Empty; }
         }
 
-        private ADObjectSuggestion? _gpoLinkOuObject;
-        public ADObjectSuggestion? GpoLinkOuObject
+        private OuTreeNode? _selectedOuNode;
+        public OuTreeNode? SelectedOuNode
         {
-            get => _gpoLinkOuObject;
-            set { SetProperty(ref _gpoLinkOuObject, value); GpoLinkOu = value?.Name ?? string.Empty; }
+            get => _selectedOuNode;
+            set { SetProperty(ref _selectedOuNode, value); GpoLinkOu = value?.DisplayName ?? string.Empty; }
         }
 
         private ADObjectSuggestion? _psoLinkPsoObject;
@@ -272,6 +296,19 @@ namespace SMADX.ViewModels
                         break;
                 }
             }
+
+            BuildOuTree();
+        }
+
+        private void BuildOuTree()
+        {
+            OuTreeRoots.Clear();
+            if (_root.Type == ADObjectType.Domain || _root.Type == ADObjectType.OrganizationalUnit)
+                OuTreeRoots.Add(new OuTreeNode(_root));
+            else
+                foreach (var child in _root.Children)
+                    if (child.Type == ADObjectType.Domain || child.Type == ADObjectType.OrganizationalUnit)
+                        OuTreeRoots.Add(new OuTreeNode(child));
         }
 
         private void LoadRelations()
@@ -445,19 +482,13 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void AddGpoLink()
         {
-            if (string.IsNullOrWhiteSpace(GpoLinkOu) || string.IsNullOrWhiteSpace(GpoLinkGpo))
+            if (SelectedOuNode == null || string.IsNullOrWhiteSpace(GpoLinkGpo))
             {
                 StatusMessage = "Sélectionnez un domaine/OU cible et une GPO.";
                 return;
             }
 
-            var ou = FindObject(GpoLinkOu);
-            if (ou == null) { StatusMessage = $"Objet '{GpoLinkOu}' introuvable."; return; }
-            if (ou.Type != ADObjectType.OrganizationalUnit && ou.Type != ADObjectType.Domain)
-            {
-                StatusMessage = "La cible doit être un domaine ou une OU.";
-                return;
-            }
+            var ou = SelectedOuNode.AdObjectRef;
             if (ou.LinkedGPOs.Contains(GpoLinkGpo))
             {
                 StatusMessage = "Ce lien GPO existe déjà.";
@@ -467,14 +498,14 @@ namespace SMADX.ViewModels
             ou.LinkedGPOs.Add(GpoLinkGpo);
             GpoLinks.Add(new RelationEntry
             {
-                Source = GpoLinkOu,
+                Source = ou.Name,
                 SourceType = ou.Type == ADObjectType.Domain ? "Domain" : "OU",
                 Target = GpoLinkGpo,
                 RelationType = "GPO Link"
             });
-            StatusMessage = $"✔ GPO '{GpoLinkGpo}' liée à '{GpoLinkOu}'."; 
+            StatusMessage = $"✔ GPO '{GpoLinkGpo}' liée à '{ou.Name}'.";
             GpoLinkGpoObject = null;
-            GpoLinkOuObject = null;
+            SelectedOuNode = null;
             GpoLinkOu = string.Empty;
             GpoLinkGpo = string.Empty;
         }

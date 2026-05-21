@@ -255,76 +255,98 @@
 
             <!-- ===== ONGLET GPO LINKS ===== -->
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=RelationsTabGpoLinks}">
-                <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="8">
+                <Grid ColumnDefinitions="240,*" Margin="8" RowDefinitions="*">
 
-                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                            BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
-                        <Grid ColumnDefinitions="*,30,*,10,Auto" RowDefinitions="Auto,Auto">
-                            <TextBlock Grid.Row="0" Grid.Column="0"
-                                       Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelGpo}"
-                                       FontWeight="SemiBold" Margin="0,0,0,4"/>
-                            <TextBlock Grid.Row="0" Grid.Column="2"
-                                       Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelTargetOU}"
-                                       FontWeight="SemiBold" Margin="0,0,0,4"/>
-                            <ComboBox Grid.Row="1" Grid.Column="0"
-                                      SelectedItem="{Binding GpoLinkGpoObject, Mode=TwoWay}"
-                                      ItemsSource="{Binding AvailableGPOs}"
-                                      PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseGPO}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:ADObjectSuggestion">
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="→" FontSize="18"
-                                       VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#107C10"/>
-                            <ComboBox Grid.Row="1" Grid.Column="2"
-                                      SelectedItem="{Binding GpoLinkOuObject, Mode=TwoWay}"
-                                      ItemsSource="{Binding AvailableOUs}"
-                                      PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseOU}"
-                                      HorizontalAlignment="Stretch">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:ADObjectSuggestion">
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <Button Grid.Row="1" Grid.Column="4"
-                                    Content="{Binding Source={StaticResource Loc}, Path=RelationsAdd}"
-                                    Command="{Binding #RelationsWindowRoot.DataContext.AddGpoLinkCommand}"
-                                    Padding="12,6" Background="#107C10" Foreground="White" VerticalAlignment="Bottom"/>
+                    <!-- Colonne gauche : TreeView hiérarchique des OUs -->
+                    <Border Grid.Column="0"
+                            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                            BorderThickness="1" CornerRadius="4" Margin="0,0,6,0">
+                        <Grid RowDefinitions="Auto,*">
+                            <Border Grid.Row="0" Classes="RelHeader" CornerRadius="4,4,0,0">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Classes="EmojiIcon" Text="📁" FontSize="13" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelTargetOU}"
+                                               FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <ScrollViewer Grid.Row="1"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto">
+                                <TreeView ItemsSource="{Binding OuTreeRoots}"
+                                          SelectedItem="{Binding SelectedOuNode, Mode=TwoWay}"
+                                          Margin="4">
+                                    <TreeView.ItemTemplate>
+                                        <TreeDataTemplate x:DataType="vm:OuTreeNode"
+                                                          ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="13" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </TreeDataTemplate>
+                                    </TreeView.ItemTemplate>
+                                </TreeView>
+                            </ScrollViewer>
                         </Grid>
                     </Border>
 
-                    <Grid Grid.Row="1" ColumnDefinitions="260,*">
-                        <Border Grid.Column="0" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColTargetOU}" FontWeight="SemiBold"/></Border>
-                        <Border Grid.Column="1" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColGpo}" FontWeight="SemiBold"/></Border>
+                    <!-- Colonne droite : sélection GPO + liste des liens -->
+                    <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*,Auto">
+
+                        <!-- Sélecteur GPO + bouton Ajouter -->
+                        <Border Grid.Row="0"
+                                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,10,Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelGpo}"
+                                           FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                <ComboBox Grid.Row="1" Grid.Column="0"
+                                          SelectedItem="{Binding GpoLinkGpoObject, Mode=TwoWay}"
+                                          ItemsSource="{Binding AvailableGPOs}"
+                                          PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseGPO}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ADObjectSuggestion">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Grid.Row="1" Grid.Column="2"
+                                        Content="{Binding Source={StaticResource Loc}, Path=RelationsAdd}"
+                                        Command="{Binding #RelationsWindowRoot.DataContext.AddGpoLinkCommand}"
+                                        Padding="12,6" Background="#107C10" Foreground="White" VerticalAlignment="Bottom"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- En-têtes liste -->
+                        <Grid Grid.Row="1" ColumnDefinitions="180,*">
+                            <Border Grid.Column="0" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColTargetOU}" FontWeight="SemiBold"/></Border>
+                            <Border Grid.Column="1" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColGpo}" FontWeight="SemiBold"/></Border>
+                        </Grid>
+
+                        <!-- Liste des liens existants -->
+                        <ListBox Grid.Row="2" ItemsSource="{Binding GpoLinks}" SelectedItem="{Binding SelectedGpoLink, Mode=TwoWay}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:RelationEntry">
+                                    <Grid ColumnDefinitions="180,*">
+                                        <Border Grid.Column="0" Classes="RelRow"><TextBlock Text="{Binding Source}" TextTrimming="CharacterEllipsis"/></Border>
+                                        <Border Grid.Column="1" Classes="RelRow"><TextBlock Text="{Binding Target}" TextTrimming="CharacterEllipsis"/></Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+                            <Button Classes="BtnDelete"
+                                    Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
+                                    Command="{Binding #RelationsWindowRoot.DataContext.RemoveGpoLinkCommand}"
+                                    Padding="10,5"/>
+                        </StackPanel>
                     </Grid>
 
-                    <ListBox Grid.Row="2" ItemsSource="{Binding GpoLinks}" SelectedItem="{Binding SelectedGpoLink, Mode=TwoWay}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate x:DataType="vm:RelationEntry">
-                                <Grid ColumnDefinitions="260,*">
-                                    <Border Grid.Column="0" Classes="RelRow"><TextBlock Text="{Binding Source}" TextTrimming="CharacterEllipsis"/></Border>
-                                    <Border Grid.Column="1" Classes="RelRow"><TextBlock Text="{Binding Target}" TextTrimming="CharacterEllipsis"/></Border>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-
-                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
-                        <Button Classes="BtnDelete"
-                                Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
-                                Command="{Binding #RelationsWindowRoot.DataContext.RemoveGpoLinkCommand}"
-                                Padding="10,5"/>
-                    </StackPanel>
                 </Grid>
             </TabItem>
 
