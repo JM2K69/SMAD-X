@@ -873,7 +873,7 @@ Cette GPO est **créée automatiquement** avec le domaine et s'applique uniqueme
                 ["About.Title"] = "À propos de SMAD-X",
                 ["About.AppName"] = "SMAD-X",
                 ["About.FullName"] = "Simuler, Modéliser et Auditer Active Directory eXpert",
-                ["About.Version"] = "Version 0.3.3",
+                ["About.Version"] = "Version 0.3.4",
                 ["About.Description"] = "SMAD-X est un simulateur expert d'Active Directory conçu pour la formation, la documentation et l'expérimentation. Il génère une structure AD fidèle à une installation fraîche, avec tous les objets par défaut (Builtin, Users, Computers, System, GPOs, PSOs), et permet de la visualiser, modifier et exporter sans infrastructure réelle.",
                 ["About.Features"] = "Fonctionnalités principales :",
                 ["About.Feature1"] = "• Structure AD par défaut complète et fidèle (containers Builtin, Users, Computers, System)",
@@ -884,6 +884,374 @@ Cette GPO est **créée automatiquement** avec le domaine et s'applique uniqueme
                 ["About.Feature6"] = "• Support multilingue (Français/English) et descriptions Markdown enrichies",
                 ["About.Copyright"] = "© 2025 SMAD-X - Tous droits réservés",
                 ["About.Close"] = "Fermer",
+
+                // ── Descriptions structure exemple (CreateSampleStructure) ──
+                ["Desc.Sample.Domain"] = @"# Domaine contoso.com
+
+Domaine Active Directory de démonstration créé par SMAD-X.
+
+## Présentation
+Ce domaine illustre une architecture AD typique d'une organisation de taille intermédiaire, segmentée selon le **modèle de tiering Microsoft** (Tier 0 / Tier 1 / Tier 2).
+
+## Structure
+| OU / Container | Rôle |
+|---|---|
+| Admin | Comptes et groupes d'administration Tier 0 |
+| Servers | Serveurs d'infrastructure Tier 1 |
+| Users | Comptes utilisateurs standards Tier 2 |
+| Workstations | Postes de travail Tier 2 |
+| Domain Controllers | Contrôleurs de domaine Tier 0 |
+
+## ⚠️ Sécurité
+> Cette structure est fournie à titre pédagogique. Adapter au contexte réel avant déploiement.",
+
+                ["Desc.Sample.AdminOU"] = @"# 🏛️ OU Administration (Tier 0)
+
+Unité d'organisation contenant les **comptes et groupes d'administration de plus haut niveau** du domaine.
+
+## Rôle
+- Héberge les comptes administrateurs nominatifs (non-partagés) utilisés uniquement pour les tâches d'administration de domaine
+- Contient les groupes d'administration Tier 0
+- Cible de GPOs de durcissement spécifiques aux comptes privilégiés
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Zone critique**
+
+- Appliquer une **GPO de durcissement stricte** sur cette OU (restrictions logon, audit intensifié)
+- Bloquer l'héritage GPO et ne lier que des GPOs validées
+- Accès en lecture/écriture sur cette OU : **Domain Admins uniquement**
+- Surveiller tout objet créé ou modifié dans cette OU (Event ID 5137, 5136)
+- Ces comptes doivent être utilisés exclusivement depuis des **PAW (Privileged Access Workstation)**",
+
+                ["Desc.Sample.AdminUser"] = @"# 👤 Compte Administrateur (Tier 0)
+
+Compte administrateur **nominatif** dédié à l'administration du domaine.
+
+## Rôle
+- Utilisé uniquement pour les tâches d'administration Active Directory nécessitant des droits Domain Admins
+- Distinct du compte `Administrator` intégré du domaine
+- Ne doit jamais être utilisé pour les tâches quotidiennes
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Compte à haute valeur**
+
+- Utiliser exclusivement depuis une **PAW (Privileged Access Workstation)**
+- Activer **MFA** (Windows Hello for Business, carte à puce)
+- Ajouter au groupe **Protected Users** pour bloquer NTLM et délégation Kerberos
+- Surveiller toute ouverture de session (Event ID 4624, 4625, 4648)
+- Ne jamais utiliser ce compte pour naviguer sur Internet ou lire des e-mails
+- Rotation du mot de passe tous les 60 jours minimum",
+
+                ["Desc.Sample.AdminDomainAdmins"] = @"# 👥 Groupe Domain Admins (OU Admin)
+
+Instance locale du groupe **Domain Admins** dans l'OU Administration.
+
+## Rôle
+- Regroupe les comptes administrateurs nominatifs ayant les droits Domain Admins
+- Utilisé pour déléguer l'administration du domaine à des personnes identifiées
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Groupe ultra-privilégié**
+
+- Maintenir le nombre de membres **au minimum absolu** (idéalement 2-3 comptes de breakglass)
+- Auditer les membres mensuellement
+- Tout ajout à ce groupe doit passer par un processus de change management
+- Surveiller Event ID 4728 (ajout membre) et 4729 (suppression membre)",
+
+                ["Desc.Sample.ServersOU"] = @"# 🖥️ OU Servers (Tier 1)
+
+Unité d'organisation contenant les **serveurs d'infrastructure** du domaine.
+
+## Rôle
+- Héberge les serveurs de fichiers, serveurs d'applications, serveurs d'impression, etc.
+- Séparé des postes utilisateurs (Tier 2) et des contrôleurs de domaine (Tier 0)
+- Cible de GPOs de configuration et de durcissement des serveurs
+
+## ⚠️ Sécurité
+> 🟠 **Tier 1 — Infrastructure**
+
+- Appliquer les **CIS Benchmarks** ou recommandations ANSSI pour Windows Server via GPO
+- Bloquer les comptes Tier 2 (utilisateurs standards) de se connecter aux serveurs Tier 1
+- Activer **Windows Defender Credential Guard** sur tous les serveurs
+- Surveiller les connexions interactives (Event ID 4624 type 2 et 10)
+- Déployer un **EDR** sur tous les serveurs",
+
+                ["Desc.Sample.FileServer"] = @"# 💾 SRV-FILE-01 — Serveur de fichiers (Tier 1)
+
+Serveur de fichiers principal de l'organisation.
+
+## Rôle
+- Héberge les partages réseau de l'organisation (données métier, profils itinérants, dossiers de travail)
+- Utilise des **ACLs NTFS** et des **Share Permissions** pour le contrôle d'accès
+- Partages typiques : `\\SRV-FILE-01\Data`, `\\SRV-FILE-01\Profiles$`, `\\SRV-FILE-01\Home$`
+
+## ⚠️ Sécurité
+> 🟠 **Tier 1 — Données sensibles**
+
+- Activer **SMB Signing** obligatoire (prévention des attaques MITM / Relay)
+- Désactiver **SMBv1** (vulnérable à EternalBlue / WannaCry)
+- Surveiller les accès aux partages (Event ID 5140, 5145) pour détecter les ransomwares
+- Déployer un **honeypot file** dans chaque partage (fichier leurre alertant sur accès anormal)
+- Implémenter le **principe du moindre privilège** sur les partages et les ACLs NTFS
+- Sauvegardes régulières avec des **sauvegardes immuables** hors ligne",
+
+                ["Desc.Sample.AppServer"] = @"# ⚙️ SRV-APP-01 — Serveur d'applications (Tier 1)
+
+Serveur hébergeant les applications métier de l'organisation.
+
+## Rôle
+- Exécute les applications d'entreprise (ERP, intranet, services web internes, etc.)
+- Utilise des **comptes de service gMSA** pour les identités applicatives
+- Communique avec les serveurs de base de données Tier 1
+
+## ⚠️ Sécurité
+> 🟠 **Tier 1 — Applications critiques**
+
+- Utiliser des **gMSA** (Group Managed Service Accounts) pour tous les comptes de service — jamais de comptes utilisateurs avec mot de passe statique
+- Activer **Windows Defender Application Control (WDAC)** pour restreindre les exécutables autorisés
+- Isoler les applications dans des **comptes de service dédiés** avec le strict minimum de permissions
+- Appliquer les mises à jour de sécurité mensuellement (Patch Tuesday)
+- Surveiller les processus inhabituels (Event ID 4688 avec commandline logging activé)",
+
+                ["Desc.Sample.UsersOU"] = @"# 👤 OU Users (Tier 2)
+
+Unité d'organisation contenant les **comptes utilisateurs standards** de l'organisation.
+
+## Rôle
+- Héberge les comptes des employés pour leurs usages quotidiens (messagerie, fichiers, applications)
+- Cible des GPOs de configuration des postes de travail et des restrictions utilisateurs
+- Peut être subdivisée par département (RH, Finance, IT, Direction…)
+
+## ⚠️ Sécurité
+> 🟢 **Tier 2 — Utilisateurs standards**
+
+- Appliquer le **principe du moindre privilège** : aucun compte de cette OU ne doit être administrateur local
+- Activer **Windows Defender Credential Guard** pour protéger les credentials en mémoire
+- Déployer une GPO de **restriction de scripts** (SRP ou WDAC) pour limiter l'exécution de PowerShell, WScript, etc.
+- Former les utilisateurs aux **attaques de phishing** et d'ingénierie sociale
+- Surveiller les connexions hors horaires habituels et les volumes de données inhabituels",
+
+                ["Desc.Sample.UserJdoe"] = @"# 👤 John Doe (jdoe) — Développeur (Tier 2)
+
+Compte utilisateur standard pour un développeur de l'organisation.
+
+## Rôle
+- Accès aux ressources de développement (dépôts de code, serveurs de dev, tickets)
+- Membre du groupe **Domain Users** et éventuellement d'un groupe **Developers**
+- Pas de droits administrateurs locaux sur son poste de travail
+
+## ⚠️ Sécurité
+> 🟢 **Tier 2**
+
+- Ne pas accorder de droits administrateurs locaux (utiliser des groupes dédiés via GPO si nécessaire)
+- Sensibiliser aux risques liés au développement : secrets dans le code, dépendances malveillantes
+- Surveiller les accès aux ressources sensibles hors périmètre développement
+- Si accès à des environnements de production : créer un compte séparé Tier 1",
+
+                ["Desc.Sample.UserAsmith"] = @"# 👤 Alice Smith (asmith) — Manager (Tier 2)
+
+Compte utilisateur standard pour une manager de l'organisation.
+
+## Rôle
+- Accès aux ressources de management (fichiers de direction, outils RH, reporting)
+- Destinataire probable d'attaques de **spear-phishing** et de **Business Email Compromise (BEC)**
+- Peut avoir accès à des données sensibles (RH, finance, stratégie)
+
+## ⚠️ Sécurité
+> 🟢 **Tier 2 — Cible à risque élevé**
+
+- Activer **MFA** sur la messagerie et les applications cloud (Microsoft 365, etc.)
+- Former spécifiquement aux attaques BEC (usurpation de direction, virements frauduleux)
+- Surveiller les accès aux documents financiers et RH (DLP — Data Loss Prevention)
+- Accès conditionnel depuis les postes managés uniquement (Intune/Entra ID Conditional Access)",
+
+                ["Desc.Sample.WorkstationsOU"] = @"# 💻 OU Workstations (Tier 2)
+
+Unité d'organisation contenant les **postes de travail des utilisateurs** de l'organisation.
+
+## Rôle
+- Héberge les ordinateurs portables et fixes des employés
+- Cible des GPOs de configuration, de sécurité et de déploiement logiciel
+- Point d'entrée principal des attaquants dans un réseau d'entreprise
+
+## ⚠️ Sécurité
+> 🟢 **Tier 2 — Premier vecteur d'intrusion**
+
+- Appliquer les **CIS Benchmarks** ou ANSSI pour Windows 10/11 via GPO
+- Activer **BitLocker** sur tous les postes (chiffrement disque)
+- Désactiver **LLMNR** et **NetBIOS over TCP/IP** (prévention Responder / MITM)
+- Restreindre les ports USB et médias amovibles (via GPO ou solution MDM)
+- Déployer un **EDR** sur tous les postes
+- Activer **Windows Defender Credential Guard** et **Device Guard**
+- Surveiller les connexions à des partages réseau inhabituels (mouvement latéral)",
+
+                ["Desc.Sample.Workstation1"] = @"# 💻 WKS-001 — Poste de John Doe (Tier 2)
+
+Poste de travail assigné au développeur John Doe.
+
+## Rôle
+- Poste de travail standard Windows 10/11 joint au domaine
+- Reçoit les GPOs de l'OU Workstations (configuration, sécurité, déploiement)
+- Accès aux ressources réseau via les credentials de jdoe
+
+## ⚠️ Sécurité
+> 🟢 **Tier 2**
+
+- BitLocker activé avec stockage de la clé de récupération dans AD
+- Pas de droits administrateurs locaux pour jdoe
+- Connexions aux ressources Tier 1 uniquement via les groupes autorisés
+- EDR déployé et supervision SOC",
+
+                ["Desc.Sample.DomainControllersOU"] = @"# 🏛️ OU Domain Controllers (Tier 0)
+
+Unité d'organisation système contenant tous les **contrôleurs de domaine**.
+
+## Rôle
+- Créée automatiquement lors de la promotion du premier DC
+- Tous les DCs y sont automatiquement placés lors de leur promotion
+- Cible exclusive de la **Default Domain Controllers Policy** et des GPOs de durcissement DC
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Zone la plus critique du domaine**
+
+- La **Default Domain Controllers Policy** doit rester liée à cette OU et ne jamais être supprimée
+- Appliquer des GPOs de durcissement supplémentaires : CIS DC Benchmark, ANSSI AD
+- Interdire toute connexion interactive de comptes Tier 1 ou Tier 2 sur les DCs
+- Activer l'audit avancé sur tous les DCs (connexions, modifications AD, Kerberos)
+- Surveiller les tentatives d'exploitation Kerberos (AS-REP Roasting, Kerberoasting) via les Event IDs 4768, 4769, 4771
+- Sauvegardes de l'état du système (System State) planifiées et testées régulièrement",
+
+                ["Desc.Sample.DC01"] = @"# 🖧 DC01 — Contrôleur de domaine principal (Tier 0)
+
+Premier contrôleur de domaine du domaine contoso.com.
+
+## Rôle
+- Héberge l'ensemble des **rôles FSMO** lors de l'installation initiale :
+  - **Schema Master** : contrôle les modifications du schéma AD
+  - **Domain Naming Master** : gère l'ajout/suppression de domaines dans la forêt
+  - **RID Master** : distribue les pools de RIDs pour la création d'objets de sécurité
+  - **PDC Emulator** : synchronisation de l'heure, gestion des verrouillages de compte, compatibilité NT4
+  - **Infrastructure Master** : maintient les références inter-domaines
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Infrastructure AD critique**
+
+- Ne jamais installer d'applications tierces sur un DC (surface d'attaque minimale)
+- Activer **Windows Defender Credential Guard** sur le DC
+- Restreindre les connexions réseau entrant/sortant au strict nécessaire (pare-feu Windows)
+- Surveiller les Event IDs critiques : 4662 (accès objet AD), 4769 (ticket Kerberos), 4776 (NTLM)
+- Mettre en place un **DC de secours** dans un site/VLAN séparé
+- Inclure dans un plan de **Disaster Recovery** avec sauvegardes System State testées",
+
+                ["Desc.Sample.GMSA"] = @"# 🔐 svc-webapp — Group Managed Service Account (Tier 1)
+
+Compte de service géré de groupe pour l'application web de l'organisation.
+
+## Rôle
+- Identité de service utilisée par l'application web hébergée sur SRV-APP-01
+- Le mot de passe est **géré automatiquement par AD** (rotation tous les 30 jours, transparent pour l'application)
+- Accessible uniquement aux serveurs autorisés via l'attribut `msDS-GroupMSAMembership`
+- Aucune connexion interactive possible
+
+## Avantages par rapport aux comptes de service classiques
+| Critère | Compte utilisateur | gMSA |
+|---|---|---|
+| Rotation du mot de passe | Manuelle | Automatique |
+| Connexion interactive | Possible | Impossible |
+| Usage multi-serveurs | Risqué | Natif |
+| Gestion centralisée | Non | Oui |
+
+## ⚠️ Sécurité
+> 🟠 **Tier 1 — Compte de service**
+
+- Contrôler strictement les serveurs autorisés à utiliser ce gMSA (`msDS-GroupMSAMembership`)
+- Appliquer le **principe du moindre privilège** : uniquement les permissions nécessaires à l'application
+- Surveiller l'utilisation de ce compte sur des serveurs non autorisés (Event ID 4624)
+- Documenter les ressources accédées par ce compte",
+
+                ["Desc.Sample.SystemContainer"] = @"# ⚙️ Container System
+
+Container système d'Active Directory contenant les objets de configuration et les paramètres système.
+
+## Contenu typique
+- `Password Settings Container` : Objets PSO (Fine-Grained Password Policies)
+- `Policies` : GPOs du domaine (stockage objet AD, hors SYSVOL)
+- `WMI Filters` : Filtres WMI pour le ciblage des GPOs
+- `AdminSDHolder` : Modèle de sécurité pour les objets protégés
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Ne pas modifier manuellement**
+
+- **AdminSDHolder** : surveiller les modifications de ses ACLs — tout objet y ressemblant sera propagé aux groupes protégés (Domain Admins, etc.) toutes les 60 minutes par le processus SDProp
+- Ne jamais supprimer ou déplacer les objets système de ce container",
+
+                ["Desc.Sample.PSOContainer"] = @"# 🔑 Password Settings Container
+
+Container système contenant tous les **Password Settings Objects (PSO)** du domaine.
+
+## Rôle
+- Permet de définir des **politiques de mot de passe granulaires** par groupe ou utilisateur (Fine-Grained Password Policy — FGPP)
+- Disponible depuis Windows Server 2008 (niveau fonctionnel de domaine 2008+)
+- Priorité : le PSO avec la plus faible valeur `msDS-PasswordSettingsPrecedence` s'applique en cas de conflit
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Politiques de mots de passe**
+
+- Créer un PSO strict pour les comptes Tier 0 (longueur ≥ 16, rotation ≤ 60 jours, verrouillage après 3 tentatives)
+- Le PSO l'emporte sur la Default Domain Policy pour les comptes ciblés
+- Surveiller les modifications des PSOs (Event ID 5136)",
+
+                ["Desc.Sample.PSOAdmin"] = @"# 🔑 PSO-Tier0-Admins — Politique mots de passe administrateurs
+
+Password Settings Object appliqué aux **comptes d'administration Tier 0**.
+
+## Paramètres de sécurité renforcés
+| Paramètre | Valeur |
+|---|---|
+| Longueur minimale | **16 caractères** |
+| Complexité | Activée |
+| Historique | 24 mots de passe |
+| Âge maximum | **60 jours** |
+| Âge minimum | 2 jours |
+| Seuil de verrouillage | **3 tentatives** |
+| Durée de verrouillage | **1 heure** (ou déverrouillage manuel) |
+
+## Objets ciblés
+- Groupe **Domain Admins**
+- Compte **Administrator**
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Politique critique**
+
+- Préférence : **10** (priorité haute sur la Default Domain Policy)
+- Envisager des **passphrases** (ex. : 4 mots aléatoires ≥ 20 caractères) pour faciliter la mémorisation tout en maintenant la sécurité
+- Coupler avec l'utilisation d'un **gestionnaire de mots de passe d'entreprise** (CyberArk, BeyondTrust, etc.)
+- Ce PSO doit cibler des **groupes**, pas des utilisateurs individuels",
+
+                ["Desc.Sample.PSOUsers"] = @"# 🔑 PSO-Standard-Users — Politique mots de passe utilisateurs
+
+Password Settings Object appliqué aux **comptes utilisateurs standards Tier 2**.
+
+## Paramètres de sécurité standard
+| Paramètre | Valeur |
+|---|---|
+| Longueur minimale | **12 caractères** |
+| Complexité | Activée |
+| Historique | 12 mots de passe |
+| Âge maximum | **90 jours** |
+| Âge minimum | 1 jour |
+| Seuil de verrouillage | **5 tentatives** |
+| Durée de verrouillage | **30 minutes** |
+
+## Objets ciblés
+- Utilisateurs **jdoe**, **asmith**
+
+## ⚠️ Sécurité
+> 🟢 **Tier 2 — Politique standard**
+
+- Préférence : **50** (priorité inférieure à PSO-Tier0-Admins)
+- Activer le **self-service de réinitialisation** (SSPR) pour réduire la charge du helpdesk
+- Envisager une intégration avec **Microsoft Entra ID Password Protection** pour bloquer les mots de passe courants/compromis (HaveIBeenPwned)",
             };
 
             // Anglais
@@ -1682,7 +2050,7 @@ This GPO is **automatically created** with the domain and applies only to the **
                 ["About.Title"] = "About SMAD-X",
                 ["About.AppName"] = "SMAD-X",
                 ["About.FullName"] = "Simulate, Model and Audit Active Directory eXpert",
-                ["About.Version"] = "Version 0.3.3",
+                ["About.Version"] = "Version 0.3.4",
                 ["About.Description"] = "SMAD-X is an expert Active Directory simulator designed for training, documentation and experimentation. It generates an AD structure faithful to a fresh installation, with all default objects (Builtin, Users, Computers, System, GPOs, PSOs), and lets you visualize, edit and export it without any real infrastructure.",
                 ["About.Features"] = "Key features:",
                 ["About.Feature1"] = "• Complete default AD structure faithful to a fresh domain (Builtin, Users, Computers, System containers)",
@@ -1693,6 +2061,374 @@ This GPO is **automatically created** with the domain and applies only to the **
                 ["About.Feature6"] = "• Multilingual support (Français/English) and rich Markdown descriptions",
                 ["About.Copyright"] = "© 2025 SMAD-X - All rights reserved",
                 ["About.Close"] = "Close",
+
+                // ── Sample structure descriptions (CreateSampleStructure) ──
+                ["Desc.Sample.Domain"] = @"# Domain contoso.com
+
+Demonstration Active Directory domain created by SMAD-X.
+
+## Overview
+This domain illustrates a typical AD architecture for a mid-size organization, segmented according to the **Microsoft tiering model** (Tier 0 / Tier 1 / Tier 2).
+
+## Structure
+| OU / Container | Role |
+|---|---|
+| Admin | Tier 0 administration accounts and groups |
+| Servers | Tier 1 infrastructure servers |
+| Users | Tier 2 standard user accounts |
+| Workstations | Tier 2 workstations |
+| Domain Controllers | Tier 0 domain controllers |
+
+## ⚠️ Security
+> This structure is provided for educational purposes. Adapt to real context before deployment.",
+
+                ["Desc.Sample.AdminOU"] = @"# 🏛️ Admin OU (Tier 0)
+
+Organizational unit containing the **top-level administration accounts and groups** of the domain.
+
+## Role
+- Hosts named (non-shared) administrator accounts used exclusively for domain administration tasks
+- Contains Tier 0 administration groups
+- Target of hardening GPOs specific to privileged accounts
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Critical zone**
+
+- Apply a **strict hardening GPO** to this OU (logon restrictions, enhanced auditing)
+- Block GPO inheritance and only link validated GPOs
+- Read/write access to this OU: **Domain Admins only**
+- Monitor any object created or modified in this OU (Event ID 5137, 5136)
+- These accounts must be used exclusively from **PAW (Privileged Access Workstation)**",
+
+                ["Desc.Sample.AdminUser"] = @"# 👤 Administrator Account (Tier 0)
+
+**Named** administrator account dedicated to domain administration.
+
+## Role
+- Used only for Active Directory administration tasks requiring Domain Admins rights
+- Distinct from the domain's built-in `Administrator` account
+- Must never be used for day-to-day tasks
+
+## ⚠️ Security
+> 🔴 **Tier 0 — High-value account**
+
+- Use exclusively from a **PAW (Privileged Access Workstation)**
+- Enable **MFA** (Windows Hello for Business, smart card)
+- Add to **Protected Users** group to block NTLM and Kerberos delegation
+- Monitor all logon events (Event ID 4624, 4625, 4648)
+- Never use this account to browse the internet or read emails
+- Rotate password every 60 days minimum",
+
+                ["Desc.Sample.AdminDomainAdmins"] = @"# 👥 Domain Admins Group (Admin OU)
+
+Local instance of the **Domain Admins** group in the Admin OU.
+
+## Role
+- Groups named administrator accounts holding Domain Admins rights
+- Used to delegate domain administration to identified individuals
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Ultra-privileged group**
+
+- Keep membership at the **absolute minimum** (ideally 2–3 break-glass accounts)
+- Audit members monthly
+- Any addition must go through a change management process
+- Monitor Event ID 4728 (member added) and 4729 (member removed)",
+
+                ["Desc.Sample.ServersOU"] = @"# 🖥️ Servers OU (Tier 1)
+
+Organizational unit containing the **infrastructure servers** of the domain.
+
+## Role
+- Hosts file servers, application servers, print servers, etc.
+- Separated from user workstations (Tier 2) and domain controllers (Tier 0)
+- Target of server configuration and hardening GPOs
+
+## ⚠️ Security
+> 🟠 **Tier 1 — Infrastructure**
+
+- Apply **CIS Benchmarks** or equivalent for Windows Server via GPO
+- Block Tier 2 accounts (standard users) from logging into Tier 1 servers
+- Enable **Windows Defender Credential Guard** on all servers
+- Monitor interactive logons (Event ID 4624 type 2 and 10)
+- Deploy an **EDR** on all servers",
+
+                ["Desc.Sample.FileServer"] = @"# 💾 SRV-FILE-01 — File Server (Tier 1)
+
+Primary file server of the organization.
+
+## Role
+- Hosts organization network shares (business data, roaming profiles, work folders)
+- Uses **NTFS ACLs** and **Share Permissions** for access control
+- Typical shares: `\\SRV-FILE-01\Data`, `\\SRV-FILE-01\Profiles$`, `\\SRV-FILE-01\Home$`
+
+## ⚠️ Security
+> 🟠 **Tier 1 — Sensitive data**
+
+- Enforce **SMB Signing** (prevents MITM / Relay attacks)
+- Disable **SMBv1** (vulnerable to EternalBlue / WannaCry)
+- Monitor share access (Event ID 5140, 5145) to detect ransomware
+- Deploy a **honeypot file** in each share (decoy file alerting on abnormal access)
+- Implement **least privilege** on shares and NTFS ACLs
+- Regular backups with **immutable offline backups**",
+
+                ["Desc.Sample.AppServer"] = @"# ⚙️ SRV-APP-01 — Application Server (Tier 1)
+
+Server hosting the organization's business applications.
+
+## Role
+- Runs enterprise applications (ERP, intranet, internal web services, etc.)
+- Uses **gMSA accounts** for application identities
+- Communicates with Tier 1 database servers
+
+## ⚠️ Security
+> 🟠 **Tier 1 — Critical applications**
+
+- Use **gMSA** (Group Managed Service Accounts) for all service accounts — never user accounts with static passwords
+- Enable **Windows Defender Application Control (WDAC)** to restrict allowed executables
+- Isolate applications in **dedicated service accounts** with the minimum required permissions
+- Apply security updates monthly (Patch Tuesday)
+- Monitor unusual processes (Event ID 4688 with commandline logging enabled)",
+
+                ["Desc.Sample.UsersOU"] = @"# 👤 Users OU (Tier 2)
+
+Organizational unit containing the **standard user accounts** of the organization.
+
+## Role
+- Hosts employee accounts for daily use (email, files, applications)
+- Target of workstation configuration GPOs and user restrictions
+- Can be subdivided by department (HR, Finance, IT, Management…)
+
+## ⚠️ Security
+> 🟢 **Tier 2 — Standard users**
+
+- Apply **least privilege**: no account in this OU should be a local administrator
+- Enable **Windows Defender Credential Guard** to protect in-memory credentials
+- Deploy a **script restriction GPO** (SRP or WDAC) to limit PowerShell, WScript execution, etc.
+- Train users on **phishing** and social engineering attacks
+- Monitor logons outside normal hours and unusual data volumes",
+
+                ["Desc.Sample.UserJdoe"] = @"# 👤 John Doe (jdoe) — Developer (Tier 2)
+
+Standard user account for an organization developer.
+
+## Role
+- Access to development resources (code repositories, dev servers, tickets)
+- Member of **Domain Users** and optionally a **Developers** group
+- No local administrator rights on workstation
+
+## ⚠️ Security
+> 🟢 **Tier 2**
+
+- Do not grant local administrator rights (use dedicated groups via GPO if needed)
+- Raise awareness of development risks: secrets in code, malicious dependencies
+- Monitor access to sensitive resources outside the development scope
+- If access to production environments is needed: create a separate Tier 1 account",
+
+                ["Desc.Sample.UserAsmith"] = @"# 👤 Alice Smith (asmith) — Manager (Tier 2)
+
+Standard user account for an organization manager.
+
+## Role
+- Access to management resources (executive files, HR tools, reporting)
+- Likely target of **spear-phishing** and **Business Email Compromise (BEC)** attacks
+- May have access to sensitive data (HR, finance, strategy)
+
+## ⚠️ Security
+> 🟢 **Tier 2 — High-risk target**
+
+- Enable **MFA** on email and cloud applications (Microsoft 365, etc.)
+- Specifically train on BEC attacks (executive impersonation, fraudulent wire transfers)
+- Monitor access to financial and HR documents (DLP — Data Loss Prevention)
+- Conditional access from managed devices only (Intune/Entra ID Conditional Access)",
+
+                ["Desc.Sample.WorkstationsOU"] = @"# 💻 Workstations OU (Tier 2)
+
+Organizational unit containing the **user workstations** of the organization.
+
+## Role
+- Hosts employees' laptops and desktops
+- Target of configuration, security and software deployment GPOs
+- Primary entry point for attackers in a corporate network
+
+## ⚠️ Security
+> 🟢 **Tier 2 — Primary intrusion vector**
+
+- Apply **CIS Benchmarks** or equivalent for Windows 10/11 via GPO
+- Enable **BitLocker** on all workstations (disk encryption)
+- Disable **LLMNR** and **NetBIOS over TCP/IP** (prevents Responder / MITM)
+- Restrict USB ports and removable media (via GPO or MDM solution)
+- Deploy an **EDR** on all workstations
+- Enable **Windows Defender Credential Guard** and **Device Guard**
+- Monitor connections to unusual network shares (lateral movement)",
+
+                ["Desc.Sample.Workstation1"] = @"# 💻 WKS-001 — John Doe's Workstation (Tier 2)
+
+Workstation assigned to developer John Doe.
+
+## Role
+- Standard Windows 10/11 workstation joined to the domain
+- Receives GPOs from the Workstations OU (configuration, security, deployment)
+- Accesses network resources using jdoe's credentials
+
+## ⚠️ Security
+> 🟢 **Tier 2**
+
+- BitLocker enabled with recovery key stored in AD
+- No local administrator rights for jdoe
+- Connections to Tier 1 resources only via authorized groups
+- EDR deployed and SOC monitoring active",
+
+                ["Desc.Sample.DomainControllersOU"] = @"# 🏛️ Domain Controllers OU (Tier 0)
+
+System organizational unit containing all **domain controllers**.
+
+## Role
+- Automatically created when the first DC is promoted
+- All DCs are automatically placed here upon promotion
+- Exclusive target of the **Default Domain Controllers Policy** and DC hardening GPOs
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Most critical zone of the domain**
+
+- The **Default Domain Controllers Policy** must remain linked and must never be deleted
+- Apply additional hardening GPOs: CIS DC Benchmark, etc.
+- Prohibit interactive logons by Tier 1 or Tier 2 accounts on DCs
+- Enable advanced auditing on all DCs (logons, AD modifications, Kerberos)
+- Monitor Kerberos exploitation attempts (AS-REP Roasting, Kerberoasting) via Event IDs 4768, 4769, 4771
+- Schedule and test regular System State backups",
+
+                ["Desc.Sample.DC01"] = @"# 🖧 DC01 — Primary Domain Controller (Tier 0)
+
+First domain controller of the contoso.com domain.
+
+## Role
+- Hosts all **FSMO roles** during initial installation:
+  - **Schema Master**: controls AD schema modifications
+  - **Domain Naming Master**: manages domain add/removal in the forest
+  - **RID Master**: distributes RID pools for security object creation
+  - **PDC Emulator**: time synchronization, account lockout management, NT4 compatibility
+  - **Infrastructure Master**: maintains cross-domain references
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Critical AD infrastructure**
+
+- Never install third-party applications on a DC (minimize attack surface)
+- Enable **Windows Defender Credential Guard** on the DC
+- Restrict inbound/outbound network connections to the strict minimum (Windows Firewall)
+- Monitor critical Event IDs: 4662 (AD object access), 4769 (Kerberos ticket), 4776 (NTLM)
+- Set up a **standby DC** in a separate site/VLAN
+- Include in a **Disaster Recovery plan** with tested System State backups",
+
+                ["Desc.Sample.GMSA"] = @"# 🔐 svc-webapp — Group Managed Service Account (Tier 1)
+
+Group Managed Service Account for the organization's web application.
+
+## Role
+- Service identity used by the web application hosted on SRV-APP-01
+- Password is **automatically managed by AD** (rotated every 30 days, transparent to the application)
+- Accessible only to authorized servers via the `msDS-GroupMSAMembership` attribute
+- No interactive logon possible
+
+## Advantages over classic service accounts
+| Criterion | User account | gMSA |
+|---|---|---|
+| Password rotation | Manual | Automatic |
+| Interactive logon | Possible | Impossible |
+| Multi-server usage | Risky | Native |
+| Centralized management | No | Yes |
+
+## ⚠️ Security
+> 🟠 **Tier 1 — Service account**
+
+- Strictly control servers authorized to use this gMSA (`msDS-GroupMSAMembership`)
+- Apply **least privilege**: only the permissions required by the application
+- Monitor use of this account on unauthorized servers (Event ID 4624)
+- Document resources accessed by this account",
+
+                ["Desc.Sample.SystemContainer"] = @"# ⚙️ System Container
+
+Active Directory system container holding configuration objects and system settings.
+
+## Typical content
+- `Password Settings Container`: PSO objects (Fine-Grained Password Policies)
+- `Policies`: domain GPOs (AD object storage, outside SYSVOL)
+- `WMI Filters`: WMI filters for GPO targeting
+- `AdminSDHolder`: security template for protected objects
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Do not modify manually**
+
+- **AdminSDHolder**: monitor ACL modifications — any object matching it will be propagated to protected groups (Domain Admins, etc.) every 60 minutes by the SDProp process
+- Never delete or move system objects from this container",
+
+                ["Desc.Sample.PSOContainer"] = @"# 🔑 Password Settings Container
+
+System container holding all **Password Settings Objects (PSO)** of the domain.
+
+## Role
+- Allows defining **granular password policies** per group or user (Fine-Grained Password Policy — FGPP)
+- Available since Windows Server 2008 (domain functional level 2008+)
+- Priority: the PSO with the lowest `msDS-PasswordSettingsPrecedence` value applies in case of conflict
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Password policies**
+
+- Create a strict PSO for Tier 0 accounts (length ≥ 16, rotation ≤ 60 days, lockout after 3 attempts)
+- The PSO overrides the Default Domain Policy for targeted accounts
+- Monitor PSO modifications (Event ID 5136)",
+
+                ["Desc.Sample.PSOAdmin"] = @"# 🔑 PSO-Tier0-Admins — Admin Password Policy
+
+Password Settings Object applied to **Tier 0 administration accounts**.
+
+## Enhanced Security Settings
+| Parameter | Value |
+|---|---|
+| Minimum length | **16 characters** |
+| Complexity | Enabled |
+| History | 24 passwords |
+| Maximum age | **60 days** |
+| Minimum age | 2 days |
+| Lockout threshold | **3 attempts** |
+| Lockout duration | **1 hour** (or manual unlock) |
+
+## Targeted Objects
+- **Domain Admins** group
+- **Administrator** account
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Critical policy**
+
+- Precedence: **10** (high priority over Default Domain Policy)
+- Consider **passphrases** (e.g.: 4 random words ≥ 20 characters) for memorability while maintaining security
+- Pair with an **enterprise password manager** (CyberArk, BeyondTrust, etc.)
+- This PSO should target **groups**, not individual users",
+
+                ["Desc.Sample.PSOUsers"] = @"# 🔑 PSO-Standard-Users — Standard User Password Policy
+
+Password Settings Object applied to **Tier 2 standard user accounts**.
+
+## Standard Security Settings
+| Parameter | Value |
+|---|---|
+| Minimum length | **12 characters** |
+| Complexity | Enabled |
+| History | 12 passwords |
+| Maximum age | **90 days** |
+| Minimum age | 1 day |
+| Lockout threshold | **5 attempts** |
+| Lockout duration | **30 minutes** |
+
+## Targeted Objects
+- Users **jdoe**, **asmith**
+
+## ⚠️ Security
+> 🟢 **Tier 2 — Standard policy**
+
+- Precedence: **50** (lower priority than PSO-Tier0-Admins)
+- Enable **self-service password reset (SSPR)** to reduce helpdesk load
+- Consider integrating **Microsoft Entra ID Password Protection** to block common/compromised passwords (HaveIBeenPwned)",
             };
         }
 

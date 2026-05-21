@@ -449,14 +449,15 @@ namespace SMADX.Services
         /// </summary>
         public ADObject CreateSampleStructure()
         {
+            var loc = LocalizationService.Instance;
+
             var domain = new ADObject("contoso.com", ADObjectType.Domain)
             {
-                Description = "# Domaine Contoso\n\nDomaine de test pour SMAD-X.",
+                Description = loc["Desc.Sample.Domain"],
                 //Tier = "Tier 0"
             };
 
             // Containers par défaut (comme dans un vrai AD)
-            var loc = LocalizationService.Instance;
 
             var usersContainer = new ADObject("Users", ADObjectType.Container)
             {
@@ -654,11 +655,7 @@ namespace SMADX.Services
 
             var computersContainer = new ADObject("Computers", ADObjectType.Container)
             {
-                Description = @"# Container Computers
-
-Container par défaut pour les ordinateurs joints au domaine.
-
-> **Note** : Les ordinateurs sont automatiquement créés ici par défaut lors de leur jonction au domaine.",
+                Description = loc["Desc.Computers"],
                 Tier = "Tier 2",
                 Parent = domain
             };
@@ -667,7 +664,7 @@ Container par défaut pour les ordinateurs joints au domaine.
             // OU Admin
             var adminOU = new ADObject("Admin", ADObjectType.OrganizationalUnit)
             {
-                Description = "## OU Administration\n\nContient les comptes administrateurs Tier 0.",
+                Description = loc["Desc.Sample.AdminOU"],
                 Tier = "Tier 0",
                 Parent = domain
             };
@@ -675,7 +672,7 @@ Container par défaut pour les ordinateurs joints au domaine.
 
             var adminUser = new ADObject("Administrator", ADObjectType.User)
             {
-                Description = "Compte administrateur principal",
+                Description = loc["Desc.Sample.AdminUser"],
                 Tier = "Tier 0",
                 Parent = adminOU
             };
@@ -683,7 +680,7 @@ Container par défaut pour les ordinateurs joints au domaine.
 
             var adminOUDomainAdmins = new ADObject("Domain Admins", ADObjectType.Group)
             {
-                Description = "Groupe des administrateurs de domaine",
+                Description = loc["Desc.Sample.AdminDomainAdmins"],
                 Tier = "Tier 0",
                 Parent = adminOU
             };
@@ -692,7 +689,7 @@ Container par défaut pour les ordinateurs joints au domaine.
             // OU Servers
             var serversOU = new ADObject("Servers", ADObjectType.OrganizationalUnit)
             {
-                Description = "## Serveurs d'infrastructure\n\n- Serveurs de fichiers\n- Serveurs d'applications",
+                Description = loc["Desc.Sample.ServersOU"],
                 Tier = "Tier 1",
                 Parent = domain
             };
@@ -700,7 +697,7 @@ Container par défaut pour les ordinateurs joints au domaine.
 
             var fileServer = new ADObject("SRV-FILE-01", ADObjectType.Computer)
             {
-                Description = "Serveur de fichiers principal",
+                Description = loc["Desc.Sample.FileServer"],
                 Tier = "Tier 1",
                 Parent = serversOU
             };
@@ -708,7 +705,7 @@ Container par défaut pour les ordinateurs joints au domaine.
 
             var appServer = new ADObject("SRV-APP-01", ADObjectType.Computer)
             {
-                Description = "Serveur d'applications",
+                Description = loc["Desc.Sample.AppServer"],
                 Tier = "Tier 1",
                 Parent = serversOU
             };
@@ -717,7 +714,7 @@ Container par défaut pour les ordinateurs joints au domaine.
             // OU Users
             var usersOU = new ADObject("Users", ADObjectType.OrganizationalUnit)
             {
-                Description = "## Utilisateurs de l'organisation",
+                Description = loc["Desc.Sample.UsersOU"],
                 Tier = "Tier 2",
                 Parent = domain
             };
@@ -725,7 +722,7 @@ Container par défaut pour les ordinateurs joints au domaine.
 
             var user1 = new ADObject("jdoe", ADObjectType.User)
             {
-                Description = "John Doe - Développeur",
+                Description = loc["Desc.Sample.UserJdoe"],
                 Tier = "Tier 2",
                 Parent = usersOU
             };
@@ -733,7 +730,7 @@ Container par défaut pour les ordinateurs joints au domaine.
 
             var user2 = new ADObject("asmith", ADObjectType.User)
             {
-                Description = "Alice Smith - Manager",
+                Description = loc["Desc.Sample.UserAsmith"],
                 Tier = "Tier 2",
                 Parent = usersOU
             };
@@ -742,7 +739,7 @@ Container par défaut pour les ordinateurs joints au domaine.
             // OU Workstations
             var workstationsOU = new ADObject("Workstations", ADObjectType.OrganizationalUnit)
             {
-                Description = "Postes de travail des utilisateurs",
+                Description = loc["Desc.Sample.WorkstationsOU"],
                 Tier = "Tier 2",
                 Parent = domain
             };
@@ -750,7 +747,7 @@ Container par défaut pour les ordinateurs joints au domaine.
 
             var workstation1 = new ADObject("WKS-001", ADObjectType.Computer)
             {
-                Description = "Poste de John Doe",
+                Description = loc["Desc.Sample.Workstation1"],
                 Tier = "Tier 2",
                 Parent = workstationsOU
             };
@@ -759,11 +756,7 @@ Container par défaut pour les ordinateurs joints au domaine.
             // OU Domain Controllers
             var domainControllersOU = new ADObject("Domain Controllers", ADObjectType.OrganizationalUnit)
             {
-                Description = @"# OU Domain Controllers
-
-OU système créée automatiquement à la promotion du premier contrôleur de domaine.
-
-> **Note** : Tous les contrôleurs de domaine sont placés automatiquement dans cette OU.",
+                Description = loc["Desc.Sample.DomainControllersOU"],
                 Tier = "Tier 0",
                 Parent = domain
             };
@@ -771,7 +764,7 @@ OU système créée automatiquement à la promotion du premier contrôleur de do
 
             var dc01 = new ADObject("DC01", ADObjectType.Computer)
             {
-                Description = "Contrôleur de domaine principal",
+                Description = loc["Desc.Sample.DC01"],
                 Tier = "Tier 0",
                 Parent = domainControllersOU
             };
@@ -780,7 +773,7 @@ OU système créée automatiquement à la promotion du premier contrôleur de do
             // GMSA
             var gmsa = new ADObject("svc-webapp", ADObjectType.GMSA)
             {
-                Description = "Compte de service géré pour l'application web",
+                Description = loc["Desc.Sample.GMSA"],
                 Tier = "Tier 1",
                 Parent = serversOU
             };
@@ -789,11 +782,7 @@ OU système créée automatiquement à la promotion du premier contrôleur de do
             // Container System
             var systemContainer = new ADObject("System", ADObjectType.Container)
             {
-                Description = @"# Container System
-
-Container système d'Active Directory contenant les objets de configuration et les paramètres système.
-
-> **Note** : Dans un AD réel, ce container existe automatiquement.",
+                Description = loc["Desc.Sample.SystemContainer"],
                 Parent = domain
             };
             domain.Children.Add(systemContainer);
@@ -801,13 +790,7 @@ Container système d'Active Directory contenant les objets de configuration et l
             // Password Settings Container
             var psoContainer = new ADObject("Password Settings Container", ADObjectType.Container)
             {
-                Description = @"# Password Settings Container
-
-Container système contenant tous les Password Settings Objects (PSO) du domaine.
-
-> **Emplacement réel dans AD** : `CN=Password Settings Container,CN=System,DC=domaine,DC=com`
-
-Les PSOs permettent de définir des politiques de mot de passe granulaires.",
+                Description = loc["Desc.Sample.PSOContainer"],
                 Parent = systemContainer
             };
             systemContainer.Children.Add(psoContainer);
@@ -815,18 +798,7 @@ Les PSOs permettent de définir des politiques de mot de passe granulaires.",
             // PSOs
             var psoAdmin = new ADObject("PSO-Tier0-Admins", ADObjectType.PasswordSettingsObject)
             {
-                Description = @"# PSO pour Administrateurs Tier 0
-
-## Paramètres de sécurité renforcés
-- **Longueur minimale** : 16 caractères
-- **Complexité** : Activée
-- **Historique** : 24 mots de passe
-- **Âge maximum** : 60 jours
-- **Âge minimum** : 2 jours
-- **Verrouillage** : 3 tentatives
-- **Durée de verrouillage** : 1 heure
-
-> ⚠️ **Important** : Cette politique s'applique uniquement aux comptes administrateurs Tier 0",
+                Description = loc["Desc.Sample.PSOAdmin"],
                 Tier = "Tier 0",
                 Parent = psoContainer
             };
@@ -834,18 +806,7 @@ Les PSOs permettent de définir des politiques de mot de passe granulaires.",
 
             var psoUsers = new ADObject("PSO-Standard-Users", ADObjectType.PasswordSettingsObject)
             {
-                Description = @"# PSO pour Utilisateurs Standard
-
-## Paramètres de sécurité standard
-- **Longueur minimale** : 12 caractères
-- **Complexité** : Activée
-- **Historique** : 12 mots de passe
-- **Âge maximum** : 90 jours
-- **Âge minimum** : 1 jour
-- **Verrouillage** : 5 tentatives
-- **Durée de verrouillage** : 30 minutes
-
-Politique appliquée à tous les utilisateurs standard Tier 2.",
+                Description = loc["Desc.Sample.PSOUsers"],
                 Tier = "Tier 2",
                 Parent = psoContainer
             };
@@ -1060,21 +1021,79 @@ Politique appliquée à tous les utilisateurs standard Tier 2.",
             {
                 obj.Description = loc["Desc.Computers.Workstation"];
             }
+            // ── Sample structure OUs / objects ──────────────────────────────
+            else if (obj.Name == "Admin" && obj.Type == ADObjectType.OrganizationalUnit)
+            {
+                obj.Description = loc["Desc.Sample.AdminOU"];
+            }
+            else if (obj.Name == "Administrator" && obj.Parent?.Name == "Admin" && obj.Type == ADObjectType.User)
+            {
+                obj.Description = loc["Desc.Sample.AdminUser"];
+            }
+            else if (obj.Name == "Domain Admins" && obj.Parent?.Name == "Admin" && obj.Type == ADObjectType.Group)
+            {
+                obj.Description = loc["Desc.Sample.AdminDomainAdmins"];
+            }
+            else if (obj.Name == "Servers" && obj.Type == ADObjectType.OrganizationalUnit)
+            {
+                obj.Description = loc["Desc.Sample.ServersOU"];
+            }
+            else if (obj.Name == "SRV-FILE-01")
+            {
+                obj.Description = loc["Desc.Sample.FileServer"];
+            }
+            else if (obj.Name == "SRV-APP-01")
+            {
+                obj.Description = loc["Desc.Sample.AppServer"];
+            }
+            else if (obj.Name == "Users" && obj.Type == ADObjectType.OrganizationalUnit)
+            {
+                obj.Description = loc["Desc.Sample.UsersOU"];
+            }
+            else if (obj.Name == "jdoe")
+            {
+                obj.Description = loc["Desc.Sample.UserJdoe"];
+            }
+            else if (obj.Name == "asmith")
+            {
+                obj.Description = loc["Desc.Sample.UserAsmith"];
+            }
+            else if (obj.Name == "Workstations" && obj.Type == ADObjectType.OrganizationalUnit)
+            {
+                obj.Description = loc["Desc.Sample.WorkstationsOU"];
+            }
+            else if (obj.Name == "WKS-001")
+            {
+                obj.Description = loc["Desc.Sample.Workstation1"];
+            }
+            else if (obj.Name == "svc-webapp" && obj.Type == ADObjectType.GMSA)
+            {
+                obj.Description = loc["Desc.Sample.GMSA"];
+            }
+            else if (obj.Name == "PSO-Tier0-Admins")
+            {
+                obj.Description = loc["Desc.Sample.PSOAdmin"];
+            }
+            else if (obj.Name == "PSO-Standard-Users")
+            {
+                obj.Description = loc["Desc.Sample.PSOUsers"];
+            }
+            // ────────────────────────────────────────────────────────────────
             else if (obj.Name == "Domain Controllers" && obj.Type == ADObjectType.OrganizationalUnit)
             {
-                obj.Description = loc["Desc.DomainControllersOU"];
+                obj.Description = loc["Desc.Sample.DomainControllersOU"];
             }
             else if (obj.Name == "DC01")
             {
-                obj.Description = loc["Desc.DomainControllers.DC"];
+                obj.Description = loc["Desc.Sample.DC01"];
             }
             else if (obj.Name == "System" && obj.Type == ADObjectType.Container)
             {
-                obj.Description = loc["Desc.System"];
+                obj.Description = loc["Desc.Sample.SystemContainer"];
             }
             else if (obj.Name == "Password Settings Container")
             {
-                obj.Description = loc["Desc.System.PSO"];
+                obj.Description = loc["Desc.Sample.PSOContainer"];
             }
             else if (obj.Name == "ForeignSecurityPrincipals")
             {
