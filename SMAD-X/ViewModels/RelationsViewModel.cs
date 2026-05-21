@@ -40,6 +40,21 @@ namespace SMADX.ViewModels
     }
 
     /// <summary>
+    /// Item de groupe sélectionnable par checkbox pour la multi-sélection
+    /// </summary>
+    public class SelectableGroupItem : CommunityToolkit.Mvvm.ComponentModel.ObservableObject
+    {
+        public string Name { get; }
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
+        }
+        public SelectableGroupItem(string name) => Name = name;
+    }
+
+    /// <summary>
     /// Nœud dans le TreeView des OUs/Domaines pour la sélection GPO Link
     /// </summary>
     public class OuTreeNode
@@ -159,6 +174,45 @@ namespace SMADX.ViewModels
         public ObservableCollection<ADObjectSuggestion> AvailablePSOs { get; } = new();
         public ObservableCollection<ADObjectSuggestion> AvailableMembershipTargets { get; } = new();
 
+        // Groupes sources avec checkbox pour multi-sélection Group→Group
+        public ObservableCollection<SelectableGroupItem> AvailableNestingSources { get; } = new();
+
+        // Groupes cibles avec checkbox pour multi-sélection Group→Group
+        public ObservableCollection<SelectableGroupItem> AvailableNestingTargets { get; } = new();
+
+        // --- Filtres de recherche pour les panneaux Group→Group ---
+        private string _nestingSourceFilter = string.Empty;
+        public string NestingSourceFilter
+        {
+            get => _nestingSourceFilter;
+            set
+            {
+                SetProperty(ref _nestingSourceFilter, value);
+                OnPropertyChanged(nameof(FilteredNestingSources));
+            }
+        }
+
+        private string _nestingTargetFilter = string.Empty;
+        public string NestingTargetFilter
+        {
+            get => _nestingTargetFilter;
+            set
+            {
+                SetProperty(ref _nestingTargetFilter, value);
+                OnPropertyChanged(nameof(FilteredNestingTargets));
+            }
+        }
+
+        public IEnumerable<SelectableGroupItem> FilteredNestingSources =>
+            string.IsNullOrWhiteSpace(NestingSourceFilter)
+                ? AvailableNestingSources
+                : AvailableNestingSources.Where(g => g.Name.Contains(NestingSourceFilter, System.StringComparison.OrdinalIgnoreCase));
+
+        public IEnumerable<SelectableGroupItem> FilteredNestingTargets =>
+            string.IsNullOrWhiteSpace(NestingTargetFilter)
+                ? AvailableNestingTargets
+                : AvailableNestingTargets.Where(g => g.Name.Contains(NestingTargetFilter, System.StringComparison.OrdinalIgnoreCase));
+
         // Arbre des OUs/Domaines pour le TreeView GPO Link
         public ObservableCollection<OuTreeNode> OuTreeRoots { get; } = new();
 
@@ -269,6 +323,8 @@ namespace SMADX.ViewModels
             AvailableGPOs.Clear();
             AvailablePSOs.Clear();
             AvailableMembershipTargets.Clear();
+            AvailableNestingSources.Clear();
+            AvailableNestingTargets.Clear();
 
             foreach (var o in all)
             {
@@ -282,6 +338,8 @@ namespace SMADX.ViewModels
                         break;
                     case ADObjectType.Group:
                         AvailableGroups.Add(s);
+                        AvailableNestingSources.Add(new SelectableGroupItem(o.Name));
+                        AvailableNestingTargets.Add(new SelectableGroupItem(o.Name));
                         AvailableMembershipTargets.Add(s);
                         break;
                     case ADObjectType.Domain:
@@ -298,6 +356,8 @@ namespace SMADX.ViewModels
             }
 
             BuildOuTree();
+            OnPropertyChanged(nameof(FilteredNestingSources));
+            OnPropertyChanged(nameof(FilteredNestingTargets));
         }
 
         private void BuildOuTree()
@@ -428,43 +488,42 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void AddGroupNesting()
         {
-            if (string.IsNullOrWhiteSpace(NestingSource) || string.IsNullOrWhiteSpace(NestingTarget))
+            var selectedSources = AvailableNestingSources.Where(s => s.IsSelected).ToList();
+            var selectedTargets = AvailableNestingTargets.Where(t => t.IsSelected).ToList();
+
+            if (selectedSources.Count == 0 || selectedTargets.Count == 0)
             {
-                StatusMessage = "Sélectionnez le groupe source et le groupe cible (parent).";
-                return;
-            }
-            if (NestingSource == NestingTarget)
-            {
-                StatusMessage = "Un groupe ne peut pas être membre de lui-même.";
+                StatusMessage = "Cochez au moins un groupe source et un groupe parent cible.";
                 return;
             }
 
-            var source = FindObject(NestingSource);
-            if (source == null) { StatusMessage = $"Groupe '{NestingSource}' introuvable."; return; }
-            if (source.Type != ADObjectType.Group)
+            int added = 0, skipped = 0;
+            foreach (var src in selectedSources)
             {
-                StatusMessage = "La source doit être un groupe.";
-                return;
-            }
-            if (source.MemberOf.Contains(NestingTarget))
-            {
-                StatusMessage = "Cette imbrication existe déjà.";
-                return;
-            }
+                var sourceObj = FindObject(src.Name);
+                if (sourceObj == null || sourceObj.Type != ADObjectType.Group) { skipped++; continue; }
 
-            source.MemberOf.Add(NestingTarget);
-            GroupNestings.Add(new RelationEntry
-            {
-                Source = NestingSource,
-                SourceType = "Group",
-                Target = NestingTarget,
-                RelationType = "Group in Group"
-            });
-            StatusMessage = $"✔ {NestingSource} ⊂ {NestingTarget} ajouté.";
-            NestingSourceObject = null;
-            NestingTargetObject = null;
-            NestingSource = string.Empty;
-            NestingTarget = string.Empty;
+                foreach (var tgt in selectedTargets)
+                {
+                    if (tgt.Name == src.Name) { skipped++; continue; }
+                    if (sourceObj.MemberOf.Contains(tgt.Name)) { skipped++; continue; }
+                    sourceObj.MemberOf.Add(tgt.Name);
+                    GroupNestings.Add(new RelationEntry
+                    {
+                        Source = src.Name,
+                        SourceType = "Group",
+                        Target = tgt.Name,
+                        RelationType = "Group in Group"
+                    });
+                    added++;
+                }
+                src.IsSelected = false;
+            }
+            foreach (var tgt in selectedTargets) tgt.IsSelected = false;
+
+            StatusMessage = added > 0
+                ? $"✔ {added} relation(s) ajoutée(s){(skipped > 0 ? $", {skipped} ignorée(s) (doublon/identique)" : "")}."
+                : "Aucune relation ajoutée (doublons ou source = cible).";
         }
 
         [RelayCommand]
