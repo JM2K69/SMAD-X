@@ -51,6 +51,7 @@ namespace SMADX.ViewModels
         [NotifyPropertyChangedFor(nameof(CanAddAnyChild))]
         [NotifyPropertyChangedFor(nameof(CanAddMember))]
         [NotifyPropertyChangedFor(nameof(CanAddGroupToGroup))]
+        [NotifyPropertyChangedFor(nameof(SelectedObjectTierIndex))]
         private ADTreeNode? _selectedNode;
 
         public string SelectedObjectName 
@@ -89,7 +90,7 @@ namespace SMADX.ViewModels
 
         public string SelectedObjectTier
         {
-            get => SelectedNode?.Data?.Tier ?? string.Empty;
+            get => string.IsNullOrWhiteSpace(SelectedNode?.Data?.Tier) ? " " : SelectedNode!.Data!.Tier!;
             set
             {
                 if (SelectedNode?.Data != null)
@@ -97,12 +98,37 @@ namespace SMADX.ViewModels
                     SelectedNode.Data.Tier = string.IsNullOrWhiteSpace(value) ? null : value;
                     SelectedNode.Data.ModifiedDate = DateTime.Now;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(SelectedObjectTierIndex));
                 }
             }
         }
 
-        [ObservableProperty]
-        private bool _isMarkdownEditMode;
+        public int SelectedObjectTierIndex
+        {
+            get
+            {
+                var tier = SelectedNode?.Data?.Tier;
+                if (string.IsNullOrWhiteSpace(tier)) return 0;
+                var idx = AvailableTiers.IndexOf(tier);
+                return idx < 0 ? 0 : idx;
+            }
+            set
+            {
+                if (SelectedNode?.Data != null)
+                {
+                    var newTier = value <= 0 || value >= AvailableTiers.Count
+                        ? null
+                        : AvailableTiers[value];
+                    SelectedNode.Data.Tier = string.IsNullOrWhiteSpace(newTier) ? null : newTier;
+                    SelectedNode.Data.ModifiedDate = DateTime.Now;
+                    OnPropertyChanged();
+                            OnPropertyChanged(nameof(SelectedObjectTier));
+                            }
+                        }
+                    }
+
+                    [ObservableProperty]
+                    private bool _isMarkdownEditMode;
 
         [ObservableProperty]
         private string _objectCountsSummary = string.Empty;
@@ -543,7 +569,7 @@ namespace SMADX.ViewModels
             var newObject = new ADObject(name, ADObjectType.Policy)
             {
                 Parent = policiesContainer,
-                Tier = "Tier 0"
+                Tier = null
             };
             policiesContainer.Children.Add(newObject);
             newObject.UpdateDistinguishedName();
@@ -558,9 +584,13 @@ namespace SMADX.ViewModels
                 // Remonter pour s'assurer que System est développé aussi
                 if (policiesNode.Parent != null) policiesNode.Parent.IsExpanded = true;
 
-                // Sélectionner et activer le mode édition pour renomage rapide
-                SelectedNode = newNode;
-                newNode.IsEditing = true;
+                // Différer la sélection pour laisser Avalonia créer le TreeViewItem
+                var nodeToSelect = newNode;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    SelectedNode = nodeToSelect;
+                    nodeToSelect.IsEditing = true;
+                }, DispatcherPriority.Background);
             }
 
             UpdateObjectCounts();
@@ -624,7 +654,9 @@ namespace SMADX.ViewModels
             var newObject = new ADObject(name, type)
             {
                 Parent = SelectedNode.Data,
-                Tier = SelectedNode.Data.Tier
+                Tier = type == ADObjectType.Policy || type == ADObjectType.PasswordSettingsObject
+                    ? null
+                    : SelectedNode.Data.Tier
             };
 
             // Ajouter l'objet à la position appropriée

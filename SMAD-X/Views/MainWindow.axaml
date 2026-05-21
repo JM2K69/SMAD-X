@@ -376,8 +376,10 @@
 
                             <StackPanel Spacing="5">
                                 <TextBlock Text="{Binding DetailsTier}" FontWeight="SemiBold"/>
-                                <ComboBox SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedObjectTier, Mode=TwoWay}"
+                                <ComboBox x:Name="TierComboBox"
+                                          SelectedIndex="{Binding #MainWindowRoot.DataContext.SelectedObjectTierIndex, Mode=OneWay}"
                                           ItemsSource="{Binding #MainWindowRoot.DataContext.AvailableTiers}"
+                                          SelectionChanged="OnTierComboBoxSelectionChanged"
                                           Width="200" HorizontalAlignment="Left"/>
                             </StackPanel>
 

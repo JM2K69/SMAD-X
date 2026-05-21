@@ -19,6 +19,12 @@ namespace SMADX.Views
             this.KeyDown += OnKeyDown;
         }
 
+        private void OnTierComboBoxSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox cb && DataContext is MainWindowViewModel vm)
+                vm.SelectedObjectTierIndex = cb.SelectedIndex;
+        }
+
         private void OnContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             // Nothing needed — emoji are now in MenuItem.Icon which is theme-independent
