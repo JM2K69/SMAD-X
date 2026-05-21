@@ -22,26 +22,35 @@ namespace SMADX.Helpers
             {
                 if (args.NewValue is bool wantFocus && wantFocus)
                 {
-                    // Post to UI thread to ensure control is loaded/visible before focusing
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        try
-                        {
-                            if (!control.IsVisible) return;
-                            control.Focus();
-                            if (control is TextBox tb)
-                            {
-                                tb.SelectionStart = 0;
-                                tb.SelectionEnd = tb.Text?.Length ?? 0;
-                            }
-                        }
-                        catch
-                        {
-                            // Ignore focus errors; this is best-effort helper
-                        }
-                    }, DispatcherPriority.Background);
+                    TryFocus(control, retriesLeft: 5);
                 }
             });
+        }
+
+        private static void TryFocus(Control control, int retriesLeft)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                try
+                {
+                    if (!control.IsVisible || !control.IsLoaded)
+                    {
+                        if (retriesLeft > 0)
+                            TryFocus(control, retriesLeft - 1);
+                        return;
+                    }
+                    control.Focus();
+                    if (control is TextBox tb)
+                    {
+                        tb.SelectionStart = 0;
+                        tb.SelectionEnd = tb.Text?.Length ?? 0;
+                    }
+                }
+                catch
+                {
+                    // Ignore focus errors; this is best-effort helper
+                }
+            }, DispatcherPriority.Background);
         }
     }
 }

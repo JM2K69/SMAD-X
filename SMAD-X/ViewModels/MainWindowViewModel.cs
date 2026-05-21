@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
@@ -638,12 +639,16 @@ namespace SMADX.ViewModels
             SelectedNode.Children.Insert(insertIndex, newNode);
             SelectedNode.IsExpanded = true;
 
-            // Sélectionner le nouvel objet pour faciliter le renommage
-            SelectedNode = newNode;
-            newNode.IsEditing = true;
-
             UpdateObjectCounts();
             StatusMessage = $"{type} ajouté : {name}";
+
+            // Différer la sélection pour laisser Avalonia créer le TreeViewItem
+            var nodeToSelect = newNode;
+            Dispatcher.UIThread.Post(() =>
+            {
+                SelectedNode = nodeToSelect;
+                nodeToSelect.IsEditing = true;
+            }, DispatcherPriority.Background);
         }
 
         /// <summary>

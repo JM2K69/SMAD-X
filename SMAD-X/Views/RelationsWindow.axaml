@@ -193,7 +193,7 @@
                                            FontWeight="SemiBold" Margin="0,0,0,6"/>
                                 <TextBox Grid.Row="1"
                                          Text="{Binding NestingSourceFilter, Mode=TwoWay}"
-                                         Watermark="🔍 Filtrer..."
+                                         PlaceholderText="🔍 Filtrer..."
                                          Margin="0,0,0,4" Padding="6,4"/>
                                 <Border Grid.Row="2"
                                         BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
@@ -228,7 +228,7 @@
                                            FontWeight="SemiBold" Margin="0,0,0,6"/>
                                 <TextBox Grid.Row="1"
                                          Text="{Binding NestingTargetFilter, Mode=TwoWay}"
-                                         Watermark="🔍 Filtrer..."
+                                         PlaceholderText="🔍 Filtrer..."
                                          Margin="0,0,0,4" Padding="6,4"/>
                                 <Border Grid.Row="2"
                                         BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
