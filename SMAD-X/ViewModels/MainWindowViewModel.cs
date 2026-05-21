@@ -556,6 +556,10 @@ namespace SMADX.ViewModels
                 policiesNode.IsExpanded = true;
                 // Remonter pour s'assurer que System est développé aussi
                 if (policiesNode.Parent != null) policiesNode.Parent.IsExpanded = true;
+
+                // Sélectionner et activer le mode édition pour renomage rapide
+                SelectedNode = newNode;
+                newNode.IsEditing = true;
             }
 
             UpdateObjectCounts();
@@ -633,6 +637,10 @@ namespace SMADX.ViewModels
             };
             SelectedNode.Children.Insert(insertIndex, newNode);
             SelectedNode.IsExpanded = true;
+
+            // Sélectionner le nouvel objet pour faciliter le renommage
+            SelectedNode = newNode;
+            newNode.IsEditing = true;
 
             UpdateObjectCounts();
             StatusMessage = $"{type} ajouté : {name}";
@@ -733,6 +741,10 @@ namespace SMADX.ViewModels
             };
             SelectedNode.Children.Add(cloneNode);
             SelectedNode.IsExpanded = true;
+
+            // Sélectionner le nœud collé et activer le mode édition pour renommage rapide
+            SelectedNode = cloneNode;
+            cloneNode.IsEditing = true;
 
             UpdateObjectCounts();
             StatusMessage = $"Collé : {clone.Name}";
