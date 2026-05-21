@@ -67,6 +67,19 @@
         <Style Selector="Button.BtnDelete:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="#A4201A"/>
         </Style>
+        <!-- Icônes emoji dans les ComboBox : force le rendu couleur Skia
+             en fixant FontFamily directement sur le TextBlock, ce qui
+             empêche l'héritage du Foreground de la sélection TabItem/ComboBoxItem
+             de passer en mode monochrome. -->
+        <Style Selector="TextBlock.EmojiIcon">
+            <Setter Property="FontFamily" Value="Segoe UI Emoji"/>
+        </Style>
+        <Style Selector="ComboBoxItem:selected TextBlock.EmojiIcon">
+            <Setter Property="FontFamily" Value="Segoe UI Emoji"/>
+        </Style>
+        <Style Selector="ComboBoxItem:pointerover TextBlock.EmojiIcon">
+            <Setter Property="FontFamily" Value="Segoe UI Emoji"/>
+        </Style>
     </Window.Styles>
 
     <Grid RowDefinitions="*,Auto">
@@ -95,7 +108,7 @@
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ADObjectSuggestion">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -111,7 +124,7 @@
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ADObjectSuggestion">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -138,7 +151,8 @@
                                 <Grid ColumnDefinitions="80,160,160,*">
                                     <Border Grid.Column="0" Classes="RelRow">
                                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding SourceType, Converter={StaticResource ObjectTypeToIconConverter}}"
+                                            <TextBlock Classes="EmojiIcon"
+                                                       Text="{Binding SourceType, Converter={StaticResource ObjectTypeToIconConverter}}"
                                                        FontSize="14" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding SourceType}"
                                                        FontSize="11" FontWeight="SemiBold"
@@ -183,7 +197,7 @@
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ADObjectSuggestion">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -199,7 +213,7 @@
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ADObjectSuggestion">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -260,7 +274,7 @@
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ADObjectSuggestion">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -276,7 +290,7 @@
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ADObjectSuggestion">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -335,7 +349,7 @@
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ADObjectSuggestion">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </DataTemplate>
@@ -351,7 +365,7 @@
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ADObjectSuggestion">
                                         <StackPanel Orientation="Horizontal" Spacing="6">
-                                            <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                            <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </DataTemplate>
