@@ -25,6 +25,10 @@
 					<SolidColorBrush x:Key="AppToolbarBgBrush"      Color="#F0F0F0"/>
 					<SolidColorBrush x:Key="AppTierFgBrush"         Color="#005F9E"/>
 					<SolidColorBrush x:Key="AppSeparatorBrush"      Color="#CCCCCC"/>
+					<SolidColorBrush x:Key="AppRelationsBtnBgBrush" Color="#0078D4"/>
+					<SolidColorBrush x:Key="AppRelationsBtnFgBrush" Color="#FFFFFF"/>
+					<SolidColorBrush x:Key="AppGraphBtnBgBrush"     Color="#6B3FA0"/>
+					<SolidColorBrush x:Key="AppGraphBtnFgBrush"     Color="#FFFFFF"/>
 				</ResourceDictionary>
 
 				<!-- ── Thème Sombre ──────────────────────────────── -->
@@ -38,6 +42,10 @@
 					<SolidColorBrush x:Key="AppToolbarBgBrush"      Color="#2D2D30"/>
 					<SolidColorBrush x:Key="AppTierFgBrush"         Color="#7FFF9A"/>
 					<SolidColorBrush x:Key="AppSeparatorBrush"      Color="#3F3F46"/>
+					<SolidColorBrush x:Key="AppRelationsBtnBgBrush" Color="#094771"/>
+					<SolidColorBrush x:Key="AppRelationsBtnFgBrush" Color="#FFFFFF"/>
+					<SolidColorBrush x:Key="AppGraphBtnBgBrush"     Color="#4B3580"/>
+					<SolidColorBrush x:Key="AppGraphBtnFgBrush"     Color="#FFFFFF"/>
 				</ResourceDictionary>
 
 			</ResourceDictionary.ThemeDictionaries>
@@ -137,6 +145,44 @@
 	<!-- Cible directement les TextBlocks du contenu (emoji + label) -->
 	<Style Selector="StackPanel#Toolbar Button TextBlock">
 		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+	</Style>
+
+	<!-- Relations / Graph : foreground dédié selon le thème -->
+	<Style Selector="StackPanel#Toolbar Button.BtnRelations">
+		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnRelations:pointerover">
+		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnRelations:pressed">
+		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnRelations /template/ ContentPresenter">
+		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnRelations:pointerover /template/ ContentPresenter">
+		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnRelations TextBlock">
+		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnGraph">
+		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnGraph:pointerover">
+		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnGraph:pressed">
+		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnGraph /template/ ContentPresenter">
+		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnGraph:pointerover /template/ ContentPresenter">
+		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
+	</Style>
+	<Style Selector="StackPanel#Toolbar Button.BtnGraph TextBlock">
+		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
 	</Style>
 
 </Styles>
