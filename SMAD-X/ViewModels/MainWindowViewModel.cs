@@ -349,11 +349,11 @@ namespace SMADX.ViewModels
                     Title = "Sauvegarder la structure AD",
                     FileTypeChoices = new[] 
                     { 
-                        new FilePickerFileType("SMAD-X JSON") { Patterns = new[] { "*.smadx.json" } },
+                        new FilePickerFileType("SMAD-X JSON") { Patterns = new[] { "*.smad-x.json" } },
                         new FilePickerFileType("Tous les fichiers") { Patterns = new[] { "*" } }
                     },
-                    DefaultExtension = "smadx.json",
-                    SuggestedFileName = $"smadx_{DateTime.Now:yyyyMMdd_HHmmss}.smadx.json"
+                    DefaultExtension = "smad-x.json",
+                    SuggestedFileName = GetSmadxFileName()
                 });
 
                 if (file != null && RootNodes.Count > 0)
@@ -382,7 +382,7 @@ namespace SMADX.ViewModels
                     Title = "Charger une structure AD",
                     FileTypeFilter = new[] 
                     { 
-                        new FilePickerFileType("SMAD-X JSON") { Patterns = new[] { "*.smadx.json" } },
+                        new FilePickerFileType("SMAD-X JSON") { Patterns = new[] { "*.smad-x.json" } },
                         new FilePickerFileType("Tous les fichiers") { Patterns = new[] { "*" } }
                     },
                     AllowMultiple = false
@@ -426,11 +426,11 @@ namespace SMADX.ViewModels
                     Title = "Exporter la structure en JSON",
                     FileTypeChoices = new[] 
                     { 
-                        new FilePickerFileType("JSON") { Patterns = new[] { "*.json" } },
+                        new FilePickerFileType("SMAD-X JSON") { Patterns = new[] { "*.smad-x.json" } },
                         new FilePickerFileType("Tous les fichiers") { Patterns = new[] { "*" } }
                     },
-                    DefaultExtension = "json",
-                    SuggestedFileName = $"ad_structure_{DateTime.Now:yyyyMMdd_HHmmss}.json"
+                    DefaultExtension = "smad-x.json",
+                    SuggestedFileName = GetSmadxFileName()
                 });
 
                 if (file != null && RootNodes.Count > 0)
@@ -496,7 +496,7 @@ namespace SMADX.ViewModels
                         new FilePickerFileType("Tous les fichiers") { Patterns = new[] { "*" } }
                     },
                     DefaultExtension = "ps1",
-                    SuggestedFileName = "Export-ADToSimulator.ps1"
+                    SuggestedFileName = $"Export-ADToSMAD-X.ps1"
                 });
 
                 if (file != null)
@@ -870,6 +870,19 @@ namespace SMADX.ViewModels
                 return desktop.MainWindow;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Génère un nom de fichier basé sur le nom de domaine courant et la date d'export.
+        /// Format : &lt;domaine&gt;_&lt;yyyyMMdd_HHmmss&gt;.smad-x.json
+        /// </summary>
+        private string GetSmadxFileName()
+        {
+            var domainName = RootNodes.Count > 0 ? RootNodes[0].Data.Name : "smad-x";
+            // Remplacer les caractères invalides pour un nom de fichier
+            foreach (var c in System.IO.Path.GetInvalidFileNameChars())
+                domainName = domainName.Replace(c, '_');
+            return $"{domainName}_{DateTime.Now:yyyyMMdd_HHmmss}.smad-x.json";
         }
 
         [RelayCommand]

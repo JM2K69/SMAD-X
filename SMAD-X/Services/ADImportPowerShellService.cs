@@ -36,7 +36,7 @@ namespace SMADX.Services
             L(s, ".DESCRIPTION");
             L(s, "    This script reads the structure of an Active Directory domain (OUs, Containers, Users,");
             L(s, "    Groups, Computers, GMSAs, GPOs, PSOs) and produces a JSON file in the format expected");
-            L(s, "    by Active Directory Simulator. Output file uses the .smadx.json extension.");
+            L(s, "    by Active Directory Simulator. Output file uses the .smad-x.json extension.");
             L(s, "");
             L(s, ".PARAMETER OutputPath");
             L(s, "    Path of the output file. Default: .\\AD_Export.smadx.json");
@@ -46,7 +46,7 @@ namespace SMADX.Services
             L(s, "");
             L(s, ".EXAMPLE");
             L(s, "    .\\Export-ADToSimulator.ps1");
-            L(s, "    .\\Export-ADToSimulator.ps1 -OutputPath C:\\Exports\\my_domain.smadx.json");
+            L(s, "    .\\Export-ADToSimulator.ps1 -OutputPath C:\\Exports\\contoso.com_20250101_120000.smad-x.json");
             L(s, "");
             L(s, ".NOTES");
             L(s, "    Requires : ActiveDirectory PowerShell module (RSAT)");
@@ -54,7 +54,7 @@ namespace SMADX.Services
             L(s, "#>");
             L(s, "");
             L(s, "param(");
-            L(s, "    [string]$OutputPath = '.\\AD_Export.smadx.json',");
+            L(s, "    [string]$OutputPath = '',");
             L(s, "    [string]$DomainDN   = ''");
             L(s, ")");
             L(s, "");
@@ -77,6 +77,13 @@ namespace SMADX.Services
             L(s, "    $domainName = ($DomainDN -replace 'DC=','' -replace ',DC=','.').Trim(',').Trim()");
             L(s, "}");
             L(s, "Write-Host \"Domaine cible : $domainName ($DomainDN)\" -ForegroundColor Cyan");
+            L(s, "");
+            L(s, "# ── OutputPath : domaine + date si non fourni ────────────────────────────────");
+            L(s, "if ([string]::IsNullOrWhiteSpace($OutputPath)) {");
+            L(s, "    $dateStamp  = Get-Date -Format 'yyyyMMdd_HHmmss'");
+            L(s, "    $safeDomain = $domainName -replace '[^a-zA-Z0-9._-]','_'");
+            L(s, "    $OutputPath = \".\\${safeDomain}_${dateStamp}.smad-x.json\"");
+            L(s, "}");
             L(s, "");
             L(s, "# ── 3. Helpers ───────────────────────────────────────────────────────────────");
             L(s, "function ConvertTo-JsonString([string]$str) {");
