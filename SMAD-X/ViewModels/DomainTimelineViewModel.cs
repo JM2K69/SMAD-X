@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,52 +13,49 @@ namespace SMADX.ViewModels
 {
     public partial class DomainTimelineViewModel : ViewModelBase
     {
-        // ── Snapshots loaded by the user ────────────────────────────────────
-        [ObservableProperty]
-        private ObservableCollection<DomainSnapshot> _snapshots = new();
-
-        [ObservableProperty]
-        private DomainSnapshot? _selectedBaseline;
-
-        [ObservableProperty]
-        private DomainSnapshot? _selectedCurrent;
+        // ── The two files being compared ────────────────────────────────────
+        [ObservableProperty] private DomainSnapshot? _fileA;
+        [ObservableProperty] private DomainSnapshot? _fileB;
 
         // ── Diff results ────────────────────────────────────────────────────
-        [ObservableProperty]
-        private ObservableCollection<ADChangeItem> _allChanges = new();
+        [ObservableProperty] private ObservableCollection<ADChangeItem> _allChanges    = new();
+        [ObservableProperty] private ObservableCollection<ADChangeItem> _filteredChanges = new();
 
-        [ObservableProperty]
-        private ObservableCollection<ADChangeItem> _filteredChanges = new();
+        // ── Stats ───────────────────────────────────────────────────────────
+        [ObservableProperty] private int _countAdded;
+        [ObservableProperty] private int _countRemoved;
+        [ObservableProperty] private int _countModified;
 
         // ── Filters ─────────────────────────────────────────────────────────
-        [ObservableProperty]
-        private string _filterText = string.Empty;
+        [ObservableProperty] private string _filterText       = string.Empty;
+        [ObservableProperty] private string _filterChangeType = string.Empty;
+        [ObservableProperty] private string _filterCategory   = string.Empty;
 
-        [ObservableProperty]
-        private string _filterChangeType = string.Empty;   // "Added" | "Removed" | "Modified" | ""
+        public IReadOnlyList<string> ChangeTypeOptions { get; } =
+            new[] { "", "Added", "Removed", "Modified" };
 
-        [ObservableProperty]
-        private string _filterObjectType = string.Empty;
+        public IReadOnlyList<string> CategoryOptions { get; } =
+            new[] { "", "Structure", "MemberOf", "GPO", "PSO", "Delegation" };
 
         // ── Status ──────────────────────────────────────────────────────────
-        [ObservableProperty]
-        private string _statusMessage = string.Empty;
+        [ObservableProperty] private string _statusMessage = "Open two .smad-x.json files to compare.";
 
         // ── Commands ────────────────────────────────────────────────────────
 
-        /// <summary>Adds one or more .smad-x.json snapshot files to the timeline.</summary>
-        [RelayCommand]
-        private async Task AddSnapshotsAsync(IEnumerable<string> filePaths)
+        private static readonly ADDataService _dataService = new();
+
+        /// <summary>Loads a single .smad-x.json file into slot A or B.</summary>
+        public async Task LoadFileAsync(string path, bool isFileA)
         {
-            var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-            foreach (var path in filePaths)
+            try
             {
-                if (!File.Exists(path)) continue;
-
-                await using var stream = File.OpenRead(path);
-                var root = await JsonSerializer.DeserializeAsync<ADObject>(stream, opts);
-                if (root is null) continue;
+                StatusMessage = $"Loading {System.IO.Path.GetFileName(path)}…";
+                var root = await _dataService.LoadFromFileAsync(path);
+                if (root is null)
+                {
+                    StatusMessage = "Failed to load file — invalid format.";
+                    return;
+                }
 
                 var snap = new DomainSnapshot
                 {
@@ -68,57 +65,68 @@ namespace SMADX.ViewModels
                     Root         = root
                 };
 
-                Snapshots.Add(snap);
+                if (isFileA) FileA = snap;
+                else         FileB = snap;
+
+                StatusMessage = $"File {(isFileA ? "A" : "B")} loaded: {System.IO.Path.GetFileName(path)}  ({snap.DomainName}  {snap.SnapshotDate:yyyy-MM-dd HH:mm})";
             }
-
-            StatusMessage = $"{Snapshots.Count} snapshot(s) loaded.";
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error loading file: {ex.Message}";
+            }
         }
 
-        /// <summary>Removes the selected snapshot from the timeline.</summary>
-        [RelayCommand]
-        private void RemoveSnapshot(DomainSnapshot? snap)
-        {
-            if (snap is not null)
-                Snapshots.Remove(snap);
-        }
-
-        /// <summary>Runs the diff between SelectedBaseline and SelectedCurrent.</summary>
+        /// <summary>Runs the diff between FileA and FileB.</summary>
         [RelayCommand]
         private void Compare()
         {
-            if (SelectedBaseline is null || SelectedCurrent is null)
+            if (FileA is null || FileB is null)
             {
-                StatusMessage = "Please select a baseline and a current snapshot.";
+                StatusMessage = "Please open both File A and File B before comparing.";
                 return;
             }
 
-            var changes = ADDiffService.Compare(SelectedBaseline, SelectedCurrent);
-            AllChanges.Clear();
-            foreach (var c in changes)
-                AllChanges.Add(c);
+            try
+            {
+                var changes = ADDiffService.Compare(FileA, FileB);
+                AllChanges.Clear();
+                foreach (var c in changes)
+                    AllChanges.Add(c);
 
-            ApplyFilters();
-            StatusMessage = $"{AllChanges.Count} change(s) detected.";
+                CountAdded    = AllChanges.Count(c => c.ChangeType == ChangeType.Added);
+                CountRemoved  = AllChanges.Count(c => c.ChangeType == ChangeType.Removed);
+                CountModified = AllChanges.Count(c => c.ChangeType == ChangeType.Modified);
+
+                ApplyFilters();
+                StatusMessage = $"Comparison complete — {AllChanges.Count} change(s)  ·  +{CountAdded}  -{CountRemoved}  ~{CountModified}";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Comparison error: {ex.Message}";
+            }
         }
 
-        /// <summary>Applies text/type filters to AllChanges.</summary>
+        /// <summary>Applies text / type / category filters to AllChanges → FilteredChanges.</summary>
         [RelayCommand]
         private void ApplyFilters()
         {
             var query = AllChanges.AsEnumerable();
 
-            if (!string.IsNullOrWhiteSpace(FilterChangeType))
-                query = query.Where(c => c.ChangeType.ToString() == FilterChangeType);
+            if (!string.IsNullOrWhiteSpace(FilterChangeType) &&
+                System.Enum.TryParse<ChangeType>(FilterChangeType, out var ct))
+                query = query.Where(c => c.ChangeType == ct);
 
-            if (!string.IsNullOrWhiteSpace(FilterObjectType))
-                query = query.Where(c => c.ObjectType.ToString() == FilterObjectType);
+            if (!string.IsNullOrWhiteSpace(FilterCategory) &&
+                System.Enum.TryParse<ChangeCategory>(FilterCategory, out var cat))
+                query = query.Where(c => c.ChangeCategory == cat);
 
             if (!string.IsNullOrWhiteSpace(FilterText))
             {
                 var text = FilterText.ToLowerInvariant();
                 query = query.Where(c =>
                     c.ObjectName.ToLowerInvariant().Contains(text) ||
-                    c.DistinguishedName.ToLowerInvariant().Contains(text));
+                    c.DistinguishedName.ToLowerInvariant().Contains(text) ||
+                    c.ChangedFieldsSummary.ToLowerInvariant().Contains(text));
             }
 
             FilteredChanges.Clear();
@@ -130,9 +138,9 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private async Task ExportToCsvAsync(string outputPath)
         {
-            var lines = new List<string> { "ChangeType,ObjectName,ObjectType,DistinguishedName,Details" };
+            var lines = new List<string> { "ChangeType,Category,ObjectName,ObjectType,DistinguishedName,Details" };
             lines.AddRange(FilteredChanges.Select(c =>
-                $"{c.ChangeType},{Escape(c.ObjectName)},{c.ObjectType},{Escape(c.DistinguishedName)},{Escape(c.ChangedFieldsSummary)}"));
+                $"{c.ChangeType},{c.ChangeCategory},{Escape(c.ObjectName)},{c.ObjectType},{Escape(c.DistinguishedName)},{Escape(c.ChangedFieldsSummary)}"));
             await File.WriteAllLinesAsync(outputPath, lines);
             StatusMessage = $"Exported {FilteredChanges.Count} row(s) to {outputPath}";
         }

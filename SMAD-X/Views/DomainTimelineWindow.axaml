@@ -4,117 +4,139 @@
         xmlns:models="using:SMADX.Models"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="740"
         x:Class="SMADX.Views.DomainTimelineWindow"
         x:DataType="vm:DomainTimelineViewModel"
-        Title="Domain Timeline — Snapshot Comparison"
+        Title="AD Timeline — File Comparison"
         Icon="/Assets/icone.ico"
-        Width="1100" Height="700"
+        Width="1200" Height="740"
         WindowStartupLocation="CenterOwner">
 
     <Design.DataContext>
         <vm:DomainTimelineViewModel/>
     </Design.DataContext>
 
-    <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Margin="16">
 
-        <!-- ── Top bar ──────────────────────────────────────────────────── -->
-        <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto" Margin="0,0,0,12">
+        <!-- ── Row 0 : File A / File B pickers ──────────────────────────── -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,16,*" Margin="0,0,0,10">
 
-            <Button Grid.Column="0" Content="＋ Add Snapshot(s)"
-                    Click="OnAddSnapshotsClick"
-                    Margin="0,0,8,0"/>
+            <!-- File A -->
+            <Border Grid.Column="0" BorderBrush="#444" BorderThickness="1"
+                    CornerRadius="6" Padding="12,8">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <StackPanel Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center">
+                        <TextBlock Text="FILE  A  (older)" FontWeight="Bold"
+                                   Foreground="#4FC3F7" FontSize="13"/>
+                        <TextBlock Text="{Binding FileA.DomainName, FallbackValue='—'}"
+                                   FontSize="11" Foreground="#AAAAAA"/>
+                        <TextBlock Text="{Binding FileA.SnapshotDate, StringFormat='{}{0:yyyy-MM-dd  HH:mm}', FallbackValue=''}"
+                                   FontSize="11" Foreground="#888888"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Text="{Binding FileA.FilePath, FallbackValue='No file selected'}"
+                               VerticalAlignment="Center" Foreground="#CCCCCC"
+                               TextTrimming="CharacterEllipsis" FontSize="11"/>
+                    <Button Grid.Column="2" Content="📂 Open…"
+                            Click="OnOpenFileAClick"
+                            Margin="10,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
 
-            <Button Grid.Column="1" Content="✕ Remove"
-                    Command="{Binding RemoveSnapshotCommand}"
-                    CommandParameter="{Binding SelectedBaseline}"
-                    Margin="0,0,16,0"/>
+            <!-- File B -->
+            <Border Grid.Column="2" BorderBrush="#444" BorderThickness="1"
+                    CornerRadius="6" Padding="12,8">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <StackPanel Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center">
+                        <TextBlock Text="FILE  B  (newer)" FontWeight="Bold"
+                                   Foreground="#81C784" FontSize="13"/>
+                        <TextBlock Text="{Binding FileB.DomainName, FallbackValue='—'}"
+                                   FontSize="11" Foreground="#AAAAAA"/>
+                        <TextBlock Text="{Binding FileB.SnapshotDate, StringFormat='{}{0:yyyy-MM-dd  HH:mm}', FallbackValue=''}"
+                                   FontSize="11" Foreground="#888888"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Text="{Binding FileB.FilePath, FallbackValue='No file selected'}"
+                               VerticalAlignment="Center" Foreground="#CCCCCC"
+                               TextTrimming="CharacterEllipsis" FontSize="11"/>
+                    <Button Grid.Column="2" Content="📂 Open…"
+                            Click="OnOpenFileBClick"
+                            Margin="10,0,0,0" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+        </Grid>
 
-            <!-- Baseline / Current selectors -->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
-                <TextBlock Text="Baseline:" VerticalAlignment="Center"/>
-                <ComboBox ItemsSource="{Binding Snapshots}"
-                          SelectedItem="{Binding SelectedBaseline}"
-                          DisplayMemberBinding="{Binding}"
-                          Width="260"/>
-                <TextBlock Text="Compare with:" VerticalAlignment="Center"/>
-                <ComboBox ItemsSource="{Binding Snapshots}"
-                          SelectedItem="{Binding SelectedCurrent}"
-                          DisplayMemberBinding="{Binding}"
-                          Width="260"/>
-                <Button Content="Compare" Command="{Binding CompareCommand}"/>
-            </StackPanel>
+        <!-- ── Row 1 : Compare button + stats ───────────────────────────── -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto,Auto"
+              Margin="0,0,0,10">
+            <Button Grid.Column="0" Content="⚡ Compare"
+                    Command="{Binding CompareCommand}"
+                    FontWeight="Bold" Padding="16,6"/>
 
-            <Button Grid.Column="3" Content="Export CSV"
+            <!-- Stats badges -->
+            <Border Grid.Column="2" Background="#1B5E20" CornerRadius="4"
+                    Padding="10,4" Margin="8,0,4,0">
+                <TextBlock Foreground="#A5D6A7">
+                    <Run Text="+ Added: "/><Run Text="{Binding CountAdded}"/>
+                </TextBlock>
+            </Border>
+            <Border Grid.Column="3" Background="#B71C1C" CornerRadius="4"
+                    Padding="10,4" Margin="4,0">
+                <TextBlock Foreground="#EF9A9A">
+                    <Run Text="− Removed: "/><Run Text="{Binding CountRemoved}"/>
+                </TextBlock>
+            </Border>
+            <Border Grid.Column="4" Background="#E65100" CornerRadius="4"
+                    Padding="10,4" Margin="4,0">
+                <TextBlock Foreground="#FFCC80">
+                    <Run Text="~ Modified: "/><Run Text="{Binding CountModified}"/>
+                </TextBlock>
+            </Border>
+
+            <Button Grid.Column="6" Content="📤 Export CSV"
                     Click="OnExportCsvClick"
                     Margin="8,0,0,0"/>
         </Grid>
 
-        <!-- ── Main content ─────────────────────────────────────────────── -->
-        <Grid Grid.Row="1" ColumnDefinitions="280,*">
+        <!-- ── Row 2 : Filters ──────────────────────────────────────────── -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto,Auto"
+              Margin="0,0,0,8">
+            <TextBox Grid.Column="0" Watermark="Search name, DN or details…"
+                     Text="{Binding FilterText}" Margin="0,0,8,0"/>
 
-            <!-- Left: snapshot list -->
-            <Border Grid.Column="0" BorderBrush="#CCCCCC" BorderThickness="1"
-                    CornerRadius="4" Padding="8" Margin="0,0,12,0">
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Text="Loaded Snapshots"
-                               FontWeight="Bold" Margin="0,0,0,8"/>
-                    <ListBox ItemsSource="{Binding Snapshots}"
-                             SelectedItem="{Binding SelectedBaseline}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate x:DataType="models:DomainSnapshot">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding DomainName}" FontWeight="SemiBold"/>
-                                    <TextBlock Text="{Binding SnapshotDate, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
-                                               FontSize="11" Foreground="#666666"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </DockPanel>
-            </Border>
+            <ComboBox Grid.Column="1" PlaceholderText="Change type"
+                      ItemsSource="{Binding ChangeTypeOptions}"
+                      SelectedItem="{Binding FilterChangeType}"
+                      Width="140" Margin="0,0,8,0"/>
 
-            <!-- Right: diff results -->
-            <DockPanel Grid.Column="1">
+            <ComboBox Grid.Column="2" PlaceholderText="Category"
+                      ItemsSource="{Binding CategoryOptions}"
+                      SelectedItem="{Binding FilterCategory}"
+                      Width="150" Margin="0,0,8,0"/>
 
-                <!-- Filter bar -->
-                <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto,Auto"
-                      Margin="0,0,0,8">
-                    <TextBox Grid.Column="0" Watermark="Search name or DN…"
-                             Text="{Binding FilterText}" Margin="0,0,8,0"/>
-                    <ComboBox Grid.Column="1" PlaceholderText="Change type"
-                              SelectedValue="{Binding FilterChangeType}"
-                              Width="140" Margin="0,0,8,0">
-                        <ComboBoxItem Content="" Tag=""/>
-                        <ComboBoxItem Content="Added"    Tag="Added"/>
-                        <ComboBoxItem Content="Removed"  Tag="Removed"/>
-                        <ComboBoxItem Content="Modified" Tag="Modified"/>
-                    </ComboBox>
-                    <TextBox Grid.Column="2" Watermark="Object type…"
-                             Text="{Binding FilterObjectType}" Width="130" Margin="0,0,8,0"/>
-                    <Button Grid.Column="3" Content="Apply" Command="{Binding ApplyFiltersCommand}"/>
-                </Grid>
-
-                <!-- DataGrid -->
-                <DataGrid DockPanel.Dock="Top"
-                          ItemsSource="{Binding FilteredChanges}"
-                          IsReadOnly="True"
-                          GridLinesVisibility="Horizontal"
-                          AutoGenerateColumns="False">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Change"      Binding="{Binding ChangeType}"        Width="90"/>
-                        <DataGridTextColumn Header="Object Name" Binding="{Binding ObjectName}"        Width="200"/>
-                        <DataGridTextColumn Header="Type"        Binding="{Binding ObjectType}"        Width="120"/>
-                        <DataGridTextColumn Header="DN"          Binding="{Binding DistinguishedName}" Width="*"/>
-                        <DataGridTextColumn Header="Details"     Binding="{Binding ChangedFieldsSummary}" Width="280"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </DockPanel>
+            <Button Grid.Column="3" Content="🔍 Apply"
+                    Command="{Binding ApplyFiltersCommand}"/>
         </Grid>
 
-        <!-- ── Status bar ───────────────────────────────────────────────── -->
-        <Border Grid.Row="2" Background="#F0F0F0" Padding="8,4" Margin="0,8,0,0">
-            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#444444"/>
+        <!-- ── Row 3 : Diff DataGrid ─────────────────────────────────────── -->
+        <DataGrid Grid.Row="3"
+                  ItemsSource="{Binding FilteredChanges}"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Change"     Binding="{Binding ChangeType}"           Width="90"/>
+                <DataGridTextColumn Header="Category"   Binding="{Binding ChangeCategory}"        Width="110"/>
+                <DataGridTextColumn Header="Object"     Binding="{Binding ObjectName}"            Width="180"/>
+                <DataGridTextColumn Header="Type"       Binding="{Binding ObjectType}"            Width="110"/>
+                <DataGridTextColumn Header="DN"         Binding="{Binding DistinguishedName}"     Width="*"/>
+                <DataGridTextColumn Header="Details"    Binding="{Binding ChangedFieldsSummary}"  Width="320"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- ── Row 4 : Status bar ────────────────────────────────────────── -->
+        <Border Grid.Row="4" Background="#222222" CornerRadius="4"
+                Padding="10,5" Margin="0,8,0,0">
+            <TextBlock Text="{Binding StatusMessage}"
+                       FontSize="12" Foreground="#BBBBBB"/>
         </Border>
 
     </Grid>

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
@@ -15,25 +14,29 @@ namespace SMADX.Views
             DataContext = new DomainTimelineViewModel();
         }
 
-        private async void OnAddSnapshotsClick(object? sender, RoutedEventArgs e)
+        private async void OnOpenFileAClick(object? sender, RoutedEventArgs e)
+            => await PickAndLoad(isFileA: true);
+
+        private async void OnOpenFileBClick(object? sender, RoutedEventArgs e)
+            => await PickAndLoad(isFileA: false);
+
+        private async System.Threading.Tasks.Task PickAndLoad(bool isFileA)
         {
             if (DataContext is not DomainTimelineViewModel vm) return;
 
             var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                Title         = "Select SMAD-X snapshots",
-                AllowMultiple = true,
+                Title          = isFileA ? "Open File A (older snapshot)" : "Open File B (newer snapshot)",
+                AllowMultiple  = false,
                 FileTypeFilter = new List<FilePickerFileType>
                 {
-                    new("SMAD-X snapshots") { Patterns = new[] { "*.smad-x.json" } },
+                    new("SMAD-X file") { Patterns = new[] { "*.smad-x.json" } },
                     FilePickerFileTypes.All
                 }
             });
 
             if (files.Count == 0) return;
-
-            var paths = files.Select(f => f.Path.LocalPath);
-            await vm.AddSnapshotsCommand.ExecuteAsync(paths);
+            await vm.LoadFileAsync(files[0].Path.LocalPath, isFileA);
         }
 
         private async void OnExportCsvClick(object? sender, RoutedEventArgs e)
@@ -43,9 +46,9 @@ namespace SMADX.Views
 
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
-                Title           = "Export changes to CSV",
-                SuggestedFileName = $"{vm.SelectedBaseline?.DomainName ?? "domain"}-diff.csv",
-                FileTypeChoices = new List<FilePickerFileType>
+                Title             = "Export changes to CSV",
+                SuggestedFileName = $"{vm.FileA?.DomainName ?? "domain"}-diff.csv",
+                FileTypeChoices   = new List<FilePickerFileType>
                 {
                     new("CSV file") { Patterns = new[] { "*.csv" } }
                 }
@@ -56,3 +59,4 @@ namespace SMADX.Views
         }
     }
 }
+
