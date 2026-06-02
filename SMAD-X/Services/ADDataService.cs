@@ -463,6 +463,9 @@ namespace SMADX.Services
             };
             usersContainer.Children.Add(ggTier1OperatorsFresh);
 
+            // Mettre à jour tous les DN avant d'assigner les TargetDN des délégations
+            UpdateDistinguishedNamesRecursive(domain);
+
             // ── Délégations ──────────────────────────────────────────────────
             // Delegation de réinitialisation de mot de passe sur CN=Users
             usersContainer.Delegations.Add(new ADDelegation
@@ -514,8 +517,8 @@ namespace SMADX.Services
             };
             domain.Children.Add(fspContainer);
 
-            // Mettre à jour tous les DN
-            UpdateDistinguishedNamesRecursive(domain);
+            // Mettre à jour les DN du nouveau container (ajouté après le premier appel)
+            UpdateDistinguishedNamesRecursive(fspContainer);
 
             return domain;
         }
@@ -962,6 +965,9 @@ namespace SMADX.Services
             };
             adminOU.Children.Add(ggTier1Operators);
 
+            // Mettre à jour tous les DN avant d'assigner les TargetDN des délégations
+            UpdateDistinguishedNamesRecursive(domain);
+
             // ── Délégations ──────────────────────────────────────────────────
             // HelpDesk → OU Users : Reset password + Unlock account
             usersOU.Delegations.Add(new ADDelegation
@@ -1024,9 +1030,6 @@ namespace SMADX.Services
                 RightCategory = RightCategory.AttributeWrite,
                 Tier = "Tier 0"
             });
-
-            // Mettre à jour tous les DN
-            UpdateDistinguishedNamesRecursive(domain);
 
             return domain;
         }
