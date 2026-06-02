@@ -62,6 +62,11 @@ namespace SMADX.Models
         /// </summary>
         public ObservableCollection<string> PSOAppliesTo { get; set; } = new();
 
+        /// <summary>
+        /// ACL-based delegations found on this OU/Container.
+        /// </summary>
+        public ObservableCollection<ADDelegation> Delegations { get; set; } = new();
+
         // --- Propriétés spécifiques PSO (Fine-Grained Password Policy) ---
 
         public int? PSOPrecedence { get; set; }

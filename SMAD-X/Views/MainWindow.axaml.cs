@@ -183,6 +183,21 @@ namespace SMADX.Views
             await configWindow.ShowDialog(this);
         }
 
+        private async void OnTimelineClick(object? sender, RoutedEventArgs e)
+        {
+            var w = new DomainTimelineWindow();
+            await w.ShowDialog(this);
+        }
+
+        private async void OnDelegationsClick(object? sender, RoutedEventArgs e)
+        {
+            var root = (DataContext as MainWindowViewModel)?.RootObject;
+            var w = root is not null
+                ? new DelegationsWindow(root)
+                : new DelegationsWindow();
+            await w.ShowDialog(this);
+        }
+
         private void OnLightThemeClick(object? sender, RoutedEventArgs e)
         {
             ThemeService.Instance.ApplyTheme(AppTheme.Light);

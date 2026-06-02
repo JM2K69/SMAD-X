@@ -11,6 +11,7 @@ namespace SMADX.Graph
         public bool ShowGpoLinks        { get; set; } = true;
         public bool ShowGpoInheritance  { get; set; } = true;
         public bool ShowPsoLinks        { get; set; } = true;
+        public bool ShowDelegations     { get; set; } = true;
         public bool ShowIsolated        { get; set; } = false;
     }
 }

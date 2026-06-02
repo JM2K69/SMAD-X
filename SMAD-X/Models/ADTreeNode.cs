@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SMADX.Models
@@ -46,6 +47,9 @@ namespace SMADX.Models
             // S'abonner aux changements de la collection LinkedGPOs
             _data.LinkedGPOs.CollectionChanged += OnLinkedGPOsChanged;
 
+            // S'abonner aux changements de la collection Delegations
+            _data.Delegations.CollectionChanged += OnDelegationsChanged;
+
             foreach (var child in data.Children)
             {
                 var childNode = new ADTreeNode(child)
@@ -62,6 +66,12 @@ namespace SMADX.Models
             OnPropertyChanged(nameof(LinkedGPOsSummary));
         }
 
+        private void OnDelegationsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(HasDelegations));
+            OnPropertyChanged(nameof(DelegationsSummary));
+        }
+
         /// <summary>
         /// Vrai si cet objet (OU ou Domain) a des GPOs liées
         /// </summary>
@@ -74,6 +84,25 @@ namespace SMADX.Models
             Data.LinkedGPOs.Count == 0
                 ? string.Empty
                 : "🔗 " + string.Join(", ", Data.LinkedGPOs);
+
+        /// <summary>
+        /// Vrai si cet objet a des délégations définies
+        /// </summary>
+        public bool HasDelegations => Data.Delegations.Count > 0;
+
+        /// <summary>
+        /// Résumé des délégations, affiché en tooltip dans le TreeView
+        /// </summary>
+        public string DelegationsSummary
+        {
+            get
+            {
+                if (Data.Delegations.Count == 0) return string.Empty;
+                var lines = Data.Delegations.Select(d =>
+                    $"👤 {d.TrusteeName} → {d.Right} ({d.RightCategory})");
+                return string.Join("\n", lines);
+            }
+        }
 
         /// <summary>
         /// Icône basée sur le type d'objet

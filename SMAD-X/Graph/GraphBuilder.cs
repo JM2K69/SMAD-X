@@ -169,6 +169,28 @@ namespace SMADX.Graph
                 }
             }
 
+            // ── Delegations ACL : trustee → OU/Container cible ──
+            if (filter.ShowDelegations)
+            {
+                foreach (var obj in allObjects.Where(o => o.Delegations.Count > 0))
+                {
+                    if (!_nodeMap.TryGetValue(obj.Name, out var targetNode)) continue;
+
+                    foreach (var del in obj.Delegations)
+                    {
+                        if (!_nodeMap.TryGetValue(del.TrusteeName, out var trusteeNode)) continue;
+
+                        bool alreadyEdge = Edges.Any(e =>
+                            e.Type == EdgeType.Delegation &&
+                            e.Source == trusteeNode &&
+                            e.Target == targetNode &&
+                            e.GpoName == del.Right);
+                        if (!alreadyEdge)
+                            Edges.Add(new GraphEdge(trusteeNode, targetNode, EdgeType.Delegation, del.Right));
+                    }
+                }
+            }
+
             // Supprimer les nœuds isolés si le filtre le demande
             if (!filter.ShowIsolated)
             {

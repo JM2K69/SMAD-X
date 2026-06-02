@@ -88,6 +88,9 @@ namespace SMADX.ViewModels
 
         public string SelectedObjectDistinguishedName => SelectedNode?.Data?.DistinguishedName ?? string.Empty;
 
+        /// <summary>Root ADObject of the currently loaded domain tree (null when no domain loaded).</summary>
+        public ADObject? RootObject => RootNodes.Count > 0 ? RootNodes[0].Data : null;
+
         public string SelectedObjectTier
         {
             get => string.IsNullOrWhiteSpace(SelectedNode?.Data?.Tier) ? " " : SelectedNode!.Data!.Tier!;

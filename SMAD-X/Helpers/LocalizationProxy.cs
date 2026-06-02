@@ -200,6 +200,7 @@ namespace SMADX.Helpers
         public string GraphFilterGpoLinks => _localizationService["Graph.FilterGpoLinks"];
         public string GraphFilterGpoInheritance => _localizationService["Graph.FilterGpoInheritance"];
         public string GraphFilterPso => _localizationService["Graph.FilterPso"];
+        public string GraphFilterDelegations => _localizationService["Graph.FilterDelegations"];
         public string GraphFilterHierarchy => _localizationService["Graph.FilterHierarchy"];
         public string GraphFilterIsolated => _localizationService["Graph.FilterIsolated"];
         public string GraphFitViewTooltip => _localizationService["Graph.FitViewTooltip"];
