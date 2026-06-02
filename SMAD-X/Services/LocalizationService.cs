@@ -1252,6 +1252,12 @@ Password Settings Object appliqué aux **comptes utilisateurs standards Tier 2**
 - Préférence : **50** (priorité inférieure à PSO-Tier0-Admins)
 - Activer le **self-service de réinitialisation** (SSPR) pour réduire la charge du helpdesk
 - Envisager une intégration avec **Microsoft Entra ID Password Protection** pour bloquer les mots de passe courants/compromis (HaveIBeenPwned)",
+
+                // Groupes de délégation
+                ["Desc.Delegation.GGHelpDesk"] = "Groupe helpdesk — réinitialise les mots de passe et déverrouille les comptes utilisateurs (Tier 2)",
+                ["Desc.Delegation.GGITWorkstations"] = "Groupe IT Workstations — gère les objets ordinateurs dans l'OU Workstations (Tier 2)",
+                ["Desc.Delegation.GGITServers"] = "Groupe IT Servers — gère les objets ordinateurs et serveurs dans l'OU Servers (Tier 1)",
+                ["Desc.Delegation.GGTier1Operators"] = "Groupe opérateurs Tier 1 — peut modifier les attributs des contrôleurs de domaine (Tier 1)",
             };
 
             // Anglais
@@ -2429,6 +2435,12 @@ Password Settings Object applied to **Tier 2 standard user accounts**.
 - Precedence: **50** (lower priority than PSO-Tier0-Admins)
 - Enable **self-service password reset (SSPR)** to reduce helpdesk load
 - Consider integrating **Microsoft Entra ID Password Protection** to block common/compromised passwords (HaveIBeenPwned)",
+
+                // Delegation groups
+                ["Desc.Delegation.GGHelpDesk"] = "Helpdesk group — resets passwords and unlocks user accounts (Tier 2)",
+                ["Desc.Delegation.GGITWorkstations"] = "IT Workstations group — manages computer objects in the Workstations OU (Tier 2)",
+                ["Desc.Delegation.GGITServers"] = "IT Servers group — manages computer and server objects in the Servers OU (Tier 1)",
+                ["Desc.Delegation.GGTier1Operators"] = "Tier 1 Operators group — can modify attributes of domain controllers (Tier 1)",
             };
         }
 

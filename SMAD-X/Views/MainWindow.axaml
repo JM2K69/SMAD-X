@@ -341,6 +341,15 @@
                                                    Foreground="#7FFF9A"
                                                    FontSize="9" FontWeight="SemiBold"/>
                                     </Border>
+                                    <!-- Badge Délégations -->
+                                    <Border IsVisible="{Binding HasDelegations}"
+                                            Background="#7B5800" CornerRadius="3" Padding="4,1"
+                                            VerticalAlignment="Center"
+                                            ToolTip.Tip="{Binding DelegationsSummary}">
+                                        <TextBlock Text="🔑 DEL"
+                                                   Foreground="#FFD87F"
+                                                   FontSize="9" FontWeight="SemiBold"/>
+                                    </Border>
                                 </StackPanel>
                             </TreeDataTemplate>
                         </TreeView.ItemTemplate>

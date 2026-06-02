@@ -430,6 +430,82 @@ namespace SMADX.Services
             domain.LinkedGPOs.Add("Default Domain Policy");
             domainControllersOU.LinkedGPOs.Add("Default Domain Controllers Policy");
 
+            // ── Groupes de délégation ────────────────────────────────────────
+            var ggHelpDeskFresh = new ADObject("GG-HelpDesk", ADObjectType.Group)
+            {
+                Description = loc["Desc.Delegation.GGHelpDesk"],
+                Tier = GetTier("Tier 2"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(ggHelpDeskFresh);
+
+            var ggITWorkstationsFresh = new ADObject("GG-IT-Workstations", ADObjectType.Group)
+            {
+                Description = loc["Desc.Delegation.GGITWorkstations"],
+                Tier = GetTier("Tier 2"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(ggITWorkstationsFresh);
+
+            var ggITServersFresh = new ADObject("GG-IT-Servers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Delegation.GGITServers"],
+                Tier = GetTier("Tier 1"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(ggITServersFresh);
+
+            var ggTier1OperatorsFresh = new ADObject("GG-Tier1-Operators", ADObjectType.Group)
+            {
+                Description = loc["Desc.Delegation.GGTier1Operators"],
+                Tier = GetTier("Tier 0"),
+                Parent = usersContainer
+            };
+            usersContainer.Children.Add(ggTier1OperatorsFresh);
+
+            // ── Délégations ──────────────────────────────────────────────────
+            // Delegation de réinitialisation de mot de passe sur CN=Users
+            usersContainer.Delegations.Add(new ADDelegation
+            {
+                TrusteeName = "GG-HelpDesk",
+                TrusteeType = TrusteeType.Group,
+                TargetDN = usersContainer.DistinguishedName,
+                Right = "ResetPassword",
+                RightCategory = RightCategory.PasswordReset,
+                Tier = "Tier 2"
+            });
+            usersContainer.Delegations.Add(new ADDelegation
+            {
+                TrusteeName = "GG-HelpDesk",
+                TrusteeType = TrusteeType.Group,
+                TargetDN = usersContainer.DistinguishedName,
+                Right = "UnlockAccount",
+                RightCategory = RightCategory.AccountUnlock,
+                Tier = "Tier 2"
+            });
+
+            // IT-Workstations → CN=Computers
+            computersContainer.Delegations.Add(new ADDelegation
+            {
+                TrusteeName = "GG-IT-Workstations",
+                TrusteeType = TrusteeType.Group,
+                TargetDN = computersContainer.DistinguishedName,
+                Right = "CreateChild:computer",
+                RightCategory = RightCategory.ComputerManagement,
+                Tier = "Tier 2"
+            });
+
+            // Tier1-Operators → OU Domain Controllers
+            domainControllersOU.Delegations.Add(new ADDelegation
+            {
+                TrusteeName = "GG-Tier1-Operators",
+                TrusteeType = TrusteeType.Group,
+                TargetDN = domainControllersOU.DistinguishedName,
+                Right = "WriteAttribute",
+                RightCategory = RightCategory.AttributeWrite,
+                Tier = "Tier 0"
+            });
+
             // 6. Container ForeignSecurityPrincipals
             var fspContainer = new ADObject("ForeignSecurityPrincipals", ADObjectType.Container)
             {
@@ -852,6 +928,102 @@ namespace SMADX.Services
             adminUser.MemberOf.Add("Domain Admins");
             user1.MemberOf.Add("Domain Users");
             user2.MemberOf.Add("Domain Users");
+
+            // ── Groupes de délégation ────────────────────────────────────────
+            var ggHelpDesk = new ADObject("GG-HelpDesk", ADObjectType.Group)
+            {
+                Description = loc["Desc.Delegation.GGHelpDesk"],
+                Tier = "Tier 2",
+                Parent = adminOU
+            };
+            adminOU.Children.Add(ggHelpDesk);
+
+            var ggITWorkstations = new ADObject("GG-IT-Workstations", ADObjectType.Group)
+            {
+                Description = loc["Desc.Delegation.GGITWorkstations"],
+                Tier = "Tier 2",
+                Parent = adminOU
+            };
+            adminOU.Children.Add(ggITWorkstations);
+
+            var ggITServers = new ADObject("GG-IT-Servers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Delegation.GGITServers"],
+                Tier = "Tier 1",
+                Parent = adminOU
+            };
+            adminOU.Children.Add(ggITServers);
+
+            var ggTier1Operators = new ADObject("GG-Tier1-Operators", ADObjectType.Group)
+            {
+                Description = loc["Desc.Delegation.GGTier1Operators"],
+                Tier = "Tier 1",
+                Parent = adminOU
+            };
+            adminOU.Children.Add(ggTier1Operators);
+
+            // ── Délégations ──────────────────────────────────────────────────
+            // HelpDesk → OU Users : Reset password + Unlock account
+            usersOU.Delegations.Add(new ADDelegation
+            {
+                TrusteeName = "GG-HelpDesk",
+                TrusteeType = TrusteeType.Group,
+                TargetDN = usersOU.DistinguishedName,
+                Right = "ResetPassword",
+                RightCategory = RightCategory.PasswordReset,
+                Tier = "Tier 2"
+            });
+            usersOU.Delegations.Add(new ADDelegation
+            {
+                TrusteeName = "GG-HelpDesk",
+                TrusteeType = TrusteeType.Group,
+                TargetDN = usersOU.DistinguishedName,
+                Right = "UnlockAccount",
+                RightCategory = RightCategory.AccountUnlock,
+                Tier = "Tier 2"
+            });
+
+            // IT-Workstations → OU Workstations : CreateChild:computer
+            workstationsOU.Delegations.Add(new ADDelegation
+            {
+                TrusteeName = "GG-IT-Workstations",
+                TrusteeType = TrusteeType.Group,
+                TargetDN = workstationsOU.DistinguishedName,
+                Right = "CreateChild:computer",
+                RightCategory = RightCategory.ComputerManagement,
+                Tier = "Tier 2"
+            });
+
+            // IT-Servers → OU Servers : CreateChild:computer + FullControl
+            serversOU.Delegations.Add(new ADDelegation
+            {
+                TrusteeName = "GG-IT-Servers",
+                TrusteeType = TrusteeType.Group,
+                TargetDN = serversOU.DistinguishedName,
+                Right = "CreateChild:computer",
+                RightCategory = RightCategory.ComputerManagement,
+                Tier = "Tier 1"
+            });
+            serversOU.Delegations.Add(new ADDelegation
+            {
+                TrusteeName = "GG-IT-Servers",
+                TrusteeType = TrusteeType.Group,
+                TargetDN = serversOU.DistinguishedName,
+                Right = "FullControl",
+                RightCategory = RightCategory.FullControl,
+                Tier = "Tier 1"
+            });
+
+            // Tier1-Operators → OU Domain Controllers : WriteAttribute
+            domainControllersOU.Delegations.Add(new ADDelegation
+            {
+                TrusteeName = "GG-Tier1-Operators",
+                TrusteeType = TrusteeType.Group,
+                TargetDN = domainControllersOU.DistinguishedName,
+                Right = "WriteAttribute",
+                RightCategory = RightCategory.AttributeWrite,
+                Tier = "Tier 0"
+            });
 
             // Mettre à jour tous les DN
             UpdateDistinguishedNamesRecursive(domain);
