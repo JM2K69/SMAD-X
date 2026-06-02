@@ -21,6 +21,10 @@ namespace SMADX.ViewModels
         [ObservableProperty]
         private ADDelegation? _selectedDelegation;
 
+        // ── Filter category list (bound to ComboBox) ────────────────────────
+        public static List<string> CategoryItems { get; } =
+            new() { "", "PasswordReset", "ComputerManagement", "AccountUnlock", "AttributeWrite", "FullControl", "Other" };
+
         // ── Filters ─────────────────────────────────────────────────────────
         [ObservableProperty]
         private string _filterTrustee = string.Empty;

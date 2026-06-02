@@ -52,22 +52,14 @@
         <!-- ── Filter bar ────────────────────────────────────────────────── -->
         <Grid Grid.Row="1" ColumnDefinitions="*,*,Auto,Auto,Auto"
               Margin="0,0,0,10">
-            <TextBox Grid.Column="0" Watermark="Filter trustee…"
+            <TextBox Grid.Column="0" PlaceholderText="Filter trustee…"
                      Text="{Binding FilterTrustee}" Margin="0,0,8,0"/>
-            <TextBox Grid.Column="1" Watermark="Filter target DN…"
+            <TextBox Grid.Column="1" PlaceholderText="Filter target DN…"
                      Text="{Binding FilterTargetDN}" Margin="0,0,8,0"/>
             <ComboBox Grid.Column="2" PlaceholderText="Category"
-                      SelectedValuePath="Tag"
-                      SelectedValue="{Binding FilterCategory, Mode=TwoWay}"
-                      Width="160" Margin="0,0,8,0">
-                <ComboBoxItem Content=""              Tag=""/>
-                <ComboBoxItem Content="PasswordReset"     Tag="PasswordReset"/>
-                <ComboBoxItem Content="ComputerManagement" Tag="ComputerManagement"/>
-                <ComboBoxItem Content="AccountUnlock"     Tag="AccountUnlock"/>
-                <ComboBoxItem Content="AttributeWrite"    Tag="AttributeWrite"/>
-                <ComboBoxItem Content="FullControl"       Tag="FullControl"/>
-                <ComboBoxItem Content="Other"             Tag="Other"/>
-            </ComboBox>
+                      ItemsSource="{Binding CategoryItems}"
+                      SelectedItem="{Binding FilterCategory, Mode=TwoWay}"
+                      Width="160" Margin="0,0,8,0"/>
             <CheckBox Grid.Column="3" Content="Hide inherited"
                       IsChecked="{Binding HideInherited}" Margin="0,0,8,0"
                       VerticalAlignment="Center"/>
