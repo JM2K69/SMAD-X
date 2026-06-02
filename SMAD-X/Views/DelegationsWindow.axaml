@@ -57,7 +57,8 @@
             <TextBox Grid.Column="1" Watermark="Filter target DN…"
                      Text="{Binding FilterTargetDN}" Margin="0,0,8,0"/>
             <ComboBox Grid.Column="2" PlaceholderText="Category"
-                      SelectedValue="{Binding FilterCategory}"
+                      SelectedValuePath="Tag"
+                      SelectedValue="{Binding FilterCategory, Mode=TwoWay}"
                       Width="160" Margin="0,0,8,0">
                 <ComboBoxItem Content=""              Tag=""/>
                 <ComboBoxItem Content="PasswordReset"     Tag="PasswordReset"/>

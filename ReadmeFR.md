@@ -76,6 +76,19 @@
 ### 🌍 Support multilingue
 - Interface entièrement disponible en **Français** et en **English** — changement à chaud
 
+### 🛡️ Visualiseur de délégations
+- Fenêtre dédiée listant toutes les entrées de délégation AD (trustee, droit, DN cible, catégorie, tier, héritage)
+- Filtres en direct par **trustee**, **DN cible**, **catégorie** (PasswordReset, ComputerManagement, AccountUnlock, AttributeWrite, FullControl, Other) et bascule **masquer l'héritage**
+- Barre de statistiques affichant le nombre de délégations par catégorie
+- **Export CSV** pour l'audit et le reporting
+
+### ⏱️ Chronologie AD — Diff entre deux instantanés
+- Chargement de deux fichiers `.smadx.json` (ancien vs. récent) avec calcul d'un diff structuré
+- Mise en évidence des objets **Ajoutés**, **Supprimés** et **Modifiés**
+- Filtres par type de changement, type d'objet et recherche libre
+- Statistiques récapitulatives (compteurs ajoutés / supprimés / modifiés)
+- **Export du diff en CSV**
+
 ### ✅ Validation Active Directory
 - Validation des noms selon les règles AD (caractères interdits, longueur, unicité)
 - Règles de conteneurs respectées
@@ -125,6 +138,14 @@ Activez **Imbrication de groupes** pour afficher séparément les arêtes Groupe
 | 👥 **Groupe → Groupe** | Gérer l'imbrication de groupes |
 | 📋 **Liens GPO → OU** | Lier des stratégies de groupe aux OUs/Domaine |
 | 🔑 **Sujets PSO** | Affecter des Password Settings Objects |
+
+### Fenêtre Délégations
+`Affichage > Délégations` : liste toutes les entrées de délégation avec filtres par trustee, DN cible, catégorie et héritage.
+Exportez la liste complète en CSV pour vos audits.
+
+### Chronologie AD
+`Affichage > Chronologie AD` : comparez deux instantanés `.smadx.json` côte à côte.
+Visualisez les objets ajoutés, supprimés et modifiés avec export en CSV.
 
 ### Sauvegarde / Chargement
 
@@ -219,11 +240,15 @@ SMAD-X/
 │   ├── MainWindowViewModel.cs       # ViewModel principal (MVVM)
 │   ├── GraphViewModel.cs            # ViewModel vue graphe
 │   ├── RelationsViewModel.cs        # ViewModel relations (User→Groupe, Groupe→Groupe, GPO, PSO)
+│   ├── DelegationsViewModel.cs       # ViewModel délégations (filtre, stats, export CSV)
+│   ├── DomainTimelineViewModel.cs    # ViewModel chronologie AD (diff, filtres, export CSV)
 │   └── TierConfigurationViewModel.cs
 ├── Views/
 │   ├── MainWindow.axaml             # Interface principale avec badge GPO dans l'arbre
 │   ├── GraphWindow.axaml            # Vue graphe force-directed
 │   ├── RelationsWindow.axaml        # Fenêtre relations (4 onglets)
+│   ├── DelegationsWindow.axaml      # Visualiseur de délégations avec filtres et export CSV
+│   ├── DomainTimelineWindow.axaml   # Visualiseur diff chronologie AD
 │   ├── NewDomainDialog.axaml        # Dialogue nouveau domaine
 │   ├── TierConfigurationWindow.axaml
 │   └── AboutDialog.axaml
@@ -288,10 +313,10 @@ SMAD-X/
 - [x] Badge GPO visuel dans l'arborescence
 - [x] Fenêtre Relations divisée : onglets User → Groupe et Groupe → Groupe
 - [x] Thème clair / sombre
-- [ ] Drag & Drop pour déplacer les objets
-- [ ] Recherche et filtrage dans l'arborescence
+- [x] Recherche et filtrage dans l'arborescence (recherche live par nom / type / description)
+- [x] Visualiseur de délégations (filtres trustee / DN cible / catégorie / héritage, export CSV)
+- [x] Chronologie AD — diff entre deux instantanés (ajoutés / supprimés / modifiés, export CSV)
 - [ ] Support multi-domaines / forêts
-- [ ] Export vers diagrammes (Draw.io, Visio)
 
 ---
 

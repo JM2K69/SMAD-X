@@ -80,6 +80,19 @@
 ### 🌍 Multilingual Support
 - Full interface available in **French** and **English** — language switch at runtime
 
+### 🛡️ Delegations Viewer
+- Dedicated window listing all AD delegation entries (trustee, right, target DN, category, tier, inheritance)
+- Live filters by **trustee**, **target DN**, **category** (PasswordReset, ComputerManagement, AccountUnlock, AttributeWrite, FullControl, Other) and **hide inherited** toggle
+- Statistics bar showing delegation counts by category
+- **Export to CSV** for audit and reporting
+
+### ⏱️ AD Timeline — Diff between two snapshots
+- Load two `.smadx.json` files (older vs. newer) and compute a structured diff
+- Highlights **Added**, **Removed** and **Modified** objects
+- Filters by change type, object type and free-text search
+- Summary statistics (added / removed / modified counts)
+- **Export diff to CSV**
+
 ### ✅ Active Directory Validation
 - Name validation following AD rules (forbidden characters, length, uniqueness)
 - Container rules enforced (e.g. a Container can only hold CN objects, not OUs)
@@ -129,6 +142,14 @@ Toggle **Group nesting** to display Group → Group edges separately.
 | 👥 **Group → Group** | Manage group nesting |
 | 📋 **GPO Links → OU** | Link Group Policy Objects to OUs/Domain |
 | 🔑 **PSO Subjects** | Assign Password Settings Objects |
+
+### Delegations Window
+`View > Delegations`: lists all delegation entries with filters by trustee, target DN, category and inheritance.
+Export the full list to CSV for audit purposes.
+
+### AD Timeline
+`View > AD Timeline`: compare two `.smadx.json` snapshots side-by-side.
+Review added, removed and modified objects with export to CSV.
 
 ### Save / Load
 
@@ -223,11 +244,15 @@ SMAD-X/
 │   ├── MainWindowViewModel.cs       # Main ViewModel (MVVM)
 │   ├── GraphViewModel.cs            # Graph view ViewModel
 │   ├── RelationsViewModel.cs        # Relations ViewModel (User→Group, Group→Group, GPO, PSO)
+│   ├── DelegationsViewModel.cs       # Delegations ViewModel (filter, stats, CSV export)
+│   ├── DomainTimelineViewModel.cs    # Timeline ViewModel (diff, filters, CSV export)
 │   └── TierConfigurationViewModel.cs
 ├── Views/
 │   ├── MainWindow.axaml             # Main interface with GPO badge in tree
 │   ├── GraphWindow.axaml            # Force-directed graph view
 │   ├── RelationsWindow.axaml        # Relations window (4 tabs)
+│   ├── DelegationsWindow.axaml      # Delegations viewer with filters and CSV export
+│   ├── DomainTimelineWindow.axaml   # AD Timeline diff viewer
 │   ├── NewDomainDialog.axaml        # New domain dialog
 │   ├── TierConfigurationWindow.axaml
 │   └── AboutDialog.axaml
@@ -288,6 +313,8 @@ SMAD-X/
 - [x] Avalonia upgrade to 12.0.3 (FluentTheme, performance improvements)
 - [x] Light / Dark theme (native Avalonia FluentTheme)
 - [x] Search and filtering in the tree (live search by name / type / description)
+- [x] Delegations viewer (filter by trustee / target DN / category / inheritance, CSV export)
+- [x] AD Timeline — diff between two snapshots (added / removed / modified, CSV export)
 - [ ] Multi-domain / forest support
 
 ---
