@@ -48,6 +48,7 @@ namespace SMADX.Graph
             { EdgeType.GpoInheritance,  Color.FromRgb(0xD0, 0x80, 0x00) },
             { EdgeType.PsoSubject,      Color.FromRgb(0xC5, 0x07, 0x1F) },
             { EdgeType.ParentChild,     Color.FromRgb(0x60, 0x60, 0x60) },
+            { EdgeType.Delegation,      Color.FromRgb(0xFF, 0xB3, 0x00) },  // amber
         };
 
         private static readonly Dictionary<ADObjectType, string> NodeIcons = new()
@@ -403,6 +404,7 @@ namespace SMADX.Graph
                 (EdgeColors[EdgeType.MemberOf],       false, "MemberOf"),
                 (EdgeColors[EdgeType.GroupNesting],   true,  "Group in Group"),
                 (EdgeColors[EdgeType.PsoSubject],     false, "PSO Subject"),
+                (EdgeColors[EdgeType.Delegation],     false, "Délégation"),
             };
 
             const double lx = 10;

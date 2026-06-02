@@ -60,6 +60,13 @@ namespace SMADX.ViewModels
             set { SetProperty(ref _showIsolated, value); RequestRefresh(); }
         }
 
+        private bool _showDelegations = true;
+        public bool ShowDelegations
+        {
+            get => _showDelegations;
+            set { SetProperty(ref _showDelegations, value); RequestRefresh(); }
+        }
+
         // Infos nœud sélectionné
         private string _selectedNodeInfo = string.Empty;
         public string SelectedNodeInfo
@@ -96,6 +103,7 @@ namespace SMADX.ViewModels
             ShowGpoLinks       = ShowGpoLinks,
             ShowGpoInheritance = ShowGpoInheritance,
             ShowPsoLinks       = ShowPsoLinks,
+            ShowDelegations    = ShowDelegations,
             ShowHierarchy      = ShowHierarchy,
             ShowIsolated       = ShowIsolated,
         };

@@ -7,7 +7,8 @@ namespace SMADX.Graph
         GpoLink,
         GpoInheritance,   // GPO héritée d'un parent (Domain → OU ou OU parente → OU enfant)
         PsoSubject,
-        ParentChild
+        ParentChild,
+        Delegation        // Délégation ACL : trustee → OU/Container cible
     }
 
     /// <summary>
@@ -30,6 +31,7 @@ namespace SMADX.Graph
             EdgeType.GpoInheritance  => $"⬇ Héritage GPO",
             EdgeType.PsoSubject      => "PSO Subject",
             EdgeType.ParentChild     => "Contains",
+            EdgeType.Delegation      => GpoName ?? "Delegation",
             _                        => string.Empty
         };
 

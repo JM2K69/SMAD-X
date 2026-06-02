@@ -68,6 +68,9 @@
                     <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterPso}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowPsoLinks, Mode=TwoWay}"
                               Foreground="#FF6B6B" VerticalAlignment="Center"/>
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterDelegations}"
+                              IsChecked="{Binding #GraphWindowRoot.DataContext.ShowDelegations, Mode=TwoWay}"
+                              Foreground="#FFB300" VerticalAlignment="Center"/>
                     <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterHierarchy}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowHierarchy, Mode=TwoWay}"
                               Foreground="#888888" VerticalAlignment="Center"/>
