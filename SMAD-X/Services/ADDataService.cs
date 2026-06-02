@@ -842,9 +842,6 @@ namespace SMADX.Services
             domain.LinkedGPOs.Add("Default Domain Policy");
             // Default Domain Controllers Policy → OU Domain Controllers
             domainControllersOU.LinkedGPOs.Add("Default Domain Controllers Policy");
-            // GPO Password Policy → OU Admin (exemple)
-            adminOU.LinkedGPOs.Add("Password Policy");
-
             // ── Relations PSO ────────────────────────────────────────────────
             psoAdmin.PSOAppliesTo.Add("Domain Admins");
             psoAdmin.PSOAppliesTo.Add("Administrator");
