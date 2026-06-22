@@ -46,7 +46,6 @@ namespace SMADX.Services
             L(s, "");
             L(s, ".EXAMPLE");
             L(s, "    .\\Export-ADToSMAD-X.ps1");
-            L(s, "    .\\Export-ADToSMAD-X.ps1 -OutputPath C:\\Exports\\contoso.com_20250101_120000.smad-x.json");
             L(s, "");
             L(s, ".NOTES");
             L(s, "    Requires : ActiveDirectory PowerShell module (RSAT)");
