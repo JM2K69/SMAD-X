@@ -241,5 +241,35 @@ namespace SMADX.Helpers
         public string ContextMenuAddToGroup         => _localizationService["ContextMenu.AddToGroup"];
         public string ContextMenuAddMember           => _localizationService["ContextMenu.AddMember"];
         public string ContextMenuAddGroupToGroup      => _localizationService["ContextMenu.AddGroupToGroup"];
+
+        // AD Sites
+        public string MenuSites              => _localizationService["Menu.Sites"];
+        public string MenuSitesView          => _localizationService["Menu.Sites.View"];
+        public string SitesWindowTitle       => _localizationService["Sites.Window.Title"];
+        public string SitesTabTable          => _localizationService["Sites.Tab.Table"];
+        public string SitesTabGraph          => _localizationService["Sites.Tab.Graph"];
+        public string SitesColumnName        => _localizationService["Sites.Column.Name"];
+        public string SitesColumnDescription => _localizationService["Sites.Column.Description"];
+        public string SitesColumnLocation    => _localizationService["Sites.Column.Location"];
+        public string SitesColumnSubnets     => _localizationService["Sites.Column.Subnets"];
+        public string SitesColumnDCs         => _localizationService["Sites.Column.DCs"];
+        public string SitesColumnCost        => _localizationService["Sites.Column.Cost"];
+        public string SitesColumnInterval    => _localizationService["Sites.Column.Interval"];
+        public string SitesColumnTransport   => _localizationService["Sites.Column.Transport"];
+        public string SitesColumnLinkedSites => _localizationService["Sites.Column.LinkedSites"];
+        public string SitesNoData            => _localizationService["Sites.NoData"];
+        public string SitesAdd               => _localizationService["Sites.Add"];
+        public string SitesSectionSites      => _localizationService["Sites.Section.Sites"];
+        public string SitesSectionLinks      => _localizationService["Sites.Section.Links"];
+
+        // Report export
+        public string MenuFileExportReport   => _localizationService["Menu.File.ExportReport"];
+        public string ReportDialogTitle      => _localizationService["Report.Dialog.Title"];
+        public string ReportFormatMarkdown   => _localizationService["Report.Format.Markdown"];
+        public string ReportFormatDocx       => _localizationService["Report.Format.Docx"];
+        public string ReportFormatPdf        => _localizationService["Report.Format.Pdf"];
+        public string ReportFormatLabel      => _localizationService["Report.Format.Label"];
+        public string ReportButtonExport     => _localizationService["Report.Button.Export"];
+        public string ReportButtonCancel     => _localizationService["Report.Button.Cancel"];
     }
 }

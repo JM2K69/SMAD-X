@@ -91,6 +91,13 @@ namespace SMADX.ViewModels
         /// <summary>Root ADObject of the currently loaded domain tree (null when no domain loaded).</summary>
         public ADObject? RootObject => RootNodes.Count > 0 ? RootNodes[0].Data : null;
 
+        /// <summary>Sites topology loaded from the v2 document (null for v1 files or if not yet imported).</summary>
+        [ObservableProperty]
+        private ADSitesTopology? _sitesTopology;
+
+        /// <summary>Full v2 document — kept in memory for save-round-trip preservation of SitesTopology.</summary>
+        private ADRootDocument? _currentDocument;
+
         public string SelectedObjectTier
         {
             get => string.IsNullOrWhiteSpace(SelectedNode?.Data?.Tier) ? " " : SelectedNode!.Data!.Tier!;
@@ -363,7 +370,12 @@ namespace SMADX.ViewModels
                 if (file != null && RootNodes.Count > 0)
                 {
                     var path = file.Path.LocalPath;
-                    var success = await _dataService.SaveToFileAsync(RootNodes[0].Data, path);
+                    // Build a v2 document preserving SitesTopology if loaded
+                    var doc = _currentDocument ?? new ADRootDocument();
+                    doc.Version = 2;
+                    doc.Domain  = RootNodes[0].Data;
+                    doc.SitesTopology = SitesTopology;
+                    var success = await _dataService.SaveDocumentAsync(doc, path);
                     StatusMessage = success ? string.Format(loc["Status.Saved"], path) : loc["Status.ErrorSave"];
                 }
             }
@@ -397,15 +409,18 @@ namespace SMADX.ViewModels
                 if (files.Count > 0)
                 {
                     var path = files[0].Path.LocalPath;
-                    var root = await _dataService.LoadFromFileAsync(path);
+                    var document = await _dataService.LoadDocumentAsync(path);
 
-                    if (root != null)
+                    if (document?.Domain != null)
                     {
-                        var rootNode = new ADTreeNode(root) { IsExpanded = true };
+                        _currentDocument = document;
+                        SitesTopology = document.SitesTopology;
+                        var rootNode = new ADTreeNode(document.Domain) { IsExpanded = true };
                         RootNodes.Clear();
                         RootNodes.Add(rootNode);
                         UpdateObjectCounts();
-                        StatusMessage = string.Format(loc["Status.Loaded"], path);
+                        var siteInfo = SitesTopology != null ? $" (+{SitesTopology.Sites.Count} sites)" : string.Empty;
+                        StatusMessage = string.Format(loc["Status.Loaded"], path) + siteInfo;
                     }
                     else
                     {
