@@ -183,7 +183,7 @@
         <Grid Grid.Row="1" ColumnDefinitions="400,5,*">
             <!-- TreeView -->
             <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Padding="5">
-                <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,200" DataContext="{StaticResource Loc}">
+                <Grid RowDefinitions="Auto,Auto,*,Auto" DataContext="{StaticResource Loc}">
                     <TextBlock Grid.Row="0" Text="{Binding TreeViewTitle}" 
                                FontWeight="Bold" FontSize="14" Margin="0,0,0,6"/>
 
@@ -359,35 +359,34 @@
                     </TreeView>
 
                     <!-- ═══ SECTION SITES AD ═══ -->
-                    <Border Grid.Row="3" Margin="0,6,0,0"
-                            BorderBrush="{DynamicResource AppSeparatorBrush}"
-                            BorderThickness="0,1,0,0"/>
-
-                    <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="6" Margin="0,4,0,4">
-                        <TextBlock Text="🏢" FontFamily="Segoe UI Emoji" FontSize="14" VerticalAlignment="Center"/>
-                        <TextBlock Text="Sites AD" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource AppTreeFgBrush}"/>
-                        <Border Background="#1A3A8F" CornerRadius="3" Padding="5,1" VerticalAlignment="Center"
-                                IsVisible="{Binding #MainWindowRoot.DataContext.SitesTopology, Converter={x:Static ObjectConverters.IsNotNull}}">
-                            <TextBlock Text="{Binding #MainWindowRoot.DataContext.SiteRootNodes.Count}"
-                                       Foreground="#7FA8FF" FontSize="10" FontWeight="SemiBold"/>
-                        </Border>
-                    </StackPanel>
-
-                    <TreeView Grid.Row="5"
-                              ItemsSource="{Binding #MainWindowRoot.DataContext.SiteRootNodes}">
-                        <TreeView.ItemTemplate>
-                            <TreeDataTemplate x:DataType="vm:SiteTreeNode"
-                                              ItemsSource="{Binding Children}">
-                                <StackPanel Orientation="Horizontal" Spacing="5">
-                                    <TextBlock Text="{Binding Icon}" FontFamily="Segoe UI Emoji"
-                                               FontSize="14" VerticalAlignment="Center"
-                                               IsVisible="{Binding Icon, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                                    <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </TreeDataTemplate>
-                        </TreeView.ItemTemplate>
-                    </TreeView>
+                    <Expander Grid.Row="3" Margin="0,6,0,0"
+                              IsExpanded="True"
+                              IsVisible="{Binding #MainWindowRoot.DataContext.SitesTopology, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="🏢" FontFamily="Segoe UI Emoji" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Sites AD" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource AppTreeFgBrush}"/>
+                                <Border Background="#1A3A8F" CornerRadius="3" Padding="5,1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding #MainWindowRoot.DataContext.SiteRootNodes.Count}"
+                                               Foreground="#7FA8FF" FontSize="10" FontWeight="SemiBold"/>
+                                </Border>
+                            </StackPanel>
+                        </Expander.Header>
+                        <TreeView ItemsSource="{Binding #MainWindowRoot.DataContext.SiteRootNodes}">
+                            <TreeView.ItemTemplate>
+                                <TreeDataTemplate x:DataType="vm:SiteTreeNode"
+                                                  ItemsSource="{Binding Children}">
+                                    <StackPanel Orientation="Horizontal" Spacing="5">
+                                        <TextBlock Text="{Binding Icon}" FontFamily="Segoe UI Emoji"
+                                                   FontSize="14" VerticalAlignment="Center"
+                                                   IsVisible="{Binding Icon, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                        <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </TreeDataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+                    </Expander>
 
                 </Grid>
             </Border>

@@ -173,6 +173,7 @@ namespace SMADX.ViewModels
             if (SitesTopology == null) return;
             foreach (var site in SitesTopology.Sites)
                 SiteRootNodes.Add(new SiteTreeNode(site));
+            UpdateObjectCounts();
         }
 
         /// <summary>
@@ -880,6 +881,10 @@ namespace SMADX.ViewModels
 
             var counts = RootNodes[0].Data.CountObjectsByType();
             var summary = string.Join(" | ", counts.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
+
+            if (SitesTopology != null && SitesTopology.Sites.Count > 0)
+                summary += $" | 🏢 Sites: {SitesTopology.Sites.Count}";
+
             ObjectCountsSummary = summary;
         }
 
