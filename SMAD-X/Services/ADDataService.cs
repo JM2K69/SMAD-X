@@ -18,8 +18,79 @@ namespace SMADX.Services
             Converters = { new JsonStringEnumConverter() }
         };
 
+        // ── Format v2 (ADRootDocument) ────────────────────────────────────────
+
         /// <summary>
-        /// Sauvegarde la structure AD dans un fichier JSON
+        /// Sauvegarde le document racine v2 (domaine + topologie de sites).
+        /// </summary>
+        public async Task<bool> SaveDocumentAsync(ADRootDocument document, string filePath)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(document, JsonOptions);
+                await File.WriteAllTextAsync(filePath, json);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la sauvegarde v2 : {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Charge un fichier .smad-x.json en détectant automatiquement le format :
+        ///   - v2 : JSON contient la clé "Version" → désérialise en ADRootDocument
+        ///   - v1 : JSON ne contient pas "Version" → désérialise en ADObject,
+        ///          encapsule dans un ADRootDocument { Version=1, SitesTopology=null }
+        /// </summary>
+        public async Task<ADRootDocument?> LoadDocumentAsync(string filePath)
+        {
+            try
+            {
+                if (!File.Exists(filePath))
+                    return null;
+
+                var json = await File.ReadAllTextAsync(filePath);
+
+                // Détection du format : v2 si la clé "Version" est présente au premier niveau
+                using var doc = JsonDocument.Parse(json);
+                bool isV2 = doc.RootElement.TryGetProperty("Version", out _)
+                         || doc.RootElement.TryGetProperty("version", out _);
+
+                if (isV2)
+                {
+                    var document = JsonSerializer.Deserialize<ADRootDocument>(json, JsonOptions);
+                    if (document?.Domain != null)
+                        RestoreParentReferences(document.Domain, null);
+                    return document;
+                }
+                else
+                {
+                    // Fichier v1 — ADObject directement
+                    var root = JsonSerializer.Deserialize<ADObject>(json, JsonOptions);
+                    if (root == null) return null;
+                    RestoreParentReferences(root, null);
+                    return new ADRootDocument
+                    {
+                        Version = 1,
+                        Domain = root,
+                        SitesTopology = null
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement : {ex.Message}");
+                return null;
+            }
+        }
+
+        // ── Format v1 (rétro-compatibilité) — conservé pour l'export JSON simple ──
+
+        /// <summary>
+        /// Sauvegarde uniquement l'arbre AD (format v1 / JSON simple).
+        /// Utilisé par ExportToJson pour un export "plat" sans sites.
         /// </summary>
         public async Task<bool> SaveToFileAsync(ADObject root, string filePath)
         {
@@ -37,30 +108,13 @@ namespace SMADX.Services
         }
 
         /// <summary>
-        /// Charge la structure AD depuis un fichier JSON
+        /// Charge uniquement l'arbre AD (format v1 — conservé pour compatibilité).
+        /// Préférez LoadDocumentAsync qui gère les deux formats.
         /// </summary>
         public async Task<ADObject?> LoadFromFileAsync(string filePath)
         {
-            try
-            {
-                if (!File.Exists(filePath))
-                    return null;
-
-                var json = await File.ReadAllTextAsync(filePath);
-                var root = JsonSerializer.Deserialize<ADObject>(json, JsonOptions);
-
-                if (root != null)
-                {
-                    RestoreParentReferences(root, null);
-                }
-
-                return root;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur lors du chargement : {ex.Message}");
-                return null;
-            }
+            var document = await LoadDocumentAsync(filePath);
+            return document?.Domain;
         }
 
         /// <summary>
