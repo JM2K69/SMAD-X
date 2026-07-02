@@ -60,11 +60,12 @@
 							  GridLinesVisibility="Horizontal"
 							  AutoGenerateColumns="False">
 						<DataGrid.Columns>
-							<DataGridTextColumn Header="Nom"           Binding="{Binding Name}"               Width="180"/>
-							<DataGridTextColumn Header="Description"   Binding="{Binding ShortDescription}"   Width="260"/>
-							<DataGridTextColumn Header="Localisation"  Binding="{Binding Location}"           Width="200"/>
-							<DataGridTextColumn Header="Sous-réseaux"  Binding="{Binding Subnets.Count}"      Width="95"/>
-							<DataGridTextColumn Header="DCs"           Binding="{Binding DomainControllers.Count}" Width="60"/>
+							<DataGridTextColumn Header="Nom"           Binding="{Binding Name}"               Width="170"/>
+							<DataGridTextColumn Header="Description"   Binding="{Binding ShortDescription}"   Width="230"/>
+							<DataGridTextColumn Header="Localisation"  Binding="{Binding Location}"           Width="180"/>
+							<DataGridTextColumn Header="Sous-réseaux"  Binding="{Binding Subnets.Count}"      Width="85"/>
+							<DataGridTextColumn Header="DCs"           Binding="{Binding DomainControllers.Count}" Width="55"/>
+							<DataGridTextColumn Header="GPOs"          Binding="{Binding LinkedGPOs.Count}"   Width="55"/>
 						</DataGrid.Columns>
 					</DataGrid>
 
@@ -94,7 +95,7 @@
 					<!-- Detail panel for selected site -->
 					<Border Grid.Row="4" Background="#181C2E" Padding="10,6"
 							IsVisible="{Binding SelectedSite, Converter={x:Static ObjectConverters.IsNotNull}}">
-						<Grid ColumnDefinitions="Auto,12,*,12,*">
+						<Grid ColumnDefinitions="Auto,12,*,12,*,12,*">
 							<TextBlock Grid.Column="0" Text="📍 Site sélectionné :"
 									   Foreground="#888" VerticalAlignment="Top" FontSize="11"/>
 							<StackPanel Grid.Column="2" Spacing="2">
@@ -111,6 +112,17 @@
 							<StackPanel Grid.Column="4" Spacing="2">
 								<TextBlock Text="🖥  Contrôleurs de domaine" Foreground="#AACCAA" FontSize="11" FontWeight="SemiBold"/>
 								<ItemsControl ItemsSource="{Binding SelectedSite.DomainControllers}">
+									<ItemsControl.ItemTemplate>
+										<DataTemplate x:DataType="x:String">
+											<TextBlock FontSize="11" Foreground="#CCC"
+													   Text="{Binding StringFormat='• {0}'}"/>
+										</DataTemplate>
+									</ItemsControl.ItemTemplate>
+								</ItemsControl>
+							</StackPanel>
+							<StackPanel Grid.Column="6" Spacing="2">
+								<TextBlock Text="📄  GPOs liées" Foreground="#CCAA44" FontSize="11" FontWeight="SemiBold"/>
+								<ItemsControl ItemsSource="{Binding SelectedSite.LinkedGPOs}">
 									<ItemsControl.ItemTemplate>
 										<DataTemplate x:DataType="x:String">
 											<TextBlock FontSize="11" Foreground="#CCC"
@@ -196,7 +208,7 @@
 							</ItemsControl.ItemContainerTheme>
 							<ItemsControl.ItemTemplate>
 								<DataTemplate x:DataType="vm:SiteNodeViewModel">
-									<Border Width="130" Height="80"
+									<Border Width="150" Height="110"
 											CornerRadius="8"
 											Padding="6,4"
 											Background="#1E2A3A"
@@ -211,17 +223,27 @@
 													   FontWeight="Bold"
 													   HorizontalAlignment="Center"
 													   TextTrimming="CharacterEllipsis"
-													   MaxWidth="118"/>
+													   MaxWidth="138"/>
 											<TextBlock Text="{Binding SubnetsText, StringFormat='🌐 {0}'}"
 													   FontSize="9.5" Foreground="#88AACC"
 													   HorizontalAlignment="Center"
 													   TextTrimming="CharacterEllipsis"
-													   MaxWidth="118"/>
+													   MaxWidth="138"/>
 											<TextBlock Text="{Binding DomainControllersText, StringFormat='🖥 {0}'}"
 													   FontSize="9.5" Foreground="#AACCAA"
 													   HorizontalAlignment="Center"
 													   TextTrimming="CharacterEllipsis"
-													   MaxWidth="118"/>
+													   MaxWidth="138"/>
+											<TextBlock Text="{Binding LinkedSitesText, StringFormat='🔗 {0}'}"
+													   FontSize="9" Foreground="#CCAA55"
+													   HorizontalAlignment="Center"
+													   TextTrimming="CharacterEllipsis"
+													   MaxWidth="138"/>
+											<TextBlock Text="{Binding LinkedGPOsText, StringFormat='📄 {0}'}"
+													   FontSize="9" Foreground="#AA88CC"
+													   HorizontalAlignment="Center"
+													   TextTrimming="CharacterEllipsis"
+													   MaxWidth="138"/>
 										</StackPanel>
 									</Border>
 								</DataTemplate>

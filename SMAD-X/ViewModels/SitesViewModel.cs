@@ -99,7 +99,7 @@ namespace SMADX.ViewModels
             };
 
             // Node size
-            const double nodeW = 130, nodeH = 80;
+            const double nodeW = 150, nodeH = 110;
 
             var nodeMap = new System.Collections.Generic.Dictionary<string, SiteNodeViewModel>(StringComparer.OrdinalIgnoreCase);
 
@@ -122,9 +122,32 @@ namespace SMADX.ViewModels
                                             : "—",
                     Location          = site.Location,
                     IsDefault         = site.Name.Equals("Default-First-Site-Name", StringComparison.OrdinalIgnoreCase),
+                    LinkedGPOsText    = site.LinkedGPOs.Count > 0
+                                            ? string.Join(", ", site.LinkedGPOs)
+                                            : "—",
                 };
                 GraphNodes.Add(node);
                 nodeMap[node.Name] = node;
+            }
+
+            // Second pass: resolve linked site names per node from site links
+            foreach (var link in _topology.SiteLinks)
+            {
+                foreach (var siteName in link.SiteNames)
+                {
+                    if (!nodeMap.TryGetValue(siteName, out var selfNode)) continue;
+                    var others = link.SiteNames
+                        .Where(n => !n.Equals(siteName, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    if (others.Count == 0) continue;
+                    var combined = string.IsNullOrEmpty(selfNode.LinkedSitesText) || selfNode.LinkedSitesText == "—"
+                        ? string.Join(", ", others)
+                        : selfNode.LinkedSitesText + ", " + string.Join(", ", others);
+                    // deduplicate
+                    selfNode.LinkedSitesText = string.Join(", ",
+                        combined.Split(", ", StringSplitOptions.RemoveEmptyEntries)
+                               .Distinct(StringComparer.OrdinalIgnoreCase));
+                }
             }
 
             foreach (var link in _topology.SiteLinks)
@@ -192,12 +215,14 @@ namespace SMADX.ViewModels
         public string DomainControllersText   { get; set; } = string.Empty;
         public string Location                { get; set; } = string.Empty;
         public bool   IsDefault               { get; set; }
+        public string LinkedSitesText         { get; set; } = "—";
+        public string LinkedGPOsText          { get; set; } = "—";
 
         public IBrush NodeBorderBrush => IsDefault
             ? new SolidColorBrush(Color.Parse("#E3A21A"))
             : new SolidColorBrush(Color.Parse("#0078D4"));
 
-        public string Label => $"{Name}\n🌐 {SubnetsText}\n🖥 {DomainControllersText}";
+        public string Label => $"{Name}\n🌐 {SubnetsText}\n🖥 {DomainControllersText}\n🔗 {LinkedSitesText}\n📄 GPO: {LinkedGPOsText}";
     }
 
     public class SiteLinkLineViewModel

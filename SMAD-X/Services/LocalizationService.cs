@@ -1274,6 +1274,9 @@ Site Active Directory hébergeant le contrôleur de domaine de **Lyon**, connect
 - Vérifier régulièrement l'état de la réplication : `Get-ADReplicationPartnerMetadata -Target DC03 -Scope Server`
 - Surveiller les erreurs de réplication (Event IDs 1311, 1388, 1645)",
 
+                ["Desc.Sample.GPO.DefaultSite"] = "GPO-Baseline-DC — Baseline de sécurité des contrôleurs de domaine (audit, droits locaux, pare-feu)",
+                ["Desc.Sample.GPO.Paris"]      = "GPO-Paris-Workstations — Configuration postes de travail du site Paris (déploiement logiciels, mappages lecteurs)",
+                ["Desc.Sample.GPO.Lyon"]       = "GPO-Lyon-Workstations — Configuration postes de travail du site Lyon (déploiement logiciels, mappage imprimantes)",
                 ["Desc.Sample.DefaultSite"] = "Site Active Directory créé automatiquement lors de la première installation. Contient initialement tous les contrôleurs de domaine avant configuration manuelle des sites.",
                 ["Desc.Sample.SubnetDefault"] = "Sous-réseau de gestion interne — Default-First-Site-Name",
                 ["Desc.Sample.SubnetParis"] = "Sous-réseau 10.0.1.0/24 — Site Paris (Datacenter Principal)",
@@ -2647,6 +2650,9 @@ Active Directory site hosting the **Lyon** domain controller, connected to Paris
 - Regularly check replication status: `Get-ADReplicationPartnerMetadata -Target DC03 -Scope Server`
 - Monitor replication errors (Event IDs 1311, 1388, 1645)",
 
+                ["Desc.Sample.GPO.DefaultSite"] = "GPO-Baseline-DC — Domain Controller security baseline (auditing, local rights, firewall)",
+                ["Desc.Sample.GPO.Paris"]      = "GPO-Paris-Workstations — Paris site workstation policy (software deployment, drive mappings)",
+                ["Desc.Sample.GPO.Lyon"]       = "GPO-Lyon-Workstations — Lyon site workstation policy (software deployment, printer mappings)",
                 ["Desc.Sample.DefaultSite"] = "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration.",
                 ["Desc.Sample.SubnetDefault"] = "Management subnet — Default-First-Site-Name",
                 ["Desc.Sample.SubnetParis"] = "Subnet 10.0.1.0/24 — Site Paris (Main Datacenter)",

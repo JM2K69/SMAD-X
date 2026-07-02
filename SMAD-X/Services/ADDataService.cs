@@ -899,6 +899,7 @@ namespace SMADX.Services
             {
                 Description = loc["Desc.Sample.DC01"],
                 Tier = "Tier 0",
+                SiteName = "Default-First-Site-Name",
                 Parent = domainControllersOU
             };
             domainControllersOU.Children.Add(dc01);
@@ -907,6 +908,7 @@ namespace SMADX.Services
             {
                 Description = loc["Desc.Sample.DC02"],
                 Tier = "Tier 0",
+                SiteName = "Site-Paris",
                 Parent = domainControllersOU
             };
             domainControllersOU.Children.Add(dc02);
@@ -915,6 +917,7 @@ namespace SMADX.Services
             {
                 Description = loc["Desc.Sample.DC03"],
                 Tier = "Tier 0",
+                SiteName = "Site-Lyon",
                 Parent = domainControllersOU
             };
             domainControllersOU.Children.Add(dc03);
@@ -1131,6 +1134,7 @@ namespace SMADX.Services
                 Location    = "Default DC"
             });
             siteDefault.DomainControllers.Add("DC01.contoso.com");
+            siteDefault.LinkedGPOs.Add("GPO-Baseline-DC");
 
             // ── Site Paris ───────────────────────────────────────────────────
             var siteParis = new ADSite
@@ -1147,6 +1151,7 @@ namespace SMADX.Services
                 Location    = "Paris DC"
             });
             siteParis.DomainControllers.Add("DC02.contoso.com");
+            siteParis.LinkedGPOs.Add("GPO-Paris-Workstations");
 
             // ── Site Lyon ────────────────────────────────────────────────────
             var siteLyon = new ADSite
@@ -1163,6 +1168,7 @@ namespace SMADX.Services
                 Location    = "Lyon DC"
             });
             siteLyon.DomainControllers.Add("DC03.contoso.com");
+            siteLyon.LinkedGPOs.Add("GPO-Lyon-Workstations");
 
             topology.Sites.Add(siteDefault);
             topology.Sites.Add(siteParis);

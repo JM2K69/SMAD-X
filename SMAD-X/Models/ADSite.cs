@@ -28,6 +28,9 @@ namespace SMADX.Models
         /// <summary>Noms DNS des contrôleurs de domaine présents dans ce site.</summary>
         public ObservableCollection<string> DomainControllers { get; set; } = new();
 
+        /// <summary>Noms des GPO liées à ce site (CN dans CN=Policies,CN=System).</summary>
+        public ObservableCollection<string> LinkedGPOs { get; set; } = new();
+
         /// <summary>Niveau de tier hérité du contexte (optionnel).</summary>
         public string? Tier { get; set; }
 
