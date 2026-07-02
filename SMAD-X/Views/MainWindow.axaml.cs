@@ -6,7 +6,9 @@ using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using SMADX.ViewModels;
 using SMADX.Services;
+using SMADX.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace SMADX.Views
@@ -253,6 +255,66 @@ namespace SMADX.Views
 
             using var fs = File.Create(file.Path.LocalPath);
             bitmap.Save(fs);
+        }
+
+        private async void OnSitesClick(object? sender, RoutedEventArgs e)
+        {
+            var topology = (DataContext as MainWindowViewModel)?.SitesTopology;
+            var w = topology is not null
+                ? new SitesWindow(topology)
+                : new SitesWindow();
+            await w.ShowDialog(this);
+        }
+
+        private async void OnExportReportClick(object? sender, RoutedEventArgs e)
+        {
+            var vm = DataContext as MainWindowViewModel;
+            if (vm?.RootObject is null)
+            {
+                vm?.StatusMessage.Equals(""); // no-op guard
+                return;
+            }
+
+            var loc  = LocalizationService.Instance;
+            var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = loc["Report.Dialog.Title"],
+                FileTypeChoices = new List<FilePickerFileType>
+                {
+                    new(loc["FileType.Markdown"]) { Patterns = new[] { "*.md" } },
+                    new(loc["FileType.Word"])     { Patterns = new[] { "*.docx" } },
+                    new(loc["FileType.Pdf"])      { Patterns = new[] { "*.pdf" } },
+                },
+                SuggestedFileName = "rapport-ad",
+                DefaultExtension  = "md"
+            });
+
+            if (file is null) return;
+
+            var path      = file.Path.LocalPath;
+            var reportSvc = new ADDocumentReportService();
+            var doc = new ADRootDocument
+            {
+                Version       = 2,
+                Domain        = vm.RootObject,
+                SitesTopology = vm.SitesTopology
+            };
+
+            bool ok = false;
+            var ext = Path.GetExtension(path).ToLowerInvariant();
+            if (ext == ".md")
+                ok = await reportSvc.ExportMarkdownAsync(doc, path);
+            else if (ext == ".docx")
+                ok = await reportSvc.ExportDocxAsync(doc, path);
+            else if (ext == ".pdf")
+                ok = await reportSvc.ExportPdfAsync(doc, path);
+            else
+                ok = await reportSvc.ExportMarkdownAsync(doc, path);
+
+            if (ok)
+                vm.StatusMessage = string.Format(loc["Report.Success"], path);
+            else
+                vm.StatusMessage = loc["Report.Error"];
         }
     }
 }
