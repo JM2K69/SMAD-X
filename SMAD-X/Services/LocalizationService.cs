@@ -1274,14 +1274,65 @@ Site Active Directory hébergeant le contrôleur de domaine de **Lyon**, connect
 - Vérifier régulièrement l'état de la réplication : `Get-ADReplicationPartnerMetadata -Target DC03 -Scope Server`
 - Surveiller les erreurs de réplication (Event IDs 1311, 1388, 1645)",
 
-                ["Desc.Sample.GPO.DefaultSite"] = "GPO-Baseline-DC — Baseline de sécurité des contrôleurs de domaine (audit, droits locaux, pare-feu)",
-                ["Desc.Sample.GPO.Paris"]      = "GPO-Paris-Workstations — Configuration postes de travail du site Paris (déploiement logiciels, mappages lecteurs)",
-                ["Desc.Sample.GPO.Lyon"]       = "GPO-Lyon-Workstations — Configuration postes de travail du site Lyon (déploiement logiciels, mappage imprimantes)",
+                ["Desc.Sample.GPO.DefaultSite"] = @"# 📋 GPO-Baseline-DC
+
+> 🔒 GPO de sécurité appliquée au site **Default-First-Site-Name**.
+
+## Objectif
+Définir la ligne de base de sécurité pour tous les contrôleurs de domaine du site par défaut.
+
+## Paramètres principaux
+| Catégorie | Valeur |
+|---|---|
+| Audit de connexion | Succès, Échec |
+| Pare-feu Windows | Activé (tous profils) |
+| Droits locaux | Administrators uniquement |
+| SMB Signing | Requis |
+
+## ⚠️ Bonnes pratiques
+- Ne pas modifier sans validation en environnement de test
+- Compléter avec les benchmarks CIS Level 1 pour les DC",
+                ["Desc.Sample.GPO.Paris"] = @"# 📋 GPO-Paris-Workstations
+
+> 🖥️ GPO appliquée au site **Site-Paris** — postes de travail.
+
+## Objectif
+Gérer la configuration des postes de travail du datacenter Paris : déploiements logiciels, mappages de lecteurs réseau et imprimantes.
+
+## Paramètres principaux
+| Catégorie | Valeur |
+|---|---|
+| Déploiement logiciels | Office 365, VPN Client |
+| Lecteurs réseau | P: → \\srv-paris\partages |
+| Fond d'écran | Charte graphique Paris |
+| Imprimantes | AUTO (site-aware) |
+
+## ⚠️ Bonnes pratiques
+- Tester sur un groupe pilote avant déploiement en production
+- Utiliser les filtres WMI pour cibler Windows 10/11 uniquement",
+                ["Desc.Sample.GPO.Lyon"] = @"# 📋 GPO-Lyon-Workstations
+
+> 🖥️ GPO appliquée au site **Site-Lyon** — postes de travail.
+
+## Objectif
+Gérer la configuration des postes de travail du site Lyon : déploiements logiciels, mappages de lecteurs et imprimantes locales.
+
+## Paramètres principaux
+| Catégorie | Valeur |
+|---|---|
+| Déploiement logiciels | Office 365, VPN Client |
+| Lecteurs réseau | L: → \\srv-lyon\partages |
+| Fond d'écran | Charte graphique Lyon |
+| Imprimantes | Ricoh-Lyon-Floor1, Ricoh-Lyon-Floor2 |
+
+## ⚠️ Bonnes pratiques
+- Synchroniser avec GPO-Paris-Workstations pour les paramètres communs
+- Vérifier l'accessibilité du serveur d'impression avant déploiement",
                 ["Desc.Sample.DefaultSite"] = "Site Active Directory créé automatiquement lors de la première installation. Contient initialement tous les contrôleurs de domaine avant configuration manuelle des sites.",
                 ["Desc.Sample.SubnetDefault"] = "Sous-réseau de gestion interne — Default-First-Site-Name",
                 ["Desc.Sample.SubnetParis"] = "Sous-réseau 10.0.1.0/24 — Site Paris (Datacenter Principal)",
-                ["Desc.Sample.SubnetLyon"]  = "Sous-réseau 10.0.2.0/24 — Site Lyon (Site Secondaire)",
-                ["Desc.Sample.SiteLinkPL"]  = @"# 🔗 DEFAULTIPSITELINK — Lien Paris ↔ Lyon
+                ["Desc.Sample.SubnetLyon"] = "Sous-réseau 10.0.2.0/24 — Site Lyon (Site Secondaire)",
+                ["Desc.Sample.SiteLinkPL"] = @"# 🔗 DEFAULTIPSITELINK — Lien Paris ↔ Lyon
 
 Lien de réplication AD entre les sites **Site-Paris** et **Site-Lyon**.
 
@@ -2650,14 +2701,65 @@ Active Directory site hosting the **Lyon** domain controller, connected to Paris
 - Regularly check replication status: `Get-ADReplicationPartnerMetadata -Target DC03 -Scope Server`
 - Monitor replication errors (Event IDs 1311, 1388, 1645)",
 
-                ["Desc.Sample.GPO.DefaultSite"] = "GPO-Baseline-DC — Domain Controller security baseline (auditing, local rights, firewall)",
-                ["Desc.Sample.GPO.Paris"]      = "GPO-Paris-Workstations — Paris site workstation policy (software deployment, drive mappings)",
-                ["Desc.Sample.GPO.Lyon"]       = "GPO-Lyon-Workstations — Lyon site workstation policy (software deployment, printer mappings)",
+                ["Desc.Sample.GPO.DefaultSite"] = @"# 📋 GPO-Baseline-DC
+
+> 🔒 Security GPO applied to site **Default-First-Site-Name**.
+
+## Purpose
+Define the security baseline for all domain controllers in the default site.
+
+## Key Settings
+| Category | Value |
+|---|---|
+| Logon Audit | Success, Failure |
+| Windows Firewall | Enabled (all profiles) |
+| Local Rights | Administrators only |
+| SMB Signing | Required |
+
+## ⚠️ Best practices
+- Do not modify without validation in a test environment
+- Supplement with CIS Level 1 benchmarks for DCs",
+                ["Desc.Sample.GPO.Paris"] = @"# 📋 GPO-Paris-Workstations
+
+> 🖥️ GPO applied to site **Site-Paris** — workstations.
+
+## Purpose
+Manage workstation configuration at the Paris datacenter: software deployments, network drive mappings and printers.
+
+## Key Settings
+| Category | Value |
+|---|---|
+| Software Deployment | Office 365, VPN Client |
+| Network Drives | P: → \\srv-paris\shares |
+| Wallpaper | Paris corporate branding |
+| Printers | AUTO (site-aware) |
+
+## ⚠️ Best practices
+- Test on a pilot group before production deployment
+- Use WMI filters to target Windows 10/11 only",
+                ["Desc.Sample.GPO.Lyon"] = @"# 📋 GPO-Lyon-Workstations
+
+> 🖥️ GPO applied to site **Site-Lyon** — workstations.
+
+## Purpose
+Manage workstation configuration at the Lyon site: software deployments, drive mappings and local printers.
+
+## Key Settings
+| Category | Value |
+|---|---|
+| Software Deployment | Office 365, VPN Client |
+| Network Drives | L: → \\srv-lyon\shares |
+| Wallpaper | Lyon corporate branding |
+| Printers | Ricoh-Lyon-Floor1, Ricoh-Lyon-Floor2 |
+
+## ⚠️ Best practices
+- Synchronise shared settings with GPO-Paris-Workstations
+- Verify print server accessibility before deployment",
                 ["Desc.Sample.DefaultSite"] = "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration.",
                 ["Desc.Sample.SubnetDefault"] = "Management subnet — Default-First-Site-Name",
                 ["Desc.Sample.SubnetParis"] = "Subnet 10.0.1.0/24 — Site Paris (Main Datacenter)",
-                ["Desc.Sample.SubnetLyon"]  = "Subnet 10.0.2.0/24 — Site Lyon (Secondary Site)",
-                ["Desc.Sample.SiteLinkPL"]  = @"# 🔗 DEFAULTIPSITELINK — Link Paris ↔ Lyon
+                ["Desc.Sample.SubnetLyon"] = "Subnet 10.0.2.0/24 — Site Lyon (Secondary Site)",
+                ["Desc.Sample.SiteLinkPL"] = @"# 🔗 DEFAULTIPSITELINK — Link Paris ↔ Lyon
 
 AD replication link between sites **Site-Paris** and **Site-Lyon**.
 

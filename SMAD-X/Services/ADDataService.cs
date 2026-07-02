@@ -480,6 +480,33 @@ namespace SMADX.Services
             };
             policiesContainer.Children.Add(defaultDCPolicy);
 
+            // GPO 3 : GPO-Baseline-DC — Baseline sécurité site par défaut
+            var gpoBaselineDC = new ADObject("GPO-Baseline-DC", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.DefaultSite"],
+                Tier = GetTier("Tier 0"),
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoBaselineDC);
+
+            // GPO 4 : GPO-Paris-Workstations — Postes de travail Site-Paris
+            var gpoParis = new ADObject("GPO-Paris-Workstations", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.Paris"],
+                Tier = GetTier("Tier 1"),
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoParis);
+
+            // GPO 5 : GPO-Lyon-Workstations — Postes de travail Site-Lyon
+            var gpoLyon = new ADObject("GPO-Lyon-Workstations", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.Lyon"],
+                Tier = GetTier("Tier 1"),
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoLyon);
+
             // Lier les GPOs aux OUs correspondantes
             domain.LinkedGPOs.Add("Default Domain Policy");
             domainControllersOU.LinkedGPOs.Add("Default Domain Controllers Policy");
@@ -988,6 +1015,30 @@ namespace SMADX.Services
                 Parent = policiesContainer
             };
             policiesContainer.Children.Add(defaultDCPolicy);
+
+            var gpoBaselineDCSample = new ADObject("GPO-Baseline-DC", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.DefaultSite"],
+                Tier = "Tier 0",
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoBaselineDCSample);
+
+            var gpoParisSample = new ADObject("GPO-Paris-Workstations", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.Paris"],
+                Tier = "Tier 1",
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoParisSample);
+
+            var gpoLyonSample = new ADObject("GPO-Lyon-Workstations", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.Lyon"],
+                Tier = "Tier 1",
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoLyonSample);
 
             // ── Relations GPO ────────────────────────────────────────────────
             // Default Domain Policy → domaine entier
