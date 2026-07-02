@@ -1179,6 +1179,120 @@ Premier contrôleur de domaine du domaine contoso.com.
 - Mettre en place un **DC de secours** dans un site/VLAN séparé
 - Inclure dans un plan de **Disaster Recovery** avec sauvegardes System State testées",
 
+                ["Desc.Sample.DC02"] = @"# 🖧 DC02 — Contrôleur de domaine secondaire — Site Paris (Tier 0)
+
+Contrôleur de domaine secondaire hébergé dans le site **Site-Paris** (10.0.1.0/24).
+
+## Rôle
+- Assure la **réplication AD** depuis DC01 au sein du même site
+- Prend en charge les authentifications en cas d'indisponibilité de DC01
+- Héberge une réplique complète du **catalogue global** pour la forêt
+- Idéal pour la **distribution de charge Kerberos** sur le site principal
+
+## Rôles FSMO
+- Aucun rôle FSMO principal (DC secondaire)
+- Peut être promu en cas de défaillance de DC01 via `Move-ADDirectoryServerOperationMasterRole`
+
+## Infrastructure réseau
+- Adresse IP : 10.0.1.2/24
+- Site AD : **Site-Paris**
+- Réplication intra-site : immédiate (< 15 secondes)
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Infrastructure AD critique**
+
+- Isolé dans le même VLAN sécurisé que DC01 (VLAN Tier 0)
+- Surveillance identique à DC01 (Event IDs 4624, 4662, 4769, 4776)
+- Inclus dans les sauvegardes System State planifiées",
+
+                ["Desc.Sample.DC03"] = @"# 🖧 DC03 — Contrôleur de domaine — Site Lyon (Tier 0)
+
+Contrôleur de domaine secondaire hébergé dans le site **Site-Lyon** (10.0.2.0/24).
+
+## Rôle
+- Authentification locale des utilisateurs du site de Lyon (**réduction de la latence WAN**)
+- Maintient une réplique locale complète de l'annuaire AD
+- Évite les flux d'authentification inter-sites coûteux
+- Point de continuité en cas de coupure WAN avec Paris
+
+## Rôles FSMO
+- Aucun rôle FSMO (peut être désigné PDC Emulator de secours)
+
+## Infrastructure réseau
+- Adresse IP : 10.0.2.1/24
+- Site AD : **Site-Lyon**
+- Réplication inter-site : **DEFAULTIPSITELINK** — coût 100, intervalle 15 min
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Infrastructure AD critique**
+
+- Sécuriser physiquement la salle serveur de Lyon (accès badge, vidéosurveillance)
+- Appliquer BitLocker sur les volumes du DC pour protéger les données AD en cas de vol physique
+- Trafic de réplication chiffré (Kerberos + RPC/SChannel)
+- Surveiller les Event ID 4741 (création compte machine) et 4743 (suppression)",
+
+                ["Desc.Sample.SiteParis"] = @"# 🏙 Site-Paris — Datacenter Principal
+
+Site Active Directory hébergeant les serveurs principaux du domaine **contoso.com**.
+
+## Périmètre réseau
+| Réseau | VLAN | Usage |
+|--------|------|-------|
+| 10.0.1.0/24 | 10 | Serveurs AD / Infrastructure |
+
+## Contrôleurs de domaine
+- **DC01** — PDC Emulator, RID Master, Schema Master, Domain Naming Master, Infrastructure Master
+- **DC02** — DC secondaire, Catalogue Global
+
+## Rôle dans la topologie
+- Site **principal** et **hub de réplication** pour tous les sites de la forêt
+- Héberge les rôles FSMO critiques sur DC01
+- Réplication intra-site immédiate entre DC01 et DC02
+
+## ⚠️ Bonnes pratiques
+- Au moins 2 DCs par site pour la haute disponibilité
+- Éviter de placer toute l'infrastructure Tier 0 dans un unique datacenter",
+
+                ["Desc.Sample.SiteLyon"] = @"# 🏙 Site-Lyon — Site Secondaire
+
+Site Active Directory hébergeant le contrôleur de domaine de **Lyon**, connecté à Paris via un lien WAN.
+
+## Périmètre réseau
+| Réseau | VLAN | Usage |
+|--------|------|-------|
+| 10.0.2.0/24 | 20 | Serveurs AD / Infrastructure |
+
+## Contrôleurs de domaine
+- **DC03** — DC secondaire, Catalogue Global local
+
+## Rôle dans la topologie
+- Site **secondaire** connecté à Site-Paris via **DEFAULTIPSITELINK** (coût 100)
+- Réduit la latence d'authentification pour les utilisateurs lyonnais
+- Assure la continuité en cas de panne du lien WAN Paris–Lyon (authentification locale)
+
+## ⚠️ Bonnes pratiques
+- Vérifier régulièrement l'état de la réplication : `Get-ADReplicationPartnerMetadata -Target DC03 -Scope Server`
+- Surveiller les erreurs de réplication (Event IDs 1311, 1388, 1645)",
+
+                ["Desc.Sample.SubnetParis"] = "Sous-réseau 10.0.1.0/24 — Site Paris (Datacenter Principal)",
+                ["Desc.Sample.SubnetLyon"]  = "Sous-réseau 10.0.2.0/24 — Site Lyon (Site Secondaire)",
+                ["Desc.Sample.SiteLinkPL"]  = @"# 🔗 DEFAULTIPSITELINK — Lien Paris ↔ Lyon
+
+Lien de réplication AD entre les sites **Site-Paris** et **Site-Lyon**.
+
+## Paramètres
+| Paramètre | Valeur |
+|-----------|--------|
+| Transport | IP (RPC/IP) |
+| Coût | 100 |
+| Intervalle | 15 minutes |
+| Planification | Toujours disponible |
+
+## ⚠️ Bonnes pratiques
+- Ajuster l'intervalle de réplication selon la bande passante WAN disponible
+- En cas de liaison WAN < 512 Kbps, envisager SMTP comme transport alternatif
+- Utiliser `repadmin /showrepl` pour diagnostiquer les retards de réplication",
+
                 ["Desc.Sample.GMSA"] = @"# 🔐 svc-webapp — Group Managed Service Account (Tier 1)
 
 Compte de service géré de groupe pour l'application web de l'organisation.
@@ -2435,6 +2549,120 @@ First domain controller of the contoso.com domain.
 - Monitor critical Event IDs: 4662 (AD object access), 4769 (Kerberos ticket), 4776 (NTLM)
 - Set up a **standby DC** in a separate site/VLAN
 - Include in a **Disaster Recovery plan** with tested System State backups",
+
+                ["Desc.Sample.DC02"] = @"# 🖧 DC02 — Secondary Domain Controller — Site Paris (Tier 0)
+
+Secondary domain controller hosted in the **Site-Paris** site (10.0.1.0/24).
+
+## Role
+- Ensures **AD replication** from DC01 within the same site
+- Handles authentications if DC01 becomes unavailable
+- Hosts a full replica of the **Global Catalog** for the forest
+- Ideal for **Kerberos load distribution** on the main site
+
+## FSMO Roles
+- No primary FSMO roles (secondary DC)
+- Can be promoted if DC01 fails via `Move-ADDirectoryServerOperationMasterRole`
+
+## Network infrastructure
+- IP address: 10.0.1.2/24
+- AD Site: **Site-Paris**
+- Intra-site replication: immediate (< 15 seconds)
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Critical AD infrastructure**
+
+- Isolated in the same secure VLAN as DC01 (Tier 0 VLAN)
+- Same monitoring as DC01 (Event IDs 4624, 4662, 4769, 4776)
+- Included in scheduled System State backups",
+
+                ["Desc.Sample.DC03"] = @"# 🖧 DC03 — Domain Controller — Site Lyon (Tier 0)
+
+Secondary domain controller hosted in the **Site-Lyon** site (10.0.2.0/24).
+
+## Role
+- Local authentication for Lyon site users (**reduces WAN latency**)
+- Maintains a full local replica of the AD directory
+- Avoids costly cross-site authentication traffic
+- Continuity point in case of WAN outage with Paris
+
+## FSMO Roles
+- No FSMO roles (can be designated backup PDC Emulator)
+
+## Network infrastructure
+- IP address: 10.0.2.1/24
+- AD Site: **Site-Lyon**
+- Cross-site replication: **DEFAULTIPSITELINK** — cost 100, interval 15 min
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Critical AD infrastructure**
+
+- Physically secure the Lyon server room (badge access, CCTV)
+- Apply BitLocker to DC volumes to protect AD data in case of physical theft
+- Replication traffic is encrypted (Kerberos + RPC/SChannel)
+- Monitor Event IDs 4741 (machine account creation) and 4743 (deletion)",
+
+                ["Desc.Sample.SiteParis"] = @"# 🏙 Site-Paris — Main Datacenter
+
+Active Directory site hosting the main servers of the **contoso.com** domain.
+
+## Network scope
+| Network | VLAN | Usage |
+|---------|------|-------|
+| 10.0.1.0/24 | 10 | AD / Infrastructure servers |
+
+## Domain Controllers
+- **DC01** — PDC Emulator, RID Master, Schema Master, Domain Naming Master, Infrastructure Master
+- **DC02** — Secondary DC, Global Catalog
+
+## Role in topology
+- **Primary site** and **replication hub** for all forest sites
+- Hosts critical FSMO roles on DC01
+- Immediate intra-site replication between DC01 and DC02
+
+## ⚠️ Best practices
+- At least 2 DCs per site for high availability
+- Avoid placing all Tier 0 infrastructure in a single datacenter",
+
+                ["Desc.Sample.SiteLyon"] = @"# 🏙 Site-Lyon — Secondary Site
+
+Active Directory site hosting the **Lyon** domain controller, connected to Paris via a WAN link.
+
+## Network scope
+| Network | VLAN | Usage |
+|---------|------|-------|
+| 10.0.2.0/24 | 20 | AD / Infrastructure servers |
+
+## Domain Controllers
+- **DC03** — Secondary DC, local Global Catalog
+
+## Role in topology
+- **Secondary site** connected to Site-Paris via **DEFAULTIPSITELINK** (cost 100)
+- Reduces authentication latency for Lyon users
+- Ensures continuity in case of Paris–Lyon WAN failure (local authentication)
+
+## ⚠️ Best practices
+- Regularly check replication status: `Get-ADReplicationPartnerMetadata -Target DC03 -Scope Server`
+- Monitor replication errors (Event IDs 1311, 1388, 1645)",
+
+                ["Desc.Sample.SubnetParis"] = "Subnet 10.0.1.0/24 — Site Paris (Main Datacenter)",
+                ["Desc.Sample.SubnetLyon"]  = "Subnet 10.0.2.0/24 — Site Lyon (Secondary Site)",
+                ["Desc.Sample.SiteLinkPL"]  = @"# 🔗 DEFAULTIPSITELINK — Link Paris ↔ Lyon
+
+AD replication link between sites **Site-Paris** and **Site-Lyon**.
+
+## Parameters
+| Parameter | Value |
+|-----------|-------|
+| Transport | IP (RPC/IP) |
+| Cost | 100 |
+| Interval | 15 minutes |
+| Schedule | Always available |
+
+## ⚠️ Best practices
+- Adjust replication interval based on available WAN bandwidth
+- For WAN links < 512 Kbps, consider SMTP as an alternative transport
+- Use `repadmin /showrepl` to diagnose replication delays",
 
                 ["Desc.Sample.GMSA"] = @"# 🔐 svc-webapp — Group Managed Service Account (Tier 1)
 

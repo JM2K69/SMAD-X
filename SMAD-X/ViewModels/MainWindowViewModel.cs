@@ -312,7 +312,12 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void InitializeSampleData()
         {
-            var root = _dataService.CreateSampleStructure();
+            var root     = _dataService.CreateSampleStructure();
+            var topology = _dataService.CreateSampleTopology();
+
+            _currentDocument = new ADRootDocument { Version = 2, Domain = root, SitesTopology = topology };
+            SitesTopology    = topology;
+
             var rootNode = new ADTreeNode(root) { IsExpanded = true };
             ExpandDefaultDomainNodes(rootNode);
             RootNodes.Clear();

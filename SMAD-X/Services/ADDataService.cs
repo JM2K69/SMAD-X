@@ -903,6 +903,22 @@ namespace SMADX.Services
             };
             domainControllersOU.Children.Add(dc01);
 
+            var dc02 = new ADObject("DC02", ADObjectType.Computer)
+            {
+                Description = loc["Desc.Sample.DC02"],
+                Tier = "Tier 0",
+                Parent = domainControllersOU
+            };
+            domainControllersOU.Children.Add(dc02);
+
+            var dc03 = new ADObject("DC03", ADObjectType.Computer)
+            {
+                Description = loc["Desc.Sample.DC03"],
+                Tier = "Tier 0",
+                Parent = domainControllersOU
+            };
+            domainControllersOU.Children.Add(dc03);
+
             // GMSA
             var gmsa = new ADObject("svc-webapp", ADObjectType.GMSA)
             {
@@ -1086,6 +1102,70 @@ namespace SMADX.Services
             });
 
             return domain;
+        }
+
+        /// <summary>
+        /// Crée la topologie de sites AD de démonstration :
+        ///   - Site Paris  (10.0.1.0/24) — DC01, DC02 (PDC Emulator + RID Master)
+        ///   - Site Lyon   (10.0.2.0/24) — DC03 (site secondaire)
+        ///   - Lien Paris-Lyon (coût 100, intervalle 15 min)
+        /// </summary>
+        public ADSitesTopology CreateSampleTopology()
+        {
+            var loc = LocalizationService.Instance;
+
+            var topology = new ADSitesTopology();
+
+            // ── Site Paris ───────────────────────────────────────────────────
+            var siteParis = new ADSite
+            {
+                Name        = "Site-Paris",
+                Description = loc["Desc.Sample.SiteParis"],
+                Location    = "Paris, France — Datacenter Principal",
+            };
+            siteParis.Subnets.Add(new ADSubnet
+            {
+                Cidr        = "10.0.1.0/24",
+                SiteName    = "Site-Paris",
+                Description = loc["Desc.Sample.SubnetParis"],
+                Location    = "Paris DC"
+            });
+            siteParis.DomainControllers.Add("DC01.contoso.com");
+            siteParis.DomainControllers.Add("DC02.contoso.com");
+
+            // ── Site Lyon ────────────────────────────────────────────────────
+            var siteLyon = new ADSite
+            {
+                Name        = "Site-Lyon",
+                Description = loc["Desc.Sample.SiteLyon"],
+                Location    = "Lyon, France — Site Secondaire",
+            };
+            siteLyon.Subnets.Add(new ADSubnet
+            {
+                Cidr        = "10.0.2.0/24",
+                SiteName    = "Site-Lyon",
+                Description = loc["Desc.Sample.SubnetLyon"],
+                Location    = "Lyon DC"
+            });
+            siteLyon.DomainControllers.Add("DC03.contoso.com");
+
+            topology.Sites.Add(siteParis);
+            topology.Sites.Add(siteLyon);
+
+            // ── Lien Paris ↔ Lyon ────────────────────────────────────────────
+            topology.SiteLinks.Add(new ADSiteLink
+            {
+                Name                       = "DEFAULTIPSITELINK",
+                Transport                  = "IP",
+                Cost                       = 100,
+                ReplicationIntervalMinutes = 15,
+                ReplicationSchedule        = "Always",
+                BridgeheadAuto             = true,
+                Description                = loc["Desc.Sample.SiteLinkPL"],
+                SiteNames                  = { "Site-Paris", "Site-Lyon" }
+            });
+
+            return topology;
         }
 
         private void UpdateDistinguishedNamesRecursive(ADObject obj)
