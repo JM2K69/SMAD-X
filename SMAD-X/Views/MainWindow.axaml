@@ -373,19 +373,23 @@
                                 </Border>
                             </StackPanel>
                         </Expander.Header>
-                        <TreeView ItemsSource="{Binding #MainWindowRoot.DataContext.SiteRootNodes}">
-                            <TreeView.ItemTemplate>
-                                <TreeDataTemplate x:DataType="vm:SiteTreeNode"
-                                                  ItemsSource="{Binding Children}">
-                                    <StackPanel Orientation="Horizontal" Spacing="5">
-                                        <TextBlock Text="{Binding Icon}" FontFamily="Segoe UI Emoji"
-                                                   FontSize="14" VerticalAlignment="Center"
-                                                   IsVisible="{Binding Icon, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                                        <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </TreeDataTemplate>
-                            </TreeView.ItemTemplate>
-                        </TreeView>
+                        <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <TreeView ItemsSource="{Binding #MainWindowRoot.DataContext.SiteRootNodes}"
+                                      HorizontalAlignment="Stretch">
+                                <TreeView.ItemTemplate>
+                                    <TreeDataTemplate x:DataType="vm:SiteTreeNode"
+                                                      ItemsSource="{Binding Children}">
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                            <TextBlock Text="{Binding Icon}" FontFamily="Segoe UI Emoji"
+                                                       FontSize="14" VerticalAlignment="Center"
+                                                       IsVisible="{Binding Icon, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                            <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </TreeDataTemplate>
+                                </TreeView.ItemTemplate>
+                            </TreeView>
+                        </ScrollViewer>
                     </Expander>
 
                 </Grid>
