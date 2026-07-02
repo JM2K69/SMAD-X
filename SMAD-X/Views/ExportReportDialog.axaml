@@ -86,8 +86,8 @@
 
 				</StackPanel>
 
-				<!-- Format (combined only – individual is always .md) -->
-				<StackPanel x:Name="FormatPanel" Spacing="6">
+				<!-- Format – always visible, MD always checked -->
+				<StackPanel Spacing="6">
 					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportFormatLabel}"
 							   FontWeight="SemiBold"/>
 					<StackPanel Orientation="Horizontal" Spacing="16">

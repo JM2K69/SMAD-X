@@ -100,6 +100,74 @@ namespace SMADX.Services
             }
         }
 
+        // ── Single-element DOCX export ───────────────────────────────────────
+
+        public Task<bool> ExportSingleElementDocxAsync(string name, string typeLabel, string? description, string filePath)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+                using var word = WordDocument.Create(filePath);
+                var title = word.AddParagraph($"{name}  [{typeLabel}]");
+                title.Style = WordParagraphStyles.Heading1;
+                if (!string.IsNullOrWhiteSpace(description))
+                {
+                    var h2 = word.AddParagraph("Documentation");
+                    h2.Style = WordParagraphStyles.Heading2;
+                    foreach (var line in description.Split('\n'))
+                    {
+                        var stripped = StripMarkdownLine(line);
+                        if (stripped is not null)
+                            word.AddParagraph(stripped);
+                    }
+                }
+                word.Save();
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Single element DOCX export error: {ex.Message}");
+                return Task.FromResult(false);
+            }
+        }
+
+        // ── Single-element PDF export ────────────────────────────────────────
+
+        public Task<bool> ExportSingleElementPdfAsync(string name, string typeLabel, string? description, string filePath)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+                var doc = QuestPDF.Fluent.Document.Create(c =>
+                {
+                    c.Page(p =>
+                    {
+                        p.Margin(40);
+                        p.Content().Column(col =>
+                        {
+                            col.Item().Text($"{name}  [{typeLabel}]")
+                               .FontSize(20).Bold();
+                            col.Item().PaddingTop(10);
+                            if (!string.IsNullOrWhiteSpace(description))
+                            {
+                                col.Item().Text("Documentation").FontSize(14).Bold();
+                                col.Item().PaddingTop(6);
+                                foreach (var block in StripMarkdownBlock(description))
+                                    col.Item().Text(block).FontSize(11);
+                            }
+                        });
+                    });
+                });
+                doc.GeneratePdf(filePath);
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Single element PDF export error: {ex.Message}");
+                return Task.FromResult(false);
+            }
+        }
+
         // ── Single-object markdown builders ─────────────────────────────────
 
         private static void BuildSingleObjectMarkdown(ADObject obj, StringBuilder sb)

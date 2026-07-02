@@ -161,8 +161,7 @@ namespace SMADX.Views
         private void OnScopeChanged(object? sender, RoutedEventArgs e)
         {
             bool isIndividual = RadioIndividual?.IsChecked == true;
-            if (IndividualPanel  is not null) IndividualPanel.IsVisible  = isIndividual;
-            if (FormatPanel      is not null) FormatPanel.IsVisible      = !isIndividual;
+            if (IndividualPanel is not null) IndividualPanel.IsVisible = isIndividual;
         }
 
         // ── Export ───────────────────────────────────────────────────────────
@@ -221,27 +220,11 @@ namespace SMADX.Views
             var toExport = _allElements.Where(e => e.IsChecked).ToList();
             if (toExport.Count == 0) { Close(null); return; }
 
-            // Single item → save-as picker
-            if (toExport.Count == 1)
-            {
-                var element = toExport[0];
-                var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-                {
-                    Title             = _loc["Report.Dialog.Title"],
-                    SuggestedFileName = SanitizeFileName(element.DisplayName) + ".md",
-                    DefaultExtension  = "md",
-                    FileTypeChoices   = new List<FilePickerFileType>
-                    {
-                        new(_loc["FileType.Markdown"]) { Patterns = new[] { "*.md" } }
-                    }
-                });
-                if (file is null) return;
-                bool ok = await ExportElement(element, file.Path.LocalPath);
-                Close(ok ? file.Path.LocalPath : null);
-                return;
-            }
+            bool wantDocx = ChkDocx?.IsChecked == true;
+            bool wantPdf  = ChkPdf?.IsChecked  == true;
 
-            // Multiple items → folder picker
+            // Folder picker – default suggestion is the domain name
+            var domainName  = _document.Domain?.Name ?? "domain";
             var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
                 Title         = _loc["Report.Export.FolderTitle"],
@@ -249,23 +232,51 @@ namespace SMADX.Views
             });
             if (folders.Count == 0) return;
 
-            var dir   = folders[0].Path.LocalPath;
+            // Root = selected folder / domain name
+            var rootDir = Path.Combine(folders[0].Path.LocalPath, SanitizeFileName(domainName));
+
             int saved = 0;
             foreach (var element in toExport)
             {
-                var path = Path.Combine(dir, SanitizeFileName(element.DisplayName) + ".md");
-                if (await ExportElement(element, path)) saved++;
+                // Subfolder by type
+                var typeDir  = Path.Combine(rootDir, SanitizeFileName(element.TypeLabel));
+                Directory.CreateDirectory(typeDir);
+                var stem     = Path.Combine(typeDir, SanitizeFileName(element.DisplayName));
+
+                // MD – always
+                if (await ExportElementMd(element, stem + ".md")) saved++;
+
+                // DOCX – if checked
+                if (wantDocx)
+                    await _reportSvc.ExportSingleElementDocxAsync(
+                        element.DisplayName, element.TypeLabel,
+                        GetDescription(element), stem + ".docx");
+
+                // PDF – if checked
+                if (wantPdf)
+                    await _reportSvc.ExportSingleElementPdfAsync(
+                        element.DisplayName, element.TypeLabel,
+                        GetDescription(element), stem + ".pdf");
             }
-            Close(string.Format(_loc["Report.Export.MultiDone"], saved) + " " + dir);
+            Close(string.Format(_loc["Report.Export.MultiDone"], saved) + " " + rootDir);
         }
 
-        private Task<bool> ExportElement(DocumentedElement element, string path) =>
+        private Task<bool> ExportElementMd(DocumentedElement element, string path) =>
             element.Source switch
             {
                 ADObject   obj  => _reportSvc.ExportSingleObjectMarkdownAsync(obj, path),
                 ADSite     site => _reportSvc.ExportSingleSiteMarkdownAsync(site, path),
                 ADSiteLink link => _reportSvc.ExportSingleSiteLinkMarkdownAsync(link, path),
                 _               => Task.FromResult(false)
+            };
+
+        private static string? GetDescription(DocumentedElement element) =>
+            element.Source switch
+            {
+                ADObject   obj  => obj.Description,
+                ADSite     site => site.Description,
+                ADSiteLink link => link.Description,
+                _               => null
             };
 
         private void OnCancelClick(object? sender, RoutedEventArgs e) => Close(null);
