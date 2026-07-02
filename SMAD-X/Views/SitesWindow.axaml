@@ -1,0 +1,176 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:vm="using:SMADX.ViewModels"
+		xmlns:models="using:SMADX.Models"
+		x:Class="SMADX.Views.SitesWindow"
+		x:Name="SitesWindowRoot"
+		Title="Active Directory — Sites Topology"
+		Icon="/Assets/icone.ico"
+		Width="1200" Height="740"
+		WindowStartupLocation="CenterOwner"
+		CanResize="True">
+
+	<Design.DataContext>
+		<vm:SitesViewModel/>
+	</Design.DataContext>
+
+	<Grid RowDefinitions="Auto,*,Auto">
+
+		<!-- ── Top bar ────────────────────────────────────────────────────── -->
+		<Border Grid.Row="0" Background="#1E2230" Padding="12,8">
+			<DockPanel>
+				<!-- Stats -->
+				<StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="20">
+					<StackPanel HorizontalAlignment="Center">
+						<TextBlock Text="Sites" FontSize="11" Foreground="#888" HorizontalAlignment="Center"/>
+						<TextBlock Text="{Binding Sites.Count}" FontSize="22" FontWeight="Bold"
+								   Foreground="#0078D4" HorizontalAlignment="Center"/>
+					</StackPanel>
+					<StackPanel HorizontalAlignment="Center">
+						<TextBlock Text="Liens" FontSize="11" Foreground="#888" HorizontalAlignment="Center"/>
+						<TextBlock Text="{Binding SiteLinks.Count}" FontSize="22" FontWeight="Bold"
+								   Foreground="#107C10" HorizontalAlignment="Center"/>
+					</StackPanel>
+				</StackPanel>
+
+				<!-- Filter -->
+				<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+					<TextBlock Text="🔍" FontSize="16" VerticalAlignment="Center" Foreground="#AAA"/>
+					<TextBox Width="260"
+							 PlaceholderText="Filtrer par nom ou localisation…"
+							 Text="{Binding FilterText}"
+							 Background="#2D3250" Foreground="White"
+							 BorderBrush="#444" CornerRadius="4"/>
+				</StackPanel>
+			</DockPanel>
+		</Border>
+
+		<!-- ── Tab content ───────────────────────────────────────────────── -->
+		<TabControl Grid.Row="1">
+
+			<!-- ══ TAB 1 : Table ══════════════════════════════════════════ -->
+			<TabItem Header="📋  Tableau">
+				<Grid RowDefinitions="*,8,*">
+
+					<!-- Sites DataGrid -->
+					<DataGrid Grid.Row="0"
+							  ItemsSource="{Binding Sites}"
+							  SelectedItem="{Binding SelectedSite}"
+							  IsReadOnly="True"
+							  GridLinesVisibility="Horizontal"
+							  AutoGenerateColumns="False">
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="Nom"           Binding="{Binding Name}"         Width="180"/>
+							<DataGridTextColumn Header="Description"   Binding="{Binding Description}"  Width="220"/>
+							<DataGridTextColumn Header="Localisation"  Binding="{Binding Location}"     Width="180"/>
+							<DataGridTextColumn Header="Sous-réseaux"  Binding="{Binding Subnets.Count}" Width="110"/>
+							<DataGridTextColumn Header="DCs"           Binding="{Binding DomainControllers.Count}" Width="80"/>
+						</DataGrid.Columns>
+					</DataGrid>
+
+					<GridSplitter Grid.Row="1" ResizeDirection="Rows" Height="8"
+								  HorizontalAlignment="Stretch" Background="#333"/>
+
+					<!-- Site Links DataGrid -->
+					<DataGrid Grid.Row="2"
+							  ItemsSource="{Binding SiteLinks}"
+							  SelectedItem="{Binding SelectedSiteLink}"
+							  IsReadOnly="True"
+							  GridLinesVisibility="Horizontal"
+							  AutoGenerateColumns="False">
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="Nom du lien"   Binding="{Binding Name}"             Width="180"/>
+							<DataGridTextColumn Header="Transport"     Binding="{Binding Transport}"         Width="90"/>
+							<DataGridTextColumn Header="Coût"          Binding="{Binding Cost}"              Width="70"/>
+							<DataGridTextColumn Header="Intervalle (min)" Binding="{Binding ReplicationIntervalMinutes}" Width="120"/>
+							<DataGridTextColumn Header="Description"   Binding="{Binding Description}"      Width="*"/>
+						</DataGrid.Columns>
+					</DataGrid>
+				</Grid>
+			</TabItem>
+
+			<!-- ══ TAB 2 : Graph ══════════════════════════════════════════ -->
+			<TabItem Header="🗺  Graphe">
+				<ScrollViewer HorizontalScrollBarVisibility="Auto"
+							  VerticalScrollBarVisibility="Auto">
+					<Canvas x:Name="GraphCanvas"
+							Width="900" Height="640"
+							Background="#12141A"
+							ClipToBounds="True">
+
+						<!-- Edges (lines) drawn in code-behind -->
+						<ItemsControl ItemsSource="{Binding GraphEdges}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<Canvas Width="900" Height="640"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="vm:SiteLinkLineViewModel">
+									<Line StartPoint="{Binding X1, StringFormat='{}{0}'}"
+										  EndPoint="{Binding X2, StringFormat='{}{0}'}"
+										  Stroke="#444466" StrokeThickness="2"
+										  Canvas.Left="0" Canvas.Top="0"/>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+						<!-- Nodes -->
+						<ItemsControl ItemsSource="{Binding GraphNodes}">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<Canvas Width="900" Height="640"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="vm:SiteNodeViewModel">
+									<Border Width="110" Height="44"
+											Background="#1E2A3A" BorderBrush="#0078D4"
+											BorderThickness="1.5" CornerRadius="6"
+											Canvas.Left="{Binding X}"
+											Canvas.Top="{Binding Y}">
+										<ToolTip.Tip>
+											<TextBlock Text="{Binding Label}"/>
+										</ToolTip.Tip>
+										<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+											<TextBlock Text="{Binding Name}"
+													   Foreground="White" FontSize="11"
+													   FontWeight="SemiBold"
+													   HorizontalAlignment="Center"
+													   TextTrimming="CharacterEllipsis"
+													   MaxWidth="100"/>
+											<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+												<TextBlock Text="{Binding SubnetCount, StringFormat='🌐{0}'}"
+														   FontSize="10" Foreground="#88AACC"/>
+												<TextBlock Text="{Binding DcCount, StringFormat='🖥{0}'}"
+														   FontSize="10" Foreground="#AACCAA"/>
+											</StackPanel>
+										</StackPanel>
+									</Border>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+					</Canvas>
+				</ScrollViewer>
+			</TabItem>
+
+		</TabControl>
+
+		<!-- ── Status bar ────────────────────────────────────────────────── -->
+		<Border Grid.Row="2" Background="#1A1C2E" Padding="12,4">
+			<DockPanel>
+				<TextBlock DockPanel.Dock="Left"
+						   Text="{Binding StatusText}"
+						   Foreground="#888" FontSize="12"
+						   VerticalAlignment="Center"/>
+				<TextBlock DockPanel.Dock="Right"
+						   IsVisible="{Binding !HasData}"
+						   Text="Aucun site — importez la topologie via le script PowerShell (Fichier › Générer le script d'import)"
+						   Foreground="#E3A21A" FontSize="12"
+						   VerticalAlignment="Center"/>
+			</DockPanel>
+		</Border>
+
+	</Grid>
+</Window>
