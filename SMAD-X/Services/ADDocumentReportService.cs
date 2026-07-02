@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -35,12 +36,145 @@ namespace SMADX.Services
             }
         }
 
+        // ── Single-object / single-site / single-sitelink export ─────────────
+
+        /// <summary>Export the Description markdown of a single ADObject to a .md file.</summary>
+        public async Task<bool> ExportSingleObjectMarkdownAsync(ADObject obj, string filePath)
+        {
+            try
+            {
+                var sb = new StringBuilder();
+                BuildSingleObjectMarkdown(obj, sb);
+                await File.WriteAllTextAsync(filePath, sb.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Single object MD export error: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>Export the Description markdown of a single ADSite to a .md file.</summary>
+        public async Task<bool> ExportSingleSiteMarkdownAsync(ADSite site, string filePath)
+        {
+            try
+            {
+                var sb = new StringBuilder();
+                BuildSingleSiteMarkdown(site, sb);
+                await File.WriteAllTextAsync(filePath, sb.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Single site MD export error: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>Export the Description markdown of a single ADSiteLink to a .md file.</summary>
+        public async Task<bool> ExportSingleSiteLinkMarkdownAsync(ADSiteLink link, string filePath)
+        {
+            try
+            {
+                var sb = new StringBuilder();
+                BuildSingleSiteLinkMarkdown(link, sb);
+                await File.WriteAllTextAsync(filePath, sb.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Single site-link MD export error: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>Read a markdown file and return its content (to be applied as Description).</summary>
+        public async Task<string?> ImportMarkdownAsync(string filePath)
+        {
+            try
+            {
+                return await File.ReadAllTextAsync(filePath, Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Markdown import error: {ex.Message}");
+                return null;
+            }
+        }
+
+        // ── Single-object markdown builders ─────────────────────────────────
+
+        private static void BuildSingleObjectMarkdown(ADObject obj, StringBuilder sb)
+        {
+            var icon = TypeIcon(obj.Type);
+            sb.AppendLine($"# {icon} {obj.Name}");
+            sb.AppendLine();
+            sb.AppendLine($"- **Type :** {obj.Type}");
+            sb.AppendLine($"- **DN :** `{obj.DistinguishedName}`");
+            if (!string.IsNullOrWhiteSpace(obj.Tier))
+                sb.AppendLine($"- **Tier :** {obj.Tier}");
+            if (obj.LinkedGPOs.Count > 0)
+                sb.AppendLine($"- **GPO liées :** {string.Join(", ", obj.LinkedGPOs)}");
+            sb.AppendLine();
+            if (!string.IsNullOrWhiteSpace(obj.Description))
+            {
+                sb.AppendLine("## Documentation");
+                sb.AppendLine();
+                sb.AppendLine(obj.Description);
+                sb.AppendLine();
+            }
+        }
+
+        private static void BuildSingleSiteMarkdown(ADSite site, StringBuilder sb)
+        {
+            sb.AppendLine($"# 🏢 {site.Name}");
+            sb.AppendLine();
+            sb.AppendLine($"- **Localisation :** {site.Location}");
+            if (!string.IsNullOrWhiteSpace(site.Tier))
+                sb.AppendLine($"- **Tier :** {site.Tier}");
+            if (site.Subnets.Count > 0)
+                sb.AppendLine($"- **Sous-réseaux :** {string.Join(", ", site.Subnets.Select(s => s.Cidr))}");
+            if (site.DomainControllers.Count > 0)
+                sb.AppendLine($"- **Contrôleurs de domaine :** {string.Join(", ", site.DomainControllers)}");
+            if (site.LinkedGPOs.Count > 0)
+                sb.AppendLine($"- **GPO liées :** {string.Join(", ", site.LinkedGPOs)}");
+            sb.AppendLine();
+            if (!string.IsNullOrWhiteSpace(site.Description))
+            {
+                sb.AppendLine("## Documentation");
+                sb.AppendLine();
+                sb.AppendLine(site.Description);
+                sb.AppendLine();
+            }
+        }
+
+        private static void BuildSingleSiteLinkMarkdown(ADSiteLink link, StringBuilder sb)
+        {
+            sb.AppendLine($"# 🔗 {link.Name}");
+            sb.AppendLine();
+            sb.AppendLine($"- **Transport :** {link.Transport}");
+            sb.AppendLine($"- **Coût :** {link.Cost}");
+            sb.AppendLine($"- **Intervalle :** {link.ReplicationIntervalMinutes} min");
+            sb.AppendLine($"- **Planification :** {link.ReplicationSchedule}");
+            sb.AppendLine($"- **Sites :** {string.Join(" ↔ ", link.SiteNames)}");
+            sb.AppendLine();
+            if (!string.IsNullOrWhiteSpace(link.Description))
+            {
+                sb.AppendLine("## Documentation");
+                sb.AppendLine();
+                sb.AppendLine(link.Description);
+                sb.AppendLine();
+            }
+        }
+
+        // ── DOCX export ──────────────────────────────────────────────────────
+
         public Task<bool> ExportDocxAsync(ADRootDocument document, string filePath)
         {
             try
             {
                 using var word = WordDocument.Create(filePath);
-
                 var domain = document.Domain;
                 var sites  = document.SitesTopology;
                 var now    = DateTime.Now;
@@ -99,6 +233,26 @@ namespace SMADX.Services
                             pt.Rows[i + 1].Cells[4].Paragraphs[0].Text = (p.PSOLockoutThreshold?.ToString()) ?? "—";
                         }
                     }
+
+                    // Per-object documentation (objects with non-empty Description)
+                    var documented = all.Where(o => !string.IsNullOrWhiteSpace(o.Description)).ToList();
+                    if (documented.Count > 0)
+                    {
+                        var docH = word.AddParagraph("Documentation des objets");
+                        docH.Style = WordParagraphStyles.Heading2;
+                        foreach (var obj in documented)
+                        {
+                            var objH = word.AddParagraph($"{TypeIcon(obj.Type)} {obj.Name}");
+                            objH.Style = WordParagraphStyles.Heading3;
+                            // Strip markdown fences and emit as plain paragraphs
+                            foreach (var line in obj.Description.Split('\n'))
+                            {
+                                var stripped = StripMarkdownLine(line);
+                                if (stripped is not null)
+                                    word.AddParagraph(stripped);
+                            }
+                        }
+                    }
                 }
 
                 // Sites section
@@ -143,6 +297,44 @@ namespace SMADX.Services
                             lt.Rows[i + 1].Cells[2].Paragraphs[0].Text = l.Cost.ToString();
                             lt.Rows[i + 1].Cells[3].Paragraphs[0].Text = l.ReplicationIntervalMinutes.ToString();
                             lt.Rows[i + 1].Cells[4].Paragraphs[0].Text = string.Join(", ", l.SiteNames);
+                        }
+                    }
+
+                    // Per-site documentation
+                    var docSites = sites.Sites.Where(s => !string.IsNullOrWhiteSpace(s.Description)).ToList();
+                    if (docSites.Count > 0)
+                    {
+                        var sdH = word.AddParagraph("Documentation des sites");
+                        sdH.Style = WordParagraphStyles.Heading3;
+                        foreach (var site in docSites)
+                        {
+                            var sH = word.AddParagraph($"🏢 {site.Name}");
+                            sH.Style = WordParagraphStyles.Heading4;
+                            foreach (var line in site.Description.Split('\n'))
+                            {
+                                var stripped = StripMarkdownLine(line);
+                                if (stripped is not null)
+                                    word.AddParagraph(stripped);
+                            }
+                        }
+                    }
+
+                    // Per-site-link documentation
+                    var docLinks = sites.SiteLinks.Where(l => !string.IsNullOrWhiteSpace(l.Description)).ToList();
+                    if (docLinks.Count > 0)
+                    {
+                        var slH = word.AddParagraph("Documentation des liens");
+                        slH.Style = WordParagraphStyles.Heading3;
+                        foreach (var link in docLinks)
+                        {
+                            var lH = word.AddParagraph($"🔗 {link.Name}");
+                            lH.Style = WordParagraphStyles.Heading4;
+                            foreach (var line in link.Description.Split('\n'))
+                            {
+                                var stripped = StripMarkdownLine(line);
+                                if (stripped is not null)
+                                    word.AddParagraph(stripped);
+                            }
                         }
                     }
                 }
@@ -296,6 +488,40 @@ namespace SMADX.Services
                                         }
                                     });
                                 }
+
+                                // Per-site documentation
+                                foreach (var site in sites.Sites.Where(s => !string.IsNullOrWhiteSpace(s.Description)))
+                                {
+                                    col.Item().PaddingTop(6).Text($"🏢 {site.Name}").SemiBold().FontSize(11);
+                                    col.Item().Text(StripMarkdownBlock(site.Description))
+                                       .FontSize(9).FontColor(Colors.Grey.Darken1);
+                                }
+
+                                // Per-site-link documentation
+                                foreach (var link in sites.SiteLinks.Where(l => !string.IsNullOrWhiteSpace(l.Description)))
+                                {
+                                    col.Item().PaddingTop(6).Text($"🔗 {link.Name}").SemiBold().FontSize(11);
+                                    col.Item().Text(StripMarkdownBlock(link.Description))
+                                       .FontSize(9).FontColor(Colors.Grey.Darken1);
+                                }
+                            }
+
+                            // Per-object documentation
+                            if (domain is not null)
+                            {
+                                var documented = FlattenTree(domain)
+                                    .Where(o => !string.IsNullOrWhiteSpace(o.Description))
+                                    .ToList();
+                                if (documented.Count > 0)
+                                {
+                                    col.Item().PaddingTop(10).Text("Documentation des objets").SemiBold().FontSize(14);
+                                    foreach (var obj in documented)
+                                    {
+                                        col.Item().PaddingTop(6).Text($"{TypeIcon(obj.Type)} {obj.Name}").SemiBold().FontSize(11);
+                                        col.Item().Text(StripMarkdownBlock(obj.Description))
+                                           .FontSize(9).FontColor(Colors.Grey.Darken1);
+                                    }
+                                }
                             }
                         });
 
@@ -397,11 +623,30 @@ namespace SMADX.Services
 
                 sb.AppendLine("### Sites");
                 sb.AppendLine();
-                sb.AppendLine("| Nom | Localisation | Sous-réseaux | DCs |");
-                sb.AppendLine("|-----|-------------|-------------|-----|");
+                sb.AppendLine("| Nom | Localisation | Sous-réseaux | DCs | GPOs |");
+                sb.AppendLine("|-----|-------------|-------------|-----|------|");
                 foreach (var s in sites.Sites)
-                    sb.AppendLine($"| {s.Name} | {s.Location} | {s.Subnets.Count} | {s.DomainControllers.Count} |");
+                    sb.AppendLine($"| {s.Name} | {s.Location} | {s.Subnets.Count} | {s.DomainControllers.Count} | {s.LinkedGPOs.Count} |");
                 sb.AppendLine();
+
+                // Per-site detailed documentation
+                foreach (var site in sites.Sites)
+                {
+                    sb.AppendLine($"#### 🏢 {site.Name}");
+                    sb.AppendLine();
+                    if (site.Subnets.Count > 0)
+                        sb.AppendLine($"- **Sous-réseaux :** {string.Join(", ", site.Subnets.Select(s => s.Cidr))}");
+                    if (site.DomainControllers.Count > 0)
+                        sb.AppendLine($"- **DCs :** {string.Join(", ", site.DomainControllers)}");
+                    if (site.LinkedGPOs.Count > 0)
+                        sb.AppendLine($"- **GPOs liées :** {string.Join(", ", site.LinkedGPOs)}");
+                    if (!string.IsNullOrWhiteSpace(site.Description))
+                    {
+                        sb.AppendLine();
+                        sb.AppendLine(site.Description);
+                    }
+                    sb.AppendLine();
+                }
 
                 if (sites.SiteLinks.Count > 0)
                 {
@@ -412,6 +657,42 @@ namespace SMADX.Services
                     foreach (var l in sites.SiteLinks)
                         sb.AppendLine($"| {l.Name} | {l.Transport} | {l.Cost} | {l.ReplicationIntervalMinutes} | {string.Join(", ", l.SiteNames)} |");
                     sb.AppendLine();
+
+                    // Per-site-link documentation
+                    foreach (var link in sites.SiteLinks.Where(l => !string.IsNullOrWhiteSpace(l.Description)))
+                    {
+                        sb.AppendLine($"#### 🔗 {link.Name}");
+                        sb.AppendLine();
+                        sb.AppendLine(link.Description);
+                        sb.AppendLine();
+                    }
+                }
+            }
+
+            // ── Per-object documentation ─────────────────────────────────────
+            if (domain is not null)
+            {
+                var documented = FlattenTree(domain)
+                    .Where(o => !string.IsNullOrWhiteSpace(o.Description))
+                    .ToList();
+                if (documented.Count > 0)
+                {
+                    sb.AppendLine("## Documentation des objets");
+                    sb.AppendLine();
+                    foreach (var obj in documented)
+                    {
+                        sb.AppendLine($"### {TypeIcon(obj.Type)} {obj.Name}");
+                        sb.AppendLine();
+                        sb.AppendLine($"- **Type :** {obj.Type}");
+                        sb.AppendLine($"- **DN :** `{obj.DistinguishedName}`");
+                        if (!string.IsNullOrWhiteSpace(obj.Tier))
+                            sb.AppendLine($"- **Tier :** {obj.Tier}");
+                        if (obj.LinkedGPOs.Count > 0)
+                            sb.AppendLine($"- **GPOs liées :** {string.Join(", ", obj.LinkedGPOs)}");
+                        sb.AppendLine();
+                        sb.AppendLine(obj.Description);
+                        sb.AppendLine();
+                    }
                 }
             }
 
@@ -452,5 +733,37 @@ namespace SMADX.Services
             ADObjectType.PasswordSettingsObject => "🔑",
             _                                   => "•"
         };
+
+        /// <summary>
+        /// Strip markdown syntax from a single line for plain-text formats (DOCX/PDF).
+        /// Returns null for lines that should be omitted (e.g. code fences, table separators).
+        /// </summary>
+        private static string? StripMarkdownLine(string raw)
+        {
+            var line = raw.TrimEnd();
+            if (line == "---" || line == "```" || line.StartsWith("```")) return null;
+            if (line.StartsWith('|') && line.Replace("|", "").Replace("-", "").Replace(":", "").Trim().Length == 0) return null; // separator row
+            // Headings → plain text
+            if (line.StartsWith("# "))  return line[2..].Trim();
+            if (line.StartsWith("## ")) return line[3..].Trim();
+            if (line.StartsWith("### ")) return line[4..].Trim();
+            if (line.StartsWith("#### ")) return line[5..].Trim();
+            // Strip bold/italic/code inline
+            line = System.Text.RegularExpressions.Regex.Replace(line, @"\*{1,2}([^*]+)\*{1,2}", "$1");
+            line = System.Text.RegularExpressions.Regex.Replace(line, @"`([^`]+)`", "$1");
+            // Strip > blockquote
+            if (line.StartsWith('>')) line = line.TrimStart('>', ' ');
+            return line.Length == 0 ? null : line;
+        }
+
+        /// <summary>Strip markdown for a whole block of text (for PDF inline text).</summary>
+        private static string StripMarkdownBlock(string markdown)
+        {
+            var lines = markdown.Split('\n')
+                .Select(StripMarkdownLine)
+                .Where(l => l is not null)
+                .Select(l => l!);
+            return string.Join(" ", lines).Trim();
+        }
     }
 }

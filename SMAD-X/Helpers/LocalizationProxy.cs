@@ -274,13 +274,22 @@ namespace SMADX.Helpers
         public string SitesDetailGPOs        => _localizationService["Sites.Detail.GPOs"];
 
         // Report export
-        public string MenuFileExportReport   => _localizationService["Menu.File.ExportReport"];
-        public string ReportDialogTitle      => _localizationService["Report.Dialog.Title"];
-        public string ReportFormatMarkdown   => _localizationService["Report.Format.Markdown"];
-        public string ReportFormatDocx       => _localizationService["Report.Format.Docx"];
-        public string ReportFormatPdf        => _localizationService["Report.Format.Pdf"];
-        public string ReportFormatLabel      => _localizationService["Report.Format.Label"];
-        public string ReportButtonExport     => _localizationService["Report.Button.Export"];
-        public string ReportButtonCancel     => _localizationService["Report.Button.Cancel"];
+        public string MenuFileExportReport      => _localizationService["Menu.File.ExportReport"];
+        public string MenuFileImportDescription => _localizationService["Menu.File.ImportDescription"];
+        public string ReportDialogTitle         => _localizationService["Report.Dialog.Title"];
+        public string ReportFormatMarkdown      => _localizationService["Report.Format.Markdown"];
+        public string ReportFormatDocx          => _localizationService["Report.Format.Docx"];
+        public string ReportFormatPdf           => _localizationService["Report.Format.Pdf"];
+        public string ReportFormatLabel         => _localizationService["Report.Format.Label"];
+        public string ReportScopeLabel          => _localizationService["Report.Scope.Label"];
+        public string ReportScopeCombined       => _localizationService["Report.Scope.Combined"];
+        public string ReportScopeIndividual     => _localizationService["Report.Scope.Individual"];
+        public string ReportScopeObjectLabel    => _localizationService["Report.Scope.Object.Label"];
+        public string ReportButtonExport        => _localizationService["Report.Button.Export"];
+        public string ReportButtonCancel        => _localizationService["Report.Button.Cancel"];
+        public string ReportImportTitle         => _localizationService["Report.Import.Title"];
+        public string ReportImportSuccess       => _localizationService["Report.Import.Success"];
+        public string ReportImportError         => _localizationService["Report.Import.Error"];
+        public string ReportImportNoSelection   => _localizationService["Report.Import.NoSelection"];
     }
 }

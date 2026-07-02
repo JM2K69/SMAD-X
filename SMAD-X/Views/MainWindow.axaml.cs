@@ -269,30 +269,8 @@ namespace SMADX.Views
         private async void OnExportReportClick(object? sender, RoutedEventArgs e)
         {
             var vm = DataContext as MainWindowViewModel;
-            if (vm?.RootObject is null)
-            {
-                vm?.StatusMessage.Equals(""); // no-op guard
-                return;
-            }
+            if (vm?.RootObject is null) return;
 
-            var loc  = LocalizationService.Instance;
-            var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-            {
-                Title = loc["Report.Dialog.Title"],
-                FileTypeChoices = new List<FilePickerFileType>
-                {
-                    new(loc["FileType.Markdown"]) { Patterns = new[] { "*.md" } },
-                    new(loc["FileType.Word"])     { Patterns = new[] { "*.docx" } },
-                    new(loc["FileType.Pdf"])      { Patterns = new[] { "*.pdf" } },
-                },
-                SuggestedFileName = "rapport-ad",
-                DefaultExtension  = "md"
-            });
-
-            if (file is null) return;
-
-            var path      = file.Path.LocalPath;
-            var reportSvc = new ADDocumentReportService();
             var doc = new ADRootDocument
             {
                 Version       = 2,
@@ -300,21 +278,49 @@ namespace SMADX.Views
                 SitesTopology = vm.SitesTopology
             };
 
-            bool ok = false;
-            var ext = Path.GetExtension(path).ToLowerInvariant();
-            if (ext == ".md")
-                ok = await reportSvc.ExportMarkdownAsync(doc, path);
-            else if (ext == ".docx")
-                ok = await reportSvc.ExportDocxAsync(doc, path);
-            else if (ext == ".pdf")
-                ok = await reportSvc.ExportPdfAsync(doc, path);
-            else
-                ok = await reportSvc.ExportMarkdownAsync(doc, path);
+            var dialog = new ExportReportDialog(doc);
+            var result = await dialog.ShowDialog<string?>(this);
 
-            if (ok)
-                vm.StatusMessage = string.Format(loc["Report.Success"], path);
+            var loc = LocalizationService.Instance;
+            if (result is not null)
+                vm.StatusMessage = $"{loc["Report.Success"]} {result}";
+        }
+
+        private async void OnImportDescriptionClick(object? sender, RoutedEventArgs e)
+        {
+            var vm  = DataContext as MainWindowViewModel;
+            var loc = LocalizationService.Instance;
+
+            if (vm?.SelectedNode is null)
+            {
+                vm!.StatusMessage = loc["Report.Import.NoSelection"];
+                return;
+            }
+
+            var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title         = loc["Report.Import.Title"],
+                AllowMultiple = false,
+                FileTypeFilter = new List<FilePickerFileType>
+                {
+                    new(loc["FileType.Markdown"]) { Patterns = new[] { "*.md" } }
+                }
+            });
+
+            if (files.Count == 0) return;
+
+            var svc     = new ADDocumentReportService();
+            var content = await svc.ImportMarkdownAsync(files[0].Path.LocalPath);
+
+            if (content is not null)
+            {
+                vm.SelectedObjectDescription = content;
+                vm.StatusMessage = loc["Report.Import.Success"];
+            }
             else
-                vm.StatusMessage = loc["Report.Error"];
+            {
+                vm.StatusMessage = loc["Report.Import.Error"];
+            }
         }
     }
 }

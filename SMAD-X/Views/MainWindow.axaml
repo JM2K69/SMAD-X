@@ -42,6 +42,7 @@
                     <MenuItem Header="{Binding MenuFileExportPowerShell}" Command="{Binding #MainWindowRoot.DataContext.ExportToPowerShellCommand}" InputGesture="Ctrl+P"/>
                     <MenuItem Header="{Binding MenuFileGenerateImportScript}" Command="{Binding #MainWindowRoot.DataContext.GenerateImportScriptCommand}" InputGesture="Ctrl+I"/>
                     <MenuItem Header="{Binding MenuFileExportReport}" Click="OnExportReportClick" InputGesture="Ctrl+Shift+R"/>
+                    <MenuItem Header="{Binding MenuFileImportDescription}" Click="OnImportDescriptionClick" InputGesture="Ctrl+Shift+M"/>
                     <Separator/>
                     <MenuItem Header="{Binding MenuFileExit}" Click="OnExitClick" InputGesture="Alt+F4"/>
                 </MenuItem>
@@ -320,6 +321,13 @@
                                           Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
                                           IsEnabled="{Binding #MainWindowRoot.DataContext.CanManageRelations}">
                                     <MenuItem.Icon><TextBlock Text="🔗" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
+                                <Separator/>
+                                <!-- Importer description markdown -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=MenuFileImportDescription}"
+                                          Click="OnImportDescriptionClick"
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}">
+                                    <MenuItem.Icon><TextBlock Text="📥" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
                                 </MenuItem>
                             </ContextMenu>
                         </TreeView.ContextMenu>
