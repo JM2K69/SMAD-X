@@ -74,7 +74,7 @@ namespace SMADX.ViewModels
 
         public string Icon =>
             IsVirtualFolder           ? "📍" :
-            SiteRef      != null      ? "🗺" :
+            SiteRef      != null      ? "🏢" :
             AdObjectRef?.Type == ADObjectType.Domain ? "🌐" : "📁";
 
         /// <summary>true when this node is a valid GPO link target (not just a header).</summary>

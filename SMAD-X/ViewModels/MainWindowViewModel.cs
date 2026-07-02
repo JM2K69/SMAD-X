@@ -146,6 +146,9 @@ namespace SMADX.ViewModels
         [ObservableProperty]
         private string _statusMessage = string.Empty;
 
+        /// <summary>Flat list of site tree nodes shown in the Sites panel of the main window.</summary>
+        public ObservableCollection<SiteTreeNode> SiteRootNodes { get; } = new();
+
         // ─── Recherche ────────────────────────────────────────────────────────────
 
         private string _searchText = string.Empty;
@@ -161,6 +164,16 @@ namespace SMADX.ViewModels
 
         [RelayCommand]
         private void ClearSearch() => SearchText = string.Empty;
+
+        partial void OnSitesTopologyChanged(ADSitesTopology? value) => RebuildSiteTree();
+
+        private void RebuildSiteTree()
+        {
+            SiteRootNodes.Clear();
+            if (SitesTopology == null) return;
+            foreach (var site in SitesTopology.Sites)
+                SiteRootNodes.Add(new SiteTreeNode(site));
+        }
 
         /// <summary>
         /// Applique le filtre de recherche : met à jour IsVisible sur les nœuds,
