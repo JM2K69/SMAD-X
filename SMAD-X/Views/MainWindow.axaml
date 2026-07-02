@@ -359,22 +359,42 @@
                     </TreeView>
 
                     <!-- ═══ SECTION SITES AD ═══ -->
-                    <Expander Grid.Row="3" Margin="0,6,0,0"
-                              IsExpanded="True"
-                              IsVisible="{Binding #MainWindowRoot.DataContext.SitesTopology, Converter={x:Static ObjectConverters.IsNotNull}}">
-                        <Expander.Header>
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <TextBlock Text="🏢" FontFamily="Segoe UI Emoji" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="Sites AD" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
-                                           Foreground="{DynamicResource AppTreeFgBrush}"/>
-                                <Border Background="#1A3A8F" CornerRadius="3" Padding="5,1" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding #MainWindowRoot.DataContext.SiteRootNodes.Count}"
-                                               Foreground="#7FA8FF" FontSize="10" FontWeight="SemiBold"/>
-                                </Border>
-                            </StackPanel>
-                        </Expander.Header>
-                        <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Grid.Row="3" Margin="0,6,0,0"
+                                IsVisible="{Binding #MainWindowRoot.DataContext.SitesTopology, Converter={x:Static ObjectConverters.IsNotNull}}">
+
+                        <!-- Header: full-width clickable strip -->
+                        <Button HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                Padding="6,5"
+                                Background="{DynamicResource AppSeparatorBrush}"
+                                BorderThickness="0"
+                                Command="{Binding #MainWindowRoot.DataContext.ToggleSitesExpandedCommand}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                    <TextBlock Text="🏢" FontFamily="Segoe UI Emoji" FontSize="14" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Sites AD" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource AppTreeFgBrush}"/>
+                                    <Border Background="#1A3A8F" CornerRadius="3" Padding="5,1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding #MainWindowRoot.DataContext.SiteRootNodes.Count}"
+                                                   Foreground="#7FA8FF" FontSize="10" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="∧" VerticalAlignment="Center" Margin="0,0,4,0"
+                                           FontSize="12" FontWeight="Bold"
+                                           Foreground="{DynamicResource AppTreeFgBrush}"
+                                           IsVisible="{Binding #MainWindowRoot.DataContext.IsSitesExpanded}"/>
+                                <TextBlock Grid.Column="1" Text="∨" VerticalAlignment="Center" Margin="0,0,4,0"
+                                           FontSize="12" FontWeight="Bold"
+                                           Foreground="{DynamicResource AppTreeFgBrush}"
+                                           IsVisible="{Binding !#MainWindowRoot.DataContext.IsSitesExpanded}"/>
+                            </Grid>
+                        </Button>
+
+                        <!-- Collapsible content -->
+                        <ScrollViewer MaxHeight="220"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      IsVisible="{Binding #MainWindowRoot.DataContext.IsSitesExpanded}">
                             <TreeView ItemsSource="{Binding #MainWindowRoot.DataContext.SiteRootNodes}"
                                       HorizontalAlignment="Stretch">
                                 <TreeView.ItemTemplate>
@@ -390,7 +410,7 @@
                                 </TreeView.ItemTemplate>
                             </TreeView>
                         </ScrollViewer>
-                    </Expander>
+                    </StackPanel>
 
                 </Grid>
             </Border>

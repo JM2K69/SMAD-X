@@ -149,6 +149,9 @@ namespace SMADX.ViewModels
         /// <summary>Flat list of site tree nodes shown in the Sites panel of the main window.</summary>
         public ObservableCollection<SiteTreeNode> SiteRootNodes { get; } = new();
 
+        [ObservableProperty]
+        private bool _isSitesExpanded = true;
+
         // ─── Recherche ────────────────────────────────────────────────────────────
 
         private string _searchText = string.Empty;
@@ -164,6 +167,9 @@ namespace SMADX.ViewModels
 
         [RelayCommand]
         private void ClearSearch() => SearchText = string.Empty;
+
+        [RelayCommand]
+        private void ToggleSitesExpanded() => IsSitesExpanded = !IsSitesExpanded;
 
         partial void OnSitesTopologyChanged(ADSitesTopology? value) => RebuildSiteTree();
 
