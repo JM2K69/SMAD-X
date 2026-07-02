@@ -920,7 +920,7 @@ namespace SMADX.ViewModels
             var mainWindow = GetMainWindow();
             if (mainWindow == null || RootNodes.Count == 0) return;
 
-            var vm = new RelationsViewModel(RootNodes[0].Data);
+            var vm = new RelationsViewModel(RootNodes[0].Data, SitesTopology);
             var dialog = new Views.RelationsWindow { DataContext = vm };
             await dialog.ShowDialog(mainWindow);
 
@@ -938,7 +938,7 @@ namespace SMADX.ViewModels
             var mainWindow = GetMainWindow();
             if (mainWindow == null || RootNodes.Count == 0) return;
 
-            var vm = new RelationsViewModel(RootNodes[0].Data);
+            var vm = new RelationsViewModel(RootNodes[0].Data, SitesTopology);
             vm.PreselectSource(SelectedNode.Data);
             var dialog = new Views.RelationsWindow { DataContext = vm };
             await dialog.ShowDialog(mainWindow);
@@ -954,7 +954,7 @@ namespace SMADX.ViewModels
             var mainWindow = GetMainWindow();
             if (mainWindow == null || RootNodes.Count == 0) return;
 
-            var vm = new RelationsViewModel(RootNodes[0].Data);
+            var vm = new RelationsViewModel(RootNodes[0].Data, SitesTopology);
             vm.PreselectTarget(SelectedNode.Data);
             var dialog = new Views.RelationsWindow { DataContext = vm };
             await dialog.ShowDialog(mainWindow);
@@ -970,7 +970,7 @@ namespace SMADX.ViewModels
             var mainWindow = GetMainWindow();
             if (mainWindow == null || RootNodes.Count == 0) return;
 
-            var vm = new RelationsViewModel(RootNodes[0].Data);
+            var vm = new RelationsViewModel(RootNodes[0].Data, SitesTopology);
             // Pré-sélectionner le groupe courant comme source dans l'onglet Group-in-Group
             vm.PreselectNestingSource(SelectedNode.Data);
             var dialog = new Views.RelationsWindow { DataContext = vm };
