@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace SMADX.Models
 {
@@ -31,6 +32,27 @@ namespace SMADX.Models
 
         /// <summary>Description libre.</summary>
         public string Description { get; set; } = string.Empty;
+
+        /// <summary>First plain-text sentence of Description with markdown stripped (for UI columns).</summary>
+        public string ShortDescription
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(Description)) return string.Empty;
+                foreach (var rawLine in Description.Split('\n'))
+                {
+                    var line = rawLine.Trim();
+                    if (string.IsNullOrEmpty(line)) continue;
+                    if (line.StartsWith('#')) continue;
+                    if (line.StartsWith('|')) continue;
+                    if (line.StartsWith('>')) line = line.TrimStart('>', ' ');
+                    line = Regex.Replace(line, @"\*{1,2}([^*]+)\*{1,2}", "$1");
+                    line = Regex.Replace(line, @"`([^`]+)`", "$1");
+                    if (!string.IsNullOrWhiteSpace(line)) return line;
+                }
+                return Description.Split('\n')[0].Trim();
+            }
+        }
 
         public override string ToString() => $"{Name}  [{string.Join(" ↔ ", SiteNames)}]  cost={Cost}";
     }

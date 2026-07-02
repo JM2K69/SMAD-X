@@ -1274,6 +1274,8 @@ Site Active Directory hébergeant le contrôleur de domaine de **Lyon**, connect
 - Vérifier régulièrement l'état de la réplication : `Get-ADReplicationPartnerMetadata -Target DC03 -Scope Server`
 - Surveiller les erreurs de réplication (Event IDs 1311, 1388, 1645)",
 
+                ["Desc.Sample.DefaultSite"] = "Site Active Directory créé automatiquement lors de la première installation. Contient initialement tous les contrôleurs de domaine avant configuration manuelle des sites.",
+                ["Desc.Sample.SubnetDefault"] = "Sous-réseau de gestion interne — Default-First-Site-Name",
                 ["Desc.Sample.SubnetParis"] = "Sous-réseau 10.0.1.0/24 — Site Paris (Datacenter Principal)",
                 ["Desc.Sample.SubnetLyon"]  = "Sous-réseau 10.0.2.0/24 — Site Lyon (Site Secondaire)",
                 ["Desc.Sample.SiteLinkPL"]  = @"# 🔗 DEFAULTIPSITELINK — Lien Paris ↔ Lyon
@@ -2645,6 +2647,8 @@ Active Directory site hosting the **Lyon** domain controller, connected to Paris
 - Regularly check replication status: `Get-ADReplicationPartnerMetadata -Target DC03 -Scope Server`
 - Monitor replication errors (Event IDs 1311, 1388, 1645)",
 
+                ["Desc.Sample.DefaultSite"] = "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration.",
+                ["Desc.Sample.SubnetDefault"] = "Management subnet — Default-First-Site-Name",
                 ["Desc.Sample.SubnetParis"] = "Subnet 10.0.1.0/24 — Site Paris (Main Datacenter)",
                 ["Desc.Sample.SubnetLyon"]  = "Subnet 10.0.2.0/24 — Site Lyon (Secondary Site)",
                 ["Desc.Sample.SiteLinkPL"]  = @"# 🔗 DEFAULTIPSITELINK — Link Paris ↔ Lyon

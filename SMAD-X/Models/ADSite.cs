@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace SMADX.Models
 {
@@ -32,6 +33,27 @@ namespace SMADX.Models
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime ModifiedDate { get; set; } = DateTime.Now;
+
+        /// <summary>First plain-text sentence of Description with markdown stripped (for UI columns).</summary>
+        public string ShortDescription
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(Description)) return string.Empty;
+                foreach (var rawLine in Description.Split('\n'))
+                {
+                    var line = rawLine.Trim();
+                    if (string.IsNullOrEmpty(line)) continue;
+                    if (line.StartsWith('#')) continue;          // heading
+                    if (line.StartsWith('|')) continue;          // table row
+                    if (line.StartsWith('>')) line = line.TrimStart('>', ' ');
+                    line = Regex.Replace(line, @"\*{1,2}([^*]+)\*{1,2}", "$1");
+                    line = Regex.Replace(line, @"`([^`]+)`", "$1");
+                    if (!string.IsNullOrWhiteSpace(line)) return line;
+                }
+                return Description.Split('\n')[0].Trim();
+            }
+        }
 
         public override string ToString() => Name;
     }

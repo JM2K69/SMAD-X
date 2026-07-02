@@ -1116,6 +1116,22 @@ namespace SMADX.Services
 
             var topology = new ADSitesTopology();
 
+            // ── Default-First-Site-Name ───────────────────────────────────────
+            var siteDefault = new ADSite
+            {
+                Name        = "Default-First-Site-Name",
+                Description = loc["Desc.Sample.DefaultSite"],
+                Location    = "Site par défaut Active Directory",
+            };
+            siteDefault.Subnets.Add(new ADSubnet
+            {
+                Cidr        = "192.168.0.0/24",
+                SiteName    = "Default-First-Site-Name",
+                Description = loc["Desc.Sample.SubnetDefault"],
+                Location    = "Default DC"
+            });
+            siteDefault.DomainControllers.Add("DC01.contoso.com");
+
             // ── Site Paris ───────────────────────────────────────────────────
             var siteParis = new ADSite
             {
@@ -1130,7 +1146,6 @@ namespace SMADX.Services
                 Description = loc["Desc.Sample.SubnetParis"],
                 Location    = "Paris DC"
             });
-            siteParis.DomainControllers.Add("DC01.contoso.com");
             siteParis.DomainControllers.Add("DC02.contoso.com");
 
             // ── Site Lyon ────────────────────────────────────────────────────
@@ -1149,10 +1164,11 @@ namespace SMADX.Services
             });
             siteLyon.DomainControllers.Add("DC03.contoso.com");
 
+            topology.Sites.Add(siteDefault);
             topology.Sites.Add(siteParis);
             topology.Sites.Add(siteLyon);
 
-            // ── Lien Paris ↔ Lyon ────────────────────────────────────────────
+            // ── Lien Default ↔ Paris ─────────────────────────────────────────
             topology.SiteLinks.Add(new ADSiteLink
             {
                 Name                       = "DEFAULTIPSITELINK",
@@ -1162,7 +1178,7 @@ namespace SMADX.Services
                 ReplicationSchedule        = "Always",
                 BridgeheadAuto             = true,
                 Description                = loc["Desc.Sample.SiteLinkPL"],
-                SiteNames                  = { "Site-Paris", "Site-Lyon" }
+                SiteNames                  = { "Default-First-Site-Name", "Site-Paris", "Site-Lyon" }
             });
 
             return topology;
