@@ -73,7 +73,7 @@ namespace SMADX.ViewModels
             AdObjectRef?.Name ?? SiteRef?.Name ?? _folderLabel;
 
         public string Icon =>
-            IsVirtualFolder           ? "📍" :
+            IsVirtualFolder           ? "🏢" :
             SiteRef      != null      ? "🏢" :
             AdObjectRef?.Type == ADObjectType.Domain ? "🌐" : "📁";
 
