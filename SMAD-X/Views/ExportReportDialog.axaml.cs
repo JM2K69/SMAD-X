@@ -223,8 +223,7 @@ namespace SMADX.Views
             bool wantDocx = ChkDocx?.IsChecked == true;
             bool wantPdf  = ChkPdf?.IsChecked  == true;
 
-            // Folder picker – default suggestion is the domain name
-            var domainName  = _document.Domain?.Name ?? "domain";
+            var domainName = _document.Domain?.Name ?? "domain";
             var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
                 Title         = _loc["Report.Export.FolderTitle"],
@@ -235,24 +234,27 @@ namespace SMADX.Views
             // Root = selected folder / domain name
             var rootDir = Path.Combine(folders[0].Path.LocalPath, SanitizeFileName(domainName));
 
+            // Only create type subfolders when the selection spans more than one type
+            bool multipleTypes = toExport.Select(e => e.TypeLabel).Distinct().Count() > 1;
+
             int saved = 0;
             foreach (var element in toExport)
             {
-                // Subfolder by type
-                var typeDir  = Path.Combine(rootDir, SanitizeFileName(element.TypeLabel));
-                Directory.CreateDirectory(typeDir);
-                var stem     = Path.Combine(typeDir, SanitizeFileName(element.DisplayName));
+                // If all selected items share the same type → put directly under rootDir
+                var targetDir = multipleTypes
+                    ? Path.Combine(rootDir, SanitizeFileName(element.TypeLabel))
+                    : rootDir;
 
-                // MD – always
+                Directory.CreateDirectory(targetDir);
+                var stem = Path.Combine(targetDir, SanitizeFileName(element.DisplayName));
+
                 if (await ExportElementMd(element, stem + ".md")) saved++;
 
-                // DOCX – if checked
                 if (wantDocx)
                     await _reportSvc.ExportSingleElementDocxAsync(
                         element.DisplayName, element.TypeLabel,
                         GetDescription(element), stem + ".docx");
 
-                // PDF – if checked
                 if (wantPdf)
                     await _reportSvc.ExportSingleElementPdfAsync(
                         element.DisplayName, element.TypeLabel,
