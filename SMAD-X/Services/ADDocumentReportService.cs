@@ -43,9 +43,8 @@ namespace SMADX.Services
         {
             try
             {
-                var sb = new StringBuilder();
-                BuildSingleObjectMarkdown(obj, sb);
-                await File.WriteAllTextAsync(filePath, sb.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                var content = obj.Description ?? string.Empty;
+                await File.WriteAllTextAsync(filePath, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                 return true;
             }
             catch (Exception ex)
@@ -60,9 +59,8 @@ namespace SMADX.Services
         {
             try
             {
-                var sb = new StringBuilder();
-                BuildSingleSiteMarkdown(site, sb);
-                await File.WriteAllTextAsync(filePath, sb.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                var content = site.Description ?? string.Empty;
+                await File.WriteAllTextAsync(filePath, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                 return true;
             }
             catch (Exception ex)
@@ -77,9 +75,8 @@ namespace SMADX.Services
         {
             try
             {
-                var sb = new StringBuilder();
-                BuildSingleSiteLinkMarkdown(link, sb);
-                await File.WriteAllTextAsync(filePath, sb.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+                var content = link.Description ?? string.Empty;
+                await File.WriteAllTextAsync(filePath, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
                 return true;
             }
             catch (Exception ex)
