@@ -37,5 +37,7 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="OfficeIMO.Word" Version="1.0.72" />
+    <PackageReference Include="QuestPDF" Version="2026.6.1" />
   </ItemGroup>
 </Project>

@@ -106,13 +106,13 @@
 								</ItemsPanelTemplate>
 							</ItemsControl.ItemsPanel>
 							<ItemsControl.ItemTemplate>
-								<DataTemplate x:DataType="vm:SiteLinkLineViewModel">
-									<Line StartPoint="{Binding X1, StringFormat='{}{0}'}"
-										  EndPoint="{Binding X2, StringFormat='{}{0}'}"
-										  Stroke="#444466" StrokeThickness="2"
-										  Canvas.Left="0" Canvas.Top="0"/>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
+									<DataTemplate x:DataType="vm:SiteLinkLineViewModel">
+										<Line StartPoint="{Binding Start}"
+											  EndPoint="{Binding End}"
+											  Stroke="#444466" StrokeThickness="2"
+											  Canvas.Left="0" Canvas.Top="0"/>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
 						</ItemsControl>
 
 						<!-- Nodes -->

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
@@ -160,5 +161,9 @@ namespace SMADX.ViewModels
         public double Y2       { get; set; }
         public string LinkName { get; set; } = string.Empty;
         public int    Cost     { get; set; }
+
+        // Avalonia Point helpers for XAML binding
+        public Point Start => new(X1, Y1);
+        public Point End   => new(X2, Y2);
     }
 }
