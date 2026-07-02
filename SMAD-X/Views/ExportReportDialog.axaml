@@ -41,13 +41,27 @@
 				<!-- Individual element picker -->
 				<StackPanel x:Name="IndividualPanel" Spacing="8" IsVisible="False">
 
-					<!-- Type filter -->
+					<!-- Type filter – multi-select checkboxes, one per type -->
 					<StackPanel Spacing="4">
 						<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportScopeTypeFilter}"
 								   FontWeight="SemiBold"/>
-						<ComboBox x:Name="TypeFilterCombo"
-								  HorizontalAlignment="Stretch"
-								  SelectionChanged="OnTypeFilterChanged"/>
+						<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="4" Padding="6,4">
+							<ItemsControl x:Name="TypeFilterList">
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<WrapPanel Orientation="Horizontal"/>
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+												  Content="{Binding Label}"
+												  Margin="4,2"
+												  IsCheckedChanged="OnTypeFilterCheckChanged"/>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</Border>
 					</StackPanel>
 
 					<!-- Header: label + Select All / None -->

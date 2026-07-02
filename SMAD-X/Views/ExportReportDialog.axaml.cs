@@ -11,7 +11,14 @@ using System.Threading.Tasks;
 
 namespace SMADX.Views
 {
-    // ── Checkable item shown in the element list ─────────────────────────────
+    // ── Type filter item (one per distinct type label) ───────────────────────
+
+    public class TypeFilterItem
+    {
+        public string Label     { get; }
+        public bool   IsChecked { get; set; } = true;
+        public TypeFilterItem(string label) => Label = label;
+    }
 
     public class DocumentedElement
     {
@@ -62,10 +69,9 @@ namespace SMADX.Views
         private readonly ADDocumentReportService _reportSvc = new();
         private readonly LocalizationService     _loc       = LocalizationService.Instance;
 
-        // Full flat list of all documented elements
-        private List<DocumentedElement> _allElements = new();
-        // Currently visible subset (after type filter)
-        private List<DocumentedElement> _filtered    = new();
+        private List<DocumentedElement> _allElements  = new();
+        private List<DocumentedElement> _filtered     = new();
+        private List<TypeFilterItem>    _typeFilters  = new();
 
         public ExportReportDialog(ADRootDocument document)
         {
@@ -73,7 +79,7 @@ namespace SMADX.Views
             InitializeComponent();
             BuildElementList();
             PopulateTypeFilter();
-            RefreshList(null);
+            ApplyTypeFilter();
             UpdateCount();
         }
 
@@ -100,31 +106,39 @@ namespace SMADX.Views
             }
         }
 
-        // ── Type filter combo ────────────────────────────────────────────────
+        // ── Type filter checkboxes ───────────────────────────────────────────
 
         private void PopulateTypeFilter()
         {
-            var types = new List<string> { _loc["Report.Scope.TypeAll"] };
-            types.AddRange(_allElements.Select(e => e.TypeLabel).Distinct().OrderBy(t => t));
-            TypeFilterCombo.ItemsSource    = types;
-            TypeFilterCombo.SelectedIndex  = 0;
+            _typeFilters = _allElements
+                .Select(e => e.TypeLabel)
+                .Distinct()
+                .OrderBy(t => t)
+                .Select(t => new TypeFilterItem(t))
+                .ToList();
+
+            TypeFilterList.ItemsSource = _typeFilters;
         }
 
-        private void OnTypeFilterChanged(object? sender, SelectionChangedEventArgs e)
+        private void OnTypeFilterCheckChanged(object? sender, RoutedEventArgs e)
         {
-            var selected = TypeFilterCombo?.SelectedItem as string;
-            RefreshList(selected == _loc["Report.Scope.TypeAll"] ? null : selected);
-            UpdateCount();
+            ApplyTypeFilter();
         }
 
-        private void RefreshList(string? typeFilter)
+        private void ApplyTypeFilter()
         {
-            _filtered = typeFilter is null
+            var activeTypes = _typeFilters
+                .Where(f => f.IsChecked)
+                .Select(f => f.Label)
+                .ToHashSet();
+
+            _filtered = activeTypes.Count == 0
                 ? _allElements.ToList()
-                : _allElements.Where(x => x.TypeLabel == typeFilter).ToList();
+                : _allElements.Where(x => activeTypes.Contains(x.TypeLabel)).ToList();
 
             ElementList.ItemsSource = null;
             ElementList.ItemsSource = _filtered;
+            UpdateCount();
         }
 
         private void UpdateCount()
@@ -139,18 +153,17 @@ namespace SMADX.Views
         private void OnSelectAll(object? sender, RoutedEventArgs e)
         {
             foreach (var item in _filtered) item.IsChecked = true;
-            RefreshCheckboxes();
+            ApplyTypeFilter();
         }
 
         private void OnSelectNone(object? sender, RoutedEventArgs e)
         {
             foreach (var item in _filtered) item.IsChecked = false;
-            RefreshCheckboxes();
+            ApplyTypeFilter();
         }
 
         private void RefreshCheckboxes()
         {
-            // Force ItemsControl to re-render the bindings
             ElementList.ItemsSource = null;
             ElementList.ItemsSource = _filtered;
             UpdateCount();
