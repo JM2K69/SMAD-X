@@ -171,10 +171,11 @@ namespace SMADX.Views
         {
             if (RadioCombined?.IsChecked == true)
             {
-                bool isDocx = RadioDocx?.IsChecked == true;
-                bool isPdf  = RadioPdf?.IsChecked  == true;
-                string ext  = isDocx ? "docx" : isPdf ? "pdf" : "md";
-                await ExportCombined(ext);
+                // Collect all checked formats – MD is always included
+                var formats = new List<string> { "md" };
+                if (ChkDocx?.IsChecked == true) formats.Add("docx");
+                if (ChkPdf?.IsChecked  == true) formats.Add("pdf");
+                await ExportCombinedMulti(formats);
             }
             else
             {
@@ -182,25 +183,37 @@ namespace SMADX.Views
             }
         }
 
-        private async Task ExportCombined(string ext)
+        private async Task ExportCombinedMulti(List<string> formats)
         {
+            // Ask for a base path (without extension) using the first format as default
+            var firstExt = formats[0];
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title             = _loc["Report.Dialog.Title"],
-                SuggestedFileName = $"rapport-ad.{ext}",
-                DefaultExtension  = ext,
-                FileTypeChoices   = BuildFileTypeChoices(ext),
+                SuggestedFileName = $"rapport-ad.{firstExt}",
+                DefaultExtension  = firstExt,
+                FileTypeChoices   = BuildFileTypeChoices(firstExt),
             });
             if (file is null) return;
 
-            var path = file.Path.LocalPath;
-            bool ok  = ext switch
+            var basePath = file.Path.LocalPath;
+            var stem     = Path.Combine(
+                               Path.GetDirectoryName(basePath)!,
+                               Path.GetFileNameWithoutExtension(basePath));
+
+            int ok = 0;
+            foreach (var ext in formats)
             {
-                "docx" => await _reportSvc.ExportDocxAsync(_document, path),
-                "pdf"  => await _reportSvc.ExportPdfAsync(_document, path),
-                _      => await _reportSvc.ExportMarkdownAsync(_document, path),
-            };
-            Close(ok ? path : null);
+                var path   = stem + "." + ext;
+                bool saved = ext switch
+                {
+                    "docx" => await _reportSvc.ExportDocxAsync(_document, path),
+                    "pdf"  => await _reportSvc.ExportPdfAsync(_document, path),
+                    _      => await _reportSvc.ExportMarkdownAsync(_document, path),
+                };
+                if (saved) ok++;
+            }
+            Close(ok > 0 ? stem : null);
         }
 
         private async Task ExportIndividualChecked()

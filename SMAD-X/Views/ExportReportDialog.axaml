@@ -91,16 +91,15 @@
 					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportFormatLabel}"
 							   FontWeight="SemiBold"/>
 					<StackPanel Orientation="Horizontal" Spacing="16">
-						<RadioButton x:Name="RadioMd"
-									 Content="{Binding Source={StaticResource Loc}, Path=ReportFormatMarkdown}"
-									 IsChecked="True"
-									 GroupName="Format"/>
-						<RadioButton x:Name="RadioDocx"
-									 Content="{Binding Source={StaticResource Loc}, Path=ReportFormatDocx}"
-									 GroupName="Format"/>
-						<RadioButton x:Name="RadioPdf"
-									 Content="{Binding Source={StaticResource Loc}, Path=ReportFormatPdf}"
-									 GroupName="Format"/>
+						<CheckBox x:Name="ChkMd"
+								  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatMarkdown}"
+								  IsChecked="True"
+								  IsEnabled="False"
+								  ToolTip.Tip="Markdown is always exported"/>
+						<CheckBox x:Name="ChkDocx"
+								  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatDocx}"/>
+						<CheckBox x:Name="ChkPdf"
+								  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatPdf}"/>
 					</StackPanel>
 				</StackPanel>
 
