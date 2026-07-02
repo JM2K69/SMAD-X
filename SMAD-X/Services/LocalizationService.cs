@@ -1349,6 +1349,36 @@ Lien de réplication AD entre les sites **Site-Paris** et **Site-Lyon**.
 - En cas de liaison WAN < 512 Kbps, envisager SMTP comme transport alternatif
 - Utiliser `repadmin /showrepl` pour diagnostiquer les retards de réplication",
 
+                ["Desc.Sample.SiteLinkDP"] = @"# 🔗 SiteLink-Default-Paris — Lien Default ↔ Paris
+
+Lien de réplication AD entre **Default-First-Site-Name** et **Site-Paris**.
+
+## Paramètres
+| Paramètre | Valeur |
+|-----------|--------|
+| Transport | IP (RPC/IP) |
+| Coût | 100 |
+| Intervalle | 15 minutes |
+| Planification | Toujours disponible |
+
+## ⚠️ Bonnes pratiques
+- Vérifier la latence WAN Paris – siège régulièrement",
+
+                ["Desc.Sample.SiteLinkDL"] = @"# 🔗 SiteLink-Default-Lyon — Lien Default ↔ Lyon
+
+Lien de réplication AD entre **Default-First-Site-Name** et **Site-Lyon**.
+
+## Paramètres
+| Paramètre | Valeur |
+|-----------|--------|
+| Transport | IP (RPC/IP) |
+| Coût | 150 |
+| Intervalle | 30 minutes |
+| Planification | Toujours disponible |
+
+## ⚠️ Bonnes pratiques
+- Coût plus élevé (150) pour privilégier la réplication via Paris en temps normal",
+
                 ["Desc.Sample.GMSA"] = @"# 🔐 svc-webapp — Group Managed Service Account (Tier 1)
 
 Compte de service géré de groupe pour l'application web de l'organisation.
@@ -1487,6 +1517,18 @@ Password Settings Object appliqué aux **comptes utilisateurs standards Tier 2**
                 ["Sites.AddLink"] = "Ajouter un lien",
                 ["Sites.Section.Sites"] = "Sites",
                 ["Sites.Section.Links"] = "Liens de réplication",
+                ["Sites.Label.Sites"] = "Sites",
+                ["Sites.Label.Links"] = "Liens",
+                ["Sites.Filter.Placeholder"] = "Filtrer par nom ou localisation…",
+                ["Sites.Column.GPOs"] = "GPOs",
+                ["Sites.Column.LinkName"] = "Nom du lien",
+                ["Sites.Column.LinkSites"] = "Sites",
+                ["Sites.Detail.Selected"] = "📍 Site sélectionné :",
+                ["Sites.Detail.Subnets"] = "🌐  Sous-réseaux",
+                ["Sites.Detail.DCs"] = "🖥  Contrôleurs de domaine",
+                ["Sites.Detail.GPOs"] = "📄  GPOs liées",
+                ["Sites.Status"] = "{0} site(s) — {1} lien(s)",
+                ["Sites.NoSites"] = "Aucun site — importez la topologie via le script PowerShell (Fichier › Générer le script d'import)",
 
                 // Export rapport
                 ["Menu.File.ExportReport"] = "Exporter le rapport de documentation...",
@@ -2776,6 +2818,36 @@ AD replication link between sites **Site-Paris** and **Site-Lyon**.
 - For WAN links < 512 Kbps, consider SMTP as an alternative transport
 - Use `repadmin /showrepl` to diagnose replication delays",
 
+                ["Desc.Sample.SiteLinkDP"] = @"# 🔗 SiteLink-Default-Paris — Link Default ↔ Paris
+
+AD replication link between **Default-First-Site-Name** and **Site-Paris**.
+
+## Parameters
+| Parameter | Value |
+|-----------|-------|
+| Transport | IP (RPC/IP) |
+| Cost | 100 |
+| Interval | 15 minutes |
+| Schedule | Always available |
+
+## ⚠️ Best practices
+- Regularly check WAN latency between Paris and headquarters",
+
+                ["Desc.Sample.SiteLinkDL"] = @"# 🔗 SiteLink-Default-Lyon — Link Default ↔ Lyon
+
+AD replication link between **Default-First-Site-Name** and **Site-Lyon**.
+
+## Parameters
+| Parameter | Value |
+|-----------|-------|
+| Transport | IP (RPC/IP) |
+| Cost | 150 |
+| Interval | 30 minutes |
+| Schedule | Always available |
+
+## ⚠️ Best practices
+- Higher cost (150) to prefer replication via Paris under normal conditions",
+
                 ["Desc.Sample.GMSA"] = @"# 🔐 svc-webapp — Group Managed Service Account (Tier 1)
 
 Group Managed Service Account for the organization's web application.
@@ -2914,6 +2986,18 @@ Password Settings Object applied to **Tier 2 standard user accounts**.
                 ["Sites.AddLink"] = "Add link",
                 ["Sites.Section.Sites"] = "Sites",
                 ["Sites.Section.Links"] = "Replication Links",
+                ["Sites.Label.Sites"] = "Sites",
+                ["Sites.Label.Links"] = "Links",
+                ["Sites.Filter.Placeholder"] = "Filter by name or location…",
+                ["Sites.Column.GPOs"] = "GPOs",
+                ["Sites.Column.LinkName"] = "Link name",
+                ["Sites.Column.LinkSites"] = "Sites",
+                ["Sites.Detail.Selected"] = "📍 Selected site:",
+                ["Sites.Detail.Subnets"] = "🌐  Subnets",
+                ["Sites.Detail.DCs"] = "🖥  Domain Controllers",
+                ["Sites.Detail.GPOs"] = "📄  Linked GPOs",
+                ["Sites.Status"] = "{0} site(s) — {1} link(s)",
+                ["Sites.NoSites"] = "No sites — import topology via PowerShell script (File › Generate import script)",
 
                 // Report export
                 ["Menu.File.ExportReport"] = "Export Documentation Report...",

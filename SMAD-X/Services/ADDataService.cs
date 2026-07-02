@@ -1228,6 +1228,32 @@ namespace SMADX.Services
             // ── Lien Default ↔ Paris ─────────────────────────────────────────
             topology.SiteLinks.Add(new ADSiteLink
             {
+                Name                       = "SiteLink-Default-Paris",
+                Transport                  = "IP",
+                Cost                       = 100,
+                ReplicationIntervalMinutes = 15,
+                ReplicationSchedule        = "Always",
+                BridgeheadAuto             = true,
+                Description                = loc["Desc.Sample.SiteLinkDP"],
+                SiteNames                  = { "Default-First-Site-Name", "Site-Paris" }
+            });
+
+            // ── Lien Default ↔ Lyon ──────────────────────────────────────────
+            topology.SiteLinks.Add(new ADSiteLink
+            {
+                Name                       = "SiteLink-Default-Lyon",
+                Transport                  = "IP",
+                Cost                       = 150,
+                ReplicationIntervalMinutes = 30,
+                ReplicationSchedule        = "Always",
+                BridgeheadAuto             = true,
+                Description                = loc["Desc.Sample.SiteLinkDL"],
+                SiteNames                  = { "Default-First-Site-Name", "Site-Lyon" }
+            });
+
+            // ── Lien Paris ↔ Lyon ────────────────────────────────────────────
+            topology.SiteLinks.Add(new ADSiteLink
+            {
                 Name                       = "DEFAULTIPSITELINK",
                 Transport                  = "IP",
                 Cost                       = 100,
@@ -1235,7 +1261,7 @@ namespace SMADX.Services
                 ReplicationSchedule        = "Always",
                 BridgeheadAuto             = true,
                 Description                = loc["Desc.Sample.SiteLinkPL"],
-                SiteNames                  = { "Default-First-Site-Name", "Site-Paris", "Site-Lyon" }
+                SiteNames                  = { "Site-Paris", "Site-Lyon" }
             });
 
             return topology;

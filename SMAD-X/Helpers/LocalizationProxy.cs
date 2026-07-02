@@ -257,10 +257,21 @@ namespace SMADX.Helpers
         public string SitesColumnInterval    => _localizationService["Sites.Column.Interval"];
         public string SitesColumnTransport   => _localizationService["Sites.Column.Transport"];
         public string SitesColumnLinkedSites => _localizationService["Sites.Column.LinkedSites"];
+        public string SitesColumnGPOs        => _localizationService["Sites.Column.GPOs"];
+        public string SitesColumnLinkName    => _localizationService["Sites.Column.LinkName"];
+        public string SitesColumnLinkSites   => _localizationService["Sites.Column.LinkSites"];
         public string SitesNoData            => _localizationService["Sites.NoData"];
+        public string SitesNoSites           => _localizationService["Sites.NoSites"];
         public string SitesAdd               => _localizationService["Sites.Add"];
         public string SitesSectionSites      => _localizationService["Sites.Section.Sites"];
         public string SitesSectionLinks      => _localizationService["Sites.Section.Links"];
+        public string SitesLabelSites        => _localizationService["Sites.Label.Sites"];
+        public string SitesLabelLinks        => _localizationService["Sites.Label.Links"];
+        public string SitesFilterPlaceholder => _localizationService["Sites.Filter.Placeholder"];
+        public string SitesDetailSelected    => _localizationService["Sites.Detail.Selected"];
+        public string SitesDetailSubnets     => _localizationService["Sites.Detail.Subnets"];
+        public string SitesDetailDCs         => _localizationService["Sites.Detail.DCs"];
+        public string SitesDetailGPOs        => _localizationService["Sites.Detail.GPOs"];
 
         // Report export
         public string MenuFileExportReport   => _localizationService["Menu.File.ExportReport"];

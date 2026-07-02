@@ -38,6 +38,9 @@ namespace SMADX.ViewModels
         [ObservableProperty]
         private ObservableCollection<SiteLinkLabelViewModel> _graphEdgeLabels = new();
 
+        [ObservableProperty]
+        private int _graphEdgeCount;
+
         // ── Filter ──────────────────────────────────────────────────────────
         [ObservableProperty]
         private string _filterText = string.Empty;
@@ -70,9 +73,10 @@ namespace SMADX.ViewModels
                 SiteLinks.Add(l);
 
             HasData = Sites.Count > 0;
-            StatusText = $"{Sites.Count} site(s) — {SiteLinks.Count} lien(s)";
-
+            // StatusText is set after BuildGraph so GraphEdges.Count is accurate
             BuildGraph();
+            var loc = SMADX.Services.LocalizationService.Instance;
+            StatusText = string.Format(loc["Sites.Status"], Sites.Count, GraphEdges.Count);
         }
 
         // ── Graph layout ────────────────────────────────────────────────────
@@ -183,6 +187,8 @@ namespace SMADX.ViewModels
                     }
                 }
             }
+
+            GraphEdgeCount = GraphEdges.Count;
         }
 
         partial void OnFilterTextChanged(string value) => ApplyFilter();
