@@ -234,17 +234,11 @@ namespace SMADX.Views
             // Root = selected folder / domain name
             var rootDir = Path.Combine(folders[0].Path.LocalPath, SanitizeFileName(domainName));
 
-            // Only create type subfolders when the selection spans more than one type
-            bool multipleTypes = toExport.Select(e => e.TypeLabel).Distinct().Count() > 1;
-
             int saved = 0;
             foreach (var element in toExport)
             {
-                // If all selected items share the same type → put directly under rootDir
-                var targetDir = multipleTypes
-                    ? Path.Combine(rootDir, SanitizeFileName(element.TypeLabel))
-                    : rootDir;
-
+                // Always create a subfolder per type under the domain folder
+                var targetDir = Path.Combine(rootDir, SanitizeFileName(element.TypeLabel));
                 Directory.CreateDirectory(targetDir);
                 var stem = Path.Combine(targetDir, SanitizeFileName(element.DisplayName));
 
