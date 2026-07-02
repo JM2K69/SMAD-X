@@ -3,10 +3,10 @@
 		xmlns:helpers="using:SMADX.Helpers"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="360"
+		mc:Ignorable="d" d:DesignWidth="520" d:DesignHeight="560"
 		x:Class="SMADX.Views.ExportReportDialog"
-		Width="480" Height="360"
-		CanResize="False"
+		Width="520" MinHeight="480" MaxHeight="680"
+		CanResize="True"
 		WindowStartupLocation="CenterOwner"
 		Title="Export">
 
@@ -16,55 +16,96 @@
 
 	<Grid RowDefinitions="*,Auto" Margin="20">
 
-		<StackPanel Grid.Row="0" Spacing="16">
+		<ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+			<StackPanel Spacing="14">
 
-			<!-- Title -->
-			<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportDialogTitle}"
-					   FontSize="16" FontWeight="SemiBold"/>
+				<!-- Title -->
+				<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportDialogTitle}"
+						   FontSize="16" FontWeight="SemiBold"/>
 
-			<!-- Scope -->
-			<StackPanel Spacing="6">
-				<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportScopeLabel}"
-						   FontWeight="SemiBold"/>
-				<RadioButton x:Name="RadioCombined"
-							 Content="{Binding Source={StaticResource Loc}, Path=ReportScopeCombined}"
-							 IsChecked="True"
-							 GroupName="Scope"
-							 IsCheckedChanged="OnScopeChanged"/>
-				<RadioButton x:Name="RadioIndividual"
-							 Content="{Binding Source={StaticResource Loc}, Path=ReportScopeIndividual}"
-							 GroupName="Scope"
-							 IsCheckedChanged="OnScopeChanged"/>
-			</StackPanel>
-
-			<!-- Individual element picker -->
-			<StackPanel x:Name="IndividualPanel" Spacing="6" IsVisible="False">
-				<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportScopeObjectLabel}"
-						   FontWeight="SemiBold"/>
-				<ComboBox x:Name="ElementComboBox"
-						  HorizontalAlignment="Stretch"
-						  DisplayMemberBinding="{Binding DisplayName}"/>
-			</StackPanel>
-
-			<!-- Format -->
-			<StackPanel Spacing="6">
-				<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportFormatLabel}"
-						   FontWeight="SemiBold"/>
-				<StackPanel Orientation="Horizontal" Spacing="16">
-					<RadioButton x:Name="RadioMd"
-								 Content="{Binding Source={StaticResource Loc}, Path=ReportFormatMarkdown}"
+				<!-- Scope -->
+				<StackPanel Spacing="6">
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportScopeLabel}"
+							   FontWeight="SemiBold"/>
+					<RadioButton x:Name="RadioCombined"
+								 Content="{Binding Source={StaticResource Loc}, Path=ReportScopeCombined}"
 								 IsChecked="True"
-								 GroupName="Format"/>
-					<RadioButton x:Name="RadioDocx"
-								 Content="{Binding Source={StaticResource Loc}, Path=ReportFormatDocx}"
-								 GroupName="Format"/>
-					<RadioButton x:Name="RadioPdf"
-								 Content="{Binding Source={StaticResource Loc}, Path=ReportFormatPdf}"
-								 GroupName="Format"/>
+								 GroupName="Scope"
+								 IsCheckedChanged="OnScopeChanged"/>
+					<RadioButton x:Name="RadioIndividual"
+								 Content="{Binding Source={StaticResource Loc}, Path=ReportScopeIndividual}"
+								 GroupName="Scope"
+								 IsCheckedChanged="OnScopeChanged"/>
 				</StackPanel>
-			</StackPanel>
 
-		</StackPanel>
+				<!-- Individual element picker -->
+				<StackPanel x:Name="IndividualPanel" Spacing="8" IsVisible="False">
+
+					<!-- Type filter -->
+					<StackPanel Spacing="4">
+						<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportScopeTypeFilter}"
+								   FontWeight="SemiBold"/>
+						<ComboBox x:Name="TypeFilterCombo"
+								  HorizontalAlignment="Stretch"
+								  SelectionChanged="OnTypeFilterChanged"/>
+					</StackPanel>
+
+					<!-- Header: label + Select All / None -->
+					<DockPanel>
+						<TextBlock DockPanel.Dock="Left"
+								   Text="{Binding Source={StaticResource Loc}, Path=ReportScopeObjectLabel}"
+								   FontWeight="SemiBold" VerticalAlignment="Center"/>
+						<StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6"
+									HorizontalAlignment="Right">
+							<Button x:Name="BtnSelectAll"
+									Content="{Binding Source={StaticResource Loc}, Path=ReportScopeSelectAll}"
+									Click="OnSelectAll" Padding="8,3" FontSize="11"/>
+							<Button x:Name="BtnSelectNone"
+									Content="{Binding Source={StaticResource Loc}, Path=ReportScopeSelectNone}"
+									Click="OnSelectNone" Padding="8,3" FontSize="11"/>
+						</StackPanel>
+					</DockPanel>
+
+					<!-- Scrollable checkbox list -->
+					<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="4">
+						<ScrollViewer Height="200" VerticalScrollBarVisibility="Auto">
+							<ItemsControl x:Name="ElementList" Margin="6">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+												  Content="{Binding DisplayName}"
+												  Margin="2,2"/>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</ScrollViewer>
+					</Border>
+
+					<!-- Selected count -->
+					<TextBlock x:Name="SelectedCountLabel" FontSize="11" Foreground="Gray"/>
+
+				</StackPanel>
+
+				<!-- Format (combined only – individual is always .md) -->
+				<StackPanel x:Name="FormatPanel" Spacing="6">
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportFormatLabel}"
+							   FontWeight="SemiBold"/>
+					<StackPanel Orientation="Horizontal" Spacing="16">
+						<RadioButton x:Name="RadioMd"
+									 Content="{Binding Source={StaticResource Loc}, Path=ReportFormatMarkdown}"
+									 IsChecked="True"
+									 GroupName="Format"/>
+						<RadioButton x:Name="RadioDocx"
+									 Content="{Binding Source={StaticResource Loc}, Path=ReportFormatDocx}"
+									 GroupName="Format"/>
+						<RadioButton x:Name="RadioPdf"
+									 Content="{Binding Source={StaticResource Loc}, Path=ReportFormatPdf}"
+									 GroupName="Format"/>
+					</StackPanel>
+				</StackPanel>
+
+			</StackPanel>
+		</ScrollViewer>
 
 		<!-- Buttons -->
 		<Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">

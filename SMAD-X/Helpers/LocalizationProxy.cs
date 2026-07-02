@@ -285,6 +285,10 @@ namespace SMADX.Helpers
         public string ReportScopeCombined       => _localizationService["Report.Scope.Combined"];
         public string ReportScopeIndividual     => _localizationService["Report.Scope.Individual"];
         public string ReportScopeObjectLabel    => _localizationService["Report.Scope.Object.Label"];
+        public string ReportScopeTypeFilter     => _localizationService["Report.Scope.TypeFilter"];
+        public string ReportScopeTypeAll        => _localizationService["Report.Scope.TypeAll"];
+        public string ReportScopeSelectAll      => _localizationService["Report.Scope.SelectAll"];
+        public string ReportScopeSelectNone     => _localizationService["Report.Scope.SelectNone"];
         public string ReportButtonExport        => _localizationService["Report.Button.Export"];
         public string ReportButtonCancel        => _localizationService["Report.Button.Cancel"];
         public string ReportImportTitle         => _localizationService["Report.Import.Title"];

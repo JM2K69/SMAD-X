@@ -11,31 +11,34 @@ using System.Threading.Tasks;
 
 namespace SMADX.Views
 {
-    /// <summary>
-    /// Item shown in the individual-element ComboBox.
-    /// Wraps ADObject, ADSite, or ADSiteLink.
-    /// </summary>
+    // ── Checkable item shown in the element list ─────────────────────────────
+
     public class DocumentedElement
     {
-        public string DisplayName { get; }
-        public object Source      { get; }
+        public string  DisplayName { get; }
+        public bool    IsChecked   { get; set; } = true;
+        public string  TypeLabel   { get; }
+        public object  Source      { get; }
 
         public DocumentedElement(ADObject obj)
         {
             Source      = obj;
-            DisplayName = $"{TypeIcon(obj.Type)} {obj.Name}  [{obj.Type}]";
+            TypeLabel   = obj.Type.ToString();
+            DisplayName = $"{TypeIcon(obj.Type)} {obj.Name}";
         }
 
         public DocumentedElement(ADSite site)
         {
             Source      = site;
-            DisplayName = $"🏢 {site.Name}  [Site]";
+            TypeLabel   = "Site";
+            DisplayName = $"🏢 {site.Name}";
         }
 
         public DocumentedElement(ADSiteLink link)
         {
             Source      = link;
-            DisplayName = $"🔗 {link.Name}  [SiteLink]";
+            TypeLabel   = "SiteLink";
+            DisplayName = $"🔗 {link.Name}";
         }
 
         private static string TypeIcon(ADObjectType t) => t switch
@@ -59,66 +62,123 @@ namespace SMADX.Views
         private readonly ADDocumentReportService _reportSvc = new();
         private readonly LocalizationService     _loc       = LocalizationService.Instance;
 
+        // Full flat list of all documented elements
+        private List<DocumentedElement> _allElements = new();
+        // Currently visible subset (after type filter)
+        private List<DocumentedElement> _filtered    = new();
+
         public ExportReportDialog(ADRootDocument document)
         {
             _document = document;
             InitializeComponent();
-            PopulateElements();
+            BuildElementList();
+            PopulateTypeFilter();
+            RefreshList(null);
+            UpdateCount();
         }
 
-        // ── Populate the individual-element combo ────────────────────────────
+        // ── Build master list ────────────────────────────────────────────────
 
-        private void PopulateElements()
+        private void BuildElementList()
         {
-            var items = new List<DocumentedElement>();
+            _allElements.Clear();
 
             if (_document.Domain is not null)
-            {
                 foreach (var obj in FlattenTree(_document.Domain))
                     if (!string.IsNullOrWhiteSpace(obj.Description))
-                        items.Add(new DocumentedElement(obj));
-            }
+                        _allElements.Add(new DocumentedElement(obj));
 
             if (_document.SitesTopology is not null)
             {
                 foreach (var site in _document.SitesTopology.Sites)
                     if (!string.IsNullOrWhiteSpace(site.Description))
-                        items.Add(new DocumentedElement(site));
+                        _allElements.Add(new DocumentedElement(site));
 
                 foreach (var link in _document.SitesTopology.SiteLinks)
                     if (!string.IsNullOrWhiteSpace(link.Description))
-                        items.Add(new DocumentedElement(link));
+                        _allElements.Add(new DocumentedElement(link));
             }
+        }
 
-            ElementComboBox.ItemsSource = items;
-            if (items.Count > 0)
-                ElementComboBox.SelectedIndex = 0;
+        // ── Type filter combo ────────────────────────────────────────────────
+
+        private void PopulateTypeFilter()
+        {
+            var types = new List<string> { _loc["Report.Scope.TypeAll"] };
+            types.AddRange(_allElements.Select(e => e.TypeLabel).Distinct().OrderBy(t => t));
+            TypeFilterCombo.ItemsSource    = types;
+            TypeFilterCombo.SelectedIndex  = 0;
+        }
+
+        private void OnTypeFilterChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            var selected = TypeFilterCombo?.SelectedItem as string;
+            RefreshList(selected == _loc["Report.Scope.TypeAll"] ? null : selected);
+            UpdateCount();
+        }
+
+        private void RefreshList(string? typeFilter)
+        {
+            _filtered = typeFilter is null
+                ? _allElements.ToList()
+                : _allElements.Where(x => x.TypeLabel == typeFilter).ToList();
+
+            ElementList.ItemsSource = null;
+            ElementList.ItemsSource = _filtered;
+        }
+
+        private void UpdateCount()
+        {
+            int count = _filtered.Count(e => e.IsChecked);
+            if (SelectedCountLabel is not null)
+                SelectedCountLabel.Text = string.Format(_loc["Report.Scope.SelectedCount"], count);
+        }
+
+        // ── Select all / none ────────────────────────────────────────────────
+
+        private void OnSelectAll(object? sender, RoutedEventArgs e)
+        {
+            foreach (var item in _filtered) item.IsChecked = true;
+            RefreshCheckboxes();
+        }
+
+        private void OnSelectNone(object? sender, RoutedEventArgs e)
+        {
+            foreach (var item in _filtered) item.IsChecked = false;
+            RefreshCheckboxes();
+        }
+
+        private void RefreshCheckboxes()
+        {
+            // Force ItemsControl to re-render the bindings
+            ElementList.ItemsSource = null;
+            ElementList.ItemsSource = _filtered;
+            UpdateCount();
         }
 
         // ── Scope radio toggle ───────────────────────────────────────────────
 
         private void OnScopeChanged(object? sender, RoutedEventArgs e)
         {
-            if (IndividualPanel is not null && RadioIndividual is not null)
-                IndividualPanel.IsVisible = RadioIndividual.IsChecked == true;
+            bool isIndividual = RadioIndividual?.IsChecked == true;
+            if (IndividualPanel  is not null) IndividualPanel.IsVisible  = isIndividual;
+            if (FormatPanel      is not null) FormatPanel.IsVisible      = !isIndividual;
         }
 
         // ── Export ───────────────────────────────────────────────────────────
 
         private async void OnExportClick(object? sender, RoutedEventArgs e)
         {
-            bool isCombined = RadioCombined?.IsChecked == true;
-            bool isDocx     = RadioDocx?.IsChecked     == true;
-            bool isPdf      = RadioPdf?.IsChecked      == true;
-            string ext      = isDocx ? "docx" : isPdf ? "pdf" : "md";
-
-            if (isCombined)
+            if (RadioCombined?.IsChecked == true)
+            {
+                bool isDocx = RadioDocx?.IsChecked == true;
+                bool isPdf  = RadioPdf?.IsChecked  == true;
+                string ext  = isDocx ? "docx" : isPdf ? "pdf" : "md";
                 await ExportCombined(ext);
+            }
             else
             {
-                var selected = ElementComboBox?.SelectedItem as DocumentedElement;
-                if (selected is not null)
-                    await ExportIndividual(selected);
+                await ExportIndividualChecked();
             }
         }
 
@@ -140,37 +200,60 @@ namespace SMADX.Views
                 "pdf"  => await _reportSvc.ExportPdfAsync(_document, path),
                 _      => await _reportSvc.ExportMarkdownAsync(_document, path),
             };
-
             Close(ok ? path : null);
         }
 
-        private async Task ExportIndividual(DocumentedElement element)
+        private async Task ExportIndividualChecked()
         {
-            var suggestedName = SanitizeFileName(element.DisplayName) + ".md";
+            var toExport = _allElements.Where(e => e.IsChecked).ToList();
+            if (toExport.Count == 0) { Close(null); return; }
 
-            var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            // Single item → save-as picker
+            if (toExport.Count == 1)
             {
-                Title             = _loc["Report.Dialog.Title"],
-                SuggestedFileName = suggestedName,
-                DefaultExtension  = "md",
-                FileTypeChoices   = new List<FilePickerFileType>
+                var element = toExport[0];
+                var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
                 {
-                    new(_loc["FileType.Markdown"]) { Patterns = new[] { "*.md" } }
-                }
-            });
-            if (file is null) return;
+                    Title             = _loc["Report.Dialog.Title"],
+                    SuggestedFileName = SanitizeFileName(element.DisplayName) + ".md",
+                    DefaultExtension  = "md",
+                    FileTypeChoices   = new List<FilePickerFileType>
+                    {
+                        new(_loc["FileType.Markdown"]) { Patterns = new[] { "*.md" } }
+                    }
+                });
+                if (file is null) return;
+                bool ok = await ExportElement(element, file.Path.LocalPath);
+                Close(ok ? file.Path.LocalPath : null);
+                return;
+            }
 
-            var path = file.Path.LocalPath;
-            bool ok = element.Source switch
+            // Multiple items → folder picker
+            var folders = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
             {
-                ADObject   obj  => await _reportSvc.ExportSingleObjectMarkdownAsync(obj, path),
-                ADSite     site => await _reportSvc.ExportSingleSiteMarkdownAsync(site, path),
-                ADSiteLink link => await _reportSvc.ExportSingleSiteLinkMarkdownAsync(link, path),
-                _               => false
-            };
+                Title         = _loc["Report.Export.FolderTitle"],
+                AllowMultiple = false,
+            });
+            if (folders.Count == 0) return;
 
-            Close(ok ? path : null);
+            var dir   = folders[0].Path.LocalPath;
+            int saved = 0;
+            foreach (var element in toExport)
+            {
+                var path = Path.Combine(dir, SanitizeFileName(element.DisplayName) + ".md");
+                if (await ExportElement(element, path)) saved++;
+            }
+            Close(string.Format(_loc["Report.Export.MultiDone"], saved) + " " + dir);
         }
+
+        private Task<bool> ExportElement(DocumentedElement element, string path) =>
+            element.Source switch
+            {
+                ADObject   obj  => _reportSvc.ExportSingleObjectMarkdownAsync(obj, path),
+                ADSite     site => _reportSvc.ExportSingleSiteMarkdownAsync(site, path),
+                ADSiteLink link => _reportSvc.ExportSingleSiteLinkMarkdownAsync(link, path),
+                _               => Task.FromResult(false)
+            };
 
         private void OnCancelClick(object? sender, RoutedEventArgs e) => Close(null);
 
@@ -178,15 +261,16 @@ namespace SMADX.Views
 
         private List<FilePickerFileType> BuildFileTypeChoices(string preferredExt)
         {
-            var list = new List<FilePickerFileType>();
             var mdType   = new FilePickerFileType(_loc["FileType.Markdown"]) { Patterns = new[] { "*.md" } };
             var docxType = new FilePickerFileType(_loc["FileType.Word"])     { Patterns = new[] { "*.docx" } };
             var pdfType  = new FilePickerFileType(_loc["FileType.Pdf"])      { Patterns = new[] { "*.pdf" } };
 
-            if (preferredExt == "docx")      list.AddRange(new[] { docxType, mdType, pdfType });
-            else if (preferredExt == "pdf")  list.AddRange(new[] { pdfType,  mdType, docxType });
-            else                             list.AddRange(new[] { mdType,   docxType, pdfType });
-            return list;
+            return preferredExt switch
+            {
+                "docx" => new List<FilePickerFileType> { docxType, mdType, pdfType },
+                "pdf"  => new List<FilePickerFileType> { pdfType,  mdType, docxType },
+                _      => new List<FilePickerFileType> { mdType,   docxType, pdfType },
+            };
         }
 
         private static string SanitizeFileName(string name)
