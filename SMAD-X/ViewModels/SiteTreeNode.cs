@@ -5,7 +5,8 @@ namespace SMADX.ViewModels
 {
     /// <summary>
     /// Lightweight tree-node for the Sites panel in the main window.
-    /// Hierarchy: SiteTreeNode (site) → SiteTreeNode (subnet/DC/GPO rows)
+    /// Shows only Subnets and Domain Controllers — GPO Links are managed
+    /// via the Relations window.
     /// </summary>
     public class SiteTreeNode
     {
@@ -36,15 +37,6 @@ namespace SMADX.ViewModels
                 foreach (var dc in site.DomainControllers)
                     dcGroup.Children.Add(new SiteTreeNode($"💻 {dc}", "💻"));
                 Children.Add(dcGroup);
-            }
-
-            // Linked GPOs group
-            if (site.LinkedGPOs.Count > 0)
-            {
-                var gpoGroup = new SiteTreeNode("📋 GPO Links");
-                foreach (var gpo in site.LinkedGPOs)
-                    gpoGroup.Children.Add(new SiteTreeNode($"📋 {gpo}", "📋"));
-                Children.Add(gpoGroup);
             }
         }
 
