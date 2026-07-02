@@ -472,11 +472,9 @@
                                                         <Button Click="OnImportDescriptionClick"
                                                                 ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=MenuFileImportDescription}"
                                                                 IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}"
-                                                                Padding="8,4">
-                                                            <StackPanel Orientation="Horizontal" Spacing="3">
-                                                                <TextBlock Text="📥" FontFamily="Segoe UI Emoji" FontSize="13"/>
-                                                                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=MenuFileImportDescription}"/>
-                                                            </StackPanel>
+                                                                Padding="6,4" Width="32">
+                                                            <TextBlock Text="📥" FontFamily="Segoe UI Emoji" FontSize="13"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                         </Button>
                                                         <Button Command="{Binding #MainWindowRoot.DataContext.ToggleMarkdownEditCommand}"
                                                                 HorizontalAlignment="Right"
