@@ -229,12 +229,12 @@ namespace SMADX.Views
 
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
-                Title             = "Exporter l'arborescence en PNG",
+                Title             = LocalizationService.Instance["Dialog.ExportPng.Title"],
                 SuggestedFileName = "arborescence_ad.png",
                 DefaultExtension  = "png",
                 FileTypeChoices   = new[]
                 {
-                    new FilePickerFileType("Image PNG") { Patterns = new[] { "*.png" } }
+                    new FilePickerFileType(LocalizationService.Instance["FileType.ImagePNG"]) { Patterns = new[] { "*.png" } }
                 }
             });
 

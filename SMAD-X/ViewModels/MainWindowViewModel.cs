@@ -347,13 +347,14 @@ namespace SMADX.ViewModels
                 var window = GetMainWindow();
                 if (window == null) return;
 
+                var loc = LocalizationService.Instance;
                 var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
                 {
-                    Title = "Sauvegarder la structure AD",
+                    Title = loc["Dialog.Save.Title"],
                     FileTypeChoices = new[] 
                     { 
-                        new FilePickerFileType("SMAD-X JSON") { Patterns = new[] { "*.smad-x.json" } },
-                        new FilePickerFileType("Tous les fichiers") { Patterns = new[] { "*" } }
+                        new FilePickerFileType(loc["FileType.SMADXJSON"]) { Patterns = new[] { "*.smad-x.json" } },
+                        new FilePickerFileType(loc["FileType.AllFiles"]) { Patterns = new[] { "*" } }
                     },
                     DefaultExtension = "smad-x.json",
                     SuggestedFileName = GetSmadxFileName()
@@ -363,12 +364,12 @@ namespace SMADX.ViewModels
                 {
                     var path = file.Path.LocalPath;
                     var success = await _dataService.SaveToFileAsync(RootNodes[0].Data, path);
-                    StatusMessage = success ? $"Sauvegardé dans {path}" : "Erreur lors de la sauvegarde";
+                    StatusMessage = success ? string.Format(loc["Status.Saved"], path) : loc["Status.ErrorSave"];
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Erreur : {ex.Message}";
+                StatusMessage = string.Format(LocalizationService.Instance["Status.Error"], ex.Message);
             }
         }
 
@@ -380,13 +381,15 @@ namespace SMADX.ViewModels
                 var window = GetMainWindow();
                 if (window == null) return;
 
+                var loc = LocalizationService.Instance;
                 var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
                 {
-                    Title = "Charger une structure AD",
+                    Title = loc["Dialog.Load.Title"],
                     FileTypeFilter = new[] 
                     { 
-                        new FilePickerFileType("SMAD-X JSON") { Patterns = new[] { "*.smad-x.json" } },
-                        new FilePickerFileType("Tous les fichiers") { Patterns = new[] { "*" } }
+                        new FilePickerFileType(loc["FileType.SMADXJSON"]) { Patterns = new[] { "*.smad-x.json" } },
+                        new FilePickerFileType(loc["FileType.JSON"]) { Patterns = new[] { "*.json" } },
+                        new FilePickerFileType(loc["FileType.AllFiles"]) { Patterns = new[] { "*" } }
                     },
                     AllowMultiple = false
                 });
@@ -402,17 +405,17 @@ namespace SMADX.ViewModels
                         RootNodes.Clear();
                         RootNodes.Add(rootNode);
                         UpdateObjectCounts();
-                        StatusMessage = $"Chargé depuis {path}";
+                        StatusMessage = string.Format(loc["Status.Loaded"], path);
                     }
                     else
                     {
-                        StatusMessage = "Erreur lors du chargement";
+                        StatusMessage = loc["Status.ErrorLoad"];
                     }
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Erreur : {ex.Message}";
+                StatusMessage = string.Format(LocalizationService.Instance["Status.Error"], ex.Message);
             }
         }
 
@@ -424,13 +427,14 @@ namespace SMADX.ViewModels
                 var window = GetMainWindow();
                 if (window == null) return;
 
+                var loc = LocalizationService.Instance;
                 var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
                 {
-                    Title = "Exporter la structure en JSON",
+                    Title = loc["Dialog.ExportJson.Title"],
                     FileTypeChoices = new[] 
                     { 
-                        new FilePickerFileType("SMAD-X JSON") { Patterns = new[] { "*.smad-x.json" } },
-                        new FilePickerFileType("Tous les fichiers") { Patterns = new[] { "*" } }
+                        new FilePickerFileType(loc["FileType.SMADXJSON"]) { Patterns = new[] { "*.smad-x.json" } },
+                        new FilePickerFileType(loc["FileType.AllFiles"]) { Patterns = new[] { "*" } }
                     },
                     DefaultExtension = "smad-x.json",
                     SuggestedFileName = GetSmadxFileName()
@@ -440,12 +444,12 @@ namespace SMADX.ViewModels
                 {
                     var path = file.Path.LocalPath;
                     var success = await _dataService.SaveToFileAsync(RootNodes[0].Data, path);
-                    StatusMessage = success ? $"Structure exportée vers {path}" : "Erreur lors de l'export";
+                    StatusMessage = success ? string.Format(loc["Status.ExportedJson"], path) : loc["Status.ErrorExportJson"];
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Erreur : {ex.Message}";
+                StatusMessage = string.Format(LocalizationService.Instance["Status.Error"], ex.Message);
             }
         }
 
@@ -457,13 +461,14 @@ namespace SMADX.ViewModels
                 var window = GetMainWindow();
                 if (window == null) return;
 
+                var loc = LocalizationService.Instance;
                 var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
                 {
-                    Title = "Exporter en script PowerShell",
+                    Title = loc["Dialog.ExportPowerShell.Title"],
                     FileTypeChoices = new[] 
                     { 
-                        new FilePickerFileType("PowerShell") { Patterns = new[] { "*.ps1" } },
-                        new FilePickerFileType("Tous les fichiers") { Patterns = new[] { "*" } }
+                        new FilePickerFileType(loc["FileType.PowerShell"]) { Patterns = new[] { "*.ps1" } },
+                        new FilePickerFileType(loc["FileType.AllFiles"]) { Patterns = new[] { "*" } }
                     },
                     DefaultExtension = "ps1",
                     SuggestedFileName = $"Create-ADStructure_{DateTime.Now:yyyyMMdd_HHmmss}.ps1"
@@ -473,12 +478,12 @@ namespace SMADX.ViewModels
                 {
                     var path = file.Path.LocalPath;
                     var success = await _powerShellExportService.ExportToPowerShellAsync(RootNodes[0].Data, path);
-                    StatusMessage = success ? $"Script PowerShell exporté vers {path}" : "Erreur lors de l'export";
+                    StatusMessage = success ? string.Format(loc["Status.ExportedPowerShell"], path) : loc["Status.ErrorExportPowerShell"];
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Erreur : {ex.Message}";
+                StatusMessage = string.Format(LocalizationService.Instance["Status.Error"], ex.Message);
             }
         }
 
@@ -490,13 +495,14 @@ namespace SMADX.ViewModels
                 var window = GetMainWindow();
                 if (window == null) return;
 
+                var loc = LocalizationService.Instance;
                 var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
                 {
-                    Title = "Générer le script PowerShell d'import depuis AD",
+                    Title = loc["Dialog.GenerateImportScript.Title"],
                     FileTypeChoices = new[]
                     {
-                        new FilePickerFileType("PowerShell") { Patterns = new[] { "*.ps1" } },
-                        new FilePickerFileType("Tous les fichiers") { Patterns = new[] { "*" } }
+                        new FilePickerFileType(loc["FileType.PowerShell"]) { Patterns = new[] { "*.ps1" } },
+                        new FilePickerFileType(loc["FileType.AllFiles"]) { Patterns = new[] { "*" } }
                     },
                     DefaultExtension = "ps1",
                     SuggestedFileName = $"Export-ADToSMAD-X.ps1"
@@ -507,13 +513,13 @@ namespace SMADX.ViewModels
                     var path = file.Path.LocalPath;
                     var success = await _importPowerShellService.GenerateImportScriptAsync(path);
                     StatusMessage = success
-                        ? $"Script d'import généré : {path}  —  Exécutez-le sur votre contrôleur de domaine"
-                        : "Erreur lors de la génération du script d'import";
+                        ? string.Format(loc["Status.GeneratedImportScript"], path)
+                        : loc["Status.ErrorGenerateImportScript"];
                 }
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Erreur : {ex.Message}";
+                StatusMessage = string.Format(LocalizationService.Instance["Status.Error"], ex.Message);
             }
         }
 

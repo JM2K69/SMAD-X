@@ -210,6 +210,13 @@ namespace SMADX.Services
                 ["Status.Loaded"] = "Structure chargée : {0}",
                 ["Status.ExportedJson"] = "Exporté en JSON : {0}",
                 ["Status.ExportedPowerShell"] = "Exporté en PowerShell : {0}",
+                ["Status.GeneratedImportScript"] = "Script d'import généré : {0}  —  Exécutez-le sur votre contrôleur de domaine",
+                ["Status.ErrorSave"] = "Erreur lors de la sauvegarde",
+                ["Status.ErrorLoad"] = "Erreur lors du chargement",
+                ["Status.ErrorExportJson"] = "Erreur lors de l'export JSON",
+                ["Status.ErrorExportPowerShell"] = "Erreur lors de l'export PowerShell",
+                ["Status.ErrorGenerateImportScript"] = "Erreur lors de la génération du script d'import",
+                ["Status.Error"] = "Erreur : {0}",
 
                 // Dialogues
                 ["Dialog.NewDomain.Title"] = "Créer un nouveau domaine Active Directory",
@@ -225,6 +232,34 @@ namespace SMADX.Services
                 ["Dialog.NewDomain.ValidationEmpty"] = "Le nom de domaine ne peut pas être vide.",
                 ["Dialog.NewDomain.ValidationNoDot"] = "Le nom de domaine doit contenir au moins un point (ex: domaine.com)",
                 ["Dialog.NewDomain.ValidationInvalidChars"] = "Le nom de domaine ne peut contenir que des lettres, chiffres, points et tirets.",
+
+                // Boîtes de dialogue fichiers
+                ["Dialog.Save.Title"] = "Sauvegarder la structure AD",
+                ["Dialog.Load.Title"] = "Charger une structure AD",
+                ["Dialog.ExportJson.Title"] = "Exporter la structure en JSON",
+                ["Dialog.ExportPowerShell.Title"] = "Exporter en script PowerShell",
+                ["Dialog.GenerateImportScript.Title"] = "Générer le script PowerShell d'import depuis AD",
+                ["Dialog.ExportPng.Title"] = "Exporter l'arborescence en PNG",
+
+                // Types de fichiers
+                ["FileType.AllFiles"] = "Tous les fichiers",
+                ["FileType.SMADXJSON"] = "SMAD-X JSON",
+                ["FileType.JSON"] = "Fichiers JSON",
+                ["FileType.PowerShell"] = "PowerShell",
+                ["FileType.ImagePNG"] = "Image PNG",
+
+                // Fenêtre des raccourcis clavier
+                ["Shortcut.WindowTitle"] = "Raccourcis clavier",
+                ["Shortcut.CloseButton"] = "Fermer",
+                ["Shortcut.Header"] = "Raccourcis clavier disponibles",
+                ["Shortcut.Tip"] = "Astuce : Vous pouvez aussi utiliser les menus et les boutons de la barre d'outils.",
+                ["Shortcut.Ctrl_N"] = "Nouvelle structure",
+                ["Shortcut.Ctrl_O"] = "Ouvrir un fichier",
+                ["Shortcut.Ctrl_S"] = "Enregistrer",
+                ["Shortcut.Ctrl_C"] = "Copier l'objet sélectionné",
+                ["Shortcut.Ctrl_V"] = "Coller l'objet copié",
+                ["Shortcut.F2"] = "Renommer l'objet sélectionné",
+                ["Shortcut.Delete"] = "Supprimer l'objet sélectionné",
 
                 // Fenêtre de configuration des tiers
                 ["TierConfig.Title"] = "Configuration des Tiers",
@@ -1394,6 +1429,13 @@ Password Settings Object appliqué aux **comptes utilisateurs standards Tier 2**
                 ["Status.Loaded"] = "Structure loaded: {0}",
                 ["Status.ExportedJson"] = "Exported to JSON: {0}",
                 ["Status.ExportedPowerShell"] = "Exported to PowerShell: {0}",
+                ["Status.GeneratedImportScript"] = "Import script generated: {0}  —  Run it on your domain controller",
+                ["Status.ErrorSave"] = "Error saving structure",
+                ["Status.ErrorLoad"] = "Error loading structure",
+                ["Status.ErrorExportJson"] = "Error exporting to JSON",
+                ["Status.ErrorExportPowerShell"] = "Error exporting to PowerShell",
+                ["Status.ErrorGenerateImportScript"] = "Error generating import script",
+                ["Status.Error"] = "Error: {0}",
 
                 // Dialogs
                 ["Dialog.NewDomain.Title"] = "Create new Active Directory Domain",
@@ -1409,6 +1451,34 @@ Password Settings Object appliqué aux **comptes utilisateurs standards Tier 2**
                 ["Dialog.NewDomain.ValidationEmpty"] = "Domain name cannot be empty.",
                 ["Dialog.NewDomain.ValidationNoDot"] = "Domain name must contain at least one dot (e.g.: domain.com)",
                 ["Dialog.NewDomain.ValidationInvalidChars"] = "Domain name can only contain letters, digits, dots and hyphens.",
+
+                // File dialogs
+                ["Dialog.Save.Title"] = "Save AD Structure",
+                ["Dialog.Load.Title"] = "Load AD Structure",
+                ["Dialog.ExportJson.Title"] = "Export Structure to JSON",
+                ["Dialog.ExportPowerShell.Title"] = "Export to PowerShell Script",
+                ["Dialog.GenerateImportScript.Title"] = "Generate PowerShell AD Import Script",
+                ["Dialog.ExportPng.Title"] = "Export Tree to PNG",
+
+                // File types
+                ["FileType.AllFiles"] = "All Files",
+                ["FileType.SMADXJSON"] = "SMAD-X JSON",
+                ["FileType.JSON"] = "JSON Files",
+                ["FileType.PowerShell"] = "PowerShell",
+                ["FileType.ImagePNG"] = "PNG Image",
+
+                // Keyboard shortcuts window
+                ["Shortcut.WindowTitle"] = "Keyboard Shortcuts",
+                ["Shortcut.CloseButton"] = "Close",
+                ["Shortcut.Header"] = "Available keyboard shortcuts",
+                ["Shortcut.Tip"] = "Tip: You can also use the menus and toolbar buttons.",
+                ["Shortcut.Ctrl_N"] = "New structure",
+                ["Shortcut.Ctrl_O"] = "Open file",
+                ["Shortcut.Ctrl_S"] = "Save",
+                ["Shortcut.Ctrl_C"] = "Copy selected object",
+                ["Shortcut.Ctrl_V"] = "Paste copied object",
+                ["Shortcut.F2"] = "Rename selected object",
+                ["Shortcut.Delete"] = "Delete selected object",
 
                 // Tier Configuration Window
                 ["TierConfig.Title"] = "Tier Configuration",
