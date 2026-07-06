@@ -55,9 +55,9 @@
 								<ItemsControl.ItemTemplate>
 									<DataTemplate>
 										<CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
-												  Content="{Binding Label}"
-												  Margin="4,2"
-												  IsCheckedChanged="OnTypeFilterCheckChanged"/>
+													  Content="{Binding Label}"
+													  Margin="4,2"
+													  Click="OnTypeFilterCheckChanged"/>
 									</DataTemplate>
 								</ItemsControl.ItemTemplate>
 							</ItemsControl>

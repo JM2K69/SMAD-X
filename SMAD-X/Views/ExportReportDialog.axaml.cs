@@ -5,19 +5,33 @@ using SMADX.Models;
 using SMADX.Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace SMADX.Views
 {
     // ── Type filter item (one per distinct type label) ───────────────────────
 
-    public class TypeFilterItem
+    public class TypeFilterItem : INotifyPropertyChanged
     {
-        public string Label     { get; }
-        public bool   IsChecked { get; set; } = true;
+        private bool _isChecked = true;
+
+        public string Label { get; }
+
+        public bool IsChecked
+        {
+            get => _isChecked;
+            set { if (_isChecked != value) { _isChecked = value; OnPropertyChanged(); } }
+        }
+
         public TypeFilterItem(string label) => Label = label;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string? name = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     public class DocumentedElement
@@ -136,8 +150,6 @@ namespace SMADX.Views
         private void OnTypeFilterCheckChanged(object? sender, RoutedEventArgs e)
         {
             if (_updatingTypeFilter) return;
-
-            // Identify which filter was just toggled
             if (sender is not CheckBox cb || cb.DataContext is not TypeFilterItem toggled) return;
 
             _updatingTypeFilter = true;
@@ -145,20 +157,17 @@ namespace SMADX.Views
             {
                 if (toggled.IsChecked)
                 {
-                    // Checking a type → show ONLY that type, uncheck all others
+                    // Checking → show ONLY this type
                     foreach (var f in _typeFilters)
                         f.IsChecked = f == toggled;
                 }
                 else
                 {
-                    // Unchecking a type → check all others (show everything except this)
+                    // Unchecking → show all OTHER types
                     foreach (var f in _typeFilters)
                         f.IsChecked = f != toggled;
                 }
-
-                // Refresh the type-filter checkboxes in the UI
-                TypeFilterList.ItemsSource = null;
-                TypeFilterList.ItemsSource = _typeFilters;
+                // INPC on TypeFilterItem updates the checkbox UI automatically
             }
             finally
             {
