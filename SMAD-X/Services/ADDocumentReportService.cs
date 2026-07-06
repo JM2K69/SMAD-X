@@ -472,8 +472,58 @@ namespace SMADX.Services
         /// </summary>
         private static string PreparePdfMarkdown(string markdown)
         {
-            // Replace every emoji the app itself emits with a compact text equivalent.
-            var s = markdown
+            // ── Step 1: flatten every panel-producing construct ──────────────
+            // OfficeIMO.Pdf raises "Panel height exceeds available page content height"
+            // for blockquotes (>), GFM callouts (>[!NOTE]), fenced code (``` / ~~~),
+            // and semantic blocks (:::). Strategy: unwrap blockquote markers, drop
+            // fence/delimiter lines, drop callout-label lines — one stateless pass.
+            var lines  = markdown.Split('\n');
+            var flat   = new StringBuilder(markdown.Length);
+            bool inFence = false;
+            foreach (var rawLine in lines)
+            {
+                var line = rawLine.TrimEnd();
+
+                // Track fenced code blocks so their content lines are also dropped.
+                if (!inFence &&
+                    (line.TrimStart().StartsWith("```", StringComparison.Ordinal) ||
+                     line.TrimStart().StartsWith("~~~", StringComparison.Ordinal)))
+                {
+                    inFence = true;
+                    continue;   // drop the opening fence marker
+                }
+                if (inFence)
+                {
+                    var trimmed = line.TrimStart();
+                    if (trimmed.StartsWith("```", StringComparison.Ordinal) ||
+                        trimmed.StartsWith("~~~", StringComparison.Ordinal))
+                        inFence = false;  // closing fence — drop it too
+                    continue;            // drop all content inside a fence
+                }
+
+                // Unwrap all leading blockquote markers (> >> >>> …)
+                var effective = line;
+                while (effective.Length > 0 && effective[0] == '>')
+                    effective = effective.Length > 1
+                        ? effective.Substring(1).TrimStart(' ')
+                        : string.Empty;
+
+                // Drop ::: semantic-block delimiters
+                if (effective.TrimStart().StartsWith(":::", StringComparison.Ordinal))
+                    continue;
+
+                // Drop standalone GFM callout-type labels  [!NOTE]  [!WARNING] …
+                var et = effective.Trim();
+                if (et.StartsWith("[!", StringComparison.Ordinal) &&
+                    et.EndsWith("]",   StringComparison.Ordinal))
+                    continue;
+
+                flat.AppendLine(effective);
+            }
+            var s = flat.ToString();
+
+            // ── Step 2: emoji → ASCII labels ─────────────────────────────────
+            s = s
                 .Replace("\U0001F310", "[Domain]")
                 .Replace("\U0001F4C1", "[OU]")
                 .Replace("\U0001F4E6", "[Container]")
@@ -489,7 +539,7 @@ namespace SMADX.Services
                 .Replace("\u26A0\uFE0F", "[!]")             // ⚠ with VS16
                 .Replace("\u26A0", "[!]");                   // ⚠ plain
 
-            // Strip any remaining surrogate pairs and non-Arial BMP characters.
+            // ── Step 3: strip remaining surrogate pairs + non-Arial BMP chars ─
             var sb = new StringBuilder(s.Length);
             for (int i = 0; i < s.Length; i++)
             {
