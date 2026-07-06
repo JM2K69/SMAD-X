@@ -3,9 +3,9 @@
 		xmlns:helpers="using:SMADX.Helpers"
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		mc:Ignorable="d" d:DesignWidth="520" d:DesignHeight="560"
+		mc:Ignorable="d" d:DesignWidth="530" d:DesignHeight="580"
 		x:Class="SMADX.Views.ExportReportDialog"
-		Width="520" MinHeight="480" MaxHeight="680"
+		Width="545" MaxHeight="700" SizeToContent="Height"
 		CanResize="True"
 		WindowStartupLocation="CenterOwner"
 		Title="Export">
@@ -14,10 +14,9 @@
 		<helpers:LocalizationProxy x:Key="Loc"/>
 	</Window.Resources>
 
-	<Grid RowDefinitions="*,Auto" Margin="20">
+	<Grid RowDefinitions="Auto,Auto" Margin="20">
 
-		<ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-			<StackPanel Spacing="14">
+		<StackPanel Grid.Row="0" Spacing="14" Margin="0,0,0,0">
 
 				<!-- Title -->
 				<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportDialogTitle}"
@@ -135,9 +134,8 @@
 					</StackPanel>
 
 			</StackPanel>
-		</ScrollViewer>
 
-		<!-- Buttons -->
+			<!-- Buttons -->
 		<Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" Margin="0,12,0,0">
 			<Button Grid.Column="1"
 					Content="{Binding Source={StaticResource Loc}, Path=ReportButtonExport}"
