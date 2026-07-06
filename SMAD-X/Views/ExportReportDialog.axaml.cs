@@ -72,6 +72,7 @@ namespace SMADX.Views
         private List<DocumentedElement> _allElements  = new();
         private List<DocumentedElement> _filtered     = new();
         private List<TypeFilterItem>    _typeFilters  = new();
+        private bool                    _updatingTypeFilter = false;
 
         public ExportReportDialog(ADRootDocument document)
         {
@@ -110,11 +111,23 @@ namespace SMADX.Views
 
         private void PopulateTypeFilter()
         {
-            _typeFilters = _allElements
+            // Always include all known AD types so the filter is predictable,
+            // but mark only the ones that actually have documented items.
+            var typesWithDocs = _allElements
                 .Select(e => e.TypeLabel)
-                .Distinct()
-                .OrderBy(t => t)
-                .Select(t => new TypeFilterItem(t))
+                .ToHashSet();
+
+            // Build a stable ordered list that always includes Computer
+            var allKnownTypes = new[]
+            {
+                "Computer", "Container", "Domain", "GMSA", "Group",
+                "OrganizationalUnit", "PasswordSettingsObject", "Policy",
+                "Site", "SiteLink", "User"
+            };
+
+            _typeFilters = allKnownTypes
+                .Where(t => typesWithDocs.Contains(t))  // only show types that have items
+                .Select(t => new TypeFilterItem(t) { IsChecked = true })
                 .ToList();
 
             TypeFilterList.ItemsSource = _typeFilters;
@@ -122,6 +135,36 @@ namespace SMADX.Views
 
         private void OnTypeFilterCheckChanged(object? sender, RoutedEventArgs e)
         {
+            if (_updatingTypeFilter) return;
+
+            // Identify which filter was just toggled
+            if (sender is not CheckBox cb || cb.DataContext is not TypeFilterItem toggled) return;
+
+            _updatingTypeFilter = true;
+            try
+            {
+                if (toggled.IsChecked)
+                {
+                    // Checking a type → show ONLY that type, uncheck all others
+                    foreach (var f in _typeFilters)
+                        f.IsChecked = f == toggled;
+                }
+                else
+                {
+                    // Unchecking a type → check all others (show everything except this)
+                    foreach (var f in _typeFilters)
+                        f.IsChecked = f != toggled;
+                }
+
+                // Refresh the type-filter checkboxes in the UI
+                TypeFilterList.ItemsSource = null;
+                TypeFilterList.ItemsSource = _typeFilters;
+            }
+            finally
+            {
+                _updatingTypeFilter = false;
+            }
+
             ApplyTypeFilter();
         }
 
