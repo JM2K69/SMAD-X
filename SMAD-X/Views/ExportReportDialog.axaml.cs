@@ -155,19 +155,22 @@ namespace SMADX.Views
             _updatingTypeFilter = true;
             try
             {
-                if (toggled.IsChecked)
+                bool wasAlreadyTheOnlyOne = _typeFilters.All(f => f == toggled ? f.IsChecked : !f.IsChecked);
+
+                if (wasAlreadyTheOnlyOne)
                 {
-                    // Checking → show ONLY this type
+                    // Clicking the sole selected type → reset: select all
                     foreach (var f in _typeFilters)
-                        f.IsChecked = f == toggled;
+                        f.IsChecked = true;
                 }
                 else
                 {
-                    // Unchecking → show all OTHER types
+                    // Clicking any type (checked or unchecked) → make it the ONLY selected one
                     foreach (var f in _typeFilters)
-                        f.IsChecked = f != toggled;
+                        f.IsChecked = f == toggled;
                 }
-                // INPC on TypeFilterItem updates the checkbox UI automatically
+                // Force the checkbox to reflect the new state (binding may have flipped it)
+                cb.IsChecked = toggled.IsChecked;
             }
             finally
             {
