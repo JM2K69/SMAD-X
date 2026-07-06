@@ -150,33 +150,7 @@ namespace SMADX.Views
         private void OnTypeFilterCheckChanged(object? sender, RoutedEventArgs e)
         {
             if (_updatingTypeFilter) return;
-            if (sender is not CheckBox cb || cb.DataContext is not TypeFilterItem toggled) return;
-
-            _updatingTypeFilter = true;
-            try
-            {
-                bool wasAlreadyTheOnlyOne = _typeFilters.All(f => f == toggled ? f.IsChecked : !f.IsChecked);
-
-                if (wasAlreadyTheOnlyOne)
-                {
-                    // Clicking the sole selected type → reset: select all
-                    foreach (var f in _typeFilters)
-                        f.IsChecked = true;
-                }
-                else
-                {
-                    // Clicking any type (checked or unchecked) → make it the ONLY selected one
-                    foreach (var f in _typeFilters)
-                        f.IsChecked = f == toggled;
-                }
-                // Force the checkbox to reflect the new state (binding may have flipped it)
-                cb.IsChecked = toggled.IsChecked;
-            }
-            finally
-            {
-                _updatingTypeFilter = false;
-            }
-
+            // Each checkbox is independent – just re-apply the filter
             ApplyTypeFilter();
         }
 
