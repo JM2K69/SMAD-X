@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OfficeIMO.Markdown;
+using OfficeIMO.Markdown.Pdf;
 using OfficeIMO.Pdf;
 using OfficeIMO.Word;
 using OfficeIMO.Word.Markdown;
@@ -146,9 +147,11 @@ namespace SMADX.Services
                 var dir = Path.GetDirectoryName(filePath)!;
                 Directory.CreateDirectory(dir);
                 var md = BuildSingleElementMarkdown(name, typeLabel, description);
-                var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
-                using var word = MarkdownReader.Parse(md).ToWordDocument(opts);
-                word.SaveAsPdf(filePath, BuildPdfSaveOptions());
+                MarkdownReader.Parse(md).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
+                {
+                    Theme      = ResolveVisualTheme(theme),
+                    PdfOptions = BuildPdfOptions()
+                });
                 Log($"PDF created: {filePath}");
                 return Task.FromResult(true);
             }
@@ -272,10 +275,11 @@ namespace SMADX.Services
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                 var sb = new StringBuilder();
                 BuildMarkdown(document, sb);
-                var markdownDoc = MarkdownReader.Parse(sb.ToString());
-                var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
-                using var word = markdownDoc.ToWordDocument(opts);
-                word.SaveAsPdf(filePath, BuildPdfSaveOptions());
+                MarkdownReader.Parse(sb.ToString()).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
+                {
+                    Theme      = ResolveVisualTheme(theme),
+                    PdfOptions = BuildPdfOptions()
+                });
                 Log($"PDF created: {filePath}");
                 return true;
             }
@@ -466,67 +470,46 @@ namespace SMADX.Services
         }
 
         /// <summary>
-        /// Creates <see cref="PdfSaveOptions"/> with Unicode font fallbacks explicitly loaded
-        /// from Windows Fonts so that emoji and symbols (⚠ 🌐 👤 …) survive the OfficeIMO.Pdf
-        /// preflight check.  Falls back gracefully when a font file is absent.
-        /// Priority order: Segoe UI Symbol → Segoe UI Emoji → Arial Unicode MS.
+        /// Builds <see cref="PdfOptions"/> with explicit Windows font fallbacks so that emoji and
+        /// symbols (⚠ 🌐 👤 …) are run-split correctly by <see cref="OfficeIMO.Markdown.Pdf"/>.
+        /// Each candidate must map to a <em>distinct</em> PDF standard-font family root.
         /// </summary>
-        private static PdfSaveOptions BuildPdfSaveOptions()
+        private static PdfOptions BuildPdfOptions()
         {
             var pdfOpts = new PdfOptions();
 
-            // --- explicit Windows font file candidates (symbol + emoji coverage) ---
+            // Three distinct family roots: Helvetica / Times / Courier.
+            var fontPairs = new[]
+            {
+                ("Segoe UI Symbol", "seguisym.ttf",  PdfStandardFont.Helvetica),
+                ("Segoe UI Emoji",  "seguiemj.ttf",  PdfStandardFont.TimesRoman),
+                ("Arial Unicode MS","ARIALUNI.TTF",   PdfStandardFont.Courier),
+            };
+
+            var winFonts   = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Fonts");
+
             var candidates = new List<PdfEmbeddedFontFallbackCandidate>();
             var slots      = new List<PdfStandardFont>();
 
-            var fontPairs = new[]
-            {
-                ("Segoe UI Symbol", "seguisym.ttf"),
-                ("Segoe UI Emoji",  "seguiemj.ttf"),
-                ("Arial Unicode MS","ARIALUNI.TTF"),
-            };
-
-            var winFonts = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Fonts");
-
-            // Each candidate gets its own slot so the engine can mix them per-run.
-            // PdfStandardFont has 12 values; we cycle through Helvetica family for fallback slots.
-            PdfStandardFont[] slotPool =
-            [
-                PdfStandardFont.Helvetica,
-                PdfStandardFont.HelveticaOblique,
-                PdfStandardFont.HelveticaBold,
-            ];
-
-            int slotIdx = 0;
-            foreach (var (name, file) in fontPairs)
+            foreach (var (name, file, slot) in fontPairs)
             {
                 var path = Path.Combine(winFonts, file);
                 if (!File.Exists(path)) continue;
                 try
                 {
-                    var bytes = File.ReadAllBytes(path);
-                    candidates.Add(new PdfEmbeddedFontFallbackCandidate(name, bytes));
-                    slots.Add(slotPool[slotIdx % slotPool.Length]);
-                    slotIdx++;
+                    candidates.Add(new PdfEmbeddedFontFallbackCandidate(name, File.ReadAllBytes(path)));
+                    slots.Add(slot);
                 }
-                catch { /* skip unreadable font files */ }
+                catch { /* skip unreadable font file */ }
             }
 
             if (candidates.Count > 0)
-            {
-                var fallbackSet = new PdfEmbeddedFontFallbackSet(candidates, slots);
-                pdfOpts.RegisterEmbeddedFontFallbacks(fallbackSet);
-            }
+                pdfOpts.RegisterEmbeddedFontFallbacks(new PdfEmbeddedFontFallbackSet(candidates, slots));
 
-            // Also try the built-in helper for any remaining coverage gaps.
             pdfOpts.TryUseDefaultDocumentFontFallback(requireEmbeddedFont: false);
 
-            return new PdfSaveOptions
-            {
-                AllowSystemFontEmbedding = true,
-                PdfOptions = pdfOpts
-            };
+            return pdfOpts;
         }
 
         private static string TypeIcon(ADObjectType type) => type switch
