@@ -7,10 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using OfficeIMO.Markdown;
 using OfficeIMO.Markdown.Pdf;
-using OfficeIMO.Pdf;
 using OfficeIMO.Word;
 using OfficeIMO.Word.Markdown;
-using OfficeIMO.Word.Pdf;
 using SMADX.Models;
 
 namespace SMADX.Services
@@ -147,10 +145,9 @@ namespace SMADX.Services
                 var dir = Path.GetDirectoryName(filePath)!;
                 Directory.CreateDirectory(dir);
                 var md = BuildSingleElementMarkdown(name, typeLabel, description);
-                MarkdownReader.Parse(md).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
+                MarkdownReader.Parse(PreparePdfMarkdown(md)).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
                 {
-                    Theme      = ResolveVisualTheme(theme),
-                    PdfOptions = BuildPdfOptions()
+                    Theme = ResolveVisualTheme(theme)
                 });
                 Log($"PDF created: {filePath}");
                 return Task.FromResult(true);
@@ -275,10 +272,9 @@ namespace SMADX.Services
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                 var sb = new StringBuilder();
                 BuildMarkdown(document, sb);
-                MarkdownReader.Parse(sb.ToString()).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
+                MarkdownReader.Parse(PreparePdfMarkdown(sb.ToString())).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
                 {
-                    Theme      = ResolveVisualTheme(theme),
-                    PdfOptions = BuildPdfOptions()
+                    Theme = ResolveVisualTheme(theme)
                 });
                 Log($"PDF created: {filePath}");
                 return true;
@@ -470,46 +466,67 @@ namespace SMADX.Services
         }
 
         /// <summary>
-        /// Builds <see cref="PdfOptions"/> with explicit Windows font fallbacks so that emoji and
-        /// symbols (⚠ 🌐 👤 …) are run-split correctly by <see cref="OfficeIMO.Markdown.Pdf"/>.
-        /// Each candidate must map to a <em>distinct</em> PDF standard-font family root.
+        /// Prepares markdown for PDF rendering by replacing app emoji/symbols with
+        /// short ASCII labels, then stripping any remaining characters that Arial
+        /// cannot encode. DOCX and .md exports are never affected.
         /// </summary>
-        private static PdfOptions BuildPdfOptions()
+        private static string PreparePdfMarkdown(string markdown)
         {
-            var pdfOpts = new PdfOptions();
+            // Replace every emoji the app itself emits with a compact text equivalent.
+            var s = markdown
+                .Replace("\U0001F310", "[Domain]")
+                .Replace("\U0001F4C1", "[OU]")
+                .Replace("\U0001F4E6", "[Container]")
+                .Replace("\U0001F464", "[User]")
+                .Replace("\U0001F465", "[Group]")
+                .Replace("\U0001F5A5\uFE0F", "[Computer]")  // with VS16
+                .Replace("\U0001F5A5", "[Computer]")
+                .Replace("\U0001F527", "[GMSA]")
+                .Replace("\U0001F4CB", "[Policy]")
+                .Replace("\U0001F511", "[PSO]")
+                .Replace("\U0001F3E2", "[Site]")
+                .Replace("\U0001F517", "[SiteLink]")
+                .Replace("\u26A0\uFE0F", "[!]")             // ⚠ with VS16
+                .Replace("\u26A0", "[!]");                   // ⚠ plain
 
-            // Three distinct family roots: Helvetica / Times / Courier.
-            var fontPairs = new[]
+            // Strip any remaining surrogate pairs and non-Arial BMP characters.
+            var sb = new StringBuilder(s.Length);
+            for (int i = 0; i < s.Length; i++)
             {
-                ("Segoe UI Symbol", "seguisym.ttf",  PdfStandardFont.Helvetica),
-                ("Segoe UI Emoji",  "seguiemj.ttf",  PdfStandardFont.TimesRoman),
-                ("Arial Unicode MS","ARIALUNI.TTF",   PdfStandardFont.Courier),
-            };
-
-            var winFonts   = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Fonts");
-
-            var candidates = new List<PdfEmbeddedFontFallbackCandidate>();
-            var slots      = new List<PdfStandardFont>();
-
-            foreach (var (name, file, slot) in fontPairs)
-            {
-                var path = Path.Combine(winFonts, file);
-                if (!File.Exists(path)) continue;
-                try
+                char c = s[i];
+                if (char.IsHighSurrogate(c))
                 {
-                    candidates.Add(new PdfEmbeddedFontFallbackCandidate(name, File.ReadAllBytes(path)));
-                    slots.Add(slot);
+                    if (i + 1 < s.Length && char.IsLowSurrogate(s[i + 1]))
+                        i++;
+                    continue;
                 }
-                catch { /* skip unreadable font file */ }
+                if (char.IsLowSurrogate(c)) continue;
+                if (IsArialSafe(c))
+                    sb.Append(c);
             }
+            return sb.ToString();
+        }
 
-            if (candidates.Count > 0)
-                pdfOpts.RegisterEmbeddedFontFallbacks(new PdfEmbeddedFontFallbackSet(candidates, slots));
-
-            pdfOpts.TryUseDefaultDocumentFontFallback(requireEmbeddedFont: false);
-
-            return pdfOpts;
+        private static bool IsArialSafe(char c)
+        {
+            if (c == '\r' || c == '\n' || c == '\t') return true;
+            if (c < '\u0020') return false;
+            if (c <= '\u007E') return true;                          // Basic Latin
+            if (c >= '\u00A0' && c <= '\u00FF') return true;        // Latin-1 Supplement
+            if (c >= '\u0100' && c <= '\u024F') return true;        // Latin Extended A/B
+            if (c >= '\u0250' && c <= '\u02FF') return true;        // IPA / Spacing Modifiers
+            if (c >= '\u0300' && c <= '\u036F') return true;        // Combining Diacritics
+            if (c >= '\u0370' && c <= '\u03FF') return true;        // Greek
+            if (c >= '\u0400' && c <= '\u04FF') return true;        // Cyrillic
+            if (c >= '\u0590' && c <= '\u05FF') return true;        // Hebrew
+            if (c >= '\u0600' && c <= '\u06FF') return true;        // Arabic
+            if (c >= '\u2000' && c <= '\u206F') return true;        // General Punctuation
+            if (c >= '\u20A0' && c <= '\u20CF') return true;        // Currency Symbols
+            if (c >= '\u2150' && c <= '\u218F') return true;        // Number Forms
+            if (c >= '\u2190' && c <= '\u21FF') return true;        // Arrows
+            if (c >= '\u2200' && c <= '\u22FF') return true;        // Mathematical Operators
+            if (c >= '\u2460' && c <= '\u24FF') return true;        // Enclosed Alphanumerics
+            return false;
         }
 
         private static string TypeIcon(ADObjectType type) => type switch
