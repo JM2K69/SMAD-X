@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OfficeIMO.Markdown;
+using OfficeIMO.Pdf;
 using OfficeIMO.Word;
 using OfficeIMO.Word.Markdown;
 using OfficeIMO.Word.Pdf;
@@ -147,7 +148,7 @@ namespace SMADX.Services
                 var md = BuildSingleElementMarkdown(name, typeLabel, description);
                 var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
                 using var word = MarkdownReader.Parse(md).ToWordDocument(opts);
-                word.SaveAsPdf(filePath, new PdfSaveOptions { AllowSystemFontEmbedding = true });
+                word.SaveAsPdf(filePath, BuildPdfSaveOptions());
                 Log($"PDF created: {filePath}");
                 return Task.FromResult(true);
             }
@@ -274,7 +275,7 @@ namespace SMADX.Services
                 var markdownDoc = MarkdownReader.Parse(sb.ToString());
                 var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
                 using var word = markdownDoc.ToWordDocument(opts);
-                word.SaveAsPdf(filePath, new PdfSaveOptions { AllowSystemFontEmbedding = true });
+                word.SaveAsPdf(filePath, BuildPdfSaveOptions());
                 Log($"PDF created: {filePath}");
                 return true;
             }
@@ -462,6 +463,26 @@ namespace SMADX.Services
             sb.AppendLine($"{indent}{icon} {node.Name}{tierTag}");
             foreach (var child in node.Children)
                 AppendTree(child, sb, depth + 1);
+        }
+
+        /// <summary>
+        /// Creates <see cref="PdfSaveOptions"/> with system-font embedding enabled and
+        /// a Unicode-capable fallback font registered so emoji and symbols (e.g. ⚠ 🌐 👤)
+        /// are rendered correctly without a preflight encoding failure.
+        /// </summary>
+        private static PdfSaveOptions BuildPdfSaveOptions()
+        {
+            var pdfOpts = new PdfOptions();
+            // Register the best available system sans-serif as a Unicode fallback
+            // (covers Segoe UI Symbol / Segoe UI Emoji on Windows).
+            pdfOpts.TryUseDefaultDocumentFontFallback(requireEmbeddedFont: false);
+            // Register a monospace fallback for code/pre-formatted text.
+            pdfOpts.TryRegisterDefaultDocumentMonospaceFontFallback(requireEmbeddedFont: false);
+            return new PdfSaveOptions
+            {
+                AllowSystemFontEmbedding = true,
+                PdfOptions = pdfOpts
+            };
         }
 
         private static string TypeIcon(ADObjectType type) => type switch
