@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OfficeIMO.Markdown;
-using OfficeIMO.Markdown.Pdf;
 using OfficeIMO.Word;
 using OfficeIMO.Word.Markdown;
+using OfficeIMO.Word.Pdf;
 using SMADX.Models;
 
 namespace SMADX.Services
@@ -145,10 +145,9 @@ namespace SMADX.Services
                 var dir = Path.GetDirectoryName(filePath)!;
                 Directory.CreateDirectory(dir);
                 var md = BuildSingleElementMarkdown(name, typeLabel, description);
-                PreparePdfMarkdown(md).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
-                {
-                    Theme = ResolveVisualTheme(theme)
-                });
+                var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
+                using var word = MarkdownReader.Parse(md).ToWordDocument(opts);
+                word.SaveAsPdf(filePath, new PdfSaveOptions { AllowSystemFontEmbedding = true });
                 Log($"PDF created: {filePath}");
                 return Task.FromResult(true);
             }
@@ -272,10 +271,10 @@ namespace SMADX.Services
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                 var sb = new StringBuilder();
                 BuildMarkdown(document, sb);
-                PreparePdfMarkdown(sb.ToString()).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
-                {
-                    Theme = ResolveVisualTheme(theme)
-                });
+                var markdownDoc = MarkdownReader.Parse(sb.ToString());
+                var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
+                using var word = markdownDoc.ToWordDocument(opts);
+                word.SaveAsPdf(filePath, new PdfSaveOptions { AllowSystemFontEmbedding = true });
                 Log($"PDF created: {filePath}");
                 return true;
             }
@@ -463,146 +462,6 @@ namespace SMADX.Services
             sb.AppendLine($"{indent}{icon} {node.Name}{tierTag}");
             foreach (var child in node.Children)
                 AppendTree(child, sb, depth + 1);
-        }
-
-        /// <summary>
-        /// Remove characters that Arial (the PDF default font) cannot encode:
-        /// Only characters in Arial's known BMP coverage are kept;
-        /// everything else (emoji, symbols, ornamental blocks) is dropped.
-        /// All constructs that OfficeIMO.Pdf renders as fixed-height panels
-        /// are flattened to plain paragraphs so the layout never overflows.
-        /// Processed in a single stateless pass: no fence-state tracking needed.
-        /// DOCX and .md outputs are not affected.
-        /// </summary>
-        private static string PreparePdfMarkdown(string text)
-        {
-            // ── Step 1: flatten every panel-producing construct ──────────────
-            //
-            // OfficeIMO.Pdf renders PanelFlowBlocks for:
-            //   blockquotes  (> …)         ← including nested: >> …
-            //   GFM callouts (>[!NOTE])
-            //   fenced code  (```…```)     ← even when hidden inside blockquotes
-            //   tilde fences (~~~…~~~)
-            //   semantic     (:::type … :::)
-            //
-            // Strategy (stateless, one pass per line):
-            //   a) strip ALL leading '>' chars to unwrap the effective content
-            //   b) if the effective content is a panel *marker* line → drop it
-            //   c) if the effective content is a GFM callout label  → drop it
-            //   d) otherwise emit the effective content as a plain paragraph
-            //
-            // This handles blockquotes that contain fences, nested blockquotes,
-            // and any other combination — without needing open/close state.
-
-            var lines  = text.Split('\n');
-            var result = new StringBuilder(text.Length);
-
-            foreach (var rawLine in lines)
-            {
-                // Unwrap all leading blockquote markers ( > >> >>> … )
-                var effective = rawLine.TrimEnd();
-                while (effective.Length > 0 && effective[0] == '>')
-                    effective = effective.Length > 1
-                        ? effective.Substring(1).TrimStart(' ')
-                        : string.Empty;
-
-                // Drop panel *marker* lines (fence open/close and ::: delimiters)
-                if (effective.StartsWith("```",  StringComparison.Ordinal) ||
-                    effective.StartsWith("~~~",  StringComparison.Ordinal) ||
-                    effective.StartsWith(":::",  StringComparison.Ordinal))
-                    continue;
-
-                // Drop standalone GFM callout-type labels  e.g.  [!NOTE]  [!WARNING]
-                var et = effective.Trim();
-                if (et.StartsWith("[!", StringComparison.Ordinal) &&
-                    et.EndsWith("]",   StringComparison.Ordinal))
-                    continue;
-
-                // Emit the effective (panel-free) content
-                result.AppendLine(effective);
-            }
-            text = result.ToString();
-
-            // ── Step 2: whitelist-filter chars for Arial PDF encoding ────────
-            var sb = new StringBuilder(text.Length);
-            for (int i = 0; i < text.Length; i++)
-            {
-                char c = text[i];
-
-                // Drop full surrogate pairs (supplementary-plane emoji U+1F300 …)
-                if (char.IsHighSurrogate(c))
-                {
-                    if (i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
-                        i++;
-                    continue;
-                }
-                if (char.IsLowSurrogate(c)) continue;
-
-                // Whitelist: only ranges Arial reliably embeds in PDF
-                if (IsArialSafe(c))
-                    sb.Append(c);
-                // everything outside the whitelist is silently dropped
-            }
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Returns true for BMP code points that the Arial TrueType font
-        /// can embed in a PDF without a preflight failure.
-        /// </summary>
-        private static bool IsArialSafe(char c)
-        {
-            // C0 / C1 controls kept only where PDF needs them (newline, tab)
-            if (c == '\r' || c == '\n' || c == '\t') return true;
-            if (c < '\u0020') return false; // other C0 controls
-
-            // Basic Latin (U+0020–U+007E) — always safe
-            if (c <= '\u007E') return true;
-
-            // Latin-1 Supplement (U+00A0–U+00FF)
-            if (c >= '\u00A0' && c <= '\u00FF') return true;
-
-            // Latin Extended-A / B (U+0100–U+024F)
-            if (c >= '\u0100' && c <= '\u024F') return true;
-
-            // IPA Extensions + Spacing Modifier Letters (U+0250–U+02FF)
-            if (c >= '\u0250' && c <= '\u02FF') return true;
-
-            // Combining Diacritical Marks (U+0300–U+036F)
-            if (c >= '\u0300' && c <= '\u036F') return true;
-
-            // Greek and Coptic (U+0370–U+03FF)
-            if (c >= '\u0370' && c <= '\u03FF') return true;
-
-            // Cyrillic (U+0400–U+04FF)
-            if (c >= '\u0400' && c <= '\u04FF') return true;
-
-            // Hebrew (U+0590–U+05FF)
-            if (c >= '\u0590' && c <= '\u05FF') return true;
-
-            // Arabic (U+0600–U+06FF)
-            if (c >= '\u0600' && c <= '\u06FF') return true;
-
-            // General Punctuation (U+2000–U+206F) — en-dash, em-dash, quotes …
-            if (c >= '\u2000' && c <= '\u206F') return true;
-
-            // Currency Symbols (U+20A0–U+20CF)
-            if (c >= '\u20A0' && c <= '\u20CF') return true;
-
-            // Number Forms (U+2150–U+218F)
-            if (c >= '\u2150' && c <= '\u218F') return true;
-
-            // Arrows (U+2190–U+21FF)
-            if (c >= '\u2190' && c <= '\u21FF') return true;
-
-            // Mathematical Operators (U+2200–U+22FF)
-            if (c >= '\u2200' && c <= '\u22FF') return true;
-
-            // Enclosed Alphanumerics (U+2460–U+24FF)
-            if (c >= '\u2460' && c <= '\u24FF') return true;
-
-            // everything else is not safe for Arial PDF embedding
-            return false;
         }
 
         private static string TypeIcon(ADObjectType type) => type switch
