@@ -18,8 +18,79 @@ namespace SMADX.Services
             Converters = { new JsonStringEnumConverter() }
         };
 
+        // ── Format v2 (ADRootDocument) ────────────────────────────────────────
+
         /// <summary>
-        /// Sauvegarde la structure AD dans un fichier JSON
+        /// Sauvegarde le document racine v2 (domaine + topologie de sites).
+        /// </summary>
+        public async Task<bool> SaveDocumentAsync(ADRootDocument document, string filePath)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(document, JsonOptions);
+                await File.WriteAllTextAsync(filePath, json);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la sauvegarde v2 : {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Charge un fichier .smad-x.json en détectant automatiquement le format :
+        ///   - v2 : JSON contient la clé "Version" → désérialise en ADRootDocument
+        ///   - v1 : JSON ne contient pas "Version" → désérialise en ADObject,
+        ///          encapsule dans un ADRootDocument { Version=1, SitesTopology=null }
+        /// </summary>
+        public async Task<ADRootDocument?> LoadDocumentAsync(string filePath)
+        {
+            try
+            {
+                if (!File.Exists(filePath))
+                    return null;
+
+                var json = await File.ReadAllTextAsync(filePath);
+
+                // Détection du format : v2 si la clé "Version" est présente au premier niveau
+                using var doc = JsonDocument.Parse(json);
+                bool isV2 = doc.RootElement.TryGetProperty("Version", out _)
+                         || doc.RootElement.TryGetProperty("version", out _);
+
+                if (isV2)
+                {
+                    var document = JsonSerializer.Deserialize<ADRootDocument>(json, JsonOptions);
+                    if (document?.Domain != null)
+                        RestoreParentReferences(document.Domain, null);
+                    return document;
+                }
+                else
+                {
+                    // Fichier v1 — ADObject directement
+                    var root = JsonSerializer.Deserialize<ADObject>(json, JsonOptions);
+                    if (root == null) return null;
+                    RestoreParentReferences(root, null);
+                    return new ADRootDocument
+                    {
+                        Version = 1,
+                        Domain = root,
+                        SitesTopology = null
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement : {ex.Message}");
+                return null;
+            }
+        }
+
+        // ── Format v1 (rétro-compatibilité) — conservé pour l'export JSON simple ──
+
+        /// <summary>
+        /// Sauvegarde uniquement l'arbre AD (format v1 / JSON simple).
+        /// Utilisé par ExportToJson pour un export "plat" sans sites.
         /// </summary>
         public async Task<bool> SaveToFileAsync(ADObject root, string filePath)
         {
@@ -37,30 +108,13 @@ namespace SMADX.Services
         }
 
         /// <summary>
-        /// Charge la structure AD depuis un fichier JSON
+        /// Charge uniquement l'arbre AD (format v1 — conservé pour compatibilité).
+        /// Préférez LoadDocumentAsync qui gère les deux formats.
         /// </summary>
         public async Task<ADObject?> LoadFromFileAsync(string filePath)
         {
-            try
-            {
-                if (!File.Exists(filePath))
-                    return null;
-
-                var json = await File.ReadAllTextAsync(filePath);
-                var root = JsonSerializer.Deserialize<ADObject>(json, JsonOptions);
-
-                if (root != null)
-                {
-                    RestoreParentReferences(root, null);
-                }
-
-                return root;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur lors du chargement : {ex.Message}");
-                return null;
-            }
+            var document = await LoadDocumentAsync(filePath);
+            return document?.Domain;
         }
 
         /// <summary>
@@ -425,6 +479,33 @@ namespace SMADX.Services
                 Parent = policiesContainer
             };
             policiesContainer.Children.Add(defaultDCPolicy);
+
+            // GPO 3 : GPO-Baseline-DC — Baseline sécurité site par défaut
+            var gpoBaselineDC = new ADObject("GPO-Baseline-DC", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.DefaultSite"],
+                Tier = GetTier("Tier 0"),
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoBaselineDC);
+
+            // GPO 4 : GPO-Paris-Workstations — Postes de travail Site-Paris
+            var gpoParis = new ADObject("GPO-Paris-Workstations", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.Paris"],
+                Tier = GetTier("Tier 1"),
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoParis);
+
+            // GPO 5 : GPO-Lyon-Workstations — Postes de travail Site-Lyon
+            var gpoLyon = new ADObject("GPO-Lyon-Workstations", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.Lyon"],
+                Tier = GetTier("Tier 1"),
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoLyon);
 
             // Lier les GPOs aux OUs correspondantes
             domain.LinkedGPOs.Add("Default Domain Policy");
@@ -845,9 +926,28 @@ namespace SMADX.Services
             {
                 Description = loc["Desc.Sample.DC01"],
                 Tier = "Tier 0",
+                SiteName = "Default-First-Site-Name",
                 Parent = domainControllersOU
             };
             domainControllersOU.Children.Add(dc01);
+
+            var dc02 = new ADObject("DC02", ADObjectType.Computer)
+            {
+                Description = loc["Desc.Sample.DC02"],
+                Tier = "Tier 0",
+                SiteName = "Site-Paris",
+                Parent = domainControllersOU
+            };
+            domainControllersOU.Children.Add(dc02);
+
+            var dc03 = new ADObject("DC03", ADObjectType.Computer)
+            {
+                Description = loc["Desc.Sample.DC03"],
+                Tier = "Tier 0",
+                SiteName = "Site-Lyon",
+                Parent = domainControllersOU
+            };
+            domainControllersOU.Children.Add(dc03);
 
             // GMSA
             var gmsa = new ADObject("svc-webapp", ADObjectType.GMSA)
@@ -915,6 +1015,30 @@ namespace SMADX.Services
                 Parent = policiesContainer
             };
             policiesContainer.Children.Add(defaultDCPolicy);
+
+            var gpoBaselineDCSample = new ADObject("GPO-Baseline-DC", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.DefaultSite"],
+                Tier = "Tier 0",
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoBaselineDCSample);
+
+            var gpoParisSample = new ADObject("GPO-Paris-Workstations", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.Paris"],
+                Tier = "Tier 1",
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoParisSample);
+
+            var gpoLyonSample = new ADObject("GPO-Lyon-Workstations", ADObjectType.Policy)
+            {
+                Description = loc["Desc.Sample.GPO.Lyon"],
+                Tier = "Tier 1",
+                Parent = policiesContainer
+            };
+            policiesContainer.Children.Add(gpoLyonSample);
 
             // ── Relations GPO ────────────────────────────────────────────────
             // Default Domain Policy → domaine entier
@@ -1032,6 +1156,115 @@ namespace SMADX.Services
             });
 
             return domain;
+        }
+
+        /// <summary>
+        /// Crée la topologie de sites AD de démonstration :
+        ///   - Site Paris  (10.0.1.0/24) — DC01, DC02 (PDC Emulator + RID Master)
+        ///   - Site Lyon   (10.0.2.0/24) — DC03 (site secondaire)
+        ///   - Lien Paris-Lyon (coût 100, intervalle 15 min)
+        /// </summary>
+        public ADSitesTopology CreateSampleTopology()
+        {
+            var loc = LocalizationService.Instance;
+
+            var topology = new ADSitesTopology();
+
+            // ── Default-First-Site-Name ───────────────────────────────────────
+            var siteDefault = new ADSite
+            {
+                Name        = "Default-First-Site-Name",
+                Description = loc["Desc.Sample.DefaultSite"],
+                Location    = "Site par défaut Active Directory",
+            };
+            siteDefault.Subnets.Add(new ADSubnet
+            {
+                Cidr        = "192.168.0.0/24",
+                SiteName    = "Default-First-Site-Name",
+                Description = loc["Desc.Sample.SubnetDefault"],
+                Location    = "Default DC"
+            });
+            siteDefault.DomainControllers.Add("DC01.contoso.com");
+            siteDefault.LinkedGPOs.Add("GPO-Baseline-DC");
+
+            // ── Site Paris ───────────────────────────────────────────────────
+            var siteParis = new ADSite
+            {
+                Name        = "Site-Paris",
+                Description = loc["Desc.Sample.SiteParis"],
+                Location    = "Paris, France — Datacenter Principal",
+            };
+            siteParis.Subnets.Add(new ADSubnet
+            {
+                Cidr        = "10.0.1.0/24",
+                SiteName    = "Site-Paris",
+                Description = loc["Desc.Sample.SubnetParis"],
+                Location    = "Paris DC"
+            });
+            siteParis.DomainControllers.Add("DC02.contoso.com");
+            siteParis.LinkedGPOs.Add("GPO-Paris-Workstations");
+
+            // ── Site Lyon ────────────────────────────────────────────────────
+            var siteLyon = new ADSite
+            {
+                Name        = "Site-Lyon",
+                Description = loc["Desc.Sample.SiteLyon"],
+                Location    = "Lyon, France — Site Secondaire",
+            };
+            siteLyon.Subnets.Add(new ADSubnet
+            {
+                Cidr        = "10.0.2.0/24",
+                SiteName    = "Site-Lyon",
+                Description = loc["Desc.Sample.SubnetLyon"],
+                Location    = "Lyon DC"
+            });
+            siteLyon.DomainControllers.Add("DC03.contoso.com");
+            siteLyon.LinkedGPOs.Add("GPO-Lyon-Workstations");
+
+            topology.Sites.Add(siteDefault);
+            topology.Sites.Add(siteParis);
+            topology.Sites.Add(siteLyon);
+
+            // ── Lien Default ↔ Paris ─────────────────────────────────────────
+            topology.SiteLinks.Add(new ADSiteLink
+            {
+                Name                       = "SiteLink-Default-Paris",
+                Transport                  = "IP",
+                Cost                       = 100,
+                ReplicationIntervalMinutes = 15,
+                ReplicationSchedule        = "Always",
+                BridgeheadAuto             = true,
+                Description                = loc["Desc.Sample.SiteLinkDP"],
+                SiteNames                  = { "Default-First-Site-Name", "Site-Paris" }
+            });
+
+            // ── Lien Default ↔ Lyon ──────────────────────────────────────────
+            topology.SiteLinks.Add(new ADSiteLink
+            {
+                Name                       = "SiteLink-Default-Lyon",
+                Transport                  = "IP",
+                Cost                       = 150,
+                ReplicationIntervalMinutes = 30,
+                ReplicationSchedule        = "Always",
+                BridgeheadAuto             = true,
+                Description                = loc["Desc.Sample.SiteLinkDL"],
+                SiteNames                  = { "Default-First-Site-Name", "Site-Lyon" }
+            });
+
+            // ── Lien Paris ↔ Lyon ────────────────────────────────────────────
+            topology.SiteLinks.Add(new ADSiteLink
+            {
+                Name                       = "DEFAULTIPSITELINK",
+                Transport                  = "IP",
+                Cost                       = 100,
+                ReplicationIntervalMinutes = 15,
+                ReplicationSchedule        = "Always",
+                BridgeheadAuto             = true,
+                Description                = loc["Desc.Sample.SiteLinkPL"],
+                SiteNames                  = { "Site-Paris", "Site-Lyon" }
+            });
+
+            return topology;
         }
 
         private void UpdateDistinguishedNamesRecursive(ADObject obj)

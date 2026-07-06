@@ -91,6 +91,13 @@ namespace SMADX.ViewModels
         /// <summary>Root ADObject of the currently loaded domain tree (null when no domain loaded).</summary>
         public ADObject? RootObject => RootNodes.Count > 0 ? RootNodes[0].Data : null;
 
+        /// <summary>Sites topology loaded from the v2 document (null for v1 files or if not yet imported).</summary>
+        [ObservableProperty]
+        private ADSitesTopology? _sitesTopology;
+
+        /// <summary>Full v2 document — kept in memory for save-round-trip preservation of SitesTopology.</summary>
+        private ADRootDocument? _currentDocument;
+
         public string SelectedObjectTier
         {
             get => string.IsNullOrWhiteSpace(SelectedNode?.Data?.Tier) ? " " : SelectedNode!.Data!.Tier!;
@@ -139,6 +146,12 @@ namespace SMADX.ViewModels
         [ObservableProperty]
         private string _statusMessage = string.Empty;
 
+        /// <summary>Flat list of site tree nodes shown in the Sites panel of the main window.</summary>
+        public ObservableCollection<SiteTreeNode> SiteRootNodes { get; } = new();
+
+        [ObservableProperty]
+        private bool _isSitesExpanded = true;
+
         // ─── Recherche ────────────────────────────────────────────────────────────
 
         private string _searchText = string.Empty;
@@ -154,6 +167,20 @@ namespace SMADX.ViewModels
 
         [RelayCommand]
         private void ClearSearch() => SearchText = string.Empty;
+
+        [RelayCommand]
+        private void ToggleSitesExpanded() => IsSitesExpanded = !IsSitesExpanded;
+
+        partial void OnSitesTopologyChanged(ADSitesTopology? value) => RebuildSiteTree();
+
+        private void RebuildSiteTree()
+        {
+            SiteRootNodes.Clear();
+            if (SitesTopology == null) return;
+            foreach (var site in SitesTopology.Sites)
+                SiteRootNodes.Add(new SiteTreeNode(site));
+            UpdateObjectCounts();
+        }
 
         /// <summary>
         /// Applique le filtre de recherche : met à jour IsVisible sur les nœuds,
@@ -305,7 +332,12 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void InitializeSampleData()
         {
-            var root = _dataService.CreateSampleStructure();
+            var root     = _dataService.CreateSampleStructure();
+            var topology = _dataService.CreateSampleTopology();
+
+            _currentDocument = new ADRootDocument { Version = 2, Domain = root, SitesTopology = topology };
+            SitesTopology    = topology;
+
             var rootNode = new ADTreeNode(root) { IsExpanded = true };
             ExpandDefaultDomainNodes(rootNode);
             RootNodes.Clear();
@@ -363,7 +395,12 @@ namespace SMADX.ViewModels
                 if (file != null && RootNodes.Count > 0)
                 {
                     var path = file.Path.LocalPath;
-                    var success = await _dataService.SaveToFileAsync(RootNodes[0].Data, path);
+                    // Build a v2 document preserving SitesTopology if loaded
+                    var doc = _currentDocument ?? new ADRootDocument();
+                    doc.Version = 2;
+                    doc.Domain  = RootNodes[0].Data;
+                    doc.SitesTopology = SitesTopology;
+                    var success = await _dataService.SaveDocumentAsync(doc, path);
                     StatusMessage = success ? string.Format(loc["Status.Saved"], path) : loc["Status.ErrorSave"];
                 }
             }
@@ -397,15 +434,18 @@ namespace SMADX.ViewModels
                 if (files.Count > 0)
                 {
                     var path = files[0].Path.LocalPath;
-                    var root = await _dataService.LoadFromFileAsync(path);
+                    var document = await _dataService.LoadDocumentAsync(path);
 
-                    if (root != null)
+                    if (document?.Domain != null)
                     {
-                        var rootNode = new ADTreeNode(root) { IsExpanded = true };
+                        _currentDocument = document;
+                        SitesTopology = document.SitesTopology;
+                        var rootNode = new ADTreeNode(document.Domain) { IsExpanded = true };
                         RootNodes.Clear();
                         RootNodes.Add(rootNode);
                         UpdateObjectCounts();
-                        StatusMessage = string.Format(loc["Status.Loaded"], path);
+                        var siteInfo = SitesTopology != null ? $" (+{SitesTopology.Sites.Count} sites)" : string.Empty;
+                        StatusMessage = string.Format(loc["Status.Loaded"], path) + siteInfo;
                     }
                     else
                     {
@@ -847,6 +887,10 @@ namespace SMADX.ViewModels
 
             var counts = RootNodes[0].Data.CountObjectsByType();
             var summary = string.Join(" | ", counts.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
+
+            if (SitesTopology != null && SitesTopology.Sites.Count > 0)
+                summary += $" | 🏢 Sites: {SitesTopology.Sites.Count}";
+
             ObjectCountsSummary = summary;
         }
 
@@ -900,7 +944,7 @@ namespace SMADX.ViewModels
             var mainWindow = GetMainWindow();
             if (mainWindow == null || RootNodes.Count == 0) return;
 
-            var vm = new RelationsViewModel(RootNodes[0].Data);
+            var vm = new RelationsViewModel(RootNodes[0].Data, SitesTopology);
             var dialog = new Views.RelationsWindow { DataContext = vm };
             await dialog.ShowDialog(mainWindow);
 
@@ -918,7 +962,7 @@ namespace SMADX.ViewModels
             var mainWindow = GetMainWindow();
             if (mainWindow == null || RootNodes.Count == 0) return;
 
-            var vm = new RelationsViewModel(RootNodes[0].Data);
+            var vm = new RelationsViewModel(RootNodes[0].Data, SitesTopology);
             vm.PreselectSource(SelectedNode.Data);
             var dialog = new Views.RelationsWindow { DataContext = vm };
             await dialog.ShowDialog(mainWindow);
@@ -934,7 +978,7 @@ namespace SMADX.ViewModels
             var mainWindow = GetMainWindow();
             if (mainWindow == null || RootNodes.Count == 0) return;
 
-            var vm = new RelationsViewModel(RootNodes[0].Data);
+            var vm = new RelationsViewModel(RootNodes[0].Data, SitesTopology);
             vm.PreselectTarget(SelectedNode.Data);
             var dialog = new Views.RelationsWindow { DataContext = vm };
             await dialog.ShowDialog(mainWindow);
@@ -950,7 +994,7 @@ namespace SMADX.ViewModels
             var mainWindow = GetMainWindow();
             if (mainWindow == null || RootNodes.Count == 0) return;
 
-            var vm = new RelationsViewModel(RootNodes[0].Data);
+            var vm = new RelationsViewModel(RootNodes[0].Data, SitesTopology);
             // Pré-sélectionner le groupe courant comme source dans l'onglet Group-in-Group
             vm.PreselectNestingSource(SelectedNode.Data);
             var dialog = new Views.RelationsWindow { DataContext = vm };

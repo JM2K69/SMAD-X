@@ -241,5 +241,60 @@ namespace SMADX.Helpers
         public string ContextMenuAddToGroup         => _localizationService["ContextMenu.AddToGroup"];
         public string ContextMenuAddMember           => _localizationService["ContextMenu.AddMember"];
         public string ContextMenuAddGroupToGroup      => _localizationService["ContextMenu.AddGroupToGroup"];
+
+        // AD Sites
+        public string MenuSites              => _localizationService["Menu.Sites"];
+        public string MenuSitesView          => _localizationService["Menu.Sites.View"];
+        public string SitesWindowTitle       => _localizationService["Sites.Window.Title"];
+        public string SitesTabTable          => _localizationService["Sites.Tab.Table"];
+        public string SitesTabGraph          => _localizationService["Sites.Tab.Graph"];
+        public string SitesColumnName        => _localizationService["Sites.Column.Name"];
+        public string SitesColumnDescription => _localizationService["Sites.Column.Description"];
+        public string SitesColumnLocation    => _localizationService["Sites.Column.Location"];
+        public string SitesColumnSubnets     => _localizationService["Sites.Column.Subnets"];
+        public string SitesColumnDCs         => _localizationService["Sites.Column.DCs"];
+        public string SitesColumnCost        => _localizationService["Sites.Column.Cost"];
+        public string SitesColumnInterval    => _localizationService["Sites.Column.Interval"];
+        public string SitesColumnTransport   => _localizationService["Sites.Column.Transport"];
+        public string SitesColumnLinkedSites => _localizationService["Sites.Column.LinkedSites"];
+        public string SitesColumnGPOs        => _localizationService["Sites.Column.GPOs"];
+        public string SitesColumnLinkName    => _localizationService["Sites.Column.LinkName"];
+        public string SitesColumnLinkSites   => _localizationService["Sites.Column.LinkSites"];
+        public string SitesNoData            => _localizationService["Sites.NoData"];
+        public string SitesNoSites           => _localizationService["Sites.NoSites"];
+        public string SitesAdd               => _localizationService["Sites.Add"];
+        public string SitesSectionSites      => _localizationService["Sites.Section.Sites"];
+        public string SitesSectionLinks      => _localizationService["Sites.Section.Links"];
+        public string SitesLabelSites        => _localizationService["Sites.Label.Sites"];
+        public string SitesLabelLinks        => _localizationService["Sites.Label.Links"];
+        public string SitesFilterPlaceholder => _localizationService["Sites.Filter.Placeholder"];
+        public string SitesDetailSelected    => _localizationService["Sites.Detail.Selected"];
+        public string SitesDetailSubnets     => _localizationService["Sites.Detail.Subnets"];
+        public string SitesDetailDCs         => _localizationService["Sites.Detail.DCs"];
+        public string SitesDetailGPOs        => _localizationService["Sites.Detail.GPOs"];
+
+        // Report export
+        public string MenuFileExportReport      => _localizationService["Menu.File.ExportReport"];
+        public string MenuFileImportDescription => _localizationService["Menu.File.ImportDescription"];
+        public string ReportDialogTitle         => _localizationService["Report.Dialog.Title"];
+        public string ReportFormatMarkdown      => _localizationService["Report.Format.Markdown"];
+        public string ReportFormatDocx          => _localizationService["Report.Format.Docx"];
+        public string ReportFormatPdf           => _localizationService["Report.Format.Pdf"];
+        public string ReportFormatLabel         => _localizationService["Report.Format.Label"];
+        public string ReportScopeLabel          => _localizationService["Report.Scope.Label"];
+        public string ReportScopeCombined       => _localizationService["Report.Scope.Combined"];
+        public string ReportScopeIndividual     => _localizationService["Report.Scope.Individual"];
+        public string ReportScopeObjectLabel    => _localizationService["Report.Scope.Object.Label"];
+        public string ReportScopeTypeFilter     => _localizationService["Report.Scope.TypeFilter"];
+        public string ReportScopeTypeAll        => _localizationService["Report.Scope.TypeAll"];
+        public string ReportScopeSelectAll      => _localizationService["Report.Scope.SelectAll"];
+        public string ReportScopeSelectNone     => _localizationService["Report.Scope.SelectNone"];
+        public string ReportButtonExport        => _localizationService["Report.Button.Export"];
+        public string ReportButtonCancel        => _localizationService["Report.Button.Cancel"];
+        public string ReportImportTitle         => _localizationService["Report.Import.Title"];
+        public string ReportImportSuccess       => _localizationService["Report.Import.Success"];
+        public string ReportImportError         => _localizationService["Report.Import.Error"];
+        public string ReportImportNoSelection   => _localizationService["Report.Import.NoSelection"];
+        public string ReportThemeLabel          => _localizationService["Report.Theme.Label"];
     }
 }

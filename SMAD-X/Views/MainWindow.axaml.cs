@@ -6,7 +6,9 @@ using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using SMADX.ViewModels;
 using SMADX.Services;
+using SMADX.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace SMADX.Views
@@ -253,6 +255,72 @@ namespace SMADX.Views
 
             using var fs = File.Create(file.Path.LocalPath);
             bitmap.Save(fs);
+        }
+
+        private async void OnSitesClick(object? sender, RoutedEventArgs e)
+        {
+            var topology = (DataContext as MainWindowViewModel)?.SitesTopology;
+            var w = topology is not null
+                ? new SitesWindow(topology)
+                : new SitesWindow();
+            await w.ShowDialog(this);
+        }
+
+        private async void OnExportReportClick(object? sender, RoutedEventArgs e)
+        {
+            var vm = DataContext as MainWindowViewModel;
+            if (vm?.RootObject is null) return;
+
+            var doc = new ADRootDocument
+            {
+                Version       = 2,
+                Domain        = vm.RootObject,
+                SitesTopology = vm.SitesTopology
+            };
+
+            var dialog = new ExportReportDialog(doc);
+            var result = await dialog.ShowDialog<string?>(this);
+
+            var loc = LocalizationService.Instance;
+            if (result is not null)
+                vm.StatusMessage = $"{loc["Report.Success"]} {result}";
+        }
+
+        private async void OnImportDescriptionClick(object? sender, RoutedEventArgs e)
+        {
+            var vm  = DataContext as MainWindowViewModel;
+            var loc = LocalizationService.Instance;
+
+            if (vm?.SelectedNode is null)
+            {
+                vm!.StatusMessage = loc["Report.Import.NoSelection"];
+                return;
+            }
+
+            var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title         = loc["Report.Import.Title"],
+                AllowMultiple = false,
+                FileTypeFilter = new List<FilePickerFileType>
+                {
+                    new(loc["FileType.Markdown"]) { Patterns = new[] { "*.md" } }
+                }
+            });
+
+            if (files.Count == 0) return;
+
+            var svc     = new ADDocumentReportService();
+            var content = await svc.ImportMarkdownAsync(files[0].Path.LocalPath);
+
+            if (content is not null)
+            {
+                vm.SelectedObjectDescription = content;
+                vm.StatusMessage = loc["Report.Import.Success"];
+            }
+            else
+            {
+                vm.StatusMessage = loc["Report.Import.Error"];
+            }
         }
     }
 }

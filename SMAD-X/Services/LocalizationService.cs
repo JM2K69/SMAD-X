@@ -1179,6 +1179,206 @@ Premier contrôleur de domaine du domaine contoso.com.
 - Mettre en place un **DC de secours** dans un site/VLAN séparé
 - Inclure dans un plan de **Disaster Recovery** avec sauvegardes System State testées",
 
+                ["Desc.Sample.DC02"] = @"# 🖧 DC02 — Contrôleur de domaine secondaire — Site Paris (Tier 0)
+
+Contrôleur de domaine secondaire hébergé dans le site **Site-Paris** (10.0.1.0/24).
+
+## Rôle
+- Assure la **réplication AD** depuis DC01 au sein du même site
+- Prend en charge les authentifications en cas d'indisponibilité de DC01
+- Héberge une réplique complète du **catalogue global** pour la forêt
+- Idéal pour la **distribution de charge Kerberos** sur le site principal
+
+## Rôles FSMO
+- Aucun rôle FSMO principal (DC secondaire)
+- Peut être promu en cas de défaillance de DC01 via `Move-ADDirectoryServerOperationMasterRole`
+
+## Infrastructure réseau
+- Adresse IP : 10.0.1.2/24
+- Site AD : **Site-Paris**
+- Réplication intra-site : immédiate (< 15 secondes)
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Infrastructure AD critique**
+
+- Isolé dans le même VLAN sécurisé que DC01 (VLAN Tier 0)
+- Surveillance identique à DC01 (Event IDs 4624, 4662, 4769, 4776)
+- Inclus dans les sauvegardes System State planifiées",
+
+                ["Desc.Sample.DC03"] = @"# 🖧 DC03 — Contrôleur de domaine — Site Lyon (Tier 0)
+
+Contrôleur de domaine secondaire hébergé dans le site **Site-Lyon** (10.0.2.0/24).
+
+## Rôle
+- Authentification locale des utilisateurs du site de Lyon (**réduction de la latence WAN**)
+- Maintient une réplique locale complète de l'annuaire AD
+- Évite les flux d'authentification inter-sites coûteux
+- Point de continuité en cas de coupure WAN avec Paris
+
+## Rôles FSMO
+- Aucun rôle FSMO (peut être désigné PDC Emulator de secours)
+
+## Infrastructure réseau
+- Adresse IP : 10.0.2.1/24
+- Site AD : **Site-Lyon**
+- Réplication inter-site : **DEFAULTIPSITELINK** — coût 100, intervalle 15 min
+
+## ⚠️ Sécurité
+> 🔴 **Tier 0 — Infrastructure AD critique**
+
+- Sécuriser physiquement la salle serveur de Lyon (accès badge, vidéosurveillance)
+- Appliquer BitLocker sur les volumes du DC pour protéger les données AD en cas de vol physique
+- Trafic de réplication chiffré (Kerberos + RPC/SChannel)
+- Surveiller les Event ID 4741 (création compte machine) et 4743 (suppression)",
+
+                ["Desc.Sample.SiteParis"] = @"# 🏙 Site-Paris — Datacenter Principal
+
+Site Active Directory hébergeant les serveurs principaux du domaine **contoso.com**.
+
+## Périmètre réseau
+| Réseau | VLAN | Usage |
+|--------|------|-------|
+| 10.0.1.0/24 | 10 | Serveurs AD / Infrastructure |
+
+## Contrôleurs de domaine
+- **DC01** — PDC Emulator, RID Master, Schema Master, Domain Naming Master, Infrastructure Master
+- **DC02** — DC secondaire, Catalogue Global
+
+## Rôle dans la topologie
+- Site **principal** et **hub de réplication** pour tous les sites de la forêt
+- Héberge les rôles FSMO critiques sur DC01
+- Réplication intra-site immédiate entre DC01 et DC02
+
+## ⚠️ Bonnes pratiques
+- Au moins 2 DCs par site pour la haute disponibilité
+- Éviter de placer toute l'infrastructure Tier 0 dans un unique datacenter",
+
+                ["Desc.Sample.SiteLyon"] = @"# 🏙 Site-Lyon — Site Secondaire
+
+Site Active Directory hébergeant le contrôleur de domaine de **Lyon**, connecté à Paris via un lien WAN.
+
+## Périmètre réseau
+| Réseau | VLAN | Usage |
+|--------|------|-------|
+| 10.0.2.0/24 | 20 | Serveurs AD / Infrastructure |
+
+## Contrôleurs de domaine
+- **DC03** — DC secondaire, Catalogue Global local
+
+## Rôle dans la topologie
+- Site **secondaire** connecté à Site-Paris via **DEFAULTIPSITELINK** (coût 100)
+- Réduit la latence d'authentification pour les utilisateurs lyonnais
+- Assure la continuité en cas de panne du lien WAN Paris–Lyon (authentification locale)
+
+## ⚠️ Bonnes pratiques
+- Vérifier régulièrement l'état de la réplication : `Get-ADReplicationPartnerMetadata -Target DC03 -Scope Server`
+- Surveiller les erreurs de réplication (Event IDs 1311, 1388, 1645)",
+
+                ["Desc.Sample.GPO.DefaultSite"] = @"# 📋 GPO-Baseline-DC
+
+> 🔒 GPO de sécurité appliquée au site **Default-First-Site-Name**.
+
+## Objectif
+Définir la ligne de base de sécurité pour tous les contrôleurs de domaine du site par défaut.
+
+## Paramètres principaux
+| Catégorie | Valeur |
+|---|---|
+| Audit de connexion | Succès, Échec |
+| Pare-feu Windows | Activé (tous profils) |
+| Droits locaux | Administrators uniquement |
+| SMB Signing | Requis |
+
+## ⚠️ Bonnes pratiques
+- Ne pas modifier sans validation en environnement de test
+- Compléter avec les benchmarks CIS Level 1 pour les DC",
+                ["Desc.Sample.GPO.Paris"] = @"# 📋 GPO-Paris-Workstations
+
+> 🖥️ GPO appliquée au site **Site-Paris** — postes de travail.
+
+## Objectif
+Gérer la configuration des postes de travail du datacenter Paris : déploiements logiciels, mappages de lecteurs réseau et imprimantes.
+
+## Paramètres principaux
+| Catégorie | Valeur |
+|---|---|
+| Déploiement logiciels | Office 365, VPN Client |
+| Lecteurs réseau | P: → \\srv-paris\partages |
+| Fond d'écran | Charte graphique Paris |
+| Imprimantes | AUTO (site-aware) |
+
+## ⚠️ Bonnes pratiques
+- Tester sur un groupe pilote avant déploiement en production
+- Utiliser les filtres WMI pour cibler Windows 10/11 uniquement",
+                ["Desc.Sample.GPO.Lyon"] = @"# 📋 GPO-Lyon-Workstations
+
+> 🖥️ GPO appliquée au site **Site-Lyon** — postes de travail.
+
+## Objectif
+Gérer la configuration des postes de travail du site Lyon : déploiements logiciels, mappages de lecteurs et imprimantes locales.
+
+## Paramètres principaux
+| Catégorie | Valeur |
+|---|---|
+| Déploiement logiciels | Office 365, VPN Client |
+| Lecteurs réseau | L: → \\srv-lyon\partages |
+| Fond d'écran | Charte graphique Lyon |
+| Imprimantes | Ricoh-Lyon-Floor1, Ricoh-Lyon-Floor2 |
+
+## ⚠️ Bonnes pratiques
+- Synchroniser avec GPO-Paris-Workstations pour les paramètres communs
+- Vérifier l'accessibilité du serveur d'impression avant déploiement",
+                ["Desc.Sample.DefaultSite"] = "Site Active Directory créé automatiquement lors de la première installation. Contient initialement tous les contrôleurs de domaine avant configuration manuelle des sites.",
+                ["Desc.Sample.SubnetDefault"] = "Sous-réseau de gestion interne — Default-First-Site-Name",
+                ["Desc.Sample.SubnetParis"] = "Sous-réseau 10.0.1.0/24 — Site Paris (Datacenter Principal)",
+                ["Desc.Sample.SubnetLyon"] = "Sous-réseau 10.0.2.0/24 — Site Lyon (Site Secondaire)",
+                ["Desc.Sample.SiteLinkPL"] = @"# 🔗 DEFAULTIPSITELINK — Lien Paris ↔ Lyon
+
+Lien de réplication AD entre les sites **Site-Paris** et **Site-Lyon**.
+
+## Paramètres
+| Paramètre | Valeur |
+|-----------|--------|
+| Transport | IP (RPC/IP) |
+| Coût | 100 |
+| Intervalle | 15 minutes |
+| Planification | Toujours disponible |
+
+## ⚠️ Bonnes pratiques
+- Ajuster l'intervalle de réplication selon la bande passante WAN disponible
+- En cas de liaison WAN < 512 Kbps, envisager SMTP comme transport alternatif
+- Utiliser `repadmin /showrepl` pour diagnostiquer les retards de réplication",
+
+                ["Desc.Sample.SiteLinkDP"] = @"# 🔗 SiteLink-Default-Paris — Lien Default ↔ Paris
+
+Lien de réplication AD entre **Default-First-Site-Name** et **Site-Paris**.
+
+## Paramètres
+| Paramètre | Valeur |
+|-----------|--------|
+| Transport | IP (RPC/IP) |
+| Coût | 100 |
+| Intervalle | 15 minutes |
+| Planification | Toujours disponible |
+
+## ⚠️ Bonnes pratiques
+- Vérifier la latence WAN Paris – siège régulièrement",
+
+                ["Desc.Sample.SiteLinkDL"] = @"# 🔗 SiteLink-Default-Lyon — Lien Default ↔ Lyon
+
+Lien de réplication AD entre **Default-First-Site-Name** et **Site-Lyon**.
+
+## Paramètres
+| Paramètre | Valeur |
+|-----------|--------|
+| Transport | IP (RPC/IP) |
+| Coût | 150 |
+| Intervalle | 30 minutes |
+| Planification | Toujours disponible |
+
+## ⚠️ Bonnes pratiques
+- Coût plus élevé (150) pour privilégier la réplication via Paris en temps normal",
+
                 ["Desc.Sample.GMSA"] = @"# 🔐 svc-webapp — Group Managed Service Account (Tier 1)
 
 Compte de service géré de groupe pour l'application web de l'organisation.
@@ -1294,6 +1494,79 @@ Password Settings Object appliqué aux **comptes utilisateurs standards Tier 2**
                 ["Desc.Delegation.GGITWorkstations"] = "Groupe IT Workstations — gère les objets ordinateurs dans l'OU Workstations (Tier 2)",
                 ["Desc.Delegation.GGITServers"] = "Groupe IT Servers — gère les objets ordinateurs et serveurs dans l'OU Servers (Tier 1)",
                 ["Desc.Delegation.GGTier1Operators"] = "Groupe opérateurs Tier 1 — peut modifier les attributs des contrôleurs de domaine (Tier 1)",
+
+                // Sites AD
+                ["Menu.Sites"] = "Sites AD",
+                ["Menu.Sites.View"] = "Voir les sites...",
+                ["Sites.Window.Title"] = "Topologie des sites Active Directory",
+                ["Sites.Tab.Table"] = "Tableau",
+                ["Sites.Tab.Graph"] = "Graphe",
+                ["Sites.Column.Name"] = "Nom",
+                ["Sites.Column.Description"] = "Description",
+                ["Sites.Column.Location"] = "Localisation",
+                ["Sites.Column.Subnets"] = "Sous-réseaux",
+                ["Sites.Column.DCs"] = "Contrôleurs de domaine",
+                ["Sites.Column.Cost"] = "Coût",
+                ["Sites.Column.Interval"] = "Intervalle (min)",
+                ["Sites.Column.Transport"] = "Transport",
+                ["Sites.Column.LinkedSites"] = "Sites liés",
+                ["Sites.NoData"] = "Aucun site disponible — utilisez le script PowerShell pour importer la topologie.",
+                ["Sites.Add"] = "Ajouter un site",
+                ["Sites.Edit"] = "Modifier",
+                ["Sites.Delete"] = "Supprimer",
+                ["Sites.AddLink"] = "Ajouter un lien",
+                ["Sites.Section.Sites"] = "Sites",
+                ["Sites.Section.Links"] = "Liens de réplication",
+                ["Sites.Label.Sites"] = "Sites",
+                ["Sites.Label.Links"] = "Liens",
+                ["Sites.Filter.Placeholder"] = "Filtrer par nom ou localisation…",
+                ["Sites.Column.GPOs"] = "GPOs",
+                ["Sites.Column.LinkName"] = "Nom du lien",
+                ["Sites.Column.LinkSites"] = "Sites",
+                ["Sites.Detail.Selected"] = "📍 Site sélectionné :",
+                ["Sites.Detail.Subnets"] = "🌐  Sous-réseaux",
+                ["Sites.Detail.DCs"] = "🖥  Contrôleurs de domaine",
+                ["Sites.Detail.GPOs"] = "📄  GPOs liées",
+                ["Sites.Status"] = "{0} site(s) — {1} lien(s)",
+                ["Sites.NoSites"] = "Aucun site — importez la topologie via le script PowerShell (Fichier › Générer le script d'import)",
+
+                // Export rapport
+                ["Menu.File.ExportReport"] = "Exporter le rapport de documentation...",
+                ["Menu.File.ImportDescription"] = "Importer une description (.md)...",
+                ["Report.Dialog.Title"] = "Exporter le rapport de documentation",
+                ["Report.Format.Markdown"] = "Markdown (.md)",
+                ["Report.Format.Docx"] = "Word (.docx)",
+                ["Report.Format.Pdf"] = "PDF (.pdf)",
+                ["Report.Format.Label"] = "Format :",
+                ["Report.Scope.Label"] = "Portée :",
+                ["Report.Scope.Combined"] = "Domaine complet (combiné)",
+                ["Report.Scope.Individual"] = "Élément individuel",
+                ["Report.Scope.Object.Label"] = "Éléments documentés :",
+                ["Report.Scope.TypeFilter"] = "Filtrer par type :",
+                ["Report.Scope.TypeAll"] = "Tous les types",
+                ["Report.Scope.SelectAll"] = "Tout sélectionner",
+                ["Report.Scope.SelectNone"] = "Tout désélectionner",
+                ["Report.Scope.SelectedCount"] = "{0} élément(s) sélectionné(s)",
+                ["Report.Export.FolderTitle"] = "Choisir le dossier de destination",
+                ["Report.Export.MultiDone"] = "{0} fichier(s) exporté(s) dans :",
+                ["Report.Button.Export"] = "Exporter",
+                ["Report.Button.Cancel"] = "Annuler",
+                ["Report.Success"] = "Rapport exporté avec succès :",
+                ["Report.Error"] = "Erreur lors de l'export du rapport :",
+                ["Report.Theme.Label"] = "Thème :",
+                ["Report.Theme.Plain"] = "Plain",
+                ["Report.Theme.WordLike"] = "WordLike",
+                ["Report.Theme.TechnicalDocument"] = "Technical Document",
+                ["Report.Theme.GitHubLike"] = "GitHub",
+                ["Report.Theme.Compact"] = "Compact",
+                ["Report.Theme.Report"] = "Report",
+                ["Report.Import.Title"] = "Importer une description Markdown",
+                ["Report.Import.Success"] = "Description importée avec succès",
+                ["Report.Import.Error"] = "Erreur lors de l'import de la description",
+                ["Report.Import.NoSelection"] = "Aucun objet sélectionné — sélectionnez un objet dans l'arborescence avant d'importer",
+                ["FileType.Markdown"] = "Fichier Markdown",
+                ["FileType.Word"] = "Document Word",
+                ["FileType.Pdf"] = "Document PDF",
             };
 
             // Anglais
@@ -2398,6 +2671,206 @@ First domain controller of the contoso.com domain.
 - Set up a **standby DC** in a separate site/VLAN
 - Include in a **Disaster Recovery plan** with tested System State backups",
 
+                ["Desc.Sample.DC02"] = @"# 🖧 DC02 — Secondary Domain Controller — Site Paris (Tier 0)
+
+Secondary domain controller hosted in the **Site-Paris** site (10.0.1.0/24).
+
+## Role
+- Ensures **AD replication** from DC01 within the same site
+- Handles authentications if DC01 becomes unavailable
+- Hosts a full replica of the **Global Catalog** for the forest
+- Ideal for **Kerberos load distribution** on the main site
+
+## FSMO Roles
+- No primary FSMO roles (secondary DC)
+- Can be promoted if DC01 fails via `Move-ADDirectoryServerOperationMasterRole`
+
+## Network infrastructure
+- IP address: 10.0.1.2/24
+- AD Site: **Site-Paris**
+- Intra-site replication: immediate (< 15 seconds)
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Critical AD infrastructure**
+
+- Isolated in the same secure VLAN as DC01 (Tier 0 VLAN)
+- Same monitoring as DC01 (Event IDs 4624, 4662, 4769, 4776)
+- Included in scheduled System State backups",
+
+                ["Desc.Sample.DC03"] = @"# 🖧 DC03 — Domain Controller — Site Lyon (Tier 0)
+
+Secondary domain controller hosted in the **Site-Lyon** site (10.0.2.0/24).
+
+## Role
+- Local authentication for Lyon site users (**reduces WAN latency**)
+- Maintains a full local replica of the AD directory
+- Avoids costly cross-site authentication traffic
+- Continuity point in case of WAN outage with Paris
+
+## FSMO Roles
+- No FSMO roles (can be designated backup PDC Emulator)
+
+## Network infrastructure
+- IP address: 10.0.2.1/24
+- AD Site: **Site-Lyon**
+- Cross-site replication: **DEFAULTIPSITELINK** — cost 100, interval 15 min
+
+## ⚠️ Security
+> 🔴 **Tier 0 — Critical AD infrastructure**
+
+- Physically secure the Lyon server room (badge access, CCTV)
+- Apply BitLocker to DC volumes to protect AD data in case of physical theft
+- Replication traffic is encrypted (Kerberos + RPC/SChannel)
+- Monitor Event IDs 4741 (machine account creation) and 4743 (deletion)",
+
+                ["Desc.Sample.SiteParis"] = @"# 🏙 Site-Paris — Main Datacenter
+
+Active Directory site hosting the main servers of the **contoso.com** domain.
+
+## Network scope
+| Network | VLAN | Usage |
+|---------|------|-------|
+| 10.0.1.0/24 | 10 | AD / Infrastructure servers |
+
+## Domain Controllers
+- **DC01** — PDC Emulator, RID Master, Schema Master, Domain Naming Master, Infrastructure Master
+- **DC02** — Secondary DC, Global Catalog
+
+## Role in topology
+- **Primary site** and **replication hub** for all forest sites
+- Hosts critical FSMO roles on DC01
+- Immediate intra-site replication between DC01 and DC02
+
+## ⚠️ Best practices
+- At least 2 DCs per site for high availability
+- Avoid placing all Tier 0 infrastructure in a single datacenter",
+
+                ["Desc.Sample.SiteLyon"] = @"# 🏙 Site-Lyon — Secondary Site
+
+Active Directory site hosting the **Lyon** domain controller, connected to Paris via a WAN link.
+
+## Network scope
+| Network | VLAN | Usage |
+|---------|------|-------|
+| 10.0.2.0/24 | 20 | AD / Infrastructure servers |
+
+## Domain Controllers
+- **DC03** — Secondary DC, local Global Catalog
+
+## Role in topology
+- **Secondary site** connected to Site-Paris via **DEFAULTIPSITELINK** (cost 100)
+- Reduces authentication latency for Lyon users
+- Ensures continuity in case of Paris–Lyon WAN failure (local authentication)
+
+## ⚠️ Best practices
+- Regularly check replication status: `Get-ADReplicationPartnerMetadata -Target DC03 -Scope Server`
+- Monitor replication errors (Event IDs 1311, 1388, 1645)",
+
+                ["Desc.Sample.GPO.DefaultSite"] = @"# 📋 GPO-Baseline-DC
+
+> 🔒 Security GPO applied to site **Default-First-Site-Name**.
+
+## Purpose
+Define the security baseline for all domain controllers in the default site.
+
+## Key Settings
+| Category | Value |
+|---|---|
+| Logon Audit | Success, Failure |
+| Windows Firewall | Enabled (all profiles) |
+| Local Rights | Administrators only |
+| SMB Signing | Required |
+
+## ⚠️ Best practices
+- Do not modify without validation in a test environment
+- Supplement with CIS Level 1 benchmarks for DCs",
+                ["Desc.Sample.GPO.Paris"] = @"# 📋 GPO-Paris-Workstations
+
+> 🖥️ GPO applied to site **Site-Paris** — workstations.
+
+## Purpose
+Manage workstation configuration at the Paris datacenter: software deployments, network drive mappings and printers.
+
+## Key Settings
+| Category | Value |
+|---|---|
+| Software Deployment | Office 365, VPN Client |
+| Network Drives | P: → \\srv-paris\shares |
+| Wallpaper | Paris corporate branding |
+| Printers | AUTO (site-aware) |
+
+## ⚠️ Best practices
+- Test on a pilot group before production deployment
+- Use WMI filters to target Windows 10/11 only",
+                ["Desc.Sample.GPO.Lyon"] = @"# 📋 GPO-Lyon-Workstations
+
+> 🖥️ GPO applied to site **Site-Lyon** — workstations.
+
+## Purpose
+Manage workstation configuration at the Lyon site: software deployments, drive mappings and local printers.
+
+## Key Settings
+| Category | Value |
+|---|---|
+| Software Deployment | Office 365, VPN Client |
+| Network Drives | L: → \\srv-lyon\shares |
+| Wallpaper | Lyon corporate branding |
+| Printers | Ricoh-Lyon-Floor1, Ricoh-Lyon-Floor2 |
+
+## ⚠️ Best practices
+- Synchronise shared settings with GPO-Paris-Workstations
+- Verify print server accessibility before deployment",
+                ["Desc.Sample.DefaultSite"] = "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration.",
+                ["Desc.Sample.SubnetDefault"] = "Management subnet — Default-First-Site-Name",
+                ["Desc.Sample.SubnetParis"] = "Subnet 10.0.1.0/24 — Site Paris (Main Datacenter)",
+                ["Desc.Sample.SubnetLyon"] = "Subnet 10.0.2.0/24 — Site Lyon (Secondary Site)",
+                ["Desc.Sample.SiteLinkPL"] = @"# 🔗 DEFAULTIPSITELINK — Link Paris ↔ Lyon
+
+AD replication link between sites **Site-Paris** and **Site-Lyon**.
+
+## Parameters
+| Parameter | Value |
+|-----------|-------|
+| Transport | IP (RPC/IP) |
+| Cost | 100 |
+| Interval | 15 minutes |
+| Schedule | Always available |
+
+## ⚠️ Best practices
+- Adjust replication interval based on available WAN bandwidth
+- For WAN links < 512 Kbps, consider SMTP as an alternative transport
+- Use `repadmin /showrepl` to diagnose replication delays",
+
+                ["Desc.Sample.SiteLinkDP"] = @"# 🔗 SiteLink-Default-Paris — Link Default ↔ Paris
+
+AD replication link between **Default-First-Site-Name** and **Site-Paris**.
+
+## Parameters
+| Parameter | Value |
+|-----------|-------|
+| Transport | IP (RPC/IP) |
+| Cost | 100 |
+| Interval | 15 minutes |
+| Schedule | Always available |
+
+## ⚠️ Best practices
+- Regularly check WAN latency between Paris and headquarters",
+
+                ["Desc.Sample.SiteLinkDL"] = @"# 🔗 SiteLink-Default-Lyon — Link Default ↔ Lyon
+
+AD replication link between **Default-First-Site-Name** and **Site-Lyon**.
+
+## Parameters
+| Parameter | Value |
+|-----------|-------|
+| Transport | IP (RPC/IP) |
+| Cost | 150 |
+| Interval | 30 minutes |
+| Schedule | Always available |
+
+## ⚠️ Best practices
+- Higher cost (150) to prefer replication via Paris under normal conditions",
+
                 ["Desc.Sample.GMSA"] = @"# 🔐 svc-webapp — Group Managed Service Account (Tier 1)
 
 Group Managed Service Account for the organization's web application.
@@ -2513,6 +2986,79 @@ Password Settings Object applied to **Tier 2 standard user accounts**.
                 ["Desc.Delegation.GGITWorkstations"] = "IT Workstations group — manages computer objects in the Workstations OU (Tier 2)",
                 ["Desc.Delegation.GGITServers"] = "IT Servers group — manages computer and server objects in the Servers OU (Tier 1)",
                 ["Desc.Delegation.GGTier1Operators"] = "Tier 1 Operators group — can modify attributes of domain controllers (Tier 1)",
+
+                // AD Sites
+                ["Menu.Sites"] = "AD Sites",
+                ["Menu.Sites.View"] = "View sites...",
+                ["Sites.Window.Title"] = "Active Directory Sites Topology",
+                ["Sites.Tab.Table"] = "Table",
+                ["Sites.Tab.Graph"] = "Graph",
+                ["Sites.Column.Name"] = "Name",
+                ["Sites.Column.Description"] = "Description",
+                ["Sites.Column.Location"] = "Location",
+                ["Sites.Column.Subnets"] = "Subnets",
+                ["Sites.Column.DCs"] = "Domain Controllers",
+                ["Sites.Column.Cost"] = "Cost",
+                ["Sites.Column.Interval"] = "Interval (min)",
+                ["Sites.Column.Transport"] = "Transport",
+                ["Sites.Column.LinkedSites"] = "Linked Sites",
+                ["Sites.NoData"] = "No sites available — use the PowerShell script to import the topology.",
+                ["Sites.Add"] = "Add site",
+                ["Sites.Edit"] = "Edit",
+                ["Sites.Delete"] = "Delete",
+                ["Sites.AddLink"] = "Add link",
+                ["Sites.Section.Sites"] = "Sites",
+                ["Sites.Section.Links"] = "Replication Links",
+                ["Sites.Label.Sites"] = "Sites",
+                ["Sites.Label.Links"] = "Links",
+                ["Sites.Filter.Placeholder"] = "Filter by name or location…",
+                ["Sites.Column.GPOs"] = "GPOs",
+                ["Sites.Column.LinkName"] = "Link name",
+                ["Sites.Column.LinkSites"] = "Sites",
+                ["Sites.Detail.Selected"] = "📍 Selected site:",
+                ["Sites.Detail.Subnets"] = "🌐  Subnets",
+                ["Sites.Detail.DCs"] = "🖥  Domain Controllers",
+                ["Sites.Detail.GPOs"] = "📄  Linked GPOs",
+                ["Sites.Status"] = "{0} site(s) — {1} link(s)",
+                ["Sites.NoSites"] = "No sites — import topology via PowerShell script (File › Generate import script)",
+
+                // Report export
+                ["Menu.File.ExportReport"] = "Export Documentation Report...",
+                ["Menu.File.ImportDescription"] = "Import description (.md)...",
+                ["Report.Dialog.Title"] = "Export Documentation Report",
+                ["Report.Format.Markdown"] = "Markdown (.md)",
+                ["Report.Format.Docx"] = "Word (.docx)",
+                ["Report.Format.Pdf"] = "PDF (.pdf)",
+                ["Report.Format.Label"] = "Format:",
+                ["Report.Scope.Label"] = "Scope:",
+                ["Report.Scope.Combined"] = "Full domain (combined)",
+                ["Report.Scope.Individual"] = "Individual element",
+                ["Report.Scope.Object.Label"] = "Documented elements:",
+                ["Report.Scope.TypeFilter"] = "Filter by type:",
+                ["Report.Scope.TypeAll"] = "All types",
+                ["Report.Scope.SelectAll"] = "Select all",
+                ["Report.Scope.SelectNone"] = "Deselect all",
+                ["Report.Scope.SelectedCount"] = "{0} element(s) selected",
+                ["Report.Export.FolderTitle"] = "Choose destination folder",
+                ["Report.Export.MultiDone"] = "{0} file(s) exported to:",
+                ["Report.Button.Export"] = "Export",
+                ["Report.Button.Cancel"] = "Cancel",
+                ["Report.Success"] = "Report exported successfully:",
+                ["Report.Error"] = "Error exporting report:",
+                ["Report.Theme.Label"] = "Theme:",
+                ["Report.Theme.Plain"] = "Plain",
+                ["Report.Theme.WordLike"] = "WordLike",
+                ["Report.Theme.TechnicalDocument"] = "Technical Document",
+                ["Report.Theme.GitHubLike"] = "GitHub",
+                ["Report.Theme.Compact"] = "Compact",
+                ["Report.Theme.Report"] = "Report",
+                ["Report.Import.Title"] = "Import Markdown Description",
+                ["Report.Import.Success"] = "Description imported successfully",
+                ["Report.Import.Error"] = "Error importing description",
+                ["Report.Import.NoSelection"] = "No object selected — select an object in the tree before importing",
+                ["FileType.Markdown"] = "Markdown file",
+                ["FileType.Word"] = "Word document",
+                ["FileType.Pdf"] = "PDF document",
             };
         }
 

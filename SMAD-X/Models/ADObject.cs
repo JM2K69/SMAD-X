@@ -58,6 +58,11 @@ namespace SMADX.Models
         public ObservableCollection<string> LinkedGPOs { get; set; } = new();
 
         /// <summary>
+        /// Pour les contrôleurs de domaine (Computer) : nom du site AD auquel l'objet appartient.
+        /// </summary>
+        public string? SiteName { get; set; }
+
+        /// <summary>
         /// Pour PSO : liste des SAMAccountNames (users/groupes) auxquels ce PSO s'applique
         /// </summary>
         public ObservableCollection<string> PSOAppliesTo { get; set; } = new();

@@ -1,0 +1,281 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:vm="using:SMADX.ViewModels"
+		xmlns:models="using:SMADX.Models"
+		x:Class="SMADX.Views.SitesWindow"
+		x:Name="SitesWindowRoot"
+		Title="{Binding Source={StaticResource Loc}, Path=SitesWindowTitle}"
+		Icon="/Assets/icone.ico"
+		Width="1280" Height="800"
+		WindowStartupLocation="CenterOwner"
+		CanResize="True">
+
+	<Design.DataContext>
+		<vm:SitesViewModel/>
+	</Design.DataContext>
+
+	<Grid RowDefinitions="Auto,*,Auto">
+
+		<!-- ── Top bar ────────────────────────────────────────────────────── -->
+		<Border Grid.Row="0" Background="#1E2230" Padding="12,8">
+			<DockPanel>
+				<!-- Stats -->
+				<StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="20">
+					<StackPanel HorizontalAlignment="Center">
+						<TextBlock Text="{Binding Source={StaticResource Loc}, Path=SitesLabelSites}"
+								   FontSize="11" Foreground="#888" HorizontalAlignment="Center"/>
+						<TextBlock Text="{Binding Sites.Count}" FontSize="22" FontWeight="Bold"
+								   Foreground="#0078D4" HorizontalAlignment="Center"/>
+					</StackPanel>
+					<StackPanel HorizontalAlignment="Center">
+						<TextBlock Text="{Binding Source={StaticResource Loc}, Path=SitesLabelLinks}"
+								   FontSize="11" Foreground="#888" HorizontalAlignment="Center"/>
+						<TextBlock Text="{Binding GraphEdgeCount}" FontSize="22" FontWeight="Bold"
+								   Foreground="#107C10" HorizontalAlignment="Center"/>
+					</StackPanel>
+				</StackPanel>
+
+				<!-- Filter -->
+				<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+					<TextBlock Text="🔍" FontSize="16" VerticalAlignment="Center" Foreground="#AAA"/>
+					<TextBox Width="260"
+							 PlaceholderText="{Binding Source={StaticResource Loc}, Path=SitesFilterPlaceholder}"
+							 Text="{Binding FilterText}"
+							 Background="#2D3250" Foreground="White"
+							 BorderBrush="#444" CornerRadius="4"/>
+				</StackPanel>
+			</DockPanel>
+		</Border>
+
+		<!-- ── Tab content ───────────────────────────────────────────────── -->
+		<TabControl Grid.Row="1">
+
+			<!-- ══ TAB 1 : Table ══════════════════════════════════════════ -->
+			<TabItem Header="{Binding Source={StaticResource Loc}, Path=SitesTabTable}">
+				<Grid RowDefinitions="*,6,*,6,Auto">
+
+					<!-- Sites DataGrid -->
+					<DataGrid Grid.Row="0"
+							  ItemsSource="{Binding Sites}"
+							  SelectedItem="{Binding SelectedSite}"
+							  IsReadOnly="True"
+							  GridLinesVisibility="Horizontal"
+							  AutoGenerateColumns="False">
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnName}"        Binding="{Binding Name}"               Width="170"/>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnDescription}" Binding="{Binding ShortDescription}"   Width="230"/>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnLocation}"    Binding="{Binding Location}"           Width="180"/>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnSubnets}"     Binding="{Binding Subnets.Count}"      Width="85"/>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnDCs}"         Binding="{Binding DomainControllers.Count}" Width="70"/>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnGPOs}"        Binding="{Binding LinkedGPOs.Count}"   Width="55"/>
+						</DataGrid.Columns>
+					</DataGrid>
+
+					<GridSplitter Grid.Row="1" ResizeDirection="Rows" Height="6"
+								  HorizontalAlignment="Stretch" Background="#333"/>
+
+					<!-- Site Links DataGrid -->
+					<DataGrid Grid.Row="2"
+							  ItemsSource="{Binding SiteLinks}"
+							  SelectedItem="{Binding SelectedSiteLink}"
+							  IsReadOnly="True"
+							  GridLinesVisibility="Horizontal"
+							  AutoGenerateColumns="False">
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnLinkName}"  Binding="{Binding Name}"                    Width="200"/>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnTransport}" Binding="{Binding Transport}"               Width="80"/>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnCost}"      Binding="{Binding Cost}"                    Width="65"/>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnInterval}"  Binding="{Binding ReplicationIntervalMinutes}" Width="120"/>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnLinkSites}" Binding="{Binding SiteNames.Count}"         Width="65"/>
+							<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=SitesColumnDescription}" Binding="{Binding ShortDescription}"      Width="*"/>
+						</DataGrid.Columns>
+					</DataGrid>
+
+					<GridSplitter Grid.Row="3" ResizeDirection="Rows" Height="6"
+								  HorizontalAlignment="Stretch" Background="#333"/>
+
+					<!-- Detail panel for selected site -->
+					<Border Grid.Row="4" Background="#181C2E" Padding="10,6"
+							IsVisible="{Binding SelectedSite, Converter={x:Static ObjectConverters.IsNotNull}}">
+						<Grid ColumnDefinitions="Auto,12,*,12,*,12,*">
+							<TextBlock Grid.Column="0"
+									   Text="{Binding Source={StaticResource Loc}, Path=SitesDetailSelected}"
+									   Foreground="#888" VerticalAlignment="Top" FontSize="11"/>
+							<StackPanel Grid.Column="2" Spacing="2">
+								<TextBlock Text="{Binding Source={StaticResource Loc}, Path=SitesDetailSubnets}"
+										   Foreground="#88AACC" FontSize="11" FontWeight="SemiBold"/>
+								<ItemsControl ItemsSource="{Binding SelectedSite.Subnets}">
+									<ItemsControl.ItemTemplate>
+										<DataTemplate x:DataType="models:ADSubnet">
+											<TextBlock FontSize="11" Foreground="#CCC"
+													   Text="{Binding Cidr, StringFormat='• {0}'}"/>
+										</DataTemplate>
+									</ItemsControl.ItemTemplate>
+								</ItemsControl>
+							</StackPanel>
+							<StackPanel Grid.Column="4" Spacing="2">
+								<TextBlock Text="{Binding Source={StaticResource Loc}, Path=SitesDetailDCs}"
+										   Foreground="#AACCAA" FontSize="11" FontWeight="SemiBold"/>
+								<ItemsControl ItemsSource="{Binding SelectedSite.DomainControllers}">
+									<ItemsControl.ItemTemplate>
+										<DataTemplate x:DataType="x:String">
+											<TextBlock FontSize="11" Foreground="#CCC"
+													   Text="{Binding StringFormat='• {0}'}"/>
+										</DataTemplate>
+									</ItemsControl.ItemTemplate>
+								</ItemsControl>
+							</StackPanel>
+							<StackPanel Grid.Column="6" Spacing="2">
+								<TextBlock Text="{Binding Source={StaticResource Loc}, Path=SitesDetailGPOs}"
+										   Foreground="#CCAA44" FontSize="11" FontWeight="SemiBold"/>
+								<ItemsControl ItemsSource="{Binding SelectedSite.LinkedGPOs}">
+									<ItemsControl.ItemTemplate>
+										<DataTemplate x:DataType="x:String">
+											<TextBlock FontSize="11" Foreground="#CCC"
+													   Text="{Binding StringFormat='• {0}'}"/>
+										</DataTemplate>
+									</ItemsControl.ItemTemplate>
+								</ItemsControl>
+							</StackPanel>
+						</Grid>
+					</Border>
+				</Grid>
+			</TabItem>
+
+			<!-- ══ TAB 2 : Graph ══════════════════════════════════════════ -->
+			<TabItem Header="{Binding Source={StaticResource Loc}, Path=SitesTabGraph}">
+				<ScrollViewer HorizontalScrollBarVisibility="Auto"
+							  VerticalScrollBarVisibility="Auto">
+					<Canvas Width="1400" Height="820"
+							Background="#12141A"
+							ClipToBounds="False">
+
+						<!-- Edges (lines) -->
+						<ItemsControl ItemsSource="{Binding GraphEdges}"
+									  Canvas.Left="0" Canvas.Top="0">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<Canvas Width="1400" Height="820"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemContainerTheme>
+								<ControlTheme TargetType="ContentPresenter">
+									<Setter Property="Canvas.Left" Value="0"/>
+									<Setter Property="Canvas.Top"  Value="0"/>
+								</ControlTheme>
+							</ItemsControl.ItemContainerTheme>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="vm:SiteLinkLineViewModel">
+									<Line StartPoint="{Binding Start}"
+										  EndPoint="{Binding End}"
+										  Stroke="#5566AA" StrokeThickness="2.5"
+										  StrokeDashArray="4,3"/>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+						<!-- Edge labels -->
+						<ItemsControl ItemsSource="{Binding GraphEdgeLabels}"
+									  Canvas.Left="0" Canvas.Top="0">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<Canvas Width="1400" Height="820"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemContainerTheme>
+								<ControlTheme TargetType="ContentPresenter">
+									<Setter Property="Canvas.Left" Value="{Binding X}"/>
+									<Setter Property="Canvas.Top"  Value="{Binding Y}"/>
+								</ControlTheme>
+							</ItemsControl.ItemContainerTheme>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="vm:SiteLinkLabelViewModel">
+									<Border Background="#22283C" BorderBrush="#445" BorderThickness="1"
+											CornerRadius="3" Padding="4,2">
+										<TextBlock Text="{Binding Text}" FontSize="10" Foreground="#99AACC"/>
+									</Border>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+						<!-- Site nodes -->
+						<ItemsControl ItemsSource="{Binding GraphNodes}"
+									  Canvas.Left="0" Canvas.Top="0">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<Canvas Width="1400" Height="820"/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemContainerTheme>
+								<ControlTheme TargetType="ContentPresenter">
+									<Setter Property="Canvas.Left" Value="{Binding X}"/>
+									<Setter Property="Canvas.Top"  Value="{Binding Y}"/>
+								</ControlTheme>
+							</ItemsControl.ItemContainerTheme>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="vm:SiteNodeViewModel">
+									<Border Width="150" Height="110"
+											CornerRadius="8"
+											Padding="6,4"
+											Background="#1E2A3A"
+											BorderBrush="{Binding NodeBorderBrush}"
+											BorderThickness="2">
+										<ToolTip.Tip>
+											<TextBlock Text="{Binding Label}" FontFamily="Consolas" FontSize="12"/>
+										</ToolTip.Tip>
+										<StackPanel VerticalAlignment="Center" Spacing="2">
+											<TextBlock Text="{Binding Name}"
+													   Foreground="White" FontSize="11"
+													   FontWeight="Bold"
+													   HorizontalAlignment="Center"
+													   TextTrimming="CharacterEllipsis"
+													   MaxWidth="138"/>
+											<TextBlock Text="{Binding SubnetsText, StringFormat='🌐 {0}'}"
+													   FontSize="9.5" Foreground="#88AACC"
+													   HorizontalAlignment="Center"
+													   TextTrimming="CharacterEllipsis"
+													   MaxWidth="138"/>
+											<TextBlock Text="{Binding DomainControllersText, StringFormat='🖥 {0}'}"
+													   FontSize="9.5" Foreground="#AACCAA"
+													   HorizontalAlignment="Center"
+													   TextTrimming="CharacterEllipsis"
+													   MaxWidth="138"/>
+											<TextBlock Text="{Binding LinkedSitesText, StringFormat='🔗 {0}'}"
+													   FontSize="9" Foreground="#CCAA55"
+													   HorizontalAlignment="Center"
+													   TextTrimming="CharacterEllipsis"
+													   MaxWidth="138"/>
+											<TextBlock Text="{Binding LinkedGPOsText, StringFormat='📄 {0}'}"
+													   FontSize="9" Foreground="#AA88CC"
+													   HorizontalAlignment="Center"
+													   TextTrimming="CharacterEllipsis"
+													   MaxWidth="138"/>
+										</StackPanel>
+									</Border>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+
+					</Canvas>
+				</ScrollViewer>
+			</TabItem>
+
+		</TabControl>
+
+		<!-- ── Status bar ────────────────────────────────────────────────── -->
+		<Border Grid.Row="2" Background="#1A1C2E" Padding="12,4">
+			<DockPanel>
+				<TextBlock DockPanel.Dock="Left"
+						   Text="{Binding StatusText}"
+						   Foreground="#888" FontSize="12"
+						   VerticalAlignment="Center"/>
+				<TextBlock DockPanel.Dock="Right"
+						   IsVisible="{Binding !HasData}"
+						   Text="{Binding Source={StaticResource Loc}, Path=SitesNoSites}"
+						   Foreground="#E3A21A" FontSize="12"
+						   VerticalAlignment="Center"/>
+			</DockPanel>
+		</Border>
+
+	</Grid>
+</Window>

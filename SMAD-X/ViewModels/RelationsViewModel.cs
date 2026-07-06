@@ -55,23 +55,57 @@ namespace SMADX.ViewModels
     }
 
     /// <summary>
-    /// Nœud dans le TreeView des OUs/Domaines pour la sélection GPO Link
+    /// Nœud dans le TreeView de l'onglet GPO Links.
+    /// Peut représenter un ADObject (Domain/OU), un ADSite, ou un en-tête virtuel (dossier).
     /// </summary>
-    public class OuTreeNode
+    public class GpoTargetNode
     {
-        public ADObject AdObjectRef { get; }
-        public string DisplayName => AdObjectRef.Name;
-        public string Icon => AdObjectRef.Type == ADObjectType.Domain ? "🌐" : "📁";
-        public ObservableCollection<OuTreeNode> Children { get; } = new();
+        // ── ADObject target (Domain / OU) ───────────────────────────────────
+        public ADObject? AdObjectRef   { get; }
 
-        public OuTreeNode(ADObject obj)
+        // ── ADSite target ───────────────────────────────────────────────────
+        public ADSite?  SiteRef        { get; }
+
+        // ── Virtual folder (header-only, not selectable as target) ──────────
+        public bool     IsVirtualFolder { get; }
+
+        public string DisplayName =>
+            AdObjectRef?.Name ?? SiteRef?.Name ?? _folderLabel;
+
+        public string Icon =>
+            IsVirtualFolder           ? "🏢" :
+            SiteRef      != null      ? "🏢" :
+            AdObjectRef?.Type == ADObjectType.Domain ? "🌐" : "📁";
+
+        /// <summary>true when this node is a valid GPO link target (not just a header).</summary>
+        public bool IsTarget => !IsVirtualFolder;
+
+        public ObservableCollection<GpoTargetNode> Children { get; } = new();
+
+        private readonly string _folderLabel;
+
+        // ADObject constructor
+        public GpoTargetNode(ADObject obj)
         {
             AdObjectRef = obj;
+            _folderLabel = string.Empty;
             foreach (var child in obj.Children)
-            {
                 if (child.Type == ADObjectType.OrganizationalUnit || child.Type == ADObjectType.Domain)
-                    Children.Add(new OuTreeNode(child));
-            }
+                    Children.Add(new GpoTargetNode(child));
+        }
+
+        // ADSite constructor
+        public GpoTargetNode(ADSite site)
+        {
+            SiteRef = site;
+            _folderLabel = string.Empty;
+        }
+
+        // Virtual folder constructor
+        public GpoTargetNode(string folderLabel)
+        {
+            IsVirtualFolder = true;
+            _folderLabel = folderLabel;
         }
     }
 
@@ -81,6 +115,7 @@ namespace SMADX.ViewModels
     public partial class RelationsViewModel : ViewModelBase
     {
         private readonly ADObject _root;
+        private readonly ADSitesTopology? _topology;
 
         // --- Onglet User → Group ---
         public ObservableCollection<RelationEntry> Memberships { get; } = new();
@@ -213,8 +248,8 @@ namespace SMADX.ViewModels
                 ? AvailableNestingTargets
                 : AvailableNestingTargets.Where(g => g.Name.Contains(NestingTargetFilter, System.StringComparison.OrdinalIgnoreCase));
 
-        // Arbre des OUs/Domaines pour le TreeView GPO Link
-        public ObservableCollection<OuTreeNode> OuTreeRoots { get; } = new();
+        // Arbre des OUs/Domaines/Sites pour le TreeView GPO Link
+        public ObservableCollection<GpoTargetNode> OuTreeRoots { get; } = new();
 
         // Propriétés objet liées aux ComboBox (mettent à jour la string correspondante)
         private ADObjectSuggestion? _membershipSourceObject;
@@ -252,8 +287,8 @@ namespace SMADX.ViewModels
             set { SetProperty(ref _gpoLinkGpoObject, value); GpoLinkGpo = value?.Name ?? string.Empty; }
         }
 
-        private OuTreeNode? _selectedOuNode;
-        public OuTreeNode? SelectedOuNode
+        private GpoTargetNode? _selectedOuNode;
+        public GpoTargetNode? SelectedOuNode
         {
             get => _selectedOuNode;
             set { SetProperty(ref _selectedOuNode, value); GpoLinkOu = value?.DisplayName ?? string.Empty; }
@@ -280,9 +315,10 @@ namespace SMADX.ViewModels
             set => SetProperty(ref _statusMessage, value);
         }
 
-        public RelationsViewModel(ADObject root)
+        public RelationsViewModel(ADObject root, ADSitesTopology? topology = null)
         {
             _root = root;
+            _topology = topology;
             BuildSuggestions();
             LoadRelations();
         }
@@ -363,12 +399,23 @@ namespace SMADX.ViewModels
         private void BuildOuTree()
         {
             OuTreeRoots.Clear();
+
+            // Domain / OU section
             if (_root.Type == ADObjectType.Domain || _root.Type == ADObjectType.OrganizationalUnit)
-                OuTreeRoots.Add(new OuTreeNode(_root));
+                OuTreeRoots.Add(new GpoTargetNode(_root));
             else
                 foreach (var child in _root.Children)
                     if (child.Type == ADObjectType.Domain || child.Type == ADObjectType.OrganizationalUnit)
-                        OuTreeRoots.Add(new OuTreeNode(child));
+                        OuTreeRoots.Add(new GpoTargetNode(child));
+
+            // Sites section
+            if (_topology != null && _topology.Sites.Count > 0)
+            {
+                var siteFolder = new GpoTargetNode("Sites AD");
+                foreach (var site in _topology.Sites)
+                    siteFolder.Children.Add(new GpoTargetNode(site));
+                OuTreeRoots.Add(siteFolder);
+            }
         }
 
         private void LoadRelations()
@@ -426,6 +473,20 @@ namespace SMADX.ViewModels
                             RelationType = "PSO Subject"
                         });
                 }
+            }
+
+            // GPO links from Sites
+            if (_topology != null)
+            {
+                foreach (var site in _topology.Sites)
+                    foreach (var gpo in site.LinkedGPOs)
+                        GpoLinks.Add(new RelationEntry
+                        {
+                            Source = site.Name,
+                            SourceType = "Site",
+                            Target = gpo,
+                            RelationType = "GPO Link"
+                        });
             }
         }
 
@@ -541,28 +602,51 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void AddGpoLink()
         {
-            if (SelectedOuNode == null || string.IsNullOrWhiteSpace(GpoLinkGpo))
+            if (SelectedOuNode == null || !SelectedOuNode.IsTarget || string.IsNullOrWhiteSpace(GpoLinkGpo))
             {
-                StatusMessage = "Sélectionnez un domaine/OU cible et une GPO.";
+                StatusMessage = "Sélectionnez un domaine/OU/site cible et une GPO.";
                 return;
             }
 
-            var ou = SelectedOuNode.AdObjectRef;
-            if (ou.LinkedGPOs.Contains(GpoLinkGpo))
+            if (SelectedOuNode.SiteRef != null)
             {
-                StatusMessage = "Ce lien GPO existe déjà.";
-                return;
+                // Target is an AD Site
+                var site = SelectedOuNode.SiteRef;
+                if (site.LinkedGPOs.Contains(GpoLinkGpo))
+                {
+                    StatusMessage = "Ce lien GPO existe déjà.";
+                    return;
+                }
+                site.LinkedGPOs.Add(GpoLinkGpo);
+                GpoLinks.Add(new RelationEntry
+                {
+                    Source = site.Name,
+                    SourceType = "Site",
+                    Target = GpoLinkGpo,
+                    RelationType = "GPO Link"
+                });
+                StatusMessage = $"✔ GPO '{GpoLinkGpo}' liée au site '{site.Name}'.";
+            }
+            else if (SelectedOuNode.AdObjectRef != null)
+            {
+                // Target is a Domain / OU
+                var ou = SelectedOuNode.AdObjectRef;
+                if (ou.LinkedGPOs.Contains(GpoLinkGpo))
+                {
+                    StatusMessage = "Ce lien GPO existe déjà.";
+                    return;
+                }
+                ou.LinkedGPOs.Add(GpoLinkGpo);
+                GpoLinks.Add(new RelationEntry
+                {
+                    Source = ou.Name,
+                    SourceType = ou.Type == ADObjectType.Domain ? "Domain" : "OU",
+                    Target = GpoLinkGpo,
+                    RelationType = "GPO Link"
+                });
+                StatusMessage = $"✔ GPO '{GpoLinkGpo}' liée à '{ou.Name}'.";
             }
 
-            ou.LinkedGPOs.Add(GpoLinkGpo);
-            GpoLinks.Add(new RelationEntry
-            {
-                Source = ou.Name,
-                SourceType = ou.Type == ADObjectType.Domain ? "Domain" : "OU",
-                Target = GpoLinkGpo,
-                RelationType = "GPO Link"
-            });
-            StatusMessage = $"✔ GPO '{GpoLinkGpo}' liée à '{ou.Name}'.";
             GpoLinkGpoObject = null;
             SelectedOuNode = null;
             GpoLinkOu = string.Empty;
@@ -573,6 +657,21 @@ namespace SMADX.ViewModels
         private void RemoveGpoLink()
         {
             if (SelectedGpoLink == null) return;
+
+            // Try ADSite first
+            if (_topology != null)
+            {
+                var site = _topology.Sites.FirstOrDefault(s => s.Name == SelectedGpoLink.Source);
+                if (site != null)
+                {
+                    site.LinkedGPOs.Remove(SelectedGpoLink.Target);
+                    GpoLinks.Remove(SelectedGpoLink);
+                    StatusMessage = "✔ Lien GPO supprimé.";
+                    return;
+                }
+            }
+
+            // Fall back to ADObject
             var ou = FindObject(SelectedGpoLink.Source);
             ou?.LinkedGPOs.Remove(SelectedGpoLink.Target);
             GpoLinks.Remove(SelectedGpoLink);

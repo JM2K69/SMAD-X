@@ -314,7 +314,7 @@
                                           SelectedItem="{Binding SelectedOuNode, Mode=TwoWay}"
                                           Margin="4">
                                     <TreeView.ItemTemplate>
-                                        <TreeDataTemplate x:DataType="vm:OuTreeNode"
+                                        <TreeDataTemplate x:DataType="vm:GpoTargetNode"
                                                           ItemsSource="{Binding Children}">
                                             <StackPanel Orientation="Horizontal" Spacing="6">
                                                 <TextBlock Classes="EmojiIcon" Text="{Binding Icon}" FontSize="13" VerticalAlignment="Center"/>
