@@ -466,18 +466,62 @@ namespace SMADX.Services
         }
 
         /// <summary>
-        /// Creates <see cref="PdfSaveOptions"/> with system-font embedding enabled and
-        /// a Unicode-capable fallback font registered so emoji and symbols (e.g. ⚠ 🌐 👤)
-        /// are rendered correctly without a preflight encoding failure.
+        /// Creates <see cref="PdfSaveOptions"/> with Unicode font fallbacks explicitly loaded
+        /// from Windows Fonts so that emoji and symbols (⚠ 🌐 👤 …) survive the OfficeIMO.Pdf
+        /// preflight check.  Falls back gracefully when a font file is absent.
+        /// Priority order: Segoe UI Symbol → Segoe UI Emoji → Arial Unicode MS.
         /// </summary>
         private static PdfSaveOptions BuildPdfSaveOptions()
         {
             var pdfOpts = new PdfOptions();
-            // Register the best available system sans-serif as a Unicode fallback
-            // (covers Segoe UI Symbol / Segoe UI Emoji on Windows).
+
+            // --- explicit Windows font file candidates (symbol + emoji coverage) ---
+            var candidates = new List<PdfEmbeddedFontFallbackCandidate>();
+            var slots      = new List<PdfStandardFont>();
+
+            var fontPairs = new[]
+            {
+                ("Segoe UI Symbol", "seguisym.ttf"),
+                ("Segoe UI Emoji",  "seguiemj.ttf"),
+                ("Arial Unicode MS","ARIALUNI.TTF"),
+            };
+
+            var winFonts = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Fonts");
+
+            // Each candidate gets its own slot so the engine can mix them per-run.
+            // PdfStandardFont has 12 values; we cycle through Helvetica family for fallback slots.
+            PdfStandardFont[] slotPool =
+            [
+                PdfStandardFont.Helvetica,
+                PdfStandardFont.HelveticaOblique,
+                PdfStandardFont.HelveticaBold,
+            ];
+
+            int slotIdx = 0;
+            foreach (var (name, file) in fontPairs)
+            {
+                var path = Path.Combine(winFonts, file);
+                if (!File.Exists(path)) continue;
+                try
+                {
+                    var bytes = File.ReadAllBytes(path);
+                    candidates.Add(new PdfEmbeddedFontFallbackCandidate(name, bytes));
+                    slots.Add(slotPool[slotIdx % slotPool.Length]);
+                    slotIdx++;
+                }
+                catch { /* skip unreadable font files */ }
+            }
+
+            if (candidates.Count > 0)
+            {
+                var fallbackSet = new PdfEmbeddedFontFallbackSet(candidates, slots);
+                pdfOpts.RegisterEmbeddedFontFallbacks(fallbackSet);
+            }
+
+            // Also try the built-in helper for any remaining coverage gaps.
             pdfOpts.TryUseDefaultDocumentFontFallback(requireEmbeddedFont: false);
-            // Register a monospace fallback for code/pre-formatted text.
-            pdfOpts.TryRegisterDefaultDocumentMonospaceFontFallback(requireEmbeddedFont: false);
+
             return new PdfSaveOptions
             {
                 AllowSystemFontEmbedding = true,
