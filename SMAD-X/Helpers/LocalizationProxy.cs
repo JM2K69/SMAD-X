@@ -295,5 +295,6 @@ namespace SMADX.Helpers
         public string ReportImportSuccess       => _localizationService["Report.Import.Success"];
         public string ReportImportError         => _localizationService["Report.Import.Error"];
         public string ReportImportNoSelection   => _localizationService["Report.Import.NoSelection"];
+        public string ReportThemeLabel          => _localizationService["Report.Theme.Label"];
     }
 }

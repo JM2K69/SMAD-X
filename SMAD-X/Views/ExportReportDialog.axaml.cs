@@ -206,6 +206,25 @@ namespace SMADX.Views
             if (IndividualPanel is not null) IndividualPanel.IsVisible = isIndividual;
         }
 
+        // ── Format check changed — show/hide theme picker ────────────────────
+
+        private void OnFormatCheckChanged(object? sender, RoutedEventArgs e)
+        {
+            bool showTheme = (ChkDocx?.IsChecked == true) || (ChkPdf?.IsChecked == true);
+            if (ThemePanel is not null) ThemePanel.IsVisible = showTheme;
+        }
+
+        /// <summary>Tag string of the currently selected theme ComboBoxItem.</summary>
+        private string SelectedTheme
+        {
+            get
+            {
+                if (ThemeCombo?.SelectedItem is ComboBoxItem item && item.Tag is string tag)
+                    return tag;
+                return "WordLike";
+            }
+        }
+
         // ── Export ───────────────────────────────────────────────────────────
 
         private async void OnExportClick(object? sender, RoutedEventArgs e)
@@ -248,8 +267,8 @@ namespace SMADX.Views
                 var path   = stem + "." + ext;
                 bool saved = ext switch
                 {
-                    "docx" => await _reportSvc.ExportDocxAsync(_document, path),
-                    "pdf"  => await _reportSvc.ExportPdfAsync(_document, path),
+                    "docx" => await _reportSvc.ExportDocxAsync(_document, path, SelectedTheme),
+                    "pdf"  => await _reportSvc.ExportPdfAsync(_document, path, SelectedTheme),
                     _      => await _reportSvc.ExportMarkdownAsync(_document, path),
                 };
                 if (saved) ok++;
@@ -277,6 +296,7 @@ namespace SMADX.Views
             var rootDir = Path.Combine(folders[0].Path.LocalPath, SanitizeFileName(domainName));
 
             int saved = 0;
+            int failedPdf = 0;
             foreach (var element in toExport)
             {
                 // Always create a subfolder per type under the domain folder
@@ -289,14 +309,21 @@ namespace SMADX.Views
                 if (wantDocx)
                     await _reportSvc.ExportSingleElementDocxAsync(
                         element.DisplayName, element.TypeLabel,
-                        GetDescription(element), stem + ".docx");
+                        GetDescription(element), stem + ".docx", SelectedTheme);
 
                 if (wantPdf)
-                    await _reportSvc.ExportSingleElementPdfAsync(
+                {
+                    bool ok = await _reportSvc.ExportSingleElementPdfAsync(
                         element.DisplayName, element.TypeLabel,
-                        GetDescription(element), stem + ".pdf");
+                        GetDescription(element), stem + ".pdf", SelectedTheme);
+                    if (!ok) failedPdf++;
+                }
             }
-            Close(string.Format(_loc["Report.Export.MultiDone"], saved) + " " + rootDir);
+
+            var msg = string.Format(_loc["Report.Export.MultiDone"], saved) + " " + rootDir;
+            if (failedPdf > 0)
+                msg += $"\n⚠ {failedPdf} PDF non généré(s) — voir la fenêtre Debug/Output pour les détails.";
+            Close(msg);
         }
 
         private Task<bool> ExportElementMd(DocumentedElement element, string path) =>

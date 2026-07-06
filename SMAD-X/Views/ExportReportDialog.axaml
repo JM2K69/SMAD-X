@@ -101,21 +101,38 @@
 				</StackPanel>
 
 				<!-- Format – always visible, MD always checked -->
-				<StackPanel Spacing="6">
-					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportFormatLabel}"
-							   FontWeight="SemiBold"/>
-					<StackPanel Orientation="Horizontal" Spacing="16">
-						<CheckBox x:Name="ChkMd"
-								  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatMarkdown}"
-								  IsChecked="True"
-								  IsEnabled="False"
-								  ToolTip.Tip="Markdown is always exported"/>
-						<CheckBox x:Name="ChkDocx"
-								  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatDocx}"/>
-						<CheckBox x:Name="ChkPdf"
-								  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatPdf}"/>
+					<StackPanel Spacing="6">
+						<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportFormatLabel}"
+								   FontWeight="SemiBold"/>
+						<StackPanel Orientation="Horizontal" Spacing="16">
+							<CheckBox x:Name="ChkMd"
+									  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatMarkdown}"
+									  IsChecked="True"
+									  IsEnabled="False"
+									  ToolTip.Tip="Markdown is always exported"/>
+							<CheckBox x:Name="ChkDocx"
+									  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatDocx}"
+									  IsCheckedChanged="OnFormatCheckChanged"/>
+							<CheckBox x:Name="ChkPdf"
+									  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatPdf}"
+									  IsCheckedChanged="OnFormatCheckChanged"/>
+						</StackPanel>
+
+						<!-- Theme picker — visible only when DOCX or PDF is selected -->
+						<StackPanel x:Name="ThemePanel" Orientation="Horizontal" Spacing="8"
+									IsVisible="False" Margin="0,4,0,0">
+							<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportThemeLabel}"
+									   VerticalAlignment="Center" FontWeight="SemiBold"/>
+							<ComboBox x:Name="ThemeCombo" MinWidth="180" SelectedIndex="0">
+								<ComboBoxItem Tag="WordLike">WordLike</ComboBoxItem>
+								<ComboBoxItem Tag="Plain">Plain</ComboBoxItem>
+								<ComboBoxItem Tag="TechnicalDocument">Technical Document</ComboBoxItem>
+								<ComboBoxItem Tag="GitHubLike">GitHub</ComboBoxItem>
+								<ComboBoxItem Tag="Compact">Compact</ComboBoxItem>
+								<ComboBoxItem Tag="Report">Report</ComboBoxItem>
+							</ComboBox>
+						</StackPanel>
 					</StackPanel>
-				</StackPanel>
 
 			</StackPanel>
 		</ScrollViewer>

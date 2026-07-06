@@ -13,6 +13,11 @@ namespace SMADX.ViewModels
         public string DisplayName { get; }
         public string Icon        { get; }
 
+        // Required by Avalonia TreeViewItem style bindings
+        public bool IsExpanded { get; set; } = false;
+        public bool IsSelected { get; set; } = false;
+        public bool IsVisible  { get; set; } = true;
+
         public ObservableCollection<SiteTreeNode> Children { get; } = new();
 
         // ── Site root node ───────────────────────────────────────────────────

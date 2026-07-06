@@ -1,29 +1,45 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OfficeIMO.Markdown;
+using OfficeIMO.Markdown.Pdf;
 using OfficeIMO.Word;
-using QuestPDF.Fluent;
-using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
+using OfficeIMO.Word.Markdown;
 using SMADX.Models;
 
 namespace SMADX.Services
 {
     /// <summary>
     /// Generates documentation reports from an ADRootDocument.
-    /// Supports Markdown (native), DOCX (OfficeIMO.Word), and PDF (QuestPDF).
+    /// Supports Markdown (native), DOCX (OfficeIMO.Word.Markdown), and PDF (OfficeIMO.Markdown.Pdf).
     /// </summary>
     public class ADDocumentReportService
     {
+        // Log file next to the executable — always visible regardless of build config
+        private static readonly string LogPath = Path.Combine(
+            AppContext.BaseDirectory, "SMAD-X-export.log");
+
+        private static void Log(string message)
+        {
+            try
+            {
+                File.AppendAllText(LogPath,
+                    $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {message}{Environment.NewLine}");
+            }
+            catch { /* never crash the app because of logging */ }
+            Debug.WriteLine($"[SMAD-X] {message}");
+        }
         // ── Public entry points ──────────────────────────────────────────────
 
         public async Task<bool> ExportMarkdownAsync(ADRootDocument document, string filePath)
         {
             try
             {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                 var sb = new StringBuilder();
                 BuildMarkdown(document, sb);
                 await File.WriteAllTextAsync(filePath, sb.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
@@ -31,7 +47,7 @@ namespace SMADX.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Markdown export error: {ex.Message}");
+                Log($"Markdown export error: {ex}");
                 return false;
             }
         }
@@ -102,70 +118,62 @@ namespace SMADX.Services
 
         // ── Single-element DOCX export ───────────────────────────────────────
 
-        public Task<bool> ExportSingleElementDocxAsync(string name, string typeLabel, string? description, string filePath)
+        public Task<bool> ExportSingleElementDocxAsync(string name, string typeLabel, string? description, string filePath, string theme = "WordLike")
         {
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
-                using var word = WordDocument.Create(filePath);
-                var title = word.AddParagraph($"{name}  [{typeLabel}]");
-                title.Style = WordParagraphStyles.Heading1;
-                if (!string.IsNullOrWhiteSpace(description))
-                {
-                    var h2 = word.AddParagraph("Documentation");
-                    h2.Style = WordParagraphStyles.Heading2;
-                    foreach (var line in description.Split('\n'))
-                    {
-                        var stripped = StripMarkdownLine(line);
-                        if (stripped is not null)
-                            word.AddParagraph(stripped);
-                    }
-                }
-                word.Save();
+                var md = BuildSingleElementMarkdown(name, typeLabel, description);
+                var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
+                using var word = MarkdownReader.Parse(md).ToWordDocument(opts);
+                word.SaveAs(filePath);
                 return Task.FromResult(true);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Single element DOCX export error: {ex.Message}");
+                Log($"Single element DOCX export error: {ex}");
                 return Task.FromResult(false);
             }
         }
 
         // ── Single-element PDF export ────────────────────────────────────────
 
-        public Task<bool> ExportSingleElementPdfAsync(string name, string typeLabel, string? description, string filePath)
+        public Task<bool> ExportSingleElementPdfAsync(string name, string typeLabel, string? description, string filePath, string theme = "WordLike")
         {
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
-                var doc = QuestPDF.Fluent.Document.Create(c =>
+                var dir = Path.GetDirectoryName(filePath)!;
+                Directory.CreateDirectory(dir);
+                var md = BuildSingleElementMarkdown(name, typeLabel, description);
+                PreparePdfMarkdown(md).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
                 {
-                    c.Page(p =>
-                    {
-                        p.Margin(40);
-                        p.Content().Column(col =>
-                        {
-                            col.Item().Text($"{name}  [{typeLabel}]")
-                               .FontSize(20).Bold();
-                            col.Item().PaddingTop(10);
-                            if (!string.IsNullOrWhiteSpace(description))
-                            {
-                                col.Item().Text("Documentation").FontSize(14).Bold();
-                                col.Item().PaddingTop(6);
-                                foreach (var block in StripMarkdownBlock(description))
-                                    col.Item().Text(block).FontSize(11);
-                            }
-                        });
-                    });
+                    Theme = ResolveVisualTheme(theme)
                 });
-                doc.GeneratePdf(filePath);
+                Log($"PDF created: {filePath}");
                 return Task.FromResult(true);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Single element PDF export error: {ex.Message}");
+                Log($"Single element PDF export error: {ex}");
                 return Task.FromResult(false);
             }
+        }
+
+        /// <summary>Build markdown text for a single documented element.</summary>
+        private static string BuildSingleElementMarkdown(string name, string typeLabel, string? description)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"# {name}");
+            sb.AppendLine();
+            sb.AppendLine($"**Type :** {typeLabel}");
+            sb.AppendLine();
+            if (!string.IsNullOrWhiteSpace(description))
+            {
+                sb.AppendLine("## Documentation");
+                sb.AppendLine();
+                sb.AppendLine(description);
+            }
+            return sb.ToString();
         }
 
         // ── Single-object markdown builders ─────────────────────────────────
@@ -235,374 +243,46 @@ namespace SMADX.Services
 
         // ── DOCX export ──────────────────────────────────────────────────────
 
-        public Task<bool> ExportDocxAsync(ADRootDocument document, string filePath)
+        public async Task<bool> ExportDocxAsync(ADRootDocument document, string filePath, string theme = "WordLike")
         {
             try
             {
-                using var word = WordDocument.Create(filePath);
-                var domain = document.Domain;
-                var sites  = document.SitesTopology;
-                var now    = DateTime.Now;
-
-                // Title
-                var title = word.AddParagraph($"Rapport AD — {domain?.Name ?? "Domaine"}");
-                title.Style = WordParagraphStyles.Heading1;
-                word.AddParagraph($"Généré le {now:dd/MM/yyyy} à {now:HH:mm}  |  Format v{document.Version}");
-
-                // Domain section
-                var h2 = word.AddParagraph("Domaine");
-                h2.Style = WordParagraphStyles.Heading2;
-
-                if (domain is not null)
-                {
-                    word.AddParagraph($"Nom : {domain.Name}");
-                    word.AddParagraph($"DN  : {domain.DistinguishedName}");
-                    if (!string.IsNullOrWhiteSpace(domain.Description))
-                        word.AddParagraph($"Description : {domain.Description}");
-
-                    // Object counts table
-                    var h3 = word.AddParagraph("Statistiques des objets");
-                    h3.Style = WordParagraphStyles.Heading3;
-
-                    var all   = FlattenTree(domain).ToList();
-                    var types = all.GroupBy(o => o.Type).OrderByDescending(g => g.Count()).ToList();
-
-                    var tbl = word.AddTable(types.Count + 1, 2, WordTableStyle.TableGrid);
-                    tbl.Rows[0].Cells[0].Paragraphs[0].Text = "Type";
-                    tbl.Rows[0].Cells[1].Paragraphs[0].Text = "Nombre";
-                    for (int i = 0; i < types.Count; i++)
-                    {
-                        tbl.Rows[i + 1].Cells[0].Paragraphs[0].Text = types[i].Key.ToString();
-                        tbl.Rows[i + 1].Cells[1].Paragraphs[0].Text = types[i].Count().ToString();
-                    }
-
-                    // PSOs
-                    var psos = all.Where(o => o.Type == ADObjectType.PasswordSettingsObject).ToList();
-                    if (psos.Count > 0)
-                    {
-                        var psoH = word.AddParagraph("Stratégies de mot de passe (PSO)");
-                        psoH.Style = WordParagraphStyles.Heading3;
-                        var pt = word.AddTable(psos.Count + 1, 5, WordTableStyle.TableGrid);
-                        pt.Rows[0].Cells[0].Paragraphs[0].Text = "Nom";
-                        pt.Rows[0].Cells[1].Paragraphs[0].Text = "Long. min";
-                        pt.Rows[0].Cells[2].Paragraphs[0].Text = "Historique";
-                        pt.Rows[0].Cells[3].Paragraphs[0].Text = "Âge max (j)";
-                        pt.Rows[0].Cells[4].Paragraphs[0].Text = "Verrouillage";
-                        for (int i = 0; i < psos.Count; i++)
-                        {
-                            var p = psos[i];
-                            pt.Rows[i + 1].Cells[0].Paragraphs[0].Text = p.Name;
-                            pt.Rows[i + 1].Cells[1].Paragraphs[0].Text = (p.PSOMinPasswordLength?.ToString()) ?? "—";
-                            pt.Rows[i + 1].Cells[2].Paragraphs[0].Text = (p.PSOPasswordHistoryCount?.ToString()) ?? "—";
-                            pt.Rows[i + 1].Cells[3].Paragraphs[0].Text = (p.PSOMaxPasswordAgeDays?.ToString()) ?? "—";
-                            pt.Rows[i + 1].Cells[4].Paragraphs[0].Text = (p.PSOLockoutThreshold?.ToString()) ?? "—";
-                        }
-                    }
-
-                    // Per-object documentation (objects with non-empty Description)
-                    var documented = all.Where(o => !string.IsNullOrWhiteSpace(o.Description)).ToList();
-                    if (documented.Count > 0)
-                    {
-                        var docH = word.AddParagraph("Documentation des objets");
-                        docH.Style = WordParagraphStyles.Heading2;
-                        foreach (var obj in documented)
-                        {
-                            var objH = word.AddParagraph($"{TypeIcon(obj.Type)} {obj.Name}");
-                            objH.Style = WordParagraphStyles.Heading3;
-                            // Strip markdown fences and emit as plain paragraphs
-                            foreach (var line in obj.Description.Split('\n'))
-                            {
-                                var stripped = StripMarkdownLine(line);
-                                if (stripped is not null)
-                                    word.AddParagraph(stripped);
-                            }
-                        }
-                    }
-                }
-
-                // Sites section
-                if (sites is not null && sites.Sites.Count > 0)
-                {
-                    var sH2 = word.AddParagraph("Topologie des sites AD");
-                    sH2.Style = WordParagraphStyles.Heading2;
-                    word.AddParagraph($"{sites.Sites.Count} site(s) — {sites.SiteLinks.Count} lien(s) de réplication");
-
-                    var sH3 = word.AddParagraph("Sites");
-                    sH3.Style = WordParagraphStyles.Heading3;
-
-                    var st = word.AddTable(sites.Sites.Count + 1, 4, WordTableStyle.TableGrid);
-                    st.Rows[0].Cells[0].Paragraphs[0].Text = "Nom";
-                    st.Rows[0].Cells[1].Paragraphs[0].Text = "Localisation";
-                    st.Rows[0].Cells[2].Paragraphs[0].Text = "Sous-réseaux";
-                    st.Rows[0].Cells[3].Paragraphs[0].Text = "DCs";
-                    for (int i = 0; i < sites.Sites.Count; i++)
-                    {
-                        var s = sites.Sites[i];
-                        st.Rows[i + 1].Cells[0].Paragraphs[0].Text = s.Name;
-                        st.Rows[i + 1].Cells[1].Paragraphs[0].Text = s.Location;
-                        st.Rows[i + 1].Cells[2].Paragraphs[0].Text = s.Subnets.Count.ToString();
-                        st.Rows[i + 1].Cells[3].Paragraphs[0].Text = s.DomainControllers.Count.ToString();
-                    }
-
-                    if (sites.SiteLinks.Count > 0)
-                    {
-                        var lH3 = word.AddParagraph("Liens de réplication");
-                        lH3.Style = WordParagraphStyles.Heading3;
-                        var lt = word.AddTable(sites.SiteLinks.Count + 1, 5, WordTableStyle.TableGrid);
-                        lt.Rows[0].Cells[0].Paragraphs[0].Text = "Lien";
-                        lt.Rows[0].Cells[1].Paragraphs[0].Text = "Transport";
-                        lt.Rows[0].Cells[2].Paragraphs[0].Text = "Coût";
-                        lt.Rows[0].Cells[3].Paragraphs[0].Text = "Intervalle (min)";
-                        lt.Rows[0].Cells[4].Paragraphs[0].Text = "Sites";
-                        for (int i = 0; i < sites.SiteLinks.Count; i++)
-                        {
-                            var l = sites.SiteLinks[i];
-                            lt.Rows[i + 1].Cells[0].Paragraphs[0].Text = l.Name;
-                            lt.Rows[i + 1].Cells[1].Paragraphs[0].Text = l.Transport;
-                            lt.Rows[i + 1].Cells[2].Paragraphs[0].Text = l.Cost.ToString();
-                            lt.Rows[i + 1].Cells[3].Paragraphs[0].Text = l.ReplicationIntervalMinutes.ToString();
-                            lt.Rows[i + 1].Cells[4].Paragraphs[0].Text = string.Join(", ", l.SiteNames);
-                        }
-                    }
-
-                    // Per-site documentation
-                    var docSites = sites.Sites.Where(s => !string.IsNullOrWhiteSpace(s.Description)).ToList();
-                    if (docSites.Count > 0)
-                    {
-                        var sdH = word.AddParagraph("Documentation des sites");
-                        sdH.Style = WordParagraphStyles.Heading3;
-                        foreach (var site in docSites)
-                        {
-                            var sH = word.AddParagraph($"🏢 {site.Name}");
-                            sH.Style = WordParagraphStyles.Heading4;
-                            foreach (var line in site.Description.Split('\n'))
-                            {
-                                var stripped = StripMarkdownLine(line);
-                                if (stripped is not null)
-                                    word.AddParagraph(stripped);
-                            }
-                        }
-                    }
-
-                    // Per-site-link documentation
-                    var docLinks = sites.SiteLinks.Where(l => !string.IsNullOrWhiteSpace(l.Description)).ToList();
-                    if (docLinks.Count > 0)
-                    {
-                        var slH = word.AddParagraph("Documentation des liens");
-                        slH.Style = WordParagraphStyles.Heading3;
-                        foreach (var link in docLinks)
-                        {
-                            var lH = word.AddParagraph($"🔗 {link.Name}");
-                            lH.Style = WordParagraphStyles.Heading4;
-                            foreach (var line in link.Description.Split('\n'))
-                            {
-                                var stripped = StripMarkdownLine(line);
-                                if (stripped is not null)
-                                    word.AddParagraph(stripped);
-                            }
-                        }
-                    }
-                }
-
-                word.Save();
-                return Task.FromResult(true);
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+                var sb = new StringBuilder();
+                BuildMarkdown(document, sb);
+                var markdownDoc = MarkdownReader.Parse(sb.ToString());
+                var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
+                using var word = markdownDoc.ToWordDocument(opts);
+                word.SaveAs(filePath);
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"DOCX export error: {ex.Message}");
-                return Task.FromResult(false);
+                Log($"DOCX export error: {ex}");
+                return false;
             }
         }
 
-        public Task<bool> ExportPdfAsync(ADRootDocument document, string filePath)
+        // ── PDF export ───────────────────────────────────────────────────────
+
+        public async Task<bool> ExportPdfAsync(ADRootDocument document, string filePath, string theme = "WordLike")
         {
             try
             {
-                QuestPDF.Settings.License = LicenseType.Community;
-
-                var domain = document.Domain;
-                var sites  = document.SitesTopology;
-                var now    = DateTime.Now;
-
-                Document.Create(container =>
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+                var sb = new StringBuilder();
+                BuildMarkdown(document, sb);
+                PreparePdfMarkdown(sb.ToString()).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
                 {
-                    container.Page(page =>
-                    {
-                        page.Size(PageSizes.A4);
-                        page.Margin(2, Unit.Centimetre);
-                        page.DefaultTextStyle(x => x.FontSize(10));
-
-                        page.Header().Text($"Rapport AD — {domain?.Name ?? "Domaine"}")
-                            .SemiBold().FontSize(18).FontColor(Colors.Blue.Darken2);
-
-                        page.Content().Column(col =>
-                        {
-                            col.Item().Text($"Généré le {now:dd/MM/yyyy} à {now:HH:mm}")
-                               .FontColor(Colors.Grey.Medium);
-                            col.Item().PaddingTop(10);
-
-                            // Domain
-                            if (domain is not null)
-                            {
-                                col.Item().Text("Domaine").SemiBold().FontSize(14);
-                                col.Item().Text($"Nom : {domain.Name}");
-                                col.Item().Text($"DN  : {domain.DistinguishedName}").FontFamily(Fonts.Courier);
-                                if (!string.IsNullOrWhiteSpace(domain.Description))
-                                    col.Item().Text($"Description : {domain.Description}");
-                                col.Item().PaddingTop(6);
-
-                                // Object counts
-                                var all   = FlattenTree(domain).ToList();
-                                var types = all.GroupBy(o => o.Type).OrderByDescending(g => g.Count()).ToList();
-                                col.Item().Text("Statistiques des objets").SemiBold().FontSize(12);
-                                col.Item().Table(tbl =>
-                                {
-                                    tbl.ColumnsDefinition(c => { c.RelativeColumn(3); c.RelativeColumn(1); });
-                                    tbl.Header(h =>
-                                    {
-                                        h.Cell().Background(Colors.Blue.Lighten4).Padding(4).Text("Type").SemiBold();
-                                        h.Cell().Background(Colors.Blue.Lighten4).Padding(4).Text("Nombre").SemiBold();
-                                    });
-                                    foreach (var g in types)
-                                    {
-                                        tbl.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(3).Text(g.Key.ToString());
-                                        tbl.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten3).Padding(3).Text(g.Count().ToString());
-                                    }
-                                });
-                                col.Item().PaddingTop(8);
-
-                                // PSO
-                                var psos = all.Where(o => o.Type == ADObjectType.PasswordSettingsObject).ToList();
-                                if (psos.Count > 0)
-                                {
-                                    col.Item().Text("Stratégies de mot de passe (PSO)").SemiBold().FontSize(12);
-                                    col.Item().Table(tbl =>
-                                    {
-                                        tbl.ColumnsDefinition(c =>
-                                        {
-                                            c.RelativeColumn(3); c.RelativeColumn(1); c.RelativeColumn(1);
-                                            c.RelativeColumn(1); c.RelativeColumn(2);
-                                        });
-                                        tbl.Header(h =>
-                                        {
-                                            foreach (var t in new[] { "Nom", "Long.", "Hist.", "Âge max", "Verrou." })
-                                                h.Cell().Background(Colors.Blue.Lighten4).Padding(4).Text(t).SemiBold();
-                                        });
-                                        foreach (var p in psos)
-                                        {
-                                            tbl.Cell().Padding(3).Text(p.Name);
-                                            tbl.Cell().Padding(3).Text(p.PSOMinPasswordLength.ToString());
-                                            tbl.Cell().Padding(3).Text(p.PSOPasswordHistoryCount.ToString());
-                                            tbl.Cell().Padding(3).Text(p.PSOMaxPasswordAgeDays.ToString());
-                                            tbl.Cell().Padding(3).Text(p.PSOLockoutThreshold.ToString());
-                                        }
-                                    });
-                                }
-                            }
-
-                            // Sites
-                            if (sites is not null && sites.Sites.Count > 0)
-                            {
-                                col.Item().PaddingTop(10).Text("Topologie des sites AD").SemiBold().FontSize(14);
-                                col.Item().Text($"{sites.Sites.Count} site(s) — {sites.SiteLinks.Count} lien(s)");
-                                col.Item().PaddingTop(4);
-
-                                col.Item().Table(tbl =>
-                                {
-                                    tbl.ColumnsDefinition(c =>
-                                    {
-                                        c.RelativeColumn(3); c.RelativeColumn(3);
-                                        c.RelativeColumn(1); c.RelativeColumn(1);
-                                    });
-                                    tbl.Header(h =>
-                                    {
-                                        foreach (var t in new[] { "Nom", "Localisation", "Subnets", "DCs" })
-                                            h.Cell().Background(Colors.Blue.Lighten4).Padding(4).Text(t).SemiBold();
-                                    });
-                                    foreach (var s in sites.Sites)
-                                    {
-                                        tbl.Cell().Padding(3).Text(s.Name);
-                                        tbl.Cell().Padding(3).Text(s.Location);
-                                        tbl.Cell().Padding(3).Text(s.Subnets.Count.ToString());
-                                        tbl.Cell().Padding(3).Text(s.DomainControllers.Count.ToString());
-                                    }
-                                });
-
-                                if (sites.SiteLinks.Count > 0)
-                                {
-                                    col.Item().PaddingTop(6).Text("Liens de réplication").SemiBold().FontSize(12);
-                                    col.Item().Table(tbl =>
-                                    {
-                                        tbl.ColumnsDefinition(c =>
-                                        {
-                                            c.RelativeColumn(3); c.RelativeColumn(1); c.RelativeColumn(1);
-                                            c.RelativeColumn(2); c.RelativeColumn(3);
-                                        });
-                                        tbl.Header(h =>
-                                        {
-                                            foreach (var t in new[] { "Lien", "Transport", "Coût", "Intervalle", "Sites" })
-                                                h.Cell().Background(Colors.Blue.Lighten4).Padding(4).Text(t).SemiBold();
-                                        });
-                                        foreach (var l in sites.SiteLinks)
-                                        {
-                                            tbl.Cell().Padding(3).Text(l.Name);
-                                            tbl.Cell().Padding(3).Text(l.Transport);
-                                            tbl.Cell().Padding(3).Text(l.Cost.ToString());
-                                            tbl.Cell().Padding(3).Text(l.ReplicationIntervalMinutes.ToString());
-                                            tbl.Cell().Padding(3).Text(string.Join(", ", l.SiteNames));
-                                        }
-                                    });
-                                }
-
-                                // Per-site documentation
-                                foreach (var site in sites.Sites.Where(s => !string.IsNullOrWhiteSpace(s.Description)))
-                                {
-                                    col.Item().PaddingTop(6).Text($"🏢 {site.Name}").SemiBold().FontSize(11);
-                                    col.Item().Text(StripMarkdownBlock(site.Description))
-                                       .FontSize(9).FontColor(Colors.Grey.Darken1);
-                                }
-
-                                // Per-site-link documentation
-                                foreach (var link in sites.SiteLinks.Where(l => !string.IsNullOrWhiteSpace(l.Description)))
-                                {
-                                    col.Item().PaddingTop(6).Text($"🔗 {link.Name}").SemiBold().FontSize(11);
-                                    col.Item().Text(StripMarkdownBlock(link.Description))
-                                       .FontSize(9).FontColor(Colors.Grey.Darken1);
-                                }
-                            }
-
-                            // Per-object documentation
-                            if (domain is not null)
-                            {
-                                var documented = FlattenTree(domain)
-                                    .Where(o => !string.IsNullOrWhiteSpace(o.Description))
-                                    .ToList();
-                                if (documented.Count > 0)
-                                {
-                                    col.Item().PaddingTop(10).Text("Documentation des objets").SemiBold().FontSize(14);
-                                    foreach (var obj in documented)
-                                    {
-                                        col.Item().PaddingTop(6).Text($"{TypeIcon(obj.Type)} {obj.Name}").SemiBold().FontSize(11);
-                                        col.Item().Text(StripMarkdownBlock(obj.Description))
-                                           .FontSize(9).FontColor(Colors.Grey.Darken1);
-                                    }
-                                }
-                            }
-                        });
-
-                        page.Footer().AlignRight().Text(t =>
-                        {
-                            t.Span("Page "); t.CurrentPageNumber(); t.Span(" / "); t.TotalPages();
-                        });
-                    });
-                }).GeneratePdf(filePath);
-
-                return Task.FromResult(true);
+                    Theme = ResolveVisualTheme(theme)
+                });
+                Log($"PDF created: {filePath}");
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"PDF export error: {ex.Message}");
-                return Task.FromResult(false);
+                Log($"PDF export error: {ex}");
+                return false;
             }
         }
 
@@ -785,6 +465,146 @@ namespace SMADX.Services
                 AppendTree(child, sb, depth + 1);
         }
 
+        /// <summary>
+        /// Remove characters that Arial (the PDF default font) cannot encode:
+        /// Only characters in Arial's known BMP coverage are kept;
+        /// everything else (emoji, symbols, ornamental blocks) is dropped.
+        /// All constructs that OfficeIMO.Pdf renders as fixed-height panels
+        /// are flattened to plain paragraphs so the layout never overflows.
+        /// Processed in a single stateless pass: no fence-state tracking needed.
+        /// DOCX and .md outputs are not affected.
+        /// </summary>
+        private static string PreparePdfMarkdown(string text)
+        {
+            // ── Step 1: flatten every panel-producing construct ──────────────
+            //
+            // OfficeIMO.Pdf renders PanelFlowBlocks for:
+            //   blockquotes  (> …)         ← including nested: >> …
+            //   GFM callouts (>[!NOTE])
+            //   fenced code  (```…```)     ← even when hidden inside blockquotes
+            //   tilde fences (~~~…~~~)
+            //   semantic     (:::type … :::)
+            //
+            // Strategy (stateless, one pass per line):
+            //   a) strip ALL leading '>' chars to unwrap the effective content
+            //   b) if the effective content is a panel *marker* line → drop it
+            //   c) if the effective content is a GFM callout label  → drop it
+            //   d) otherwise emit the effective content as a plain paragraph
+            //
+            // This handles blockquotes that contain fences, nested blockquotes,
+            // and any other combination — without needing open/close state.
+
+            var lines  = text.Split('\n');
+            var result = new StringBuilder(text.Length);
+
+            foreach (var rawLine in lines)
+            {
+                // Unwrap all leading blockquote markers ( > >> >>> … )
+                var effective = rawLine.TrimEnd();
+                while (effective.Length > 0 && effective[0] == '>')
+                    effective = effective.Length > 1
+                        ? effective.Substring(1).TrimStart(' ')
+                        : string.Empty;
+
+                // Drop panel *marker* lines (fence open/close and ::: delimiters)
+                if (effective.StartsWith("```",  StringComparison.Ordinal) ||
+                    effective.StartsWith("~~~",  StringComparison.Ordinal) ||
+                    effective.StartsWith(":::",  StringComparison.Ordinal))
+                    continue;
+
+                // Drop standalone GFM callout-type labels  e.g.  [!NOTE]  [!WARNING]
+                var et = effective.Trim();
+                if (et.StartsWith("[!", StringComparison.Ordinal) &&
+                    et.EndsWith("]",   StringComparison.Ordinal))
+                    continue;
+
+                // Emit the effective (panel-free) content
+                result.AppendLine(effective);
+            }
+            text = result.ToString();
+
+            // ── Step 2: whitelist-filter chars for Arial PDF encoding ────────
+            var sb = new StringBuilder(text.Length);
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+
+                // Drop full surrogate pairs (supplementary-plane emoji U+1F300 …)
+                if (char.IsHighSurrogate(c))
+                {
+                    if (i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
+                        i++;
+                    continue;
+                }
+                if (char.IsLowSurrogate(c)) continue;
+
+                // Whitelist: only ranges Arial reliably embeds in PDF
+                if (IsArialSafe(c))
+                    sb.Append(c);
+                // everything outside the whitelist is silently dropped
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Returns true for BMP code points that the Arial TrueType font
+        /// can embed in a PDF without a preflight failure.
+        /// </summary>
+        private static bool IsArialSafe(char c)
+        {
+            // C0 / C1 controls kept only where PDF needs them (newline, tab)
+            if (c == '\r' || c == '\n' || c == '\t') return true;
+            if (c < '\u0020') return false; // other C0 controls
+
+            // Basic Latin (U+0020–U+007E) — always safe
+            if (c <= '\u007E') return true;
+
+            // Latin-1 Supplement (U+00A0–U+00FF)
+            if (c >= '\u00A0' && c <= '\u00FF') return true;
+
+            // Latin Extended-A / B (U+0100–U+024F)
+            if (c >= '\u0100' && c <= '\u024F') return true;
+
+            // IPA Extensions + Spacing Modifier Letters (U+0250–U+02FF)
+            if (c >= '\u0250' && c <= '\u02FF') return true;
+
+            // Combining Diacritical Marks (U+0300–U+036F)
+            if (c >= '\u0300' && c <= '\u036F') return true;
+
+            // Greek and Coptic (U+0370–U+03FF)
+            if (c >= '\u0370' && c <= '\u03FF') return true;
+
+            // Cyrillic (U+0400–U+04FF)
+            if (c >= '\u0400' && c <= '\u04FF') return true;
+
+            // Hebrew (U+0590–U+05FF)
+            if (c >= '\u0590' && c <= '\u05FF') return true;
+
+            // Arabic (U+0600–U+06FF)
+            if (c >= '\u0600' && c <= '\u06FF') return true;
+
+            // General Punctuation (U+2000–U+206F) — en-dash, em-dash, quotes …
+            if (c >= '\u2000' && c <= '\u206F') return true;
+
+            // Currency Symbols (U+20A0–U+20CF)
+            if (c >= '\u20A0' && c <= '\u20CF') return true;
+
+            // Number Forms (U+2150–U+218F)
+            if (c >= '\u2150' && c <= '\u218F') return true;
+
+            // Arrows (U+2190–U+21FF)
+            if (c >= '\u2190' && c <= '\u21FF') return true;
+
+            // Mathematical Operators (U+2200–U+22FF)
+            if (c >= '\u2200' && c <= '\u22FF') return true;
+
+            // Enclosed Alphanumerics (U+2460–U+24FF)
+            if (c >= '\u2460' && c <= '\u24FF') return true;
+
+            // everything else is not safe for Arial PDF embedding
+            return false;
+        }
+
         private static string TypeIcon(ADObjectType type) => type switch
         {
             ADObjectType.Domain                 => "🌐",
@@ -799,36 +619,20 @@ namespace SMADX.Services
             _                                   => "•"
         };
 
-        /// <summary>
-        /// Strip markdown syntax from a single line for plain-text formats (DOCX/PDF).
-        /// Returns null for lines that should be omitted (e.g. code fences, table separators).
-        /// </summary>
-        private static string? StripMarkdownLine(string raw)
-        {
-            var line = raw.TrimEnd();
-            if (line == "---" || line == "```" || line.StartsWith("```")) return null;
-            if (line.StartsWith('|') && line.Replace("|", "").Replace("-", "").Replace(":", "").Trim().Length == 0) return null; // separator row
-            // Headings → plain text
-            if (line.StartsWith("# "))  return line[2..].Trim();
-            if (line.StartsWith("## ")) return line[3..].Trim();
-            if (line.StartsWith("### ")) return line[4..].Trim();
-            if (line.StartsWith("#### ")) return line[5..].Trim();
-            // Strip bold/italic/code inline
-            line = System.Text.RegularExpressions.Regex.Replace(line, @"\*{1,2}([^*]+)\*{1,2}", "$1");
-            line = System.Text.RegularExpressions.Regex.Replace(line, @"`([^`]+)`", "$1");
-            // Strip > blockquote
-            if (line.StartsWith('>')) line = line.TrimStart('>', ' ');
-            return line.Length == 0 ? null : line;
-        }
+        // ── Theme resolvers ──────────────────────────────────────────────────
 
-        /// <summary>Strip markdown for a whole block of text (for PDF inline text).</summary>
-        private static string StripMarkdownBlock(string markdown)
+        /// <summary>
+        /// Map a theme key string to the shared MarkdownVisualTheme used by both
+        /// DOCX (MarkdownToWordOptions.Theme) and PDF (MarkdownPdfVisualTheme.FromVisualTheme).
+        /// </summary>
+        private static MarkdownVisualTheme ResolveVisualTheme(string theme) => theme switch
         {
-            var lines = markdown.Split('\n')
-                .Select(StripMarkdownLine)
-                .Where(l => l is not null)
-                .Select(l => l!);
-            return string.Join(" ", lines).Trim();
-        }
+            "Plain"             => MarkdownVisualTheme.Plain(),
+            "TechnicalDocument" => MarkdownVisualTheme.TechnicalDocument(),
+            "GitHubLike"        => MarkdownVisualTheme.GitHubLike(),
+            "Compact"           => MarkdownVisualTheme.Compact(),
+            "Report"            => MarkdownVisualTheme.Report(),
+            _                   => MarkdownVisualTheme.WordLike()  // default
+        };
     }
 }
