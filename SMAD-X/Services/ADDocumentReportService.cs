@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OfficeIMO.Markdown;
 using OfficeIMO.Markdown.Pdf;
+using OfficeIMO.Pdf;
 using OfficeIMO.Word;
 using OfficeIMO.Word.Markdown;
 using SMADX.Models;
@@ -147,7 +148,9 @@ namespace SMADX.Services
                 var md = BuildSingleElementMarkdown(name, typeLabel, description);
                 MarkdownReader.Parse(md).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
                 {
-                    Theme = ResolveVisualTheme(theme)
+                    Theme                  = ResolveVisualTheme(theme),
+                    AllowSystemFontEmbedding = true,
+                    TextFallbacks          = PdfTextFallbackFeatures.Default
                 });
                 Log($"PDF created: {filePath}");
                 return Task.FromResult(true);
@@ -274,7 +277,9 @@ namespace SMADX.Services
                 BuildMarkdown(document, sb);
                 MarkdownReader.Parse(sb.ToString()).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
                 {
-                    Theme = ResolveVisualTheme(theme)
+                    Theme                  = ResolveVisualTheme(theme),
+                    AllowSystemFontEmbedding = true,
+                    TextFallbacks          = PdfTextFallbackFeatures.Default
                 });
                 Log($"PDF created: {filePath}");
                 return true;
