@@ -6,7 +6,7 @@
         x:Class="SMADX.Views.AboutDialog"
         Title="{Binding Source={StaticResource Loc}, Path=AboutTitle}"
         Icon="/Assets/icone.ico"
-        Width="650" Height="550"
+        Width="650" Height="600"
         WindowStartupLocation="CenterOwner"
         CanResize="False">
 
@@ -61,6 +61,8 @@
                     <TextBlock Text="{Binding AboutFeature4}" FontSize="13" TextWrapping="Wrap"/>
                     <TextBlock Text="{Binding AboutFeature5}" FontSize="13" TextWrapping="Wrap"/>
                     <TextBlock Text="{Binding AboutFeature6}" FontSize="13" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding AboutFeature7}" FontSize="13" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding AboutFeature8}" FontSize="13" TextWrapping="Wrap"/>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

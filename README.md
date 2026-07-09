@@ -1,7 +1,7 @@
 ﻿# SMAD-X — Expert Active Directory Simulator
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-0.3.5-blue"/>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.5.0-blue"/>
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10-purple"/>
   <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-12.0.3-blueviolet"/>
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS%20Intel%2FM-lightgrey"/>
@@ -67,6 +67,23 @@
 - Every object has a rich Markdown description with role and **security notes**
 - Edit / Preview toggle
 - Pre-filled and localized descriptions for all default objects including security posture
+
+### 🌐 AD Sites Topology
+- Full site topology management: **Sites**, **Subnets**, **Domain Controllers**, **Replication Links**
+- Sites window (Ctrl+Shift+S): table view + interactive graph layout
+- Sites panel in main TreeView with building icon and site count in status bar
+- GPOs linkable to sites; DC site assignment; linked-sites on nodes
+- Sample topology: Default-First-Site-Name, Site-Paris, Site-Lyon (DCs, subnets, replication links, GPOs)
+- PowerShell import script exports full site topology to `.smad-x.json` v2 format
+  (WhenCreated, WhenChanged, LinkedGPOs, Tier, transport IP/SMTP auto-detected)
+
+### 📄 Documentation Report Export
+- **Combined** mode: full domain report in one file
+- **Individual** mode: select objects one by one with type-filter checkboxes + scrollable list
+- Format checkboxes: **Markdown** (always on), **DOCX**, **PDF** optional
+- Theme picker: WordLike · Plain · Technical Document · GitHub · Compact · Report
+- PDF: system font embedding + emoji fallback for full Unicode rendering (no preprocessing)
+- Shortcut: Ctrl+Shift+R
 
 ### 🌙 Light / Dark Theme
 - Switch between Light and Dark themes at runtime — no restart required
@@ -278,6 +295,9 @@ SMAD-X/
 | **Avalonia UI** | 12.0.3 | Cross-platform UI framework |
 | **CommunityToolkit.Mvvm** | latest | MVVM implementation |
 | **Markdig** | latest | Markdown rendering |
+| **OfficeIMO.Markdown** | 0.6.42 | Markdown document model |
+| **OfficeIMO.Markdown.Pdf** | 1.0.15 | PDF export from Markdown |
+| **OfficeIMO.Word.Markdown** | 1.0.51 | DOCX export from Markdown |
 | **System.Text.Json** | built-in | JSON serialization |
 
 ---
@@ -306,7 +326,7 @@ SMAD-X/
 - [x] PowerShell export (structure, GPOs, PSOs)
 - [x] Multilingual support FR/EN
 - [x] Rich Markdown descriptions with security notes for all default accounts/groups
-- [x] Import from a real Active Directory (via PowerShell)
+- [x] Import from a real Active Directory (via PowerShell — v2 JSON format with full site topology)
 - [x] Group nesting (Group → Group) in graph and relations
 - [x] GPO visual badge in TreeView
 - [x] Split Relations window: User → Group and Group → Group tabs
@@ -315,6 +335,8 @@ SMAD-X/
 - [x] Search and filtering in the tree (live search by name / type / description)
 - [x] Delegations viewer (filter by trustee / target DN / category / inheritance, CSV export)
 - [x] AD Timeline — diff between two snapshots (added / removed / modified, CSV export)
+- [x] **AD Sites topology** (sites, subnets, DCs, replication links, linked GPOs, tier)
+- [x] **Documentation report export** (Markdown, DOCX, PDF with theme selection)
 - [ ] Multi-domain / forest support
 
 ---

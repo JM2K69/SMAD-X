@@ -1,7 +1,7 @@
 ﻿# SMAD-X — Simulateur Expert Active Directory
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-0.3.5-blue"/>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.5.0-blue"/>
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10-purple"/>
   <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-12.0.3-blueviolet"/>
   <img alt="Plateforme" src="https://img.shields.io/badge/plateforme-Windows%20%7C%20Linux%20%7C%20macOS%20Intel%2FM-lightgrey"/>
@@ -64,7 +64,24 @@
 - Mode édition / mode prévisualisation
 - Descriptions pré-remplies et localisées pour tous les objets par défaut
 
-### 🌙 Thème Clair / Sombre
+### 🌐 Topologie des sites AD
+- Gestion complète de la topologie : **Sites**, **Sous-réseaux**, **Contrôleurs de domaine**, **Liens de réplication**
+- Fenêtre Sites (Ctrl+Maj+S) : vue tableau + mise en page graphique interactive
+- Panneau Sites dans l’arborescence principale avec icône bâtiment et compteur dans la barre d’état
+- GPOs liées aux sites ; affectation DC-site ; sites liés visibles sur les nœuds
+- Topologie d’exemple : Default-First-Site-Name, Site-Paris, Site-Lyon (DCs, sous-réseaux, liens, GPOs)
+- Le script PowerShell exporte la topologie complète vers le format `.smad-x.json` v2
+  (WhenCreated, WhenChanged, GPOs liées, Tier, transport IP/SMTP auto-détecté)
+
+### 📄 Export de rapport de documentation
+- Mode **combiné** : rapport complet du domaine en un seul fichier
+- Mode **individuel** : sélection objet par objet avec cases de filtre par type + liste défilante
+- Cases de format : **Markdown** (toujours actifé), **DOCX**, **PDF** optionnels
+- Choix du thème : WordLike · Plain · Technical Document · GitHub · Compact · Report
+- PDF : intégration des polices système + repli emoji pour un rendu Unicode complet
+- Raccourci : Ctrl+Maj+R
+
+### 🌙 Thème clair / sombre
 - Basculement entre le thème clair et le thème sombre à la volée — sans redémarrage
 - Thème natif Avalonia FluentTheme — menus et popups toujours rendus dans le bon thème
 
@@ -228,10 +245,16 @@ SMAD-X/
 │   ├── ADObject.cs                  # Modèle de données principal (DN, GPO, PSO, MemberOf…)
 │   ├── ADObjectType.cs              # Énumération des types d'objets AD
 │   ├── ADTreeNode.cs                # Nœud TreeView (badge GPO, couleur tier)
+│   ├── ADSite.cs                    # Modèle site (sous-réseaux, DCs, GPOs, tier)
+│   ├── ADSubnet.cs                  # Modèle sous-réseau (CIDR, emplacement)
+│   ├── ADSiteLink.cs                # Lien de réplication (transport, coût, planning)
+│   ├── ADSitesTopology.cs           # Conteneur racine (Sites + SiteLinks)
+│   ├── ADRootDocument.cs            # Document v2 (Domaine + SitesTopology)
 │   └── TierConfiguration.cs        # Configuration des couleurs de tiering
 ├── Services/
-│   ├── ADDataService.cs             # Structure par défaut, sauvegarde/chargement JSON
-│   ├── ADImportPowerShellService.cs # Import depuis scripts PowerShell
+│   ├── ADDataService.cs             # Structure par défaut, sauvegarde/chargement JSON v1/v2
+│   ├── ADDocumentReportService.cs   # Export de rapport MD/DOCX/PDF
+│   ├── ADImportPowerShellService.cs # Génération de scripts PowerShell (v2 + sites)
 │   ├── ADPowerShellExportService.cs # Export vers scripts PowerShell
 │   ├── ADValidationService.cs       # Validation des noms et règles de conteneurs
 │   ├── LocalizationService.cs       # Support multilingue FR/EN + descriptions sécurité
@@ -240,13 +263,16 @@ SMAD-X/
 │   ├── MainWindowViewModel.cs       # ViewModel principal (MVVM)
 │   ├── GraphViewModel.cs            # ViewModel vue graphe
 │   ├── RelationsViewModel.cs        # ViewModel relations (User→Groupe, Groupe→Groupe, GPO, PSO)
-│   ├── DelegationsViewModel.cs       # ViewModel délégations (filtre, stats, export CSV)
-│   ├── DomainTimelineViewModel.cs    # ViewModel chronologie AD (diff, filtres, export CSV)
+│   ├── SitesViewModel.cs            # ViewModel sites (tableau + mise en page graphe)
+│   ├── DelegationsViewModel.cs      # ViewModel délégations (filtre, stats, export CSV)
+│   ├── DomainTimelineViewModel.cs   # ViewModel chronologie AD (diff, filtres, export CSV)
 │   └── TierConfigurationViewModel.cs
 ├── Views/
-│   ├── MainWindow.axaml             # Interface principale avec badge GPO dans l'arbre
+│   ├── MainWindow.axaml             # Interface principale avec badge GPO + panneau Sites
 │   ├── GraphWindow.axaml            # Vue graphe force-directed
 │   ├── RelationsWindow.axaml        # Fenêtre relations (4 onglets)
+│   ├── SitesWindow.axaml            # Fenêtre topologie sites (tableau + graphe)
+│   ├── ExportReportDialog.axaml     # Dialogue export rapport (MD/DOCX/PDF)
 │   ├── DelegationsWindow.axaml      # Visualiseur de délégations avec filtres et export CSV
 │   ├── DomainTimelineWindow.axaml   # Visualiseur diff chronologie AD
 │   ├── NewDomainDialog.axaml        # Dialogue nouveau domaine
@@ -274,6 +300,9 @@ SMAD-X/
 | **Avalonia UI** | 12.0.3 | Framework UI cross-platform |
 | **CommunityToolkit.Mvvm** | latest | Implémentation MVVM |
 | **Markdig** | latest | Rendu Markdown |
+| **OfficeIMO.Markdown** | 0.6.42 | Modèle de document Markdown |
+| **OfficeIMO.Markdown.Pdf** | 1.0.15 | Export PDF depuis Markdown |
+| **OfficeIMO.Word.Markdown** | 1.0.51 | Export DOCX depuis Markdown |
 | **System.Text.Json** | intégré | Sérialisation JSON |
 
 ---
@@ -308,7 +337,7 @@ SMAD-X/
 - [x] Export PowerShell (structure, GPOs, PSOs)
 - [x] Support multilingue FR/EN
 - [x] Descriptions Markdown enrichies avec notes de sécurité pour tous les comptes/groupes par défaut
-- [x] Import depuis un Active Directory réel (via PowerShell)
+- [x] Import depuis un Active Directory réel (via PowerShell — format JSON v2 avec topologie sites complète)
 - [x] Imbrication de groupes (Groupe → Groupe) dans le graphe et les relations
 - [x] Badge GPO visuel dans l'arborescence
 - [x] Fenêtre Relations divisée : onglets User → Groupe et Groupe → Groupe
@@ -316,6 +345,8 @@ SMAD-X/
 - [x] Recherche et filtrage dans l'arborescence (recherche live par nom / type / description)
 - [x] Visualiseur de délégations (filtres trustee / DN cible / catégorie / héritage, export CSV)
 - [x] Chronologie AD — diff entre deux instantanés (ajoutés / supprimés / modifiés, export CSV)
+- [x] **Topologie des sites AD** (sites, sous-réseaux, DCs, liens de réplication, GPOs liées, tier)
+- [x] **Export de rapport de documentation** (Markdown, DOCX, PDF avec sélection du thème)
 - [ ] Support multi-domaines / forêts
 
 ---
