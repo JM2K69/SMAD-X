@@ -146,12 +146,7 @@ namespace SMADX.Services
                 var dir = Path.GetDirectoryName(filePath)!;
                 Directory.CreateDirectory(dir);
                 var md = BuildSingleElementMarkdown(name, typeLabel, description);
-                MarkdownReader.Parse(md).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
-                {
-                    Theme                  = ResolveVisualTheme(theme),
-                    AllowSystemFontEmbedding = true,
-                    TextFallbacks          = PdfTextFallbackFeatures.Default
-                });
+                RenderPdf(md, filePath, theme);
                 Log($"PDF created: {filePath}");
                 return Task.FromResult(true);
             }
@@ -275,12 +270,7 @@ namespace SMADX.Services
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                 var sb = new StringBuilder();
                 BuildMarkdown(document, sb);
-                MarkdownReader.Parse(sb.ToString()).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
-                {
-                    Theme                  = ResolveVisualTheme(theme),
-                    AllowSystemFontEmbedding = true,
-                    TextFallbacks          = PdfTextFallbackFeatures.Default
-                });
+                RenderPdf(sb.ToString(), filePath, theme);
                 Log($"PDF created: {filePath}");
                 return true;
             }
@@ -483,6 +473,56 @@ namespace SMADX.Services
             ADObjectType.PasswordSettingsObject => "🔑",
             _                                   => "•"
         };
+
+        // ── PDF render helper ─────────────────────────────────────────────────
+
+        /// <summary>
+        /// Renders markdown to PDF. First attempt uses system font embedding so emoji
+        /// and Unicode render natively. If the OfficeIMO preflight still raises an
+        /// encoding error (e.g. Segoe UI Emoji not installed), a second attempt
+        /// substitutes known app emoji with short text labels — DOCX/.md are never affected.
+        /// </summary>
+        private static void RenderPdf(string markdown, string filePath, string theme)
+        {
+            var opts = new MarkdownPdfSaveOptions
+            {
+                Theme                    = ResolveVisualTheme(theme),
+                AllowSystemFontEmbedding = true,
+                TextFallbacks            = PdfTextFallbackFeatures.Default
+            };
+
+            try
+            {
+                MarkdownReader.Parse(markdown).SaveAsPdf(filePath, opts);
+            }
+            catch (Exception ex) when (ex.GetType().Name.Contains("Encoding")
+                                        || ex.GetType().Name.Contains("Preflight"))
+            {
+                // System fonts not sufficient — substitute app emoji then retry
+                MarkdownReader.Parse(EmojiSafeMarkdown(markdown)).SaveAsPdf(filePath, opts);
+            }
+        }
+
+        /// <summary>
+        /// Replaces known SMAD-X app emoji with short ASCII labels so that a PDF
+        /// engine without an emoji font can still render the document.
+        /// Only substitutes the specific code points used by TypeIcon and site helpers.
+        /// </summary>
+        private static string EmojiSafeMarkdown(string s) => s
+            .Replace("\U0001F310", "[Domain]")
+            .Replace("\U0001F4C1", "[OU]")
+            .Replace("\U0001F4E6", "[Container]")
+            .Replace("\U0001F464", "[User]")
+            .Replace("\U0001F465", "[Group]")
+            .Replace("\U0001F5A5\uFE0F", "[Computer]")
+            .Replace("\U0001F5A5", "[Computer]")
+            .Replace("\U0001F527", "[GMSA]")
+            .Replace("\U0001F4CB", "[Policy]")
+            .Replace("\U0001F511", "[PSO]")
+            .Replace("\U0001F3E2", "[Site]")
+            .Replace("\U0001F517", "[SiteLink]")
+            .Replace("\u26A0\uFE0F", "[!]")
+            .Replace("\u26A0", "[!]");
 
         // ── Theme resolvers ──────────────────────────────────────────────────
 
