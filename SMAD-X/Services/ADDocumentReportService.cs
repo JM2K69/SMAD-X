@@ -145,7 +145,7 @@ namespace SMADX.Services
                 var dir = Path.GetDirectoryName(filePath)!;
                 Directory.CreateDirectory(dir);
                 var md = BuildSingleElementMarkdown(name, typeLabel, description);
-                MarkdownReader.Parse(PreparePdfMarkdown(md)).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
+                MarkdownReader.Parse(md).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
                 {
                     Theme = ResolveVisualTheme(theme)
                 });
@@ -272,7 +272,7 @@ namespace SMADX.Services
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                 var sb = new StringBuilder();
                 BuildMarkdown(document, sb);
-                MarkdownReader.Parse(PreparePdfMarkdown(sb.ToString())).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
+                MarkdownReader.Parse(sb.ToString()).SaveAsPdf(filePath, new MarkdownPdfSaveOptions
                 {
                     Theme = ResolveVisualTheme(theme)
                 });
@@ -463,120 +463,6 @@ namespace SMADX.Services
             sb.AppendLine($"{indent}{icon} {node.Name}{tierTag}");
             foreach (var child in node.Children)
                 AppendTree(child, sb, depth + 1);
-        }
-
-        /// <summary>
-        /// Prepares markdown for PDF rendering by replacing app emoji/symbols with
-        /// short ASCII labels, then stripping any remaining characters that Arial
-        /// cannot encode. DOCX and .md exports are never affected.
-        /// </summary>
-        private static string PreparePdfMarkdown(string markdown)
-        {
-            // ── Step 1: flatten every panel-producing construct ──────────────
-            // OfficeIMO.Pdf raises "Panel height exceeds available page content height"
-            // for blockquotes (>), GFM callouts (>[!NOTE]), fenced code (``` / ~~~),
-            // and semantic blocks (:::). Strategy: unwrap blockquote markers, drop
-            // fence/delimiter lines, drop callout-label lines — one stateless pass.
-            var lines  = markdown.Split('\n');
-            var flat   = new StringBuilder(markdown.Length);
-            bool inFence = false;
-            foreach (var rawLine in lines)
-            {
-                var line = rawLine.TrimEnd();
-
-                // Track fenced code blocks so their content lines are also dropped.
-                if (!inFence &&
-                    (line.TrimStart().StartsWith("```", StringComparison.Ordinal) ||
-                     line.TrimStart().StartsWith("~~~", StringComparison.Ordinal)))
-                {
-                    inFence = true;
-                    continue;   // drop the opening fence marker
-                }
-                if (inFence)
-                {
-                    var trimmed = line.TrimStart();
-                    if (trimmed.StartsWith("```", StringComparison.Ordinal) ||
-                        trimmed.StartsWith("~~~", StringComparison.Ordinal))
-                        inFence = false;  // closing fence — drop it too
-                    continue;            // drop all content inside a fence
-                }
-
-                // Unwrap all leading blockquote markers (> >> >>> …)
-                var effective = line;
-                while (effective.Length > 0 && effective[0] == '>')
-                    effective = effective.Length > 1
-                        ? effective.Substring(1).TrimStart(' ')
-                        : string.Empty;
-
-                // Drop ::: semantic-block delimiters
-                if (effective.TrimStart().StartsWith(":::", StringComparison.Ordinal))
-                    continue;
-
-                // Drop standalone GFM callout-type labels  [!NOTE]  [!WARNING] …
-                var et = effective.Trim();
-                if (et.StartsWith("[!", StringComparison.Ordinal) &&
-                    et.EndsWith("]",   StringComparison.Ordinal))
-                    continue;
-
-                flat.AppendLine(effective);
-            }
-            var s = flat.ToString();
-
-            // ── Step 2: emoji → ASCII labels ─────────────────────────────────
-            s = s
-                .Replace("\U0001F310", "[Domain]")
-                .Replace("\U0001F4C1", "[OU]")
-                .Replace("\U0001F4E6", "[Container]")
-                .Replace("\U0001F464", "[User]")
-                .Replace("\U0001F465", "[Group]")
-                .Replace("\U0001F5A5\uFE0F", "[Computer]")  // with VS16
-                .Replace("\U0001F5A5", "[Computer]")
-                .Replace("\U0001F527", "[GMSA]")
-                .Replace("\U0001F4CB", "[Policy]")
-                .Replace("\U0001F511", "[PSO]")
-                .Replace("\U0001F3E2", "[Site]")
-                .Replace("\U0001F517", "[SiteLink]")
-                .Replace("\u26A0\uFE0F", "[!]")             // ⚠ with VS16
-                .Replace("\u26A0", "[!]");                   // ⚠ plain
-
-            // ── Step 3: strip remaining surrogate pairs + non-Arial BMP chars ─
-            var sb = new StringBuilder(s.Length);
-            for (int i = 0; i < s.Length; i++)
-            {
-                char c = s[i];
-                if (char.IsHighSurrogate(c))
-                {
-                    if (i + 1 < s.Length && char.IsLowSurrogate(s[i + 1]))
-                        i++;
-                    continue;
-                }
-                if (char.IsLowSurrogate(c)) continue;
-                if (IsArialSafe(c))
-                    sb.Append(c);
-            }
-            return sb.ToString();
-        }
-
-        private static bool IsArialSafe(char c)
-        {
-            if (c == '\r' || c == '\n' || c == '\t') return true;
-            if (c < '\u0020') return false;
-            if (c <= '\u007E') return true;                          // Basic Latin
-            if (c >= '\u00A0' && c <= '\u00FF') return true;        // Latin-1 Supplement
-            if (c >= '\u0100' && c <= '\u024F') return true;        // Latin Extended A/B
-            if (c >= '\u0250' && c <= '\u02FF') return true;        // IPA / Spacing Modifiers
-            if (c >= '\u0300' && c <= '\u036F') return true;        // Combining Diacritics
-            if (c >= '\u0370' && c <= '\u03FF') return true;        // Greek
-            if (c >= '\u0400' && c <= '\u04FF') return true;        // Cyrillic
-            if (c >= '\u0590' && c <= '\u05FF') return true;        // Hebrew
-            if (c >= '\u0600' && c <= '\u06FF') return true;        // Arabic
-            if (c >= '\u2000' && c <= '\u206F') return true;        // General Punctuation
-            if (c >= '\u20A0' && c <= '\u20CF') return true;        // Currency Symbols
-            if (c >= '\u2150' && c <= '\u218F') return true;        // Number Forms
-            if (c >= '\u2190' && c <= '\u21FF') return true;        // Arrows
-            if (c >= '\u2200' && c <= '\u22FF') return true;        // Mathematical Operators
-            if (c >= '\u2460' && c <= '\u24FF') return true;        // Enclosed Alphanumerics
-            return false;
         }
 
         private static string TypeIcon(ADObjectType type) => type switch
