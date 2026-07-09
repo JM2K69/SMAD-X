@@ -504,25 +504,96 @@ namespace SMADX.Services
         }
 
         /// <summary>
-        /// Replaces known SMAD-X app emoji with short ASCII labels so that a PDF
-        /// engine without an emoji font can still render the document.
-        /// Only substitutes the specific code points used by TypeIcon and site helpers.
+        /// Strips / replaces all characters that Arial cannot encode so the PDF
+        /// preflight never fails. Called only on the PDF copy; DOCX and .md are untouched.
+        ///
+        /// Strategy:
+        ///   1. Named substitutions for code points that have a readable ASCII equivalent.
+        ///   2. Strip all remaining surrogate pairs (U+10000+) — emoji in free-text
+        ///      descriptions that we don't recognise specifically.
+        ///   3. Strip the few BMP code points outside Arial's coverage that appear in
+        ///      the app's sample descriptions (✅ ❌ ✕ ✏ ⊡ 🕸 …).
+        ///   4. Variation selectors (U+FE0x) removed as they are meaningless without emoji.
         /// </summary>
-        private static string EmojiSafeMarkdown(string s) => s
-            .Replace("\U0001F310", "[Domain]")
-            .Replace("\U0001F4C1", "[OU]")
-            .Replace("\U0001F4E6", "[Container]")
-            .Replace("\U0001F464", "[User]")
-            .Replace("\U0001F465", "[Group]")
-            .Replace("\U0001F5A5\uFE0F", "[Computer]")
-            .Replace("\U0001F5A5", "[Computer]")
-            .Replace("\U0001F527", "[GMSA]")
-            .Replace("\U0001F4CB", "[Policy]")
-            .Replace("\U0001F511", "[PSO]")
-            .Replace("\U0001F3E2", "[Site]")
-            .Replace("\U0001F517", "[SiteLink]")
-            .Replace("\u26A0\uFE0F", "[!]")
-            .Replace("\u26A0", "[!]");
+        private static string EmojiSafeMarkdown(string input)
+        {
+            // ── 1. Named substitutions (preserves readability) ────────────────
+            var s = input
+                // TypeIcon() outputs
+                .Replace("\U0001F310", "[Domain]")
+                .Replace("\U0001F4C1", "[OU]")
+                .Replace("\U0001F4E6", "[Container]")
+                .Replace("\U0001F464", "[User]")
+                .Replace("\U0001F465", "[Group]")
+                .Replace("\U0001F5A5\uFE0F", "[Computer]")
+                .Replace("\U0001F5A5", "[Computer]")
+                .Replace("\U0001F527", "[GMSA]")
+                .Replace("\U0001F4CB", "[Policy]")
+                .Replace("\U0001F511", "[PSO]")
+                // Site icons
+                .Replace("\U0001F3E2", "[Site]")
+                .Replace("\U0001F517", "[SiteLink]")
+                .Replace("\U0001F3D9", "[Site]")       // 🏙 cityscape (site descriptions)
+                .Replace("\U0001F3DB", "[Building]")   // 🏛 classical building
+                // Warning / status
+                .Replace("\u26A0\uFE0F", "[!]")
+                .Replace("\u26A0", "[!]")              // ⚠
+                .Replace("\u2705", "[OK]")             // ✅
+                .Replace("\u274C", "[X]")              // ❌
+                .Replace("\u2715", "[x]")              // ✕
+                .Replace("\u270F\uFE0F", "[edit]")
+                .Replace("\u270F", "[edit]")           // ✏
+                // Misc app icons found in localization
+                .Replace("\U0001F4D6", "[doc]")        // 📖
+                .Replace("\U0001F4C4", "[file]")       // 📄
+                .Replace("\U0001F4C2", "[folder]")     // 📂
+                .Replace("\U0001F504", "[refresh]")    // 🔄
+                .Replace("\U0001F50D", "[search]")     // 🔍
+                .Replace("\U0001F510", "[lock]")       // 🔐
+                .Replace("\U0001F512", "[lock]")       // 🔒
+                .Replace("\U0001F534", "[red]")        // 🔴
+                .Replace("\U0001F7E0", "[orange]")     // 🟠
+                .Replace("\U0001F7E1", "[yellow]")     // 🟡
+                .Replace("\U0001F7E2", "[green]")      // 🟢
+                .Replace("\U0001F4BE", "[save]")       // 💾
+                .Replace("\U0001F4BB", "[PC]")         // 💻
+                .Replace("\U0001F3A8", "[theme]")      // 🎨
+                .Replace("\U0001F3AB", "[ticket]")     // 🎫
+                .Replace("\U0001F4CD", "[pin]")        // 📍
+                .Replace("\U0001F578", "[web]")        // 🕸
+                .Replace("\U0001F5A7", "[DC]")         // 🖧 network server
+                .Replace("\U0001F5D1", "[delete]")     // 🗑
+                .Replace("\U0001F6E1", "[shield]")     // 🛡
+                .Replace("\U0001F4B2", "[cost]")       // 💲
+                .Replace("\u2699\uFE0F", "[config]")
+                .Replace("\u2699", "[config]")         // ⚙
+                .Replace("\u22A1", "[box]")            // ⊡
+                .Replace("\u2B07\uFE0F", "[down]")
+                .Replace("\u2B07", "[down]")           // ⬇
+                .Replace("\u2795", "[+]")              // ➕
+                .Replace("\u21BA", "[reset]")          // ↺
+                .Replace("\u2139\uFE0F", "[i]")
+                .Replace("\u2139", "[i]");             // ℹ
+
+            // ── 2. Strip remaining surrogate pairs and variation selectors ────
+            var sb = new StringBuilder(s.Length);
+            for (int i = 0; i < s.Length; i++)
+            {
+                char c = s[i];
+                // Variation selectors U+FE00–U+FE0F: drop silently
+                if (c >= '\uFE00' && c <= '\uFE0F') continue;
+                // Surrogate pairs (anything > U+FFFF not caught above)
+                if (char.IsHighSurrogate(c))
+                {
+                    if (i + 1 < s.Length && char.IsLowSurrogate(s[i + 1]))
+                        i++; // consume the low surrogate
+                    continue; // drop the pair
+                }
+                if (char.IsLowSurrogate(c)) continue;
+                sb.Append(c);
+            }
+            return sb.ToString();
+        }
 
         // ── Theme resolvers ──────────────────────────────────────────────────
 
