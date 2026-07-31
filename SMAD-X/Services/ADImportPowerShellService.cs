@@ -236,7 +236,7 @@ namespace SMADX.Services
             L(s, "                    $right = $ar.ToString()");
             L(s, "                }");
             L(s, "                $isInherited = ($ace.IsInherited).ToString().ToLower()");
-            L(s, "                $tierVal     = if ($tier) { $tier } else { '' }");
+            L(s, "                $tierVal     = ''");
             L(s, "                $delegParts.Add(\"{`\"TrusteeName`\":`\"$(ConvertTo-JsonString $trusteeSam)`\",`\"TrusteeType`\":`\"$trusteeType`\",`\"TargetDN`\":`\"$(ConvertTo-JsonString $dn)`\",`\"Right`\":`\"$(ConvertTo-JsonString $right)`\",`\"RightCategory`\":`\"$rightCategory`\",`\"IsInherited`\":$isInherited,`\"Tier`\":`\"$(ConvertTo-JsonString $tierVal)`\"}\")");
             L(s, "            }");
             L(s, "            if ($delegParts.Count -gt 0) { $delegationsJson = '[' + ($delegParts -join ',') + ']' }");
