@@ -70,5 +70,16 @@ namespace SMADX.Models
         {
             Tiers.Remove(tier);
         }
+
+        /// <summary>
+        /// Restaure la liste des tiers depuis un document chargé.
+        /// Remplace la liste courante uniquement si la liste fournie est non vide.
+        /// </summary>
+        public void RestoreFromList(System.Collections.Generic.IList<TierConfiguration> tiers)
+        {
+            Tiers.Clear();
+            foreach (var t in tiers)
+                Tiers.Add(t);
+        }
     }
 }

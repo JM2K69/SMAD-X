@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -27,6 +28,11 @@ namespace SMADX.Services
         {
             try
             {
+                // Persist current tier configuration (including custom tiers)
+                document.TierConfigurations = TierConfigurationService.Instance.Tiers
+                    .Select(t => new TierConfiguration(t.Name, t.Color, t.Description, t.Level))
+                    .ToList();
+
                 var json = JsonSerializer.Serialize(document, JsonOptions);
                 await File.WriteAllTextAsync(filePath, json);
                 return true;
@@ -63,6 +69,11 @@ namespace SMADX.Services
                     var document = JsonSerializer.Deserialize<ADRootDocument>(json, JsonOptions);
                     if (document?.Domain != null)
                         RestoreParentReferences(document.Domain, null);
+
+                    // Restore custom tier configurations if present
+                    if (document?.TierConfigurations is { Count: > 0 } tiers)
+                        TierConfigurationService.Instance.RestoreFromList(tiers);
+
                     return document;
                 }
                 else

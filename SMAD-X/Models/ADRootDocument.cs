@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace SMADX.Models
 {
     /// <summary>
@@ -23,5 +25,11 @@ namespace SMADX.Models
         /// de sites configurés ou si le fichier a été migré depuis v1.
         /// </summary>
         public ADSitesTopology? SitesTopology { get; set; }
+
+        /// <summary>
+        /// Configurations de tiers personnalisées. Null ou vide = utiliser les tiers par défaut.
+        /// Persisté dans le fichier .smad-x.json pour conserver les tiers ajoutés par l'utilisateur.
+        /// </summary>
+        public List<TierConfiguration>? TierConfigurations { get; set; }
     }
 }
