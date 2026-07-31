@@ -135,7 +135,12 @@ namespace SMADX.ViewModels
         private static IEnumerable<ADDelegation> CollectDelegations(ADObject node)
         {
             foreach (var d in node.Delegations)
+            {
+                // Propagate the OU's tier to the delegation if not already set
+                if (string.IsNullOrWhiteSpace(d.Tier) && !string.IsNullOrWhiteSpace(node.Tier))
+                    d.Tier = node.Tier;
                 yield return d;
+            }
             foreach (var child in node.Children)
                 foreach (var d in CollectDelegations(child))
                     yield return d;

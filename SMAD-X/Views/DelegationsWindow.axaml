@@ -73,6 +73,15 @@
 											   FontFamily="Segoe UI Emoji,Apple Color Emoji,Noto Color Emoji"
 											   VerticalAlignment="Center"/>
 									<TextBlock Text="{Binding Name}" FontSize="13" VerticalAlignment="Center"/>
+									<!-- Tier badge -->
+									<Border IsVisible="{Binding Tier, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+											Background="#22000000" CornerRadius="3" Padding="4,1"
+											VerticalAlignment="Center">
+										<TextBlock Text="{Binding Tier}"
+												   Foreground="{Binding TierColor}"
+												   FontSize="10" FontWeight="SemiBold"/>
+									</Border>
+									<!-- Delegation count badge -->
 									<Border Background="#0078D4" CornerRadius="8" Padding="5,1"
 											IsVisible="{Binding HasDelegations}"
 											VerticalAlignment="Center">
