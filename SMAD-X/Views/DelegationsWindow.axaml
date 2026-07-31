@@ -141,7 +141,7 @@
 						<DataGridTextColumn Header="Right"      Binding="{Binding Right}"         Width="220"/>
 						<DataGridTextColumn Header="Target DN"  Binding="{Binding TargetDN}"      Width="*"/>
 						<DataGridTextColumn Header="Inherited"  Binding="{Binding IsInherited}"   Width="80"/>
-						<DataGridTextColumn Header="Tier"       Binding="{Binding Tier}"          Width="60"/>
+						<DataGridTextColumn Header="Tier  "     Binding="{Binding Tier}"          Width="110"/>
 					</DataGrid.Columns>
 				</DataGrid>
 			</Grid>
