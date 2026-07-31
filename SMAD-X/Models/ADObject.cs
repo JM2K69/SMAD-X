@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -71,6 +72,14 @@ namespace SMADX.Models
         /// ACL-based delegations found on this OU/Container.
         /// </summary>
         public ObservableCollection<ADDelegation> Delegations { get; set; } = new();
+
+        /// <summary>Number of direct (non-inherited) delegations on this object.</summary>
+        [JsonIgnore]
+        public int DirectDelegationCount => Delegations.Count(d => !d.IsInherited);
+
+        /// <summary>True if this object carries at least one direct delegation.</summary>
+        [JsonIgnore]
+        public bool HasDelegations => DirectDelegationCount > 0;
 
         // --- Propriétés spécifiques PSO (Fine-Grained Password Policy) ---
 

@@ -1,96 +1,141 @@
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:SMADX.ViewModels"
-        xmlns:models="using:SMADX.Models"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
-        x:Class="SMADX.Views.DelegationsWindow"
-        x:DataType="vm:DelegationsViewModel"
-        Title="Active Directory — Delegations"
-        Icon="/Assets/icone.ico"
-        Width="1100" Height="700"
-        WindowStartupLocation="CenterOwner">
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:vm="using:SMADX.ViewModels"
+		xmlns:models="using:SMADX.Models"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="740"
+		x:Class="SMADX.Views.DelegationsWindow"
+		x:DataType="vm:DelegationsViewModel"
+		Title="Active Directory — Delegations"
+		Icon="/Assets/icone.ico"
+		Width="1400" Height="740"
+		WindowStartupLocation="CenterOwner">
 
-    <Design.DataContext>
-        <vm:DelegationsViewModel/>
-    </Design.DataContext>
+	<Design.DataContext>
+		<vm:DelegationsViewModel/>
+	</Design.DataContext>
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="16">
+	<Grid RowDefinitions="Auto,*,Auto" Margin="12">
 
-        <!-- ── Statistics bar ────────────────────────────────────────────── -->
-        <Border Grid.Row="0" Background="#F5F5F5" CornerRadius="4"
-                Padding="12,8" Margin="0,0,0,10">
-            <StackPanel Orientation="Horizontal" Spacing="20">
-                <StackPanel>
-                    <TextBlock Text="Password Reset" FontSize="11" Foreground="#666"/>
-                    <TextBlock Text="{Binding CountPasswordReset}" FontSize="20" FontWeight="Bold" Foreground="#0078D4"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Text="Computer Mgmt" FontSize="11" Foreground="#666"/>
-                    <TextBlock Text="{Binding CountComputerManagement}" FontSize="20" FontWeight="Bold" Foreground="#107C10"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Text="Account Unlock" FontSize="11" Foreground="#666"/>
-                    <TextBlock Text="{Binding CountAccountUnlock}" FontSize="20" FontWeight="Bold" Foreground="#E3A21A"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Text="Attr Write" FontSize="11" Foreground="#666"/>
-                    <TextBlock Text="{Binding CountAttributeWrite}" FontSize="20" FontWeight="Bold" Foreground="#8764B8"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Text="Full Control" FontSize="11" Foreground="#666"/>
-                    <TextBlock Text="{Binding CountFullControl}" FontSize="20" FontWeight="Bold" Foreground="#D13438"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Text="Other" FontSize="11" Foreground="#666"/>
-                    <TextBlock Text="{Binding CountOther}" FontSize="20" FontWeight="Bold" Foreground="#767676"/>
-                </StackPanel>
-            </StackPanel>
-        </Border>
+		<!-- Statistics bar -->
+		<Border Grid.Row="0" Background="#F5F5F5" CornerRadius="4"
+				Padding="12,8" Margin="0,0,0,10">
+			<StackPanel Orientation="Horizontal" Spacing="20">
+				<StackPanel>
+					<TextBlock Text="Password Reset" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding CountPasswordReset}" FontSize="20" FontWeight="Bold" Foreground="#0078D4"/>
+				</StackPanel>
+				<StackPanel>
+					<TextBlock Text="Computer Mgmt" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding CountComputerManagement}" FontSize="20" FontWeight="Bold" Foreground="#107C10"/>
+				</StackPanel>
+				<StackPanel>
+					<TextBlock Text="Account Unlock" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding CountAccountUnlock}" FontSize="20" FontWeight="Bold" Foreground="#E3A21A"/>
+				</StackPanel>
+				<StackPanel>
+					<TextBlock Text="Attr Write" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding CountAttributeWrite}" FontSize="20" FontWeight="Bold" Foreground="#8764B8"/>
+				</StackPanel>
+				<StackPanel>
+					<TextBlock Text="Full Control" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding CountFullControl}" FontSize="20" FontWeight="Bold" Foreground="#D13438"/>
+				</StackPanel>
+				<StackPanel>
+					<TextBlock Text="Other" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding CountOther}" FontSize="20" FontWeight="Bold" Foreground="#767676"/>
+				</StackPanel>
+			</StackPanel>
+		</Border>
 
-        <!-- ── Filter bar ────────────────────────────────────────────────── -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,*,Auto,Auto,Auto"
-              Margin="0,0,0,10">
-            <TextBox Grid.Column="0" PlaceholderText="Filter trustee…"
-                     Text="{Binding FilterTrustee}" Margin="0,0,8,0"/>
-            <TextBox Grid.Column="1" PlaceholderText="Filter target DN…"
-                     Text="{Binding FilterTargetDN}" Margin="0,0,8,0"/>
-            <ComboBox Grid.Column="2" PlaceholderText="Category"
-                      ItemsSource="{Binding CategoryItems}"
-                      SelectedItem="{Binding FilterCategory, Mode=TwoWay}"
-                      Width="160" Margin="0,0,8,0"/>
-            <CheckBox Grid.Column="3" Content="Hide inherited"
-                      IsChecked="{Binding HideInherited}" Margin="0,0,8,0"
-                      VerticalAlignment="Center"/>
-            <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="8">
-                <Button Content="Apply"  Command="{Binding ApplyFiltersCommand}"/>
-                <Button Content="Export CSV" Click="OnExportCsvClick"/>
-            </StackPanel>
-        </Grid>
+		<!-- Main split: TreeView | Splitter | DataGrid + filters -->
+		<Grid Grid.Row="1" ColumnDefinitions="260,4,*">
 
-        <!-- ── DataGrid ──────────────────────────────────────────────────── -->
-        <DataGrid Grid.Row="2"
-                  ItemsSource="{Binding FilteredDelegations}"
-                  SelectedItem="{Binding SelectedDelegation}"
-                  IsReadOnly="True"
-                  GridLinesVisibility="Horizontal"
-                  AutoGenerateColumns="False">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Trustee"      Binding="{Binding TrusteeName}"   Width="180"/>
-                <DataGridTextColumn Header="Type"         Binding="{Binding TrusteeType}"   Width="80"/>
-                <DataGridTextColumn Header="Category"     Binding="{Binding RightCategory}" Width="150"/>
-                <DataGridTextColumn Header="Right"        Binding="{Binding Right}"          Width="220"/>
-                <DataGridTextColumn Header="Target DN"    Binding="{Binding TargetDN}"       Width="*"/>
-                <DataGridTextColumn Header="Inherited"    Binding="{Binding IsInherited}"    Width="80"/>
-                <DataGridTextColumn Header="Tier"         Binding="{Binding Tier}"           Width="60"/>
-            </DataGrid.Columns>
-        </DataGrid>
+			<!-- Left: OU tree -->
+			<Border Grid.Column="0" BorderBrush="#CCCCCC" BorderThickness="0,0,1,0">
+				<Grid RowDefinitions="Auto,*,Auto">
+					<Border Grid.Row="0" Padding="8,6" Background="#EEEEEE">
+						<TextBlock Text="OU / Container" FontWeight="SemiBold" FontSize="13"/>
+					</Border>
 
-        <!-- ── Status bar ────────────────────────────────────────────────── -->
-        <Border Grid.Row="3" Background="#F0F0F0" Padding="8,4" Margin="0,8,0,0">
-            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#444444"/>
-        </Border>
+					<TreeView Grid.Row="1"
+							  x:Name="OUTreeView"
+							  ItemsSource="{Binding TreeRootItems}"
+							  SelectionChanged="OnOUTreeSelectionChanged">
+						<TreeView.ItemTemplate>
+							<TreeDataTemplate DataType="{x:Type models:ADObject}"
+											  ItemsSource="{Binding Children}">
+								<StackPanel Orientation="Horizontal" Spacing="5">
+									<TextBlock Text="{Binding Name}" FontSize="13" VerticalAlignment="Center"/>
+									<Border Background="#0078D4" CornerRadius="8" Padding="5,1"
+											IsVisible="{Binding HasDelegations}">
+										<TextBlock Text="{Binding DirectDelegationCount}"
+												   FontSize="11" Foreground="White" FontWeight="Bold"/>
+									</Border>
+								</StackPanel>
+							</TreeDataTemplate>
+						</TreeView.ItemTemplate>
+					</TreeView>
 
-    </Grid>
+					<Button Grid.Row="2" Content="Show all OUs"
+							Command="{Binding ClearOUFilterCommand}"
+							HorizontalAlignment="Stretch" Margin="6"
+							HorizontalContentAlignment="Center"/>
+				</Grid>
+			</Border>
+
+			<!-- Splitter -->
+			<GridSplitter Grid.Column="1" ResizeDirection="Columns"
+						  Background="#DDDDDD" Width="4"/>
+
+			<!-- Right: filters + DataGrid -->
+			<Grid Grid.Column="2" RowDefinitions="Auto,*" Margin="10,0,0,0">
+
+				<!-- Filter bar -->
+				<Grid Grid.Row="0" ColumnDefinitions="*,*,Auto,Auto,Auto"
+					  Margin="0,0,0,10">
+					<TextBox Grid.Column="0" PlaceholderText="Filter trustee…"
+							 Text="{Binding FilterTrustee}" Margin="0,0,8,0"/>
+					<TextBox Grid.Column="1" PlaceholderText="Filter target DN…"
+							 Text="{Binding FilterTargetDN}" Margin="0,0,8,0"/>
+					<ComboBox Grid.Column="2" PlaceholderText="Category"
+							  ItemsSource="{Binding CategoryItems}"
+							  SelectedItem="{Binding FilterCategory, Mode=TwoWay}"
+							  Width="160" Margin="0,0,8,0"/>
+					<CheckBox Grid.Column="3" Content="Hide inherited"
+							  IsChecked="{Binding HideInherited}" Margin="0,0,8,0"
+							  VerticalAlignment="Center"/>
+					<StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="8">
+						<Button Content="Apply"      Command="{Binding ApplyFiltersCommand}"/>
+						<Button Content="Export CSV" Click="OnExportCsvClick"/>
+					</StackPanel>
+				</Grid>
+
+				<!-- DataGrid -->
+				<DataGrid Grid.Row="1"
+						  ItemsSource="{Binding FilteredDelegations}"
+						  SelectedItem="{Binding SelectedDelegation}"
+						  IsReadOnly="True"
+						  GridLinesVisibility="Horizontal"
+						  AutoGenerateColumns="False">
+					<DataGrid.Columns>
+						<DataGridTextColumn Header="Trustee"    Binding="{Binding TrusteeName}"   Width="180"/>
+						<DataGridTextColumn Header="Type"       Binding="{Binding TrusteeType}"   Width="80"/>
+						<DataGridTextColumn Header="Category"   Binding="{Binding RightCategory}" Width="150"/>
+						<DataGridTextColumn Header="Right"      Binding="{Binding Right}"         Width="220"/>
+						<DataGridTextColumn Header="Target DN"  Binding="{Binding TargetDN}"      Width="*"/>
+						<DataGridTextColumn Header="Inherited"  Binding="{Binding IsInherited}"   Width="80"/>
+						<DataGridTextColumn Header="Tier"       Binding="{Binding Tier}"          Width="60"/>
+					</DataGrid.Columns>
+				</DataGrid>
+			</Grid>
+		</Grid>
+
+		<!-- Status bar -->
+		<Border Grid.Row="2" Background="#F0F0F0" Padding="8,4" Margin="0,8,0,0">
+			<TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#444444"/>
+		</Border>
+
+	</Grid>
 </Window>

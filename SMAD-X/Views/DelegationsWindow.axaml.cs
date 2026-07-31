@@ -21,6 +21,13 @@ namespace SMADX.Views
                 vm.LoadFromTree(root);
         }
 
+        private void OnOUTreeSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (DataContext is not DelegationsViewModel vm) return;
+            if (OUTreeView.SelectedItem is ADObject node)
+                vm.SelectedOUNode = node;
+        }
+
         private async void OnExportCsvClick(object? sender, RoutedEventArgs e)
         {
             if (DataContext is not DelegationsViewModel vm) return;
@@ -41,3 +48,4 @@ namespace SMADX.Views
         }
     }
 }
+
