@@ -55,8 +55,9 @@
 			<!-- Left: OU tree -->
 			<Border Grid.Column="0" BorderBrush="#CCCCCC" BorderThickness="0,0,1,0">
 				<Grid RowDefinitions="Auto,*,Auto">
-					<Border Grid.Row="0" Padding="8,6" Background="#EEEEEE">
-						<TextBlock Text="OU / Container" FontWeight="SemiBold" FontSize="13"/>
+					<Border Grid.Row="0" Padding="10,7" Background="#1A5FAF" CornerRadius="4,4,0,0">
+						<TextBlock Text="🏗 OU / Containers" FontWeight="SemiBold" FontSize="13"
+								   Foreground="White"/>
 					</Border>
 
 					<TreeView Grid.Row="1"
@@ -66,10 +67,15 @@
 						<TreeView.ItemTemplate>
 							<TreeDataTemplate DataType="{x:Type models:ADObject}"
 											  ItemsSource="{Binding Children}">
-								<StackPanel Orientation="Horizontal" Spacing="5">
+								<StackPanel Orientation="Horizontal" Spacing="5"
+											ToolTip.Tip="{Binding DistinguishedName}">
+									<TextBlock Text="{Binding Icon}" FontSize="14"
+											   FontFamily="Segoe UI Emoji,Apple Color Emoji,Noto Color Emoji"
+											   VerticalAlignment="Center"/>
 									<TextBlock Text="{Binding Name}" FontSize="13" VerticalAlignment="Center"/>
 									<Border Background="#0078D4" CornerRadius="8" Padding="5,1"
-											IsVisible="{Binding HasDelegations}">
+											IsVisible="{Binding HasDelegations}"
+											VerticalAlignment="Center">
 										<TextBlock Text="{Binding DirectDelegationCount}"
 												   FontSize="11" Foreground="White" FontWeight="Bold"/>
 									</Border>

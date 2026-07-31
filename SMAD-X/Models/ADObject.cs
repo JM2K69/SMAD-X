@@ -81,6 +81,22 @@ namespace SMADX.Models
         [JsonIgnore]
         public bool HasDelegations => DirectDelegationCount > 0;
 
+        /// <summary>Emoji icon matching the object type (same as main TreeView).</summary>
+        [JsonIgnore]
+        public string Icon => Type switch
+        {
+            ADObjectType.Domain               => "🌐",
+            ADObjectType.OrganizationalUnit   => "📁",
+            ADObjectType.Container            => "📦",
+            ADObjectType.User                 => "👤",
+            ADObjectType.Group                => "👥",
+            ADObjectType.Computer             => "💻",
+            ADObjectType.GMSA                 => "🔐",
+            ADObjectType.Policy               => "📋",
+            ADObjectType.PasswordSettingsObject => "🔑",
+            _                                 => "❓"
+        };
+
         // --- Propriétés spécifiques PSO (Fine-Grained Password Policy) ---
 
         public int? PSOPrecedence { get; set; }
