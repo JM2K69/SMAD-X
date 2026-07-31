@@ -352,7 +352,7 @@ namespace SMADX.Services
             L(s, "        } catch {}");
             L(s, "        $subnetsJson = '[' + ($subnetParts -join ',') + ']'");
             L(s, "");
-            L(s, "        $sitesJsonParts.Add(\"{`\"Id`\":`\"$(New-Guid)`\",`\"Name`\":`\"$siteName`\",`\"Description`\":`\"$siteDesc`\",`\"Location`\":`\"$siteLoc`\",`\"Subnets`\":$subnetsJson,`\"DomainControllers`\":$dcsJson,`\"LinkedGPOs`\":$siteLinkedGPOJson,`\"Tier`\":`\"$siteTier`\",`\"CreatedDate`\":`\"$siteCreated`\",`\"ModifiedDate`\":`\"$siteMod`\"}\")\")");
+            L(s, "        $sitesJsonParts.Add(\"{`\"Id`\":`\"$(New-Guid)`\",`\"Name`\":`\"$siteName`\",`\"Description`\":`\"$siteDesc`\",`\"Location`\":`\"$siteLoc`\",`\"Subnets`\":$subnetsJson,`\"DomainControllers`\":$dcsJson,`\"LinkedGPOs`\":$siteLinkedGPOJson,`\"Tier`\":`\"$siteTier`\",`\"CreatedDate`\":`\"$siteCreated`\",`\"ModifiedDate`\":`\"$siteMod`\"}\")");
             L(s, "    }");
             L(s, "} catch {");
             L(s, "    Write-Warning \"Could not collect Sites: $_\"");
