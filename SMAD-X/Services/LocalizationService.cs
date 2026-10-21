@@ -292,8 +292,8 @@ Contient les groupes de sécurité intégrés du domaine.
                 ["Desc.Builtin.Administrators"] = "Membres de ce groupe ont un accès complet et illimité à l'ordinateur/domaine",
                 ["Desc.Builtin.Users"] = "Les utilisateurs ne peuvent pas apporter des modifications accidentelles ou intentionnelles au système",
                 ["Desc.Builtin.Guests"] = "Les invités ont les mêmes droits que les membres du groupe Utilisateurs par défaut",
-                ["Desc.Builtin.ServerOperators"] = "Peuvent administrer les serveurs de domaine",
-                ["Desc.Builtin.AccountOperators"] = "Peuvent administrer les comptes utilisateurs et groupes du domaine",
+                ["Desc.Builtin.ServerOperators"] = "Peuvent administrer les serveurs de domaine, y compris les contrôleurs de domaine (ouverture de session locale, sauvegarde, arrêt). Groupe privilégié de Tier 0 : il doit rester vide.",
+                ["Desc.Builtin.AccountOperators"] = "Peuvent administrer les comptes utilisateurs et groupes du domaine et ouvrir une session sur les contrôleurs de domaine. Groupe privilégié de Tier 0 : il doit rester vide.",
                 ["Desc.Builtin.BackupOperators"] = "Peuvent sauvegarder et restaurer tous les fichiers sur les contrôleurs de domaine",
                 ["Desc.Users"] = @"# Container Users
 
@@ -1786,8 +1786,8 @@ Contains built-in security groups of the domain.
                 ["Desc.Builtin.Administrators"] = "Members of this group have complete and unrestricted access to the computer/domain",
                 ["Desc.Builtin.Users"] = "Users are prevented from making accidental or intentional system-wide changes",
                 ["Desc.Builtin.Guests"] = "Guests have the same rights as members of the Users group by default",
-                ["Desc.Builtin.ServerOperators"] = "Can administer domain servers",
-                ["Desc.Builtin.AccountOperators"] = "Can administer user accounts and groups in the domain",
+                ["Desc.Builtin.ServerOperators"] = "Can administer domain servers, including domain controllers (local logon, backup, shutdown). Privileged Tier 0 group: keep it empty.",
+                ["Desc.Builtin.AccountOperators"] = "Can administer user accounts and groups in the domain and log on to domain controllers. Privileged Tier 0 group: keep it empty.",
                 ["Desc.Builtin.BackupOperators"] = "Can back up and restore all files on domain controllers",
                 ["Desc.Users"] = @"# Users Container
 

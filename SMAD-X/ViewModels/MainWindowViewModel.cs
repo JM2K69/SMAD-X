@@ -332,6 +332,7 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void InitializeSampleData()
         {
+            TierConfigurationService.Instance.ResetToDefaults();
             var root     = _dataService.CreateSampleStructure();
             var topology = _dataService.CreateSampleTopology();
 
@@ -357,7 +358,13 @@ namespace SMADX.ViewModels
 
             if (result && !string.IsNullOrEmpty(dialog.DomainName))
             {
-                var root = _dataService.CreateFreshDomainStructure(dialog.DomainName, dialog.EnableTiering);
+                // Un nouveau domaine ne doit rien hériter du document précédent (sites, tiers personnalisés)
+                TierConfigurationService.Instance.ResetToDefaults();
+                var root     = _dataService.CreateFreshDomainStructure(dialog.DomainName, dialog.EnableTiering);
+                var topology = _dataService.CreateFreshTopology(dialog.DomainName);
+                _currentDocument = new ADRootDocument { Version = 2, Domain = root, SitesTopology = topology };
+                SitesTopology    = topology;
+
                 var rootNode = new ADTreeNode(root) { IsExpanded = true };
                 ExpandDefaultDomainNodes(rootNode);
                 RootNodes.Clear();
@@ -874,7 +881,13 @@ namespace SMADX.ViewModels
 
         private void UpdateDistinguishedNamesRecursive(ADObject obj)
         {
+            var oldDn = obj.DistinguishedName;
             obj.UpdateDistinguishedName();
+
+            // Les délégations posées sur l'objet suivent son nouveau DN (renommage, collage)
+            foreach (var d in obj.Delegations.Where(d => string.Equals(d.TargetDN, oldDn, StringComparison.OrdinalIgnoreCase)))
+                d.TargetDN = obj.DistinguishedName;
+
             foreach (var child in obj.Children)
             {
                 UpdateDistinguishedNamesRecursive(child);

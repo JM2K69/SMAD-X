@@ -70,9 +70,11 @@ namespace SMADX.Services
                     if (document?.Domain != null)
                         RestoreParentReferences(document.Domain, null);
 
-                    // Restore custom tier configurations if present
+                    // Restore custom tier configurations if present, otherwise drop those of the previous document
                     if (document?.TierConfigurations is { Count: > 0 } tiers)
                         TierConfigurationService.Instance.RestoreFromList(tiers);
+                    else
+                        TierConfigurationService.Instance.ResetToDefaults();
 
                     return document;
                 }
@@ -82,6 +84,7 @@ namespace SMADX.Services
                     var root = JsonSerializer.Deserialize<ADObject>(json, JsonOptions);
                     if (root == null) return null;
                     RestoreParentReferences(root, null);
+                    TierConfigurationService.Instance.ResetToDefaults();
                     return new ADRootDocument
                     {
                         Version = 1,
@@ -194,7 +197,7 @@ namespace SMADX.Services
             var serverOps = new ADObject("Server Operators", ADObjectType.Group)
             {
                 Description = loc["Desc.Builtin.ServerOperators"],
-                Tier = GetTier("Tier 1"),
+                Tier = GetTier("Tier 0"),
                 Parent = builtinContainer
             };
             builtinContainer.Children.Add(serverOps);
@@ -202,7 +205,7 @@ namespace SMADX.Services
             var accountOps = new ADObject("Account Operators", ADObjectType.Group)
             {
                 Description = loc["Desc.Builtin.AccountOperators"],
-                Tier = GetTier("Tier 1"),
+                Tier = GetTier("Tier 0"),
                 Parent = builtinContainer
             };
             builtinContainer.Children.Add(accountOps);
@@ -444,6 +447,7 @@ namespace SMADX.Services
             {
                 Description = loc["Desc.DomainControllers.DC"],
                 Tier = GetTier("Tier 0"),
+                SiteName = "Default-First-Site-Name",
                 Parent = domainControllersOU
             };
             domainControllersOU.Children.Add(primaryDC);
@@ -1273,6 +1277,35 @@ namespace SMADX.Services
                 BridgeheadAuto             = true,
                 Description                = loc["Desc.Sample.SiteLinkPL"],
                 SiteNames                  = { "Site-Paris", "Site-Lyon" }
+            });
+
+            return topology;
+        }
+
+        /// <summary>
+        /// Topologie d'un domaine fraîchement promu : un seul site par défaut contenant DC01,
+        /// et le lien DEFAULTIPSITELINK créé automatiquement par Windows Server
+        /// </summary>
+        public ADSitesTopology CreateFreshTopology(string domainName)
+        {
+            var loc = LocalizationService.Instance;
+            var topology = new ADSitesTopology();
+
+            var siteDefault = new ADSite
+            {
+                Name        = "Default-First-Site-Name",
+                Description = loc["Desc.Sample.DefaultSite"]
+            };
+            siteDefault.DomainControllers.Add($"DC01.{domainName}");
+            topology.Sites.Add(siteDefault);
+
+            topology.SiteLinks.Add(new ADSiteLink
+            {
+                Name                       = "DEFAULTIPSITELINK",
+                Transport                  = "IP",
+                Cost                       = 100,
+                ReplicationIntervalMinutes = 180,
+                SiteNames                  = { "Default-First-Site-Name" }
             });
 
             return topology;

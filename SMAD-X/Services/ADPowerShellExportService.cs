@@ -37,7 +37,7 @@ namespace SMADX.Services
                 script.AppendLine("Import-Module ActiveDirectory -ErrorAction Stop");
                 script.AppendLine();
                 script.AppendLine("# Variables de configuration");
-                script.AppendLine($"$DomainDN = \"{root.DistinguishedName}\"");
+                script.AppendLine($"$DomainDN = \"{Esc(root.DistinguishedName)}\"");
                 script.AppendLine("$ErrorCount = 0");
                 script.AppendLine("$SuccessCount = 0");
                 script.AppendLine();
@@ -59,7 +59,7 @@ namespace SMADX.Services
                 script.AppendLine("    $dn = \"OU=$Name,$Path\"");
                 script.AppendLine("    ");
                 script.AppendLine("    try {");
-                script.AppendLine("        $ou = Get-ADOrganizationalUnit -Identity $dn -ErrorAction SilentlyContinue");
+                script.AppendLine("        $ou = try { Get-ADOrganizationalUnit -Identity $dn -ErrorAction Stop } catch { $null }");
                 script.AppendLine("        if ($ou) {");
                 script.AppendLine("            Write-Host \"[EXISTE] OU: $Name\" -ForegroundColor Yellow");
                 script.AppendLine("            return $true");
@@ -97,7 +97,7 @@ namespace SMADX.Services
                 script.AppendLine("    )");
                 script.AppendLine();
                 script.AppendLine("    try {");
-                script.AppendLine("        $user = Get-ADUser -Identity $SamAccountName -ErrorAction SilentlyContinue");
+                script.AppendLine("        $user = try { Get-ADUser -Identity $SamAccountName -ErrorAction Stop } catch { $null }");
                 script.AppendLine("        if ($user) {");
                 script.AppendLine("            Write-Host \"[EXISTE] User: $SamAccountName\" -ForegroundColor Yellow");
                 script.AppendLine("            return $true");
@@ -140,7 +140,7 @@ namespace SMADX.Services
                 script.AppendLine("    )");
                 script.AppendLine();
                 script.AppendLine("    try {");
-                script.AppendLine("        $group = Get-ADGroup -Identity $SamAccountName -ErrorAction SilentlyContinue");
+                script.AppendLine("        $group = try { Get-ADGroup -Identity $SamAccountName -ErrorAction Stop } catch { $null }");
                 script.AppendLine("        if ($group) {");
                 script.AppendLine("            Write-Host \"[EXISTE] Group: $SamAccountName\" -ForegroundColor Yellow");
                 script.AppendLine("            return $true");
@@ -181,7 +181,7 @@ namespace SMADX.Services
                 script.AppendLine("    )");
                 script.AppendLine();
                 script.AppendLine("    try {");
-                script.AppendLine("        $computer = Get-ADComputer -Identity $SamAccountName -ErrorAction SilentlyContinue");
+                script.AppendLine("        $computer = try { Get-ADComputer -Identity $SamAccountName -ErrorAction Stop } catch { $null }");
                 script.AppendLine("        if ($computer) {");
                 script.AppendLine("            Write-Host \"[EXISTE] Computer: $Name\" -ForegroundColor Yellow");
                 script.AppendLine("            return $true");
@@ -218,7 +218,7 @@ namespace SMADX.Services
                 script.AppendLine("    )");
                 script.AppendLine();
                 script.AppendLine("    try {");
-                script.AppendLine("        $group = Get-ADGroup -Identity $GroupName -ErrorAction SilentlyContinue");
+                script.AppendLine("        $group = try { Get-ADGroup -Identity $GroupName -ErrorAction Stop } catch { $null }");
                 script.AppendLine("        if (-not $group) {");
                 script.AppendLine("            Write-Host \"[ERREUR] Groupe '$GroupName' introuvable.\" -ForegroundColor Red");
                 script.AppendLine("            $script:ErrorCount++");
@@ -248,12 +248,12 @@ namespace SMADX.Services
                 script.AppendLine("function New-GPOIfNotExists {");
                 script.AppendLine("    param(");
                 script.AppendLine("        [string]$Name,");
-                script.AppendLine("        [string]$Comment = \"\"");
+                script.AppendLine("        [string]$Comment = \"\",");
                 script.AppendLine("        [string]$Domain = $env:USERDNSDOMAIN");
                 script.AppendLine("    )");
                 script.AppendLine();
                 script.AppendLine("    try {");
-                script.AppendLine("        $gpo = Get-GPO -Name $Name -Domain $Domain -ErrorAction SilentlyContinue");
+                script.AppendLine("        $gpo = try { Get-GPO -Name $Name -Domain $Domain -ErrorAction Stop } catch { $null }");
                 script.AppendLine("        if ($gpo) {");
                 script.AppendLine("            Write-Host \"[EXISTE] GPO: $Name\" -ForegroundColor Yellow");
                 script.AppendLine("            return");
@@ -311,7 +311,8 @@ namespace SMADX.Services
                 script.AppendLine("}");
 
                 // Écrire le script dans le fichier
-                await File.WriteAllTextAsync(filePath, script.ToString());
+                // BOM requis : Windows PowerShell 5.1 lit sinon le script en ANSI et corrompt les accents
+                await File.WriteAllTextAsync(filePath, script.ToString(), new UTF8Encoding(true));
                 return true;
             }
             catch (Exception ex)
@@ -339,7 +340,7 @@ namespace SMADX.Services
                         {
                             script.AppendLine($"# Tier: {child.Tier}");
                         }
-                        script.AppendLine($"New-ADOrganizationalUnitIfNotExists -Name \"{child.Name}\" -Path \"{parentPath}\" -Description \"{description}\"");
+                        script.AppendLine($"New-ADOrganizationalUnitIfNotExists -Name \"{Esc(child.Name)}\" -Path \"{Esc(parentPath)}\" -Description \"{description}\"");
                         script.AppendLine();
 
                         // Traiter les enfants de cette OU
@@ -365,7 +366,7 @@ namespace SMADX.Services
                         {
                             script.AppendLine($"# Tier: {child.Tier}");
                         }
-                        script.AppendLine($"New-ADUserIfNotExists -SamAccountName \"{child.Name}\" -Name \"{child.Name}\" -Path \"{parentPath}\" -Description \"{description}\"");
+                        script.AppendLine($"New-ADUserIfNotExists -SamAccountName \"{Esc(child.Name)}\" -Name \"{Esc(child.Name)}\" -Path \"{Esc(parentPath)}\" -Description \"{description}\"");
                         script.AppendLine();
                         break;
 
@@ -375,7 +376,7 @@ namespace SMADX.Services
                         {
                             script.AppendLine($"# Tier: {child.Tier}");
                         }
-                        script.AppendLine($"New-ADGroupIfNotExists -Name \"{child.Name}\" -SamAccountName \"{child.Name}\" -Path \"{parentPath}\" -Description \"{description}\"");
+                        script.AppendLine($"New-ADGroupIfNotExists -Name \"{Esc(child.Name)}\" -SamAccountName \"{Esc(child.Name)}\" -Path \"{Esc(parentPath)}\" -Description \"{description}\"");
                         script.AppendLine();
                         break;
 
@@ -386,7 +387,7 @@ namespace SMADX.Services
                             script.AppendLine($"# Tier: {child.Tier}");
                         }
                         var computerSam = child.Name.EndsWith("$") ? child.Name : $"{child.Name}$";
-                        script.AppendLine($"New-ADComputerIfNotExists -Name \"{child.Name}\" -SamAccountName \"{computerSam}\" -Path \"{parentPath}\" -Description \"{description}\"");
+                        script.AppendLine($"New-ADComputerIfNotExists -Name \"{Esc(child.Name)}\" -SamAccountName \"{Esc(computerSam)}\" -Path \"{Esc(parentPath)}\" -Description \"{description}\"");
                         script.AppendLine();
                         break;
 
@@ -400,7 +401,7 @@ namespace SMADX.Services
                         script.AppendLine($"# GPO: {child.Name}");
                         if (!string.IsNullOrWhiteSpace(child.Tier))
                             script.AppendLine($"# Tier: {child.Tier}");
-                        script.AppendLine($"New-GPOIfNotExists -Name \"{child.Name}\" -Comment \"{description}\"");
+                        script.AppendLine($"New-GPOIfNotExists -Name \"{Esc(child.Name)}\" -Comment \"{description}\"");
                         script.AppendLine();
                         break;
 
@@ -454,7 +455,26 @@ namespace SMADX.Services
             if (cleaned.Length > 200)
                 cleaned = cleaned.Substring(0, 197) + "...";
 
-            return cleaned;
+            return Esc(cleaned);
+        }
+
+        /// <summary>
+        /// Échappe une valeur insérée dans une chaîne PowerShell entre guillemets doubles
+        /// (accent grave, $ et guillemets, y compris typographiques, sont interprétés par PowerShell)
+        /// </summary>
+        private static string Esc(string? input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return string.Empty;
+
+            var sb = new StringBuilder(input.Length);
+            foreach (var c in input)
+            {
+                if (c is '`' or '$' or '"' or '“' or '”' or '„')
+                    sb.Append('`');
+                sb.Append(c);
+            }
+            return sb.ToString();
         }
 
         /// <summary>
@@ -484,7 +504,7 @@ namespace SMADX.Services
                             ? (obj.Name.EndsWith("$") ? obj.Name : $"{obj.Name}$")
                             : obj.Name;
                         script.AppendLine($"# Ajout de {obj.Name} dans le groupe {groupName}");
-                        script.AppendLine($"Add-ADGroupMemberIfNotMember -GroupName \"{groupName}\" -MemberName \"{memberRef}\"");
+                        script.AppendLine($"Add-ADGroupMemberIfNotMember -GroupName \"{Esc(groupName)}\" -MemberName \"{Esc(memberRef)}\"");
                         script.AppendLine();
                     }
                 }
@@ -506,17 +526,17 @@ namespace SMADX.Services
                     {
                         script.AppendLine($"# Lier la GPO '{gpoName}' à l'OU '{ou.Name}'");
                         script.AppendLine("try {");
-                        script.AppendLine($"    $gpo = Get-GPO -Name \"{gpoName}\" -ErrorAction SilentlyContinue");
+                        script.AppendLine($"    $gpo = try {{ Get-GPO -Name \"{Esc(gpoName)}\" -ErrorAction Stop }} catch {{ $null }}");
                         script.AppendLine("    if (-not $gpo) {");
-                        script.AppendLine($"        Write-Host \"[IGNORÉ] GPO '{gpoName}' introuvable, lien ignoré.\" -ForegroundColor Yellow");
+                        script.AppendLine($"        Write-Host \"[IGNORÉ] GPO '{Esc(gpoName)}' introuvable, lien ignoré.\" -ForegroundColor Yellow");
                         script.AppendLine("    } else {");
-                        script.AppendLine($"        New-GPLink -Name \"{gpoName}\" -Target \"{ou.DistinguishedName}\" -LinkEnabled Yes -ErrorAction Stop");
-                        script.AppendLine($"        Write-Host \"[GPO LINK] {gpoName} → {ou.DistinguishedName}\" -ForegroundColor Green");
+                        script.AppendLine($"        New-GPLink -Name \"{Esc(gpoName)}\" -Target \"{Esc(ou.DistinguishedName)}\" -LinkEnabled Yes -ErrorAction Stop");
+                        script.AppendLine($"        Write-Host \"[GPO LINK] {Esc(gpoName)} → {Esc(ou.DistinguishedName)}\" -ForegroundColor Green");
                         script.AppendLine("        $script:SuccessCount++");
                         script.AppendLine("    }");
                         script.AppendLine("}");
                         script.AppendLine("catch {");
-                        script.AppendLine($"    Write-Host \"[ERREUR] GPO Link {gpoName} → {ou.Name} : $_\" -ForegroundColor Red");
+                        script.AppendLine($"    Write-Host \"[ERREUR] GPO Link {Esc(gpoName)} → {Esc(ou.Name)} : $_\" -ForegroundColor Red");
                         script.AppendLine("    $script:ErrorCount++");
                         script.AppendLine("}");
                         script.AppendLine();
@@ -540,12 +560,12 @@ namespace SMADX.Services
                     {
                         script.AppendLine($"# Appliquer le PSO '{pso.Name}' à '{target}'");
                         script.AppendLine("try {");
-                        script.AppendLine($"    Add-ADFineGrainedPasswordPolicySubject -Identity \"{pso.Name}\" -Subjects \"{target}\" -ErrorAction Stop");
-                        script.AppendLine($"    Write-Host \"[PSO] {pso.Name} → {target}\" -ForegroundColor Green");
+                        script.AppendLine($"    Add-ADFineGrainedPasswordPolicySubject -Identity \"{Esc(pso.Name)}\" -Subjects \"{Esc(target)}\" -ErrorAction Stop");
+                        script.AppendLine($"    Write-Host \"[PSO] {Esc(pso.Name)} → {Esc(target)}\" -ForegroundColor Green");
                         script.AppendLine("    $script:SuccessCount++");
                         script.AppendLine("}");
                         script.AppendLine("catch {");
-                        script.AppendLine($"    Write-Host \"[ERREUR] PSO {pso.Name} → {target} : $_\" -ForegroundColor Red");
+                        script.AppendLine($"    Write-Host \"[ERREUR] PSO {Esc(pso.Name)} → {Esc(target)} : $_\" -ForegroundColor Red");
                         script.AppendLine("    $script:ErrorCount++");
                         script.AppendLine("}");
                         script.AppendLine();

@@ -176,7 +176,32 @@ namespace SMADX.Models
                 Name = Name + " (Copy)",
                 Type = Type,
                 Description = Description,
+                // Conservé pour que le recalcul du DN après collage puisse recibler les délégations
+                DistinguishedName = DistinguishedName,
                 Tier = Tier,
+                SiteName = SiteName,
+                MemberOf = new ObservableCollection<string>(MemberOf),
+                LinkedGPOs = new ObservableCollection<string>(LinkedGPOs),
+                PSOAppliesTo = new ObservableCollection<string>(PSOAppliesTo),
+                Delegations = new ObservableCollection<ADDelegation>(Delegations.Select(d => new ADDelegation
+                {
+                    TrusteeName = d.TrusteeName,
+                    TrusteeType = d.TrusteeType,
+                    TargetDN = d.TargetDN,
+                    Right = d.Right,
+                    RightCategory = d.RightCategory,
+                    IsInherited = d.IsInherited,
+                    Tier = d.Tier
+                })),
+                PSOPrecedence = PSOPrecedence,
+                PSOMinPasswordLength = PSOMinPasswordLength,
+                PSOPasswordHistoryCount = PSOPasswordHistoryCount,
+                PSOComplexityEnabled = PSOComplexityEnabled,
+                PSOMaxPasswordAgeDays = PSOMaxPasswordAgeDays,
+                PSOMinPasswordAgeDays = PSOMinPasswordAgeDays,
+                PSOLockoutThreshold = PSOLockoutThreshold,
+                PSOLockoutDurationMinutes = PSOLockoutDurationMinutes,
+                PSOLockoutObservationWindowMinutes = PSOLockoutObservationWindowMinutes,
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now
             };

@@ -46,13 +46,19 @@ namespace SMADX.Models
 
         private TierConfigurationService()
         {
-            // Configurations par défaut
-            Tiers = new ObservableCollection<TierConfiguration>
-            {
-                new TierConfiguration("Tier 0", "#C0392B", "Administration et contrôle de domaine", 0),
-                new TierConfiguration("Tier 1", "#E67E22", "Serveurs et infrastructure", 1),
-                new TierConfiguration("Tier 2", "#27AE60", "Postes de travail utilisateurs", 2)
-            };
+            Tiers = new ObservableCollection<TierConfiguration>();
+            ResetToDefaults();
+        }
+
+        /// <summary>
+        /// Rétablit les trois tiers du modèle Microsoft (nouveau domaine, fichier sans tiers personnalisés)
+        /// </summary>
+        public void ResetToDefaults()
+        {
+            Tiers.Clear();
+            Tiers.Add(new TierConfiguration("Tier 0", "#C0392B", "Administration et contrôle de domaine", 0));
+            Tiers.Add(new TierConfiguration("Tier 1", "#E67E22", "Serveurs et infrastructure", 1));
+            Tiers.Add(new TierConfiguration("Tier 2", "#27AE60", "Postes de travail utilisateurs", 2));
         }
 
         public string GetTierColor(string tierName)

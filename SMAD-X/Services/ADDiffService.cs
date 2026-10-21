@@ -168,12 +168,13 @@ namespace SMADX.Services
         {
             var c = new List<(string, string, string)>();
 
-            // Use "Trustee|Right|Target" as a stable key
+            // Use "Trustee|Right|Target|Inherited" as a stable key; an ACL can still hold
+            // duplicate ACEs (e.g. several object types), so keep the first of each key
             static string Key(ADDelegation d) =>
-                $"{d.TrusteeName}|{d.Right}|{d.TargetDN}".ToLowerInvariant();
+                $"{d.TrusteeName}|{d.Right}|{d.TargetDN}|{d.IsInherited}".ToLowerInvariant();
 
-            var oldKeys = before.Delegations.ToDictionary(Key);
-            var newKeys = after.Delegations.ToDictionary(Key);
+            var oldKeys = before.Delegations.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
+            var newKeys = after.Delegations.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
 
             foreach (var k in newKeys.Keys.Except(oldKeys.Keys))
             {
