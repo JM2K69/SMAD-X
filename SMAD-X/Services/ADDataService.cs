@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using SMADX.Models;
@@ -32,6 +33,7 @@ namespace SMADX.Services
                 document.TierConfigurations = TierConfigurationService.Instance.Tiers
                     .Select(t => new TierConfiguration(t.Name, t.Color, t.Description, t.Level))
                     .ToList();
+                document.Version = ADRootDocument.CurrentVersion;
 
                 var json = JsonSerializer.Serialize(document, JsonOptions);
                 await File.WriteAllTextAsync(filePath, json);
@@ -45,59 +47,56 @@ namespace SMADX.Services
         }
 
         /// <summary>
-        /// Charge un fichier .smad-x.json en détectant automatiquement le format :
-        ///   - v2 : JSON contient la clé "Version" → désérialise en ADRootDocument
-        ///   - v1 : JSON ne contient pas "Version" → désérialise en ADObject,
-        ///          encapsule dans un ADRootDocument { Version=1, SitesTopology=null }
+        /// Charge un fichier .smad-x.json de n'importe quelle version connue : le JSON est d'abord
+        /// migré vers <see cref="ADRootDocument.CurrentVersion"/> (voir <see cref="ADDocumentMigrator"/>),
+        /// puis désérialisé. Un fichier écrit par une version plus récente de SMAD-X est refusé.
+        /// Ne modifie pas les tiers de l'application : voir <see cref="ApplyTierConfiguration"/>.
         /// </summary>
-        public async Task<ADRootDocument?> LoadDocumentAsync(string filePath)
+        public async Task<DocumentLoadResult> LoadDocumentAsync(string filePath)
         {
+            if (!File.Exists(filePath))
+                return DocumentLoadResult.Failed(DocumentLoadStatus.NotFound);
+
+            int fileVersion = 0;
             try
             {
-                if (!File.Exists(filePath))
-                    return null;
-
                 var json = await File.ReadAllTextAsync(filePath);
+                if (JsonNode.Parse(json) is not JsonObject root)
+                    return DocumentLoadResult.Failed(DocumentLoadStatus.InvalidFormat, error: "La racine du fichier n'est pas un objet JSON.");
 
-                // Détection du format : v2 si la clé "Version" est présente au premier niveau
-                using var doc = JsonDocument.Parse(json);
-                bool isV2 = doc.RootElement.TryGetProperty("Version", out _)
-                         || doc.RootElement.TryGetProperty("version", out _);
+                var migrated = ADDocumentMigrator.MigrateToCurrent(root, out fileVersion);
+                var document = migrated.Deserialize<ADRootDocument>(JsonOptions);
+                if (document?.Domain == null)
+                    return DocumentLoadResult.Failed(DocumentLoadStatus.InvalidFormat, fileVersion, "Aucun domaine dans le fichier.");
 
-                if (isV2)
-                {
-                    var document = JsonSerializer.Deserialize<ADRootDocument>(json, JsonOptions);
-                    if (document?.Domain != null)
-                        RestoreParentReferences(document.Domain, null);
-
-                    // Restore custom tier configurations if present, otherwise drop those of the previous document
-                    if (document?.TierConfigurations is { Count: > 0 } tiers)
-                        TierConfigurationService.Instance.RestoreFromList(tiers);
-                    else
-                        TierConfigurationService.Instance.ResetToDefaults();
-
-                    return document;
-                }
-                else
-                {
-                    // Fichier v1 — ADObject directement
-                    var root = JsonSerializer.Deserialize<ADObject>(json, JsonOptions);
-                    if (root == null) return null;
-                    RestoreParentReferences(root, null);
-                    TierConfigurationService.Instance.ResetToDefaults();
-                    return new ADRootDocument
-                    {
-                        Version = 1,
-                        Domain = root,
-                        SitesTopology = null
-                    };
-                }
+                RestoreParentReferences(document.Domain, null);
+                return new DocumentLoadResult(DocumentLoadStatus.Loaded, document, fileVersion);
             }
-            catch (Exception ex)
+            catch (DocumentTooNewException ex)
             {
-                Console.WriteLine($"Erreur lors du chargement : {ex.Message}");
-                return null;
+                return DocumentLoadResult.Failed(DocumentLoadStatus.TooNew, ex.FileVersion);
             }
+            catch (Exception ex) when (ex is JsonException or FormatException or InvalidOperationException or NotSupportedException)
+            {
+                return DocumentLoadResult.Failed(DocumentLoadStatus.InvalidFormat, fileVersion, ex.Message);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                return DocumentLoadResult.Failed(DocumentLoadStatus.Unreadable, error: ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Rend actifs les tiers enregistrés dans le document, ou les tiers par défaut s'il n'en a pas
+        /// (sinon ceux du document précédent resteraient affichés). À appeler pour le document ouvert
+        /// dans la fenêtre principale, pas pour un fichier seulement comparé.
+        /// </summary>
+        public void ApplyTierConfiguration(ADRootDocument document)
+        {
+            if (document.TierConfigurations is { Count: > 0 } tiers)
+                TierConfigurationService.Instance.RestoreFromList(tiers);
+            else
+                TierConfigurationService.Instance.ResetToDefaults();
         }
 
         // ── Format v1 (rétro-compatibilité) — conservé pour l'export JSON simple ──
@@ -127,8 +126,8 @@ namespace SMADX.Services
         /// </summary>
         public async Task<ADObject?> LoadFromFileAsync(string filePath)
         {
-            var document = await LoadDocumentAsync(filePath);
-            return document?.Domain;
+            var result = await LoadDocumentAsync(filePath);
+            return result.Document?.Domain;
         }
 
         /// <summary>

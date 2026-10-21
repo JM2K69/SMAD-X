@@ -128,7 +128,37 @@ public class MainWindowViewModelTests
         await _vm.LoadFromFileCommand.ExecuteAsync(null);
 
         Assert.Equal("contoso.com", _vm.RootObject!.Name);
-        Assert.Equal(LocalizationService.Instance["Status.ErrorLoad"], _vm.StatusMessage);
+        var expectedPrefix = LocalizationService.Instance["Status.ErrorLoadInvalid"].Split("{0}")[0];
+        Assert.StartsWith(expectedPrefix, _vm.StatusMessage);
+        Assert.True(_vm.StatusMessage.Length > expectedPrefix.Length, "le détail de l'erreur doit suivre");
+    }
+
+    [Fact]
+    public async Task Load_NewerFormat_ExplainsAndKeepsDomain()
+    {
+        var path = TempFile(".smad-x.json");
+        await File.WriteAllTextAsync(path, $$"""{ "Version": {{ADRootDocument.CurrentVersion + 1}}, "Domain": { "Name": "futur.local", "Type": "Domain" } }""");
+        _dialogs.OpenPath = path;
+
+        await _vm.LoadFromFileCommand.ExecuteAsync(null);
+
+        Assert.Equal("contoso.com", _vm.RootObject!.Name);
+        Assert.Equal(
+            string.Format(LocalizationService.Instance["Status.ErrorLoadTooNew"], ADRootDocument.CurrentVersion + 1, ADRootDocument.CurrentVersion),
+            _vm.StatusMessage);
+    }
+
+    [Fact]
+    public async Task Load_OldFormat_SaysItWasConverted()
+    {
+        var path = TempFile(".json");
+        await new ADDataService().SaveToFileAsync(BuildSmallDomain(), path); // export JSON simple = format v1
+        _dialogs.OpenPath = path;
+
+        await _vm.LoadFromFileCommand.ExecuteAsync(null);
+
+        Assert.Equal("contoso.com", _vm.RootObject!.Name);
+        Assert.EndsWith(string.Format(LocalizationService.Instance["Status.Loaded.Migrated"], 1, ADRootDocument.CurrentVersion), _vm.StatusMessage);
     }
 
     [Fact]

@@ -72,16 +72,25 @@ namespace SMADX.ViewModels
             var path = await _dialogs.PickOpenFileAsync(Loc["Dialog.Load.Title"], SmadxFilter, JsonFilter, AllFilesFilter);
             if (path == null) return;
 
-            var document = await _dataService.LoadDocumentAsync(path);
-            if (document?.Domain == null)
+            var result = await _dataService.LoadDocumentAsync(path);
+            if (result.Document == null)
             {
-                StatusMessage = Loc["Status.ErrorLoad"];
+                StatusMessage = result.Status switch
+                {
+                    DocumentLoadStatus.TooNew        => string.Format(Loc["Status.ErrorLoadTooNew"], result.FileVersion, ADRootDocument.CurrentVersion),
+                    DocumentLoadStatus.InvalidFormat => string.Format(Loc["Status.ErrorLoadInvalid"], result.Error),
+                    _                                => result.Error is null ? Loc["Status.ErrorLoad"] : $"{Loc["Status.ErrorLoad"]} : {result.Error}"
+                };
                 return;
             }
 
-            ShowDomain(document, expandDefaultNodes: false);
+            _dataService.ApplyTierConfiguration(result.Document);
+            ShowDomain(result.Document, expandDefaultNodes: false);
             var siteInfo = SitesTopology != null ? $" (+{SitesTopology.Sites.Count} sites)" : string.Empty;
-            StatusMessage = string.Format(Loc["Status.Loaded"], path) + siteInfo;
+            var migration = result.WasMigrated
+                ? string.Format(Loc["Status.Loaded.Migrated"], result.FileVersion, ADRootDocument.CurrentVersion)
+                : string.Empty;
+            StatusMessage = string.Format(Loc["Status.Loaded"], path) + siteInfo + migration;
         });
 
         [RelayCommand]

@@ -3,19 +3,25 @@ using System.Collections.Generic;
 namespace SMADX.Models
 {
     /// <summary>
-    /// Document racine du fichier .smad-x.json version 2.
+    /// Document racine du fichier .smad-x.json.
     ///
-    /// Migration rétro-compatible :
+    /// Historique du format :
     ///   - v1 : fichier = ADObject directement (pas de champ "Version")
-    ///   - v2 : fichier = { "Version": 2, "Domain": {...}, "SitesTopology": {...} }
+    ///   - v2 : fichier = { "Version": 2, "Domain": {...}, "SitesTopology": {...}, "TierConfigurations": [...] }
     ///
-    /// ADDataService détecte automatiquement le format à la lecture :
-    ///   si le JSON contient la clé "Version" → v2, sinon → v1 (Domain seul).
+    /// À la lecture, Services.ADDocumentMigrator fait passer un fichier ancien à la version
+    /// courante et refuse un fichier écrit par une version plus récente de SMAD-X.
     /// </summary>
     public class ADRootDocument
     {
-        /// <summary>Version du format. Toujours 2 pour les nouveaux fichiers.</summary>
-        public int Version { get; set; } = 2;
+        /// <summary>
+        /// Version du format écrite par cette version de SMAD-X. Une modification incompatible
+        /// du format l'incrémente et ajoute l'étape correspondante dans ADDocumentMigrator.
+        /// </summary>
+        public const int CurrentVersion = 2;
+
+        /// <summary>Version du format. Toujours <see cref="CurrentVersion"/> à l'écriture.</summary>
+        public int Version { get; set; } = CurrentVersion;
 
         /// <summary>Arbre du domaine AD (ex-racine du fichier v1).</summary>
         public ADObject Domain { get; set; } = null!;

@@ -82,10 +82,12 @@ public class ADDataServiceTests
         var path = TempFile(".smad-x.json");
 
         Assert.True(await _service.SaveDocumentAsync(document, path));
-        var loaded = await _service.LoadDocumentAsync(path);
+        var result = await _service.LoadDocumentAsync(path);
 
-        Assert.NotNull(loaded);
-        Assert.Equal(2, loaded.Version);
+        Assert.Equal(DocumentLoadStatus.Loaded, result.Status);
+        Assert.False(result.WasMigrated);
+        var loaded = result.Document!;
+        Assert.Equal(ADRootDocument.CurrentVersion, loaded.Version);
         var jdoe = Find(loaded.Domain, "jdoe");
         Assert.Equal(["Helpdesk"], jdoe.MemberOf);
         Assert.Same(Find(loaded.Domain, "Corp"), jdoe.Parent);
@@ -95,34 +97,54 @@ public class ADDataServiceTests
     }
 
     [Fact]
-    public async Task Load_RestoresCustomTiers()
+    public async Task ApplyTierConfiguration_RestoresCustomTiers()
     {
         TierConfigurationService.Instance.AddTier(new TierConfiguration("Tier Cloud", "#123456", "Azure", 3));
         var path = TempFile(".smad-x.json");
         await _service.SaveDocumentAsync(new ADRootDocument { Domain = BuildSmallDomain() }, path);
         TierConfigurationService.Instance.ResetToDefaults();
 
-        await _service.LoadDocumentAsync(path);
+        var result = await _service.LoadDocumentAsync(path);
+        _service.ApplyTierConfiguration(result.Document!);
 
         Assert.Equal("#123456", TierConfigurationService.Instance.GetTierColor("Tier Cloud"));
     }
 
     [Fact]
-    public async Task LoadV1_ResetsCustomTiers()
+    public async Task Load_DoesNotChangeApplicationTiers()
+    {
+        // La fenêtre Timeline charge des fichiers juste pour les comparer
+        var path = TempFile(".json");
+        await _service.SaveToFileAsync(BuildSmallDomain(), path);
+        TierConfigurationService.Instance.AddTier(new TierConfiguration("Tier Cloud", "#123456", "Azure", 3));
+
+        await _service.LoadDocumentAsync(path);
+
+        Assert.Equal(4, TierConfigurationService.Instance.Tiers.Count);
+    }
+
+    [Fact]
+    public async Task LoadV1_IsMigratedAndApplyResetsCustomTiers()
     {
         var path = TempFile(".json");
         await _service.SaveToFileAsync(BuildSmallDomain(), path);
         TierConfigurationService.Instance.AddTier(new TierConfiguration("Tier Cloud", "#123456", "Azure", 3));
 
-        var loaded = await _service.LoadDocumentAsync(path);
+        var result = await _service.LoadDocumentAsync(path);
+        _service.ApplyTierConfiguration(result.Document!);
 
-        Assert.Equal(1, loaded!.Version);
+        Assert.Equal(1, result.FileVersion);
+        Assert.True(result.WasMigrated);
+        Assert.Equal(ADRootDocument.CurrentVersion, result.Document!.Version);
         Assert.Equal(3, TierConfigurationService.Instance.Tiers.Count);
     }
 
     [Fact]
-    public async Task Load_MissingFile_ReturnsNull()
+    public async Task Load_MissingFile_ReportsNotFound()
     {
-        Assert.Null(await _service.LoadDocumentAsync(TempFile(".json")));
+        var result = await _service.LoadDocumentAsync(TempFile(".json"));
+
+        Assert.Equal(DocumentLoadStatus.NotFound, result.Status);
+        Assert.Null(result.Document);
     }
 }

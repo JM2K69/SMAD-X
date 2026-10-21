@@ -50,10 +50,13 @@ namespace SMADX.ViewModels
             try
             {
                 StatusMessage = $"Loading {System.IO.Path.GetFileName(path)}…";
-                var root = await _dataService.LoadFromFileAsync(path);
+                var result = await _dataService.LoadDocumentAsync(path);
+                var root = result.Document?.Domain;
                 if (root is null)
                 {
-                    StatusMessage = "Failed to load file — invalid format.";
+                    StatusMessage = result.Status == DocumentLoadStatus.TooNew
+                        ? string.Format(LocalizationService.Instance["Status.ErrorLoadTooNew"], result.FileVersion, ADRootDocument.CurrentVersion)
+                        : $"Failed to load file — {result.Error ?? "invalid format"}.";
                     return;
                 }
 
