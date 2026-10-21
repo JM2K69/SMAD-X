@@ -1,0 +1,1 @@
+Les invités ont les mêmes droits que les membres du groupe Utilisateurs par défaut

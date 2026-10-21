@@ -1,0 +1,1 @@
+Site Active Directory créé automatiquement lors de la première installation. Contient initialement tous les contrôleurs de domaine avant configuration manuelle des sites.

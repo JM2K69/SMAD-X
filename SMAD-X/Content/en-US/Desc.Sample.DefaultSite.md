@@ -1,0 +1,1 @@
+Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration.

@@ -1,0 +1,1 @@
+Peuvent sauvegarder et restaurer tous les fichiers sur les contrôleurs de domaine

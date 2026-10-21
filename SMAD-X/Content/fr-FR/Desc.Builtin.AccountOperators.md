@@ -1,0 +1,1 @@
+Peuvent administrer les comptes utilisateurs et groupes du domaine et ouvrir une session sur les contrôleurs de domaine. Groupe privilégié de Tier 0 : il doit rester vide.

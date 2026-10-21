@@ -13,6 +13,8 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PublishSingleFile>true</PublishSingleFile>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <!-- Skia, HarfBuzz et ANGLE dans l'exe : sinon ces DLL natives restent à côté et l'exe seul ne démarre pas -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <DebugType>none</DebugType>
@@ -23,6 +25,8 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <!-- Descriptions pédagogiques Markdown, embarquées dans l'exe ; lues par LocalizationService -->
+    <EmbeddedResource Include="Content\**\*.md" LogicalName="Content/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

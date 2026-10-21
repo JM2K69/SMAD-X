@@ -1,0 +1,1 @@
+Guests have the same rights as members of the Users group by default

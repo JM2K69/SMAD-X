@@ -1,0 +1,1 @@
+Users are prevented from making accidental or intentional system-wide changes

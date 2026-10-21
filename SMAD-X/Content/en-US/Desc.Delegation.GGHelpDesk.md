@@ -1,0 +1,1 @@
+Helpdesk group — resets passwords and unlocks user accounts (Tier 2)

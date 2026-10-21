@@ -1,0 +1,1 @@
+Peuvent administrer les serveurs de domaine, y compris les contrôleurs de domaine (ouverture de session locale, sauvegarde, arrêt). Groupe privilégié de Tier 0 : il doit rester vide.

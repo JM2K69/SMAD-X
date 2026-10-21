@@ -5,6 +5,7 @@ on:
     branches: [master]
   pull_request:
   workflow_dispatch:
+  workflow_call: # appelé par release.yml avant toute publication
 
 jobs:
   test:

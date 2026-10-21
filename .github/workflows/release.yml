@@ -10,8 +10,13 @@ permissions:
   contents: write
 
 jobs:
+  tests:
+    name: Tests
+    uses: ./.github/workflows/tests.yml
+
   build:
     name: Build – ${{ matrix.rid }}
+    needs: tests
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -45,6 +50,7 @@ jobs:
           --self-contained true
           -p:PublishSingleFile=true
           -p:EnableCompressionInSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
           -p:DebugType=none
           -p:DebugSymbols=false
           -o publish/${{ matrix.rid }}

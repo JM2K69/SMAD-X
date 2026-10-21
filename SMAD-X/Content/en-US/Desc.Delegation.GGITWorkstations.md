@@ -1,0 +1,1 @@
+IT Workstations group — manages computer objects in the Workstations OU (Tier 2)

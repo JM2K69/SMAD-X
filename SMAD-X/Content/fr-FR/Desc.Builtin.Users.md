@@ -1,0 +1,1 @@
+Les utilisateurs ne peuvent pas apporter des modifications accidentelles ou intentionnelles au système
