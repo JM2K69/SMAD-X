@@ -127,7 +127,7 @@ namespace SMADX.Services
                 var md = BuildSingleElementMarkdown(name, typeLabel, description);
                 var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
                 using var word = MarkdownReader.Parse(md).ToWordDocument(opts);
-                word.SaveAs(filePath);
+                word.Save(filePath);
                 return Task.FromResult(true);
             }
             catch (Exception ex)
@@ -251,7 +251,7 @@ namespace SMADX.Services
                 var markdownDoc = MarkdownReader.Parse(sb.ToString());
                 var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
                 using var word = markdownDoc.ToWordDocument(opts);
-                word.SaveAs(filePath);
+                word.Save(filePath);
                 return true;
             }
             catch (Exception ex)
@@ -348,7 +348,7 @@ namespace SMADX.Services
                     sb.AppendLine("| Mandataire | Cible | Catégorie | Hérité |");
                     sb.AppendLine("|-----------|-------|-----------|--------|");
                     foreach (var d in delegations)
-                        sb.AppendLine($"| {d.TrusteeName} | {d.TargetDN} | {d.RightCategory} | {(d.IsInherited ? "✓" : "")} |");
+                        sb.AppendLine($"| {d.TrusteeName} | {d.TargetDN} | {d.RightCategory} | {(d.IsInherited ? "Oui" : "")} |");
                     sb.AppendLine();
                 }
             }
@@ -477,31 +477,63 @@ namespace SMADX.Services
         // ── PDF render helper ─────────────────────────────────────────────────
 
         /// <summary>
-        /// Renders markdown to PDF. First attempt uses system font embedding so emoji
-        /// and Unicode render natively. If the OfficeIMO preflight still raises an
-        /// encoding error (e.g. Segoe UI Emoji not installed), a second attempt
-        /// substitutes known app emoji with short text labels — DOCX/.md are never affected.
+        /// Fallback fonts embedded in the executable (see Fonts/README.md): emoji, symbols, then
+        /// arrows / math / box drawing. Body text stays on the PDF standard Helvetica.
+        /// </summary>
+        private static readonly Lazy<PdfEmbeddedFontFallbackSet> PdfFontFallbacks = new(() =>
+            new PdfEmbeddedFontFallbackSet(new[]
+            {
+                EmbeddedFont("Noto Emoji",          "NotoEmoji-wght.ttf"),
+                EmbeddedFont("Noto Sans Symbols 2", "NotoSansSymbols2-Regular.ttf"),
+                EmbeddedFont("Noto Sans Mono",      "NotoSansMono-Regular.ttf")
+            }));
+
+        private static PdfEmbeddedFontFallbackCandidate EmbeddedFont(string fontName, string fileName)
+        {
+            using var stream = typeof(ADDocumentReportService).Assembly.GetManifestResourceStream("Fonts/" + fileName)
+                ?? throw new InvalidOperationException($"Embedded font Fonts/{fileName} is missing");
+            using var buffer = new MemoryStream();
+            stream.CopyTo(buffer);
+            return new PdfEmbeddedFontFallbackCandidate(fontName, buffer.ToArray());
+        }
+
+        /// <summary>
+        /// Renders markdown to PDF with the embedded fallback fonts only (portable policy: no
+        /// system font), so the output is the same on Windows, Linux and macOS. If OfficeIMO still
+        /// cannot encode a character, a second attempt substitutes app emoji with short text
+        /// labels — DOCX/.md are never affected.
         /// </summary>
         private static void RenderPdf(string markdown, string filePath, string theme)
         {
-            var opts = new MarkdownPdfSaveOptions
+            var pdfOptions = new PdfOptions();
+            pdfOptions.RegisterEmbeddedFontFallbacks(PdfFontFallbacks.Value);
+
+            var opts = new MarkdownToPdfOptions
             {
-                Theme                    = ResolveVisualTheme(theme),
-                AllowSystemFontEmbedding = true,
-                TextFallbacks            = PdfTextFallbackFeatures.Default
+                Theme          = ResolveVisualTheme(theme),
+                TextFallbacks  = PdfTextFallbackFeatures.Default,
+                PdfOptions     = pdfOptions,
+                ResourcePolicy = PdfResourcePolicy.CreatePortableDeterministic()
             };
 
             try
             {
                 MarkdownReader.Parse(markdown).SaveAsPdf(filePath, opts);
             }
-            catch (Exception ex) when (ex.GetType().Name.Contains("Encoding")
-                                        || ex.GetType().Name.Contains("Preflight"))
+            catch (Exception ex) when (IsUnencodableTextError(ex))
             {
-                // System fonts not sufficient — substitute app emoji then retry
                 MarkdownReader.Parse(EmojiSafeMarkdown(markdown)).SaveAsPdf(filePath, opts);
             }
         }
+
+        /// <summary>
+        /// Text the PDF fonts cannot encode: preflight/encoding errors, and the ArgumentException
+        /// OfficeIMO 3.5 still raises for an emoji or symbol inside a table cell.
+        /// </summary>
+        private static bool IsUnencodableTextError(Exception ex) =>
+            ex.GetType().Name.Contains("Encoding")
+            || ex.GetType().Name.Contains("Preflight")
+            || ex is ArgumentException;
 
         /// <summary>
         /// Strips / replaces all characters that Arial cannot encode so the PDF
@@ -573,7 +605,13 @@ namespace SMADX.Services
                 .Replace("\u2795", "[+]")              // ➕
                 .Replace("\u21BA", "[reset]")          // ↺
                 .Replace("\u2139\uFE0F", "[i]")
-                .Replace("\u2139", "[i]");             // ℹ
+                .Replace("\u2139", "[i]")              // ℹ
+                .Replace("\u2713", "[v]")              // ✓
+                .Replace("\u2714\uFE0F", "[v]")
+                .Replace("\u2714", "[v]")              // ✔
+                .Replace("\u2717", "[x]")              // ✗
+                .Replace("\u2718", "[x]")              // ✘
+                .Replace("\u2605", "*");               // ★
 
             // ── 2. Strip remaining surrogate pairs and variation selectors ────
             var sb = new StringBuilder(s.Length);
@@ -590,6 +628,8 @@ namespace SMADX.Services
                     continue; // drop the pair
                 }
                 if (char.IsLowSurrogate(c)) continue;
+                // Misc Symbols up to U+2639, Dingbats, Misc Symbols & Arrows: outside Arial (WGL4)
+                if (c is >= '\u2600' and <= '\u2639' or >= '\u2700' and <= '\u27BF' or >= '\u2B00' and <= '\u2BFF') continue;
                 sb.Append(c);
             }
             return sb.ToString();

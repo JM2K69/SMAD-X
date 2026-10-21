@@ -27,6 +27,8 @@
     <AvaloniaResource Include="Assets\**" />
     <!-- Descriptions pédagogiques Markdown, embarquées dans l'exe ; lues par LocalizationService -->
     <EmbeddedResource Include="Content\**\*.md" LogicalName="Content/%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Polices de secours du PDF (emoji, symboles), embarquées pour un rendu identique sur tous les OS -->
+    <EmbeddedResource Include="Fonts\*.ttf" LogicalName="Fonts/%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,9 +43,9 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-    <PackageReference Include="OfficeIMO.Word" Version="1.0.77" />
-    <PackageReference Include="OfficeIMO.Markdown" Version="0.6.42" />
-    <PackageReference Include="OfficeIMO.Markdown.Pdf" Version="1.0.15" />
-    <PackageReference Include="OfficeIMO.Word.Markdown" Version="1.0.51" />
+    <PackageReference Include="OfficeIMO.Word" Version="3.5.1" />
+    <PackageReference Include="OfficeIMO.Markdown" Version="3.5.1" />
+    <PackageReference Include="OfficeIMO.Markdown.Pdf" Version="3.5.1" />
+    <PackageReference Include="OfficeIMO.Word.Markdown" Version="3.5.1" />
   </ItemGroup>
 </Project>
