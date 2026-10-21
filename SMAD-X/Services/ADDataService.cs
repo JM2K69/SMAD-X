@@ -615,6 +615,7 @@ namespace SMADX.Services
             // Mettre à jour les DN du nouveau container (ajouté après le premier appel)
             fspContainer.UpdateDistinguishedNameTree();
 
+            BuiltInSecurityDefaults.Apply(domain);
             return domain;
         }
 
@@ -1169,6 +1170,7 @@ namespace SMADX.Services
                 Tier = "Tier 0"
             });
 
+            BuiltInSecurityDefaults.Apply(domain);
             return domain;
         }
 

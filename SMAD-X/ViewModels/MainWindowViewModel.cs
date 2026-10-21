@@ -227,6 +227,13 @@ namespace SMADX.ViewModels
         /// <summary>Sujets du PSO sélectionné</summary>
         public ObservableCollection<string>? SelectedPSOAppliesTo => SelectedNode?.Data?.PSOAppliesTo;
 
+        /// <summary>Attributs de sécurité de l'objet sélectionné (section « Sécurité » du panneau).</summary>
+        [ObservableProperty]
+        private ObjectSecurityViewModel? _selectedSecurity;
+
+        partial void OnSelectedNodeChanged(ADTreeNode? value) =>
+            SelectedSecurity = value?.Data is { } data ? new ObjectSecurityViewModel(data) : null;
+
         // ─── Chargement d'un domaine et barre d'état ─────────────────────────────
 
         /// <summary>

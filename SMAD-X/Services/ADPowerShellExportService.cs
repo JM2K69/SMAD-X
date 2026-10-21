@@ -271,6 +271,42 @@ namespace SMADX.Services
                 script.AppendLine("}");
                 script.AppendLine();
 
+                // Fonction pour appliquer les attributs de sécurité d'un compte (strictement additive)
+                script.AppendLine("# Fonction pour appliquer options de compte, SPN et délégation contrainte.");
+                script.AppendLine("# Strictement additive : n'active que les options demandées et n'ajoute que les valeurs absentes,");
+                script.AppendLine("# sans jamais rien retirer (les SPN d'un compte existant restent intacts).");
+                script.AppendLine("function Set-ADAccountSecurityIfNeeded {");
+                script.AppendLine("    param(");
+                script.AppendLine("        [string]$Identity,");
+                script.AppendLine("        [string]$DistinguishedName,");
+                script.AppendLine("        [hashtable]$Flags = @{},");
+                script.AppendLine("        [string[]]$Spns = @(),");
+                script.AppendLine("        [string[]]$DelegateTo = @()");
+                script.AppendLine("    )");
+                script.AppendLine();
+                script.AppendLine("    try {");
+                script.AppendLine("        if ($Flags.Count -gt 0) {");
+                script.AppendLine("            Set-ADAccountControl -Identity $Identity @Flags -ErrorAction Stop");
+                script.AppendLine("        }");
+                script.AppendLine("        $current = Get-ADObject -Identity $DistinguishedName -Properties servicePrincipalName,'msDS-AllowedToDelegateTo' -ErrorAction Stop");
+                script.AppendLine("        $newSpns = @($Spns | Where-Object { $current.servicePrincipalName -notcontains $_ })");
+                script.AppendLine("        if ($newSpns.Count -gt 0) {");
+                script.AppendLine("            Set-ADObject -Identity $DistinguishedName -Add @{ servicePrincipalName = $newSpns } -ErrorAction Stop");
+                script.AppendLine("        }");
+                script.AppendLine("        $newTargets = @($DelegateTo | Where-Object { $current.'msDS-AllowedToDelegateTo' -notcontains $_ })");
+                script.AppendLine("        if ($newTargets.Count -gt 0) {");
+                script.AppendLine("            Set-ADObject -Identity $DistinguishedName -Add @{ 'msDS-AllowedToDelegateTo' = $newTargets } -ErrorAction Stop");
+                script.AppendLine("        }");
+                script.AppendLine("        Write-Host \"[SÉCURITÉ] $Identity\" -ForegroundColor Green");
+                script.AppendLine("        $script:SuccessCount++");
+                script.AppendLine("    }");
+                script.AppendLine("    catch {");
+                script.AppendLine("        Write-Host \"[ERREUR] Sécurité $Identity : $_\" -ForegroundColor Red");
+                script.AppendLine("        $script:ErrorCount++");
+                script.AppendLine("    }");
+                script.AppendLine("}");
+                script.AppendLine();
+
                 // Générer les commandes de création
                 script.AppendLine("# Création de la structure");
                 script.AppendLine("Write-Host \"Début de la création de la structure...\" -ForegroundColor Cyan");
@@ -376,7 +412,9 @@ namespace SMADX.Services
                         {
                             script.AppendLine($"# Tier: {child.Tier}");
                         }
-                        script.AppendLine($"New-ADGroupIfNotExists -Name \"{Esc(child.Name)}\" -SamAccountName \"{Esc(child.Name)}\" -Path \"{Esc(parentPath)}\" -Description \"{description}\"");
+                        var scope = child.GroupScope ?? ADGroupScope.Global;
+                        var category = child.GroupCategory ?? ADGroupCategory.Security;
+                        script.AppendLine($"New-ADGroupIfNotExists -Name \"{Esc(child.Name)}\" -SamAccountName \"{Esc(child.Name)}\" -Path \"{Esc(parentPath)}\" -GroupScope \"{scope}\" -GroupCategory \"{category}\" -Description \"{description}\"");
                         script.AppendLine();
                         break;
 
@@ -544,7 +582,10 @@ namespace SMADX.Services
                 }
             }
 
-            // 3. Application des PSO aux utilisateurs/groupes
+            // 3. Attributs de sécurité des comptes
+            GenerateAccountSecurityCommands(allObjects, script);
+
+            // 4. Application des PSO aux utilisateurs/groupes
             var psoObjects = allObjects
                 .Where(o => o.Type == ADObjectType.PasswordSettingsObject && o.PSOAppliesTo.Count > 0)
                 .ToList();
@@ -573,6 +614,56 @@ namespace SMADX.Services
                 }
             }
         }
+
+        /// <summary>Paramètre de Set-ADAccountControl correspondant à chaque option de compte exportée.</summary>
+        private static readonly (ADAccountFlags Flag, string Parameter)[] AccountControlParameters =
+        {
+            (ADAccountFlags.PasswordNotRequired,        "PasswordNotRequired"),
+            (ADAccountFlags.PasswordNeverExpires,       "PasswordNeverExpires"),
+            (ADAccountFlags.DontRequirePreauth,         "DoesNotRequirePreAuth"),
+            (ADAccountFlags.TrustedForDelegation,       "TrustedForDelegation"),
+            (ADAccountFlags.TrustedToAuthForDelegation, "TrustedToAuthForDelegation"),
+            (ADAccountFlags.NotDelegated,               "AccountNotDelegated")
+        };
+
+        /// <summary>
+        /// Options de compte, SPN et délégation contrainte des utilisateurs et ordinateurs créés par le script.
+        /// Exclus : krbtgt et les contrôleurs de domaine (objets critiques déjà configurés par AD), les gMSA
+        /// (créés manuellement), l'état « désactivé » (les comptes sont toujours créés désactivés),
+        /// adminCount (géré par SDProp) et le propriétaire (dépend du compte qui exécute le script).
+        /// </summary>
+        private void GenerateAccountSecurityCommands(List<ADObject> allObjects, StringBuilder script)
+        {
+            var accounts = allObjects
+                .Where(o => o.Type is ADObjectType.User or ADObjectType.Computer)
+                .Where(o => o.Name != "krbtgt" && o.Parent is not { Type: ADObjectType.OrganizationalUnit, Name: "Domain Controllers" })
+                .Select(o => (Account: o, Parameters: AccountControlParameters.Where(p => o.AccountFlags.HasFlag(p.Flag)).Select(p => p.Parameter).ToList()))
+                .Where(a => a.Parameters.Count > 0 || a.Account.ServicePrincipalNames.Count > 0 || a.Account.AllowedToDelegateTo.Count > 0)
+                .ToList();
+
+            if (accounts.Count == 0)
+                return;
+
+            script.AppendLine("# --- Attributs de sécurité des comptes (options, SPN, délégation contrainte) ---");
+            script.AppendLine("Write-Host \"Application des attributs de sécurité...\" -ForegroundColor Cyan");
+            script.AppendLine();
+            foreach (var (account, parameters) in accounts)
+            {
+                var identity = account.Type == ADObjectType.Computer && !account.Name.EndsWith('$') ? $"{account.Name}$" : account.Name;
+                var flags = parameters.Count > 0 ? "@{ " + string.Join("; ", parameters.Select(p => $"{p} = $true")) + " }" : "@{}";
+
+                script.AppendLine($"# Sécurité de {account.Name}");
+                script.AppendLine($"Set-ADAccountSecurityIfNeeded -Identity \"{Esc(identity)}\" -DistinguishedName \"{Esc(account.DistinguishedName)}\" `");
+                script.AppendLine($"    -Flags {flags} `");
+                script.AppendLine($"    -Spns {PsArray(account.ServicePrincipalNames)} `");
+                script.AppendLine($"    -DelegateTo {PsArray(account.AllowedToDelegateTo)}");
+                script.AppendLine();
+            }
+        }
+
+        /// <summary>Tableau PowerShell de chaînes échappées, ex. @("HTTP/web", "HOST/web").</summary>
+        private static string PsArray(IEnumerable<string> values) =>
+            "@(" + string.Join(", ", values.Select(v => $"\"{Esc(v)}\"")) + ")";
 
         /// <summary>
         /// Collecte récursivement tous les objets de l'arbre

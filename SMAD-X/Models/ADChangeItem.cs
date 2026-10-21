@@ -18,7 +18,8 @@ namespace SMADX.Models
         MemberOf,     // group membership changes
         GPO,          // GPO link added / removed
         PSO,          // PSO assignment or settings changed
-        Delegation    // delegation (ACE) added / removed / changed
+        Delegation,   // delegation (ACE) added / removed / changed
+        Security      // account flags, SPN, constrained delegation, adminCount, group scope, owner
     }
 
     /// <summary>

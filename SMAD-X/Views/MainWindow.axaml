@@ -516,6 +516,63 @@
                                                 </StackPanel>
                                             </StackPanel>
 
+                                            <!-- ===== SÉCURITÉ : comptes (User/Computer/GMSA) et groupes ===== -->
+                                            <StackPanel Spacing="5"
+                                                        IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.HasSecurityAttributes, FallbackValue=False}">
+                                                <Separator/>
+                                                <TextBlock Text="{Binding DetailsSecurity}" FontWeight="SemiBold"/>
+
+                                                <!-- Drapeaux userAccountControl -->
+                                                <StackPanel Spacing="2" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.IsAccount, FallbackValue=False}">
+                                                    <CheckBox Content="{Binding SecurityAccountDisabled}"
+                                                              IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.AccountDisabled, Mode=TwoWay}"/>
+                                                    <CheckBox Content="{Binding SecurityPasswordNotRequired}"
+                                                              IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.PasswordNotRequired, Mode=TwoWay}"/>
+                                                    <CheckBox Content="{Binding SecurityPasswordNeverExpires}"
+                                                              IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.PasswordNeverExpires, Mode=TwoWay}"/>
+                                                    <CheckBox Content="{Binding SecurityDontRequirePreauth}"
+                                                              IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.DontRequirePreauth, Mode=TwoWay}"/>
+                                                    <CheckBox Content="{Binding SecurityTrustedForDelegation}"
+                                                              IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.TrustedForDelegation, Mode=TwoWay}"/>
+                                                    <CheckBox Content="{Binding SecurityTrustedToAuthForDelegation}"
+                                                              IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.TrustedToAuthForDelegation, Mode=TwoWay}"/>
+                                                    <CheckBox Content="{Binding SecurityNotDelegated}"
+                                                              IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.NotDelegated, Mode=TwoWay}"/>
+
+                                                    <TextBlock Text="{Binding SecuritySpn}" Margin="0,6,0,0"/>
+                                                    <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.ServicePrincipalNamesText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                             AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="60" MaxHeight="140"
+                                                             FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+
+                                                    <TextBlock Text="{Binding SecurityAllowedToDelegateTo}" Margin="0,6,0,0"/>
+                                                    <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.AllowedToDelegateToText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                             AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="40" MaxHeight="120"
+                                                             FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                                </StackPanel>
+
+                                                <!-- Groupes -->
+                                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" RowSpacing="4" ColumnSpacing="8"
+                                                      IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.IsGroup, FallbackValue=False}">
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding SecurityGroupScope}" VerticalAlignment="Center"/>
+                                                    <ComboBox Grid.Row="0" Grid.Column="1" Width="160"
+                                                              ItemsSource="{x:Static vm:ObjectSecurityViewModel.GroupScopes}"
+                                                              SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GroupScope, Mode=TwoWay}"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding SecurityGroupCategory}" VerticalAlignment="Center"/>
+                                                    <ComboBox Grid.Row="1" Grid.Column="1" Width="160"
+                                                              ItemsSource="{x:Static vm:ObjectSecurityViewModel.GroupCategories}"
+                                                              SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GroupCategory, Mode=TwoWay}"/>
+                                                </Grid>
+
+                                                <CheckBox Content="{Binding SecurityAdminCount}"
+                                                          IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.AdminCount, Mode=TwoWay}"/>
+
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBlock Text="{Binding SecurityOwner}" VerticalAlignment="Center"/>
+                                                    <TextBox Width="220"
+                                                             Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.Owner, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+
                                             <!-- ===== RELATIONS CONTEXTUELLES ===== -->
 
                                             <!-- MemberOf : User ou Groupe -->

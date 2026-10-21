@@ -97,6 +97,36 @@ namespace SMADX.Models
             _                                 => "❓"
         };
 
+        // --- Attributs de sécurité (comptes et groupes) ---
+
+        /// <summary>Pour User / Computer / GMSA : bits de userAccountControl liés à la sécurité.</summary>
+        public ADAccountFlags AccountFlags { get; set; }
+
+        /// <summary>Pour User / Computer / GMSA : SPN (servicePrincipalName), ex. MSSQLSvc/sql01.contoso.com:1433.</summary>
+        public ObservableCollection<string> ServicePrincipalNames { get; set; } = new();
+
+        /// <summary>Pour User / Computer / GMSA : services cibles de la délégation contrainte (msDS-AllowedToDelegateTo).</summary>
+        public ObservableCollection<string> AllowedToDelegateTo { get; set; } = new();
+
+        /// <summary>
+        /// adminCount = 1 : l'objet est (ou a été) membre d'un groupe protégé. SDProp lui applique
+        /// alors toutes les heures les ACL d'AdminSDHolder, et ne remet pas l'attribut à 0 s'il en sort.
+        /// </summary>
+        public bool AdminCount { get; set; }
+
+        /// <summary>Pour Group : portée (null pour les autres types).</summary>
+        public ADGroupScope? GroupScope { get; set; }
+
+        /// <summary>Pour Group : sécurité ou distribution (null pour les autres types).</summary>
+        public ADGroupCategory? GroupCategory { get; set; }
+
+        /// <summary>Propriétaire de l'objet (SAMAccountName). Il peut modifier les ACL de l'objet.</summary>
+        public string? Owner { get; set; }
+
+        /// <summary>Vrai si le type porte des attributs de compte (userAccountControl, SPN, délégation).</summary>
+        [JsonIgnore]
+        public bool IsAccount => Type is ADObjectType.User or ADObjectType.Computer or ADObjectType.GMSA;
+
         // --- Propriétés spécifiques PSO (Fine-Grained Password Policy) ---
 
         public int? PSOPrecedence { get; set; }
@@ -209,6 +239,13 @@ namespace SMADX.Models
                     IsInherited = d.IsInherited,
                     Tier = d.Tier
                 })),
+                // Comme la copie dans « Utilisateurs et ordinateurs AD » : les options du compte et la
+                // délégation sont reprises, mais pas les SPN (ils doivent rester uniques dans la forêt),
+                // ni adminCount (posé par SDProp), ni le propriétaire (le créateur de la copie)
+                AccountFlags = AccountFlags,
+                AllowedToDelegateTo = new ObservableCollection<string>(AllowedToDelegateTo),
+                GroupScope = GroupScope,
+                GroupCategory = GroupCategory,
                 PSOPrecedence = PSOPrecedence,
                 PSOMinPasswordLength = PSOMinPasswordLength,
                 PSOPasswordHistoryCount = PSOPasswordHistoryCount,

@@ -88,6 +88,14 @@ namespace SMADX.Views
         private List<TypeFilterItem>    _typeFilters  = new();
         private bool                    _updatingTypeFilter = false;
 
+        /// <summary>
+        /// Constructeur du concepteur XAML et du chargeur Avalonia (avertissement AVLN3001) :
+        /// ouvre la boîte sur un document vide.
+        /// </summary>
+        public ExportReportDialog() : this(new ADRootDocument { Domain = new ADObject("contoso.com", ADObjectType.Domain) })
+        {
+        }
+
         public ExportReportDialog(ADRootDocument document)
         {
             _document = document;

@@ -1,7 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SMADX.Models;
 
 namespace SMADX.Services
 {
@@ -95,6 +97,24 @@ namespace SMADX.Services
             L(s, "    if ($null -eq $d) { return (Get-Date -Format 'o') }");
             L(s, "    try { return ([datetime]$d).ToString('o') } catch { return (Get-Date -Format 'o') }");
             L(s, "}");
+            L(s, "");
+            L(s, "# Attribute that may be absent (not requested, or not set): StrictMode forbids reading it directly");
+            L(s, "function Get-AdProp($obj, [string]$name) {");
+            L(s, "    if ($null -eq $obj) { return $null }");
+            L(s, "    $p = $obj.PSObject.Properties[$name]");
+            L(s, "    if ($p) { return $p.Value } else { return $null }");
+            L(s, "}");
+            L(s, "");
+            L(s, "function ConvertTo-JsonArray($values) {");
+            L(s, "    $items = @($values | Where-Object { $_ })");
+            L(s, "    if ($items.Count -eq 0) { return '[]' }");
+            L(s, "    return '[' + (($items | ForEach-Object { '\"' + (ConvertTo-JsonString ([string]$_)) + '\"' }) -join ',') + ']'");
+            L(s, "}");
+            L(s, "");
+            L(s, "# userAccountControl bits read by SMAD-X (names = SMAD-X AccountFlags values)");
+            L(s, "$uacFlags = [ordered]@{ " + string.Join("; ", Enum.GetValues<ADAccountFlags>()
+                .Where(f => f != ADAccountFlags.None)
+                .Select(f => $"{f} = 0x{(int)f:X}")) + " }");
             L(s, "");
             L(s, "function Get-SimType([string]$objectClass) {");
             L(s, "    switch ($objectClass) {");
@@ -211,13 +231,15 @@ namespace SMADX.Services
             L(s, "                if ($ace -isnot [System.DirectoryServices.ActiveDirectoryAccessRule]) { continue }");
             L(s, "                $trustee = $ace.IdentityReference.Value");
             L(s, "                if ($skipTrustees -contains $trustee) { continue }");
+            L(s, "                # -split is a regex: '\\\\' matches one backslash (String.Split('\\\\') would split on two)");
+            L(s, "                $trusteeSam   = ($trustee -split '\\\\')[-1]");
             L(s, "                $trusteeType = 'Group'");
             L(s, "                try {");
-            L(s, "                    $tObj = Get-ADObject -Filter { SAMAccountName -eq $trustee.Split('\\\\')[-1] } -Properties objectClass -ErrorAction SilentlyContinue");
+            L(s, "                    # The AD filter only evaluates plain variables, not method calls");
+            L(s, "                    $tObj = Get-ADObject -Filter { SAMAccountName -eq $trusteeSam } -Properties objectClass -ErrorAction SilentlyContinue");
             L(s, "                    if ($tObj.objectClass -eq 'user') { $trusteeType = 'User' }");
             L(s, "                    elseif ($tObj.objectClass -eq 'computer') { $trusteeType = 'Computer' }");
             L(s, "                } catch {}");
-            L(s, "                $trusteeSam   = $trustee.Split('\\\\')[-1]");
             L(s, "                $ar           = $ace.ActiveDirectoryRights");
             L(s, "                $objType      = $ace.ObjectType");
             L(s, "                $right        = 'Other'");
@@ -242,6 +264,26 @@ namespace SMADX.Services
             L(s, "            if ($delegParts.Count -gt 0) { $delegationsJson = '[' + ($delegParts -join ',') + ']' }");
             L(s, "        } catch {}");
             L(s, "    }");
+            L(s, "");
+            L(s, "    # Security attributes (account options, SPN, delegation, adminCount, group scope, owner)");
+            L(s, "    $accountFlags = 'None'; $spnJson = '[]'; $delegToJson = '[]'; $adminCountJson = 'false'");
+            L(s, "    $groupScopeJson = 'null'; $groupCategoryJson = 'null'; $ownerJson = 'null'");
+            L(s, "    $uac = Get-AdProp $adObj 'userAccountControl'");
+            L(s, "    if ($simType -in @('User','Computer','GMSA') -and $null -ne $uac) {");
+            L(s, "        $flagNames = @(foreach ($f in $uacFlags.GetEnumerator()) { if (([int64]$uac -band $f.Value) -ne 0) { $f.Key } })");
+            L(s, "        if ($flagNames.Count -gt 0) { $accountFlags = $flagNames -join ', ' }");
+            L(s, "        $spnJson     = ConvertTo-JsonArray (Get-AdProp $adObj 'servicePrincipalName')");
+            L(s, "        $delegToJson = ConvertTo-JsonArray (Get-AdProp $adObj 'msDS-AllowedToDelegateTo')");
+            L(s, "    }");
+            L(s, "    if ((Get-AdProp $adObj 'adminCount') -eq 1) { $adminCountJson = 'true' }");
+            L(s, "    $groupType = Get-AdProp $adObj 'groupType'");
+            L(s, "    if ($simType -eq 'Group' -and $null -ne $groupType) {");
+            L(s, "        $gt = [int64]$groupType   # negative for security groups: bit 0x80000000 is the sign bit");
+            L(s, "        $groupScopeJson    = if ($gt -band 8) { '\"Universal\"' } elseif ($gt -band 4) { '\"DomainLocal\"' } else { '\"Global\"' }");
+            L(s, "        $groupCategoryJson = if ($gt -lt 0) { '\"Security\"' } else { '\"Distribution\"' }");
+            L(s, "    }");
+            L(s, "    $sd = Get-AdProp $adObj 'nTSecurityDescriptor'");
+            L(s, "    if ($sd -and $sd.Owner) { $ownerJson = '\"' + (ConvertTo-JsonString (($sd.Owner -split '\\\\')[-1])) + '\"' }");
             L(s, "");
             L(s, "    # PSO fields");
             L(s, "    $psoAppliesToJson = '[]'");
@@ -274,7 +316,7 @@ namespace SMADX.Services
             L(s, "    try {");
             L(s, "        $subOUs = Get-ADObject -Filter { (objectClass -eq 'organizationalUnit') -or (objectClass -eq 'container') -or (objectClass -eq 'builtinDomain') } `");
             L(s, "                               -SearchBase $dn -SearchScope OneLevel `");
-            L(s, "                               -Properties WhenCreated,WhenChanged,Description,gpLink |");
+            L(s, "                               -Properties WhenCreated,WhenChanged,Description,gpLink,nTSecurityDescriptor |");
             L(s, "                     Where-Object { $_.ObjectClass -ne 'groupPolicyContainer' } |");
             L(s, "                     Where-Object { -not ($_.Name -eq 'Operations' -and $_.DistinguishedName -match 'CN=DomainUpdates') }");
             L(s, "        foreach ($c in $subOUs) {");
@@ -285,7 +327,7 @@ namespace SMADX.Services
             L(s, "    try {");
             L(s, "        $leaves = Get-ADObject -Filter { (objectClass -eq 'user') -or (objectClass -eq 'group') -or (objectClass -eq 'computer') -or (objectClass -eq 'msDS-GroupManagedServiceAccount') -or (objectClass -eq 'groupPolicyContainer') -or (objectClass -eq 'msDS-PasswordSettings') } `");
             L(s, "                               -SearchBase $dn -SearchScope OneLevel `");
-            L(s, "                               -Properties SAMAccountName,MemberOf,WhenCreated,WhenChanged,Description,ObjectClass,DisplayName");
+            L(s, "                               -Properties SAMAccountName,MemberOf,WhenCreated,WhenChanged,Description,ObjectClass,DisplayName,userAccountControl,servicePrincipalName,adminCount,groupType,'msDS-AllowedToDelegateTo',nTSecurityDescriptor");
             L(s, "        foreach ($l in $leaves) {");
             L(s, "            if ($l.ObjectClass -eq 'groupPolicyContainer') {");
             L(s, "                # Use DisplayName as node name; fallback to CN (GUID) if absent");
@@ -299,7 +341,7 @@ namespace SMADX.Services
             L(s, "");
             L(s, "    $childrenJson = if ($childParts.Count -gt 0) { '[' + ($childParts -join ',') + ']' } else { '[]' }");
             L(s, "");
-            L(s, "    return \"{`\"Id`\":`\"$id`\",`\"Name`\":`\"$(ConvertTo-JsonString $name)`\",`\"Type`\":`\"$simType`\",`\"Description`\":`\"$description`\",`\"DistinguishedName`\":`\"$(ConvertTo-JsonString $dn)`\",`\"Children`\":$childrenJson,`\"MemberOf`\":$memberOfJson,`\"LinkedGPOs`\":$linkedGPOJson,`\"Delegations`\":$delegationsJson,`\"PSOAppliesTo`\":$psoAppliesToJson,`\"PSOPrecedence`\":$psoPrec,`\"PSOMinPasswordLength`\":$psoMinLen,`\"PSOPasswordHistoryCount`\":$psoHistory,`\"PSOComplexityEnabled`\":$psoComplex,`\"PSOMaxPasswordAgeDays`\":$psoMaxAge,`\"PSOMinPasswordAgeDays`\":$psoMinAge,`\"PSOLockoutThreshold`\":$psoLockThr,`\"PSOLockoutDurationMinutes`\":$psoLockDur,`\"PSOLockoutObservationWindowMinutes`\":$psoLockObs,`\"CreatedDate`\":`\"$created`\",`\"ModifiedDate`\":`\"$modified`\"}\"");
+            L(s, "    return \"{`\"Id`\":`\"$id`\",`\"Name`\":`\"$(ConvertTo-JsonString $name)`\",`\"Type`\":`\"$simType`\",`\"Description`\":`\"$description`\",`\"DistinguishedName`\":`\"$(ConvertTo-JsonString $dn)`\",`\"Children`\":$childrenJson,`\"MemberOf`\":$memberOfJson,`\"LinkedGPOs`\":$linkedGPOJson,`\"Delegations`\":$delegationsJson,`\"PSOAppliesTo`\":$psoAppliesToJson,`\"PSOPrecedence`\":$psoPrec,`\"PSOMinPasswordLength`\":$psoMinLen,`\"PSOPasswordHistoryCount`\":$psoHistory,`\"PSOComplexityEnabled`\":$psoComplex,`\"PSOMaxPasswordAgeDays`\":$psoMaxAge,`\"PSOMinPasswordAgeDays`\":$psoMinAge,`\"PSOLockoutThreshold`\":$psoLockThr,`\"PSOLockoutDurationMinutes`\":$psoLockDur,`\"PSOLockoutObservationWindowMinutes`\":$psoLockObs,`\"AccountFlags`\":`\"$accountFlags`\",`\"ServicePrincipalNames`\":$spnJson,`\"AllowedToDelegateTo`\":$delegToJson,`\"AdminCount`\":$adminCountJson,`\"GroupScope`\":$groupScopeJson,`\"GroupCategory`\":$groupCategoryJson,`\"Owner`\":$ownerJson,`\"CreatedDate`\":`\"$created`\",`\"ModifiedDate`\":`\"$modified`\"}\"");
             L(s, "}");
             L(s, "");
             L(s, "# ── 9. Domain root ─────────────────────────────────────────────────────────");

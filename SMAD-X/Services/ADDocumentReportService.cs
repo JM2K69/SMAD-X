@@ -187,6 +187,7 @@ namespace SMADX.Services
                 sb.AppendLine($"- **Tier :** {obj.Tier}");
             if (obj.LinkedGPOs.Count > 0)
                 sb.AppendLine($"- **GPO liées :** {string.Join(", ", obj.LinkedGPOs)}");
+            AppendSecurityAttributes(obj, sb);
             sb.AppendLine();
             if (!string.IsNullOrWhiteSpace(obj.Description))
             {
@@ -195,6 +196,23 @@ namespace SMADX.Services
                 sb.AppendLine(obj.Description);
                 sb.AppendLine();
             }
+        }
+
+        /// <summary>Puces des attributs de sécurité renseignés (options de compte, SPN, délégation, groupe, propriétaire).</summary>
+        private static void AppendSecurityAttributes(ADObject obj, StringBuilder sb)
+        {
+            if (obj.AccountFlags != ADAccountFlags.None)
+                sb.AppendLine($"- **Options du compte :** {obj.AccountFlags}");
+            if (obj.ServicePrincipalNames.Count > 0)
+                sb.AppendLine($"- **SPN :** {string.Join(", ", obj.ServicePrincipalNames.Select(spn => $"`{spn}`"))}");
+            if (obj.AllowedToDelegateTo.Count > 0)
+                sb.AppendLine($"- **Délégation contrainte vers :** {string.Join(", ", obj.AllowedToDelegateTo.Select(t => $"`{t}`"))}");
+            if (obj.GroupScope is { } scope)
+                sb.AppendLine($"- **Groupe :** {scope} / {obj.GroupCategory ?? ADGroupCategory.Security}");
+            if (obj.AdminCount)
+                sb.AppendLine("- **adminCount :** 1 (protégé par AdminSDHolder)");
+            if (!string.IsNullOrWhiteSpace(obj.Owner))
+                sb.AppendLine($"- **Propriétaire :** {obj.Owner}");
         }
 
         private static void BuildSingleSiteMarkdown(ADSite site, StringBuilder sb)
@@ -429,6 +447,7 @@ namespace SMADX.Services
                             sb.AppendLine($"- **Tier :** {obj.Tier}");
                         if (obj.LinkedGPOs.Count > 0)
                             sb.AppendLine($"- **GPOs liées :** {string.Join(", ", obj.LinkedGPOs)}");
+                        AppendSecurityAttributes(obj, sb);
                         sb.AppendLine();
                         sb.AppendLine(obj.Description);
                         sb.AppendLine();

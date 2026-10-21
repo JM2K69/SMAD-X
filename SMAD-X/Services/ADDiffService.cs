@@ -76,6 +76,11 @@ namespace SMADX.Services
                 var delItems = DetectDelegationChanges(before, after);
                 if (delItems.Count > 0)
                     result.Add(Item(ChangeType.Modified, ChangeCategory.Delegation, after, delItems));
+
+                // Security attributes delta
+                var secItems = DetectSecurityChanges(before, after);
+                if (secItems.Count > 0)
+                    result.Add(Item(ChangeType.Modified, ChangeCategory.Security, after, secItems));
             }
 
             // ── Delegations on added objects ───────────────────────────────
@@ -161,6 +166,27 @@ namespace SMADX.Services
             var psoRemoved = before.PSOAppliesTo.Except(after.PSOAppliesTo, StringComparer.OrdinalIgnoreCase).ToList();
             if (psoAdded.Count > 0)   c.Add(("PSO.AppliesTo +", string.Empty, string.Join(", ", psoAdded)));
             if (psoRemoved.Count > 0) c.Add(("PSO.AppliesTo -", string.Join(", ", psoRemoved), string.Empty));
+            return c;
+        }
+
+        private static List<(string, string, string)> DetectSecurityChanges(ADObject before, ADObject after)
+        {
+            var c = new List<(string, string, string)>();
+
+            // Un drapeau à la fois : « DontRequirePreauth + » se lit mieux qu'un ensemble complet
+            foreach (var flag in Enum.GetValues<ADAccountFlags>().Where(f => f != ADAccountFlags.None))
+            {
+                bool was = before.AccountFlags.HasFlag(flag), now = after.AccountFlags.HasFlag(flag);
+                if (!was && now) c.Add(($"{flag} +", string.Empty, "true"));
+                if (was && !now) c.Add(($"{flag} -", "true", string.Empty));
+            }
+
+            c.AddRange(DeltaStrings(before.ServicePrincipalNames, after.ServicePrincipalNames, "SPN"));
+            c.AddRange(DeltaStrings(before.AllowedToDelegateTo, after.AllowedToDelegateTo, "AllowedToDelegateTo"));
+            Check(c, "AdminCount",    before.AdminCount.ToString(),         after.AdminCount.ToString());
+            Check(c, "GroupScope",    before.GroupScope?.ToString() ?? "",    after.GroupScope?.ToString() ?? "");
+            Check(c, "GroupCategory", before.GroupCategory?.ToString() ?? "", after.GroupCategory?.ToString() ?? "");
+            Check(c, "Owner",         before.Owner ?? "",                   after.Owner ?? "");
             return c;
         }
 

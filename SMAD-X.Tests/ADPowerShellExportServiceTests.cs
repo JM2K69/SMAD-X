@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text;
 using SMADX.Models;
 using SMADX.Services;
@@ -78,7 +77,7 @@ public class ADPowerShellExportServiceTests
     {
         var (path, _) = await ExportAsync(BuildTrickyDomain());
 
-        var output = await RunAsync(shell, "-Command",
+        var output = await PowerShellRunner.RunAsync(shell, "-Command",
             "$t=$null;$e=$null;" +
             $"[void][System.Management.Automation.Language.Parser]::ParseFile('{path}',[ref]$t,[ref]$e);" +
             "$e | ForEach-Object { \"$($_.Extent.StartLineNumber): $($_.Message)\" }");
@@ -97,42 +96,8 @@ public class ADPowerShellExportServiceTests
         var file = TempFile(".ps1");
         await File.WriteAllTextAsync(file,
             $"[Console]::OutputEncoding = [Text.Encoding]::UTF8\nWrite-Output {quoted}", new UTF8Encoding(true));
-        var output = await RunAsync(shell, "-File", file);
+        var output = await PowerShellRunner.RunAsync(shell, "-File", file);
 
         Assert.Equal(TrickyOu, output.Trim());
-    }
-
-    /// <summary>
-    /// Lance un moteur PowerShell ; échoue explicitement s'il n'est pas installé,
-    /// pour qu'un test ne passe jamais sans avoir réellement vérifié le script.
-    /// </summary>
-    private static async Task<string> RunAsync(string shell, string mode, string argument)
-    {
-        var psi = new ProcessStartInfo(shell, ["-NoProfile", "-NonInteractive", mode, argument])
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            StandardOutputEncoding = Encoding.UTF8
-        };
-
-        Process process;
-        try
-        {
-            process = Process.Start(psi)!;
-        }
-        catch (System.ComponentModel.Win32Exception)
-        {
-            Assert.Fail($"« {shell} » est introuvable : il doit être installé et dans le PATH pour valider l'export PowerShell.");
-            throw; // inatteignable, Assert.Fail lève toujours
-        }
-
-        using (process)
-        {
-            var stdout = process.StandardOutput.ReadToEndAsync();
-            var stderr = process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
-            Assert.True(process.ExitCode == 0, $"{shell} a échoué (code {process.ExitCode}) :\n{await stderr}");
-            return await stdout;
-        }
     }
 }
