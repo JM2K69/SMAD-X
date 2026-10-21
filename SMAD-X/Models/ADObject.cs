@@ -166,6 +166,22 @@ namespace SMADX.Models
         }
 
         /// <summary>
+        /// Recalcule le DN de l'objet et de tous ses descendants (après renommage, collage ou
+        /// création). Les délégations posées sur un objet suivent son nouveau DN.
+        /// </summary>
+        public void UpdateDistinguishedNameTree()
+        {
+            var oldDn = DistinguishedName;
+            UpdateDistinguishedName();
+
+            foreach (var d in Delegations.Where(d => string.Equals(d.TargetDN, oldDn, StringComparison.OrdinalIgnoreCase)))
+                d.TargetDN = DistinguishedName;
+
+            foreach (var child in Children)
+                child.UpdateDistinguishedNameTree();
+        }
+
+        /// <summary>
         /// Clone l'objet et tous ses enfants
         /// </summary>
         public ADObject Clone()

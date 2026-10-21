@@ -22,10 +22,9 @@ namespace SMADX
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(),
-                };
+                var mainWindow = new MainWindow();
+                mainWindow.DataContext = new MainWindowViewModel(new AvaloniaDialogService(mainWindow));
+                desktop.MainWindow = mainWindow;
             }
 
             base.OnFrameworkInitializationCompleted();

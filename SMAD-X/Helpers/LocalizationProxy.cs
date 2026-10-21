@@ -148,6 +148,7 @@ namespace SMADX.Helpers
         // Menu Help
         public string MenuHelp => _localizationService["Menu.Help"];
         public string MenuHelpAbout => _localizationService["Menu.Help.About"];
+        public string MenuHelpShortcuts => _localizationService["Menu.Help.Shortcuts"];
 
         // Relations Window
         public string RelationsTitle => _localizationService["Relations.Title"];

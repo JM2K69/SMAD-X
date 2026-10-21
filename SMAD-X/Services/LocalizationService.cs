@@ -150,6 +150,7 @@ namespace SMADX.Services
                 // Menu Aide
                 ["Menu.Help"] = "Aide",
                 ["Menu.Help.About"] = "À propos...",
+                ["Menu.Help.Shortcuts"] = "Raccourcis clavier...",
 
                 // Menu Édition
                 ["Menu.Edit"] = "Édition",
@@ -509,6 +510,7 @@ namespace SMADX.Services
                 // Menu Help
                 ["Menu.Help"] = "Help",
                 ["Menu.Help.About"] = "About...",
+                ["Menu.Help.Shortcuts"] = "Keyboard shortcuts...",
 
                 // Menu Edit
                 ["Menu.Edit"] = "Edit",

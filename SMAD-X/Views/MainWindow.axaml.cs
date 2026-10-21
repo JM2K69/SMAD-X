@@ -1,18 +1,20 @@
+using System;
+using System.IO;
+using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform.Storage;
-using Avalonia.Styling;
-using SMADX.ViewModels;
 using SMADX.Services;
-using SMADX.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
+using SMADX.ViewModels;
 
 namespace SMADX.Views
 {
+    /// <summary>
+    /// Fenêtre principale. Le code-behind ne garde que ce qui relève de la vue :
+    /// raccourcis clavier, fermeture et capture PNG de l'arbre. Le reste passe par
+    /// les commandes de <see cref="MainWindowViewModel"/>.
+    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -27,197 +29,50 @@ namespace SMADX.Views
                 vm.SelectedObjectTierIndex = cb.SelectedIndex;
         }
 
-        private void OnContextMenuOpening(object? sender, System.ComponentModel.CancelEventArgs e)
-        {
-            // Nothing needed — emoji are now in MenuItem.Icon which is theme-independent
-        }
-
-        private void ApplyThemeToContextMenu(ThemeVariant variant)
-        {
-            // Nothing needed — emoji are now in MenuItem.Icon which is theme-independent
-        }
-
         private void OnExitClick(object? sender, RoutedEventArgs e)
         {
             Close();
         }
 
-        private async void OnAboutClick(object? sender, RoutedEventArgs e)
-        {
-            var dialog = new AboutDialog();
-            await dialog.ShowDialog(this);
-        }
-
-        private async void OnShortcutsClick(object? sender, RoutedEventArgs e)
-        {
-            var closeButton = new Button
-            {
-                Content = "Fermer",
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-                Padding = new Avalonia.Thickness(20, 5),
-                Margin = new Avalonia.Thickness(0, 20, 0, 0)
-            };
-
-            var dialog = new Window
-            {
-                Title = "Raccourcis clavier",
-                Width = 500,
-                Height = 400,
-                CanResize = false,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Content = new ScrollViewer
-                {
-                    Content = new StackPanel
-                    {
-                        Margin = new Avalonia.Thickness(20),
-                        Spacing = 10,
-                        Children =
-                        {
-                            new TextBlock
-                            {
-                                Text = "Raccourcis clavier disponibles",
-                                FontSize = 16,
-                                FontWeight = Avalonia.Media.FontWeight.Bold,
-                                Margin = new Avalonia.Thickness(0, 0, 0, 10)
-                            },
-                            CreateShortcutItem("Ctrl+N", "Nouvelle structure"),
-                            CreateShortcutItem("Ctrl+O", "Ouvrir un fichier"),
-                            CreateShortcutItem("Ctrl+S", "Enregistrer"),
-                            new Avalonia.Controls.Separator(),
-                            CreateShortcutItem("Ctrl+C", "Copier l'objet sélectionné"),
-                            CreateShortcutItem("Ctrl+V", "Coller l'objet copié"),
-                            CreateShortcutItem("F2", "Renommer l'objet sélectionné"),
-                            CreateShortcutItem("Delete", "Supprimer l'objet sélectionné"),
-                            new Avalonia.Controls.Separator(),
-                            new TextBlock
-                            {
-                                Text = "Astuce : Vous pouvez aussi utiliser les menus et les boutons de la barre d'outils.",
-                                FontStyle = Avalonia.Media.FontStyle.Italic,
-                                TextWrapping = Avalonia.Media.TextWrapping.Wrap,
-                                Margin = new Avalonia.Thickness(0, 10, 0, 0)
-                            },
-                            closeButton
-                        }
-                    }
-                }
-            };
-
-            closeButton.Click += (s, e) => dialog.Close();
-            await dialog.ShowDialog(this);
-        }
-
-        private static Grid CreateShortcutItem(string shortcut, string description)
-        {
-            return new Grid
-            {
-                ColumnDefinitions = new Avalonia.Controls.ColumnDefinitions("150,*"),
-                Margin = new Avalonia.Thickness(0, 5, 0, 5),
-                Children =
-                {
-                    new TextBlock
-                    {
-                        [Grid.ColumnProperty] = 0,
-                        Text = shortcut,
-                        FontWeight = Avalonia.Media.FontWeight.SemiBold,
-                        FontFamily = new Avalonia.Media.FontFamily("Consolas, Courier New, monospace")
-                    },
-                    new TextBlock
-                    {
-                        [Grid.ColumnProperty] = 1,
-                        Text = description
-                    }
-                }
-            };
-        }
-
+        /// <summary>
+        /// Raccourcis affichés dans les menus (InputGesture n'est qu'un libellé dans Avalonia).
+        /// Géré sur KeyDown, et non par KeyBindings, pour qu'une zone de texte qui traite déjà
+        /// la touche (Suppr, Ctrl+C…) ne déclenche pas aussi l'action sur l'objet AD.
+        /// </summary>
         private void OnKeyDown(object? sender, KeyEventArgs e)
         {
-            if (DataContext is not MainWindowViewModel viewModel)
+            if (DataContext is not MainWindowViewModel vm)
                 return;
 
-            // Ctrl+C - Copier
-            if (e.Key == Key.C && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            bool ctrl  = e.KeyModifiers.HasFlag(KeyModifiers.Control);
+            bool shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+
+            ICommand? command = (e.Key, ctrl, shift) switch
             {
-                viewModel.CopyObjectCommand.Execute(null);
+                (Key.N, true, false)      => vm.CreateNewDomainCommand,
+                (Key.N, true, true)       => vm.InitializeSampleDataCommand,
+                (Key.O, true, false)      => vm.LoadFromFileCommand,
+                (Key.S, true, false)      => vm.SaveToFileCommand,
+                (Key.E, true, false)      => vm.ExportToJsonCommand,
+                (Key.P, true, false)      => vm.ExportToPowerShellCommand,
+                (Key.I, true, false)      => vm.GenerateImportScriptCommand,
+                (Key.R, true, true)       => vm.ExportReportCommand,
+                (Key.M, true, true)       => vm.ImportDescriptionCommand,
+                (Key.C, true, false)      => vm.CopyObjectCommand,
+                (Key.V, true, false)      => vm.PasteObjectCommand,
+                (Key.T, true, false)      => vm.ShowTimelineCommand,
+                (Key.D, true, false)      => vm.ShowDelegationsCommand,
+                (Key.S, true, true)       => vm.ShowSitesCommand,
+                (Key.F2, false, false)    => vm.RenameObjectCommand,
+                (Key.Delete, false, false) => vm.DeleteObjectCommand,
+                _ => null
+            };
+
+            if (command != null)
+            {
+                command.Execute(null);
                 e.Handled = true;
             }
-            // Ctrl+V - Coller
-            else if (e.Key == Key.V && e.KeyModifiers.HasFlag(KeyModifiers.Control))
-            {
-                viewModel.PasteObjectCommand.Execute(null);
-                e.Handled = true;
-            }
-            // Delete - Supprimer
-            else if (e.Key == Key.Delete)
-            {
-                viewModel.DeleteObjectCommand.Execute(null);
-                e.Handled = true;
-            }
-            // F2 - Renommer
-            else if (e.Key == Key.F2)
-            {
-                viewModel.RenameObjectCommand.Execute(null);
-                e.Handled = true;
-            }
-            // Ctrl+S - Sauvegarder
-            else if (e.Key == Key.S && e.KeyModifiers.HasFlag(KeyModifiers.Control))
-            {
-                viewModel.SaveToFileCommand.Execute(null);
-                e.Handled = true;
-            }
-            // Ctrl+O - Ouvrir
-            else if (e.Key == Key.O && e.KeyModifiers.HasFlag(KeyModifiers.Control))
-            {
-                viewModel.LoadFromFileCommand.Execute(null);
-                e.Handled = true;
-            }
-            // Ctrl+N - Nouvelle structure
-            else if (e.Key == Key.N && e.KeyModifiers.HasFlag(KeyModifiers.Control))
-            {
-                viewModel.InitializeSampleDataCommand.Execute(null);
-                e.Handled = true;
-            }
-        }
-
-        private async void OnTierConfigClick(object? sender, RoutedEventArgs e)
-        {
-            var configWindow = new TierConfigurationWindow();
-            await configWindow.ShowDialog(this);
-        }
-
-        private async void OnTimelineClick(object? sender, RoutedEventArgs e)
-        {
-            var w = new DomainTimelineWindow();
-            await w.ShowDialog(this);
-        }
-
-        private async void OnDelegationsClick(object? sender, RoutedEventArgs e)
-        {
-            var root = (DataContext as MainWindowViewModel)?.RootObject;
-            var w = root is not null
-                ? new DelegationsWindow(root)
-                : new DelegationsWindow();
-            await w.ShowDialog(this);
-        }
-
-        private void OnLightThemeClick(object? sender, RoutedEventArgs e)
-        {
-            ThemeService.Instance.ApplyTheme(AppTheme.Light);
-        }
-
-        private void OnDarkThemeClick(object? sender, RoutedEventArgs e)
-        {
-            ThemeService.Instance.ApplyTheme(AppTheme.Dark);
-        }
-
-        private void OnFrenchLanguageClick(object? sender, RoutedEventArgs e)
-        {
-            LocalizationService.Instance.SetLanguage("fr-FR");
-        }
-
-        private void OnEnglishLanguageClick(object? sender, RoutedEventArgs e)
-        {
-            LocalizationService.Instance.SetLanguage("en-US");
         }
 
         private async void OnExportTreePngClick(object? sender, RoutedEventArgs e)
@@ -229,18 +84,12 @@ namespace SMADX.Views
             // Laisser Avalonia re-mesurer et rendre tous les nœuds
             await System.Threading.Tasks.Task.Delay(400);
 
-            var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-            {
-                Title             = LocalizationService.Instance["Dialog.ExportPng.Title"],
-                SuggestedFileName = "arborescence_ad.png",
-                DefaultExtension  = "png",
-                FileTypeChoices   = new[]
-                {
-                    new FilePickerFileType(LocalizationService.Instance["FileType.ImagePNG"]) { Patterns = new[] { "*.png" } }
-                }
-            });
+            var loc = LocalizationService.Instance;
+            var path = await new AvaloniaDialogService(this).PickSaveFileAsync(
+                loc["Dialog.ExportPng.Title"], "arborescence_ad.png", "png",
+                new FileFilter(loc["FileType.ImagePNG"], "*.png"));
 
-            if (file is null) return;
+            if (path is null) return;
 
             var tree = this.FindControl<TreeView>("MainTreeView")!;
 
@@ -253,74 +102,8 @@ namespace SMADX.Views
 
             bitmap.Render(tree);
 
-            using var fs = File.Create(file.Path.LocalPath);
+            using var fs = File.Create(path);
             bitmap.Save(fs);
-        }
-
-        private async void OnSitesClick(object? sender, RoutedEventArgs e)
-        {
-            var topology = (DataContext as MainWindowViewModel)?.SitesTopology;
-            var w = topology is not null
-                ? new SitesWindow(topology)
-                : new SitesWindow();
-            await w.ShowDialog(this);
-        }
-
-        private async void OnExportReportClick(object? sender, RoutedEventArgs e)
-        {
-            var vm = DataContext as MainWindowViewModel;
-            if (vm?.RootObject is null) return;
-
-            var doc = new ADRootDocument
-            {
-                Version       = 2,
-                Domain        = vm.RootObject,
-                SitesTopology = vm.SitesTopology
-            };
-
-            var dialog = new ExportReportDialog(doc);
-            var result = await dialog.ShowDialog<string?>(this);
-
-            var loc = LocalizationService.Instance;
-            if (result is not null)
-                vm.StatusMessage = $"{loc["Report.Success"]} {result}";
-        }
-
-        private async void OnImportDescriptionClick(object? sender, RoutedEventArgs e)
-        {
-            var vm  = DataContext as MainWindowViewModel;
-            var loc = LocalizationService.Instance;
-
-            if (vm?.SelectedNode is null)
-            {
-                vm!.StatusMessage = loc["Report.Import.NoSelection"];
-                return;
-            }
-
-            var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-            {
-                Title         = loc["Report.Import.Title"],
-                AllowMultiple = false,
-                FileTypeFilter = new List<FilePickerFileType>
-                {
-                    new(loc["FileType.Markdown"]) { Patterns = new[] { "*.md" } }
-                }
-            });
-
-            if (files.Count == 0) return;
-
-            var svc     = new ADDocumentReportService();
-            var content = await svc.ImportMarkdownAsync(files[0].Path.LocalPath);
-
-            if (content is not null)
-            {
-                vm.SelectedObjectDescription = content;
-                vm.StatusMessage = loc["Report.Import.Success"];
-            }
-            else
-            {
-                vm.StatusMessage = loc["Report.Import.Error"];
-            }
         }
     }
 }

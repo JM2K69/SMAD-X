@@ -41,8 +41,8 @@
                     <MenuItem Header="{Binding MenuFileExportJson}" Command="{Binding #MainWindowRoot.DataContext.ExportToJsonCommand}" InputGesture="Ctrl+E"/>
                     <MenuItem Header="{Binding MenuFileExportPowerShell}" Command="{Binding #MainWindowRoot.DataContext.ExportToPowerShellCommand}" InputGesture="Ctrl+P"/>
                     <MenuItem Header="{Binding MenuFileGenerateImportScript}" Command="{Binding #MainWindowRoot.DataContext.GenerateImportScriptCommand}" InputGesture="Ctrl+I"/>
-                    <MenuItem Header="{Binding MenuFileExportReport}" Click="OnExportReportClick" InputGesture="Ctrl+Shift+R"/>
-                    <MenuItem Header="{Binding MenuFileImportDescription}" Click="OnImportDescriptionClick" InputGesture="Ctrl+Shift+M"/>
+                    <MenuItem Header="{Binding MenuFileExportReport}" Command="{Binding #MainWindowRoot.DataContext.ExportReportCommand}" InputGesture="Ctrl+Shift+R"/>
+                    <MenuItem Header="{Binding MenuFileImportDescription}" Command="{Binding #MainWindowRoot.DataContext.ImportDescriptionCommand}" InputGesture="Ctrl+Shift+M"/>
                     <Separator/>
                     <MenuItem Header="{Binding MenuFileExit}" Click="OnExitClick" InputGesture="Alt+F4"/>
                 </MenuItem>
@@ -70,25 +70,26 @@
                         <MenuItem Header="{Binding MenuViewShowGraph}" Command="{Binding #MainWindowRoot.DataContext.ShowGraphViewCommand}"/>
                         <Separator/>
                         <MenuItem Header="{Binding MenuViewTheme}">
-                            <MenuItem Header="{Binding MenuViewThemeLight}" Click="OnLightThemeClick"/>
-                            <MenuItem Header="{Binding MenuViewThemeDark}" Click="OnDarkThemeClick"/>
+                            <MenuItem Header="{Binding MenuViewThemeLight}" Command="{Binding #MainWindowRoot.DataContext.SetThemeCommand}" CommandParameter="Light"/>
+                            <MenuItem Header="{Binding MenuViewThemeDark}" Command="{Binding #MainWindowRoot.DataContext.SetThemeCommand}" CommandParameter="Dark"/>
                         </MenuItem>
                         <MenuItem Header="{Binding MenuViewLanguage}">
-                            <MenuItem Header="{Binding MenuViewLanguageFrench}" Click="OnFrenchLanguageClick"/>
-                            <MenuItem Header="{Binding MenuViewLanguageEnglish}" Click="OnEnglishLanguageClick"/>
+                            <MenuItem Header="{Binding MenuViewLanguageFrench}" Command="{Binding #MainWindowRoot.DataContext.SetLanguageCommand}" CommandParameter="fr-FR"/>
+                            <MenuItem Header="{Binding MenuViewLanguageEnglish}" Command="{Binding #MainWindowRoot.DataContext.SetLanguageCommand}" CommandParameter="en-US"/>
                         </MenuItem>
                     </MenuItem>
                 <MenuItem Header="{Binding MenuSettings}">
-                    <MenuItem Header="{Binding MenuSettingsManageTiers}" Click="OnTierConfigClick"/>
+                    <MenuItem Header="{Binding MenuSettingsManageTiers}" Command="{Binding #MainWindowRoot.DataContext.ShowTierConfigurationCommand}"/>
                 </MenuItem>
                 <MenuItem Header="Analyse">
-                    <MenuItem Header="Domain Timeline (Ctrl+T)" Click="OnTimelineClick" InputGesture="Ctrl+T"/>
-                    <MenuItem Header="Delegations (Ctrl+D)"     Click="OnDelegationsClick" InputGesture="Ctrl+D"/>
+                    <MenuItem Header="Domain Timeline (Ctrl+T)" Command="{Binding #MainWindowRoot.DataContext.ShowTimelineCommand}" InputGesture="Ctrl+T"/>
+                    <MenuItem Header="Delegations (Ctrl+D)"     Command="{Binding #MainWindowRoot.DataContext.ShowDelegationsCommand}" InputGesture="Ctrl+D"/>
                     <Separator/>
-                    <MenuItem Header="{Binding Source={StaticResource Loc}, Path=MenuSitesView}" Click="OnSitesClick" InputGesture="Ctrl+Shift+S"/>
+                    <MenuItem Header="{Binding Source={StaticResource Loc}, Path=MenuSitesView}" Command="{Binding #MainWindowRoot.DataContext.ShowSitesCommand}" InputGesture="Ctrl+Shift+S"/>
                 </MenuItem>
                 <MenuItem Header="{Binding MenuHelp}">
-                    <MenuItem Header="{Binding MenuHelpAbout}" Click="OnAboutClick"/>
+                    <MenuItem Header="{Binding MenuHelpShortcuts}" Command="{Binding #MainWindowRoot.DataContext.ShowShortcutsCommand}"/>
+                    <MenuItem Header="{Binding MenuHelpAbout}" Command="{Binding #MainWindowRoot.DataContext.ShowAboutCommand}"/>
                 </MenuItem>
             </Menu>
 
@@ -325,7 +326,7 @@
                                 <Separator/>
                                 <!-- Importer description markdown -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=MenuFileImportDescription}"
-                                          Click="OnImportDescriptionClick"
+                                          Command="{Binding #MainWindowRoot.DataContext.ImportDescriptionCommand}"
                                           IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}">
                                     <MenuItem.Icon><TextBlock Text="📥" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
                                 </MenuItem>
@@ -469,7 +470,7 @@
                                                     <TextBlock Text="{Binding DetailsDescription}" FontWeight="SemiBold" 
                                                                DockPanel.Dock="Left"/>
                                                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="5">
-                                                        <Button Click="OnImportDescriptionClick"
+                                                        <Button Command="{Binding #MainWindowRoot.DataContext.ImportDescriptionCommand}"
                                                                 ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=MenuFileImportDescription}"
                                                                 IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}"
                                                                 Padding="6,4" Width="32">
