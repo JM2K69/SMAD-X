@@ -41,7 +41,7 @@ namespace SMADX.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la sauvegarde v2 : {ex.Message}");
+                ErrorReporter.Log("Sauvegarde", ex);
                 return false;
             }
         }
@@ -115,7 +115,7 @@ namespace SMADX.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de la sauvegarde : {ex.Message}");
+                ErrorReporter.Log("Export JSON", ex);
                 return false;
             }
         }

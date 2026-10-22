@@ -20,20 +20,9 @@ namespace SMADX.Services
     /// </summary>
     public class ADDocumentReportService
     {
-        // Log file next to the executable — always visible regardless of build config
-        private static readonly string LogPath = Path.Combine(
-            AppContext.BaseDirectory, "SMAD-X-export.log");
-
-        private static void Log(string message)
-        {
-            try
-            {
-                File.AppendAllText(LogPath,
-                    $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {message}{Environment.NewLine}");
-            }
-            catch { /* never crash the app because of logging */ }
-            Debug.WriteLine($"[SMAD-X] {message}");
-        }
+        // Journal commun de l'application (%LOCALAPPDATA%/SMAD-X/logs) : un fichier à côté de
+        // l'exécutable n'est pas accessible en écriture quand SMAD-X est installé dans Program Files
+        private static void Log(string message) => ErrorReporter.Log("Export", message);
         // ── Public entry points ──────────────────────────────────────────────
 
         public async Task<bool> ExportMarkdownAsync(ADRootDocument document, string filePath)
@@ -66,7 +55,7 @@ namespace SMADX.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Single object MD export error: {ex.Message}");
+                Log($"Single object MD export error: {ex}");
                 return false;
             }
         }
@@ -82,7 +71,7 @@ namespace SMADX.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Single site MD export error: {ex.Message}");
+                Log($"Single site MD export error: {ex}");
                 return false;
             }
         }
@@ -98,7 +87,7 @@ namespace SMADX.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Single site-link MD export error: {ex.Message}");
+                Log($"Single site-link MD export error: {ex}");
                 return false;
             }
         }
@@ -112,7 +101,7 @@ namespace SMADX.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Markdown import error: {ex.Message}");
+                Log($"Markdown import error: {ex}");
                 return null;
             }
         }

@@ -208,6 +208,16 @@ namespace SMADX.Services
                 ["Security.PwdLastSet"] = "Mot de passe changé le (pwdLastSet) :",
                 ["Security.LastLogon"] = "Dernière connexion (lastLogonTimestamp) :",
 
+                // Erreur inattendue
+                ["Error.Title"] = "Erreur inattendue",
+                ["Error.Intro"] = "Une erreur inattendue s'est produite. L'application continue de fonctionner, mais l'action en cours n'a pas abouti.",
+                ["Error.Details"] = "Détails techniques",
+                ["Error.LogFile"] = "Journal : {0}",
+                ["Error.MoreErrors"] = "+ {0} autre(s) erreur(s) depuis, voir le journal.",
+                ["Error.Copy"] = "Copier le détail",
+                ["Error.OpenLog"] = "Ouvrir le dossier du journal",
+                ["Error.Close"] = "Fermer",
+
                 // Audit de sécurité
                 ["Menu.Analyse.Audit"] = "Audit de sécurité",
                 ["Audit.Window.Title"] = "Audit de sécurité",
@@ -638,6 +648,16 @@ namespace SMADX.Services
                 ["Security.Owner"] = "Owner:",
                 ["Security.PwdLastSet"] = "Password last set (pwdLastSet):",
                 ["Security.LastLogon"] = "Last logon (lastLogonTimestamp):",
+
+                // Unexpected error
+                ["Error.Title"] = "Unexpected error",
+                ["Error.Intro"] = "An unexpected error occurred. The application keeps running, but the current action did not complete.",
+                ["Error.Details"] = "Technical details",
+                ["Error.LogFile"] = "Log: {0}",
+                ["Error.MoreErrors"] = "+ {0} more error(s) since then, see the log.",
+                ["Error.Copy"] = "Copy details",
+                ["Error.OpenLog"] = "Open log folder",
+                ["Error.Close"] = "Close",
 
                 // Security audit
                 ["Menu.Analyse.Audit"] = "Security audit",

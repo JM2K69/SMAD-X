@@ -110,6 +110,12 @@ namespace SMADX.Helpers
         public string SecurityOwner => _localizationService["Security.Owner"];
         public string SecurityPwdLastSet => _localizationService["Security.PwdLastSet"];
         public string MenuAnalyseAudit => _localizationService["Menu.Analyse.Audit"];
+        public string ErrorTitle => _localizationService["Error.Title"];
+        public string ErrorIntro => _localizationService["Error.Intro"];
+        public string ErrorDetails => _localizationService["Error.Details"];
+        public string ErrorCopy => _localizationService["Error.Copy"];
+        public string ErrorOpenLog => _localizationService["Error.OpenLog"];
+        public string ErrorClose => _localizationService["Error.Close"];
         public string AuditWindowTitle => _localizationService["Audit.Window.Title"];
         public string AuditRun => _localizationService["Audit.Run"];
         public string AuditScore => _localizationService["Audit.Score"];

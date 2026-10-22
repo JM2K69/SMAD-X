@@ -23,7 +23,7 @@ namespace SMADX.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur génération script import : {ex.Message}");
+                ErrorReporter.Log("Script d\'import", ex);
                 return false;
             }
         }

@@ -353,7 +353,7 @@ namespace SMADX.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors de l'export PowerShell : {ex.Message}");
+                ErrorReporter.Log("Export PowerShell", ex);
                 return false;
             }
         }
