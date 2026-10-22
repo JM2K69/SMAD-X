@@ -468,7 +468,9 @@ namespace SMADX.Studio.ViewModels
         [RelayCommand]
         private void SetLanguage(string culture)
         {
+            var ready = Status == Text["Status.Ready"];
             Text.Culture = culture;
+            if (ready) Status = Text["Status.Ready"];
             foreach (var name in new[] { nameof(Levels), nameof(Level), nameof(Languages), nameof(LanguageChoice), nameof(Categories), nameof(CategoryChoice), nameof(DomainSummary) })
                 OnPropertyChanged(name);
             if (Lab?.Language == null) EditCulture = culture;

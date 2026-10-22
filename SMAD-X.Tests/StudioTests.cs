@@ -196,6 +196,37 @@ public class StudioTests
         Assert.Contains(vm.Issues, i => i.Issue.Level == LabIssueLevel.Error && i.Issue.ObjectiveId == added.Id);
     }
 
+    /// <summary>Les liaisons {Binding [clé]} d'Avalonia ne se rafraîchissent que sur « Item » : sans lui, tout restait dans la langue de départ.</summary>
+    [Fact]
+    public void StudioText_ChangingLanguage_RaisesTheIndexerNotification()
+    {
+        var text = StudioText.Instance;
+        text.Culture = "en-US";
+        var raised = new List<string?>();
+        void Handler(object? s, System.ComponentModel.PropertyChangedEventArgs e) => raised.Add(e.PropertyName);
+        text.PropertyChanged += Handler;
+        try
+        {
+            text.Culture = "fr-FR";
+            Assert.Contains("Item", raised);
+            Assert.Equal("Fichier", text["Menu.File"]);
+        }
+        finally
+        {
+            text.PropertyChanged -= Handler;
+        }
+    }
+
+    [Fact]
+    public void SetLanguage_TranslatesTheReadyStatus()
+    {
+        StudioText.Instance.Culture = "en-US";
+        var (vm, _) = NewStudio();
+        Assert.Equal("Ready.", vm.Status);
+        vm.SetLanguageCommand.Execute("fr-FR");
+        Assert.Equal("Prêt.", vm.Status);
+    }
+
     [Fact]
     public void ObjectiveItem_ShowsOnlyTheFieldsOfItsCheck()
     {

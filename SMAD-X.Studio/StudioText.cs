@@ -24,8 +24,10 @@ namespace SMADX.Studio
             {
                 if (_culture == value) return;
                 _culture = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item[]"));
+                // Les liaisons par indexeur d'Avalonia écoutent « Item » (ni « Item[] », ni un nom vide)
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item"));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Culture)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(French)));
             }
         }
 
