@@ -1,15 +1,15 @@
 {
   "Version": 2,
   "Domain": {
-    "Id": "c2b8b041-d705-43b1-9c79-ee91b4468cd6",
+    "Id": "0b571c13-0f8e-5227-abb0-911000bcda2c",
     "Type": "Domain",
     "Children": [
       {
-        "Id": "2988e764-a326-4bf8-a257-7fdc28235d6e",
+        "Id": "a3e913f2-fa53-5684-8164-05e413555395",
         "Type": "Container",
         "Children": [
           {
-            "Id": "881055ca-3fd3-40c3-9fe5-8051433bb983",
+            "Id": "58eb75a8-60a4-5bde-a079-4a8cba73f3cd",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -43,7 +43,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "14c21687-88a9-4f6c-8f37-0bfea8ab52b0",
+            "Id": "36cc6eb0-6495-584a-a665-1fee33452124",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -77,7 +77,7 @@
             "Tier": "Tier 2"
           },
           {
-            "Id": "1e605146-959a-4318-adfb-1a708fb03ef5",
+            "Id": "aff2ce9e-13d3-554e-bc03-13902ff63c53",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -111,7 +111,7 @@
             "Tier": "Tier 2"
           },
           {
-            "Id": "a0dcc3bc-4804-4922-b50c-77ef2071ed24",
+            "Id": "e4c289cb-7b95-51c5-a3d1-ae7ac51f91b5",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -145,7 +145,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "100579f3-a60a-4671-9d65-d02fb3efd615",
+            "Id": "47f20369-d499-5e7e-b017-9b42d3007e3c",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -179,7 +179,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "3ad03d69-bf34-435f-9eb2-769970007392",
+            "Id": "64004601-acce-5e8d-aa24-eab9eb2c63ef",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -244,11 +244,11 @@
         "Tier": null
       },
       {
-        "Id": "0166d512-e5c7-474a-a25c-ce0a437966c3",
+        "Id": "22a8b033-c48f-50ba-b588-a4c2832013a0",
         "Type": "Container",
         "Children": [
           {
-            "Id": "07889dd1-c2e5-490d-aaaf-fd4c13a5f921",
+            "Id": "141c7f0a-4c55-50b9-bb75-099b51a7b083",
             "Type": "User",
             "Children": [],
             "MemberOf": [
@@ -286,7 +286,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "9d77c998-6500-4b9b-a448-2be5cf21adbc",
+            "Id": "cd49625d-b995-5f62-b00c-57fa9b5bc954",
             "Type": "User",
             "Children": [],
             "MemberOf": [
@@ -322,7 +322,7 @@
             "Tier": "Tier 2"
           },
           {
-            "Id": "55403fbd-a44c-48da-9911-17061258ca6f",
+            "Id": "90150280-856b-5f5e-b2b8-934583c3d9eb",
             "Type": "User",
             "Children": [],
             "MemberOf": [],
@@ -358,7 +358,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "54e6e87f-2556-41aa-b578-ca087d57b56a",
+            "Id": "c4293560-4b00-5ab8-83e0-a8a4d0def41d",
             "Type": "Group",
             "Children": [],
             "MemberOf": [
@@ -394,7 +394,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "2c09e0ae-77f2-4b23-b1d5-45a5afed479e",
+            "Id": "c76fa45b-6f8b-552a-9c97-59ab2f7c5d31",
             "Type": "Group",
             "Children": [],
             "MemberOf": [
@@ -430,7 +430,7 @@
             "Tier": "Tier 2"
           },
           {
-            "Id": "38979409-762a-4a25-8cb8-74d168eb3775",
+            "Id": "6647862f-b52e-5932-895c-44afd7e294a7",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -464,7 +464,7 @@
             "Tier": "Tier 2"
           },
           {
-            "Id": "d34772b4-ac07-4f52-9242-6beb7818b9ba",
+            "Id": "68189664-a71e-5d71-a8a8-17fb5ba33d8f",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -498,7 +498,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "2f4c0971-3869-40b1-8cb8-96f91a6c12ce",
+            "Id": "12d45437-59de-5d6c-b3d4-7f8ad1e4ef1a",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -532,7 +532,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "0c144bb2-ffa8-4717-ba9c-71bece5c1586",
+            "Id": "a8d9fe4c-4a5c-59a6-9628-4ab7b08f2337",
             "Type": "Group",
             "Children": [],
             "MemberOf": [
@@ -568,7 +568,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "6454dfac-b164-4bc7-9c78-c8c9b756b669",
+            "Id": "41df28d4-1115-59d3-813c-13fe1ec78ee1",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -602,7 +602,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "ffdc5810-f9fd-4db5-8585-73a47cb6c3ad",
+            "Id": "e8ae6554-fc90-5b88-9c63-74b64929bd03",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -636,7 +636,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "bda8db81-def5-418f-8f94-3d617dc56774",
+            "Id": "9ec8694d-15c7-5704-bfe2-deda629278a5",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -670,7 +670,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "821787a7-2967-45cf-8264-b0004b62141d",
+            "Id": "39596c6a-7f4b-5f70-9ee6-985fe8822205",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -704,7 +704,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "ffd100c3-6971-4079-8400-ff7c02c8c6b3",
+            "Id": "97a4de21-5574-56cf-9d9e-48a00624bd9a",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -738,7 +738,7 @@
             "Tier": "Tier 1"
           },
           {
-            "Id": "bfbe9df8-0dbf-4767-8839-2136b3696521",
+            "Id": "2c9b01c3-9ac8-52e2-a296-bbdfb386daea",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -772,7 +772,7 @@
             "Tier": "Tier 1"
           },
           {
-            "Id": "f500d1b6-62b6-44cb-9e1b-b3e4d32414cf",
+            "Id": "6655e2d6-98c5-5fbd-a86b-01d7543d141f",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -806,7 +806,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "87b6e689-3310-4117-8eb3-75d4087c6937",
+            "Id": "bc5eeda0-eb58-5eb6-939d-758e3fd9e301",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -840,7 +840,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "ba53e3af-12a5-4421-9717-acb0957244ec",
+            "Id": "454094ba-f6cb-5517-bf23-aebf1126d625",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -874,7 +874,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "b3590794-fbe1-4220-8e01-23c44cad7cbf",
+            "Id": "03f6c627-b139-5510-895f-75b43d5df89a",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -908,7 +908,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "daedd48c-37db-4cf6-b187-82ce888c838e",
+            "Id": "50dd265d-6b8d-52c9-89a3-0516ab6b2043",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -942,7 +942,7 @@
             "Tier": "Tier 0"
           },
           {
-            "Id": "3a1e81fa-7cc5-4189-913f-821fef8e2881",
+            "Id": "26f6c870-7a05-5e53-97ad-44f91e0cbeab",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -976,7 +976,7 @@
             "Tier": "Tier 1"
           },
           {
-            "Id": "32b1c469-7e38-4443-98f7-da1f97feac41",
+            "Id": "cb890fb6-d2d4-56ff-90c4-43c5d7ff8492",
             "Type": "User",
             "Children": [],
             "MemberOf": [],
@@ -1010,7 +1010,7 @@
             "Tier": "Tier 2"
           },
           {
-            "Id": "d1d2f7a6-3b11-475d-a962-60e4d73748e2",
+            "Id": "2e961085-d623-5d17-aaaf-007cdddb6b14",
             "Type": "User",
             "Children": [],
             "MemberOf": [],
@@ -1044,7 +1044,7 @@
             "Tier": "Tier 2"
           },
           {
-            "Id": "de59a5dc-5a48-4817-86c0-56cbd9dbbde9",
+            "Id": "6a40c0bf-ecf7-5b1a-9c10-29df69151197",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1078,7 +1078,7 @@
             "Tier": "Tier 2"
           },
           {
-            "Id": "b0a50e36-3f4b-455f-ae7c-d19c19b8ab1b",
+            "Id": "13ea7163-b7ae-56aa-a81b-5e855c32e289",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1112,7 +1112,7 @@
             "Tier": "Tier 2"
           },
           {
-            "Id": "3a58efcf-7f9c-4c0b-9bb7-c73b5b22a9f6",
+            "Id": "71ef5a17-105c-53d4-a683-f27b4cfa7c98",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1146,7 +1146,7 @@
             "Tier": "Tier 1"
           },
           {
-            "Id": "d32eb29a-ccc6-4791-b15a-23f24878cff6",
+            "Id": "1fe99c58-70f6-59ca-9f10-7b5dff75d3b3",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1230,11 +1230,11 @@
         "Tier": "Tier 2"
       },
       {
-        "Id": "d9a71f47-d292-4d59-bdaf-523bf5b294ad",
+        "Id": "5e25803e-ba0c-554f-a992-bff240647959",
         "Type": "Container",
         "Children": [
           {
-            "Id": "13aa8247-20c1-4b2f-8510-f65fd5a0d399",
+            "Id": "66eb5632-6b3e-5bc0-848b-41637cc82b5a",
             "Type": "Computer",
             "Children": [],
             "MemberOf": [],
@@ -1314,11 +1314,11 @@
         "Tier": "Tier 2"
       },
       {
-        "Id": "4d7f1d5d-1d4a-43d1-a7c0-00fd75457f09",
+        "Id": "aef387a8-1ce2-532c-8e52-864589089685",
         "Type": "OrganizationalUnit",
         "Children": [
           {
-            "Id": "6ad2c7b6-4ddd-44f8-8ece-8be054d8ca33",
+            "Id": "03031f21-aa2c-5d07-b88a-f0f25626620c",
             "Type": "Computer",
             "Children": [],
             "MemberOf": [
@@ -1406,11 +1406,11 @@
         "Tier": "Tier 0"
       },
       {
-        "Id": "3bc81171-21c3-479b-856c-a5dc065d2890",
+        "Id": "fe5ac3f2-5be5-5841-9503-dc3141feeddf",
         "Type": "Container",
         "Children": [
           {
-            "Id": "aa2f43b1-d9f6-4f85-89f9-67aaa20cad7e",
+            "Id": "097526ff-b88c-5069-b2d9-ff908f7f5e4b",
             "Type": "Container",
             "Children": [],
             "MemberOf": [],
@@ -1444,11 +1444,11 @@
             "Tier": null
           },
           {
-            "Id": "5cf2a94e-07dd-4b65-b638-719487160f2e",
+            "Id": "e18e8572-68a7-512b-91bb-03bca47acb17",
             "Type": "Container",
             "Children": [
               {
-                "Id": "b06e28e5-a745-473a-8631-ef68e20e1845",
+                "Id": "4c0f8e64-dc93-5c49-85e9-f8986e75a65d",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1482,7 +1482,7 @@
                 "Tier": "Tier 0"
               },
               {
-                "Id": "9a006ff1-52e2-451c-8cad-a123111dadca",
+                "Id": "57012e4f-7abb-5cd2-91ad-30f5696ddc05",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1516,7 +1516,7 @@
                 "Tier": "Tier 0"
               },
               {
-                "Id": "d6da9799-dcae-4507-b5cc-0878529d4828",
+                "Id": "798e4bde-6994-5502-bf2b-f67963791b05",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1550,7 +1550,7 @@
                 "Tier": "Tier 0"
               },
               {
-                "Id": "c739ff73-f8cc-4a2c-9fb3-54b46bb89a58",
+                "Id": "28f6419e-7fb7-5bd7-89db-95995c959f59",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1584,7 +1584,7 @@
                 "Tier": "Tier 1"
               },
               {
-                "Id": "1f604b46-8864-4590-ac8f-8cc124fc504c",
+                "Id": "55fbc1e4-1224-51f3-93ac-4caf383d8ba9",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1680,7 +1680,7 @@
         "Tier": null
       },
       {
-        "Id": "5b173675-2e8f-4c7c-b3bd-9fe85cf7e69b",
+        "Id": "cb132679-6fdd-5294-8483-6af38072af30",
         "Type": "Container",
         "Children": [],
         "MemberOf": [],
@@ -1714,11 +1714,11 @@
         "Tier": null
       },
       {
-        "Id": "9d98f950-5d20-4811-861b-9c7e79a4c35e",
+        "Id": "c9d08d60-4880-53f1-9e5d-f60eb0792a0c",
         "Type": "OrganizationalUnit",
         "Children": [
           {
-            "Id": "95cd576d-a099-4783-9e30-1c9c4693e4ba",
+            "Id": "27328c46-f890-51da-9d75-162129d0aea3",
             "Type": "Computer",
             "Children": [],
             "MemberOf": [],
@@ -1748,7 +1748,7 @@
             "PSOLockoutDurationMinutes": null,
             "PSOLockoutObservationWindowMinutes": null,
             "CreatedDate": "2025-09-17T00:00:00",
-            "ModifiedDate": "2026-10-22T11:58:14.3783736+02:00",
+            "ModifiedDate": "2026-10-21T00:00:00",
             "Name": "WEB01",
             "Description": "Intranet web server.",
             "DistinguishedName": "CN=WEB01,OU=Web Servers,DC=adventureworks,DC=local",
@@ -1789,18 +1789,18 @@
         "PSOLockoutDurationMinutes": null,
         "PSOLockoutObservationWindowMinutes": null,
         "CreatedDate": "2025-09-17T00:00:00",
-        "ModifiedDate": "2026-10-22T11:58:14.3783692+02:00",
+        "ModifiedDate": "2026-10-21T00:00:00",
         "Name": "Web Servers",
         "Description": "",
         "DistinguishedName": "OU=Web Servers,DC=adventureworks,DC=local",
         "Tier": "Tier 1"
       },
       {
-        "Id": "34ba537d-7502-4dac-8055-38c0aebc7abe",
+        "Id": "7b2d235e-16be-5a1f-9533-ce72ab551d00",
         "Type": "OrganizationalUnit",
         "Children": [
           {
-            "Id": "a4df1e5e-6448-4a0c-8077-d7cecdc21100",
+            "Id": "234af64a-6805-53ba-83a2-c4ad76a79e4f",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1827,14 +1827,14 @@
             "PSOLockoutDurationMinutes": null,
             "PSOLockoutObservationWindowMinutes": null,
             "CreatedDate": "2025-09-17T00:00:00",
-            "ModifiedDate": "2026-10-22T11:58:14.3783818+02:00",
+            "ModifiedDate": "2026-10-21T00:00:00",
             "Name": "GG-Web-Team",
             "Description": "Team publishing the intranet.",
             "DistinguishedName": "CN=GG-Web-Team,OU=Groups,DC=adventureworks,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "9876b58a-23c9-4abd-b155-2ff70c78a794",
+            "Id": "60eb4e15-0b2c-5f66-8d87-cc9b2f38f129",
             "Type": "User",
             "Children": [],
             "MemberOf": [
@@ -1863,7 +1863,7 @@
             "PSOLockoutDurationMinutes": null,
             "PSOLockoutObservationWindowMinutes": null,
             "CreatedDate": "2025-09-17T00:00:00",
-            "ModifiedDate": "2026-10-22T11:58:14.3783838+02:00",
+            "ModifiedDate": "2026-10-21T00:00:00",
             "Name": "d.wright",
             "Description": "Webmaster.",
             "DistinguishedName": "CN=d.wright,OU=Groups,DC=adventureworks,DC=local",
@@ -1894,7 +1894,7 @@
         "PSOLockoutDurationMinutes": null,
         "PSOLockoutObservationWindowMinutes": null,
         "CreatedDate": "2025-09-17T00:00:00",
-        "ModifiedDate": "2026-10-22T11:58:14.3783804+02:00",
+        "ModifiedDate": "2026-10-21T00:00:00",
         "Name": "Groups",
         "Description": "",
         "DistinguishedName": "OU=Groups,DC=adventureworks,DC=local",
@@ -1936,7 +1936,7 @@
   "SitesTopology": {
     "Sites": [
       {
-        "Id": "002db6fb-40f1-4380-9f70-53dc759b2f31",
+        "Id": "40284172-a198-5d7d-8a6f-aa1157739c1d",
         "Name": "Default-First-Site-Name",
         "Description": "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration.",
         "Location": "",
@@ -1946,8 +1946,8 @@
         ],
         "LinkedGPOs": [],
         "Tier": null,
-        "CreatedDate": "2026-10-22T11:58:14.3784294+02:00",
-        "ModifiedDate": "2026-10-22T11:58:14.3784296+02:00",
+        "CreatedDate": "2025-09-17T00:00:00",
+        "ModifiedDate": "2025-09-17T00:00:00",
         "ShortDescription": "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration."
       }
     ],

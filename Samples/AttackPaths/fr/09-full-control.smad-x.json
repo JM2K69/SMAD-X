@@ -1,15 +1,15 @@
 {
   "Version": 2,
   "Domain": {
-    "Id": "86b714a2-332a-4f27-9414-bd69ba419d96",
+    "Id": "58364fb2-4944-5b53-8b9c-7d6fa1e83c0c",
     "Type": "Domain",
     "Children": [
       {
-        "Id": "e54ee6e4-6a95-4e59-b512-acbb99757790",
+        "Id": "516d47a5-3b0e-5595-b4f3-17c1c647a634",
         "Type": "Container",
         "Children": [
           {
-            "Id": "2124d976-766f-47b4-bded-444f76c1ed56",
+            "Id": "717b2855-e730-559e-93fa-58946dc19324",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -38,12 +38,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Administrators",
-            "Description": "Members of this group have complete and unrestricted access to the computer/domain",
+            "Description": "Membres de ce groupe ont un acc\u00E8s complet et illimit\u00E9 \u00E0 l\u0027ordinateur/domaine",
             "DistinguishedName": "CN=Administrators,CN=Builtin,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "2d3e98e7-9a9f-49e6-869e-e93ef16a215c",
+            "Id": "4d288ed9-d05b-5447-b763-257608c6069d",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -72,12 +72,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Users",
-            "Description": "Users are prevented from making accidental or intentional system-wide changes",
+            "Description": "Les utilisateurs ne peuvent pas apporter des modifications accidentelles ou intentionnelles au syst\u00E8me",
             "DistinguishedName": "CN=Users,CN=Builtin,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "03440b1d-c22d-4735-bc6a-0e808b705477",
+            "Id": "40ccdf02-01bb-5648-a22a-c8ad56af9aca",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -106,12 +106,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Guests",
-            "Description": "Guests have the same rights as members of the Users group by default",
+            "Description": "Les invit\u00E9s ont les m\u00EAmes droits que les membres du groupe Utilisateurs par d\u00E9faut",
             "DistinguishedName": "CN=Guests,CN=Builtin,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "44c2b171-1652-43b3-bfec-4d3fd8f4c3d3",
+            "Id": "8765cf8f-7a83-5a5a-ab82-86d5c8630c92",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -140,12 +140,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Server Operators",
-            "Description": "Can administer domain servers, including domain controllers (local logon, backup, shutdown). Privileged Tier 0 group: keep it empty.",
+            "Description": "Peuvent administrer les serveurs de domaine, y compris les contr\u00F4leurs de domaine (ouverture de session locale, sauvegarde, arr\u00EAt). Groupe privil\u00E9gi\u00E9 de Tier 0 : il doit rester vide.",
             "DistinguishedName": "CN=Server Operators,CN=Builtin,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "1d4211bb-d032-4eca-980e-0b4bd55bb144",
+            "Id": "be67f151-9104-541b-a698-d6e04123b90f",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -174,12 +174,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Account Operators",
-            "Description": "Can administer user accounts and groups in the domain and log on to domain controllers. Privileged Tier 0 group: keep it empty.",
+            "Description": "Peuvent administrer les comptes utilisateurs et groupes du domaine et ouvrir une session sur les contr\u00F4leurs de domaine. Groupe privil\u00E9gi\u00E9 de Tier 0 : il doit rester vide.",
             "DistinguishedName": "CN=Account Operators,CN=Builtin,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "2cc44280-2540-4011-9984-85f0a4983b36",
+            "Id": "48fb2684-261b-5ede-830e-30c5f2f1f221",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -208,7 +208,7 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Backup Operators",
-            "Description": "Can back up and restore all files on domain controllers",
+            "Description": "Peuvent sauvegarder et restaurer tous les fichiers sur les contr\u00F4leurs de domaine",
             "DistinguishedName": "CN=Backup Operators,CN=Builtin,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           }
@@ -239,16 +239,16 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "Builtin",
-        "Description": "# Builtin Container\n\nContains built-in security groups of the domain.\n\n\u003E **Note**: These groups are automatically created during Active Directory installation.",
+        "Description": "# Container Builtin\n\nContient les groupes de s\u00E9curit\u00E9 int\u00E9gr\u00E9s du domaine.\n\n\u003E **Note** : Ces groupes sont cr\u00E9\u00E9s automatiquement lors de l\u0027installation d\u0027Active Directory.",
         "DistinguishedName": "CN=Builtin,DC=fromagerie-alpage,DC=local",
         "Tier": null
       },
       {
-        "Id": "e6acfe35-c761-46e7-9402-65b9f7049632",
+        "Id": "5b5c4f60-110c-52a5-85c1-dcb32046ec71",
         "Type": "Container",
         "Children": [
           {
-            "Id": "48cdb5e5-95bd-4bf8-954c-86aa509bb18f",
+            "Id": "c46c2865-1d60-5120-9a6a-eefa21948051",
             "Type": "User",
             "Children": [],
             "MemberOf": [
@@ -281,12 +281,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Administrator",
-            "Description": "# \uD83D\uDC64 Administrator Account\n\n**Built-in** administrator account created automatically when the domain is promoted.\n\n## Role\n- Full and unrestricted access to all domain resources\n- The only account that cannot be locked out by the account lockout policy\n- Permanent member of **Domain Admins** and **Administrators**\n\n## Default Group Membership\n| Group | Scope |\n|---|---|\n| Administrators | Domain local |\n| Domain Admins | Global |\n| Group Policy Creator Owners | Global |\n| Schema Admins (forest root) | Universal |\n| Enterprise Admins (forest root) | Universal |\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Critical account**\n\n- **Rename** this account to avoid exposing the predictable \u0060Administrator\u0060 name\n- **Disable** this account in production and create a dedicated named account for administration\n- Enable **lockout policy** against brute-force attacks (via Fine-Grained Password Policy)\n- This account is a prime target for **Pass-the-Hash** and **Mimikatz** attacks\n- Monitor with alerts on any logon event for this account\n- **Protected Users** group (Windows Server 2012 R2\u002B) does not apply to Administrator \u2014 manage manually",
+            "Description": "# \uD83D\uDC64 Compte Administrator\n\nCompte administrateur **int\u00E9gr\u00E9** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Acc\u00E8s complet et illimit\u00E9 \u00E0 toutes les ressources du domaine\n- Seul compte qui ne peut pas \u00EAtre verrouill\u00E9 par la politique de verrouillage de compte\n- Membre permanent du groupe **Domain Admins** et **Administrators**\n\n## Appartenance par d\u00E9faut\n| Groupe | Port\u00E9e |\n|---|---|\n| Administrators | Domaine local |\n| Domain Admins | Global |\n| Group Policy Creator Owners | Global |\n| Schema Admins (for\u00EAt racine) | Universel |\n| Enterprise Admins (for\u00EAt racine) | Universel |\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Compte critique**\n\n- **Renommer** ce compte pour ne pas exposer le nom pr\u00E9visible \u0060Administrator\u0060\n- **D\u00E9sactiver** ce compte en production et cr\u00E9er un compte nomm\u00E9 d\u00E9di\u00E9 pour l\u0027administration\n- Activer la **politique de verrouillage** pour les attaques par force brute (via Fine-Grained Password Policy)\n- Ce compte est une cible privil\u00E9gi\u00E9e des attaques **Pass-the-Hash** et **Mimikatz**\n- Surveiller avec des alertes sur toute ouverture de session de ce compte\n- Activer **Protected Users** (Windows Server 2012 R2\u002B) ne s\u0027applique pas \u00E0 Administrator \u2014 g\u00E9rer manuellement",
             "DistinguishedName": "CN=Administrator,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "c2ce2c38-f6f8-4847-b03e-a77cbef0bd25",
+            "Id": "aa7bc699-4c43-5d89-983e-eadc82864d74",
             "Type": "User",
             "Children": [],
             "MemberOf": [
@@ -317,12 +317,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Guest",
-            "Description": "# \uD83D\uDC64 Guest Account\n\n**Built-in** guest account created automatically when the domain is promoted.\n\n## Role\n- Allows anonymous and limited access to the domain without a password\n- Rights equivalent to the **Guests** group (very restricted)\n- Cannot change its own password or access system settings\n\n## Default Group Membership\n| Group | Scope |\n|---|---|\n| Guests | Domain local |\n| Domain Guests | Global |\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Disable immediately in production**\n\n- This account is **disabled by default** since Windows Server 2008 \u2014 verify it stays disabled\n- Never enable this account in a production environment\n- Classic attack vector for unauthenticated access\n- Monitor any activation or usage attempt (Event ID 4722, 4624)",
+            "Description": "# \uD83D\uDC64 Compte Guest\n\nCompte invit\u00E9 **int\u00E9gr\u00E9** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Permet un acc\u00E8s anonyme et limit\u00E9 au domaine sans mot de passe\n- Droits \u00E9quivalents au groupe **Guests** (tr\u00E8s restreints)\n- Ne peut pas changer son mot de passe ni acc\u00E9der aux param\u00E8tres du syst\u00E8me\n\n## Appartenance par d\u00E9faut\n| Groupe | Port\u00E9e |\n|---|---|\n| Guests | Domaine local |\n| Domain Guests | Global |\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **D\u00E9sactiver imm\u00E9diatement en production**\n\n- Ce compte est **d\u00E9sactiv\u00E9 par d\u00E9faut** depuis Windows Server 2008 \u2014 v\u00E9rifier qu\u0027il le reste\n- Ne jamais activer ce compte dans un environnement de production\n- Vecteur d\u0027attaque classique pour l\u0027acc\u00E8s non authentifi\u00E9\n- Surveiller toute tentative d\u0027activation ou d\u0027utilisation de ce compte (Event ID 4722, 4624)",
             "DistinguishedName": "CN=Guest,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "9a8bc949-e398-430f-a50d-fe6b13117e32",
+            "Id": "2535462a-edb4-5929-89e2-ceb7e6c8fb95",
             "Type": "User",
             "Children": [],
             "MemberOf": [],
@@ -353,12 +353,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "krbtgt",
-            "Description": "# \uD83D\uDD11 krbtgt Account\n\n**Kerberos Key Distribution Center (KDC)** service account created automatically when the domain is promoted.\n\n## Role\n- Used exclusively by the **KDC** service to sign and encrypt Kerberos tickets (TGT)\n- Its password serves as the encryption key for all **Ticket Granting Tickets** in the domain\n- Disabled by default \u2014 never enable\n\n## Default Group Membership\n| Group | Scope |\n|---|---|\n| Domain Users | Global |\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Ultra-critical account**\n\n- **Never delete** this account \u2014 it renders the domain unusable\n- **Never enable** this account interactively\n- Compromising this account allows creating **Golden Tickets** (Mimikatz attack)\n- **Reset the password TWICE** after a suspected compromise (two consecutive resets required to invalidate existing tickets)\n- Preventive rotation recommended **every 180 days** in production\n- Monitor password changes (Event ID 4723, 4724)\n- Since Windows Server 2016: use the separate **RODC krbtgt account** for RODCs",
+            "Description": "# \uD83D\uDD11 Compte krbtgt\n\nCompte de service **Kerberos Key Distribution Center (KDC)** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Utilis\u00E9 exclusivement par le service **KDC** pour signer et chiffrer les tickets Kerberos (TGT)\n- Son mot de passe sert de cl\u00E9 de chiffrement pour tous les **Ticket Granting Tickets** du domaine\n- D\u00E9sactiv\u00E9 par d\u00E9faut \u2014 ne jamais activer\n\n## Appartenance par d\u00E9faut\n| Groupe | Port\u00E9e |\n|---|---|\n| Domain Users | Global |\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Compte ultra-critique**\n\n- **Ne jamais supprimer** ce compte \u2014 cela rend le domaine inutilisable\n- **Ne jamais activer** ce compte interactivement\n- La compromission de ce compte permet de cr\u00E9er des **Golden Tickets** (attaque Mimikatz)\n- **Renouveler le mot de passe DEUX FOIS** apr\u00E8s une compromission suspect\u00E9e (deux resets cons\u00E9cutifs n\u00E9cessaires pour invalider les tickets existants)\n- Renouvellement pr\u00E9ventif recommand\u00E9 **tous les 180 jours** en production\n- Surveiller les modifications du mot de passe (Event ID 4723, 4724)\n- Depuis Windows Server 2016 : utiliser le **RODC krbtgt account** s\u00E9par\u00E9 pour les RODCs",
             "DistinguishedName": "CN=krbtgt,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "dbac319f-31d3-4cd2-a205-ce59400064fd",
+            "Id": "f8839fc9-b659-58f8-9088-29e94c867e25",
             "Type": "Group",
             "Children": [],
             "MemberOf": [
@@ -389,12 +389,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Domain Admins",
-            "Description": "# \uD83D\uDC65 Domain Admins Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Designated administrators of the domain\n- Members are automatically added to the **Administrators** group on every domain-joined machine\n- Full control over all objects in the domain\n\n## Default Membership\nMembers: **Administrator**\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Ultra-privileged group**\n\n- Limit membership to the bare minimum (principle of least privilege)\n- Never use a Domain Admin account for day-to-day tasks\n- Use dedicated administration accounts (PAW \u2014 Privileged Access Workstation)\n- Enable monitoring for any modification (Event ID 4728, 4729)\n- Domain Admin members are **Administrators** on **every** machine in the domain \u2014 major lateral movement vector",
+            "Description": "# \uD83D\uDC65 Groupe Domain Admins\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Administrateurs d\u00E9sign\u00E9s du domaine\n- Membres automatiquement ajout\u00E9s au groupe **Administrators** de chaque machine jointe au domaine\n- Contr\u00F4le total sur tous les objets du domaine\n\n## Appartenance par d\u00E9faut\nMembres : **Administrator**\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Groupe ultra-privil\u00E9gi\u00E9**\n\n- Limiter le nombre de membres au strict minimum (principe du moindre privil\u00E8ge)\n- Ne jamais utiliser un compte Domain Admin pour les t\u00E2ches quotidiennes\n- Utiliser des comptes d\u00E9di\u00E9s \u00E0 l\u0027administration (PAW \u2014 Privileged Access Workstation)\n- Activer la surveillance de toute modification de ce groupe (Event ID 4728, 4729)\n- Les membres de Domain Admins sont membres de **Administrators** sur **toutes** les machines du domaine \u2014 vecteur de mouvement lat\u00E9ral majeur",
             "DistinguishedName": "CN=Domain Admins,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "9a100829-1b72-419d-a818-b1532f90ff1d",
+            "Id": "3c5092cb-31ba-5c8c-b403-e9e9f157dc0a",
             "Type": "Group",
             "Children": [],
             "MemberOf": [
@@ -425,12 +425,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Domain Users",
-            "Description": "# \uD83D\uDC65 Domain Users Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Contains **all** domain user accounts (added automatically)\n- Used as the base group for permissions on shared resources\n- Member of the local **Users** group on every domain-joined machine\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE2 **Tier 2 \u2014 Standard group**\n\n- Avoid granting elevated permissions to this group \u2014 it contains all users\n- Audit resources accessible by this group (shares, GPOs)\n- Useful for applying policies to all domain users",
+            "Description": "# \uD83D\uDC65 Groupe Domain Users\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Contient **tous** les comptes utilisateurs du domaine (ajout automatique)\n- Utilis\u00E9 comme groupe de base pour les permissions sur les ressources partag\u00E9es\n- Membre du groupe **Users** local de chaque machine jointe\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE2 **Tier 2 \u2014 Groupe standard**\n\n- \u00C9viter d\u0027accorder des permissions \u00E9lev\u00E9es \u00E0 ce groupe \u2014 il contient tous les utilisateurs\n- Surveiller les ressources accessibles par ce groupe (audit des partages, des GPOs)\n- Utile pour d\u00E9finir des politiques s\u0027appliquant \u00E0 tous les utilisateurs du domaine",
             "DistinguishedName": "CN=Domain Users,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "e22231fb-9aaf-47ef-87ec-d07b5b17c00b",
+            "Id": "fab8c26e-e445-543a-ae7f-805bb0bbb47b",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -459,12 +459,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Domain Computers",
-            "Description": "# \uD83D\uDC65 Domain Computers Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Contains **all** computers joined to the domain (excluding domain controllers)\n- Automatically added when a workstation joins the domain\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE2 **Tier 2 \u2014 Standard group**\n\n- Can be used to apply policies to all workstations\n- Monitor unexpected additions (unauthorized machine joins)",
+            "Description": "# \uD83D\uDC65 Groupe Domain Computers\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Contient **tous** les ordinateurs joints au domaine (hors contr\u00F4leurs de domaine)\n- Ajout automatique lors de la jonction d\u0027un poste au domaine\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE2 **Tier 2 \u2014 Groupe standard**\n\n- Peut \u00EAtre utilis\u00E9 pour appliquer des politiques \u00E0 l\u0027ensemble des postes\n- Surveiller les ajouts inattendus (jonction de machines non autoris\u00E9es)",
             "DistinguishedName": "CN=Domain Computers,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "dce4b622-a1c2-4a4a-add2-f5adb4f6d908",
+            "Id": "4977ed37-cc6b-51a3-9c62-9018a009c537",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -493,12 +493,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Domain Controllers",
-            "Description": "# \uD83D\uDC65 Domain Controllers Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Contains **all** domain controllers (DCs) in the domain\n- Automatically added when a server is promoted to DC\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Critical group**\n\n- Monitor any modification (DC added/removed) \u2014 Event ID 4728, 4729\n- A compromised domain controller compromises the entire domain",
+            "Description": "# \uD83D\uDC65 Groupe Domain Controllers\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Contient **tous** les contr\u00F4leurs de domaine (DC) du domaine\n- Ajout automatique lors de la promotion d\u0027un serveur en DC\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Groupe critique**\n\n- Surveiller toute modification (ajout/suppression de DC) \u2014 Event ID 4728, 4729\n- Un contr\u00F4leur de domaine compromis compromet l\u0027int\u00E9gralit\u00E9 du domaine",
             "DistinguishedName": "CN=Domain Controllers,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "e945e969-2e27-446f-81f6-38f4643f8113",
+            "Id": "6366f8c4-cf6b-53f0-a063-c39a4fd17ce7",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -527,12 +527,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Schema Admins",
-            "Description": "# \uD83D\uDC65 Schema Admins Group\n\n**Universal** group created automatically. Exists only in the **forest root domain**.\n\n## Role\n- Only members authorized to modify the **Active Directory schema** (class/attribute structure)\n- Schema modifications are irreversible and apply to the entire forest\n\n## Default Membership\nMembers: **Administrator** (forest root only)\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Ultra-critical group (entire forest)**\n\n- **Keep empty** at all times \u2014 only add members for the duration of a planned schema modification\n- All schema changes must be tested in a test environment first\n- Monitor any modification \u2014 Event ID 4728, 4729\n- Enforce strict change management for schema modifications",
+            "Description": "# \uD83D\uDC65 Groupe Schema Admins\n\nGroupe **universel** cr\u00E9\u00E9 automatiquement. Existe uniquement dans le **domaine racine de la for\u00EAt**.\n\n## R\u00F4le\n- Seuls membres autoris\u00E9s \u00E0 modifier le **sch\u00E9ma Active Directory** (structure des classes et attributs)\n- Modifications du sch\u00E9ma sont irr\u00E9versibles et s\u0027appliquent \u00E0 toute la for\u00EAt\n\n## Appartenance par d\u00E9faut\nMembres : **Administrator** (domaine racine uniquement)\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Groupe ultra-critique (for\u00EAt enti\u00E8re)**\n\n- **Maintenir vide** en permanence \u2014 n\u0027ajouter des membres que le temps d\u0027une modification de sch\u00E9ma planifi\u00E9e\n- Toute modification du sch\u00E9ma doit \u00EAtre test\u00E9e en environnement de test d\u0027abord\n- Surveiller toute modification de ce groupe \u2014 Event ID 4728, 4729\n- Activer un processus de change management strict pour les modifications de sch\u00E9ma",
             "DistinguishedName": "CN=Schema Admins,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "85cb6942-f4fb-4227-bc9c-60b8ba3924a8",
+            "Id": "67296cbd-6592-5c55-816a-d9e82a85d307",
             "Type": "Group",
             "Children": [],
             "MemberOf": [
@@ -563,12 +563,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Enterprise Admins",
-            "Description": "# \uD83D\uDC65 Enterprise Admins Group\n\n**Universal** group created automatically. Exists only in the **forest root domain**.\n\n## Role\n- Enterprise administrators with control over **all domains in the forest**\n- Can add/remove domains from the forest\n- Automatically member of **Administrators** in every domain in the forest\n\n## Default Membership\nMembers: **Administrator** (forest root only)\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Ultra-critical group (entire forest)**\n\n- **Keep empty** at all times \u2014 only add members for forest-level operations\n- Cross-forest attack vector affecting all domains\n- Monitor any modification \u2014 Event ID 4728, 4729\n- Members have administrator access on **all** domain controllers in the forest",
+            "Description": "# \uD83D\uDC65 Groupe Enterprise Admins\n\nGroupe **universel** cr\u00E9\u00E9 automatiquement. Existe uniquement dans le **domaine racine de la for\u00EAt**.\n\n## R\u00F4le\n- Administrateurs de l\u0027entreprise avec contr\u00F4le sur **tous les domaines de la for\u00EAt**\n- Peut ajouter/supprimer des domaines de la for\u00EAt\n- Automatiquement membre de **Administrators** dans chaque domaine de la for\u00EAt\n\n## Appartenance par d\u00E9faut\nMembres : **Administrator** (domaine racine uniquement)\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Groupe ultra-critique (for\u00EAt enti\u00E8re)**\n\n- **Maintenir vide** en permanence \u2014 n\u0027ajouter des membres que pour des op\u00E9rations de niveau for\u00EAt\n- Vecteur d\u0027attaque transversal \u00E0 tous les domaines de la for\u00EAt\n- Surveiller toute modification \u2014 Event ID 4728, 4729\n- Les membres ont un acc\u00E8s administrateur sur **tous** les contr\u00F4leurs de domaine de la for\u00EAt",
             "DistinguishedName": "CN=Enterprise Admins,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "c9a57c86-d7ad-4e99-a82f-4f9c07775fb3",
+            "Id": "433114a8-272b-56cd-b9b3-d8fcdfb7d063",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -597,12 +597,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Group Policy Creator Owners",
-            "Description": "# \uD83D\uDC65 Group Policy Creator Owners\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Members authorized to create and modify **GPOs** in the domain\n- A member can only modify GPOs they created (except Domain Admins)\n\n## Default Membership\nMembers: **Administrator**\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Group to monitor**\n\n- Limit members \u2014 creating malicious GPOs is a common attack vector\n- Monitor GPO creation and linking (Event ID 5136, 5137)\n- Any GPO linked to the Domain Controllers OU is potentially dangerous",
+            "Description": "# \uD83D\uDC65 Groupe Group Policy Creator Owners\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Membres autoris\u00E9s \u00E0 cr\u00E9er et modifier des **GPOs** dans le domaine\n- Un membre peut modifier uniquement les GPOs qu\u0027il a cr\u00E9\u00E9es (sauf Domain Admins)\n\n## Appartenance par d\u00E9faut\nMembres : **Administrator**\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Groupe \u00E0 surveiller**\n\n- Limiter les membres \u2014 la cr\u00E9ation de GPOs malveillantes est un vecteur d\u0027attaque courant\n- Surveiller la cr\u00E9ation de nouvelles GPOs et leurs liaisons (Event ID 5136, 5137)\n- Toute GPO li\u00E9e \u00E0 l\u0027OU Domain Controllers est potentiellement dangereuse",
             "DistinguishedName": "CN=Group Policy Creator Owners,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "072ccdcf-c006-40dd-8eb9-585e5e12c7b4",
+            "Id": "7582e7f3-db8c-5268-a610-00f57bea979a",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -631,12 +631,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Read-only Domain Controllers",
-            "Description": "# \uD83D\uDC65 Read-Only Domain Controllers Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Contains **RODCs** (Read-Only Domain Controllers) in the domain\n- RODCs replicate only objects authorized via the **Password Replication Policy**\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Critical group**\n\n- Monitor additions to this group\n- Compromising a RODC exposes only the accounts whose passwords are cached on that RODC\n- Carefully configure the **Allowed RODC Password Replication Group** to limit exposure",
+            "Description": "# \uD83D\uDC65 Groupe Read-Only Domain Controllers\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Contient les **RODC** (Read-Only Domain Controllers) du domaine\n- Les RODCs r\u00E9pliquent uniquement les objets autoris\u00E9s via la **Password Replication Policy**\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Groupe critique**\n\n- Surveiller les ajouts \u00E0 ce groupe\n- La compromission d\u0027un RODC expose uniquement les comptes dont le mot de passe est mis en cache sur ce RODC\n- Configurer soigneusement la **Allowed RODC Password Replication Group** pour limiter l\u0027exposition",
             "DistinguishedName": "CN=Read-only Domain Controllers,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "c004c119-bc98-4630-8656-14149f48f77b",
+            "Id": "650709fe-da8a-59a5-b9c0-a7062f187dc9",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -665,12 +665,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "DnsAdmins",
-            "Description": "# \uD83D\uDC65 DnsAdmins Group\n\n**Domain local** group created automatically when the DNS role is installed.\n\n## Role\n- Full administrative access to the domain **DNS** service\n- Allows managing zones, records and DNS configuration\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Known privilege escalation path**\n\n- **Critical privilege escalation** vector: a DnsAdmins member can load a malicious DLL into the DNS service (which runs as SYSTEM on DCs)\n- **CVE**: Documented technique by Shay Ber (2017) \u2014 \u0060dnscmd /config /serverlevelplugindll\u0060\n- Minimize membership in this group\n- Monitor use of \u0060dnscmd\u0060 by members (Event ID 4688)\n- Consider delegating DNS management differently if possible",
+            "Description": "# \uD83D\uDC65 Groupe DnsAdmins\n\nGroupe **domaine local** cr\u00E9\u00E9 automatiquement lors de l\u0027installation du r\u00F4le DNS.\n\n## R\u00F4le\n- Acc\u00E8s administratif complet au service **DNS** du domaine\n- Permet de g\u00E9rer les zones, enregistrements et configuration DNS\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Escalade de privil\u00E8ges connue**\n\n- Vecteur d\u0027**escalade de privil\u00E8ges critique** : un membre DnsAdmins peut charger une DLL malveillante dans le service DNS (qui tourne sous SYSTEM sur les DCs)\n- **CVE** : Technique document\u00E9e par Shay Ber (2017) \u2014 \u0060dnscmd /config /serverlevelplugindll\u0060\n- Limiter au strict minimum les membres de ce groupe\n- Surveiller l\u0027utilisation de \u0060dnscmd\u0060 par les membres (Event ID 4688)\n- Envisager de d\u00E9l\u00E9guer la gestion DNS diff\u00E9remment si possible",
             "DistinguishedName": "CN=DnsAdmins,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "83b16ad5-24a5-4311-8e18-6c405aa068ff",
+            "Id": "9ad26235-0ac6-5c71-b95b-914c271ac1b5",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -699,12 +699,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Cert Publishers",
-            "Description": "# \uD83D\uDC65 Cert Publishers Group\n\n**Domain local** group created automatically when the domain is promoted.\n\n## Role\n- Members authorized to **publish certificates** in Active Directory (\u0060userCertificate\u0060 attribute)\n- Typically: enterprise **Certificate Authority (CA)** servers\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Linked to PKI infrastructure**\n\n- Limit membership to CA servers only\n- Compromising an enterprise CA allows issuing fraudulent certificates\n- Monitor modifications \u2014 Event ID 4728, 4729\n- See **ESC4** and other PKI attack techniques documented in **Certify/Certipy**",
+            "Description": "# \uD83D\uDC65 Groupe Cert Publishers\n\nGroupe **domaine local** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Membres autoris\u00E9s \u00E0 **publier des certificats** dans Active Directory (attribut \u0060userCertificate\u0060)\n- Typiquement : les serveurs **Certificate Authority (CA)** enterprise\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Li\u00E9 \u00E0 l\u0027infrastructure PKI**\n\n- Limiter les membres aux serveurs CA uniquement\n- La compromission d\u0027un CA enterprise permet d\u0027\u00E9mettre des certificats frauduleux\n- Surveiller les modifications de ce groupe \u2014 Event ID 4728, 4729\n- Voir **ESC4** et autres techniques d\u0027attaque PKI document\u00E9es dans **Certify/Certipy**",
             "DistinguishedName": "CN=Cert Publishers,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "ff59a49b-f6c7-4f4a-85a6-b1fc63c52ee9",
+            "Id": "ea317469-bd7e-5c63-a40a-b4467566ca57",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -733,12 +733,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "RAS and IAS Servers",
-            "Description": "# \uD83D\uDC65 RAS and IAS Servers Group\n\n**Domain local** group created automatically when the domain is promoted.\n\n## Role\n- Members authorized to access **remote access properties** of user accounts\n- Used by **NPS (Network Policy Server)**, **RADIUS** and **VPN** servers\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Access to network authentication attributes**\n\n- Limit to legitimate NPS/RADIUS servers only\n- A compromised RAS server can intercept or manipulate VPN connections",
+            "Description": "# \uD83D\uDC65 Groupe RAS and IAS Servers\n\nGroupe **domaine local** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Membres autoris\u00E9s \u00E0 acc\u00E9der aux **propri\u00E9t\u00E9s d\u0027acc\u00E8s r\u00E9seau** des comptes utilisateurs\n- Utilis\u00E9 par les serveurs **NPS (Network Policy Server)**, **RADIUS** et **VPN**\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Acc\u00E8s aux attributs d\u0027authentification r\u00E9seau**\n\n- Limiter aux serveurs NPS/RADIUS l\u00E9gitimes\n- Un serveur RAS compromis peut intercepter ou manipuler les connexions VPN",
             "DistinguishedName": "CN=RAS and IAS Servers,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 1"
           },
           {
-            "Id": "fea96822-df89-4880-a69e-4f09af38b834",
+            "Id": "abb4c236-1479-5749-a79e-8e26dbfe0fb8",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -767,12 +767,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Allowed RODC Password Replication Group",
-            "Description": "# \uD83D\uDC65 Allowed RODC Password Replication Group\n\n**Domain local** group created automatically when the domain is promoted.\n\n## Role\n- Defines accounts whose **passwords CAN be cached** on RODCs\n- Empty by default \u2014 no passwords are replicated to RODCs by default\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Controls RODC replication**\n\n- **Never add** Tier 0 accounts (admins, krbtgt, critical service accounts)\n- Compromising a RODC only exposes accounts whose hash is in its cache\n- Use the **Denied RODC Password Replication Group** to protect sensitive accounts\n- Regularly audit cached accounts on each RODC via \u0060Get-ADDomainControllerPasswordReplicationPolicy\u0060",
+            "Description": "# \uD83D\uDC65 Groupe Allowed RODC Password Replication Group\n\nGroupe **domaine local** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- D\u00E9finit les comptes dont les **mots de passe PEUVENT \u00EAtre mis en cache** sur les RODCs\n- Vide par d\u00E9faut \u2014 aucun mot de passe n\u0027est r\u00E9pliqu\u00E9 sur les RODCs par d\u00E9faut\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Contr\u00F4le de la r\u00E9plication RODC**\n\n- **Ne jamais ajouter** de comptes Tier 0 (admins, krbtgt, service accounts critiques)\n- La compromission d\u0027un RODC expose uniquement les comptes dont le hash est pr\u00E9sent dans son cache\n- Utiliser le groupe **Denied RODC Password Replication Group** pour prot\u00E9ger les comptes sensibles\n- Auditer r\u00E9guli\u00E8rement les comptes mis en cache sur chaque RODC via \u0060Get-ADDomainControllerPasswordReplicationPolicy\u0060",
             "DistinguishedName": "CN=Allowed RODC Password Replication Group,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 1"
           },
           {
-            "Id": "bd012760-85d1-42a2-802a-d603e15b3bef",
+            "Id": "97a07bd2-de8c-5fb9-ba3e-2208d79a7381",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -801,12 +801,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Denied RODC Password Replication Group",
-            "Description": "# \uD83D\uDC65 Denied RODC Password Replication Group\n\n**Domain local** group created automatically when the domain is promoted.\n\n## Role\n- Defines accounts whose **passwords CANNOT be cached** on RODCs\n- Protects critical accounts from exposure in case of RODC compromise\n\n## Default Members\n\u0060krbtgt\u0060, \u0060Domain Admins\u0060, \u0060Schema Admins\u0060, \u0060Enterprise Admins\u0060, \u0060Group Policy Creator Owners\u0060, \u0060Read-Only Domain Controllers\u0060\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE2 **Best practice \u2014 keep up to date**\n\n- Add all critical service accounts and Tier 0 accounts to this group\n- Never remove the default members\n- Regularly audit the list to ensure it is comprehensive",
+            "Description": "# \uD83D\uDC65 Groupe Denied RODC Password Replication Group\n\nGroupe **domaine local** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- D\u00E9finit les comptes dont les **mots de passe NE PEUVENT PAS \u00EAtre mis en cache** sur les RODCs\n- Prot\u00E8ge les comptes critiques contre l\u0027exposition en cas de compromission d\u0027un RODC\n\n## Membres par d\u00E9faut\n\u0060krbtgt\u0060, \u0060Domain Admins\u0060, \u0060Schema Admins\u0060, \u0060Enterprise Admins\u0060, \u0060Group Policy Creator Owners\u0060, \u0060Read-Only Domain Controllers\u0060\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE2 **Bonne pratique \u2014 maintenir \u00E0 jour**\n\n- Ajouter tous les comptes de service critiques et comptes Tier 0 \u00E0 ce groupe\n- Ne jamais retirer les membres par d\u00E9faut\n- Auditer r\u00E9guli\u00E8rement la liste pour s\u0027assurer qu\u0027elle est exhaustive",
             "DistinguishedName": "CN=Denied RODC Password Replication Group,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "c226e7c5-585c-48f0-b796-101ff1246f15",
+            "Id": "e0ffe0ad-3cc5-5177-a6c6-bc9c5552e6a7",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -835,12 +835,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Cloneable Domain Controllers",
-            "Description": "# \uD83D\uDC65 Cloneable Domain Controllers Group\n\n**Global** group created automatically when the domain is promoted (Windows Server 2012\u002B).\n\n## Role\n- Members (DCs) that can be **cloned** to rapidly deploy additional domain controllers\n- Cloning feature based on Hyper-V\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 DC cloning feature**\n\n- Limit to DCs that actually need to be cloned\n- A DC clone inherits the source DC\u0027s secrets \u2014 process must be strictly controlled\n- Verify that the Hyper-V host is secured before any cloning",
+            "Description": "# \uD83D\uDC65 Groupe Cloneable Domain Controllers\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine (Windows Server 2012\u002B).\n\n## R\u00F4le\n- Membres (DCs) qui peuvent \u00EAtre **clon\u00E9s** pour d\u00E9ployer rapidement des contr\u00F4leurs de domaine suppl\u00E9mentaires\n- Fonctionnalit\u00E9 de clonage bas\u00E9e sur Hyper-V\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Fonctionnalit\u00E9 de clonage de DC**\n\n- Limiter aux DCs qui doivent r\u00E9ellement \u00EAtre clon\u00E9s\n- Un clone de DC h\u00E9rite des secrets du DC source \u2014 processus \u00E0 encadrer strictement\n- V\u00E9rifier que l\u0027h\u00F4te Hyper-V est s\u00E9curis\u00E9 avant tout clonage",
             "DistinguishedName": "CN=Cloneable Domain Controllers,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "a86b8330-62e9-4836-850d-45bc00fd001f",
+            "Id": "34c2ca1b-f5bb-51bf-b1d4-08291184ec55",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -869,12 +869,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Protected Users",
-            "Description": "# \uD83D\uDC65 Protected Users Group\n\n**Universal** group created automatically (Windows Server 2012 R2\u002B).\n\n## Role\n- Members automatically benefit from **enhanced Kerberos protections**:\n  - No Kerberos delegation\n  - No RC4 for authentication (Kerberos AES only)\n  - No NTLM credential caching\n  - TGT reduced to 4 hours (non-renewable)\n  - No NTLM, Digest, CredSSP authentication\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE2 **Best practice \u2014 add sensitive accounts**\n\n- **Add** all Tier 0 and Tier 1 administration accounts\n- **Test** before adding service accounts \u2014 incompatible with some legacy protocols\n- **Do not add**: service accounts using NTLM, Kerberos delegation, or plaintext password authentication\n- Protects against **Pass-the-Hash**, **Pass-the-Ticket**, **Overpass-the-Hash**",
+            "Description": "# \uD83D\uDC65 Groupe Protected Users\n\nGroupe **universel** cr\u00E9\u00E9 automatiquement (Windows Server 2012 R2\u002B).\n\n## R\u00F4le\n- Les membres b\u00E9n\u00E9ficient de **protections Kerberos renforc\u00E9es** automatiquement :\n  - Pas de d\u00E9l\u00E9gation Kerberos\n  - Pas de RC4 pour l\u0027authentification (Kerberos AES uniquement)\n  - Pas de mise en cache des credentials NTLM\n  - TGT r\u00E9duit \u00E0 4 heures (non renouvelable)\n  - Pas d\u0027authentification NTLM, Digest, CredSSP\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE2 **Bonne pratique \u2014 ajouter les comptes sensibles**\n\n- **Ajouter** tous les comptes d\u0027administration Tier 0 et Tier 1\n- **Tester** avant d\u0027ajouter des comptes de service \u2014 incompatible avec certains protocoles legacy\n- **Ne pas ajouter** : comptes de service utilisant NTLM, d\u00E9l\u00E9gation Kerberos, ou authentification avec mot de passe en clair\n- Prot\u00E8ge contre **Pass-the-Hash**, **Pass-the-Ticket**, **Overpass-the-Hash**",
             "DistinguishedName": "CN=Protected Users,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "3b04ae2d-e7d7-45d8-9f2b-e4b7b4bd850c",
+            "Id": "43990565-eab5-56a7-8901-0b1d28eeb303",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -903,12 +903,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Key Admins",
-            "Description": "# \uD83D\uDC65 Key Admins Group\n\n**Global** group created automatically (Windows Server 2016\u002B).\n\n## Role\n- Members authorized to perform administrative actions on **msDS-KeyCredentialLink** attributes\n- Used for managing **Windows Hello for Business** and FIDO2 keys at the domain level\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Shadow Credentials risk**\n\n- **Shadow Credentials** attack vector: a member can add alternative credentials to any domain account\n- Documented attack: \u0060Whisker\u0060, \u0060pyWhisker\u0060\n- Monitor modifications to the \u0060msDS-KeyCredentialLink\u0060 attribute \u2014 Event ID 5136\n- Minimize membership",
+            "Description": "# \uD83D\uDC65 Groupe Key Admins\n\nGroupe **global** cr\u00E9\u00E9 automatiquement (Windows Server 2016\u002B).\n\n## R\u00F4le\n- Membres autoris\u00E9s \u00E0 effectuer des actions administratives sur les **attributs msDS-KeyCredentialLink**\n- Utilis\u00E9 pour la gestion des **Windows Hello for Business** et des cl\u00E9s FIDO2 au niveau du domaine\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Risque Shadow Credentials**\n\n- Vecteur d\u0027attaque **Shadow Credentials** : un membre peut ajouter des credentials alternatifs \u00E0 n\u0027importe quel compte du domaine\n- Attaque document\u00E9e : \u0060Whisker\u0060, \u0060pyWhisker\u0060\n- Surveiller les modifications de l\u0027attribut \u0060msDS-KeyCredentialLink\u0060 \u2014 Event ID 5136\n- Limiter les membres au strict minimum",
             "DistinguishedName": "CN=Key Admins,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "6cfb00b6-6580-488b-ab6b-a5f49491b332",
+            "Id": "c46b7f5f-873a-557a-938f-e1c098544ffe",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -937,12 +937,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Enterprise Key Admins",
-            "Description": "# \uD83D\uDC65 Enterprise Key Admins Group\n\n**Universal** group created automatically (Windows Server 2016\u002B). Forest root domain.\n\n## Role\n- Equivalent of **Key Admins** but with scope across **all forest domains**\n- Manages \u0060msDS-KeyCredentialLink\u0060 attributes at forest level\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Shadow Credentials risk (entire forest)**\n\n- Same attack vector as **Key Admins** but with forest-wide scope\n- **Keep empty** at all times unless there is a specific operational need\n- Monitor any modification \u2014 Event ID 4728, 4729 and 5136",
+            "Description": "# \uD83D\uDC65 Groupe Enterprise Key Admins\n\nGroupe **universel** cr\u00E9\u00E9 automatiquement (Windows Server 2016\u002B). Domaine racine de la for\u00EAt.\n\n## R\u00F4le\n- \u00C9quivalent de **Key Admins** mais avec port\u00E9e sur **tous les domaines de la for\u00EAt**\n- Gestion des attributs \u0060msDS-KeyCredentialLink\u0060 au niveau for\u00EAt\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Risque Shadow Credentials (for\u00EAt enti\u00E8re)**\n\n- M\u00EAme vecteur d\u0027attaque que **Key Admins** mais avec port\u00E9e for\u00EAt\n- **Maintenir vide** en permanence sauf besoin op\u00E9rationnel sp\u00E9cifique\n- Surveiller toute modification \u2014 Event ID 4728, 4729 et 5136",
             "DistinguishedName": "CN=Enterprise Key Admins,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "a7889a79-ee6f-431d-b1fe-305157be3ee7",
+            "Id": "8701bd55-b753-5361-a370-cce5197858b3",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -971,12 +971,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "DnsUpdateProxy",
-            "Description": "# \uD83D\uDC65 DnsUpdateProxy Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Members authorized to **register DNS records** on behalf of other clients\n- Typically used by **DHCP** servers for dynamic DNS updates\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 DNS squatting risk**\n\n- **Limit** members to authorized DHCP servers only\n- Records created by this group are initially ownerless \u2014 vector for **DNS hijacking**\n- Configure the DHCP server with a dedicated account rather than using this group if possible\n- If used, enable **DNS dynamic update credentials** on the DHCP server",
+            "Description": "# \uD83D\uDC65 Groupe DnsUpdateProxy\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Membres autoris\u00E9s \u00E0 **enregistrer des enregistrements DNS** pour le compte d\u0027autres clients\n- Utilis\u00E9 typiquement par les serveurs **DHCP** pour la mise \u00E0 jour dynamique DNS\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Risque de squatting DNS**\n\n- **Limiter** les membres aux seuls serveurs DHCP autoris\u00E9s\n- Les enregistrements cr\u00E9\u00E9s par ce groupe sont initialement sans propri\u00E9taire \u2014 vecteur de **DNS hijacking**\n- Configurer le serveur DHCP avec un compte d\u00E9di\u00E9 plut\u00F4t que d\u0027utiliser ce groupe si possible\n- Si utilis\u00E9, activer le **DNS dynamic update credentials** sur le serveur DHCP",
             "DistinguishedName": "CN=DnsUpdateProxy,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 1"
           },
           {
-            "Id": "87ea4824-9eb3-4c39-ad29-776e2a5a81d8",
+            "Id": "dc91b984-6216-51bd-966d-f7bd2224bbb2",
             "Type": "User",
             "Children": [],
             "MemberOf": [],
@@ -1005,12 +1005,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "DefaultAccount",
-            "Description": "# \uD83D\uDC64 DefaultAccount\n\n**System-managed** account created automatically by Windows.\n\n## Role\n- Internal account used by Windows for certain processes\n- Disabled by default\n- Managed automatically by Windows \u2014 do not modify\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE1 **Keep disabled**\n\n- Never enable this account manually\n- Monitor any modification (activation, password change)",
+            "Description": "# \uD83D\uDC64 Compte DefaultAccount\n\nCompte **syst\u00E8me g\u00E9r\u00E9** cr\u00E9\u00E9 automatiquement par Windows.\n\n## R\u00F4le\n- Compte interne utilis\u00E9 par le syst\u00E8me Windows pour certains processus\n- D\u00E9sactiv\u00E9 par d\u00E9faut\n- G\u00E9r\u00E9 automatiquement par Windows \u2014 ne pas modifier\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE1 **Maintenir d\u00E9sactiv\u00E9**\n\n- Ne jamais activer ce compte manuellement\n- Surveiller toute modification (activation, changement de mot de passe)",
             "DistinguishedName": "CN=DefaultAccount,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "c43188d2-96dc-4b9e-9d37-cff34f0babcc",
+            "Id": "812c1e73-7352-5d4f-a6bf-5bb44e8b9d4a",
             "Type": "User",
             "Children": [],
             "MemberOf": [],
@@ -1039,12 +1039,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "WDAGUtilityAccount",
-            "Description": "# \uD83D\uDC64 WDAGUtilityAccount\n\nSystem account for **Windows Defender Application Guard (WDAG)**.\n\n## Role\n- Used by the WDAG feature to isolate browsing sessions in a Hyper-V container\n- Managed automatically by Windows \u2014 do not modify\n- Disabled if WDAG is not in use\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE1 **System account \u2014 do not modify**\n\n- Never enable or modify this account manually\n- Its presence is normal in Windows 10/11 and Windows Server 2016\u002B domains",
+            "Description": "# \uD83D\uDC64 Compte WDAGUtilityAccount\n\nCompte syst\u00E8me pour **Windows Defender Application Guard (WDAG)**.\n\n## R\u00F4le\n- Utilis\u00E9 par la fonctionnalit\u00E9 WDAG pour isoler les sessions de navigation dans un conteneur Hyper-V\n- G\u00E9r\u00E9 automatiquement par Windows \u2014 ne pas modifier\n- D\u00E9sactiv\u00E9 si WDAG n\u0027est pas utilis\u00E9\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE1 **Compte syst\u00E8me \u2014 ne pas modifier**\n\n- Ne jamais activer ou modifier ce compte manuellement\n- Sa pr\u00E9sence est normale dans les domaines Windows 10/11 et Windows Server 2016\u002B",
             "DistinguishedName": "CN=WDAGUtilityAccount,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "fb660540-57ef-41a3-bd16-ac3aaa957b33",
+            "Id": "6252fc43-315a-541e-9347-4227bd5a41a5",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1073,12 +1073,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "GG-HelpDesk",
-            "Description": "Helpdesk group \u2014 resets passwords and unlocks user accounts (Tier 2)",
+            "Description": "Groupe helpdesk \u2014 r\u00E9initialise les mots de passe et d\u00E9verrouille les comptes utilisateurs (Tier 2)",
             "DistinguishedName": "CN=GG-HelpDesk,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "d1e3e1b8-8b15-42d4-9cca-14f7ac11e92c",
+            "Id": "99eb5d5b-3753-5e8e-bab7-7169a877b006",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1107,12 +1107,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "GG-IT-Workstations",
-            "Description": "IT Workstations group \u2014 manages computer objects in the Workstations OU (Tier 2)",
+            "Description": "Groupe IT Workstations \u2014 g\u00E8re les objets ordinateurs dans l\u0027OU Workstations (Tier 2)",
             "DistinguishedName": "CN=GG-IT-Workstations,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "48de8425-8951-40ca-97e8-53ee6d996601",
+            "Id": "6cdf8d7d-5b9a-5210-9909-3806c676dd0a",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1141,12 +1141,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "GG-IT-Servers",
-            "Description": "IT Servers group \u2014 manages computer and server objects in the Servers OU (Tier 1)",
+            "Description": "Groupe IT Servers \u2014 g\u00E8re les objets ordinateurs et serveurs dans l\u0027OU Servers (Tier 1)",
             "DistinguishedName": "CN=GG-IT-Servers,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 1"
           },
           {
-            "Id": "da58fc09-8754-44ee-913b-a8753a383993",
+            "Id": "44e6db03-e972-55f3-a861-91707b4e6939",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1175,7 +1175,7 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "GG-Tier1-Operators",
-            "Description": "Tier 1 Operators group \u2014 can modify attributes of domain controllers (Tier 1)",
+            "Description": "Groupe op\u00E9rateurs Tier 1 \u2014 peut modifier les attributs des contr\u00F4leurs de domaine (Tier 1)",
             "DistinguishedName": "CN=GG-Tier1-Operators,CN=Users,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           }
@@ -1225,16 +1225,16 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "Users",
-        "Description": "# Users Container\n\nDefault container for domain users and groups.\n\n\u003E **Note**: When creating a new user without specifying a location, it is placed here by default.",
+        "Description": "# Container Users\n\nContainer par d\u00E9faut pour les utilisateurs et groupes du domaine.\n\n\u003E **Note** : Lors de la cr\u00E9ation d\u0027un nouvel utilisateur sans sp\u00E9cifier d\u0027emplacement, il est plac\u00E9 ici par d\u00E9faut.",
         "DistinguishedName": "CN=Users,DC=fromagerie-alpage,DC=local",
         "Tier": "Tier 2"
       },
       {
-        "Id": "34b53d57-d42b-4fa7-8e1f-1a01bf365b6a",
+        "Id": "e68db921-ec5b-5919-b5b0-2ed9b4a86070",
         "Type": "Container",
         "Children": [
           {
-            "Id": "26d0d404-8c43-4325-af81-fc260dbbe1dd",
+            "Id": "c7f367e9-ecf5-5dd0-8ef4-cd80a92d14bf",
             "Type": "Computer",
             "Children": [],
             "MemberOf": [],
@@ -1268,7 +1268,7 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "WORKSTATION-01",
-            "Description": "# Sample Workstation\n\nComputer joined to the domain placed in the default Computers container.\n\n\u003E **Note**: When joining a computer to the domain, it is automatically placed in this container.",
+            "Description": "# Poste de travail exemple\n\nOrdinateur joint au domaine plac\u00E9 dans le container Computers par d\u00E9faut.\n\n\u003E **Note** : Lors de la jonction d\u0027un ordinateur au domaine, il est automatiquement plac\u00E9 dans ce container.",
             "DistinguishedName": "CN=WORKSTATION-01,CN=Computers,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 2"
           }
@@ -1309,16 +1309,16 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "Computers",
-        "Description": "# Computers Container\n\nDefault container for computers joined to the domain.\n\n\u003E **Note**: When joining a computer to the domain without specifying a location, it is placed here by default.",
+        "Description": "# Container Computers\n\nContainer par d\u00E9faut pour les ordinateurs joints au domaine.\n\n\u003E **Note** : Lors de la jonction d\u0027un ordinateur au domaine sans sp\u00E9cifier d\u0027emplacement, il est plac\u00E9 ici par d\u00E9faut.",
         "DistinguishedName": "CN=Computers,DC=fromagerie-alpage,DC=local",
         "Tier": "Tier 2"
       },
       {
-        "Id": "cfe493bd-bafd-48c3-a430-2c2413af676c",
+        "Id": "1179ce6b-af8c-537b-b860-a70f67d6f313",
         "Type": "OrganizationalUnit",
         "Children": [
           {
-            "Id": "8d8861dc-af27-4566-b770-c3fe33dd6e48",
+            "Id": "1343534f-a6f3-56b0-8a26-6392add94863",
             "Type": "Computer",
             "Children": [],
             "MemberOf": [
@@ -1358,7 +1358,7 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "DC01",
-            "Description": "# Primary Domain Controller\n\nFirst domain controller of the domain.\n\n\u003E **FSMO Roles**: This DC typically hosts all FSMO roles during initial installation:\n\u003E - Schema Master\n\u003E - Domain Naming Master\n\u003E - RID Master\n\u003E - PDC Emulator\n\u003E - Infrastructure Master",
+            "Description": "# Contr\u00F4leur de domaine principal\n\nPremier contr\u00F4leur de domaine du domaine.\n\n\u003E **R\u00F4les FSMO** : Ce DC h\u00E9berge g\u00E9n\u00E9ralement tous les r\u00F4les FSMO lors de l\u0027installation initiale :\n\u003E - Schema Master\n\u003E - Domain Naming Master\n\u003E - RID Master\n\u003E - PDC Emulator\n\u003E - Infrastructure Master",
             "DistinguishedName": "CN=DC01,OU=Domain Controllers,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           }
@@ -1401,16 +1401,16 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "Domain Controllers",
-        "Description": "# Domain Controllers OU\n\nDefault organizational unit for domain controllers.\n\n\u003E **Note**: All domain controllers are automatically placed in this OU when promoted.",
+        "Description": "# OU Domain Controllers\n\nUnit\u00E9 d\u0027organisation par d\u00E9faut pour les contr\u00F4leurs de domaine.\n\n\u003E **Note** : Tous les contr\u00F4leurs de domaine sont automatiquement plac\u00E9s dans cette OU lors de leur promotion.",
         "DistinguishedName": "OU=Domain Controllers,DC=fromagerie-alpage,DC=local",
         "Tier": "Tier 0"
       },
       {
-        "Id": "5c6ca484-e5cb-43da-a571-96d171b42c4e",
+        "Id": "52b703d7-6a77-59a5-82e9-8b2483c307f8",
         "Type": "Container",
         "Children": [
           {
-            "Id": "1f21e1c5-fa76-496f-a06c-f554cc4095c9",
+            "Id": "f138dcfd-e4a3-58a0-9667-27bb70657400",
             "Type": "Container",
             "Children": [],
             "MemberOf": [],
@@ -1439,16 +1439,16 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Password Settings Container",
-            "Description": "# Password Settings Container\n\nSystem container holding all Password Settings Objects (PSO) of the domain.\n\n\u003E **Location**: \u0060CN=Password Settings Container,CN=System,DC=domain,DC=com\u0060\n\nPSOs allow defining granular password policies.",
+            "Description": "# Password Settings Container\n\nContainer syst\u00E8me contenant tous les Password Settings Objects (PSO) du domaine.\n\n\u003E **Emplacement** : \u0060CN=Password Settings Container,CN=System,DC=domaine,DC=com\u0060\n\nLes PSOs permettent de d\u00E9finir des politiques de mot de passe granulaires.",
             "DistinguishedName": "CN=Password Settings Container,CN=System,DC=fromagerie-alpage,DC=local",
             "Tier": null
           },
           {
-            "Id": "b182358b-272c-413d-81c8-2659793bbac1",
+            "Id": "d3bfefac-6134-569d-afb0-c5871692d81d",
             "Type": "Container",
             "Children": [
               {
-                "Id": "9a88ece0-c870-449c-a3cb-786df6938dcd",
+                "Id": "16bd1fad-7f6d-533b-892c-4f14b2e5dde9",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1477,12 +1477,12 @@
                 "CreatedDate": "2025-09-17T00:00:00",
                 "ModifiedDate": "2025-09-17T00:00:00",
                 "Name": "Default Domain Policy",
-                "Description": "# \uD83D\uDCCB Default Domain Policy\n\n\u003E \u26A0\uFE0F **FIXED GUID**: \u0060{31B2F340-016D-11D2-945F-00C04FB984F9}\u0060\n\nThis GPO is **automatically created** when the first domain controller is promoted and applies to the **entire domain**.\n\n## Default Managed Settings\n\n### \uD83D\uDD11 Password Policy (Computer Configuration)\n| Setting | Default Value |\n|---|---|\n| Minimum password length | 7 characters |\n| Password complexity | Enabled |\n| Password history | 24 passwords |\n| Maximum password age | 42 days |\n| Minimum password age | 1 day |\n\n### \uD83D\uDD12 Account Lockout Policy\n| Setting | Default Value |\n|---|---|\n| Lockout threshold | 0 (disabled) |\n| Lockout duration | Not defined |\n\n### \uD83C\uDFAB Kerberos Policy\n| Setting | Default Value |\n|---|---|\n| Ticket lifetime | 10 hours |\n| Service ticket lifetime | 600 minutes |\n| Maximum clock skew | 5 minutes |\n\n## \u26A0\uFE0F Important Warnings\n\u003E \u274C **Never delete** this GPO \u2014 it breaks security policies for the entire domain.\n\n\u003E \u26A0\uFE0F **Never disable** the link of this GPO on the domain.\n\n\u003E \u2705 **Best practice**: Only modify password and Kerberos settings here. All other configuration should be done in dedicated GPOs.\n\n## Technical Information\n- **DN**: \u0060CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=domain,DC=com\u0060\n- **SYSVOL**: \u0060\\\\domain\\SYSVOL\\domain\\Policies\\{31B2F340-016D-11D2-945F-00C04FB984F9}\u0060\n- **Version**: Auto-incremented on each modification",
+                "Description": "# \uD83D\uDCCB Default Domain Policy\n\n\u003E \u26A0\uFE0F **GUID FIXE** : \u0060{31B2F340-016D-11D2-945F-00C04FB984F9}\u0060\n\nCette GPO est **cr\u00E9\u00E9e automatiquement** lors de la promotion du premier contr\u00F4leur de domaine et s\u0027applique \u00E0 l\u0027**ensemble du domaine**.\n\n## Param\u00E8tres par d\u00E9faut g\u00E9r\u00E9s\n\n### \uD83D\uDD11 Politique de mots de passe (Computer Configuration)\n| Param\u00E8tre | Valeur par d\u00E9faut |\n|---|---|\n| Longueur minimale | 7 caract\u00E8res |\n| Complexit\u00E9 | Activ\u00E9e |\n| Historique | 24 mots de passe |\n| \u00C2ge maximum | 42 jours |\n| \u00C2ge minimum | 1 jour |\n\n### \uD83D\uDD12 Politique de verrouillage de compte\n| Param\u00E8tre | Valeur par d\u00E9faut |\n|---|---|\n| Seuil de verrouillage | 0 (d\u00E9sactiv\u00E9) |\n| Dur\u00E9e de verrouillage | Non d\u00E9fini |\n\n### \uD83C\uDFAB Politique Kerberos\n| Param\u00E8tre | Valeur par d\u00E9faut |\n|---|---|\n| Dur\u00E9e de vie du ticket | 10 heures |\n| Dur\u00E9e de vie du ticket de service | 600 minutes |\n| Tol\u00E9rance d\u0027horloge max | 5 minutes |\n\n## \u26A0\uFE0F Avertissements importants\n\u003E \u274C **Ne jamais supprimer** cette GPO \u2014 cela casse les politiques de s\u00E9curit\u00E9 de tout le domaine.\n\n\u003E \u26A0\uFE0F **Ne pas d\u00E9sactiver** le lien de cette GPO sur le domaine.\n\n\u003E \u2705 **Bonne pratique** : Ne modifier que les param\u00E8tres de mot de passe et Kerberos ici. Toute autre configuration doit \u00EAtre faite dans des GPOs d\u00E9di\u00E9es.\n\n## Informations techniques\n- **DN** : \u0060CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=domaine,DC=com\u0060\n- **SYSVOL** : \u0060\\\\domaine\\SYSVOL\\domaine\\Policies\\{31B2F340-016D-11D2-945F-00C04FB984F9}\u0060\n- **Version** : Incr\u00E9ment\u00E9e automatiquement \u00E0 chaque modification",
                 "DistinguishedName": "CN=Default Domain Policy,CN=Policies,CN=System,DC=fromagerie-alpage,DC=local",
                 "Tier": "Tier 0"
               },
               {
-                "Id": "b421eca5-4e8b-488c-a8a5-8c8287bdb230",
+                "Id": "a7c84122-df44-5f57-9e0c-1405c333b445",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1511,12 +1511,12 @@
                 "CreatedDate": "2025-09-17T00:00:00",
                 "ModifiedDate": "2025-09-17T00:00:00",
                 "Name": "Default Domain Controllers Policy",
-                "Description": "# \uD83D\uDCCB Default Domain Controllers Policy\n\n\u003E \u26A0\uFE0F **FIXED GUID**: \u0060{6AC1786C-016F-11D2-945F-00C04fB984F9}\u0060\n\nThis GPO is **automatically created** with the domain and applies only to the **Domain Controllers OU**.\n\n## Default Managed Settings\n\n### \uD83D\uDEE1\uFE0F User Rights Assignment\n| Setting | Default Value |\n|---|---|\n| Log on locally | Administrators, Account Operators, Backup Operators, Print Operators, Server Operators |\n| Access network | Authenticated Users, Everyone |\n| Shut down system | Administrators, Account Operators, Backup Operators, Print Operators, Server Operators |\n| Manage audit and security log | Administrators |\n\n### \uD83D\uDD0D Audit Policy\n| Category | Default Value |\n|---|---|\n| Account logon | Success, Failure |\n| Account management | Success |\n| Directory service access | Success |\n| Logon events | Success, Failure |\n| Policy change | Success |\n| Privilege use | Failure |\n| Process tracking | None |\n| System events | Success |\n\n### \uD83D\uDD12 Security Options\n- SMB server signing required: **Enabled**\n- NTLMv2 only: **Configured**\n\n## \u26A0\uFE0F Important Warnings\n\u003E \u274C **Never delete** this GPO \u2014 it ensures minimum security for domain controllers.\n\n\u003E \u26A0\uFE0F **Never disable** the link of this GPO on the Domain Controllers OU.\n\n\u003E \u2705 **Best practice**: Add complementary hardening GPOs (CIS Benchmarks, etc.) rather than modifying this one.\n\n\u003E \u2139\uFE0F **RODC**: Read-Only Domain Controllers also inherit this GPO via the Domain Controllers OU.\n\n## Technical Information\n- **DN**: \u0060CN={6AC1786C-016F-11D2-945F-00C04fB984F9},CN=Policies,CN=System,DC=domain,DC=com\u0060\n- **SYSVOL**: \u0060\\\\domain\\SYSVOL\\domain\\Policies\\{6AC1786C-016F-11D2-945F-00C04fB984F9}\u0060\n- **Version**: Auto-incremented on each modification",
+                "Description": "# \uD83D\uDCCB Default Domain Controllers Policy\n\n\u003E \u26A0\uFE0F **GUID FIXE** : \u0060{6AC1786C-016F-11D2-945F-00C04fB984F9}\u0060\n\nCette GPO est **cr\u00E9\u00E9e automatiquement** avec le domaine et s\u0027applique uniquement \u00E0 l\u0027**OU Domain Controllers**.\n\n## Param\u00E8tres par d\u00E9faut g\u00E9r\u00E9s\n\n### \uD83D\uDEE1\uFE0F Droits utilisateur (User Rights Assignment)\n| Param\u00E8tre | Valeur par d\u00E9faut |\n|---|---|\n| Ouvrir une session localement | Administrators, Account Operators, Backup Operators, Print Operators, Server Operators |\n| Acc\u00E8s r\u00E9seau | Authenticated Users, Everyone |\n| Fermer le syst\u00E8me | Administrators, Account Operators, Backup Operators, Print Operators, Server Operators |\n| G\u00E9rer les journaux d\u0027audit | Administrators |\n\n### \uD83D\uDD0D Audit Policy\n| Cat\u00E9gorie | Valeur par d\u00E9faut |\n|---|---|\n| Connexion de compte | Succ\u00E8s, \u00C9chec |\n| Gestion des comptes | Succ\u00E8s |\n| Acc\u00E8s au service d\u0027annuaire | Succ\u00E8s |\n| Connexion | Succ\u00E8s, \u00C9chec |\n| Changements de politique | Succ\u00E8s |\n| Utilisation des privil\u00E8ges | \u00C9chec |\n| Suivi des processus | Aucun |\n| \u00C9v\u00E9nements syst\u00E8me | Succ\u00E8s |\n\n### \uD83D\uDD12 Options de s\u00E9curit\u00E9\n- Signature SMB requise c\u00F4t\u00E9 serveur : **Activ\u00E9**\n- NTLMv2 uniquement : **Configur\u00E9**\n\n## \u26A0\uFE0F Avertissements importants\n\u003E \u274C **Ne jamais supprimer** cette GPO \u2014 elle garantit la s\u00E9curit\u00E9 minimale des contr\u00F4leurs de domaine.\n\n\u003E \u26A0\uFE0F **Ne pas d\u00E9sactiver** le lien de cette GPO sur l\u0027OU Domain Controllers.\n\n\u003E \u2705 **Bonne pratique** : Ajouter des GPOs compl\u00E9mentaires pour le durcissement (CIS Benchmarks, ANSSI) plut\u00F4t que de modifier celle-ci.\n\n\u003E \u2139\uFE0F **RODC** : Les Read-Only Domain Controllers h\u00E9ritent \u00E9galement de cette GPO via l\u0027OU Domain Controllers.\n\n## Informations techniques\n- **DN** : \u0060CN={6AC1786C-016F-11D2-945F-00C04fB984F9},CN=Policies,CN=System,DC=domaine,DC=com\u0060\n- **SYSVOL** : \u0060\\\\domaine\\SYSVOL\\domaine\\Policies\\{6AC1786C-016F-11D2-945F-00C04fB984F9}\u0060\n- **Version** : Incr\u00E9ment\u00E9e automatiquement \u00E0 chaque modification",
                 "DistinguishedName": "CN=Default Domain Controllers Policy,CN=Policies,CN=System,DC=fromagerie-alpage,DC=local",
                 "Tier": "Tier 0"
               },
               {
-                "Id": "ae719240-a0ea-4540-bb91-21b34050622d",
+                "Id": "52f14aa6-f213-5ea5-bc67-9d6916f6bcd5",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1545,12 +1545,12 @@
                 "CreatedDate": "2025-09-17T00:00:00",
                 "ModifiedDate": "2025-09-17T00:00:00",
                 "Name": "GPO-Baseline-DC",
-                "Description": "# \uD83D\uDCCB GPO-Baseline-DC\n\n\u003E \uD83D\uDD12 Security GPO applied to site **Default-First-Site-Name**.\n\n## Purpose\nDefine the security baseline for all domain controllers in the default site.\n\n## Key Settings\n| Category | Value |\n|---|---|\n| Logon Audit | Success, Failure |\n| Windows Firewall | Enabled (all profiles) |\n| Local Rights | Administrators only |\n| SMB Signing | Required |\n\n## \u26A0\uFE0F Best practices\n- Do not modify without validation in a test environment\n- Supplement with CIS Level 1 benchmarks for DCs",
+                "Description": "# \uD83D\uDCCB GPO-Baseline-DC\n\n\u003E \uD83D\uDD12 GPO de s\u00E9curit\u00E9 appliqu\u00E9e au site **Default-First-Site-Name**.\n\n## Objectif\nD\u00E9finir la ligne de base de s\u00E9curit\u00E9 pour tous les contr\u00F4leurs de domaine du site par d\u00E9faut.\n\n## Param\u00E8tres principaux\n| Cat\u00E9gorie | Valeur |\n|---|---|\n| Audit de connexion | Succ\u00E8s, \u00C9chec |\n| Pare-feu Windows | Activ\u00E9 (tous profils) |\n| Droits locaux | Administrators uniquement |\n| SMB Signing | Requis |\n\n## \u26A0\uFE0F Bonnes pratiques\n- Ne pas modifier sans validation en environnement de test\n- Compl\u00E9ter avec les benchmarks CIS Level 1 pour les DC",
                 "DistinguishedName": "CN=GPO-Baseline-DC,CN=Policies,CN=System,DC=fromagerie-alpage,DC=local",
                 "Tier": "Tier 0"
               },
               {
-                "Id": "f7f3e174-ea1d-455e-95dd-71b054737d1f",
+                "Id": "049355ad-f85b-517c-8ce5-1d3781e6f2ab",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1579,12 +1579,12 @@
                 "CreatedDate": "2025-09-17T00:00:00",
                 "ModifiedDate": "2025-09-17T00:00:00",
                 "Name": "GPO-Paris-Workstations",
-                "Description": "# \uD83D\uDCCB GPO-Paris-Workstations\n\n\u003E \uD83D\uDDA5\uFE0F GPO applied to site **Site-Paris** \u2014 workstations.\n\n## Purpose\nManage workstation configuration at the Paris datacenter: software deployments, network drive mappings and printers.\n\n## Key Settings\n| Category | Value |\n|---|---|\n| Software Deployment | Office 365, VPN Client |\n| Network Drives | P: \u2192 \\\\srv-paris\\shares |\n| Wallpaper | Paris corporate branding |\n| Printers | AUTO (site-aware) |\n\n## \u26A0\uFE0F Best practices\n- Test on a pilot group before production deployment\n- Use WMI filters to target Windows 10/11 only",
+                "Description": "# \uD83D\uDCCB GPO-Paris-Workstations\n\n\u003E \uD83D\uDDA5\uFE0F GPO appliqu\u00E9e au site **Site-Paris** \u2014 postes de travail.\n\n## Objectif\nG\u00E9rer la configuration des postes de travail du datacenter Paris : d\u00E9ploiements logiciels, mappages de lecteurs r\u00E9seau et imprimantes.\n\n## Param\u00E8tres principaux\n| Cat\u00E9gorie | Valeur |\n|---|---|\n| D\u00E9ploiement logiciels | Office 365, VPN Client |\n| Lecteurs r\u00E9seau | P: \u2192 \\\\srv-paris\\partages |\n| Fond d\u0027\u00E9cran | Charte graphique Paris |\n| Imprimantes | AUTO (site-aware) |\n\n## \u26A0\uFE0F Bonnes pratiques\n- Tester sur un groupe pilote avant d\u00E9ploiement en production\n- Utiliser les filtres WMI pour cibler Windows 10/11 uniquement",
                 "DistinguishedName": "CN=GPO-Paris-Workstations,CN=Policies,CN=System,DC=fromagerie-alpage,DC=local",
                 "Tier": "Tier 1"
               },
               {
-                "Id": "ab993d7d-1906-4288-90a6-e8ae8b35e933",
+                "Id": "428cb59e-6bdc-51f7-8f20-379a8a53ccda",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1613,7 +1613,7 @@
                 "CreatedDate": "2025-09-17T00:00:00",
                 "ModifiedDate": "2025-09-17T00:00:00",
                 "Name": "GPO-Lyon-Workstations",
-                "Description": "# \uD83D\uDCCB GPO-Lyon-Workstations\n\n\u003E \uD83D\uDDA5\uFE0F GPO applied to site **Site-Lyon** \u2014 workstations.\n\n## Purpose\nManage workstation configuration at the Lyon site: software deployments, drive mappings and local printers.\n\n## Key Settings\n| Category | Value |\n|---|---|\n| Software Deployment | Office 365, VPN Client |\n| Network Drives | L: \u2192 \\\\srv-lyon\\shares |\n| Wallpaper | Lyon corporate branding |\n| Printers | Ricoh-Lyon-Floor1, Ricoh-Lyon-Floor2 |\n\n## \u26A0\uFE0F Best practices\n- Synchronise shared settings with GPO-Paris-Workstations\n- Verify print server accessibility before deployment",
+                "Description": "# \uD83D\uDCCB GPO-Lyon-Workstations\n\n\u003E \uD83D\uDDA5\uFE0F GPO appliqu\u00E9e au site **Site-Lyon** \u2014 postes de travail.\n\n## Objectif\nG\u00E9rer la configuration des postes de travail du site Lyon : d\u00E9ploiements logiciels, mappages de lecteurs et imprimantes locales.\n\n## Param\u00E8tres principaux\n| Cat\u00E9gorie | Valeur |\n|---|---|\n| D\u00E9ploiement logiciels | Office 365, VPN Client |\n| Lecteurs r\u00E9seau | L: \u2192 \\\\srv-lyon\\partages |\n| Fond d\u0027\u00E9cran | Charte graphique Lyon |\n| Imprimantes | Ricoh-Lyon-Floor1, Ricoh-Lyon-Floor2 |\n\n## \u26A0\uFE0F Bonnes pratiques\n- Synchroniser avec GPO-Paris-Workstations pour les param\u00E8tres communs\n- V\u00E9rifier l\u0027accessibilit\u00E9 du serveur d\u0027impression avant d\u00E9ploiement",
                 "DistinguishedName": "CN=GPO-Lyon-Workstations,CN=Policies,CN=System,DC=fromagerie-alpage,DC=local",
                 "Tier": "Tier 1"
               }
@@ -1644,7 +1644,7 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Policies",
-            "Description": "# Policies Container (SYSVOL)\n\nThis container represents the \u0060SYSVOL\\Policies\u0060 folder on domain controllers.\n\nEach GPO has a subfolder identified by its **GUID** under:\n\u0060\u0060\u0060\n\\\\\u003Cdomain\u003E\\SYSVOL\\\u003Cdomain\u003E\\Policies\\{GUID}\n\u0060\u0060\u0060",
+            "Description": "# Container Policies (SYSVOL)\n\nCe container repr\u00E9sente le dossier \u0060SYSVOL\\Policies\u0060 sur les contr\u00F4leurs de domaine.\n\nChaque GPO poss\u00E8de un sous-dossier identifi\u00E9 par son **GUID** dans :\n\u0060\u0060\u0060\n\\\\\u003Cdomaine\u003E\\SYSVOL\\\u003Cdomaine\u003E\\Policies\\{GUID}\n\u0060\u0060\u0060",
             "DistinguishedName": "CN=Policies,CN=System,DC=fromagerie-alpage,DC=local",
             "Tier": "Tier 0"
           }
@@ -1675,12 +1675,12 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "System",
-        "Description": "# System Container\n\nActive Directory system container containing configuration objects and system settings.\n\n\u003E **Note**: This container holds configuration objects, services, password policies, etc.",
+        "Description": "# Container System\n\nContainer syst\u00E8me d\u0027Active Directory contenant les objets de configuration et les param\u00E8tres syst\u00E8me.\n\n\u003E **Note** : Ce container contient notamment les objets de configuration, les services, les strat\u00E9gies de mots de passe, etc.",
         "DistinguishedName": "CN=System,DC=fromagerie-alpage,DC=local",
         "Tier": null
       },
       {
-        "Id": "2c42ae53-886d-4fb2-b04b-8c0713462b80",
+        "Id": "6da62460-cf79-5107-bf1b-8cdc7a4982b3",
         "Type": "Container",
         "Children": [],
         "MemberOf": [],
@@ -1709,16 +1709,16 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "ForeignSecurityPrincipals",
-        "Description": "# Foreign Security Principals\n\nContainer for security principals from external trusted domains.\n\n\u003E **Note**: Used in multi-domain and multi-forest environments.",
+        "Description": "# Foreign Security Principals\n\nContainer pour les principaux de s\u00E9curit\u00E9 provenant de domaines externes approuv\u00E9s.\n\n\u003E **Note** : Utilis\u00E9 dans les environnements multi-domaines et multi-for\u00EAts.",
         "DistinguishedName": "CN=ForeignSecurityPrincipals,DC=fromagerie-alpage,DC=local",
         "Tier": null
       },
       {
-        "Id": "9a456372-141e-47b7-a3e2-3fc47e3d5bdc",
+        "Id": "f9f1dce3-578f-5dc0-b811-f5c1593531aa",
         "Type": "OrganizationalUnit",
         "Children": [
           {
-            "Id": "42aec60d-3182-4b4b-9aac-109a24d3c457",
+            "Id": "d322238a-4079-5714-a2d6-8b9b3bc1fa5e",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1745,7 +1745,7 @@
             "PSOLockoutDurationMinutes": null,
             "PSOLockoutObservationWindowMinutes": null,
             "CreatedDate": "2025-09-17T00:00:00",
-            "ModifiedDate": "2026-10-22T11:58:14.3887222+02:00",
+            "ModifiedDate": "2026-10-21T00:00:00",
             "Name": "GG-Sauvegarde-Admins",
             "Description": "Logiciel de sauvegarde : contr\u00F4le total sur le domaine demand\u00E9 par l\u0027\u00E9diteur.",
             "DistinguishedName": "CN=GG-Sauvegarde-Admins,OU=Groupes,DC=fromagerie-alpage,DC=local",
@@ -1776,18 +1776,18 @@
         "PSOLockoutDurationMinutes": null,
         "PSOLockoutObservationWindowMinutes": null,
         "CreatedDate": "2025-09-17T00:00:00",
-        "ModifiedDate": "2026-10-22T11:58:14.3887139+02:00",
+        "ModifiedDate": "2026-10-21T00:00:00",
         "Name": "Groupes",
         "Description": "",
         "DistinguishedName": "OU=Groupes,DC=fromagerie-alpage,DC=local",
         "Tier": "Tier 1"
       },
       {
-        "Id": "8bd6141d-74af-4906-b6a9-70098610c451",
+        "Id": "098ebf5e-4149-553f-abdd-cb3e56a59911",
         "Type": "OrganizationalUnit",
         "Children": [
           {
-            "Id": "346136c8-8310-4d62-8b4b-6fdc1c47a7c9",
+            "Id": "5c7f768e-aa63-5cc9-9440-de3d732de0b0",
             "Type": "User",
             "Children": [],
             "MemberOf": [
@@ -1816,7 +1816,7 @@
             "PSOLockoutDurationMinutes": null,
             "PSOLockoutObservationWindowMinutes": null,
             "CreatedDate": "2025-09-17T00:00:00",
-            "ModifiedDate": "2026-10-22T11:58:14.3887258+02:00",
+            "ModifiedDate": "2026-10-21T00:00:00",
             "Name": "svc-sauvegarde",
             "Description": "Compte du logiciel de sauvegarde.",
             "DistinguishedName": "CN=svc-sauvegarde,OU=Comptes de service,DC=fromagerie-alpage,DC=local",
@@ -1857,7 +1857,7 @@
         "PSOLockoutDurationMinutes": null,
         "PSOLockoutObservationWindowMinutes": null,
         "CreatedDate": "2025-09-17T00:00:00",
-        "ModifiedDate": "2026-10-22T11:58:14.3887246+02:00",
+        "ModifiedDate": "2026-10-21T00:00:00",
         "Name": "Comptes de service",
         "Description": "",
         "DistinguishedName": "OU=Comptes de service,DC=fromagerie-alpage,DC=local",
@@ -1909,9 +1909,9 @@
   "SitesTopology": {
     "Sites": [
       {
-        "Id": "8bee0ac4-4312-499c-acad-bc7cf1da73bf",
+        "Id": "fd5d75ff-aff7-535e-98ab-9440d17ef3b4",
         "Name": "Default-First-Site-Name",
-        "Description": "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration.",
+        "Description": "Site Active Directory cr\u00E9\u00E9 automatiquement lors de la premi\u00E8re installation. Contient initialement tous les contr\u00F4leurs de domaine avant configuration manuelle des sites.",
         "Location": "",
         "Subnets": [],
         "DomainControllers": [
@@ -1919,9 +1919,9 @@
         ],
         "LinkedGPOs": [],
         "Tier": null,
-        "CreatedDate": "2026-10-22T11:58:14.3887748+02:00",
-        "ModifiedDate": "2026-10-22T11:58:14.3887751+02:00",
-        "ShortDescription": "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration."
+        "CreatedDate": "2025-09-17T00:00:00",
+        "ModifiedDate": "2025-09-17T00:00:00",
+        "ShortDescription": "Site Active Directory cr\u00E9\u00E9 automatiquement lors de la premi\u00E8re installation. Contient initialement tous les contr\u00F4leurs de domaine avant configuration manuelle des sites."
       }
     ],
     "SiteLinks": [

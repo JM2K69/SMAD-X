@@ -83,6 +83,38 @@ string See(string source) => T(
     4. Once fixed, **Refresh** must remove the source, and **Analyse > Before / after** (`Ctrl+Shift+B`) shows the effect on the audit.
     """);
 
+// Identifiant tiré d'une clé stable, pour qu'une régénération ne modifie pas les fichiers inutilement
+Guid StableId(string key)
+{
+    var bytes = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(key))[..16];
+    bytes[7] = (byte)((bytes[7] & 0x0F) | 0x50); // version 5 (identifiant dérivé d'un nom)
+    bytes[8] = (byte)((bytes[8] & 0x3F) | 0x80); // variante RFC 4122
+    return new Guid(bytes);
+}
+
+void AssignStableIds(ADRootDocument document)
+{
+    var used = new HashSet<Guid>();
+    foreach (var o in Flatten(document.Domain))
+    {
+        var key = $"{document.Domain.Name}|{o.Type}|{o.DistinguishedName}";
+        var id = StableId(key);
+        for (var n = 2; !used.Add(id); n++)
+            id = StableId($"{key}|{n}");
+        o.Id = id;
+
+        // Les objets ajoutés par les scénarios portent l'heure de la génération : on les ramène avant la date de référence
+        if (o.CreatedDate > reference) o.CreatedDate = reference.AddDays(-400);
+        if (o.ModifiedDate > reference) o.ModifiedDate = reference.AddDays(-1);
+    }
+    foreach (var site in document.SitesTopology?.Sites ?? [])
+    {
+        site.Id = StableId($"{document.Domain.Name}|Site|{site.Name}");
+        site.CreatedDate = reference.AddDays(-400);
+        site.ModifiedDate = reference.AddDays(-400);
+    }
+}
+
 var index = new List<(string Id, string Lang, string Domain, string Title)>();
 
 void Scenario(string id, string frDomain, string enDomain, Func<ADObject, (string Title, string Body)> build)
@@ -90,6 +122,8 @@ void Scenario(string id, string frDomain, string enDomain, Func<ADObject, (strin
     foreach (var (french, domainName) in new[] { (true, frDomain), (false, enDomain) })
     {
         fr = french;
+        // Descriptions des objets intégrés (Builtin, sites…) dans la langue du fichier, quelle que soit celle de la machine
+        LocalizationService.Instance.SetLanguage(fr ? "fr-FR" : "en-US");
         var d = Baseline(domainName);
         var (title, body) = build(d);
         d.Description = $"# {title}\n\n{body.Trim()}\n";
@@ -98,6 +132,7 @@ void Scenario(string id, string frDomain, string enDomain, Func<ADObject, (strin
         Directory.CreateDirectory(dir);
         var path = Path.Combine(dir, $"{id}.smad-x.json");
         var document = new ADRootDocument { Version = ADRootDocument.CurrentVersion, Domain = d, SitesTopology = data.CreateFreshTopology(d.Name) };
+        AssignStableIds(document);
         if (!data.SaveDocumentAsync(document, path).GetAwaiter().GetResult())
             throw new Exception("Échec de l'écriture de " + path);
         index.Add((id, lang, domainName, title));

@@ -74,6 +74,39 @@ public class AttackPathSampleTests
         Assert.Contains(lang == "fr" ? "## Le corriger" : "## Fix it", domain.Description);
     }
 
+    [Theory]
+    [MemberData(nameof(Samples))]
+    public async Task Sample_IsReproducible_NoGenerationTimestamp(string lang, string id)
+    {
+        // Le générateur fige toutes les dates avant la date de référence : une régénération ne change rien
+        var reference = new DateTime(2026, 10, 22);
+        var result = await new ADDataService().LoadDocumentAsync(Path.Combine(SamplesDir(), lang, $"{id}.smad-x.json"));
+        var objects = TestHelpers.Flatten(result.Document!.Domain).ToList();
+
+        Assert.All(objects, o => Assert.True(o.CreatedDate <= reference && o.ModifiedDate <= reference, $"{o.DistinguishedName} : {o.CreatedDate:O}"));
+        Assert.All(result.Document.SitesTopology!.Sites, s => Assert.True(s.CreatedDate <= reference && s.ModifiedDate <= reference, s.Name));
+        Assert.Equal(objects.Count, objects.Select(o => o.Id).Distinct().Count());
+    }
+
+    [Theory]
+    [MemberData(nameof(Samples))]
+    public async Task Sample_BuiltInDescriptionsAreInItsLanguage(string lang, string id)
+    {
+        var domain = await Load(lang, id);
+        var loc = LocalizationService.Instance;
+        var previous = loc.CurrentCulture.Name;
+        try
+        {
+            loc.SetLanguage(lang == "fr" ? "fr-FR" : "en-US");
+            var builtinAdmins = TestHelpers.Flatten(domain).Single(o => o.Name == "Administrators" && o.Parent?.Name == "Builtin");
+            Assert.Equal(loc["Desc.Builtin.Administrators"], builtinAdmins.Description);
+        }
+        finally
+        {
+            loc.SetLanguage(previous);
+        }
+    }
+
     [Fact]
     public async Task Samples_AllUseDifferentDomainNames()
     {

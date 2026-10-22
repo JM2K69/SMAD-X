@@ -1,15 +1,15 @@
 {
   "Version": 2,
   "Domain": {
-    "Id": "8af9f00e-a371-44ff-99d4-1c154a25fac2",
+    "Id": "6bb76e10-3bc1-50a9-8415-ae279a5777d4",
     "Type": "Domain",
     "Children": [
       {
-        "Id": "757148c8-9889-4a4c-ae0e-d733a9bad8e9",
+        "Id": "af3f2c9a-73c7-599a-bfcf-248b2d54dbc4",
         "Type": "Container",
         "Children": [
           {
-            "Id": "a9919667-800f-47b6-a164-c7c22a632d34",
+            "Id": "293d67db-0a7c-5cce-8007-f57716d0bbe4",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -38,12 +38,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Administrators",
-            "Description": "Members of this group have complete and unrestricted access to the computer/domain",
+            "Description": "Membres de ce groupe ont un acc\u00E8s complet et illimit\u00E9 \u00E0 l\u0027ordinateur/domaine",
             "DistinguishedName": "CN=Administrators,CN=Builtin,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "12ac5264-27fc-4386-9ebe-52494734c452",
+            "Id": "a04d8a77-8a66-54ee-8856-f0524ffde005",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -72,12 +72,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Users",
-            "Description": "Users are prevented from making accidental or intentional system-wide changes",
+            "Description": "Les utilisateurs ne peuvent pas apporter des modifications accidentelles ou intentionnelles au syst\u00E8me",
             "DistinguishedName": "CN=Users,CN=Builtin,DC=agence-meridien,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "64348e07-4102-497e-bdf3-380199d22f91",
+            "Id": "c124fe86-8593-5f9b-bec8-d69ef38aa97d",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -106,12 +106,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Guests",
-            "Description": "Guests have the same rights as members of the Users group by default",
+            "Description": "Les invit\u00E9s ont les m\u00EAmes droits que les membres du groupe Utilisateurs par d\u00E9faut",
             "DistinguishedName": "CN=Guests,CN=Builtin,DC=agence-meridien,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "442442c7-e6e5-48d0-8eb3-c3e50e0b46cd",
+            "Id": "f1c8f480-7436-5c7d-aa28-32fe3713f371",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -140,12 +140,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Server Operators",
-            "Description": "Can administer domain servers, including domain controllers (local logon, backup, shutdown). Privileged Tier 0 group: keep it empty.",
+            "Description": "Peuvent administrer les serveurs de domaine, y compris les contr\u00F4leurs de domaine (ouverture de session locale, sauvegarde, arr\u00EAt). Groupe privil\u00E9gi\u00E9 de Tier 0 : il doit rester vide.",
             "DistinguishedName": "CN=Server Operators,CN=Builtin,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "ecbd63b0-e5cc-43a7-ab53-ec17746f5350",
+            "Id": "da02d9a6-2b57-5b77-9ddb-e33842e9b6b3",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -174,12 +174,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Account Operators",
-            "Description": "Can administer user accounts and groups in the domain and log on to domain controllers. Privileged Tier 0 group: keep it empty.",
+            "Description": "Peuvent administrer les comptes utilisateurs et groupes du domaine et ouvrir une session sur les contr\u00F4leurs de domaine. Groupe privil\u00E9gi\u00E9 de Tier 0 : il doit rester vide.",
             "DistinguishedName": "CN=Account Operators,CN=Builtin,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "0e801168-2f7e-4e0b-ab9c-21cda333e284",
+            "Id": "ce76d348-1052-5860-bf1e-eeb7ce7ac65b",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -208,7 +208,7 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Backup Operators",
-            "Description": "Can back up and restore all files on domain controllers",
+            "Description": "Peuvent sauvegarder et restaurer tous les fichiers sur les contr\u00F4leurs de domaine",
             "DistinguishedName": "CN=Backup Operators,CN=Builtin,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           }
@@ -239,16 +239,16 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "Builtin",
-        "Description": "# Builtin Container\n\nContains built-in security groups of the domain.\n\n\u003E **Note**: These groups are automatically created during Active Directory installation.",
+        "Description": "# Container Builtin\n\nContient les groupes de s\u00E9curit\u00E9 int\u00E9gr\u00E9s du domaine.\n\n\u003E **Note** : Ces groupes sont cr\u00E9\u00E9s automatiquement lors de l\u0027installation d\u0027Active Directory.",
         "DistinguishedName": "CN=Builtin,DC=agence-meridien,DC=local",
         "Tier": null
       },
       {
-        "Id": "8562be4f-601b-4431-8fe7-b7ac058f60ae",
+        "Id": "f26aeb9f-4b89-5efd-a26d-651cb8729e1e",
         "Type": "Container",
         "Children": [
           {
-            "Id": "287ad521-4dca-4b33-8259-715a82ddd1c1",
+            "Id": "4006e9c2-94a8-5025-a2f3-b7301532c72c",
             "Type": "User",
             "Children": [],
             "MemberOf": [
@@ -281,12 +281,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Administrator",
-            "Description": "# \uD83D\uDC64 Administrator Account\n\n**Built-in** administrator account created automatically when the domain is promoted.\n\n## Role\n- Full and unrestricted access to all domain resources\n- The only account that cannot be locked out by the account lockout policy\n- Permanent member of **Domain Admins** and **Administrators**\n\n## Default Group Membership\n| Group | Scope |\n|---|---|\n| Administrators | Domain local |\n| Domain Admins | Global |\n| Group Policy Creator Owners | Global |\n| Schema Admins (forest root) | Universal |\n| Enterprise Admins (forest root) | Universal |\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Critical account**\n\n- **Rename** this account to avoid exposing the predictable \u0060Administrator\u0060 name\n- **Disable** this account in production and create a dedicated named account for administration\n- Enable **lockout policy** against brute-force attacks (via Fine-Grained Password Policy)\n- This account is a prime target for **Pass-the-Hash** and **Mimikatz** attacks\n- Monitor with alerts on any logon event for this account\n- **Protected Users** group (Windows Server 2012 R2\u002B) does not apply to Administrator \u2014 manage manually",
+            "Description": "# \uD83D\uDC64 Compte Administrator\n\nCompte administrateur **int\u00E9gr\u00E9** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Acc\u00E8s complet et illimit\u00E9 \u00E0 toutes les ressources du domaine\n- Seul compte qui ne peut pas \u00EAtre verrouill\u00E9 par la politique de verrouillage de compte\n- Membre permanent du groupe **Domain Admins** et **Administrators**\n\n## Appartenance par d\u00E9faut\n| Groupe | Port\u00E9e |\n|---|---|\n| Administrators | Domaine local |\n| Domain Admins | Global |\n| Group Policy Creator Owners | Global |\n| Schema Admins (for\u00EAt racine) | Universel |\n| Enterprise Admins (for\u00EAt racine) | Universel |\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Compte critique**\n\n- **Renommer** ce compte pour ne pas exposer le nom pr\u00E9visible \u0060Administrator\u0060\n- **D\u00E9sactiver** ce compte en production et cr\u00E9er un compte nomm\u00E9 d\u00E9di\u00E9 pour l\u0027administration\n- Activer la **politique de verrouillage** pour les attaques par force brute (via Fine-Grained Password Policy)\n- Ce compte est une cible privil\u00E9gi\u00E9e des attaques **Pass-the-Hash** et **Mimikatz**\n- Surveiller avec des alertes sur toute ouverture de session de ce compte\n- Activer **Protected Users** (Windows Server 2012 R2\u002B) ne s\u0027applique pas \u00E0 Administrator \u2014 g\u00E9rer manuellement",
             "DistinguishedName": "CN=Administrator,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "6c6486ee-01ed-4610-803b-15bae622ea78",
+            "Id": "83d252d0-ff24-5c7f-8366-50cdbf16b53a",
             "Type": "User",
             "Children": [],
             "MemberOf": [
@@ -317,12 +317,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Guest",
-            "Description": "# \uD83D\uDC64 Guest Account\n\n**Built-in** guest account created automatically when the domain is promoted.\n\n## Role\n- Allows anonymous and limited access to the domain without a password\n- Rights equivalent to the **Guests** group (very restricted)\n- Cannot change its own password or access system settings\n\n## Default Group Membership\n| Group | Scope |\n|---|---|\n| Guests | Domain local |\n| Domain Guests | Global |\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Disable immediately in production**\n\n- This account is **disabled by default** since Windows Server 2008 \u2014 verify it stays disabled\n- Never enable this account in a production environment\n- Classic attack vector for unauthenticated access\n- Monitor any activation or usage attempt (Event ID 4722, 4624)",
+            "Description": "# \uD83D\uDC64 Compte Guest\n\nCompte invit\u00E9 **int\u00E9gr\u00E9** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Permet un acc\u00E8s anonyme et limit\u00E9 au domaine sans mot de passe\n- Droits \u00E9quivalents au groupe **Guests** (tr\u00E8s restreints)\n- Ne peut pas changer son mot de passe ni acc\u00E9der aux param\u00E8tres du syst\u00E8me\n\n## Appartenance par d\u00E9faut\n| Groupe | Port\u00E9e |\n|---|---|\n| Guests | Domaine local |\n| Domain Guests | Global |\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **D\u00E9sactiver imm\u00E9diatement en production**\n\n- Ce compte est **d\u00E9sactiv\u00E9 par d\u00E9faut** depuis Windows Server 2008 \u2014 v\u00E9rifier qu\u0027il le reste\n- Ne jamais activer ce compte dans un environnement de production\n- Vecteur d\u0027attaque classique pour l\u0027acc\u00E8s non authentifi\u00E9\n- Surveiller toute tentative d\u0027activation ou d\u0027utilisation de ce compte (Event ID 4722, 4624)",
             "DistinguishedName": "CN=Guest,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "2721fbda-b8a5-428b-8404-b4335480513d",
+            "Id": "0c7a005a-8b9a-5b35-a18e-1f65e414fa42",
             "Type": "User",
             "Children": [],
             "MemberOf": [],
@@ -353,12 +353,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "krbtgt",
-            "Description": "# \uD83D\uDD11 krbtgt Account\n\n**Kerberos Key Distribution Center (KDC)** service account created automatically when the domain is promoted.\n\n## Role\n- Used exclusively by the **KDC** service to sign and encrypt Kerberos tickets (TGT)\n- Its password serves as the encryption key for all **Ticket Granting Tickets** in the domain\n- Disabled by default \u2014 never enable\n\n## Default Group Membership\n| Group | Scope |\n|---|---|\n| Domain Users | Global |\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Ultra-critical account**\n\n- **Never delete** this account \u2014 it renders the domain unusable\n- **Never enable** this account interactively\n- Compromising this account allows creating **Golden Tickets** (Mimikatz attack)\n- **Reset the password TWICE** after a suspected compromise (two consecutive resets required to invalidate existing tickets)\n- Preventive rotation recommended **every 180 days** in production\n- Monitor password changes (Event ID 4723, 4724)\n- Since Windows Server 2016: use the separate **RODC krbtgt account** for RODCs",
+            "Description": "# \uD83D\uDD11 Compte krbtgt\n\nCompte de service **Kerberos Key Distribution Center (KDC)** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Utilis\u00E9 exclusivement par le service **KDC** pour signer et chiffrer les tickets Kerberos (TGT)\n- Son mot de passe sert de cl\u00E9 de chiffrement pour tous les **Ticket Granting Tickets** du domaine\n- D\u00E9sactiv\u00E9 par d\u00E9faut \u2014 ne jamais activer\n\n## Appartenance par d\u00E9faut\n| Groupe | Port\u00E9e |\n|---|---|\n| Domain Users | Global |\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Compte ultra-critique**\n\n- **Ne jamais supprimer** ce compte \u2014 cela rend le domaine inutilisable\n- **Ne jamais activer** ce compte interactivement\n- La compromission de ce compte permet de cr\u00E9er des **Golden Tickets** (attaque Mimikatz)\n- **Renouveler le mot de passe DEUX FOIS** apr\u00E8s une compromission suspect\u00E9e (deux resets cons\u00E9cutifs n\u00E9cessaires pour invalider les tickets existants)\n- Renouvellement pr\u00E9ventif recommand\u00E9 **tous les 180 jours** en production\n- Surveiller les modifications du mot de passe (Event ID 4723, 4724)\n- Depuis Windows Server 2016 : utiliser le **RODC krbtgt account** s\u00E9par\u00E9 pour les RODCs",
             "DistinguishedName": "CN=krbtgt,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "e6cadb3d-9d45-4117-b67a-b7b053aaaf13",
+            "Id": "871b99ed-eef7-58eb-8c20-31f0df7c17b2",
             "Type": "Group",
             "Children": [],
             "MemberOf": [
@@ -389,12 +389,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Domain Admins",
-            "Description": "# \uD83D\uDC65 Domain Admins Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Designated administrators of the domain\n- Members are automatically added to the **Administrators** group on every domain-joined machine\n- Full control over all objects in the domain\n\n## Default Membership\nMembers: **Administrator**\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Ultra-privileged group**\n\n- Limit membership to the bare minimum (principle of least privilege)\n- Never use a Domain Admin account for day-to-day tasks\n- Use dedicated administration accounts (PAW \u2014 Privileged Access Workstation)\n- Enable monitoring for any modification (Event ID 4728, 4729)\n- Domain Admin members are **Administrators** on **every** machine in the domain \u2014 major lateral movement vector",
+            "Description": "# \uD83D\uDC65 Groupe Domain Admins\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Administrateurs d\u00E9sign\u00E9s du domaine\n- Membres automatiquement ajout\u00E9s au groupe **Administrators** de chaque machine jointe au domaine\n- Contr\u00F4le total sur tous les objets du domaine\n\n## Appartenance par d\u00E9faut\nMembres : **Administrator**\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Groupe ultra-privil\u00E9gi\u00E9**\n\n- Limiter le nombre de membres au strict minimum (principe du moindre privil\u00E8ge)\n- Ne jamais utiliser un compte Domain Admin pour les t\u00E2ches quotidiennes\n- Utiliser des comptes d\u00E9di\u00E9s \u00E0 l\u0027administration (PAW \u2014 Privileged Access Workstation)\n- Activer la surveillance de toute modification de ce groupe (Event ID 4728, 4729)\n- Les membres de Domain Admins sont membres de **Administrators** sur **toutes** les machines du domaine \u2014 vecteur de mouvement lat\u00E9ral majeur",
             "DistinguishedName": "CN=Domain Admins,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "8cdc37c8-e4af-4124-a544-62a20cfc482d",
+            "Id": "4cd14a46-6f9b-5dd9-bd71-3ce7f69b9fee",
             "Type": "Group",
             "Children": [],
             "MemberOf": [
@@ -425,12 +425,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Domain Users",
-            "Description": "# \uD83D\uDC65 Domain Users Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Contains **all** domain user accounts (added automatically)\n- Used as the base group for permissions on shared resources\n- Member of the local **Users** group on every domain-joined machine\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE2 **Tier 2 \u2014 Standard group**\n\n- Avoid granting elevated permissions to this group \u2014 it contains all users\n- Audit resources accessible by this group (shares, GPOs)\n- Useful for applying policies to all domain users",
+            "Description": "# \uD83D\uDC65 Groupe Domain Users\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Contient **tous** les comptes utilisateurs du domaine (ajout automatique)\n- Utilis\u00E9 comme groupe de base pour les permissions sur les ressources partag\u00E9es\n- Membre du groupe **Users** local de chaque machine jointe\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE2 **Tier 2 \u2014 Groupe standard**\n\n- \u00C9viter d\u0027accorder des permissions \u00E9lev\u00E9es \u00E0 ce groupe \u2014 il contient tous les utilisateurs\n- Surveiller les ressources accessibles par ce groupe (audit des partages, des GPOs)\n- Utile pour d\u00E9finir des politiques s\u0027appliquant \u00E0 tous les utilisateurs du domaine",
             "DistinguishedName": "CN=Domain Users,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "cefcb598-219a-4f82-8eab-d09933bf5ded",
+            "Id": "0f4d049e-a7a6-512e-8580-0d1185bc311c",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -459,12 +459,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Domain Computers",
-            "Description": "# \uD83D\uDC65 Domain Computers Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Contains **all** computers joined to the domain (excluding domain controllers)\n- Automatically added when a workstation joins the domain\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE2 **Tier 2 \u2014 Standard group**\n\n- Can be used to apply policies to all workstations\n- Monitor unexpected additions (unauthorized machine joins)",
+            "Description": "# \uD83D\uDC65 Groupe Domain Computers\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Contient **tous** les ordinateurs joints au domaine (hors contr\u00F4leurs de domaine)\n- Ajout automatique lors de la jonction d\u0027un poste au domaine\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE2 **Tier 2 \u2014 Groupe standard**\n\n- Peut \u00EAtre utilis\u00E9 pour appliquer des politiques \u00E0 l\u0027ensemble des postes\n- Surveiller les ajouts inattendus (jonction de machines non autoris\u00E9es)",
             "DistinguishedName": "CN=Domain Computers,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "d1d09ca2-fa49-4935-82a5-3f9922ed2db4",
+            "Id": "f0d4d7b2-7131-55e1-a718-4b2d39266c0e",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -493,12 +493,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Domain Controllers",
-            "Description": "# \uD83D\uDC65 Domain Controllers Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Contains **all** domain controllers (DCs) in the domain\n- Automatically added when a server is promoted to DC\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Critical group**\n\n- Monitor any modification (DC added/removed) \u2014 Event ID 4728, 4729\n- A compromised domain controller compromises the entire domain",
+            "Description": "# \uD83D\uDC65 Groupe Domain Controllers\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Contient **tous** les contr\u00F4leurs de domaine (DC) du domaine\n- Ajout automatique lors de la promotion d\u0027un serveur en DC\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Groupe critique**\n\n- Surveiller toute modification (ajout/suppression de DC) \u2014 Event ID 4728, 4729\n- Un contr\u00F4leur de domaine compromis compromet l\u0027int\u00E9gralit\u00E9 du domaine",
             "DistinguishedName": "CN=Domain Controllers,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "406f35db-ba25-4dfb-8e76-abc9212177b7",
+            "Id": "24854130-2fda-5c51-8266-437179d6839e",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -527,12 +527,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Schema Admins",
-            "Description": "# \uD83D\uDC65 Schema Admins Group\n\n**Universal** group created automatically. Exists only in the **forest root domain**.\n\n## Role\n- Only members authorized to modify the **Active Directory schema** (class/attribute structure)\n- Schema modifications are irreversible and apply to the entire forest\n\n## Default Membership\nMembers: **Administrator** (forest root only)\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Ultra-critical group (entire forest)**\n\n- **Keep empty** at all times \u2014 only add members for the duration of a planned schema modification\n- All schema changes must be tested in a test environment first\n- Monitor any modification \u2014 Event ID 4728, 4729\n- Enforce strict change management for schema modifications",
+            "Description": "# \uD83D\uDC65 Groupe Schema Admins\n\nGroupe **universel** cr\u00E9\u00E9 automatiquement. Existe uniquement dans le **domaine racine de la for\u00EAt**.\n\n## R\u00F4le\n- Seuls membres autoris\u00E9s \u00E0 modifier le **sch\u00E9ma Active Directory** (structure des classes et attributs)\n- Modifications du sch\u00E9ma sont irr\u00E9versibles et s\u0027appliquent \u00E0 toute la for\u00EAt\n\n## Appartenance par d\u00E9faut\nMembres : **Administrator** (domaine racine uniquement)\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Groupe ultra-critique (for\u00EAt enti\u00E8re)**\n\n- **Maintenir vide** en permanence \u2014 n\u0027ajouter des membres que le temps d\u0027une modification de sch\u00E9ma planifi\u00E9e\n- Toute modification du sch\u00E9ma doit \u00EAtre test\u00E9e en environnement de test d\u0027abord\n- Surveiller toute modification de ce groupe \u2014 Event ID 4728, 4729\n- Activer un processus de change management strict pour les modifications de sch\u00E9ma",
             "DistinguishedName": "CN=Schema Admins,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "2b424174-f7af-4380-9bd2-4e30cdb34eaf",
+            "Id": "bf4ad94f-fe0b-5aa0-a27a-9c725ae39e8e",
             "Type": "Group",
             "Children": [],
             "MemberOf": [
@@ -563,12 +563,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Enterprise Admins",
-            "Description": "# \uD83D\uDC65 Enterprise Admins Group\n\n**Universal** group created automatically. Exists only in the **forest root domain**.\n\n## Role\n- Enterprise administrators with control over **all domains in the forest**\n- Can add/remove domains from the forest\n- Automatically member of **Administrators** in every domain in the forest\n\n## Default Membership\nMembers: **Administrator** (forest root only)\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Ultra-critical group (entire forest)**\n\n- **Keep empty** at all times \u2014 only add members for forest-level operations\n- Cross-forest attack vector affecting all domains\n- Monitor any modification \u2014 Event ID 4728, 4729\n- Members have administrator access on **all** domain controllers in the forest",
+            "Description": "# \uD83D\uDC65 Groupe Enterprise Admins\n\nGroupe **universel** cr\u00E9\u00E9 automatiquement. Existe uniquement dans le **domaine racine de la for\u00EAt**.\n\n## R\u00F4le\n- Administrateurs de l\u0027entreprise avec contr\u00F4le sur **tous les domaines de la for\u00EAt**\n- Peut ajouter/supprimer des domaines de la for\u00EAt\n- Automatiquement membre de **Administrators** dans chaque domaine de la for\u00EAt\n\n## Appartenance par d\u00E9faut\nMembres : **Administrator** (domaine racine uniquement)\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Groupe ultra-critique (for\u00EAt enti\u00E8re)**\n\n- **Maintenir vide** en permanence \u2014 n\u0027ajouter des membres que pour des op\u00E9rations de niveau for\u00EAt\n- Vecteur d\u0027attaque transversal \u00E0 tous les domaines de la for\u00EAt\n- Surveiller toute modification \u2014 Event ID 4728, 4729\n- Les membres ont un acc\u00E8s administrateur sur **tous** les contr\u00F4leurs de domaine de la for\u00EAt",
             "DistinguishedName": "CN=Enterprise Admins,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "fb095b68-8790-488a-b099-9afec90155c7",
+            "Id": "9e98cf4f-6939-59ee-9058-4d22bd765714",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -597,12 +597,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Group Policy Creator Owners",
-            "Description": "# \uD83D\uDC65 Group Policy Creator Owners\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Members authorized to create and modify **GPOs** in the domain\n- A member can only modify GPOs they created (except Domain Admins)\n\n## Default Membership\nMembers: **Administrator**\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Group to monitor**\n\n- Limit members \u2014 creating malicious GPOs is a common attack vector\n- Monitor GPO creation and linking (Event ID 5136, 5137)\n- Any GPO linked to the Domain Controllers OU is potentially dangerous",
+            "Description": "# \uD83D\uDC65 Groupe Group Policy Creator Owners\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Membres autoris\u00E9s \u00E0 cr\u00E9er et modifier des **GPOs** dans le domaine\n- Un membre peut modifier uniquement les GPOs qu\u0027il a cr\u00E9\u00E9es (sauf Domain Admins)\n\n## Appartenance par d\u00E9faut\nMembres : **Administrator**\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Groupe \u00E0 surveiller**\n\n- Limiter les membres \u2014 la cr\u00E9ation de GPOs malveillantes est un vecteur d\u0027attaque courant\n- Surveiller la cr\u00E9ation de nouvelles GPOs et leurs liaisons (Event ID 5136, 5137)\n- Toute GPO li\u00E9e \u00E0 l\u0027OU Domain Controllers est potentiellement dangereuse",
             "DistinguishedName": "CN=Group Policy Creator Owners,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "2bf87615-83ce-48e5-a058-be7112fae325",
+            "Id": "ca7c8d80-0190-5494-a487-7dc0b5166707",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -631,12 +631,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Read-only Domain Controllers",
-            "Description": "# \uD83D\uDC65 Read-Only Domain Controllers Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Contains **RODCs** (Read-Only Domain Controllers) in the domain\n- RODCs replicate only objects authorized via the **Password Replication Policy**\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Critical group**\n\n- Monitor additions to this group\n- Compromising a RODC exposes only the accounts whose passwords are cached on that RODC\n- Carefully configure the **Allowed RODC Password Replication Group** to limit exposure",
+            "Description": "# \uD83D\uDC65 Groupe Read-Only Domain Controllers\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Contient les **RODC** (Read-Only Domain Controllers) du domaine\n- Les RODCs r\u00E9pliquent uniquement les objets autoris\u00E9s via la **Password Replication Policy**\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Groupe critique**\n\n- Surveiller les ajouts \u00E0 ce groupe\n- La compromission d\u0027un RODC expose uniquement les comptes dont le mot de passe est mis en cache sur ce RODC\n- Configurer soigneusement la **Allowed RODC Password Replication Group** pour limiter l\u0027exposition",
             "DistinguishedName": "CN=Read-only Domain Controllers,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "6d331f44-2dd4-43f4-814d-855f8b17def1",
+            "Id": "bf751f32-680e-5fc7-b9c1-c03bb910466e",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -665,12 +665,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "DnsAdmins",
-            "Description": "# \uD83D\uDC65 DnsAdmins Group\n\n**Domain local** group created automatically when the DNS role is installed.\n\n## Role\n- Full administrative access to the domain **DNS** service\n- Allows managing zones, records and DNS configuration\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Known privilege escalation path**\n\n- **Critical privilege escalation** vector: a DnsAdmins member can load a malicious DLL into the DNS service (which runs as SYSTEM on DCs)\n- **CVE**: Documented technique by Shay Ber (2017) \u2014 \u0060dnscmd /config /serverlevelplugindll\u0060\n- Minimize membership in this group\n- Monitor use of \u0060dnscmd\u0060 by members (Event ID 4688)\n- Consider delegating DNS management differently if possible",
+            "Description": "# \uD83D\uDC65 Groupe DnsAdmins\n\nGroupe **domaine local** cr\u00E9\u00E9 automatiquement lors de l\u0027installation du r\u00F4le DNS.\n\n## R\u00F4le\n- Acc\u00E8s administratif complet au service **DNS** du domaine\n- Permet de g\u00E9rer les zones, enregistrements et configuration DNS\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Escalade de privil\u00E8ges connue**\n\n- Vecteur d\u0027**escalade de privil\u00E8ges critique** : un membre DnsAdmins peut charger une DLL malveillante dans le service DNS (qui tourne sous SYSTEM sur les DCs)\n- **CVE** : Technique document\u00E9e par Shay Ber (2017) \u2014 \u0060dnscmd /config /serverlevelplugindll\u0060\n- Limiter au strict minimum les membres de ce groupe\n- Surveiller l\u0027utilisation de \u0060dnscmd\u0060 par les membres (Event ID 4688)\n- Envisager de d\u00E9l\u00E9guer la gestion DNS diff\u00E9remment si possible",
             "DistinguishedName": "CN=DnsAdmins,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "1ca7bc3b-e62e-4e66-9f2f-183d4538dd36",
+            "Id": "4f5ef07b-4d74-5d93-8eb4-c3bd6d3cf724",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -699,12 +699,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Cert Publishers",
-            "Description": "# \uD83D\uDC65 Cert Publishers Group\n\n**Domain local** group created automatically when the domain is promoted.\n\n## Role\n- Members authorized to **publish certificates** in Active Directory (\u0060userCertificate\u0060 attribute)\n- Typically: enterprise **Certificate Authority (CA)** servers\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Linked to PKI infrastructure**\n\n- Limit membership to CA servers only\n- Compromising an enterprise CA allows issuing fraudulent certificates\n- Monitor modifications \u2014 Event ID 4728, 4729\n- See **ESC4** and other PKI attack techniques documented in **Certify/Certipy**",
+            "Description": "# \uD83D\uDC65 Groupe Cert Publishers\n\nGroupe **domaine local** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Membres autoris\u00E9s \u00E0 **publier des certificats** dans Active Directory (attribut \u0060userCertificate\u0060)\n- Typiquement : les serveurs **Certificate Authority (CA)** enterprise\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Li\u00E9 \u00E0 l\u0027infrastructure PKI**\n\n- Limiter les membres aux serveurs CA uniquement\n- La compromission d\u0027un CA enterprise permet d\u0027\u00E9mettre des certificats frauduleux\n- Surveiller les modifications de ce groupe \u2014 Event ID 4728, 4729\n- Voir **ESC4** et autres techniques d\u0027attaque PKI document\u00E9es dans **Certify/Certipy**",
             "DistinguishedName": "CN=Cert Publishers,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "3201ff64-d848-4364-a660-9048870bc48c",
+            "Id": "bddd6d21-f7ce-5e3c-9c36-fe8f95757b5d",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -733,12 +733,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "RAS and IAS Servers",
-            "Description": "# \uD83D\uDC65 RAS and IAS Servers Group\n\n**Domain local** group created automatically when the domain is promoted.\n\n## Role\n- Members authorized to access **remote access properties** of user accounts\n- Used by **NPS (Network Policy Server)**, **RADIUS** and **VPN** servers\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Access to network authentication attributes**\n\n- Limit to legitimate NPS/RADIUS servers only\n- A compromised RAS server can intercept or manipulate VPN connections",
+            "Description": "# \uD83D\uDC65 Groupe RAS and IAS Servers\n\nGroupe **domaine local** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Membres autoris\u00E9s \u00E0 acc\u00E9der aux **propri\u00E9t\u00E9s d\u0027acc\u00E8s r\u00E9seau** des comptes utilisateurs\n- Utilis\u00E9 par les serveurs **NPS (Network Policy Server)**, **RADIUS** et **VPN**\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Acc\u00E8s aux attributs d\u0027authentification r\u00E9seau**\n\n- Limiter aux serveurs NPS/RADIUS l\u00E9gitimes\n- Un serveur RAS compromis peut intercepter ou manipuler les connexions VPN",
             "DistinguishedName": "CN=RAS and IAS Servers,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 1"
           },
           {
-            "Id": "a620c471-d462-4124-9498-0dfa53804080",
+            "Id": "9ba8a370-c4ba-5366-a904-4ac65d1f2a2e",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -767,12 +767,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Allowed RODC Password Replication Group",
-            "Description": "# \uD83D\uDC65 Allowed RODC Password Replication Group\n\n**Domain local** group created automatically when the domain is promoted.\n\n## Role\n- Defines accounts whose **passwords CAN be cached** on RODCs\n- Empty by default \u2014 no passwords are replicated to RODCs by default\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Controls RODC replication**\n\n- **Never add** Tier 0 accounts (admins, krbtgt, critical service accounts)\n- Compromising a RODC only exposes accounts whose hash is in its cache\n- Use the **Denied RODC Password Replication Group** to protect sensitive accounts\n- Regularly audit cached accounts on each RODC via \u0060Get-ADDomainControllerPasswordReplicationPolicy\u0060",
+            "Description": "# \uD83D\uDC65 Groupe Allowed RODC Password Replication Group\n\nGroupe **domaine local** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- D\u00E9finit les comptes dont les **mots de passe PEUVENT \u00EAtre mis en cache** sur les RODCs\n- Vide par d\u00E9faut \u2014 aucun mot de passe n\u0027est r\u00E9pliqu\u00E9 sur les RODCs par d\u00E9faut\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Contr\u00F4le de la r\u00E9plication RODC**\n\n- **Ne jamais ajouter** de comptes Tier 0 (admins, krbtgt, service accounts critiques)\n- La compromission d\u0027un RODC expose uniquement les comptes dont le hash est pr\u00E9sent dans son cache\n- Utiliser le groupe **Denied RODC Password Replication Group** pour prot\u00E9ger les comptes sensibles\n- Auditer r\u00E9guli\u00E8rement les comptes mis en cache sur chaque RODC via \u0060Get-ADDomainControllerPasswordReplicationPolicy\u0060",
             "DistinguishedName": "CN=Allowed RODC Password Replication Group,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 1"
           },
           {
-            "Id": "4506572a-c784-4a0a-9236-281a28498b55",
+            "Id": "84fff7b2-9703-57af-9d8c-7890b3a07d38",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -801,12 +801,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Denied RODC Password Replication Group",
-            "Description": "# \uD83D\uDC65 Denied RODC Password Replication Group\n\n**Domain local** group created automatically when the domain is promoted.\n\n## Role\n- Defines accounts whose **passwords CANNOT be cached** on RODCs\n- Protects critical accounts from exposure in case of RODC compromise\n\n## Default Members\n\u0060krbtgt\u0060, \u0060Domain Admins\u0060, \u0060Schema Admins\u0060, \u0060Enterprise Admins\u0060, \u0060Group Policy Creator Owners\u0060, \u0060Read-Only Domain Controllers\u0060\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE2 **Best practice \u2014 keep up to date**\n\n- Add all critical service accounts and Tier 0 accounts to this group\n- Never remove the default members\n- Regularly audit the list to ensure it is comprehensive",
+            "Description": "# \uD83D\uDC65 Groupe Denied RODC Password Replication Group\n\nGroupe **domaine local** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- D\u00E9finit les comptes dont les **mots de passe NE PEUVENT PAS \u00EAtre mis en cache** sur les RODCs\n- Prot\u00E8ge les comptes critiques contre l\u0027exposition en cas de compromission d\u0027un RODC\n\n## Membres par d\u00E9faut\n\u0060krbtgt\u0060, \u0060Domain Admins\u0060, \u0060Schema Admins\u0060, \u0060Enterprise Admins\u0060, \u0060Group Policy Creator Owners\u0060, \u0060Read-Only Domain Controllers\u0060\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE2 **Bonne pratique \u2014 maintenir \u00E0 jour**\n\n- Ajouter tous les comptes de service critiques et comptes Tier 0 \u00E0 ce groupe\n- Ne jamais retirer les membres par d\u00E9faut\n- Auditer r\u00E9guli\u00E8rement la liste pour s\u0027assurer qu\u0027elle est exhaustive",
             "DistinguishedName": "CN=Denied RODC Password Replication Group,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "eb356082-a04c-4cea-89ae-346fa2edc1f2",
+            "Id": "25e28216-5801-50fe-9fcc-a52be4f91a40",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -835,12 +835,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Cloneable Domain Controllers",
-            "Description": "# \uD83D\uDC65 Cloneable Domain Controllers Group\n\n**Global** group created automatically when the domain is promoted (Windows Server 2012\u002B).\n\n## Role\n- Members (DCs) that can be **cloned** to rapidly deploy additional domain controllers\n- Cloning feature based on Hyper-V\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 DC cloning feature**\n\n- Limit to DCs that actually need to be cloned\n- A DC clone inherits the source DC\u0027s secrets \u2014 process must be strictly controlled\n- Verify that the Hyper-V host is secured before any cloning",
+            "Description": "# \uD83D\uDC65 Groupe Cloneable Domain Controllers\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine (Windows Server 2012\u002B).\n\n## R\u00F4le\n- Membres (DCs) qui peuvent \u00EAtre **clon\u00E9s** pour d\u00E9ployer rapidement des contr\u00F4leurs de domaine suppl\u00E9mentaires\n- Fonctionnalit\u00E9 de clonage bas\u00E9e sur Hyper-V\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Fonctionnalit\u00E9 de clonage de DC**\n\n- Limiter aux DCs qui doivent r\u00E9ellement \u00EAtre clon\u00E9s\n- Un clone de DC h\u00E9rite des secrets du DC source \u2014 processus \u00E0 encadrer strictement\n- V\u00E9rifier que l\u0027h\u00F4te Hyper-V est s\u00E9curis\u00E9 avant tout clonage",
             "DistinguishedName": "CN=Cloneable Domain Controllers,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "071f6617-4509-46c5-b2fc-d76be21bdcbc",
+            "Id": "2dfe24b6-af72-532a-bfab-9cff95fdd669",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -869,12 +869,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Protected Users",
-            "Description": "# \uD83D\uDC65 Protected Users Group\n\n**Universal** group created automatically (Windows Server 2012 R2\u002B).\n\n## Role\n- Members automatically benefit from **enhanced Kerberos protections**:\n  - No Kerberos delegation\n  - No RC4 for authentication (Kerberos AES only)\n  - No NTLM credential caching\n  - TGT reduced to 4 hours (non-renewable)\n  - No NTLM, Digest, CredSSP authentication\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE2 **Best practice \u2014 add sensitive accounts**\n\n- **Add** all Tier 0 and Tier 1 administration accounts\n- **Test** before adding service accounts \u2014 incompatible with some legacy protocols\n- **Do not add**: service accounts using NTLM, Kerberos delegation, or plaintext password authentication\n- Protects against **Pass-the-Hash**, **Pass-the-Ticket**, **Overpass-the-Hash**",
+            "Description": "# \uD83D\uDC65 Groupe Protected Users\n\nGroupe **universel** cr\u00E9\u00E9 automatiquement (Windows Server 2012 R2\u002B).\n\n## R\u00F4le\n- Les membres b\u00E9n\u00E9ficient de **protections Kerberos renforc\u00E9es** automatiquement :\n  - Pas de d\u00E9l\u00E9gation Kerberos\n  - Pas de RC4 pour l\u0027authentification (Kerberos AES uniquement)\n  - Pas de mise en cache des credentials NTLM\n  - TGT r\u00E9duit \u00E0 4 heures (non renouvelable)\n  - Pas d\u0027authentification NTLM, Digest, CredSSP\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE2 **Bonne pratique \u2014 ajouter les comptes sensibles**\n\n- **Ajouter** tous les comptes d\u0027administration Tier 0 et Tier 1\n- **Tester** avant d\u0027ajouter des comptes de service \u2014 incompatible avec certains protocoles legacy\n- **Ne pas ajouter** : comptes de service utilisant NTLM, d\u00E9l\u00E9gation Kerberos, ou authentification avec mot de passe en clair\n- Prot\u00E8ge contre **Pass-the-Hash**, **Pass-the-Ticket**, **Overpass-the-Hash**",
             "DistinguishedName": "CN=Protected Users,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "fc086a54-5f3d-4dc5-8eb5-a03087fdaf8b",
+            "Id": "acd275d8-00cf-55eb-a912-902d30b75ab2",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -903,12 +903,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Key Admins",
-            "Description": "# \uD83D\uDC65 Key Admins Group\n\n**Global** group created automatically (Windows Server 2016\u002B).\n\n## Role\n- Members authorized to perform administrative actions on **msDS-KeyCredentialLink** attributes\n- Used for managing **Windows Hello for Business** and FIDO2 keys at the domain level\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Shadow Credentials risk**\n\n- **Shadow Credentials** attack vector: a member can add alternative credentials to any domain account\n- Documented attack: \u0060Whisker\u0060, \u0060pyWhisker\u0060\n- Monitor modifications to the \u0060msDS-KeyCredentialLink\u0060 attribute \u2014 Event ID 5136\n- Minimize membership",
+            "Description": "# \uD83D\uDC65 Groupe Key Admins\n\nGroupe **global** cr\u00E9\u00E9 automatiquement (Windows Server 2016\u002B).\n\n## R\u00F4le\n- Membres autoris\u00E9s \u00E0 effectuer des actions administratives sur les **attributs msDS-KeyCredentialLink**\n- Utilis\u00E9 pour la gestion des **Windows Hello for Business** et des cl\u00E9s FIDO2 au niveau du domaine\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Risque Shadow Credentials**\n\n- Vecteur d\u0027attaque **Shadow Credentials** : un membre peut ajouter des credentials alternatifs \u00E0 n\u0027importe quel compte du domaine\n- Attaque document\u00E9e : \u0060Whisker\u0060, \u0060pyWhisker\u0060\n- Surveiller les modifications de l\u0027attribut \u0060msDS-KeyCredentialLink\u0060 \u2014 Event ID 5136\n- Limiter les membres au strict minimum",
             "DistinguishedName": "CN=Key Admins,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "d9dfc8d4-f652-48e8-9555-201e6b5e2024",
+            "Id": "4290f3d7-ed7c-5903-9e0a-d11ad809d04a",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -937,12 +937,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Enterprise Key Admins",
-            "Description": "# \uD83D\uDC65 Enterprise Key Admins Group\n\n**Universal** group created automatically (Windows Server 2016\u002B). Forest root domain.\n\n## Role\n- Equivalent of **Key Admins** but with scope across **all forest domains**\n- Manages \u0060msDS-KeyCredentialLink\u0060 attributes at forest level\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Shadow Credentials risk (entire forest)**\n\n- Same attack vector as **Key Admins** but with forest-wide scope\n- **Keep empty** at all times unless there is a specific operational need\n- Monitor any modification \u2014 Event ID 4728, 4729 and 5136",
+            "Description": "# \uD83D\uDC65 Groupe Enterprise Key Admins\n\nGroupe **universel** cr\u00E9\u00E9 automatiquement (Windows Server 2016\u002B). Domaine racine de la for\u00EAt.\n\n## R\u00F4le\n- \u00C9quivalent de **Key Admins** mais avec port\u00E9e sur **tous les domaines de la for\u00EAt**\n- Gestion des attributs \u0060msDS-KeyCredentialLink\u0060 au niveau for\u00EAt\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDD34 **Tier 0 \u2014 Risque Shadow Credentials (for\u00EAt enti\u00E8re)**\n\n- M\u00EAme vecteur d\u0027attaque que **Key Admins** mais avec port\u00E9e for\u00EAt\n- **Maintenir vide** en permanence sauf besoin op\u00E9rationnel sp\u00E9cifique\n- Surveiller toute modification \u2014 Event ID 4728, 4729 et 5136",
             "DistinguishedName": "CN=Enterprise Key Admins,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "a5f6519f-1394-4825-809a-065f8bcc079b",
+            "Id": "ee1a10ee-b518-5043-9413-b2dec529fe59",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -971,12 +971,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "DnsUpdateProxy",
-            "Description": "# \uD83D\uDC65 DnsUpdateProxy Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Members authorized to **register DNS records** on behalf of other clients\n- Typically used by **DHCP** servers for dynamic DNS updates\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 DNS squatting risk**\n\n- **Limit** members to authorized DHCP servers only\n- Records created by this group are initially ownerless \u2014 vector for **DNS hijacking**\n- Configure the DHCP server with a dedicated account rather than using this group if possible\n- If used, enable **DNS dynamic update credentials** on the DHCP server",
+            "Description": "# \uD83D\uDC65 Groupe DnsUpdateProxy\n\nGroupe **global** cr\u00E9\u00E9 automatiquement lors de la promotion du domaine.\n\n## R\u00F4le\n- Membres autoris\u00E9s \u00E0 **enregistrer des enregistrements DNS** pour le compte d\u0027autres clients\n- Utilis\u00E9 typiquement par les serveurs **DHCP** pour la mise \u00E0 jour dynamique DNS\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 Risque de squatting DNS**\n\n- **Limiter** les membres aux seuls serveurs DHCP autoris\u00E9s\n- Les enregistrements cr\u00E9\u00E9s par ce groupe sont initialement sans propri\u00E9taire \u2014 vecteur de **DNS hijacking**\n- Configurer le serveur DHCP avec un compte d\u00E9di\u00E9 plut\u00F4t que d\u0027utiliser ce groupe si possible\n- Si utilis\u00E9, activer le **DNS dynamic update credentials** sur le serveur DHCP",
             "DistinguishedName": "CN=DnsUpdateProxy,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 1"
           },
           {
-            "Id": "fa018699-99a8-4d6e-bfef-b387b46cd06a",
+            "Id": "26ba3641-f24d-5e57-9372-32bec3667946",
             "Type": "User",
             "Children": [],
             "MemberOf": [],
@@ -1005,12 +1005,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "DefaultAccount",
-            "Description": "# \uD83D\uDC64 DefaultAccount\n\n**System-managed** account created automatically by Windows.\n\n## Role\n- Internal account used by Windows for certain processes\n- Disabled by default\n- Managed automatically by Windows \u2014 do not modify\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE1 **Keep disabled**\n\n- Never enable this account manually\n- Monitor any modification (activation, password change)",
+            "Description": "# \uD83D\uDC64 Compte DefaultAccount\n\nCompte **syst\u00E8me g\u00E9r\u00E9** cr\u00E9\u00E9 automatiquement par Windows.\n\n## R\u00F4le\n- Compte interne utilis\u00E9 par le syst\u00E8me Windows pour certains processus\n- D\u00E9sactiv\u00E9 par d\u00E9faut\n- G\u00E9r\u00E9 automatiquement par Windows \u2014 ne pas modifier\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE1 **Maintenir d\u00E9sactiv\u00E9**\n\n- Ne jamais activer ce compte manuellement\n- Surveiller toute modification (activation, changement de mot de passe)",
             "DistinguishedName": "CN=DefaultAccount,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "e3646e10-6bf0-4797-9dad-de78bda7122a",
+            "Id": "cf68245b-e9bc-5155-b75f-b2829f918a77",
             "Type": "User",
             "Children": [],
             "MemberOf": [],
@@ -1039,12 +1039,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "WDAGUtilityAccount",
-            "Description": "# \uD83D\uDC64 WDAGUtilityAccount\n\nSystem account for **Windows Defender Application Guard (WDAG)**.\n\n## Role\n- Used by the WDAG feature to isolate browsing sessions in a Hyper-V container\n- Managed automatically by Windows \u2014 do not modify\n- Disabled if WDAG is not in use\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE1 **System account \u2014 do not modify**\n\n- Never enable or modify this account manually\n- Its presence is normal in Windows 10/11 and Windows Server 2016\u002B domains",
+            "Description": "# \uD83D\uDC64 Compte WDAGUtilityAccount\n\nCompte syst\u00E8me pour **Windows Defender Application Guard (WDAG)**.\n\n## R\u00F4le\n- Utilis\u00E9 par la fonctionnalit\u00E9 WDAG pour isoler les sessions de navigation dans un conteneur Hyper-V\n- G\u00E9r\u00E9 automatiquement par Windows \u2014 ne pas modifier\n- D\u00E9sactiv\u00E9 si WDAG n\u0027est pas utilis\u00E9\n\n## \u26A0\uFE0F S\u00E9curit\u00E9\n\u003E \uD83D\uDFE1 **Compte syst\u00E8me \u2014 ne pas modifier**\n\n- Ne jamais activer ou modifier ce compte manuellement\n- Sa pr\u00E9sence est normale dans les domaines Windows 10/11 et Windows Server 2016\u002B",
             "DistinguishedName": "CN=WDAGUtilityAccount,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "168691cb-c1f2-4b9e-a87d-06c01fd7bf1d",
+            "Id": "5c821219-5881-5183-8c53-d81c08d33887",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1073,12 +1073,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "GG-HelpDesk",
-            "Description": "Helpdesk group \u2014 resets passwords and unlocks user accounts (Tier 2)",
+            "Description": "Groupe helpdesk \u2014 r\u00E9initialise les mots de passe et d\u00E9verrouille les comptes utilisateurs (Tier 2)",
             "DistinguishedName": "CN=GG-HelpDesk,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "d7dde98d-6005-43b2-bc3b-6a651fa479b3",
+            "Id": "5b33e8ae-814c-5979-87ec-e0a7827866c8",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1107,12 +1107,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "GG-IT-Workstations",
-            "Description": "IT Workstations group \u2014 manages computer objects in the Workstations OU (Tier 2)",
+            "Description": "Groupe IT Workstations \u2014 g\u00E8re les objets ordinateurs dans l\u0027OU Workstations (Tier 2)",
             "DistinguishedName": "CN=GG-IT-Workstations,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 2"
           },
           {
-            "Id": "5f87cc7c-fe57-4524-9fb7-cac5583e9688",
+            "Id": "aac673d4-c269-52f0-a20d-e6466a8a67c4",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1141,12 +1141,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "GG-IT-Servers",
-            "Description": "IT Servers group \u2014 manages computer and server objects in the Servers OU (Tier 1)",
+            "Description": "Groupe IT Servers \u2014 g\u00E8re les objets ordinateurs et serveurs dans l\u0027OU Servers (Tier 1)",
             "DistinguishedName": "CN=GG-IT-Servers,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 1"
           },
           {
-            "Id": "20e7513f-9340-497b-828f-e1cc89d615eb",
+            "Id": "df6e1670-121f-55a5-87b3-131d8f51333e",
             "Type": "Group",
             "Children": [],
             "MemberOf": [],
@@ -1175,7 +1175,7 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "GG-Tier1-Operators",
-            "Description": "Tier 1 Operators group \u2014 can modify attributes of domain controllers (Tier 1)",
+            "Description": "Groupe op\u00E9rateurs Tier 1 \u2014 peut modifier les attributs des contr\u00F4leurs de domaine (Tier 1)",
             "DistinguishedName": "CN=GG-Tier1-Operators,CN=Users,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           }
@@ -1225,16 +1225,16 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "Users",
-        "Description": "# Users Container\n\nDefault container for domain users and groups.\n\n\u003E **Note**: When creating a new user without specifying a location, it is placed here by default.",
+        "Description": "# Container Users\n\nContainer par d\u00E9faut pour les utilisateurs et groupes du domaine.\n\n\u003E **Note** : Lors de la cr\u00E9ation d\u0027un nouvel utilisateur sans sp\u00E9cifier d\u0027emplacement, il est plac\u00E9 ici par d\u00E9faut.",
         "DistinguishedName": "CN=Users,DC=agence-meridien,DC=local",
         "Tier": "Tier 2"
       },
       {
-        "Id": "2483ef50-6215-48f0-ab61-43dee85c97e2",
+        "Id": "156dfa8f-5c95-56dd-a5c8-a8a145ef6d70",
         "Type": "Container",
         "Children": [
           {
-            "Id": "88c8133a-30e8-41ff-b4f9-091fc513bf5e",
+            "Id": "315251c8-a573-5a03-a2af-4064946012bc",
             "Type": "Computer",
             "Children": [],
             "MemberOf": [],
@@ -1268,7 +1268,7 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "WORKSTATION-01",
-            "Description": "# Sample Workstation\n\nComputer joined to the domain placed in the default Computers container.\n\n\u003E **Note**: When joining a computer to the domain, it is automatically placed in this container.",
+            "Description": "# Poste de travail exemple\n\nOrdinateur joint au domaine plac\u00E9 dans le container Computers par d\u00E9faut.\n\n\u003E **Note** : Lors de la jonction d\u0027un ordinateur au domaine, il est automatiquement plac\u00E9 dans ce container.",
             "DistinguishedName": "CN=WORKSTATION-01,CN=Computers,DC=agence-meridien,DC=local",
             "Tier": "Tier 2"
           }
@@ -1309,16 +1309,16 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "Computers",
-        "Description": "# Computers Container\n\nDefault container for computers joined to the domain.\n\n\u003E **Note**: When joining a computer to the domain without specifying a location, it is placed here by default.",
+        "Description": "# Container Computers\n\nContainer par d\u00E9faut pour les ordinateurs joints au domaine.\n\n\u003E **Note** : Lors de la jonction d\u0027un ordinateur au domaine sans sp\u00E9cifier d\u0027emplacement, il est plac\u00E9 ici par d\u00E9faut.",
         "DistinguishedName": "CN=Computers,DC=agence-meridien,DC=local",
         "Tier": "Tier 2"
       },
       {
-        "Id": "4d5b9b24-468c-4fe6-a24d-d00d892a753d",
+        "Id": "96a3151f-422c-58aa-9995-e41111ffcb00",
         "Type": "OrganizationalUnit",
         "Children": [
           {
-            "Id": "6f0e4303-151d-4bd9-9332-b21ee6a07593",
+            "Id": "56e259fc-f309-57d9-bd13-acf098c1a4f9",
             "Type": "Computer",
             "Children": [],
             "MemberOf": [
@@ -1358,12 +1358,12 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "DC01",
-            "Description": "# Primary Domain Controller\n\nFirst domain controller of the domain.\n\n\u003E **FSMO Roles**: This DC typically hosts all FSMO roles during initial installation:\n\u003E - Schema Master\n\u003E - Domain Naming Master\n\u003E - RID Master\n\u003E - PDC Emulator\n\u003E - Infrastructure Master",
+            "Description": "# Contr\u00F4leur de domaine principal\n\nPremier contr\u00F4leur de domaine du domaine.\n\n\u003E **R\u00F4les FSMO** : Ce DC h\u00E9berge g\u00E9n\u00E9ralement tous les r\u00F4les FSMO lors de l\u0027installation initiale :\n\u003E - Schema Master\n\u003E - Domain Naming Master\n\u003E - RID Master\n\u003E - PDC Emulator\n\u003E - Infrastructure Master",
             "DistinguishedName": "CN=DC01,OU=Domain Controllers,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           },
           {
-            "Id": "a2585a79-7cb9-43e6-88da-512979810f77",
+            "Id": "dd44e0dc-748b-5b56-9396-2ae8bff684e7",
             "Type": "Computer",
             "Children": [],
             "MemberOf": [],
@@ -1390,7 +1390,7 @@
             "PSOLockoutDurationMinutes": null,
             "PSOLockoutObservationWindowMinutes": null,
             "CreatedDate": "2025-09-17T00:00:00",
-            "ModifiedDate": "2026-10-22T11:58:14.3805023+02:00",
+            "ModifiedDate": "2026-10-21T00:00:00",
             "Name": "DC02",
             "Description": "Second contr\u00F4leur de domaine.",
             "DistinguishedName": "CN=DC02,OU=Domain Controllers,DC=agence-meridien,DC=local",
@@ -1435,16 +1435,16 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "Domain Controllers",
-        "Description": "# Domain Controllers OU\n\nDefault organizational unit for domain controllers.\n\n\u003E **Note**: All domain controllers are automatically placed in this OU when promoted.",
+        "Description": "# OU Domain Controllers\n\nUnit\u00E9 d\u0027organisation par d\u00E9faut pour les contr\u00F4leurs de domaine.\n\n\u003E **Note** : Tous les contr\u00F4leurs de domaine sont automatiquement plac\u00E9s dans cette OU lors de leur promotion.",
         "DistinguishedName": "OU=Domain Controllers,DC=agence-meridien,DC=local",
         "Tier": "Tier 0"
       },
       {
-        "Id": "fb27c0dc-f7ee-4ba5-b9cc-8b371218a188",
+        "Id": "f25f5e7c-d6f8-56e7-999c-a5d9759d85d0",
         "Type": "Container",
         "Children": [
           {
-            "Id": "179840c9-7d1d-4920-be6c-8a47902bc258",
+            "Id": "1b438a98-3950-5590-96a1-94ce0e2bc375",
             "Type": "Container",
             "Children": [],
             "MemberOf": [],
@@ -1473,16 +1473,16 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Password Settings Container",
-            "Description": "# Password Settings Container\n\nSystem container holding all Password Settings Objects (PSO) of the domain.\n\n\u003E **Location**: \u0060CN=Password Settings Container,CN=System,DC=domain,DC=com\u0060\n\nPSOs allow defining granular password policies.",
+            "Description": "# Password Settings Container\n\nContainer syst\u00E8me contenant tous les Password Settings Objects (PSO) du domaine.\n\n\u003E **Emplacement** : \u0060CN=Password Settings Container,CN=System,DC=domaine,DC=com\u0060\n\nLes PSOs permettent de d\u00E9finir des politiques de mot de passe granulaires.",
             "DistinguishedName": "CN=Password Settings Container,CN=System,DC=agence-meridien,DC=local",
             "Tier": null
           },
           {
-            "Id": "34d53c5c-cfbf-4440-97ed-3c0a5f85cc13",
+            "Id": "bd6b5144-3fc9-519a-a3a0-e33d0c87d449",
             "Type": "Container",
             "Children": [
               {
-                "Id": "d41830ec-b76d-4b4a-9a5a-dfab1104bf26",
+                "Id": "9c4fe3dd-5fbb-5898-ac86-f4f4599fb0b4",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1511,12 +1511,12 @@
                 "CreatedDate": "2025-09-17T00:00:00",
                 "ModifiedDate": "2025-09-17T00:00:00",
                 "Name": "Default Domain Policy",
-                "Description": "# \uD83D\uDCCB Default Domain Policy\n\n\u003E \u26A0\uFE0F **FIXED GUID**: \u0060{31B2F340-016D-11D2-945F-00C04FB984F9}\u0060\n\nThis GPO is **automatically created** when the first domain controller is promoted and applies to the **entire domain**.\n\n## Default Managed Settings\n\n### \uD83D\uDD11 Password Policy (Computer Configuration)\n| Setting | Default Value |\n|---|---|\n| Minimum password length | 7 characters |\n| Password complexity | Enabled |\n| Password history | 24 passwords |\n| Maximum password age | 42 days |\n| Minimum password age | 1 day |\n\n### \uD83D\uDD12 Account Lockout Policy\n| Setting | Default Value |\n|---|---|\n| Lockout threshold | 0 (disabled) |\n| Lockout duration | Not defined |\n\n### \uD83C\uDFAB Kerberos Policy\n| Setting | Default Value |\n|---|---|\n| Ticket lifetime | 10 hours |\n| Service ticket lifetime | 600 minutes |\n| Maximum clock skew | 5 minutes |\n\n## \u26A0\uFE0F Important Warnings\n\u003E \u274C **Never delete** this GPO \u2014 it breaks security policies for the entire domain.\n\n\u003E \u26A0\uFE0F **Never disable** the link of this GPO on the domain.\n\n\u003E \u2705 **Best practice**: Only modify password and Kerberos settings here. All other configuration should be done in dedicated GPOs.\n\n## Technical Information\n- **DN**: \u0060CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=domain,DC=com\u0060\n- **SYSVOL**: \u0060\\\\domain\\SYSVOL\\domain\\Policies\\{31B2F340-016D-11D2-945F-00C04FB984F9}\u0060\n- **Version**: Auto-incremented on each modification",
+                "Description": "# \uD83D\uDCCB Default Domain Policy\n\n\u003E \u26A0\uFE0F **GUID FIXE** : \u0060{31B2F340-016D-11D2-945F-00C04FB984F9}\u0060\n\nCette GPO est **cr\u00E9\u00E9e automatiquement** lors de la promotion du premier contr\u00F4leur de domaine et s\u0027applique \u00E0 l\u0027**ensemble du domaine**.\n\n## Param\u00E8tres par d\u00E9faut g\u00E9r\u00E9s\n\n### \uD83D\uDD11 Politique de mots de passe (Computer Configuration)\n| Param\u00E8tre | Valeur par d\u00E9faut |\n|---|---|\n| Longueur minimale | 7 caract\u00E8res |\n| Complexit\u00E9 | Activ\u00E9e |\n| Historique | 24 mots de passe |\n| \u00C2ge maximum | 42 jours |\n| \u00C2ge minimum | 1 jour |\n\n### \uD83D\uDD12 Politique de verrouillage de compte\n| Param\u00E8tre | Valeur par d\u00E9faut |\n|---|---|\n| Seuil de verrouillage | 0 (d\u00E9sactiv\u00E9) |\n| Dur\u00E9e de verrouillage | Non d\u00E9fini |\n\n### \uD83C\uDFAB Politique Kerberos\n| Param\u00E8tre | Valeur par d\u00E9faut |\n|---|---|\n| Dur\u00E9e de vie du ticket | 10 heures |\n| Dur\u00E9e de vie du ticket de service | 600 minutes |\n| Tol\u00E9rance d\u0027horloge max | 5 minutes |\n\n## \u26A0\uFE0F Avertissements importants\n\u003E \u274C **Ne jamais supprimer** cette GPO \u2014 cela casse les politiques de s\u00E9curit\u00E9 de tout le domaine.\n\n\u003E \u26A0\uFE0F **Ne pas d\u00E9sactiver** le lien de cette GPO sur le domaine.\n\n\u003E \u2705 **Bonne pratique** : Ne modifier que les param\u00E8tres de mot de passe et Kerberos ici. Toute autre configuration doit \u00EAtre faite dans des GPOs d\u00E9di\u00E9es.\n\n## Informations techniques\n- **DN** : \u0060CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=domaine,DC=com\u0060\n- **SYSVOL** : \u0060\\\\domaine\\SYSVOL\\domaine\\Policies\\{31B2F340-016D-11D2-945F-00C04FB984F9}\u0060\n- **Version** : Incr\u00E9ment\u00E9e automatiquement \u00E0 chaque modification",
                 "DistinguishedName": "CN=Default Domain Policy,CN=Policies,CN=System,DC=agence-meridien,DC=local",
                 "Tier": "Tier 0"
               },
               {
-                "Id": "3011c8da-34b1-411d-86d4-35e25e12fe9a",
+                "Id": "8cbf971f-89a2-5a66-9520-b3055fe91434",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1545,12 +1545,12 @@
                 "CreatedDate": "2025-09-17T00:00:00",
                 "ModifiedDate": "2025-09-17T00:00:00",
                 "Name": "Default Domain Controllers Policy",
-                "Description": "# \uD83D\uDCCB Default Domain Controllers Policy\n\n\u003E \u26A0\uFE0F **FIXED GUID**: \u0060{6AC1786C-016F-11D2-945F-00C04fB984F9}\u0060\n\nThis GPO is **automatically created** with the domain and applies only to the **Domain Controllers OU**.\n\n## Default Managed Settings\n\n### \uD83D\uDEE1\uFE0F User Rights Assignment\n| Setting | Default Value |\n|---|---|\n| Log on locally | Administrators, Account Operators, Backup Operators, Print Operators, Server Operators |\n| Access network | Authenticated Users, Everyone |\n| Shut down system | Administrators, Account Operators, Backup Operators, Print Operators, Server Operators |\n| Manage audit and security log | Administrators |\n\n### \uD83D\uDD0D Audit Policy\n| Category | Default Value |\n|---|---|\n| Account logon | Success, Failure |\n| Account management | Success |\n| Directory service access | Success |\n| Logon events | Success, Failure |\n| Policy change | Success |\n| Privilege use | Failure |\n| Process tracking | None |\n| System events | Success |\n\n### \uD83D\uDD12 Security Options\n- SMB server signing required: **Enabled**\n- NTLMv2 only: **Configured**\n\n## \u26A0\uFE0F Important Warnings\n\u003E \u274C **Never delete** this GPO \u2014 it ensures minimum security for domain controllers.\n\n\u003E \u26A0\uFE0F **Never disable** the link of this GPO on the Domain Controllers OU.\n\n\u003E \u2705 **Best practice**: Add complementary hardening GPOs (CIS Benchmarks, etc.) rather than modifying this one.\n\n\u003E \u2139\uFE0F **RODC**: Read-Only Domain Controllers also inherit this GPO via the Domain Controllers OU.\n\n## Technical Information\n- **DN**: \u0060CN={6AC1786C-016F-11D2-945F-00C04fB984F9},CN=Policies,CN=System,DC=domain,DC=com\u0060\n- **SYSVOL**: \u0060\\\\domain\\SYSVOL\\domain\\Policies\\{6AC1786C-016F-11D2-945F-00C04fB984F9}\u0060\n- **Version**: Auto-incremented on each modification",
+                "Description": "# \uD83D\uDCCB Default Domain Controllers Policy\n\n\u003E \u26A0\uFE0F **GUID FIXE** : \u0060{6AC1786C-016F-11D2-945F-00C04fB984F9}\u0060\n\nCette GPO est **cr\u00E9\u00E9e automatiquement** avec le domaine et s\u0027applique uniquement \u00E0 l\u0027**OU Domain Controllers**.\n\n## Param\u00E8tres par d\u00E9faut g\u00E9r\u00E9s\n\n### \uD83D\uDEE1\uFE0F Droits utilisateur (User Rights Assignment)\n| Param\u00E8tre | Valeur par d\u00E9faut |\n|---|---|\n| Ouvrir une session localement | Administrators, Account Operators, Backup Operators, Print Operators, Server Operators |\n| Acc\u00E8s r\u00E9seau | Authenticated Users, Everyone |\n| Fermer le syst\u00E8me | Administrators, Account Operators, Backup Operators, Print Operators, Server Operators |\n| G\u00E9rer les journaux d\u0027audit | Administrators |\n\n### \uD83D\uDD0D Audit Policy\n| Cat\u00E9gorie | Valeur par d\u00E9faut |\n|---|---|\n| Connexion de compte | Succ\u00E8s, \u00C9chec |\n| Gestion des comptes | Succ\u00E8s |\n| Acc\u00E8s au service d\u0027annuaire | Succ\u00E8s |\n| Connexion | Succ\u00E8s, \u00C9chec |\n| Changements de politique | Succ\u00E8s |\n| Utilisation des privil\u00E8ges | \u00C9chec |\n| Suivi des processus | Aucun |\n| \u00C9v\u00E9nements syst\u00E8me | Succ\u00E8s |\n\n### \uD83D\uDD12 Options de s\u00E9curit\u00E9\n- Signature SMB requise c\u00F4t\u00E9 serveur : **Activ\u00E9**\n- NTLMv2 uniquement : **Configur\u00E9**\n\n## \u26A0\uFE0F Avertissements importants\n\u003E \u274C **Ne jamais supprimer** cette GPO \u2014 elle garantit la s\u00E9curit\u00E9 minimale des contr\u00F4leurs de domaine.\n\n\u003E \u26A0\uFE0F **Ne pas d\u00E9sactiver** le lien de cette GPO sur l\u0027OU Domain Controllers.\n\n\u003E \u2705 **Bonne pratique** : Ajouter des GPOs compl\u00E9mentaires pour le durcissement (CIS Benchmarks, ANSSI) plut\u00F4t que de modifier celle-ci.\n\n\u003E \u2139\uFE0F **RODC** : Les Read-Only Domain Controllers h\u00E9ritent \u00E9galement de cette GPO via l\u0027OU Domain Controllers.\n\n## Informations techniques\n- **DN** : \u0060CN={6AC1786C-016F-11D2-945F-00C04fB984F9},CN=Policies,CN=System,DC=domaine,DC=com\u0060\n- **SYSVOL** : \u0060\\\\domaine\\SYSVOL\\domaine\\Policies\\{6AC1786C-016F-11D2-945F-00C04fB984F9}\u0060\n- **Version** : Incr\u00E9ment\u00E9e automatiquement \u00E0 chaque modification",
                 "DistinguishedName": "CN=Default Domain Controllers Policy,CN=Policies,CN=System,DC=agence-meridien,DC=local",
                 "Tier": "Tier 0"
               },
               {
-                "Id": "9bbaf480-c8af-45dc-aafb-f87c8f6b16b4",
+                "Id": "9e32810d-e9c4-5e5e-8b93-92a0b99f4195",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1579,12 +1579,12 @@
                 "CreatedDate": "2025-09-17T00:00:00",
                 "ModifiedDate": "2025-09-17T00:00:00",
                 "Name": "GPO-Baseline-DC",
-                "Description": "# \uD83D\uDCCB GPO-Baseline-DC\n\n\u003E \uD83D\uDD12 Security GPO applied to site **Default-First-Site-Name**.\n\n## Purpose\nDefine the security baseline for all domain controllers in the default site.\n\n## Key Settings\n| Category | Value |\n|---|---|\n| Logon Audit | Success, Failure |\n| Windows Firewall | Enabled (all profiles) |\n| Local Rights | Administrators only |\n| SMB Signing | Required |\n\n## \u26A0\uFE0F Best practices\n- Do not modify without validation in a test environment\n- Supplement with CIS Level 1 benchmarks for DCs",
+                "Description": "# \uD83D\uDCCB GPO-Baseline-DC\n\n\u003E \uD83D\uDD12 GPO de s\u00E9curit\u00E9 appliqu\u00E9e au site **Default-First-Site-Name**.\n\n## Objectif\nD\u00E9finir la ligne de base de s\u00E9curit\u00E9 pour tous les contr\u00F4leurs de domaine du site par d\u00E9faut.\n\n## Param\u00E8tres principaux\n| Cat\u00E9gorie | Valeur |\n|---|---|\n| Audit de connexion | Succ\u00E8s, \u00C9chec |\n| Pare-feu Windows | Activ\u00E9 (tous profils) |\n| Droits locaux | Administrators uniquement |\n| SMB Signing | Requis |\n\n## \u26A0\uFE0F Bonnes pratiques\n- Ne pas modifier sans validation en environnement de test\n- Compl\u00E9ter avec les benchmarks CIS Level 1 pour les DC",
                 "DistinguishedName": "CN=GPO-Baseline-DC,CN=Policies,CN=System,DC=agence-meridien,DC=local",
                 "Tier": "Tier 0"
               },
               {
-                "Id": "5c28f816-2bb2-45d7-a5ec-91d5a274277e",
+                "Id": "3c630c4a-2523-5f56-b33a-40eefbef6bb7",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1613,12 +1613,12 @@
                 "CreatedDate": "2025-09-17T00:00:00",
                 "ModifiedDate": "2025-09-17T00:00:00",
                 "Name": "GPO-Paris-Workstations",
-                "Description": "# \uD83D\uDCCB GPO-Paris-Workstations\n\n\u003E \uD83D\uDDA5\uFE0F GPO applied to site **Site-Paris** \u2014 workstations.\n\n## Purpose\nManage workstation configuration at the Paris datacenter: software deployments, network drive mappings and printers.\n\n## Key Settings\n| Category | Value |\n|---|---|\n| Software Deployment | Office 365, VPN Client |\n| Network Drives | P: \u2192 \\\\srv-paris\\shares |\n| Wallpaper | Paris corporate branding |\n| Printers | AUTO (site-aware) |\n\n## \u26A0\uFE0F Best practices\n- Test on a pilot group before production deployment\n- Use WMI filters to target Windows 10/11 only",
+                "Description": "# \uD83D\uDCCB GPO-Paris-Workstations\n\n\u003E \uD83D\uDDA5\uFE0F GPO appliqu\u00E9e au site **Site-Paris** \u2014 postes de travail.\n\n## Objectif\nG\u00E9rer la configuration des postes de travail du datacenter Paris : d\u00E9ploiements logiciels, mappages de lecteurs r\u00E9seau et imprimantes.\n\n## Param\u00E8tres principaux\n| Cat\u00E9gorie | Valeur |\n|---|---|\n| D\u00E9ploiement logiciels | Office 365, VPN Client |\n| Lecteurs r\u00E9seau | P: \u2192 \\\\srv-paris\\partages |\n| Fond d\u0027\u00E9cran | Charte graphique Paris |\n| Imprimantes | AUTO (site-aware) |\n\n## \u26A0\uFE0F Bonnes pratiques\n- Tester sur un groupe pilote avant d\u00E9ploiement en production\n- Utiliser les filtres WMI pour cibler Windows 10/11 uniquement",
                 "DistinguishedName": "CN=GPO-Paris-Workstations,CN=Policies,CN=System,DC=agence-meridien,DC=local",
                 "Tier": "Tier 1"
               },
               {
-                "Id": "e9c86ee2-159a-41ca-b448-6ab991f6a7a8",
+                "Id": "d5a0a84d-529b-51a2-a9cd-468de1182f2c",
                 "Type": "Policy",
                 "Children": [],
                 "MemberOf": [],
@@ -1647,7 +1647,7 @@
                 "CreatedDate": "2025-09-17T00:00:00",
                 "ModifiedDate": "2025-09-17T00:00:00",
                 "Name": "GPO-Lyon-Workstations",
-                "Description": "# \uD83D\uDCCB GPO-Lyon-Workstations\n\n\u003E \uD83D\uDDA5\uFE0F GPO applied to site **Site-Lyon** \u2014 workstations.\n\n## Purpose\nManage workstation configuration at the Lyon site: software deployments, drive mappings and local printers.\n\n## Key Settings\n| Category | Value |\n|---|---|\n| Software Deployment | Office 365, VPN Client |\n| Network Drives | L: \u2192 \\\\srv-lyon\\shares |\n| Wallpaper | Lyon corporate branding |\n| Printers | Ricoh-Lyon-Floor1, Ricoh-Lyon-Floor2 |\n\n## \u26A0\uFE0F Best practices\n- Synchronise shared settings with GPO-Paris-Workstations\n- Verify print server accessibility before deployment",
+                "Description": "# \uD83D\uDCCB GPO-Lyon-Workstations\n\n\u003E \uD83D\uDDA5\uFE0F GPO appliqu\u00E9e au site **Site-Lyon** \u2014 postes de travail.\n\n## Objectif\nG\u00E9rer la configuration des postes de travail du site Lyon : d\u00E9ploiements logiciels, mappages de lecteurs et imprimantes locales.\n\n## Param\u00E8tres principaux\n| Cat\u00E9gorie | Valeur |\n|---|---|\n| D\u00E9ploiement logiciels | Office 365, VPN Client |\n| Lecteurs r\u00E9seau | L: \u2192 \\\\srv-lyon\\partages |\n| Fond d\u0027\u00E9cran | Charte graphique Lyon |\n| Imprimantes | Ricoh-Lyon-Floor1, Ricoh-Lyon-Floor2 |\n\n## \u26A0\uFE0F Bonnes pratiques\n- Synchroniser avec GPO-Paris-Workstations pour les param\u00E8tres communs\n- V\u00E9rifier l\u0027accessibilit\u00E9 du serveur d\u0027impression avant d\u00E9ploiement",
                 "DistinguishedName": "CN=GPO-Lyon-Workstations,CN=Policies,CN=System,DC=agence-meridien,DC=local",
                 "Tier": "Tier 1"
               }
@@ -1678,7 +1678,7 @@
             "CreatedDate": "2025-09-17T00:00:00",
             "ModifiedDate": "2025-09-17T00:00:00",
             "Name": "Policies",
-            "Description": "# Policies Container (SYSVOL)\n\nThis container represents the \u0060SYSVOL\\Policies\u0060 folder on domain controllers.\n\nEach GPO has a subfolder identified by its **GUID** under:\n\u0060\u0060\u0060\n\\\\\u003Cdomain\u003E\\SYSVOL\\\u003Cdomain\u003E\\Policies\\{GUID}\n\u0060\u0060\u0060",
+            "Description": "# Container Policies (SYSVOL)\n\nCe container repr\u00E9sente le dossier \u0060SYSVOL\\Policies\u0060 sur les contr\u00F4leurs de domaine.\n\nChaque GPO poss\u00E8de un sous-dossier identifi\u00E9 par son **GUID** dans :\n\u0060\u0060\u0060\n\\\\\u003Cdomaine\u003E\\SYSVOL\\\u003Cdomaine\u003E\\Policies\\{GUID}\n\u0060\u0060\u0060",
             "DistinguishedName": "CN=Policies,CN=System,DC=agence-meridien,DC=local",
             "Tier": "Tier 0"
           }
@@ -1709,12 +1709,12 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "System",
-        "Description": "# System Container\n\nActive Directory system container containing configuration objects and system settings.\n\n\u003E **Note**: This container holds configuration objects, services, password policies, etc.",
+        "Description": "# Container System\n\nContainer syst\u00E8me d\u0027Active Directory contenant les objets de configuration et les param\u00E8tres syst\u00E8me.\n\n\u003E **Note** : Ce container contient notamment les objets de configuration, les services, les strat\u00E9gies de mots de passe, etc.",
         "DistinguishedName": "CN=System,DC=agence-meridien,DC=local",
         "Tier": null
       },
       {
-        "Id": "eea337c9-26c2-43f9-95ee-b6781f78c0cd",
+        "Id": "f55f478e-7462-580e-ba4a-b3a77ef34de6",
         "Type": "Container",
         "Children": [],
         "MemberOf": [],
@@ -1743,16 +1743,16 @@
         "CreatedDate": "2025-09-17T00:00:00",
         "ModifiedDate": "2025-09-17T00:00:00",
         "Name": "ForeignSecurityPrincipals",
-        "Description": "# Foreign Security Principals\n\nContainer for security principals from external trusted domains.\n\n\u003E **Note**: Used in multi-domain and multi-forest environments.",
+        "Description": "# Foreign Security Principals\n\nContainer pour les principaux de s\u00E9curit\u00E9 provenant de domaines externes approuv\u00E9s.\n\n\u003E **Note** : Utilis\u00E9 dans les environnements multi-domaines et multi-for\u00EAts.",
         "DistinguishedName": "CN=ForeignSecurityPrincipals,DC=agence-meridien,DC=local",
         "Tier": null
       },
       {
-        "Id": "7b675975-52e5-47a1-9250-a148f20d8d88",
+        "Id": "9fe584dc-e8f7-560f-b7a2-745087a08bb5",
         "Type": "OrganizationalUnit",
         "Children": [
           {
-            "Id": "bf6b3a17-8d32-4d1b-b4a2-73be289cff66",
+            "Id": "6071cca2-72c4-547f-a137-974517820bee",
             "Type": "User",
             "Children": [],
             "MemberOf": [],
@@ -1779,7 +1779,7 @@
             "PSOLockoutDurationMinutes": null,
             "PSOLockoutObservationWindowMinutes": null,
             "CreatedDate": "2025-09-17T00:00:00",
-            "ModifiedDate": "2026-10-22T11:58:14.3804778+02:00",
+            "ModifiedDate": "2026-10-21T00:00:00",
             "Name": "j.petit",
             "Description": "Ancien administrateur, aujourd\u0027hui chef de projet. A pr\u00E9par\u00E9 le compte de DC02 en 2021.",
             "DistinguishedName": "CN=j.petit,OU=Utilisateurs,DC=agence-meridien,DC=local",
@@ -1810,7 +1810,7 @@
         "PSOLockoutDurationMinutes": null,
         "PSOLockoutObservationWindowMinutes": null,
         "CreatedDate": "2025-09-17T00:00:00",
-        "ModifiedDate": "2026-10-22T11:58:14.3804705+02:00",
+        "ModifiedDate": "2026-10-21T00:00:00",
         "Name": "Utilisateurs",
         "Description": "",
         "DistinguishedName": "OU=Utilisateurs,DC=agence-meridien,DC=local",
@@ -1852,9 +1852,9 @@
   "SitesTopology": {
     "Sites": [
       {
-        "Id": "776013f7-9dc4-4f3c-8c27-3af77cd954bc",
+        "Id": "9a783b73-0a77-5e19-a316-cc072d337f6f",
         "Name": "Default-First-Site-Name",
-        "Description": "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration.",
+        "Description": "Site Active Directory cr\u00E9\u00E9 automatiquement lors de la premi\u00E8re installation. Contient initialement tous les contr\u00F4leurs de domaine avant configuration manuelle des sites.",
         "Location": "",
         "Subnets": [],
         "DomainControllers": [
@@ -1862,9 +1862,9 @@
         ],
         "LinkedGPOs": [],
         "Tier": null,
-        "CreatedDate": "2026-10-22T11:58:14.3805509+02:00",
-        "ModifiedDate": "2026-10-22T11:58:14.3805512+02:00",
-        "ShortDescription": "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration."
+        "CreatedDate": "2025-09-17T00:00:00",
+        "ModifiedDate": "2025-09-17T00:00:00",
+        "ShortDescription": "Site Active Directory cr\u00E9\u00E9 automatiquement lors de la premi\u00E8re installation. Contient initialement tous les contr\u00F4leurs de domaine avant configuration manuelle des sites."
       }
     ],
     "SiteLinks": [
