@@ -38,6 +38,8 @@ internal sealed class FakeDialogService : IDialogService
     public void ShowGraph(GraphViewModel viewModel) => Opened.Add("Graph");
     public AuditViewModel? LastAudit { get; private set; }
     public void ShowAudit(AuditViewModel viewModel) { LastAudit = viewModel; Opened.Add("Audit"); }
+    public LabViewModel? LastLab { get; private set; }
+    public void ShowLab(LabViewModel viewModel) { LastLab = viewModel; Opened.Add("Lab"); }
     public Task ShowTierConfigurationAsync() { Opened.Add("Tiers"); return Task.CompletedTask; }
     public Task ShowTimelineAsync() { Opened.Add("Timeline"); return Task.CompletedTask; }
     public Task ShowDelegationsAsync(ADObject? root) { Opened.Add($"Delegations:{root?.Name}"); return Task.CompletedTask; }

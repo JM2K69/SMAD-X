@@ -62,6 +62,9 @@ namespace SMADX.Views
         public void ShowAudit(AuditViewModel viewModel) =>
             new AuditWindow { DataContext = viewModel }.Show(_owner);
 
+        public void ShowLab(LabViewModel viewModel) =>
+            new LabWindow { DataContext = viewModel }.Show(_owner);
+
         public Task ShowTierConfigurationAsync() =>
             new TierConfigurationWindow().ShowDialog(_owner);
 

@@ -42,30 +42,29 @@ namespace SMADX.Services
             }
         }
 
-        public string this[string key]
+        public string this[string key] => Translate(key, _currentCulture.Name);
+
+        /// <summary>Traduction dans une culture donnée (repli sur le français), sans changer la langue courante.</summary>
+        public string Translate(string key, string cultureName)
         {
-            get
+            if (_translations.TryGetValue(cultureName, out var cultureDictionary))
             {
-                var cultureName = _currentCulture.Name;
-                if (_translations.TryGetValue(cultureName, out var cultureDictionary))
+                if (cultureDictionary.TryGetValue(key, out var translation))
                 {
-                    if (cultureDictionary.TryGetValue(key, out var translation))
-                    {
-                        return translation;
-                    }
+                    return translation;
                 }
-
-                // Fallback sur français si la clé n'existe pas
-                if (_translations.TryGetValue("fr-FR", out var frenchDictionary))
-                {
-                    if (frenchDictionary.TryGetValue(key, out var translation))
-                    {
-                        return translation;
-                    }
-                }
-
-                return $"[{key}]"; // Clé manquante
             }
+
+            // Fallback sur français si la clé n'existe pas
+            if (_translations.TryGetValue("fr-FR", out var frenchDictionary))
+            {
+                if (frenchDictionary.TryGetValue(key, out var translation))
+                {
+                    return translation;
+                }
+            }
+
+            return $"[{key}]"; // Clé manquante
         }
 
         private LocalizationService()
@@ -207,6 +206,63 @@ namespace SMADX.Services
                 ["Security.Owner"] = "Propriétaire :",
                 ["Security.PwdLastSet"] = "Mot de passe changé le (pwdLastSet) :",
                 ["Security.LastLogon"] = "Dernière connexion (lastLogonTimestamp) :",
+
+                // Édition des délégations
+                ["Delegation.AddLabel"] = "Déléguer sur l'OU sélectionnée :",
+                ["Delegation.Trustee"] = "Mandataire",
+                ["Delegation.Add"] = "Ajouter",
+                ["Delegation.Remove"] = "Retirer la délégation sélectionnée",
+
+                // Exercices
+                ["Menu.Labs"] = "Exercices",
+                ["Menu.Labs.Open"] = "Ouvrir un exercice...",
+                ["Menu.Labs.BuiltIn"] = "Exercices fournis",
+                ["Menu.Labs.Create"] = "Créer un exercice à partir du domaine actuel...",
+                ["FileType.Lab"] = "Exercice SMAD-X",
+                ["Lab.Open.Title"] = "Ouvrir un exercice",
+                ["Lab.Create.Title"] = "Enregistrer le nouvel exercice",
+                ["Lab.Created"] = "Exercice créé : {0} ({1} objectif(s) proposés d'après l'audit). Rédigez l'énoncé dans le fichier.",
+                ["Lab.Started"] = "Exercice « {0} » : domaine de départ chargé.",
+                ["Lab.Level.Beginner"] = "Débutant",
+                ["Lab.Level.Intermediate"] = "Intermédiaire",
+                ["Lab.Level.Advanced"] = "Avancé",
+                ["Lab.Duration"] = "Durée indicative : {0} min",
+                ["Lab.Score"] = "{0} / {1} points",
+                ["Lab.Objectives"] = "Objectifs",
+                ["Lab.Hint"] = "Indice",
+                ["Lab.Check"] = "Vérifier",
+                ["Lab.Restart"] = "Recommencer",
+                ["Lab.ExportResult"] = "Exporter le résultat",
+                ["Lab.StudentName"] = "Nom de l'apprenant :",
+                ["Lab.Completed"] = "Bravo, tous les objectifs sont atteints !",
+                ["Lab.Export.Title"] = "Exporter le compte rendu de l'exercice",
+                ["Lab.Report.Student"] = "Apprenant",
+                ["Lab.Report.Lab"] = "Exercice",
+                ["Lab.Report.Date"] = "Date",
+                ["Lab.Report.Score"] = "Score",
+                ["Lab.Report.Hints"] = "Indices consultés",
+                ["Lab.Report.Audit"] = "Score d'audit final",
+                ["Lab.Report.Objective"] = "Objectif",
+                ["Lab.Report.Points"] = "Points",
+                ["Lab.Report.Feedback"] = "Commentaire",
+                ["Lab.Report.HintUsed"] = "indice consulté",
+                ["Lab.Feedback.Ok"] = "Objectif atteint.",
+                ["Lab.Feedback.Score"] = "Score d'audit actuel : {0}, il faut au moins {1}.",
+                ["Lab.Feedback.Missing"] = "L'objet « {0} » est introuvable dans le domaine.",
+                ["Lab.Feedback.StillPresent"] = "L'objet « {0} » existe encore.",
+                ["Lab.Feedback.RuleRemaining"] = "Constat {0} encore présent sur : {1}.",
+                ["Lab.Feedback.FindingsRemaining"] = "{0} constat(s) encore présent(s) : {1}.",
+                ["Lab.Feedback.NotMember"] = "« {0} » n'est pas membre de « {1} ».",
+                ["Lab.Feedback.StillMember"] = "« {0} » est encore membre de « {1} » (directement ou par imbrication).",
+                ["Lab.Feedback.FlagMissing"] = "L'option {1} n'est pas activée sur « {0} ».",
+                ["Lab.Feedback.FlagPresent"] = "L'option {1} est encore activée sur « {0} ».",
+                ["Lab.Feedback.Tier"] = "« {0} » est classé en « {1} », attendu : « {2} ».",
+                ["Lab.Feedback.DelegationMissing"] = "« {0} » n'a pas de délégation {1} sur « {2} ».",
+                ["Lab.Feedback.NoDelegation"] = "« {0} » n'a aucune délégation.",
+                ["Lab.Feedback.DelegationExtra"] = "« {0} » a des droits en trop : {1}.",
+                ["Lab.Feedback.Modified"] = "« {0} » a été modifié : {1}.",
+                ["Lab.Feedback.Removed"] = "supprimé",
+                ["Lab.Feedback.UnknownCheck"] = "Vérification inconnue : {0}.",
 
                 // Erreur inattendue
                 ["Error.Title"] = "Erreur inattendue",
@@ -648,6 +704,63 @@ namespace SMADX.Services
                 ["Security.Owner"] = "Owner:",
                 ["Security.PwdLastSet"] = "Password last set (pwdLastSet):",
                 ["Security.LastLogon"] = "Last logon (lastLogonTimestamp):",
+
+                // Delegation editing
+                ["Delegation.AddLabel"] = "Delegate on the selected OU:",
+                ["Delegation.Trustee"] = "Trustee",
+                ["Delegation.Add"] = "Add",
+                ["Delegation.Remove"] = "Remove selected delegation",
+
+                // Labs
+                ["Menu.Labs"] = "Labs",
+                ["Menu.Labs.Open"] = "Open a lab...",
+                ["Menu.Labs.BuiltIn"] = "Built-in labs",
+                ["Menu.Labs.Create"] = "Create a lab from the current domain...",
+                ["FileType.Lab"] = "SMAD-X lab",
+                ["Lab.Open.Title"] = "Open a lab",
+                ["Lab.Create.Title"] = "Save the new lab",
+                ["Lab.Created"] = "Lab created: {0} ({1} objective(s) proposed from the audit). Write the statement in the file.",
+                ["Lab.Started"] = "Lab \"{0}\": starting domain loaded.",
+                ["Lab.Level.Beginner"] = "Beginner",
+                ["Lab.Level.Intermediate"] = "Intermediate",
+                ["Lab.Level.Advanced"] = "Advanced",
+                ["Lab.Duration"] = "Suggested duration: {0} min",
+                ["Lab.Score"] = "{0} / {1} points",
+                ["Lab.Objectives"] = "Objectives",
+                ["Lab.Hint"] = "Hint",
+                ["Lab.Check"] = "Check",
+                ["Lab.Restart"] = "Start over",
+                ["Lab.ExportResult"] = "Export result",
+                ["Lab.StudentName"] = "Learner name:",
+                ["Lab.Completed"] = "Well done, every objective is met!",
+                ["Lab.Export.Title"] = "Export the lab report",
+                ["Lab.Report.Student"] = "Learner",
+                ["Lab.Report.Lab"] = "Lab",
+                ["Lab.Report.Date"] = "Date",
+                ["Lab.Report.Score"] = "Score",
+                ["Lab.Report.Hints"] = "Hints viewed",
+                ["Lab.Report.Audit"] = "Final audit score",
+                ["Lab.Report.Objective"] = "Objective",
+                ["Lab.Report.Points"] = "Points",
+                ["Lab.Report.Feedback"] = "Comment",
+                ["Lab.Report.HintUsed"] = "hint viewed",
+                ["Lab.Feedback.Ok"] = "Objective met.",
+                ["Lab.Feedback.Score"] = "Current audit score: {0}, at least {1} is required.",
+                ["Lab.Feedback.Missing"] = "Object \"{0}\" cannot be found in the domain.",
+                ["Lab.Feedback.StillPresent"] = "Object \"{0}\" still exists.",
+                ["Lab.Feedback.RuleRemaining"] = "Finding {0} is still present on: {1}.",
+                ["Lab.Feedback.FindingsRemaining"] = "{0} finding(s) still present: {1}.",
+                ["Lab.Feedback.NotMember"] = "\"{0}\" is not a member of \"{1}\".",
+                ["Lab.Feedback.StillMember"] = "\"{0}\" is still a member of \"{1}\" (directly or through nesting).",
+                ["Lab.Feedback.FlagMissing"] = "Option {1} is not enabled on \"{0}\".",
+                ["Lab.Feedback.FlagPresent"] = "Option {1} is still enabled on \"{0}\".",
+                ["Lab.Feedback.Tier"] = "\"{0}\" is classified as \"{1}\", expected: \"{2}\".",
+                ["Lab.Feedback.DelegationMissing"] = "\"{0}\" has no {1} delegation on \"{2}\".",
+                ["Lab.Feedback.NoDelegation"] = "\"{0}\" has no delegation.",
+                ["Lab.Feedback.DelegationExtra"] = "\"{0}\" has extra rights: {1}.",
+                ["Lab.Feedback.Modified"] = "\"{0}\" was modified: {1}.",
+                ["Lab.Feedback.Removed"] = "deleted",
+                ["Lab.Feedback.UnknownCheck"] = "Unknown check: {0}.",
 
                 // Unexpected error
                 ["Error.Title"] = "Unexpected error",

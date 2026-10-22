@@ -105,7 +105,7 @@
 						  Background="#DDDDDD" Width="4"/>
 
 			<!-- Right: filters + DataGrid -->
-			<Grid Grid.Column="2" RowDefinitions="Auto,*" Margin="10,0,0,0">
+			<Grid Grid.Column="2" RowDefinitions="Auto,Auto,*" Margin="10,0,0,0">
 
 				<!-- Filter bar -->
 				<Grid Grid.Row="0" ColumnDefinitions="*,*,Auto,Auto,Auto"
@@ -127,8 +127,18 @@
 					</StackPanel>
 				</Grid>
 
+				<!-- Édition : déléguer sur l'OU sélectionnée à gauche, retirer la délégation sélectionnée -->
+				<StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,10">
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationAddLabel}" VerticalAlignment="Center"/>
+					<ComboBox ItemsSource="{Binding Principals}" SelectedItem="{Binding NewTrustee}" Width="220"
+							  PlaceholderText="{Binding Source={StaticResource Loc}, Path=DelegationTrustee}"/>
+					<ComboBox ItemsSource="{Binding RightCategories}" SelectedItem="{Binding NewCategory}" Width="180"/>
+					<Button Content="{Binding Source={StaticResource Loc}, Path=DelegationAdd}" Command="{Binding AddDelegationCommand}"/>
+					<Button Content="{Binding Source={StaticResource Loc}, Path=DelegationRemove}" Command="{Binding RemoveDelegationCommand}"/>
+				</StackPanel>
+
 				<!-- DataGrid -->
-				<DataGrid Grid.Row="1"
+				<DataGrid Grid.Row="2"
 						  ItemsSource="{Binding FilteredDelegations}"
 						  SelectedItem="{Binding SelectedDelegation}"
 						  IsReadOnly="True"

@@ -1,0 +1,94 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMADX.ViewModels"
+        x:Class="SMADX.Views.LabWindow"
+        x:Name="LabWindowRoot"
+        x:DataType="vm:LabViewModel"
+        Title="{Binding Title}"
+        Icon="/Assets/icone.ico"
+        Width="1100" Height="820"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+
+        <!-- ═══ En-tête : titre, niveau, durée, score ═══ -->
+        <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="{Binding Title}" FontSize="20" FontWeight="Bold" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border Background="#2E86C1" CornerRadius="10" Padding="10,2">
+                            <TextBlock Text="{Binding LevelLabel}" Foreground="White" FontSize="12"/>
+                        </Border>
+                        <TextBlock Text="{Binding DurationLabel}" VerticalAlignment="Center" Opacity="0.8"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ScoreLabel}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabCompleted}" Foreground="#27AE60" FontWeight="SemiBold"
+                               IsVisible="{Binding IsCompleted}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ Énoncé | objectifs ═══ -->
+        <Grid Grid.Row="1" ColumnDefinitions="5*,Auto,6*">
+            <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="14">
+                <ScrollViewer>
+                    <ContentControl Content="{Binding Statement, Converter={StaticResource MarkdownConverter}}"/>
+                </ScrollViewer>
+            </Border>
+
+            <GridSplitter Grid.Column="1" Width="6" ResizeDirection="Columns" Background="Transparent"/>
+
+            <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="10">
+                <Grid RowDefinitions="Auto,*">
+                    <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource Loc}, Path=LabObjectives}" FontWeight="SemiBold" FontSize="15" Margin="4,0,0,8"/>
+                    <ScrollViewer Grid.Row="1">
+                        <ItemsControl ItemsSource="{Binding Objectives}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LabObjectiveItem">
+                                    <Border BorderBrush="#40808080" BorderThickness="0,0,0,1" Padding="4,8">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <TextBlock Grid.Column="0" Text="{Binding StatusIcon}" Foreground="{Binding StatusColor}"
+                                                       FontSize="18" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Top"/>
+                                            <StackPanel Grid.Column="1" Spacing="3">
+                                                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Feedback}" TextWrapping="Wrap" FontSize="12"
+                                                           Foreground="{Binding StatusColor}" IsVisible="{Binding Passed, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                                <Border Background="#202E86C1" CornerRadius="4" Padding="8,4" IsVisible="{Binding IsHintVisible}">
+                                                    <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" FontSize="12"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Spacing="4" Margin="10,0,0,0" HorizontalAlignment="Right">
+                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Opacity="0.8">
+                                                    <Run Text="{Binding Points}"/><Run Text=" pt"/>
+                                                </TextBlock>
+                                                <Button Content="{Binding Source={StaticResource Loc}, Path=LabHint}" Command="{Binding ToggleHintCommand}"
+                                                        Padding="8,2" FontSize="11"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ═══ Actions ═══ -->
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" Margin="0,10,0,0">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabStudentName}" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding StudentName}" Width="220"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                <Button Content="{Binding Source={StaticResource Loc}, Path=LabRestart}" Command="{Binding RestartCommand}" Padding="12,5"/>
+                <Button Content="{Binding Source={StaticResource Loc}, Path=LabExportResult}" Command="{Binding ExportResultCommand}" Padding="12,5"/>
+                <Button Content="{Binding Source={StaticResource Loc}, Path=LabCheck}" Command="{Binding CheckCommand}" Padding="16,5"
+                        Background="#1E8449" Foreground="White" FontWeight="SemiBold"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

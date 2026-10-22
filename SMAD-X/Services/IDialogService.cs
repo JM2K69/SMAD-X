@@ -34,6 +34,9 @@ namespace SMADX.Services
         /// <summary>Fenêtre non modale : l'apprenant corrige dans la fenêtre principale puis relance l'audit.</summary>
         void ShowAudit(AuditViewModel viewModel);
 
+        /// <summary>Fenêtre non modale : l'apprenant travaille dans la fenêtre principale et vérifie quand il veut.</summary>
+        void ShowLab(LabViewModel viewModel);
+
         Task ShowTierConfigurationAsync();
 
         Task ShowTimelineAsync();

@@ -16,6 +16,7 @@ namespace SMADX.Services
         public Task ShowRelationsAsync(RelationsViewModel viewModel) => Task.CompletedTask;
         public void ShowGraph(GraphViewModel viewModel) { }
         public void ShowAudit(AuditViewModel viewModel) { }
+        public void ShowLab(LabViewModel viewModel) { }
         public Task ShowTierConfigurationAsync() => Task.CompletedTask;
         public Task ShowTimelineAsync() => Task.CompletedTask;
         public Task ShowDelegationsAsync(ADObject? root) => Task.CompletedTask;

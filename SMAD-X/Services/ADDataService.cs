@@ -14,6 +14,9 @@ namespace SMADX.Services
     /// </summary>
     public class ADDataService
     {
+        /// <summary>Options JSON des fichiers SMAD-X (énumérations par leur nom), partagées avec les exercices.</summary>
+        public static JsonSerializerOptions SerializerOptions => JsonOptions;
+
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             WriteIndented = true,
@@ -130,10 +133,8 @@ namespace SMADX.Services
             return result.Document?.Domain;
         }
 
-        /// <summary>
-        /// Restaure les références parent après désérialisation
-        /// </summary>
-        private void RestoreParentReferences(ADObject current, ADObject? parent)
+        /// <summary>Rétablit les liens Parent (non sérialisés) d'un arbre désérialisé.</summary>
+        public static void RestoreParentReferences(ADObject current, ADObject? parent)
         {
             current.Parent = parent;
 

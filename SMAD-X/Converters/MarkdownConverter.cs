@@ -96,9 +96,9 @@ namespace SMADX.Converters
                     var indent = line.Length - line.TrimStart().Length;
                     var text = line.TrimStart().Substring(2);
 
-                    var panel = new StackPanel
+                    // DockPanel et non StackPanel horizontal : le texte reçoit la largeur restante et passe à la ligne
+                    var panel = new DockPanel
                     {
-                        Orientation = Orientation.Horizontal,
                         Margin = new Avalonia.Thickness(indent * 10 + 10, 2, 0, 2)
                     };
 
@@ -107,7 +107,8 @@ namespace SMADX.Converters
                         Text = "• ",
                         Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#7DD3FC" : "#4A9EFF")),
                         FontWeight = FontWeight.Bold,
-                        VerticalAlignment = VerticalAlignment.Top
+                        VerticalAlignment = VerticalAlignment.Top,
+                        [DockPanel.DockProperty] = Dock.Left
                     });
 
                     panel.Children.Add(CreateInlineTextBlock(text, false));
@@ -121,9 +122,8 @@ namespace SMADX.Converters
                     var match = Regex.Match(line.TrimStart(), @"^(\d+)\.\s(.*)$");
                     if (match.Success)
                     {
-                        var panel = new StackPanel
+                        var panel = new DockPanel
                         {
-                            Orientation = Orientation.Horizontal,
                             Margin = new Avalonia.Thickness(indent * 10 + 10, 2, 0, 2)
                         };
 
@@ -132,7 +132,8 @@ namespace SMADX.Converters
                             Text = match.Groups[1].Value + ". ",
                             Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#7DD3FC" : "#4A9EFF")),
                             FontWeight = FontWeight.SemiBold,
-                            VerticalAlignment = VerticalAlignment.Top
+                            VerticalAlignment = VerticalAlignment.Top,
+                            [DockPanel.DockProperty] = Dock.Left
                         });
 
                         panel.Children.Add(CreateInlineTextBlock(match.Groups[2].Value, false));
