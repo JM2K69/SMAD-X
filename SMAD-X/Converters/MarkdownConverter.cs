@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
@@ -326,6 +326,17 @@ namespace SMADX.Converters
         }
 
         /// <summary>
+        /// Gras, italique, code inline et liens. Comme en CommonMark, les tirets bas ne marquent l'emphase
+        /// qu'en début et fin de mot : DONT_REQ_PREAUTH ou svc_sql restent du texte.
+        /// </summary>
+        internal static readonly Regex InlinePattern = new(
+            @"(\*\*\*(.+?)\*\*\*)|(\*\*(.+?)\*\*)|(\*(.+?)\*)" +
+            @"|((?<![\p{L}\p{N}_])__(?=\S)(.+?)(?<=\S)__(?![\p{L}\p{N}_]))" +
+            @"|((?<![\p{L}\p{N}_])_(?=\S)(.+?)(?<=\S)_(?![\p{L}\p{N}_]))" +
+            @"|(`(.+?)`)|\[([^\]]+)\]\(([^\)]+)\)",
+            RegexOptions.Compiled);
+
+        /// <summary>
         /// Crée un TextBlock avec support du formatage inline (gras, italique, code)
         /// </summary>
         private TextBlock CreateInlineTextBlock(string text, bool isQuote)
@@ -346,11 +357,9 @@ namespace SMADX.Converters
             // Utiliser Inlines pour supporter le formatage riche
             var inlines = new Avalonia.Controls.Documents.InlineCollection();
 
-            // Parser le texte avec regex pour supporter gras, italique, code inline
-            var pattern = @"(\*\*\*(.+?)\*\*\*)|(\*\*(.+?)\*\*)|(\*(.+?)\*)|(__(.+?)__)|(_(.+?)_)|(`(.+?)`)|\[([^\]]+)\]\(([^\)]+)\)";
             int lastIndex = 0;
 
-            foreach (Match match in Regex.Matches(text, pattern))
+            foreach (Match match in InlinePattern.Matches(text))
             {
                 // Ajouter le texte avant le match
                 if (match.Index > lastIndex)
