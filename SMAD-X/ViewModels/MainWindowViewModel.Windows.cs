@@ -38,6 +38,7 @@ namespace SMADX.ViewModels
             OnPropertyChanged(nameof(SelectedMemberOf));
             OnPropertyChanged(nameof(SelectedLinkedGPOs));
             OnPropertyChanged(nameof(SelectedPSOAppliesTo));
+            RecordHistory();
             StatusMessage = "Relations mises à jour.";
         }
 
@@ -54,7 +55,11 @@ namespace SMADX.ViewModels
         private Task ShowTimeline() => _dialogs.ShowTimelineAsync();
 
         [RelayCommand]
-        private Task ShowDelegations() => _dialogs.ShowDelegationsAsync(RootObject);
+        private async Task ShowDelegations()
+        {
+            await _dialogs.ShowDelegationsAsync(RootObject);
+            RecordHistory(); // délégations ajoutées ou retirées dans la fenêtre
+        }
 
         [RelayCommand]
         private Task ShowSites() => _dialogs.ShowSitesAsync(SitesTopology);

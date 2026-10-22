@@ -104,6 +104,7 @@ namespace SMADX.ViewModels
             }
 
             UpdateObjectCounts();
+            RecordHistory();
             StatusMessage = $"GPO '{name}' créée dans System\\Policies.";
         }
 
@@ -170,6 +171,7 @@ namespace SMADX.ViewModels
             SelectedNode.IsExpanded = true;
 
             UpdateObjectCounts();
+            RecordHistory();
             StatusMessage = $"{type} ajouté : {name}";
 
             SelectForRenameLater(newNode);
@@ -244,6 +246,7 @@ namespace SMADX.ViewModels
             parentNode.Data.Children.Remove(dataToDelete);
 
             UpdateObjectCounts();
+            RecordHistory();
             StatusMessage = $"Objet supprimé : {deletedName}";
         }
 
@@ -290,6 +293,7 @@ namespace SMADX.ViewModels
             cloneNode.IsEditing = true;
 
             UpdateObjectCounts();
+            RecordHistory();
             StatusMessage = $"Collé : {clone.Name}";
         }
 
@@ -320,6 +324,7 @@ namespace SMADX.ViewModels
                     SelectedNode.Data.UpdateDistinguishedNameTree();
                     SelectedNode.IsEditing = false;
                     OnPropertyChanged(nameof(SelectedObjectName));
+                    RecordHistory();
                     StatusMessage = $"Renommé en : {newName}";
                 }
                 else

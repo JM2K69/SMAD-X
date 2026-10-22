@@ -47,6 +47,9 @@
                     <MenuItem Header="{Binding MenuFileExit}" Click="OnExitClick" InputGesture="Alt+F4"/>
                 </MenuItem>
                 <MenuItem Header="{Binding MenuEdit}">
+                    <MenuItem Header="{Binding MenuEditUndo}" Command="{Binding #MainWindowRoot.DataContext.UndoCommand}" InputGesture="Ctrl+Z"/>
+                    <MenuItem Header="{Binding MenuEditRedo}" Command="{Binding #MainWindowRoot.DataContext.RedoCommand}" InputGesture="Ctrl+Y"/>
+                    <Separator/>
                     <MenuItem Header="{Binding MenuEditCopy}" Command="{Binding #MainWindowRoot.DataContext.CopyObjectCommand}" InputGesture="Ctrl+C"/>
                     <MenuItem Header="{Binding MenuEditPaste}" Command="{Binding #MainWindowRoot.DataContext.PasteObjectCommand}" InputGesture="Ctrl+V"/>
                     <Separator/>
@@ -83,6 +86,9 @@
                 </MenuItem>
                 <MenuItem Header="Analyse">
                     <MenuItem Header="{Binding MenuAnalyseAudit}" Command="{Binding #MainWindowRoot.DataContext.ShowAuditCommand}" InputGesture="Ctrl+Shift+A"/>
+                    <MenuItem Header="{Binding MenuAnalyseAttackPaths}" Command="{Binding #MainWindowRoot.DataContext.ShowAttackPathsCommand}" InputGesture="Ctrl+Shift+K"/>
+                    <MenuItem Header="{Binding MenuAnalyseComparison}" Command="{Binding #MainWindowRoot.DataContext.ShowComparisonCommand}" InputGesture="Ctrl+Shift+B"/>
+                    <MenuItem Header="{Binding MenuAnalyseMarkBaseline}" Command="{Binding #MainWindowRoot.DataContext.MarkBaselineCommand}"/>
                     <Separator/>
                     <MenuItem Header="Domain Timeline (Ctrl+T)" Command="{Binding #MainWindowRoot.DataContext.ShowTimelineCommand}" InputGesture="Ctrl+T"/>
                     <MenuItem Header="Delegations (Ctrl+D)"     Command="{Binding #MainWindowRoot.DataContext.ShowDelegationsCommand}" InputGesture="Ctrl+D"/>

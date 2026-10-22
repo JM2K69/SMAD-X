@@ -37,6 +37,12 @@ namespace SMADX.Services
         /// <summary>Fenêtre non modale : l'apprenant travaille dans la fenêtre principale et vérifie quand il veut.</summary>
         void ShowLab(LabViewModel viewModel);
 
+        /// <summary>Fenêtre non modale « avant / après », actualisable pendant le travail.</summary>
+        void ShowComparison(ComparisonViewModel viewModel);
+
+        /// <summary>Fenêtre non modale des chemins d'attaque vers le contrôle du domaine.</summary>
+        void ShowAttackPaths(AttackPathsViewModel viewModel);
+
         Task ShowTierConfigurationAsync();
 
         Task ShowTimelineAsync();

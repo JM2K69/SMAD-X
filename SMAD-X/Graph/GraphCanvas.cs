@@ -67,6 +67,9 @@ namespace SMADX.Graph
         // ── État ─────────────────────────────────────────────────────────────
         private List<GraphNode> _nodes = new();
         private List<GraphEdge> _edges = new();
+
+        /// <summary>Chemin d'attaque surligné : nœuds dans l'ordre, de la source au contrôle du domaine.</summary>
+        private List<GraphNode> _highlightedPath = new();
         private ForceSimulation? _simulation;
 
         private double _offsetX, _offsetY;
@@ -199,6 +202,7 @@ namespace SMADX.Graph
             using (ctx.PushTransform(transform))
             {
                 DrawEdges(ctx);
+                DrawHighlightedPath(ctx);
                 DrawNodes(ctx);
             }
 
@@ -263,6 +267,46 @@ namespace SMADX.Graph
                     DrawEdgeLabel(ctx, label, (start.X + end.X) / 2, (start.Y + end.Y) / 2, color);
                 }
             }
+        }
+
+        /// <summary>
+        /// Surligne un chemin d'attaque (identifiants des nœuds dans l'ordre). Les objets absents du graphe
+        /// sont ignorés. Le chemin reste affiché jusqu'au prochain appel.
+        /// </summary>
+        public void SetHighlightedPath(IReadOnlyList<string> nodeIds)
+        {
+            var byId = _nodes.ToDictionary(n => n.Id);
+            _highlightedPath = nodeIds.Select(id => byId.GetValueOrDefault(id)).OfType<GraphNode>().ToList();
+            InvalidateVisual();
+        }
+
+        private static readonly Color PathColor = Color.FromRgb(231, 76, 60);
+
+        /// <summary>Trait rouge épais avec flèche entre chaque étape, et anneau rouge autour des nœuds du chemin.</summary>
+        private void DrawHighlightedPath(DrawingContext ctx)
+        {
+            if (_highlightedPath.Count == 0) return;
+
+            var glow = new Pen(new SolidColorBrush(Color.FromArgb(70, PathColor.R, PathColor.G, PathColor.B)), 12);
+            var line = new Pen(new SolidColorBrush(PathColor), 4);
+            for (var i = 0; i + 1 < _highlightedPath.Count; i++)
+            {
+                var from = _highlightedPath[i];
+                var to = _highlightedPath[i + 1];
+                double dx = to.X - from.X, dy = to.Y - from.Y;
+                var length = Math.Sqrt(dx * dx + dy * dy);
+                if (length < 1) continue;
+                double nx = dx / length, ny = dy / length;
+                var start = new Point(from.X + nx * from.Radius, from.Y + ny * from.Radius);
+                var end = new Point(to.X - nx * (to.Radius + 4), to.Y - ny * (to.Radius + 4));
+                ctx.DrawLine(glow, start, end);
+                ctx.DrawLine(line, start, end);
+                DrawArrow(ctx, line, end, nx, ny, 14);
+            }
+
+            var ring = new Pen(new SolidColorBrush(PathColor), 3);
+            foreach (var node in _highlightedPath)
+                ctx.DrawEllipse(null, ring, new Point(node.X, node.Y), node.Radius + 7, node.Radius + 7);
         }
 
         private static void DrawArrow(DrawingContext ctx, Pen pen, Point tip, double nx, double ny, double size)

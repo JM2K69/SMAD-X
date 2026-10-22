@@ -162,6 +162,7 @@ namespace SMADX.ViewModels
             if (content != null)
             {
                 SelectedObjectDescription = content;
+                RecordHistory();
                 StatusMessage = Loc["Report.Import.Success"];
             }
             else

@@ -46,6 +46,7 @@ namespace SMADX.Views
             var builder = new GraphBuilder();
             builder.Build(_vm.Root, _vm.BuildFilter());
             _canvas.LoadGraph(builder.Nodes, builder.Edges);
+            _canvas.SetHighlightedPath(_vm.HighlightedPath);
             _vm.UpdateStats(builder.Nodes.Count, builder.Edges.Count);
         }
 

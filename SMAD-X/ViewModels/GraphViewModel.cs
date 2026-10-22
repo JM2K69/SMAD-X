@@ -96,6 +96,19 @@ namespace SMADX.ViewModels
             Root = root;
         }
 
+        /// <summary>
+        /// Graphe ouvert depuis la fenêtre des chemins d'attaque : le chemin (identifiants des objets,
+        /// dans l'ordre) est surligné, et les objets isolés sont affichés pour qu'aucune étape ne manque.
+        /// </summary>
+        public GraphViewModel(ADObject root, IReadOnlyList<string> highlightedPath) : this(root)
+        {
+            HighlightedPath = highlightedPath;
+            _showIsolated = true;
+        }
+
+        /// <summary>Objets du chemin d'attaque à surligner (vide = aucun).</summary>
+        public IReadOnlyList<string> HighlightedPath { get; } = System.Array.Empty<string>();
+
         public Graph.GraphFilter BuildFilter() => new Graph.GraphFilter
         {
             ShowMemberOf       = ShowMemberOf,

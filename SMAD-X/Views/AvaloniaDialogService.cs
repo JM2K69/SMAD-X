@@ -65,6 +65,12 @@ namespace SMADX.Views
         public void ShowLab(LabViewModel viewModel) =>
             new LabWindow { DataContext = viewModel }.Show(_owner);
 
+        public void ShowComparison(ComparisonViewModel viewModel) =>
+            new ComparisonWindow { DataContext = viewModel }.Show(_owner);
+
+        public void ShowAttackPaths(AttackPathsViewModel viewModel) =>
+            new AttackPathsWindow { DataContext = viewModel }.Show(_owner);
+
         public Task ShowTierConfigurationAsync() =>
             new TierConfigurationWindow().ShowDialog(_owner);
 

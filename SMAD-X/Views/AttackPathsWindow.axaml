@@ -1,0 +1,87 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMADX.ViewModels"
+        x:Class="SMADX.Views.AttackPathsWindow"
+        x:Name="AttackPathsWindowRoot"
+        x:DataType="vm:AttackPathsViewModel"
+        Title="{Binding Source={StaticResource Loc}, Path=AttackPathTitle}"
+        Icon="/Assets/icone.ico"
+        Width="1150" Height="760"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*" Margin="12">
+
+        <!-- ═══ Présentation et options ═══ -->
+        <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=AttackPathIntro}" TextWrapping="Wrap" Opacity="0.85"/>
+                    <TextBlock Text="{Binding Summary}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center" Margin="10,0,0,0">
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=AttackPathShowTier0}" IsChecked="{Binding ShowTier0}"/>
+                    <Button Content="{Binding Source={StaticResource Loc}, Path=AttackPathRefresh}" Command="{Binding RefreshCommand}" Padding="12,5"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="4*,Auto,7*">
+
+            <!-- Sources -->
+            <Grid Grid.Column="0" RowDefinitions="Auto,*">
+                <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource Loc}, Path=AttackPathSources}" FontWeight="SemiBold" Margin="2,0,0,6"/>
+                <ListBox Grid.Row="1" ItemsSource="{Binding Paths}" SelectedItem="{Binding SelectedPath}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AttackPathItem">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <TextBlock Grid.Column="0" Text="{Binding Icon}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding Tier}" FontSize="11" Opacity="0.7"/>
+                                </StackPanel>
+                                <Border Grid.Column="2" Background="#C0392B" CornerRadius="8" Padding="8,1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding StepCountLabel}" Foreground="White" FontSize="11"/>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+
+            <GridSplitter Grid.Column="1" Width="6" ResizeDirection="Columns" Background="Transparent"/>
+
+            <!-- Étapes -->
+            <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource Loc}, Path=AttackPathSteps}" FontWeight="SemiBold" Margin="2,0,0,6"/>
+                <TextBlock Grid.Row="1" Text="{Binding Source={StaticResource Loc}, Path=AttackPathNone}" IsVisible="{Binding HasNoPath}"
+                           Foreground="#27AE60" FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap" Margin="4"/>
+                <ListBox Grid.Row="1" ItemsSource="{Binding Steps}" SelectedItem="{Binding SelectedStep}" IsVisible="{Binding HasSelection}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AttackStepItem">
+                            <Grid ColumnDefinitions="Auto,*" Margin="0,4">
+                                <Border Grid.Column="0" Background="#C0392B" CornerRadius="12" Width="24" Height="24" Margin="0,0,10,0" VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding Number}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Spacing="2">
+                                    <TextBlock TextWrapping="Wrap">
+                                        <Run Text="{Binding From}" FontWeight="SemiBold"/>
+                                        <Run Text="  →  " Foreground="#E74C3C"/>
+                                        <Run Text="{Binding To}" FontWeight="SemiBold"/>
+                                        <Run Text="   "/>
+                                        <Run Text="{Binding KindLabel}" Foreground="#E67E22"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" FontSize="12" Opacity="0.85"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,8,0,0">
+                    <Button Content="{Binding Source={StaticResource Loc}, Path=AuditSelectInTree}" Command="{Binding ShowInTreeCommand}" Padding="12,5"/>
+                    <Button Content="{Binding Source={StaticResource Loc}, Path=AttackPathShowInGraph}" Command="{Binding ShowInGraphCommand}" Padding="12,5"
+                            Background="#7B241C" Foreground="White"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

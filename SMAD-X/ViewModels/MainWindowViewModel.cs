@@ -231,8 +231,12 @@ namespace SMADX.ViewModels
         [ObservableProperty]
         private ObjectSecurityViewModel? _selectedSecurity;
 
-        partial void OnSelectedNodeChanged(ADTreeNode? value) =>
+        partial void OnSelectedNodeChanged(ADTreeNode? value)
+        {
             SelectedSecurity = value?.Data is { } data ? new ObjectSecurityViewModel(data) : null;
+            // Les modifications faites dans le panneau sur l'objet précédent deviennent un état annulable
+            RecordHistory();
+        }
 
         // ─── Chargement d'un domaine et barre d'état ─────────────────────────────
 
@@ -253,6 +257,8 @@ namespace SMADX.ViewModels
             RootNodes.Clear();
             RootNodes.Add(rootNode);
             UpdateObjectCounts();
+            ResetHistory();
+            ResetBaseline();
         }
 
         private void UpdateObjectCounts()

@@ -1,0 +1,96 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMADX.ViewModels"
+        x:Class="SMADX.Views.ComparisonWindow"
+        x:DataType="vm:ComparisonViewModel"
+        Title="{Binding Source={StaticResource Loc}, Path=ComparisonTitle}"
+        Icon="/Assets/icone.ico"
+        Width="1100" Height="760"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*" Margin="12">
+
+        <!-- ═══ Score avant → après ═══ -->
+        <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                <StackPanel Grid.Column="0" Margin="0,0,40,0">
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=ComparisonScore}" FontSize="12" Opacity="0.8"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="{Binding ScoreBefore}" FontSize="32" Opacity="0.7"/>
+                        <TextBlock Text="→" FontSize="28" VerticalAlignment="Center" Foreground="{Binding ScoreTrendColor}"/>
+                        <TextBlock Text="{Binding ScoreAfter}" FontSize="32" FontWeight="Bold" Foreground="{Binding ScoreTrendColor}"/>
+                        <TextBlock Text="/ 100" FontSize="14" VerticalAlignment="Bottom" Margin="0,0,0,6" Opacity="0.7"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Margin="0,0,40,0">
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=AuditAnssiLevel}" FontSize="12" Opacity="0.8"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="{Binding LevelBefore}" FontSize="32" Opacity="0.7"/>
+                        <TextBlock Text="→" FontSize="28" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding LevelAfter}" FontSize="32" FontWeight="Bold"/>
+                        <TextBlock Text="/ 5" FontSize="14" VerticalAlignment="Bottom" Margin="0,0,0,6" Opacity="0.7"/>
+                    </StackPanel>
+                </StackPanel>
+                <TextBlock Grid.Column="2" Text="{Binding Summary}" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.85"/>
+                <Button Grid.Column="3" Content="{Binding Source={StaticResource Loc}, Path=ComparisonRefresh}"
+                        Command="{Binding RefreshCommand}" Padding="12,5" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1">
+            <TabItem Header="{Binding Source={StaticResource Loc}, Path=ComparisonFixed}">
+                <ListBox ItemsSource="{Binding FixedFindings}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ComparedFinding">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="✔" Foreground="#27AE60" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <Border Background="{Binding SeverityColor}" CornerRadius="4" Padding="6,1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SeverityLabel}" Foreground="White" FontSize="11"/>
+                                </Border>
+                                <TextBlock VerticalAlignment="Center">
+                                    <Run Text="{Binding RuleId}" FontFamily="Consolas, Courier New, monospace"/>
+                                    <Run Text=" "/><Run Text="{Binding RuleTitle}" FontWeight="SemiBold"/>
+                                    <Run Text=" — "/><Run Text="{Binding ObjectName}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
+            <TabItem Header="{Binding Source={StaticResource Loc}, Path=ComparisonNew}">
+                <ListBox ItemsSource="{Binding NewFindings}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ComparedFinding">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="⚠" Foreground="#C0392B" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <Border Background="{Binding SeverityColor}" CornerRadius="4" Padding="6,1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SeverityLabel}" Foreground="White" FontSize="11"/>
+                                </Border>
+                                <TextBlock VerticalAlignment="Center">
+                                    <Run Text="{Binding RuleId}" FontFamily="Consolas, Courier New, monospace"/>
+                                    <Run Text=" "/><Run Text="{Binding RuleTitle}" FontWeight="SemiBold"/>
+                                    <Run Text=" — "/><Run Text="{Binding ObjectName}"/>
+                                    <Run Text=" : "/><Run Text="{Binding Detail}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
+            <TabItem Header="{Binding Source={StaticResource Loc}, Path=ComparisonChanges}">
+                <ListBox ItemsSource="{Binding Changes}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ComparedChange">
+                            <Grid ColumnDefinitions="30,220,110,*">
+                                <TextBlock Grid.Column="0" Text="{Binding Icon}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding ObjectName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Category}" Opacity="0.8"/>
+                                <TextBlock Grid.Column="3" Text="{Binding Summary}" TextWrapping="Wrap" FontSize="12"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

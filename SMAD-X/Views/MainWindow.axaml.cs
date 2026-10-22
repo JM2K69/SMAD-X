@@ -64,6 +64,11 @@ namespace SMADX.Views
                 (Key.D, true, false)      => vm.ShowDelegationsCommand,
                 (Key.S, true, true)       => vm.ShowSitesCommand,
                 (Key.A, true, true)       => vm.ShowAuditCommand,
+                (Key.K, true, true)       => vm.ShowAttackPathsCommand,
+                (Key.B, true, true)       => vm.ShowComparisonCommand,
+                (Key.Z, true, false)      => vm.UndoCommand,
+                (Key.Z, true, true)       => vm.RedoCommand,
+                (Key.Y, true, false)      => vm.RedoCommand,
                 (Key.F2, false, false)    => vm.RenameObjectCommand,
                 (Key.Delete, false, false) => vm.DeleteObjectCommand,
                 _ => null

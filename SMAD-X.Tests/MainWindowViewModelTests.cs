@@ -35,11 +35,16 @@ internal sealed class FakeDialogService : IDialogService
         return Task.CompletedTask;
     }
 
-    public void ShowGraph(GraphViewModel viewModel) => Opened.Add("Graph");
+    public GraphViewModel? LastGraph { get; private set; }
+    public void ShowGraph(GraphViewModel viewModel) { LastGraph = viewModel; Opened.Add("Graph"); }
+    public AttackPathsViewModel? LastAttackPaths { get; private set; }
+    public void ShowAttackPaths(AttackPathsViewModel viewModel) { LastAttackPaths = viewModel; Opened.Add("AttackPaths"); }
     public AuditViewModel? LastAudit { get; private set; }
     public void ShowAudit(AuditViewModel viewModel) { LastAudit = viewModel; Opened.Add("Audit"); }
     public LabViewModel? LastLab { get; private set; }
     public void ShowLab(LabViewModel viewModel) { LastLab = viewModel; Opened.Add("Lab"); }
+    public ComparisonViewModel? LastComparison { get; private set; }
+    public void ShowComparison(ComparisonViewModel viewModel) { LastComparison = viewModel; Opened.Add("Comparison"); }
     public Task ShowTierConfigurationAsync() { Opened.Add("Tiers"); return Task.CompletedTask; }
     public Task ShowTimelineAsync() { Opened.Add("Timeline"); return Task.CompletedTask; }
     public Task ShowDelegationsAsync(ADObject? root) { Opened.Add($"Delegations:{root?.Name}"); return Task.CompletedTask; }

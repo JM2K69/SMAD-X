@@ -18,6 +18,13 @@ namespace SMADX.ViewModels
             _dialogs.ShowAudit(new AuditViewModel(() => RootObject, SelectObject, ApplyAuditBadges));
         }
 
+        [RelayCommand]
+        private void ShowAttackPaths()
+        {
+            if (RootObject == null) return;
+            _dialogs.ShowAttackPaths(new AttackPathsViewModel(() => RootObject, SelectObject, _dialogs));
+        }
+
         /// <summary>Badge sur chaque nœud : gravité du constat le plus grave et liste des règles en échec.</summary>
         public void ApplyAuditBadges(AuditReport report)
         {
