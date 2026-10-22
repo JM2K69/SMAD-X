@@ -1,7 +1,7 @@
 ﻿# SMAD-X — Simulateur Expert Active Directory
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-0.5.0-blue"/>
+  <img alt="Version" src="https://img.shields.io/github/v/release/JM2K69/SMAD-X?label=version"/>
   <img alt=".NET" src="https://img.shields.io/badge/.NET-10-purple"/>
   <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-12.0.3-blueviolet"/>
   <img alt="Plateforme" src="https://img.shields.io/badge/plateforme-Windows%20%7C%20Linux%20%7C%20macOS%20Intel%2FM-lightgrey"/>

@@ -285,7 +285,7 @@ namespace SMADX.Helpers
         public string AboutTitle => _localizationService["About.Title"];
         public string AboutAppName => _localizationService["About.AppName"];
         public string AboutFullName => _localizationService["About.FullName"];
-        public string AboutVersion => _localizationService["About.Version"];
+        public string AboutVersion => string.Format(_localizationService["About.Version"], AppInfo.Version);
         public string AboutDescription => _localizationService["About.Description"];
         public string AboutFeatures => _localizationService["About.Features"];
         public string AboutFeature1 => _localizationService["About.Feature1"];

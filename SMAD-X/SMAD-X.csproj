@@ -8,6 +8,9 @@
     <AssemblyName>SMAD-X</AssemblyName>
     <RootNamespace>SMADX</RootNamespace>
     <ApplicationIcon>Assets\icone.ico</ApplicationIcon>
+    <!-- Seule source du numéro de version : « À propos », propriétés de l'exe ; le tag vX.Y.Z de la release doit correspondre -->
+    <Version>0.6.0</Version>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

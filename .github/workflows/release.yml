@@ -10,8 +10,29 @@ permissions:
   contents: write
 
 jobs:
+  version:
+    name: Version du tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Le numéro de version vit dans SMAD-X.csproj : le tag vX.Y.Z doit lui correspondre
+      - name: Comparer le tag et SMAD-X.csproj
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content SMAD-X/SMAD-X.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          $tag = '${{ github.ref_name }}'
+          if ("v$version" -ne $tag) {
+            Write-Error "Le tag $tag ne correspond pas à <Version>$version</Version> dans SMAD-X/SMAD-X.csproj."
+            exit 1
+          }
+          Write-Host "Tag $tag = version $version"
+
   tests:
     name: Tests
+    needs: version
     uses: ./.github/workflows/tests.yml
 
   build:
