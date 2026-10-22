@@ -1,0 +1,64 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SMADX.Studio.Views.RecipeWindow"
+        Title="{Binding [Recipe.Title], Source={StaticResource S}}"
+        Width="960" Height="680" MinWidth="680" MinHeight="460"
+        WindowStartupLocation="CenterOwner"
+        Icon="avares://SMAD-X.Studio/Assets/icone.ico">
+
+    <DockPanel Margin="16">
+        <StackPanel DockPanel.Dock="Top" Spacing="4" Margin="0,0,0,10">
+            <TextBlock Classes="hint" Text="{Binding [Recipe.Intro], Source={StaticResource S}}"/>
+            <TextBlock Classes="hint" Text="{Binding [Recipe.Check], Source={StaticResource S}}"/>
+        </StackPanel>
+
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+            <TextBox Grid.Column="0" Text="{Binding Filter}"
+                     PlaceholderText="{Binding [Recipe.Filter], Source={StaticResource S}}"/>
+            <Button Grid.Column="1" Margin="8,0,0,0" Click="ClearChecks"
+                    Content="{Binding [Recipe.ClearChecks], Source={StaticResource S}}"/>
+        </Grid>
+
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto,200,Auto" Margin="0,12,0,0">
+            <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0"
+                       Text="{Binding [Recipe.Language], Source={StaticResource S}}"/>
+            <ComboBox Grid.Column="1" Width="140" ItemsSource="{Binding Cultures}" SelectedItem="{Binding Culture}"/>
+            <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="12,0,8,0"
+                       Text="{Binding [Recipe.Domain], Source={StaticResource S}}"/>
+            <TextBox Grid.Column="3" Text="{Binding DomainName}"/>
+            <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="12,0,0,0">
+                <Button Classes="accent" IsDefault="True" IsEnabled="{Binding CanCreate}" Click="Create"
+                        Content="{Binding [Recipe.Create], Source={StaticResource S}}"/>
+                <Button IsCancel="True" Click="Cancel" Content="{Binding [Recipe.Cancel], Source={StaticResource S}}"/>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="0,8,0,0">
+            <Border Padding="10" CornerRadius="4" Background="#22FFFFFF">
+                <TextBlock TextWrapping="Wrap" Text="{Binding Selected.Situation}"/>
+            </Border>
+            <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding SelectionSummary}"
+                       IsVisible="{Binding SelectionSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            <Border Padding="10" CornerRadius="4" Background="#55E74C3C" IsVisible="{Binding HasIncompatibility}">
+                <TextBlock TextWrapping="Wrap" Text="{Binding Incompatibility}"/>
+            </Border>
+        </StackPanel>
+
+        <ListBox ItemsSource="{Binding Recipes}" SelectedItem="{Binding Selected}" DoubleTapped="Create">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnDefinitions="32,80,*,190,40">
+                        <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" MinWidth="0"/>
+                        <Border Grid.Column="1" Background="{Binding SeverityColor}" CornerRadius="3" Padding="6,2"
+                                HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding RuleId}" Foreground="Black" FontWeight="SemiBold" FontSize="12"/>
+                        </Border>
+                        <TextBlock Grid.Column="2" Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Text="{Binding Anssi}" Opacity="0.75" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="8,0"/>
+                        <TextBlock Grid.Column="4" Text="{Binding Level}" Opacity="0.75" VerticalAlignment="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>

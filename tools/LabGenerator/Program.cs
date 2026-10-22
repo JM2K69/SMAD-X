@@ -1,4 +1,4 @@
-// Génère les exercices fournis avec SMAD-X : SMAD-X/Labs/*.smadx-lab.json
+// Génère les exercices fournis avec SMAD-X : SMAD-X.Core/Labs/*.smadx-lab.json
 using SMADX.Models;
 using SMADX.Services;
 using SMADX.Services.Audit;

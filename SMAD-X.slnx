@@ -1,4 +1,7 @@
 <Solution>
+  <Project Path="SMAD-X.Core/SMAD-X.Core.csproj" />
+  <Project Path="SMAD-X.UI/SMAD-X.UI.csproj" />
   <Project Path="SMAD-X/SMAD-X.csproj" />
+  <Project Path="SMAD-X.Studio/SMAD-X.Studio.csproj" />
   <Project Path="SMAD-X.Tests/SMAD-X.Tests.csproj" />
 </Solution>

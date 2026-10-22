@@ -11,17 +11,17 @@ Chaque version est publiée sur la page [Releases](https://github.com/JM2K69/SMA
 | :fontawesome-brands-apple: macOS Intel | `SMAD-X-osx-x64.zip` |
 | :fontawesome-brands-apple: macOS Apple Silicon (M1 à M5) | `SMAD-X-osx-arm64.zip` |
 
-L'archive contient **un seul exécutable**, autonome : le runtime .NET, les bibliothèques graphiques, les fiches pédagogiques, les exercices et les polices du rapport PDF sont inclus. Il n'y a rien à installer.
+L'archive contient **deux exécutables** autonomes : **SMAD-X**, le simulateur, et **SMAD-X Studio**, la [création d'exercices](exercices/studio.md) pour les formateurs. Le runtime .NET, les bibliothèques graphiques, les fiches pédagogiques, les exercices et les polices du rapport PDF sont inclus. Il n'y a rien à installer.
 
 1. Décompressez l'archive où vous voulez.
-2. Lancez `SMAD-X.exe` (Windows) ou `SMAD-X` (Linux, macOS).
+2. Lancez `SMAD-X.exe` (Windows) ou `SMAD-X` (Linux, macOS) ; `SMAD-X.Studio` de la même façon.
 
 === "macOS"
 
     Le fichier téléchargé est mis en quarantaine par Gatekeeper. Dans un terminal, dans le dossier décompressé :
 
     ```bash
-    chmod +x SMAD-X && xattr -d com.apple.quarantine SMAD-X
+    chmod +x SMAD-X SMAD-X.Studio && xattr -d com.apple.quarantine SMAD-X SMAD-X.Studio
     ```
 
 === "Linux"
@@ -29,7 +29,7 @@ L'archive contient **un seul exécutable**, autonome : le runtime .NET, les bibl
     Rendez le fichier exécutable :
 
     ```bash
-    chmod +x SMAD-X
+    chmod +x SMAD-X SMAD-X.Studio
     ```
 
 === "Windows"
@@ -40,7 +40,7 @@ Au premier lancement, SMAD-X ouvre le domaine d'exemple `contoso.com`, avec troi
 
 ## Version et mises à jour
 
-La version figure dans **Aide > À propos**. Elle est définie à un seul endroit du code source (`<Version>` dans `SMAD-X/SMAD-X.csproj`), et chaque release correspond à un tag `vX.Y.Z`.
+La version figure dans **Aide > À propos**. Elle est définie à un seul endroit du code source (`<Version>` dans `Directory.Build.props`, commun à SMAD-X et SMAD-X Studio), et chaque release correspond à un tag `vX.Y.Z`.
 
 ## Construire depuis les sources
 
@@ -58,7 +58,7 @@ Pour produire l'exécutable autonome, comme la release :
 dotnet publish SMAD-X/SMAD-X.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
 ```
 
-Remplacez `win-x64` par `linux-x64`, `osx-x64` ou `osx-arm64` selon la plateforme.
+Même commande avec `SMAD-X.Studio/SMAD-X.Studio.csproj` pour Studio. Remplacez `win-x64` par `linux-x64`, `osx-x64` ou `osx-arm64` selon la plateforme.
 
 ### Tests
 

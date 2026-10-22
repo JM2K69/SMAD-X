@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Éléments d'interface Avalonia partagés par SMAD-X et SMAD-X Studio : rendu Markdown, thème clair / sombre. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>SMAD-X.UI</AssemblyName>
+    <RootNamespace>SMADX</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SMAD-X.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SMAD-X.Core\SMAD-X.Core.csproj" />
+  </ItemGroup>
+</Project>

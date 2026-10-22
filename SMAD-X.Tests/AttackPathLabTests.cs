@@ -137,6 +137,17 @@ public class AttackPathLabTests
         Assert.All(lab.Objectives, o => Assert.False(string.IsNullOrWhiteSpace(o.Hint.Resolve(culture))));
     }
 
+    /// <summary>L'apprenant lit les descriptions du domaine : aucune ne doit contenir le chemin ni la correction.</summary>
+    [Theory]
+    [MemberData(nameof(Labs))]
+    public void Lab_StartDomainDoesNotContainTheSolution(string culture, string id)
+    {
+        var descriptions = Flatten(Lab(culture, id).Start.Domain).Select(o => o.Description ?? "").ToList();
+
+        foreach (var heading in new[] { "## Le corriger", "## Fix it", "## Le chemin", "## The path" })
+            Assert.DoesNotContain(descriptions, d => d.Contains(heading));
+    }
+
     [Theory]
     [MemberData(nameof(Labs))]
     public void Lab_IsNotSolvedAtStart_ButGuardsAlreadyHold(string culture, string id)

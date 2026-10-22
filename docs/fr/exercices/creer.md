@@ -12,8 +12,9 @@ Ce mode opératoire va de l'idée au fichier testé. Les exercices fournis avec 
 |---|---|---|
 | **A. Depuis l'application** | un enseignant, sans programmer | un fichier à distribuer aux apprenants |
 | **B. Par un générateur** | un contributeur du dépôt | un exercice embarqué dans l'exe, testé automatiquement |
+| **C. Avec [SMAD-X Studio](studio.md)** | un formateur | un exercice créé, vérifié et accompagné de sa fiche formateur, dans une fenêtre ou en ligne de commande |
 
-Les deux produisent le même format : on peut commencer par A et finir par B.
+Tous produisent le même format : on peut commencer par A ou C et finir par B.
 
 ---
 
@@ -166,12 +167,12 @@ Pensez aussi à l'objectif « **plus aucun chemin hors Tier 0** » (`NoAttackPat
 
 ## 6. Méthode B : un exercice fourni avec l'application
 
-Les exercices fournis sont dans `SMAD-X/Labs/`, embarqués dans l'exe (voir `SMAD-X.csproj`). Ils sont **générés**, jamais écrits à la main :
+Les exercices fournis sont dans `SMAD-X.Core/Labs/`, embarqués dans l'exe (voir `SMAD-X.Core.csproj`). Ils sont **générés**, jamais écrits à la main :
 
 | Générateur | Exercices | Commande |
 |---|---|---|
-| `tools/LabGenerator` | exercices généraux bilingues (`01-premier-audit`…) | `dotnet run --project tools/LabGenerator -- SMAD-X/Labs` |
-| `tools/SampleGenerator` | série « Chemins d'attaque », un fichier par langue (`chemin-*`, `path-*`), plus les exemples de `Samples/AttackPaths` | `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths SMAD-X/Labs` |
+| `tools/LabGenerator` | exercices généraux bilingues (`01-premier-audit`…) | `dotnet run --project tools/LabGenerator -- SMAD-X.Core/Labs` |
+| `tools/SampleGenerator` | série « Chemins d'attaque », un fichier par langue (`chemin-*`, `path-*`), plus les exemples de `Samples/AttackPaths` | `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths SMAD-X.Core/Labs` |
 
 Pour ajouter un scénario de chemin d'attaque dans `tools/SampleGenerator/Program.cs` :
 1. Ajoutez un appel `Scenario("13-mon-scenario", "domaine-fr.local", "domaine-en.local", d => { ... })`, avec un nom de domaine différent dans chaque langue.

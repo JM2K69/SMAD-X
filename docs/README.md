@@ -28,12 +28,19 @@ Les captures et les pages de référence sont produites par `tools/DocGenerator`
 dotnet run --project tools/DocGenerator -- .
 ```
 
-L'outil rend les fenêtres de SMAD-X **hors écran** (Avalonia Headless avec le moteur Skia), en français et en anglais : rien ne s'affiche à l'écran et aucune touche n'est simulée.
+Les captures de SMAD-X Studio viennent de `tools/StudioDocGenerator` (un processus ne peut lancer qu'une application Avalonia) :
+
+```bash
+dotnet run --project tools/StudioDocGenerator -- .
+```
+
+Les deux outils rendent les fenêtres **hors écran** (Avalonia Headless avec le moteur Skia), en français et en anglais : rien ne s'affiche à l'écran et aucune touche n'est simulée.
 
 ## Règle : pas de solution
 
 La documentation **ne donne aucune solution** des exercices fournis :
 
 - les captures utilisent le domaine d'exemple et une démonstration propre à la documentation (`DemoWeakness`, `DemoLab` dans `tools/DocGenerator`), qu'aucun exercice n'utilise ;
+- les captures de Studio montrent un exercice créé pour la documentation à partir d'une recommandation, jamais un exercice fourni, ni les notes ou la fiche du formateur ;
 - les pages ne décrivent ni le chemin ni la correction d'un exercice ;
 - les exemples du mode opératoire sont fictifs.

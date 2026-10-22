@@ -17,15 +17,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Le numéro de version vit dans SMAD-X.csproj : le tag vX.Y.Z doit lui correspondre
-      - name: Comparer le tag et SMAD-X.csproj
+      # Le numéro de version vit dans Directory.Build.props : le tag vX.Y.Z doit lui correspondre
+      - name: Comparer le tag et Directory.Build.props
         if: startsWith(github.ref, 'refs/tags/')
         shell: pwsh
         run: |
-          $version = ([xml](Get-Content SMAD-X/SMAD-X.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          $version = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
           $tag = '${{ github.ref_name }}'
           if ("v$version" -ne $tag) {
-            Write-Error "Le tag $tag ne correspond pas à <Version>$version</Version> dans SMAD-X/SMAD-X.csproj."
+            Write-Error "Le tag $tag ne correspond pas à <Version>$version</Version> dans Directory.Build.props."
             exit 1
           }
           Write-Host "Tag $tag = version $version"
@@ -60,21 +60,16 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      - name: Restore
-        run: dotnet restore SMAD-X/SMAD-X.csproj
-
+      # SMAD-X et SMAD-X Studio : deux exécutables autonomes (un seul fichier chacun) dans la même archive
       - name: Publish
-        run: >
-          dotnet publish SMAD-X/SMAD-X.csproj
-          -c Release
-          -r ${{ matrix.rid }}
-          --self-contained true
-          -p:PublishSingleFile=true
-          -p:EnableCompressionInSingleFile=true
-          -p:IncludeNativeLibrariesForSelfExtract=true
-          -p:DebugType=none
-          -p:DebugSymbols=false
-          -o publish/${{ matrix.rid }}
+        shell: pwsh
+        run: |
+          foreach ($project in 'SMAD-X/SMAD-X.csproj', 'SMAD-X.Studio/SMAD-X.Studio.csproj') {
+            dotnet publish $project -c Release -r ${{ matrix.rid }} --self-contained true `
+              -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
+              -p:DebugType=none -p:DebugSymbols=false -o publish/${{ matrix.rid }}
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
 
       - name: Remove PDB files
         shell: pwsh
@@ -163,7 +158,10 @@ jobs:
             | 🍎 macOS x64 (Intel) | `SMAD-X-osx-x64.zip` |
             | 🍎 macOS arm64 (M1–M5) | `SMAD-X-osx-arm64.zip` |
 
-            > **macOS** : si nécessaire, exécutez `chmod +x SMAD-X && xattr -d com.apple.quarantine SMAD-X`
+            Chaque archive contient **SMAD-X** (le simulateur) et **SMAD-X Studio** (la création d'exercices pour les formateurs).
+            Each archive contains **SMAD-X** (the simulator) and **SMAD-X Studio** (lab authoring for trainers).
+
+            > **macOS** : si nécessaire, exécutez `chmod +x SMAD-X SMAD-X.Studio && xattr -d com.apple.quarantine SMAD-X SMAD-X.Studio`
           files: artifacts/**/*.zip
           draft: false
           prerelease: false

@@ -8,9 +8,7 @@
     <AssemblyName>SMAD-X</AssemblyName>
     <RootNamespace>SMADX</RootNamespace>
     <ApplicationIcon>Assets\icone.ico</ApplicationIcon>
-    <!-- Seule source du numéro de version : « À propos », propriétés de l'exe ; le tag vX.Y.Z de la release doit correspondre -->
-    <Version>0.6.0</Version>
-    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <!-- Numéro de version : Directory.Build.props, à la racine du dépôt -->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -32,12 +30,13 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
-    <!-- Descriptions pédagogiques Markdown, embarquées dans l'exe ; lues par LocalizationService -->
-    <EmbeddedResource Include="Content\**\*.md" LogicalName="Content/%(RecursiveDir)%(Filename)%(Extension)" />
-    <!-- Polices de secours du PDF (emoji, symboles), embarquées pour un rendu identique sur tous les OS -->
-    <EmbeddedResource Include="Fonts\*.ttf" LogicalName="Fonts/%(Filename)%(Extension)" />
-    <!-- Exercices fournis (.smadx-lab.json), générés par tools/LabGenerator -->
-    <EmbeddedResource Include="Labs\*.smadx-lab.json" LogicalName="Labs/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Le moteur (modèles, audit, chemins d'attaque, exercices, exports) et ses ressources embarquées -->
+    <ProjectReference Include="..\SMAD-X.Core\SMAD-X.Core.csproj" />
+    <!-- Rendu Markdown et thème, partagés avec SMAD-X Studio -->
+    <ProjectReference Include="..\SMAD-X.UI\SMAD-X.UI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,9 +51,5 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-    <PackageReference Include="OfficeIMO.Word" Version="3.5.1" />
-    <PackageReference Include="OfficeIMO.Markdown" Version="3.5.1" />
-    <PackageReference Include="OfficeIMO.Markdown.Pdf" Version="3.5.1" />
-    <PackageReference Include="OfficeIMO.Word.Markdown" Version="3.5.1" />
   </ItemGroup>
 </Project>

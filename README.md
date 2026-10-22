@@ -125,6 +125,14 @@
 - **Labs** (`.smadx-lab.json`): realistic scenarios graded automatically, including 12 attack-path labs in French and English
 - Sample domains in [`Samples/AttackPaths`](Samples/AttackPaths/README.md) — write your own labs with the [lab creation guide](https://jm2k69.github.io/SMAD-X/en/labs/create/)
 
+### 🧑‍🏫 SMAD-X Studio — lab authoring for trainers
+A second executable, shipped in the same archive ([documentation](https://jm2k69.github.io/SMAD-X/en/labs/studio/)):
+- **New lab from a recommendation**: one recipe per audit rule / ANSSI control point, alone or **several combined** in the same domain; Studio builds a healthy, populated domain and injects only those misconfigurations
+- **Convert** a `.smad-x.json` scenario into a lab: the context becomes the statement, the path and the fix go into the trainer notes
+- Markdown statement editor with preview, objective editor with **suggestions** from the audit and attack paths, and **guards** against brute-force fixes
+- **Validation** like the shipped labs' tests (nothing met at start, effective guards, no visible solution), grading of the trainer's fixed domain, and an exported **trainer sheet**
+- **Command line** for batches: `SMAD-X.Studio recipe all --lang en --out labs`, `convert`, `validate`
+
 ## 🚀 Quick Start
 
 1. **Prerequisites**: .NET 10 SDK — Windows, macOS or Linux

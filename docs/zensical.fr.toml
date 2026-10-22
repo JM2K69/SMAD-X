@@ -32,6 +32,7 @@ nav = [
     "exercices/index.md",
     "exercices/catalogue.md",
     "exercices/creer.md",
+    "exercices/studio.md",
   ] },
   { "Référence" = [
     "export.md",

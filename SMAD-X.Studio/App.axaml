@@ -1,0 +1,34 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:SMADX.Converters"
+             x:Class="SMADX.Studio.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.Resources>
+        <converters:MarkdownConverter x:Key="MarkdownConverter"/>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        <Style Selector="Window">
+            <Setter Property="Background" Value="#1E2128"/>
+        </Style>
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,10,0,4"/>
+        </Style>
+        <Style Selector="TextBlock.hint">
+            <Setter Property="Opacity" Value="0.75"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style Selector="TextBox.code">
+            <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Menlo, monospace"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
+    </Application.Styles>
+</Application>

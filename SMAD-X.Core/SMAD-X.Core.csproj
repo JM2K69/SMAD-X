@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Moteur de SMAD-X, sans interface : modèles, lecture et écriture des fichiers, audit, chemins d'attaque,
+       exercices, exports. Partagé par l'application, SMAD-X Studio, les outils et les tests. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>SMAD-X.Core</AssemblyName>
+    <RootNamespace>SMADX</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SMAD-X" />
+    <InternalsVisibleTo Include="SMAD-X.Studio" />
+    <InternalsVisibleTo Include="SMAD-X.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Descriptions pédagogiques Markdown ; lues par LocalizationService -->
+    <EmbeddedResource Include="Content\**\*.md" LogicalName="Content/%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Polices de secours du PDF (emoji, symboles), embarquées pour un rendu identique sur tous les OS -->
+    <EmbeddedResource Include="Fonts\*.ttf" LogicalName="Fonts/%(Filename)%(Extension)" />
+    <!-- Exercices fournis (.smadx-lab.json), générés par tools/LabGenerator et tools/SampleGenerator -->
+    <EmbeddedResource Include="Labs\*.smadx-lab.json" LogicalName="Labs/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="OfficeIMO.Word" Version="3.5.1" />
+    <PackageReference Include="OfficeIMO.Markdown" Version="3.5.1" />
+    <PackageReference Include="OfficeIMO.Markdown.Pdf" Version="3.5.1" />
+    <PackageReference Include="OfficeIMO.Word.Markdown" Version="3.5.1" />
+  </ItemGroup>
+</Project>

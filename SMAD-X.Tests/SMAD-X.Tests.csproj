@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SMAD-X\SMAD-X.csproj" />
+    <ProjectReference Include="..\SMAD-X.Studio\SMAD-X.Studio.csproj" />
   </ItemGroup>
 
   <!-- Domaines d'exemple des chemins d'attaque, vérifiés par AttackPathSampleTests -->

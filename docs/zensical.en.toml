@@ -31,6 +31,7 @@ nav = [
     "labs/index.md",
     "labs/catalog.md",
     "labs/create.md",
+    "labs/studio.md",
   ] },
   { "Reference" = [
     "export.md",

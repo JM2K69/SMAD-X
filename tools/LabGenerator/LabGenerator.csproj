@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Génère SMAD-X/Labs/*.smadx-lab.json : dotnet run --project tools/LabGenerator -- SMAD-X/Labs -->
+  <!-- Génère les exercices généraux SMAD-X.Core/Labs/*.smadx-lab.json ; commande : voir docs/fr/exercices/creer.md -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
@@ -7,6 +7,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SMAD-X\SMAD-X.csproj" />
+    <ProjectReference Include="..\..\SMAD-X.Core\SMAD-X.Core.csproj" />
   </ItemGroup>
 </Project>

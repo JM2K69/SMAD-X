@@ -1,0 +1,295 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SMADX.Studio.Views.MainWindow"
+        x:Name="Root"
+        Title="{Binding [App.Title], Source={StaticResource S}}"
+        Width="1280" Height="820" MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Icon="avares://SMAD-X.Studio/Assets/icone.ico">
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="{Binding [Menu.File], Source={StaticResource S}}">
+                <MenuItem Header="{Binding [Menu.NewFromRecipe], Source={StaticResource S}}" Command="{Binding NewFromRecipeCommand}" InputGesture="Ctrl+N" HotKey="Ctrl+N"/>
+                <MenuItem Header="{Binding [Menu.NewFromDomain], Source={StaticResource S}}" Command="{Binding NewFromDomainCommand}"/>
+                <MenuItem Header="{Binding [Menu.Convert], Source={StaticResource S}}" Command="{Binding ConvertScenarioCommand}"/>
+                <Separator/>
+                <MenuItem Header="{Binding [Menu.Open], Source={StaticResource S}}" Command="{Binding OpenCommand}" InputGesture="Ctrl+O" HotKey="Ctrl+O"/>
+                <MenuItem Header="{Binding [Menu.Save], Source={StaticResource S}}" Command="{Binding SaveCommand}" InputGesture="Ctrl+S" HotKey="Ctrl+S"/>
+                <MenuItem Header="{Binding [Menu.SaveAs], Source={StaticResource S}}" Command="{Binding SaveAsCommand}"/>
+                <MenuItem Header="{Binding [Menu.ExportSheet], Source={StaticResource S}}" Command="{Binding ExportSheetCommand}"/>
+                <Separator/>
+                <MenuItem Header="{Binding [Menu.Quit], Source={StaticResource S}}" Click="Quit"/>
+            </MenuItem>
+            <MenuItem Header="{Binding [Menu.Language], Source={StaticResource S}}">
+                <MenuItem Header="Français" Command="{Binding SetLanguageCommand}" CommandParameter="fr-FR"/>
+                <MenuItem Header="English" Command="{Binding SetLanguageCommand}" CommandParameter="en-US"/>
+            </MenuItem>
+        </Menu>
+
+        <Border DockPanel.Dock="Bottom" Padding="10,4" Background="#22FFFFFF">
+            <TextBlock Text="{Binding Status}" TextTrimming="CharacterEllipsis"/>
+        </Border>
+
+        <Grid>
+            <!-- Aucun exercice ouvert -->
+            <StackPanel IsVisible="{Binding !HasLab}" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="560" Spacing="12">
+                <TextBlock Text="{Binding [Empty.Title], Source={StaticResource S}}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding [Empty.Text], Source={StaticResource S}}" TextWrapping="Wrap" TextAlignment="Center" Opacity="0.8"/>
+                <StackPanel Spacing="6" HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <Button Classes="accent" HorizontalAlignment="Stretch" Command="{Binding NewFromRecipeCommand}" Content="{Binding [Menu.NewFromRecipe], Source={StaticResource S}}"/>
+                    <Button HorizontalAlignment="Stretch" Command="{Binding NewFromDomainCommand}" Content="{Binding [Menu.NewFromDomain], Source={StaticResource S}}"/>
+                    <Button HorizontalAlignment="Stretch" Command="{Binding ConvertScenarioCommand}" Content="{Binding [Menu.Convert], Source={StaticResource S}}"/>
+                    <Button HorizontalAlignment="Stretch" Command="{Binding OpenCommand}" Content="{Binding [Menu.Open], Source={StaticResource S}}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <DockPanel IsVisible="{Binding HasLab}">
+                <!-- Langue des textes édités -->
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="12,8,12,0" Spacing="8">
+                    <TextBlock VerticalAlignment="Center" Text="{Binding [Lab.EditCulture], Source={StaticResource S}}"/>
+                    <ComboBox Width="140" ItemsSource="{Binding EditCultures}" SelectedItem="{Binding EditCultureChoice}"/>
+                    <TextBlock VerticalAlignment="Center" Margin="16,0,0,0" Opacity="0.75" Text="{Binding FilePath}"/>
+                </StackPanel>
+
+                <TabControl Margin="4,0,4,0">
+                    <!-- ═══ Exercice ═══ -->
+                    <TabItem Header="{Binding [Tab.Lab], Source={StaticResource S}}">
+                        <ScrollViewer>
+                            <StackPanel Margin="8" MaxWidth="760" HorizontalAlignment="Left">
+                                <TextBlock Classes="label" Text="{Binding [Lab.Title], Source={StaticResource S}}"/>
+                                <TextBox Text="{Binding LabTitle}"/>
+                                <TextBlock Classes="label" Text="{Binding [Lab.Id], Source={StaticResource S}}"/>
+                                <TextBox Text="{Binding LabId}"/>
+                                <Grid ColumnDefinitions="*,16,*">
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Classes="label" Text="{Binding [Lab.Language], Source={StaticResource S}}"/>
+                                        <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding Languages}" SelectedItem="{Binding LanguageChoice}"/>
+                                        <TextBlock Classes="label" Text="{Binding [Lab.Level], Source={StaticResource S}}"/>
+                                        <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding Levels}" SelectedItem="{Binding Level}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Classes="label" Text="{Binding [Lab.Category], Source={StaticResource S}}"/>
+                                        <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding Categories}" SelectedItem="{Binding CategoryChoice}"/>
+                                        <TextBlock Classes="label" Text="{Binding [Lab.Duration], Source={StaticResource S}}"/>
+                                        <NumericUpDown Minimum="1" Maximum="600" Increment="5" FormatString="0" Value="{Binding Duration}"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Classes="label" Text="{Binding [Lab.Domain], Source={StaticResource S}}"/>
+                                <TextBlock Text="{Binding DomainSummary}" TextWrapping="Wrap"/>
+                                <TextBlock Classes="label" Text="{Binding [Lab.Points], Source={StaticResource S}}"/>
+                                <TextBlock Text="{Binding TotalPoints}"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- ═══ Énoncé ═══ -->
+                    <TabItem Header="{Binding [Tab.Statement], Source={StaticResource S}}">
+                        <DockPanel Margin="8">
+                            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+                                <Button Command="{Binding InsertTemplateCommand}" Content="{Binding [Statement.Template], Source={StaticResource S}}"/>
+                                <TextBlock Classes="hint" VerticalAlignment="Center" Margin="8,0,0,0" MaxWidth="900"
+                                           Text="{Binding [Statement.Rule], Source={StaticResource S}}"/>
+                            </StackPanel>
+                            <Grid ColumnDefinitions="*,6,*">
+                                <TextBox Grid.Column="0" Classes="code" Text="{Binding Statement}" VerticalAlignment="Stretch"/>
+                                <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+                                <DockPanel Grid.Column="2">
+                                    <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="8,0,0,6" Text="{Binding [Statement.Preview], Source={StaticResource S}}"/>
+                                    <Border Padding="12" CornerRadius="4" Background="#18FFFFFF">
+                                        <ScrollViewer>
+                                            <ContentControl Content="{Binding Statement, Converter={StaticResource MarkdownConverter}}"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </DockPanel>
+                            </Grid>
+                        </DockPanel>
+                    </TabItem>
+
+                    <!-- ═══ Objectifs ═══ -->
+                    <TabItem Header="{Binding [Tab.Objectives], Source={StaticResource S}}">
+                        <Grid ColumnDefinitions="380,6,*" Margin="8">
+                            <DockPanel Grid.Column="0">
+                                <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                    <Button Command="{Binding AddObjectiveCommand}" Content="{Binding [Objectives.Add], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding RemoveObjectiveCommand}" Content="{Binding [Objectives.Remove], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding MoveUpCommand}" Content="▲"/>
+                                    <Button Command="{Binding MoveDownCommand}" Content="▼"/>
+                                    <Button Classes="accent" Command="{Binding SuggestCommand}" Content="{Binding [Objectives.Suggest], Source={StaticResource S}}"/>
+                                </WrapPanel>
+                                <TextBlock DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                                    <Run Text="{Binding [Lab.Points], Source={StaticResource S}}"/><Run Text=" : "/><Run Text="{Binding TotalPoints}"/>
+                                </TextBlock>
+                                <ListBox ItemsSource="{Binding Objectives}" SelectedItem="{Binding SelectedObjective}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Summary}" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Description}" Classes="hint" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+
+                            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+
+                            <Grid Grid.Column="2">
+                                <!-- Éditeur de l'objectif sélectionné -->
+                                <ScrollViewer IsVisible="{Binding !ShowSuggestions}">
+                                    <StackPanel Margin="8,0,8,8" DataContext="{Binding SelectedObjective}" IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                        <TextBlock Classes="label" Text="{Binding [Objective.Title], Source={StaticResource S}}"/>
+                                        <TextBox Text="{Binding Title}"/>
+                                        <TextBlock Classes="label" Text="{Binding [Objective.Hint], Source={StaticResource S}}"/>
+                                        <TextBox Text="{Binding Hint}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60"/>
+                                        <Grid ColumnDefinitions="120,16,*">
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Classes="label" Text="{Binding [Objective.Points], Source={StaticResource S}}"/>
+                                                <NumericUpDown Minimum="0" Maximum="50" FormatString="0" Value="{Binding Points}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Classes="label" Text="{Binding [Objective.Check], Source={StaticResource S}}"/>
+                                                <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #Root.DataContext.CheckTypes}" SelectedItem="{Binding CheckType}"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel IsVisible="{Binding ShowObject}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.Object], Source={StaticResource S}}"/>
+                                            <AutoCompleteBox Text="{Binding Object}" FilterMode="ContainsOrdinal" ItemsSource="{Binding #Root.DataContext.ObjectNames}"/>
+                                            <TextBlock Classes="hint" IsVisible="{Binding ShowAnyUserHint}" Text="{Binding [Objective.AnyUser], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding ShowObjectType}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.ObjectType], Source={StaticResource S}}"/>
+                                            <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #Root.DataContext.ObjectTypes}" SelectedItem="{Binding ObjectType}"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding ShowGroup}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.Group], Source={StaticResource S}}"/>
+                                            <AutoCompleteBox Text="{Binding Group}" FilterMode="ContainsOrdinal" ItemsSource="{Binding #Root.DataContext.ObjectNames}"/>
+                                            <CheckBox Margin="0,4,0,0" IsChecked="{Binding Effective}" Content="{Binding [Objective.Effective], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding ShowRule}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.Rule], Source={StaticResource S}}"/>
+                                            <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #Root.DataContext.RuleIds}" SelectedItem="{Binding RuleId}"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding ShowSeverity}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.Severity], Source={StaticResource S}}"/>
+                                            <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #Root.DataContext.Severities}" SelectedItem="{Binding Severity}"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding ShowScore}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.Score], Source={StaticResource S}}"/>
+                                            <NumericUpDown Minimum="0" Maximum="100" FormatString="0" Value="{Binding Score}"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding ShowFlag}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.Flag], Source={StaticResource S}}"/>
+                                            <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #Root.DataContext.Flags}" SelectedItem="{Binding Flag}"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding ShowTier}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.Tier], Source={StaticResource S}}"/>
+                                            <TextBox Text="{Binding Tier}"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding ShowTrustee}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.Trustee], Source={StaticResource S}}"/>
+                                            <AutoCompleteBox Text="{Binding Trustee}" FilterMode="ContainsOrdinal" ItemsSource="{Binding #Root.DataContext.ObjectNames}"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding ShowTarget}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.Target], Source={StaticResource S}}"/>
+                                            <AutoCompleteBox Text="{Binding Target}" FilterMode="ContainsOrdinal" ItemsSource="{Binding #Root.DataContext.ObjectNames}"/>
+                                        </StackPanel>
+                                        <StackPanel IsVisible="{Binding ShowRight}">
+                                            <TextBlock Classes="label" Text="{Binding [Objective.Right], Source={StaticResource S}}"/>
+                                            <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #Root.DataContext.RightCategories}" SelectedItem="{Binding RightCategory}"/>
+                                        </StackPanel>
+
+                                        <Border Margin="0,14,0,0" Padding="10" CornerRadius="4" Background="#22FFFFFF">
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
+                                                <TextBlock Classes="hint" IsVisible="{Binding IsGuard}" Text="{Binding [Objective.Guard], Source={StaticResource S}}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </ScrollViewer>
+
+                                <!-- Propositions -->
+                                <DockPanel IsVisible="{Binding ShowSuggestions}" Margin="8,0,0,0">
+                                    <TextBlock DockPanel.Dock="Top" Classes="label" Margin="0,0,0,8" TextWrapping="Wrap"
+                                               Text="{Binding [Objectives.Suggestions], Source={StaticResource S}}"/>
+                                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0">
+                                        <Button Classes="accent" Command="{Binding AddSelectedSuggestionsCommand}" Content="{Binding [Objectives.AddSelected], Source={StaticResource S}}"/>
+                                        <Button Command="{Binding CloseSuggestionsCommand}" Content="{Binding [Objectives.CloseSuggestions], Source={StaticResource S}}"/>
+                                    </StackPanel>
+                                    <TextBlock DockPanel.Dock="Top" Classes="hint" IsVisible="{Binding !Suggestions.Count}"
+                                               Text="{Binding [Objectives.NoSuggestion], Source={StaticResource S}}"/>
+                                    <ScrollViewer>
+                                        <ItemsControl ItemsSource="{Binding Suggestions}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Margin="0,0,0,6" Padding="8" CornerRadius="4" Background="#18FFFFFF">
+                                                        <CheckBox IsChecked="{Binding IsSelected}">
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding Detail}" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding Reason}" Classes="hint"/>
+                                                            </StackPanel>
+                                                        </CheckBox>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </DockPanel>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- ═══ Validation ═══ -->
+                    <TabItem Header="{Binding [Tab.Validation], Source={StaticResource S}}">
+                        <DockPanel Margin="8">
+                            <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,10">
+                                <TextBlock Classes="hint" Text="{Binding [Validation.Intro], Source={StaticResource S}}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Classes="accent" Command="{Binding ValidateCommand}" Content="{Binding [Validation.Run], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding ChooseSolutionCommand}" Content="{Binding [Validation.Solution], Source={StaticResource S}}"/>
+                                </StackPanel>
+                                <TextBlock Classes="hint" Text="{Binding SolutionLabel}"/>
+                            </StackPanel>
+                            <ScrollViewer>
+                                <ItemsControl ItemsSource="{Binding Issues}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="24,*" Margin="0,2">
+                                                <TextBlock Grid.Column="0" Text="{Binding Icon}" Foreground="{Binding Color}" FontWeight="Bold"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </DockPanel>
+                    </TabItem>
+
+                    <!-- ═══ Fiche formateur ═══ -->
+                    <TabItem Header="{Binding [Tab.Sheet], Source={StaticResource S}}">
+                        <Grid ColumnDefinitions="*,6,*" Margin="8">
+                            <DockPanel Grid.Column="0">
+                                <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,6" Text="{Binding [Sheet.Notes], Source={StaticResource S}}"/>
+                                <TextBox Classes="code" Text="{Binding Notes}" VerticalAlignment="Stretch"/>
+                            </DockPanel>
+                            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+                            <DockPanel Grid.Column="2">
+                                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,0,0,6">
+                                    <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding [Sheet.Preview], Source={StaticResource S}}"/>
+                                    <Button Margin="12,0,0,0" Command="{Binding ExportSheetCommand}" Content="{Binding [Menu.ExportSheet], Source={StaticResource S}}"/>
+                                </StackPanel>
+                                <Border Padding="12" CornerRadius="4" Background="#18FFFFFF">
+                                    <ScrollViewer>
+                                        <ContentControl Content="{Binding SheetPreview, Converter={StaticResource MarkdownConverter}}"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </DockPanel>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </DockPanel>
+        </Grid>
+    </DockPanel>
+</Window>

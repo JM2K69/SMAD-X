@@ -12,8 +12,9 @@ This guide goes from the idea to a tested file. The labs shipped with the applic
 |---|---|---|
 | **A. From the application** | a teacher, no programming | a file to hand out to learners |
 | **B. With a generator** | a repository contributor | a lab embedded in the exe, tested automatically |
+| **C. With [SMAD-X Studio](studio.md)** | a trainer | a lab created, checked and given its trainer sheet, in a window or from the command line |
 
-Both produce the same format: you can start with A and finish with B.
+All produce the same format: you can start with A or C and finish with B.
 
 ---
 
@@ -165,12 +166,12 @@ Also consider the "**no path left outside Tier 0**" objective (`NoAttackPath` wi
 
 ## 6. Method B: a lab shipped with the application
 
-Shipped labs live in `SMAD-X/Labs/` and are embedded in the exe (see `SMAD-X.csproj`). They are **generated**, never written by hand:
+Shipped labs live in `SMAD-X.Core/Labs/` and are embedded in the exe (see `SMAD-X.Core.csproj`). They are **generated**, never written by hand:
 
 | Generator | Labs | Command |
 |---|---|---|
-| `tools/LabGenerator` | general bilingual labs (`01-premier-audit`…) | `dotnet run --project tools/LabGenerator -- SMAD-X/Labs` |
-| `tools/SampleGenerator` | the "Attack paths" series, one file per language (`chemin-*`, `path-*`), plus the samples in `Samples/AttackPaths` | `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths SMAD-X/Labs` |
+| `tools/LabGenerator` | general bilingual labs (`01-premier-audit`…) | `dotnet run --project tools/LabGenerator -- SMAD-X.Core/Labs` |
+| `tools/SampleGenerator` | the "Attack paths" series, one file per language (`chemin-*`, `path-*`), plus the samples in `Samples/AttackPaths` | `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths SMAD-X.Core/Labs` |
 
 To add an attack-path scenario in `tools/SampleGenerator/Program.cs`:
 1. Add a `Scenario("13-my-scenario", "domain-fr.local", "domain-en.local", d => { ... })` call, with a different domain name in each language.

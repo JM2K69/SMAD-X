@@ -1,6 +1,6 @@
 // Génère les scénarios de chemins d'attaque, en français et en anglais, chacun avec son propre domaine :
 // - les domaines d'exemple Samples/AttackPaths/{fr,en}/*.smad-x.json ;
-// - les exercices correspondants SMAD-X/Labs/{chemin,path}-*.smadx-lab.json (menu Exercices > Chemins d'attaque).
+// - les exercices correspondants SMAD-X.Core/Labs/{chemin,path}-*.smadx-lab.json (menu Exercices > Chemins d'attaque).
 using SMADX.Models;
 using SMADX.Services;
 using SMADX.Services.Audit;
@@ -15,99 +15,21 @@ var fr = true; // langue du scénario en cours de construction
 
 string T(string french, string english) => fr ? french : english;
 string Culture() => fr ? "fr-FR" : "en-US";
-LocalizedText Text(string text) => new() { [Culture()] = text };
+// Fins de ligne LF partout : sinon les textes prendraient celles du fichier source (CRLF selon la configuration Git)
+LocalizedText Text(string text) => new() { [Culture()] = text.ReplaceLineEndings("\n") };
 
-ADObject Find(ADObject root, string name, ADObjectType? type = null) =>
-    Flatten(root).First(o => o.Name == name && (type is null || o.Type == type));
-IEnumerable<ADObject> Flatten(ADObject o) => new[] { o }.Concat(o.Children.SelectMany(Flatten));
-ADObject Add(ADObject parent, ADObject child) { child.Parent = parent; parent.Children.Add(child); child.UpdateDistinguishedNameTree(); return child; }
-
-ADObject Ou(ADObject parent, string name, string tier) =>
-    Add(parent, new ADObject(name, ADObjectType.OrganizationalUnit) { Tier = tier, Owner = "Domain Admins", CreatedDate = reference.AddDays(-400) });
-
-ADObject User(ADObject parent, string name, string tier, string description) => Add(parent, new ADObject(name, ADObjectType.User)
-{
-    Tier = tier, Owner = "Domain Admins", Description = description,
-    PwdLastSet = reference.AddDays(-30), LastLogonTimestamp = reference.AddDays(-1), CreatedDate = reference.AddDays(-400)
-});
-
-ADObject Group(ADObject parent, string name, string tier, string description) => Add(parent, new ADObject(name, ADObjectType.Group)
-{
-    Tier = tier, Owner = "Domain Admins", Description = description, CreatedDate = reference.AddDays(-400),
-    GroupScope = ADGroupScope.Global, GroupCategory = ADGroupCategory.Security
-});
-
-ADObject Computer(ADObject parent, string name, string tier, string description) => Add(parent, new ADObject(name, ADObjectType.Computer)
-{
-    Tier = tier, Owner = "Domain Admins", Description = description,
-    PwdLastSet = reference.AddDays(-20), LastLogonTimestamp = reference.AddDays(-1), CreatedDate = reference.AddDays(-400)
-});
-
+// Domaine sain, peuplé et reproductible : LabDomainBuilder (SMAD-X.Core), partagé avec SMAD-X Studio
+LabDomainBuilder builder = new("fr-FR", reference);
+ADObject Find(ADObject root, string name, ADObjectType? type = null) => LabDomainBuilder.Find(root, name, type);
+IEnumerable<ADObject> Flatten(ADObject o) => LabDomainBuilder.Flatten(o);
+ADObject Add(ADObject parent, ADObject child) => LabDomainBuilder.Add(parent, child);
+ADObject Ou(ADObject parent, string name, string tier) => builder.Ou(parent, name, tier);
+ADObject User(ADObject parent, string name, string tier, string description) => builder.User(parent, name, tier, description);
+ADObject Group(ADObject parent, string name, string tier, string description) => builder.Group(parent, name, tier, description);
+ADObject Computer(ADObject parent, string name, string tier, string description) => builder.Computer(parent, name, tier, description);
 void Delegate(ADObject target, string trustee, TrusteeType type, string right, RightCategory category, string tier) =>
-    target.Delegations.Add(new ADDelegation
-    {
-        TrusteeName = trustee, TrusteeType = type, TargetDN = target.DistinguishedName,
-        Right = right, RightCategory = category, Tier = tier
-    });
-
-// Domaine neuf durci (constats d'un AD sortie d'installation corrigés), dates figées
-ADObject Baseline(string domainName)
-{
-    TierConfigurationService.Instance.ResetToDefaults();
-    var d = data.CreateFreshDomainStructure(domainName);
-    foreach (var o in Flatten(d))
-    {
-        o.CreatedDate = reference.AddDays(-400);
-        o.ModifiedDate = reference.AddDays(-400);
-        if (o.PwdLastSet != null) o.PwdLastSet = reference.AddDays(o.Type == ADObjectType.Computer ? -20 : -30);
-        if (o.LastLogonTimestamp != null) o.LastLogonTimestamp = reference.AddDays(-1);
-    }
-    var admin = Find(d, "Administrator", ADObjectType.User);
-    admin.AccountFlags = ADAccountFlags.NotDelegated;
-    admin.MemberOf.Remove("Enterprise Admins");
-    admin.MemberOf.Remove("Schema Admins");
-    d.Tier = "Tier 0";
-    Populate(d);
-    var findings = new ADSecurityAuditService().Run(d, reference).Findings;
-    if (findings.Count > 0) throw new Exception("Domaine de départ non propre : " + string.Join(", ", findings.Select(f => f.Rule.Id + " " + f.Object.Name)));
-    return d;
-}
-
-// Le quotidien de l'organisation : services, utilisateurs et postes, pour que le chemin soit à chercher
-// parmi d'autres objets comme dans un vrai AD. Tirage reproductible, propre à chaque domaine.
-void Populate(ADObject d)
-{
-    var rng = new Random(BitConverter.ToInt32(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(d.Name)), 0));
-    string[] first = fr
-        ? ["camille", "lucas", "chloe", "hugo", "manon", "louis", "ines", "jules", "lea", "nathan", "sarah", "theo", "emma", "paul", "zoe", "gabriel"]
-        : ["olivia", "liam", "emma", "noah", "ava", "james", "sophia", "henry", "mia", "jack", "grace", "leo", "ella", "ethan", "chloe", "oscar"];
-    string[] last = fr
-        ? ["martin", "bernard", "thomas", "robert", "richard", "durand", "leroy", "simon", "laurent", "michel", "garcia", "fournier", "rousseau", "blanc", "henry", "lemaire"]
-        : ["smith", "jones", "williams", "brown", "taylor", "davies", "evans", "thomas", "roberts", "johnson", "lewis", "walker", "hall", "clarke", "young", "king"];
-    (string Ou, string Group)[] departments = fr
-        ? [("Direction", "GG-Direction"), ("Comptabilité", "GG-Comptabilite"), ("Ressources humaines", "GG-RH"), ("Production", "GG-Production")]
-        : [("Management", "GG-Management"), ("Finance", "GG-Finance"), ("Human Resources", "GG-HR"), ("Logistics", "GG-Logistics")];
-
-    var people = Ou(d, T("Personnel", "People"), "Tier 2");
-    var used = new HashSet<string>();
-    foreach (var (ouName, groupName) in departments)
-    {
-        var ou = Ou(people, ouName, "Tier 2");
-        Group(ou, groupName, "Tier 2", T($"Membres du service {ouName}.", $"{ouName} department members."));
-        for (var i = 0; i < 3; i++)
-        {
-            string name;
-            do name = $"{first[rng.Next(first.Length)]}.{last[rng.Next(last.Length)]}"; while (!used.Add(name));
-            var user = User(ou, name, "Tier 2", T($"Service {ouName}.", $"{ouName} department."));
-            user.LastLogonTimestamp = reference.AddDays(-rng.Next(1, 8));
-            user.PwdLastSet = reference.AddDays(-rng.Next(10, 80));
-            user.MemberOf.Add(groupName);
-        }
-    }
-    var workstations = Ou(d, T("Postes de travail", "Workstations"), "Tier 2");
-    for (var i = 1; i <= 6; i++)
-        Computer(workstations, $"{T("PC", "WKS")}-{i:000}", "Tier 2", T("Poste de travail.", "Workstation."));
-}
+    LabDomainBuilder.Delegate(target, trustee, type, right, category, tier);
+ADObject Baseline(string domainName) => builder.Healthy(domainName);
 
 // Partie commune des énoncés : comment observer le chemin dans l'application
 string See(string source) => T(
@@ -126,37 +48,7 @@ string See(string source) => T(
     4. Once fixed, **Refresh** must remove the source, and **Analyse > Before / after** (`Ctrl+Shift+B`) shows the effect on the audit.
     """);
 
-// Identifiant tiré d'une clé stable, pour qu'une régénération ne modifie pas les fichiers inutilement
-Guid StableId(string key)
-{
-    var bytes = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(key))[..16];
-    bytes[7] = (byte)((bytes[7] & 0x0F) | 0x50); // version 5 (identifiant dérivé d'un nom)
-    bytes[8] = (byte)((bytes[8] & 0x3F) | 0x80); // variante RFC 4122
-    return new Guid(bytes);
-}
-
-void AssignStableIds(ADRootDocument document)
-{
-    var used = new HashSet<Guid>();
-    foreach (var o in Flatten(document.Domain))
-    {
-        var key = $"{document.Domain.Name}|{o.Type}|{o.DistinguishedName}";
-        var id = StableId(key);
-        for (var n = 2; !used.Add(id); n++)
-            id = StableId($"{key}|{n}");
-        o.Id = id;
-
-        // Les objets ajoutés par les scénarios portent l'heure de la génération : on les ramène avant la date de référence
-        if (o.CreatedDate > reference) o.CreatedDate = reference.AddDays(-400);
-        if (o.ModifiedDate > reference) o.ModifiedDate = reference.AddDays(-1);
-    }
-    foreach (var site in document.SitesTopology?.Sites ?? [])
-    {
-        site.Id = StableId($"{document.Domain.Name}|Site|{site.Name}");
-        site.CreatedDate = reference.AddDays(-400);
-        site.ModifiedDate = reference.AddDays(-400);
-    }
-}
+void AssignStableIds(ADRootDocument document) => LabDomainBuilder.AssignStableIds(document, reference);
 
 var index = new List<(string Id, string Lang, string Domain, string Title)>();
 LabSpec? currentLab = null;
@@ -223,13 +115,14 @@ void Scenario(string id, string frDomain, string enDomain, Func<ADObject, (strin
     foreach (var (french, domainName) in new[] { (true, frDomain), (false, enDomain) })
     {
         fr = french;
+        builder = new LabDomainBuilder(fr ? "fr-FR" : "en-US", reference);
         // Descriptions des objets intégrés (Builtin, sites…) dans la langue du fichier, quelle que soit celle de la machine
         LocalizationService.Instance.SetLanguage(fr ? "fr-FR" : "en-US");
         var d = Baseline(domainName);
         currentLab = null;
         var (title, body) = build(d);
         var lab = currentLab ?? throw new Exception($"{id} : le scénario ne décrit pas son exercice.");
-        d.Description = $"# {title}\n\n## {T("Contexte", "Context")}\n{lab.Context.Trim()}\n\n{body.Trim()}\n";
+        d.Description = $"# {title}\n\n## {T("Contexte", "Context")}\n{lab.Context.Trim()}\n\n{body.Trim()}\n".ReplaceLineEndings("\n");
         var lang = fr ? "fr" : "en";
         var dir = Path.Combine(outDir, lang);
         Directory.CreateDirectory(dir);
@@ -241,13 +134,19 @@ void Scenario(string id, string frDomain, string enDomain, Func<ADObject, (strin
         index.Add((id, lang, domainName, title));
         Console.WriteLine($"{lang}/{id} : {domainName}");
 
+        // Le domaine de départ de l'exercice ne porte que le contexte : la description de l'exemple contient
+        // le chemin et la correction, que l'apprenant verrait en sélectionnant la racine du domaine
+        var labStart = System.Text.Json.JsonSerializer.Deserialize<ADRootDocument>(
+            System.Text.Json.JsonSerializer.Serialize(document, ADDataService.SerializerOptions), ADDataService.SerializerOptions)!;
+        labStart.Domain.Description = $"# {lab.Title}\n\n{lab.Context.Trim()}\n".ReplaceLineEndings("\n");
+
         var labId = $"{T("chemin", "path")}-{id}";
         new LabService().SaveFile(new LabDefinition
         {
             Id = labId, Language = Culture(), Category = "attack-paths",
             Level = lab.Level, DurationMinutes = lab.Minutes, ReferenceDate = reference,
             Title = Text(lab.Title), Statement = Text(Statement(lab.Title, lab.Context.Trim(), lab.Mission.Trim())),
-            Start = document, Objectives = lab.Objectives.ToList()
+            Start = labStart, Objectives = lab.Objectives.ToList()
         }, Path.Combine(labDir, labId + LabService.FileExtension));
     }
 }
@@ -1152,8 +1051,8 @@ string Table(string lang) => string.Join("\n", index.Where(i => i.Lang == lang)
 File.WriteAllText(Path.Combine(outDir, "README.md"), $"""
     # Chemins d'attaque : domaines d'exemple / Attack paths: sample domains
 
-    Fichiers générés par `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths SMAD-X/Labs`. Ne les modifiez pas à la main.
-    Generated by `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths SMAD-X/Labs`. Do not edit them by hand.
+    Fichiers générés par `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths SMAD-X.Core/Labs`. Ne les modifiez pas à la main.
+    Generated by `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths SMAD-X.Core/Labs`. Do not edit them by hand.
 
     ## Français
 
