@@ -112,6 +112,13 @@
 
 ---
 
+### 🛡️ Audit de sécurité, chemins d'attaque et exercices
+- **Audit de sécurité** : 28 règles sourcées (checklist AD de l'ANSSI, NIST, CIS, MITRE ATT&CK, Microsoft), avec un score et un niveau ANSSI estimé
+- **Chemins d'attaque** : qui peut prendre le contrôle du domaine, et par quelles étapes (Kerberoasting, AS-REP roasting, délégations, propriétaires, GPO, délégation Kerberos…), surlignés dans le graphe
+- Comparaison **avant / après** et **annuler / rétablir**
+- **Exercices** (`.smadx-lab.json`) : des scénarios réalistes corrigés automatiquement, dont 12 exercices de chemins d'attaque en français et en anglais
+- Domaines d'exemple dans [`Samples/AttackPaths`](Samples/AttackPaths/README.md) — pour écrire vos propres exercices : [docs/creer-un-exercice.md](docs/creer-un-exercice.md)
+
 ## 🚀 Démarrage rapide
 
 1. **Prérequis** : .NET 10 SDK — Windows, macOS ou Linux
