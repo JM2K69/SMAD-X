@@ -106,6 +106,7 @@ namespace SMADX.ViewModels
                 if (e.PropertyName == nameof(LocalizationService.CurrentCulture))
                 {
                     StatusMessage = LocalizationService.Instance["Status.Ready"];
+                    RefreshLabMenus();
 
                     // Mettre à jour les descriptions des objets existants
                     if (RootObject != null)

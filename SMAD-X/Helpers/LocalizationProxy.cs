@@ -132,6 +132,7 @@ namespace SMADX.Helpers
         public string MenuLabs => _localizationService["Menu.Labs"];
         public string MenuLabsOpen => _localizationService["Menu.Labs.Open"];
         public string MenuLabsBuiltIn => _localizationService["Menu.Labs.BuiltIn"];
+        public string MenuLabsAttackPaths => _localizationService["Menu.Labs.AttackPaths"];
         public string MenuLabsCreate => _localizationService["Menu.Labs.Create"];
         public string LabObjectives => _localizationService["Lab.Objectives"];
         public string LabHint => _localizationService["Lab.Hint"];

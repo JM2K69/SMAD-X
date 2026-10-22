@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SMADX.Models;
 using SMADX.Services.Audit;
+using SMADX.Services.AttackPaths;
 
 namespace SMADX.Services.Labs
 {
@@ -32,18 +33,19 @@ namespace SMADX.Services.Labs
         public LabResult Grade(LabDefinition lab, ADObject start, ADObject current, DateTime now)
         {
             var audit = new ADSecurityAuditService().Run(current, now);
+            var attackPaths = new Lazy<AttackPathService>(() => new AttackPathService(current, now));
             var context = new AuditContext(current, now);
             var changes = new Lazy<List<ADChangeItem>>(() => ADDiffService.Compare(
                 new DomainSnapshot { Root = start }, new DomainSnapshot { Root = current }));
 
             var results = lab.Objectives
-                .Select(o => Evaluate(o, o.Check, audit, context, start, changes))
+                .Select(o => Evaluate(o, o.Check, audit, context, start, changes, attackPaths))
                 .ToList();
             return new LabResult(lab, results, audit, now);
         }
 
         private static LabObjectiveResult Evaluate(LabObjective objective, LabCheck check, AuditReport audit,
-            AuditContext context, ADObject start, Lazy<List<ADChangeItem>> changes)
+            AuditContext context, ADObject start, Lazy<List<ADChangeItem>> changes, Lazy<AttackPathService> attackPaths)
         {
             (bool passed, string feedback) = check.Type switch
             {
@@ -64,6 +66,7 @@ namespace SMADX.Services.Labs
                 LabCheckType.DelegationExists => DelegationExists(check, context),
                 LabCheckType.DelegationOnly => DelegationOnly(check, context),
                 LabCheckType.NotModified => NotModified(check, start, changes.Value),
+                LabCheckType.NoAttackPath => NoAttackPath(check, context, attackPaths.Value),
                 _ => Fail("Lab.Feedback.UnknownCheck", check.Type)
             };
             return new LabObjectiveResult(objective, passed, feedback);
@@ -155,6 +158,24 @@ namespace SMADX.Services.Labs
                 ? Ok()
                 : Fail("Lab.Feedback.Modified", original.Name,
                     string.Join(", ", touched.Select(c => c.ChangeType == ChangeType.Removed ? Loc["Lab.Feedback.Removed"] : c.ChangedFieldsSummary)));
+        }
+
+        private static (bool, string) NoAttackPath(LabCheck check, AuditContext context, AttackPathService service)
+        {
+            AttackPath? remaining;
+            if (check.Object is null)
+                remaining = service.PathsOutsideTier0().FirstOrDefault();
+            else if (string.Equals(check.Object, AttackPathService.AnyUserId, StringComparison.OrdinalIgnoreCase))
+                remaining = service.PathsToDomainControl().FirstOrDefault(p => p.Start.IsAnyUser);
+            else if (Find(context, check) is { } source)
+                remaining = service.PathFrom(source);
+            else
+                return Fail("Lab.Feedback.Missing", check.Object);
+
+            return remaining == null
+                ? Ok()
+                : Fail("Lab.Feedback.AttackPathRemaining", remaining.Start.Label,
+                    string.Join(" → ", new[] { remaining.Start.Label }.Concat(remaining.Steps.Select(s => s.To.Label))));
         }
 
         private static IEnumerable<ADObject> Flatten(ADObject root) =>

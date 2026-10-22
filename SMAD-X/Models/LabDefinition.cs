@@ -21,6 +21,16 @@ namespace SMADX.Models
         public string Id { get; set; } = string.Empty;
 
         public LocalizedText Title { get; set; } = new();
+
+        /// <summary>
+        /// Langue de l'exercice (« fr-FR », « en-US ») quand son domaine est écrit dans une seule langue ;
+        /// null pour un exercice bilingue. Le menu ne propose que les exercices de la langue de l'interface.
+        /// </summary>
+        public string? Language { get; set; }
+
+        /// <summary>Série de l'exercice dans le menu (ex. « attack-paths ») ; null pour les exercices généraux.</summary>
+        public string? Category { get; set; }
+
         public LabLevel Level { get; set; } = LabLevel.Beginner;
         public int DurationMinutes { get; set; } = 20;
 
@@ -96,7 +106,12 @@ namespace SMADX.Models
         /// <summary>Trustee a au moins une délégation directe, et toutes sont de catégories AllowedCategories.</summary>
         DelegationOnly,
         /// <summary>Object n'a subi aucun changement par rapport au domaine de départ.</summary>
-        NotModified
+        NotModified,
+        /// <summary>
+        /// Plus aucun chemin d'attaque vers le contrôle du domaine depuis Object (« any-domain-user » :
+        /// n'importe quel utilisateur), ou, sans Object, depuis aucune source hors Tier 0.
+        /// </summary>
+        NoAttackPath
     }
 
     /// <summary>Vérification déclarative ; seuls les champs utiles au type sont renseignés.</summary>

@@ -237,6 +237,16 @@ namespace SMADX.Services.AttackPaths
                 .ToList();
         }
 
+        /// <summary>
+        /// Source de Tier 0 : elle contrôle déjà le domaine par définition, son chemin n'est pas une faiblesse.
+        /// « N'importe quel utilisateur » n'est jamais de Tier 0.
+        /// </summary>
+        public static bool IsTier0(AttackNode node) => node.Object is { } o && AuditContext.TierLevel(o) == 0;
+
+        /// <summary>Chemins qui partent d'une source hors Tier 0 : ceux qu'il faut supprimer.</summary>
+        public IReadOnlyList<AttackPath> PathsOutsideTier0() =>
+            PathsToDomainControl().Where(p => p.Start != Target && !IsTier0(p.Start)).ToList();
+
         /// <summary>Chemin depuis un objet, ou null s'il ne peut pas atteindre le contrôle du domaine.</summary>
         public AttackPath? PathFrom(ADObject start) =>
             PathsToDomainControl().FirstOrDefault(p => p.Start.Object == start);

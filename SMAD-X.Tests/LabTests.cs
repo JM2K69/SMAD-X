@@ -33,7 +33,8 @@ public class BuiltInLabTests
     [Fact]
     public void BuiltInLabs_AreFiveAndHaveTextsInBothLanguages()
     {
-        var labs = _service.BuiltInLabs();
+        // Exercices généraux, bilingues ; la série « Chemins d'attaque » est testée dans AttackPathLabTests
+        var labs = _service.BuiltInLabs().Where(l => l.Category == null).ToList();
 
         Assert.Equal(5, labs.Count);
         Assert.All(labs, lab =>

@@ -20,7 +20,7 @@ namespace SMADX.ViewModels
         public string Icon => Path.Start.Object?.Icon ?? "🌍";
         public string Tier => Path.Start.Object?.Tier ?? string.Empty;
         public string StepCountLabel => string.Format(LocalizationService.Instance["AttackPath.StepCount"], Path.Length);
-        public bool IsTier0 => Path.Start.Object is { } o && AuditContext.TierLevel(o) == 0;
+        public bool IsTier0 => AttackPathService.IsTier0(Path.Start);
     }
 
     /// <summary>Une étape du chemin sélectionné.</summary>

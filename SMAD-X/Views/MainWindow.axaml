@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SMADX.ViewModels"
         xmlns:services="using:SMADX.Services"
@@ -97,6 +97,15 @@
                 </MenuItem>
                 <MenuItem Header="{Binding MenuLabs}">
                     <MenuItem Header="{Binding MenuLabsBuiltIn}" ItemsSource="{Binding #MainWindowRoot.DataContext.BuiltInLabs}">
+                        <MenuItem.Styles>
+                            <Style Selector="MenuItem > MenuItem" x:DataType="vm:LabMenuItem">
+                                <Setter Property="Header" Value="{Binding Title}"/>
+                                <Setter Property="Command" Value="{Binding #MainWindowRoot.DataContext.OpenBuiltInLabCommand}"/>
+                                <Setter Property="CommandParameter" Value="{Binding}"/>
+                            </Style>
+                        </MenuItem.Styles>
+                    </MenuItem>
+                    <MenuItem Header="{Binding MenuLabsAttackPaths}" ItemsSource="{Binding #MainWindowRoot.DataContext.AttackPathLabs}">
                         <MenuItem.Styles>
                             <Style Selector="MenuItem > MenuItem" x:DataType="vm:LabMenuItem">
                                 <Setter Property="Header" Value="{Binding Title}"/>

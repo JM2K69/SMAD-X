@@ -1,15 +1,21 @@
-// Génère les domaines d'exemple des chemins d'attaque : Samples/AttackPaths/{fr,en}/*.smad-x.json
-// Chaque scénario existe en français et en anglais, chacun avec son propre nom de domaine.
+// Génère les scénarios de chemins d'attaque, en français et en anglais, chacun avec son propre domaine :
+// - les domaines d'exemple Samples/AttackPaths/{fr,en}/*.smad-x.json ;
+// - les exercices correspondants SMAD-X/Labs/{chemin,path}-*.smadx-lab.json (menu Exercices > Chemins d'attaque).
 using SMADX.Models;
 using SMADX.Services;
 using SMADX.Services.Audit;
+using SMADX.Services.AttackPaths;
+using SMADX.Services.Labs;
 
 var outDir = args[0];
+var labDir = args[1];
 var reference = new DateTime(2026, 10, 22);
 var data = new ADDataService();
 var fr = true; // langue du scénario en cours de construction
 
 string T(string french, string english) => fr ? french : english;
+string Culture() => fr ? "fr-FR" : "en-US";
+LocalizedText Text(string text) => new() { [Culture()] = text };
 
 ADObject Find(ADObject root, string name, ADObjectType? type = null) =>
     Flatten(root).First(o => o.Name == name && (type is null || o.Type == type));
@@ -61,9 +67,46 @@ ADObject Baseline(string domainName)
     admin.MemberOf.Remove("Enterprise Admins");
     admin.MemberOf.Remove("Schema Admins");
     d.Tier = "Tier 0";
+    Populate(d);
     var findings = new ADSecurityAuditService().Run(d, reference).Findings;
     if (findings.Count > 0) throw new Exception("Domaine de départ non propre : " + string.Join(", ", findings.Select(f => f.Rule.Id + " " + f.Object.Name)));
     return d;
+}
+
+// Le quotidien de l'organisation : services, utilisateurs et postes, pour que le chemin soit à chercher
+// parmi d'autres objets comme dans un vrai AD. Tirage reproductible, propre à chaque domaine.
+void Populate(ADObject d)
+{
+    var rng = new Random(BitConverter.ToInt32(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(d.Name)), 0));
+    string[] first = fr
+        ? ["camille", "lucas", "chloe", "hugo", "manon", "louis", "ines", "jules", "lea", "nathan", "sarah", "theo", "emma", "paul", "zoe", "gabriel"]
+        : ["olivia", "liam", "emma", "noah", "ava", "james", "sophia", "henry", "mia", "jack", "grace", "leo", "ella", "ethan", "chloe", "oscar"];
+    string[] last = fr
+        ? ["martin", "bernard", "thomas", "robert", "richard", "durand", "leroy", "simon", "laurent", "michel", "garcia", "fournier", "rousseau", "blanc", "henry", "lemaire"]
+        : ["smith", "jones", "williams", "brown", "taylor", "davies", "evans", "thomas", "roberts", "johnson", "lewis", "walker", "hall", "clarke", "young", "king"];
+    (string Ou, string Group)[] departments = fr
+        ? [("Direction", "GG-Direction"), ("Comptabilité", "GG-Comptabilite"), ("Ressources humaines", "GG-RH"), ("Production", "GG-Production")]
+        : [("Management", "GG-Management"), ("Finance", "GG-Finance"), ("Human Resources", "GG-HR"), ("Logistics", "GG-Logistics")];
+
+    var people = Ou(d, T("Personnel", "People"), "Tier 2");
+    var used = new HashSet<string>();
+    foreach (var (ouName, groupName) in departments)
+    {
+        var ou = Ou(people, ouName, "Tier 2");
+        Group(ou, groupName, "Tier 2", T($"Membres du service {ouName}.", $"{ouName} department members."));
+        for (var i = 0; i < 3; i++)
+        {
+            string name;
+            do name = $"{first[rng.Next(first.Length)]}.{last[rng.Next(last.Length)]}"; while (!used.Add(name));
+            var user = User(ou, name, "Tier 2", T($"Service {ouName}.", $"{ouName} department."));
+            user.LastLogonTimestamp = reference.AddDays(-rng.Next(1, 8));
+            user.PwdLastSet = reference.AddDays(-rng.Next(10, 80));
+            user.MemberOf.Add(groupName);
+        }
+    }
+    var workstations = Ou(d, T("Postes de travail", "Workstations"), "Tier 2");
+    for (var i = 1; i <= 6; i++)
+        Computer(workstations, $"{T("PC", "WKS")}-{i:000}", "Tier 2", T("Poste de travail.", "Workstation."));
 }
 
 // Partie commune des énoncés : comment observer le chemin dans l'application
@@ -116,6 +159,63 @@ void AssignStableIds(ADRootDocument document)
 }
 
 var index = new List<(string Id, string Lang, string Domain, string Title)>();
+LabSpec? currentLab = null;
+
+// Appelé par chaque scénario avec les noms de ses objets : contexte réaliste, mission et objectifs corrigés
+void Lab(string title, LabLevel level, int minutes, string context, string mission, params LabObjective[] objectives) =>
+    currentLab = new LabSpec(title, level, minutes, context, mission, objectives);
+
+LabObjective Obj(string id, int points, string title, string hint, LabCheck check) =>
+    new() { Id = id, Points = points, Title = Text(title), Hint = Text(hint), Check = check };
+
+var anyUser = AttackPathService.AnyUserId;
+string AnyUserLabel() => T("N'importe quel utilisateur du domaine", "Any domain user");
+
+LabObjective CutPath(string source, string label, string hint) => Obj("o1", 4,
+    T($"Le chemin depuis « {label} » est coupé", $"The path from \"{label}\" is cut"), hint,
+    new LabCheck { Type = LabCheckType.NoAttackPath, Object = source });
+
+LabObjective NoPathLeft(string hint) => Obj("o2", 2,
+    T("Plus aucun chemin vers le contrôle du domaine hors Tier 0", "No path to domain control left outside Tier 0"), hint,
+    new LabCheck { Type = LabCheckType.NoAttackPath });
+
+LabObjective Exists(string id, string name, ADObjectType type, string title, string hint) =>
+    Obj(id, 1, title, hint, new LabCheck { Type = LabCheckType.ObjectExists, Object = name, ObjectType = type });
+
+LabObjective RuleClear(string id, int points, string ruleId, string title, string hint, string? obj = null) =>
+    Obj(id, points, title, hint, new LabCheck { Type = LabCheckType.RuleClear, RuleId = ruleId, Object = obj });
+
+string Statement(string title, string context, string mission) => T(
+    $"""
+    # {title}
+
+    ## Contexte
+    {context}
+
+    ## Votre mission
+    {mission}
+
+    ## Vos outils
+    - **Analyse > Chemins d'attaque** (`Ctrl+Shift+K`) : qui peut prendre le contrôle du domaine, et par quelles étapes. **Afficher dans le graphe** surligne le chemin.
+    - **Analyse > Audit de sécurité** (`Ctrl+Shift+A`) : les constats et leurs fiches, avec les références ANSSI, NIST et MITRE.
+    - **Analyse > Avant / après** (`Ctrl+Shift+B`) : ce que vos modifications ont changé.
+    - **Vérifier**, dans cette fenêtre, corrige les objectifs ; **Indice** donne une piste par objectif.
+    """,
+    $"""
+    # {title}
+
+    ## Context
+    {context}
+
+    ## Your mission
+    {mission}
+
+    ## Your tools
+    - **Analyse > Attack paths** (`Ctrl+Shift+K`): who can take control of the domain, and through which steps. **Show in graph** highlights the path.
+    - **Analyse > Security audit** (`Ctrl+Shift+A`): findings and their sheets, with ANSSI, NIST and MITRE references.
+    - **Analyse > Before / after** (`Ctrl+Shift+B`): what your changes did.
+    - **Check**, in this window, grades the objectives; **Hint** gives a lead for each objective.
+    """);
 
 void Scenario(string id, string frDomain, string enDomain, Func<ADObject, (string Title, string Body)> build)
 {
@@ -125,8 +225,10 @@ void Scenario(string id, string frDomain, string enDomain, Func<ADObject, (strin
         // Descriptions des objets intégrés (Builtin, sites…) dans la langue du fichier, quelle que soit celle de la machine
         LocalizationService.Instance.SetLanguage(fr ? "fr-FR" : "en-US");
         var d = Baseline(domainName);
+        currentLab = null;
         var (title, body) = build(d);
-        d.Description = $"# {title}\n\n{body.Trim()}\n";
+        var lab = currentLab ?? throw new Exception($"{id} : le scénario ne décrit pas son exercice.");
+        d.Description = $"# {title}\n\n## {T("Contexte", "Context")}\n{lab.Context.Trim()}\n\n{body.Trim()}\n";
         var lang = fr ? "fr" : "en";
         var dir = Path.Combine(outDir, lang);
         Directory.CreateDirectory(dir);
@@ -137,6 +239,15 @@ void Scenario(string id, string frDomain, string enDomain, Func<ADObject, (strin
             throw new Exception("Échec de l'écriture de " + path);
         index.Add((id, lang, domainName, title));
         Console.WriteLine($"{lang}/{id} : {domainName}");
+
+        var labId = $"{T("chemin", "path")}-{id}";
+        new LabService().SaveFile(new LabDefinition
+        {
+            Id = labId, Language = Culture(), Category = "attack-paths",
+            Level = lab.Level, DurationMinutes = lab.Minutes, ReferenceDate = reference,
+            Title = Text(lab.Title), Statement = Text(Statement(lab.Title, lab.Context.Trim(), lab.Mission.Trim())),
+            Start = document, Objectives = lab.Objectives.ToList()
+        }, Path.Combine(labDir, labId + LabService.FileExtension));
     }
 }
 
@@ -157,6 +268,34 @@ Scenario("01-kerberoasting", "atelier-boreal.local", "northwind.local", d =>
     svc.ServicePrincipalNames.Add($"HTTP/{app.ToLowerInvariant()}");
     svc.MemberOf.Add(group.Name);
     svc.AdminCount = true;
+
+    Lab(T("Atelier Boréal : le compte de service de l'ERP", "Northwind Traders: the SharePoint service account"), LabLevel.Beginner, 20,
+        T($"""
+        L'**Atelier Boréal** est une menuiserie industrielle de 120 salariés. Son ERP a été installé en 2019 par un intégrateur qui a depuis fermé ; personne ne sait vraiment quels droits il utilise.
+
+        Vous venez d'arriver comme administrateur systèmes. L'assureur cyber de l'entreprise a fait réaliser un test d'intrusion : en moins d'une heure, l'auditeur est devenu administrateur du domaine **depuis un simple poste de l'atelier**, avec le compte d'un opérateur. Son rapport tient en une ligne : « compte de service exposé ».
+        """, $"""
+        **Northwind Traders** is a 300-employee food distributor. Its SharePoint intranet was set up in 2019 by a contractor who has since left; nobody really knows which rights it uses.
+
+        You have just joined as systems administrator. The company's cyber insurer commissioned a penetration test: in less than an hour, the tester became domain administrator **from a plain warehouse workstation**, with an operator's account. The report fits in one line: "exposed service account".
+        """),
+        T($"""
+        - Retrouvez le chemin utilisé par l'auditeur et coupez-le.
+        - L'{app} doit continuer de fonctionner : le compte `{svc.Name}` reste en place.
+        - À la fin, plus aucun compte hors Tier 0 ne doit pouvoir atteindre le domaine.
+        """, $"""
+        - Find the path the tester used and cut it.
+        - {app} must keep running: the `{svc.Name}` account stays in place.
+        - In the end, no account outside Tier 0 may reach the domain.
+        """),
+        CutPath(anyUser, AnyUserLabel(), T(
+            $"Un compte avec un SPN peut être kerberoasté par n'importe qui. Regardez de quels groupes `{group.Name}` est lui-même membre.",
+            $"An account with an SPN can be kerberoasted by anyone. Look at which groups `{group.Name}` itself belongs to.")),
+        NoPathLeft(T("Actualisez **Chemins d'attaque** : la liste doit être vide.", "Refresh **Attack paths**: the list must be empty.")),
+        RuleClear("o3", 2, "KRB-01", T("Plus aucun compte privilégié kerberoastable", "No privileged kerberoastable account left"),
+            T("La fiche KRB-01 explique pourquoi un SPN sur un administrateur est critique.", "Rule sheet KRB-01 explains why an SPN on an administrator is critical.")),
+        Exists("o4", svc.Name, ADObjectType.User, T($"Le compte de service `{svc.Name}` existe toujours", $"Service account `{svc.Name}` still exists"),
+            T("Supprimer le compte arrêterait l'application : retirez-lui plutôt les droits qu'il n'a pas à avoir.", "Deleting the account would stop the application: remove the rights it should not have instead.")));
 
     return (T("Chemin d'attaque : Kerberoasting", "Attack path: Kerberoasting"), T(
         $"""
@@ -203,6 +342,33 @@ Scenario("02-asrep-roasting", "cabinet-lefevre.lan", "fabrikam.lan", d =>
     scan.AccountFlags = ADAccountFlags.DontRequirePreauth | ADAccountFlags.PasswordNeverExpires;
     scan.MemberOf.Add("Backup Operators");
     scan.AdminCount = true;
+
+    Lab(T("Cabinet Lefèvre : le copieur qui en savait trop", "Fabrikam: the copier that knew too much"), LabLevel.Beginner, 15,
+        T($"""
+        Le **Cabinet Lefèvre** est un cabinet d'expertise comptable de 25 personnes. Son informatique est confiée à un prestataire qui passe une demi-journée par mois.
+
+        Ce matin, l'EDR du prestataire a levé une alerte : des demandes Kerberos AS-REP en rafale, depuis le Wi-Fi invités de la salle d'attente, visant un seul compte. Le prestataire vous appelle : « Ce compte, c'est celui du copieur. Il est où exactement dans l'AD ? »
+        """, $"""
+        **Fabrikam** is a 40-person law firm. Its IT is outsourced to a provider who comes in half a day a month.
+
+        This morning, the provider's EDR raised an alert: a burst of Kerberos AS-REP requests from the waiting-room guest Wi-Fi, all targeting a single account. The provider calls you: "That account is the copier's. Where exactly is it in AD?"
+        """),
+        T($"""
+        - Comprenez pourquoi ce compte intéresse tant l'attaquant, et coupez le chemin.
+        - Le copieur doit continuer de déposer les numérisations : ne supprimez pas `{scan.Name}`.
+        """, $"""
+        - Understand why the attacker is so interested in this account, and cut the path.
+        - The copier must keep dropping scans: do not delete `{scan.Name}`.
+        """),
+        CutPath(anyUser, AnyUserLabel(), T(
+            "Section **Sécurité** du compte : une option permet d'obtenir une réponse chiffrée avec son mot de passe sans le connaître.",
+            "The account's **Security** section: one option lets anyone get a response encrypted with its password without knowing it.")),
+        NoPathLeft(T($"Même avec la préauthentification réactivée, un compte de Tier 2 dans Backup Operators reste un chemin vers le domaine.",
+            "Even with preauthentication back on, a Tier 2 account in Backup Operators is still a path to the domain.")),
+        RuleClear("o3", 2, "KRB-03", T("Plus aucun compte privilégié sans préauthentification Kerberos", "No privileged account without Kerberos preauthentication"),
+            T("Fiche KRB-03.", "Rule sheet KRB-03.")),
+        Exists("o4", scan.Name, ADObjectType.User, T($"Le compte `{scan.Name}` existe toujours", $"Account `{scan.Name}` still exists"),
+            T("Il suffit d'un droit d'écriture sur le partage des numérisations, pas d'un groupe d'opérateurs.", "A write permission on the scan share is enough, not an operators group.")));
 
     return (T("Chemin d'attaque : AS-REP roasting", "Attack path: AS-REP roasting"), T(
         $"""
@@ -257,6 +423,35 @@ Scenario("03-reset-password", "mediatheque-azur.local", "tailspintoys.local", d 
     target.MemberOf.Add(ops.Name);
     Delegate(users, supportGroup.Name, TrusteeType.Group, "Reset Password", RightCategory.PasswordReset, "Tier 2");
 
+    Lab(T("Médiathèque Azur : le support peut-il tout réinitialiser ?", "Tailspin Toys: can the service desk reset everything?"), LabLevel.Intermediate, 25,
+        T($"""
+        La **Médiathèque Azur** regroupe six médiathèques intercommunales et 90 agents. Le support de proximité, deux techniciens, réinitialise les mots de passe des agents qui ont oublié le leur.
+
+        Lors d'un audit interne, un technicien du support a montré qu'il pouvait réinitialiser le mot de passe de `{target.Name}`, la technicienne d'exploitation. Le directeur des systèmes d'information vous demande si c'est grave, et de corriger sans priver le support de son outil de travail.
+        """, $"""
+        **Tailspin Toys** is a toy retailer with 15 stores and 400 staff. The two-person service desk resets the passwords of staff who forgot theirs.
+
+        During an internal audit, a service desk technician showed they could reset the password of `{target.Name}`, the operations engineer. The IT director asks you whether this is serious, and to fix it without taking the service desk's daily tool away.
+        """),
+        T($"""
+        - Évaluez jusqu'où mène cette réinitialisation, et coupez le chemin.
+        - Le support doit garder la réinitialisation des mots de passe sur l'OU `{users.Name}`, et `{supportGroup.Name}` garde ses membres.
+        """, $"""
+        - Assess how far this password reset leads, and cut the path.
+        - The service desk keeps password reset on the `{users.Name}` OU, and `{supportGroup.Name}` keeps its members.
+        """),
+        CutPath(supportGroup.Name, supportGroup.Name, T(
+            $"Regardez les droits de `{ops.Name}` sur la racine du domaine (fenêtre **Délégations**).",
+            $"Look at the rights of `{ops.Name}` on the domain root (**Delegations** window).")),
+        NoPathLeft(T($"Déplacer `{target.Name}` ne suffit pas : `{ops.Name}` reste un chemin pour chacun de ses membres.",
+            $"Moving `{target.Name}` is not enough: `{ops.Name}` is still a path for each of its members.")),
+        Obj("o3", 1, T("Le support réinitialise toujours les mots de passe des utilisateurs", "The service desk can still reset user passwords"),
+            T("Ne retirez pas la délégation du support : c'est son métier.", "Do not remove the service desk delegation: it is their job."),
+            new LabCheck { Type = LabCheckType.DelegationExists, Trustee = supportGroup.Name, Target = users.Name, RightCategory = RightCategory.PasswordReset }),
+        Obj("o4", 1, T($"`{T("tech-mdupont", "tech-jsmith")}` reste membre du support", $"`{T("tech-mdupont", "tech-jsmith")}` stays on the service desk"),
+            T("Vider le groupe du support n'est pas une correction.", "Emptying the service desk group is not a fix."),
+            new LabCheck { Type = LabCheckType.MemberOf, Object = T("tech-mdupont", "tech-jsmith"), Group = supportGroup.Name, Effective = false }));
+
     return (T("Chemin d'attaque : réinitialisation de mot de passe", "Attack path: password reset"), T(
         $"""
         Le support peut réinitialiser le mot de passe de tous les comptes de l'OU `{users.Name}`. C'est normal… sauf que cette OU contient aussi `{target.Name}`, membre de `{ops.Name}`, qui a le **contrôle total sur le domaine**.
@@ -306,6 +501,35 @@ Scenario("04-write-members", "transports-iris.local", "litware.local", d =>
         "Assistants who manage distribution lists and share groups."));
     User(support, T("c.moreau", "e.johnson"), "Tier 2", T("Assistante de direction.", "Executive assistant.")).MemberOf.Add(managers.Name);
     Delegate(groups, managers.Name, TrusteeType.Group, "WriteProperty:member", RightCategory.AttributeWrite, "Tier 1");
+
+    Lab(T("Transports Iris : les listes de diffusion", "Litware: the distribution lists"), LabLevel.Intermediate, 25,
+        T($"""
+        **Transports Iris** est un transporteur routier de 400 salariés répartis sur huit agences. Pour décharger l'informatique, les assistantes de direction gèrent elles-mêmes les listes de diffusion et les groupes de partage.
+
+        Un prestataire administre les contrôleurs de domaine à distance. En préparant la fin de son contrat, vous découvrez que les droits des assistantes et ceux du prestataire se croisent dans la même OU.
+        """, $"""
+        **Litware** is a 250-employee software publisher. To relieve IT, executive assistants manage distribution lists and share groups themselves.
+
+        A contractor administers the domain controllers remotely. While preparing the end of their contract, you find out that the assistants' rights and the contractor's rights meet in the same OU.
+        """),
+        T($"""
+        - Montrez comment un compte d'assistante peut prendre le contrôle du domaine, puis coupez ce chemin.
+        - Les assistantes gardent la gestion des groupes de l'OU `{groups.Name}`.
+        """, $"""
+        - Show how an assistant account can take control of the domain, then cut that path.
+        - Assistants keep managing the groups of the `{groups.Name}` OU.
+        """),
+        CutPath(managers.Name, managers.Name, T(
+            $"Quel groupe de l'OU `{groups.Name}` a des droits sur la racine du domaine ? Rangez-le ailleurs, ou retirez-lui ces droits.",
+            $"Which group of the `{groups.Name}` OU has rights on the domain root? Move it elsewhere, or remove those rights.")),
+        NoPathLeft(T($"Un contrôle total sur la racine du domaine reste un chemin pour les membres de `{dcOps.Name}`.",
+            $"Full control on the domain root is still a path for the members of `{dcOps.Name}`.")),
+        Obj("o3", 1, T("Les assistantes gèrent toujours les groupes", "Assistants still manage groups"),
+            T("La délégation sur l'attribut `member` reste en place.", "The delegation on the `member` attribute stays."),
+            new LabCheck { Type = LabCheckType.DelegationExists, Trustee = managers.Name, Target = groups.Name, RightCategory = RightCategory.AttributeWrite }),
+        Obj("o4", 1, T($"`{T("c.moreau", "e.johnson")}` reste dans `{managers.Name}`", $"`{T("c.moreau", "e.johnson")}` stays in `{managers.Name}`"),
+            T("Retirer l'assistante du groupe ne corrige pas la cause.", "Removing the assistant from the group does not fix the cause."),
+            new LabCheck { Type = LabCheckType.MemberOf, Object = T("c.moreau", "e.johnson"), Group = managers.Name, Effective = false }));
 
     return (T("Chemin d'attaque : modification des membres d'un groupe", "Attack path: group membership change"), T(
         $"""
@@ -361,6 +585,33 @@ Scenario("05-gpo", "clinique-des-pins.local", "woodgrovebank.local", d =>
     users.LinkedGPOs.Add(gpoName);
     admins.LinkedGPOs.Add(gpoName);
 
+    Lab(T("Clinique des Pins : le fond d'écran", "Woodgrove Bank: the wallpaper"), LabLevel.Intermediate, 20,
+        T($"""
+        La **Clinique des Pins** est une clinique privée de 250 lits. Il y a deux ans, pour la nouvelle charte graphique, `{tech.Name}`, technicien poste de travail, a créé une GPO de fond d'écran et l'a liée « partout » pour aller plus vite.
+
+        La clinique prépare un audit de sécurité avant sa certification. L'auditeur a prévenu : il regardera en priorité qui peut agir sur les sessions des administrateurs.
+        """, $"""
+        **Woodgrove Bank** is a regional bank with 30 branches. Two years ago, for the new brand identity, `{tech.Name}`, a desktop technician, created a wallpaper GPO and linked it "everywhere" to save time.
+
+        The regulator's security audit is next month. The auditor warned: the first thing checked will be who can act on administrators' sessions.
+        """),
+        T($"""
+        - Trouvez comment `{tech.Name}` peut exécuter du code dans la session de `{admin.Name}`, et coupez ce chemin.
+        - Le fond d'écran reste déployé sur les postes des utilisateurs : ne supprimez pas `{gpoName}`.
+        """, $"""
+        - Find how `{tech.Name}` can run code in `{admin.Name}`'s session, and cut that path.
+        - The wallpaper stays deployed on user workstations: do not delete `{gpoName}`.
+        """),
+        CutPath(tech.Name, tech.Name, T(
+            $"Regardez où `{gpoName}` est liée, et à qui elle appartient (section **Sécurité**, propriétaire).",
+            $"Look at where `{gpoName}` is linked, and who owns it (**Security** section, owner).")),
+        NoPathLeft(T("Actualisez **Chemins d'attaque** : la liste doit être vide.", "Refresh **Attack paths**: the list must be empty.")),
+        Exists("o3", gpoName, ADObjectType.Policy, T($"La GPO `{gpoName}` existe toujours", $"GPO `{gpoName}` still exists"),
+            T("Supprimer la GPO priverait les utilisateurs du fond d'écran : retirez plutôt le lien en trop.", "Deleting the GPO would remove the users' wallpaper: remove the extra link instead.")),
+        Obj("o4", 1, T($"`{admin.Name}` reste administrateur du domaine", $"`{admin.Name}` stays a domain administrator"),
+            T("Le compte d'administration n'est pas le problème.", "The admin account is not the problem."),
+            new LabCheck { Type = LabCheckType.MemberOf, Object = admin.Name, Group = "Domain Admins" }));
+
     return (T("Chemin d'attaque : GPO", "Attack path: GPO"), T(
         $"""
         `{tech.Name}` est propriétaire de la GPO `{gpoName}`, donc peut la modifier. Elle est liée à l'OU des utilisateurs… mais aussi à l'OU `{admins.Name}`. Une tâche planifiée ou un script de connexion ajouté à cette GPO s'exécutera dans la session de `{admin.Name}`.
@@ -403,6 +654,32 @@ Scenario("06-unconstrained-delegation", "imprimerie-orion.lan", "wingtiptoys.lan
     Delegate(servers, serverAdmins.Name, TrusteeType.Group, "GenericAll", RightCategory.FullControl, "Tier 1");
     User(groups, T("adm-slambert", "adm-rdavies"), "Tier 1", T("Administrateur des serveurs.", "Server administrator.")).MemberOf.Add(serverAdmins.Name);
 
+    Lab(T("Imprimerie Orion : le serveur d'impression", "Wingtip Toys: the print server"), LabLevel.Intermediate, 20,
+        T($"""
+        L'**Imprimerie Orion** emploie 60 personnes et tourne en trois-huit. `{print.Name}` pilote les traceurs grand format ; il a été installé il y a dix ans avec une option « pour que l'impression fonctionne depuis les applications web ».
+
+        Le CERT-FR vient de publier un bulletin sur les attaques par coercition d'authentification (« PrinterBug »). Votre responsable vous demande si l'imprimerie est concernée.
+        """, $"""
+        **Wingtip Toys** employs 200 people across two factories. `{print.Name}` drives the label printers; it was installed ten years ago with an option "so that printing works from web applications".
+
+        A national CERT has just published a bulletin about authentication coercion attacks ("PrinterBug"). Your manager asks whether the company is affected.
+        """),
+        T($"""
+        - Montrez qu'un administrateur des serveurs (Tier 1) peut atteindre le Tier 0 par `{print.Name}`, et coupez ce chemin.
+        - Le serveur d'impression reste en service, et les administrateurs des serveurs gardent la main dessus.
+        """, $"""
+        - Show that a server administrator (Tier 1) can reach Tier 0 through `{print.Name}`, and cut that path.
+        - The print server stays in service, and server administrators keep managing it.
+        """),
+        CutPath(serverAdmins.Name, serverAdmins.Name, T(
+            $"Section **Sécurité** de `{print.Name}` : une option fait que tout compte qui s'y authentifie y laisse son TGT.",
+            $"`{print.Name}`'s **Security** section: one option makes every account that authenticates to it leave its TGT there.")),
+        NoPathLeft(T("Actualisez **Chemins d'attaque** : la liste doit être vide.", "Refresh **Attack paths**: the list must be empty.")),
+        RuleClear("o3", 2, "DLG-01", T("Plus aucune délégation non contrainte hors des contrôleurs de domaine", "No unconstrained delegation outside domain controllers"),
+            T("Fiche DLG-01.", "Rule sheet DLG-01.")),
+        Exists("o4", print.Name, ADObjectType.Computer, T($"`{print.Name}` existe toujours", $"`{print.Name}` still exists"),
+            T("L'atelier a besoin de ses traceurs.", "The factory needs its printers.")));
+
     return (T("Chemin d'attaque : délégation non contrainte", "Attack path: unconstrained delegation"), T(
         $"""
         `{print.Name}` est approuvé pour la **délégation Kerberos non contrainte** : tout compte qui s'y authentifie y laisse son TGT. Un attaquant qui contrôle ce serveur force un contrôleur de domaine à s'y connecter (service Spouleur, « PrinterBug ») et récupère le TGT du DC.
@@ -441,12 +718,39 @@ Scenario("07-constrained-delegation", "college-les-tilleuls.local", "adventurewo
 {
     var web = Ou(d, T("Serveurs Web", "Web Servers"), "Tier 1");
     var intranet = Computer(web, T("SRV-INTRANET", "WEB01"), "Tier 1", T("Serveur de l'intranet.", "Intranet web server."));
+    intranet.AccountFlags = ADAccountFlags.TrustedToAuthForDelegation;
     intranet.AllowedToDelegateTo.Add($"cifs/DC01.{d.Name}");
     intranet.AllowedToDelegateTo.Add("cifs/DC01");
     var groups = Ou(d, T("Groupes", "Groups"), "Tier 2");
     var webTeam = Group(groups, T("GG-Webmestres", "GG-Web-Team"), "Tier 2", T("Équipe qui publie l'intranet.", "Team publishing the intranet."));
     Delegate(web, webTeam.Name, TrusteeType.Group, "GenericAll", RightCategory.FullControl, "Tier 1");
     User(groups, T("p.mercier", "d.wright"), "Tier 2", T("Webmestre.", "Webmaster.")).MemberOf.Add(webTeam.Name);
+
+    Lab(T("Collège Les Tilleuls : l'intranet", "Adventure Works: the intranet"), LabLevel.Intermediate, 25,
+        T($"""
+        Le **Collège Les Tilleuls** accueille 650 élèves. Son intranet tourne sur `{intranet.Name}`, installé par un prestataire pour « afficher les documents du serveur de fichiers » ; deux professeurs documentalistes, membres de `{webTeam.Name}`, le mettent à jour.
+
+        Le référent numérique du rectorat signale que ce type d'intranet est une cible fréquente. Vous êtes l'administrateur réseau du collège (une demi-journée par semaine).
+        """, $"""
+        **Adventure Works Cycles** builds bicycles and employs 500 people. Its intranet runs on `{intranet.Name}`, installed by a contractor to "show documents from the file server"; the web team, members of `{webTeam.Name}`, keeps it up to date.
+
+        The group's security officer warns that this kind of intranet is a frequent target. You are the network administrator.
+        """),
+        T($"""
+        - Montrez comment un webmestre peut ouvrir une session d'administrateur sur un contrôleur de domaine, puis coupez ce chemin.
+        - L'intranet reste en service.
+        """, $"""
+        - Show how a webmaster can open an administrator session on a domain controller, then cut that path.
+        - The intranet stays in service.
+        """),
+        CutPath(webTeam.Name, webTeam.Name, T(
+            $"Section **Sécurité** de `{intranet.Name}` : vers quels services peut-il déléguer ?",
+            $"`{intranet.Name}`'s **Security** section: to which services can it delegate?")),
+        NoPathLeft(T("Actualisez **Chemins d'attaque** : la liste doit être vide.", "Refresh **Attack paths**: the list must be empty.")),
+        RuleClear("o3", 2, "DLG-02", T("Plus de délégation avec transition de protocole vers un contrôleur de domaine", "No delegation with protocol transition to a domain controller"),
+            T("Fiche DLG-02.", "Rule sheet DLG-02.")),
+        Exists("o4", intranet.Name, ADObjectType.Computer, T($"`{intranet.Name}` existe toujours", $"`{intranet.Name}` still exists"),
+            T("Les élèves ont besoin de l'intranet.", "Staff need the intranet.")));
 
     return (T("Chemin d'attaque : délégation contrainte vers un DC", "Attack path: constrained delegation to a DC"), T(
         $"""
@@ -490,6 +794,33 @@ Scenario("08-owner", "agence-meridien.local", "proseware.local", d =>
     dc2.AccountFlags = ADAccountFlags.TrustedForDelegation;
     dc2.Owner = tech.Name;
 
+    Lab(T("Agence Méridien : l'héritage de l'ancien administrateur", "Proseware: the former administrator's legacy"), LabLevel.Beginner, 15,
+        T($"""
+        L'**Agence Méridien** est une agence de communication de 35 personnes. En 2021, l'administrateur de l'époque, `{tech.Name}`, a préparé le compte de **DC02** avant de le promouvoir. Il est depuis devenu chef de projet et n'a plus aucun rôle informatique.
+
+        Vous reprenez l'administration de l'AD. Avant de signer la passation, vous vérifiez que l'ancien administrateur n'a plus aucun accès privilégié, direct ou indirect.
+        """, $"""
+        **Proseware** is a 35-person marketing agency. In 2021, the administrator at the time, `{tech.Name}`, pre-created the **DC02** account before promoting it. They have since become a project manager with no IT role.
+
+        You are taking over AD administration. Before signing the handover, you check that the former administrator has no privileged access left, direct or indirect.
+        """),
+        T($"""
+        - Trouvez l'accès qu'a gardé `{tech.Name}` et retirez-le.
+        - DC02 reste un contrôleur de domaine, et `{tech.Name}` garde son compte de chef de projet.
+        """, $"""
+        - Find the access `{tech.Name}` kept and remove it.
+        - DC02 stays a domain controller, and `{tech.Name}` keeps their project manager account.
+        """),
+        CutPath(tech.Name, tech.Name, T(
+            "Section **Sécurité** de DC02 : qui en est le propriétaire ?", "DC02's **Security** section: who owns it?")),
+        NoPathLeft(T("Actualisez **Chemins d'attaque** : la liste doit être vide.", "Refresh **Attack paths**: the list must be empty.")),
+        RuleClear("o3", 1, "ACL-01", T("DC02 a un propriétaire administratif", "DC02 has an administrative owner"),
+            T("Fiche ACL-01 : le propriétaire d'un objet de Tier 0 doit être Domain Admins.", "Rule sheet ACL-01: the owner of a Tier 0 object must be Domain Admins."), "DC02"),
+        Exists("o4", "DC02", ADObjectType.Computer, T("DC02 existe toujours", "DC02 still exists"),
+            T("Supprimer un contrôleur de domaine n'est pas une correction.", "Deleting a domain controller is not a fix.")),
+        Exists("o5", tech.Name, ADObjectType.User, T($"`{tech.Name}` a toujours son compte", $"`{tech.Name}` still has an account"),
+            T("Le chef de projet a besoin de son compte bureautique.", "The project manager needs their office account.")));
+
     return (T("Chemin d'attaque : propriétaire d'un objet", "Attack path: object owner"), T(
         $"""
         Le compte ordinateur de **DC02** a été créé à l'avance par `{tech.Name}`, qui en est resté **propriétaire**. Un propriétaire peut toujours réécrire les permissions de l'objet, par exemple pour configurer une délégation basée sur les ressources (RBCD) et ouvrir une session sur DC02.
@@ -531,6 +862,31 @@ Scenario("09-full-control", "fromagerie-alpage.local", "lucernepublishing.local"
     var svc = User(services, T("svc-sauvegarde", "svc-backup"), "Tier 1", T("Compte du logiciel de sauvegarde.", "Backup software account."));
     svc.MemberOf.Add(backupAdmins.Name);
     Delegate(services, "Authenticated Users", TrusteeType.Group, "GenericAll", RightCategory.FullControl, "Tier 1");
+
+    Lab(T("Fromagerie de l'Alpage : l'assistant d'installation", "Lucerne Publishing: the setup wizard"), LabLevel.Intermediate, 25,
+        T($"""
+        La **Fromagerie de l'Alpage** est une coopérative de 90 salariés. Le nouveau logiciel de sauvegarde a été installé un vendredi soir ; l'assistant échouait, et le prestataire a « débloqué » la situation en donnant des droits à **Authenticated Users**.
+
+        Depuis, tout fonctionne et personne n'y a retouché. Le commissaire aux comptes demande pour la première fois un état des droits sur l'annuaire.
+        """, $"""
+        **Lucerne Publishing** is a 150-employee publisher. The new backup software was installed on a Friday night; the wizard kept failing, and the contractor "unblocked" it by granting rights to **Authenticated Users**.
+
+        Everything has worked since and nobody touched it again. The statutory auditor is asking, for the first time, for a review of directory permissions.
+        """),
+        T($"""
+        - Montrez ce que n'importe quel salarié peut faire avec ces droits, et coupez ce chemin.
+        - Les sauvegardes continuent de tourner : `{svc.Name}` reste en place.
+        """, $"""
+        - Show what any employee can do with these rights, and cut that path.
+        - Backups keep running: `{svc.Name}` stays in place.
+        """),
+        CutPath(anyUser, AnyUserLabel(), T(
+            $"Fenêtre **Délégations** : quels droits a Authenticated Users sur l'OU `{services.Name}` ?",
+            $"**Delegations** window: which rights does Authenticated Users have on the `{services.Name}` OU?")),
+        NoPathLeft(T($"`{backupAdmins.Name}` a encore le contrôle total du domaine : son compte de service reste un chemin.",
+            $"`{backupAdmins.Name}` still has full control of the domain: its service account is still a path.")),
+        Exists("o3", svc.Name, ADObjectType.User, T($"Le compte `{svc.Name}` existe toujours", $"Account `{svc.Name}` still exists"),
+            T("Sans lui, plus de sauvegarde.", "Without it, no more backups.")));
 
     return (T("Chemin d'attaque : contrôle total pour tous", "Attack path: full control for everyone"), T(
         $"""
@@ -575,6 +931,37 @@ Scenario("10-attack-chain", "mairie-saint-aubin.local", "relecloud.local", d =>
     var admin = User(it, T("it-nfaure", "it-swalker"), "Tier 1", T("Administrateur réseau.", "Network administrator."));
     admin.MemberOf.Add("DnsAdmins");
     Delegate(it, svc.Name, TrusteeType.User, "Reset Password", RightCategory.PasswordReset, "Tier 1");
+
+    Lab(T("Mairie de Saint-Aubin : trois petites erreurs", "Relecloud: three small mistakes"), LabLevel.Advanced, 35,
+        T($"""
+        La **mairie de Saint-Aubin** (12 000 habitants, 180 agents) a vu une commune voisine paralysée trois semaines par un rançongiciel. Le maire veut savoir si la même chose peut arriver ici.
+
+        Vous êtes le seul informaticien de la mairie. Aucun réglage ne vous paraît alarmant : un logiciel de planning, un administrateur réseau, quelques délégations posées au fil des années.
+        """, $"""
+        **Relecloud** is a 600-employee logistics company. A competitor was crippled for three weeks by ransomware, and the board wants to know whether the same could happen here.
+
+        You are the IT manager. No setting looks alarming: a timesheet application, a network administrator, a few delegations set over the years.
+        """),
+        T($"""
+        - Reconstituez la chaîne complète qui mène au domaine.
+        - Coupez-la, puis assurez-vous qu'aucun des comptes de la chaîne n'en est plus un point de départ.
+        - Le logiciel de planning et le compte de l'administrateur réseau restent en place.
+        """, $"""
+        - Rebuild the full chain that leads to the domain.
+        - Cut it, then make sure none of the chain's accounts is a starting point any more.
+        - The timesheet application and the network administrator's account stay in place.
+        """),
+        CutPath(anyUser, AnyUserLabel(), T(
+            "Un seul maillon suffit pour couper ce chemin-là : le SPN, la délégation, ou l'appartenance à DnsAdmins.",
+            "One link is enough to cut this particular path: the SPN, the delegation, or the DnsAdmins membership.")),
+        NoPathLeft(T($"Les comptes de la chaîne sont eux-mêmes des sources : tant que `{admin.Name}` est dans DnsAdmins, il reste un chemin.",
+            $"The chain's accounts are sources themselves: as long as `{admin.Name}` is in DnsAdmins, a path remains.")),
+        RuleClear("o3", 2, "PRIV-04", T("DnsAdmins ne contient plus de compte non privilégié", "DnsAdmins no longer contains a non-privileged account"),
+            T("Fiche PRIV-04.", "Rule sheet PRIV-04.")),
+        Exists("o4", svc.Name, ADObjectType.User, T($"Le compte `{svc.Name}` existe toujours", $"Account `{svc.Name}` still exists"),
+            T("Le service RH en a besoin chaque lundi.", "HR needs it every Monday.")),
+        Exists("o5", admin.Name, ADObjectType.User, T($"Le compte `{admin.Name}` existe toujours", $"Account `{admin.Name}` still exists"),
+            T("L'administrateur réseau a besoin de son compte.", "The network administrator needs their account.")));
 
     return (T("Chemin d'attaque : une chaîne en trois rebonds", "Attack path: a three-hop chain"), T(
         $"""
@@ -630,6 +1017,33 @@ Scenario("11-empty-password", "librairie-papyrus.lan", "humongousinsurance.lan",
     temp.MemberOf.Add("Account Operators");
     temp.AdminCount = true;
 
+    Lab(T("Librairie Papyrus : le compte du stagiaire", "Humongous Insurance: the intern's account"), LabLevel.Beginner, 15,
+        T($"""
+        La **Librairie Papyrus** compte quatre magasins et 30 libraires. En 2022, un stagiaire en comptabilité devait créer des comptes pour les vendeurs saisonniers ; on lui a fait un compte « vite fait », et il est reparti.
+
+        En faisant le ménage avant l'arrivée des saisonniers de Noël, vous tombez sur ce compte toujours actif.
+        """, $"""
+        **Humongous Insurance** is a 120-employee broker. In 2022, an accounting intern had to create accounts for seasonal staff; they were given a "quick" account, then left.
+
+        While cleaning up before the Christmas seasonal staff arrive, you come across this account, still enabled.
+        """),
+        T($"""
+        - Évaluez le risque que représente `{temp.Name}` et supprimez le chemin.
+        - Account Operators ne doit plus servir à créer des comptes : ce n'est pas son rôle.
+        """, $"""
+        - Assess the risk `{temp.Name}` represents and remove the path.
+        - Account Operators must no longer be used to create accounts: that is not its purpose.
+        """),
+        CutPath(anyUser, AnyUserLabel(), T(
+            $"Section **Sécurité** de `{temp.Name}` : une option accepte un mot de passe vide.",
+            $"`{temp.Name}`'s **Security** section: one option accepts an empty password.")),
+        NoPathLeft(T("Même désactivé ou protégé par un mot de passe, un compte de Tier 2 dans Account Operators reste un chemin.",
+            "Even disabled or with a password, a Tier 2 account in Account Operators is still a path.")),
+        RuleClear("o3", 2, "PWD-03", T("Plus aucun compte actif sans mot de passe obligatoire", "No enabled account without a required password"),
+            T("Fiche PWD-03.", "Rule sheet PWD-03.")),
+        RuleClear("o4", 1, "PRIV-03", T("Account Operators est vide", "Account Operators is empty"),
+            T("L'ANSSI recommande que les groupes d'opérateurs restent vides ; déléguez plutôt la création de comptes sur une OU.", "ANSSI recommends keeping operator groups empty; delegate account creation on an OU instead."), "Account Operators"));
+
     return (T("Chemin d'attaque : mot de passe non obligatoire", "Attack path: password not required"), T(
         $"""
         `{temp.Name}` porte l'option **PASSWD_NOTREQD** : la stratégie de mot de passe ne s'applique pas, et un mot de passe vide est accepté. Un simple essai de connexion sans mot de passe suffit.
@@ -675,6 +1089,32 @@ Scenario("12-nested-groups", "cooperative-vignoble.local", "fourthcoffee.local",
     var user = User(users, T("e.chevalier", "k.walker"), "Tier 2", T("Technicien réseau, compte bureautique.", "Network technician, office account."));
     user.MemberOf.Add(network.Name);
 
+    Lab(T("Coopérative du Vignoble : qui est vraiment admin DNS ?", "Fourth Coffee: who really is a DNS admin?"), LabLevel.Beginner, 15,
+        T($"""
+        La **Coopérative du Vignoble** réunit 50 salariés et une centaine de saisonniers pendant les vendanges. L'équipe réseau, deux personnes, a été ajoutée « au groupe DNS » il y a des années, pour gérer les enregistrements des nouveaux sites.
+
+        `{user.Name}`, technicien réseau, utilise son compte bureautique pour tout. Vous préparez la revue annuelle des droits.
+        """, $"""
+        **Fourth Coffee** runs 30 coffee shops. The two-person network team was added "to the DNS group" years ago, to manage records for new shops.
+
+        `{user.Name}`, a network technician, uses their office account for everything. You are preparing the yearly access review.
+        """),
+        T($"""
+        - Trouvez par quel chemin `{user.Name}` atteint le contrôle du domaine, et coupez-le.
+        - `{user.Name}` reste dans l'équipe réseau (`{network.Name}`).
+        """, $"""
+        - Find the path through which `{user.Name}` reaches domain control, and cut it.
+        - `{user.Name}` stays in the network team (`{network.Name}`).
+        """),
+        CutPath(user.Name, user.Name, T(
+            $"Suivez les appartenances de `{network.Name}`, puis de `{dns.Name}`.", $"Follow the memberships of `{network.Name}`, then `{dns.Name}`.")),
+        NoPathLeft(T("Actualisez **Chemins d'attaque** : la liste doit être vide.", "Refresh **Attack paths**: the list must be empty.")),
+        RuleClear("o3", 2, "PRIV-04", T("DnsAdmins ne contient plus de compte non privilégié", "DnsAdmins no longer contains a non-privileged account"),
+            T("Fiche PRIV-04.", "Rule sheet PRIV-04.")),
+        Obj("o4", 1, T($"`{user.Name}` reste dans `{network.Name}`", $"`{user.Name}` stays in `{network.Name}`"),
+            T("Le problème n'est pas l'équipe réseau, mais ce que son groupe hérite.", "The problem is not the network team, but what its group inherits."),
+            new LabCheck { Type = LabCheckType.MemberOf, Object = user.Name, Group = network.Name, Effective = false }));
+
     return (T("Chemin d'attaque : groupes imbriqués", "Attack path: nested groups"), T(
         $"""
         `{user.Name}` ne voit dans ses propriétés que le groupe `{network.Name}`. Par imbrication, il est pourtant membre de **DnsAdmins**, et donc à une DLL près du contrôle du domaine.
@@ -711,8 +1151,8 @@ string Table(string lang) => string.Join("\n", index.Where(i => i.Lang == lang)
 File.WriteAllText(Path.Combine(outDir, "README.md"), $"""
     # Chemins d'attaque : domaines d'exemple / Attack paths: sample domains
 
-    Fichiers générés par `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths`. Ne les modifiez pas à la main.
-    Generated by `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths`. Do not edit them by hand.
+    Fichiers générés par `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths SMAD-X/Labs`. Ne les modifiez pas à la main.
+    Generated by `dotnet run --project tools/SampleGenerator -- Samples/AttackPaths SMAD-X/Labs`. Do not edit them by hand.
 
     ## Français
 
@@ -732,3 +1172,6 @@ File.WriteAllText(Path.Combine(outDir, "README.md"), $"""
 
     """.Replace("\r\n", "\n"));
 Console.WriteLine("README.md");
+
+/// <summary>Exercice tiré d'un scénario : titre réaliste, contexte, mission et objectifs corrigés.</summary>
+record LabSpec(string Title, LabLevel Level, int Minutes, string Context, string Mission, LabObjective[] Objectives);

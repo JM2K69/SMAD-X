@@ -16,26 +16,52 @@ namespace SMADX.ViewModels
     public partial class MainWindowViewModel
     {
         private readonly LabService _labService = new();
-        private ObservableCollection<LabMenuItem>? _builtInLabs;
+        private LabDefinition[]? _allBuiltInLabs;
 
         private static FileFilter LabFilter => new(Loc["FileType.Lab"], "*" + LabService.FileExtension);
 
-        /// <summary>Exercices fournis avec l'application (chargés à la première ouverture du menu).</summary>
-        public ObservableCollection<LabMenuItem> BuiltInLabs => _builtInLabs ??= LoadBuiltInLabs();
+        /// <summary>Exercices généraux fournis avec l'application.</summary>
+        public ObservableCollection<LabMenuItem> BuiltInLabs => LabMenu(category: null);
 
-        private ObservableCollection<LabMenuItem> LoadBuiltInLabs()
+        /// <summary>Exercices de la série « Chemins d'attaque ».</summary>
+        public ObservableCollection<LabMenuItem> AttackPathLabs => LabMenu(AttackPathCategory);
+
+        public const string AttackPathCategory = "attack-paths";
+
+        /// <summary>
+        /// Exercices d'une série, dans la langue de l'interface : un exercice écrit dans une seule langue
+        /// (son domaine compris) n'est proposé que dans celle-ci.
+        /// </summary>
+        private ObservableCollection<LabMenuItem> LabMenu(string? category)
         {
+            var culture = Loc.CurrentCulture.Name;
             var items = new ObservableCollection<LabMenuItem>();
+            foreach (var lab in LoadBuiltInLabs().Where(l => l.Category == category && (l.Language is null || string.Equals(l.Language, culture, StringComparison.OrdinalIgnoreCase))))
+                items.Add(new LabMenuItem(lab, $"{Loc[$"Lab.Level.{lab.Level}"]} — {lab.Title.Resolve(culture)}"));
+            return items;
+        }
+
+        /// <summary>Lus une fois : les exercices sont embarqués dans l'exe.</summary>
+        private LabDefinition[] LoadBuiltInLabs()
+        {
+            if (_allBuiltInLabs != null) return _allBuiltInLabs;
             try
             {
-                foreach (var lab in _labService.BuiltInLabs())
-                    items.Add(new LabMenuItem(lab, $"{Loc[$"Lab.Level.{lab.Level}"]} — {lab.Title.Resolve(Loc.CurrentCulture.Name)}"));
+                _allBuiltInLabs = _labService.BuiltInLabs().ToArray();
             }
             catch (LabFormatException ex)
             {
                 ErrorReporter.Log("Exercices", ex);
+                _allBuiltInLabs = Array.Empty<LabDefinition>();
             }
-            return items;
+            return _allBuiltInLabs;
+        }
+
+        /// <summary>Titres et liste des exercices dans la nouvelle langue.</summary>
+        private void RefreshLabMenus()
+        {
+            OnPropertyChanged(nameof(BuiltInLabs));
+            OnPropertyChanged(nameof(AttackPathLabs));
         }
 
         /// <summary>

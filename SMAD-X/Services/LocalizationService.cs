@@ -274,6 +274,7 @@ namespace SMADX.Services
                 ["Menu.Labs"] = "Exercices",
                 ["Menu.Labs.Open"] = "Ouvrir un exercice...",
                 ["Menu.Labs.BuiltIn"] = "Exercices fournis",
+                ["Menu.Labs.AttackPaths"] = "Chemins d'attaque",
                 ["Menu.Labs.Create"] = "Créer un exercice à partir du domaine actuel...",
                 ["FileType.Lab"] = "Exercice SMAD-X",
                 ["Lab.Open.Title"] = "Ouvrir un exercice",
@@ -320,6 +321,7 @@ namespace SMADX.Services
                 ["Lab.Feedback.Modified"] = "« {0} » a été modifié : {1}.",
                 ["Lab.Feedback.Removed"] = "supprimé",
                 ["Lab.Feedback.UnknownCheck"] = "Vérification inconnue : {0}.",
+                ["Lab.Feedback.AttackPathRemaining"] = "Il reste un chemin vers le contrôle du domaine depuis « {0} » : {1}.",
 
                 // Erreur inattendue
                 ["Error.Title"] = "Erreur inattendue",
@@ -829,6 +831,7 @@ namespace SMADX.Services
                 ["Menu.Labs"] = "Labs",
                 ["Menu.Labs.Open"] = "Open a lab...",
                 ["Menu.Labs.BuiltIn"] = "Built-in labs",
+                ["Menu.Labs.AttackPaths"] = "Attack paths",
                 ["Menu.Labs.Create"] = "Create a lab from the current domain...",
                 ["FileType.Lab"] = "SMAD-X lab",
                 ["Lab.Open.Title"] = "Open a lab",
@@ -875,6 +878,7 @@ namespace SMADX.Services
                 ["Lab.Feedback.Modified"] = "\"{0}\" was modified: {1}.",
                 ["Lab.Feedback.Removed"] = "deleted",
                 ["Lab.Feedback.UnknownCheck"] = "Unknown check: {0}.",
+                ["Lab.Feedback.AttackPathRemaining"] = "A path to domain control remains from \"{0}\": {1}.",
 
                 // Unexpected error
                 ["Error.Title"] = "Unexpected error",
