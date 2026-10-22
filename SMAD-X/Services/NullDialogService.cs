@@ -15,6 +15,7 @@ namespace SMADX.Services
         public Task<NewDomainRequest?> ShowNewDomainAsync() => Task.FromResult<NewDomainRequest?>(null);
         public Task ShowRelationsAsync(RelationsViewModel viewModel) => Task.CompletedTask;
         public void ShowGraph(GraphViewModel viewModel) { }
+        public void ShowAudit(AuditViewModel viewModel) { }
         public Task ShowTierConfigurationAsync() => Task.CompletedTask;
         public Task ShowTimelineAsync() => Task.CompletedTask;
         public Task ShowDelegationsAsync(ADObject? root) => Task.CompletedTask;

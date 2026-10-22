@@ -1,4 +1,5 @@
 using SMADX.Services;
+using SMADX.Services.Audit;
 using static SMADX.Tests.TestHelpers;
 
 namespace SMADX.Tests;
@@ -18,7 +19,10 @@ public class LocalizationContentTests
     public void MarkdownContent_IsEmbeddedForEachCulture()
     {
         foreach (var culture in Cultures)
-            Assert.Equal(79, EmbeddedKeys(culture).Count());
+        {
+            Assert.Equal(79, EmbeddedKeys(culture).Count(k => k.StartsWith("Desc.")));
+            Assert.Equal(AuditRules.All.Count, EmbeddedKeys(culture).Count(k => k.StartsWith("Audit.")));
+        }
     }
 
     [Fact]

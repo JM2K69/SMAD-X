@@ -111,6 +111,11 @@ namespace SMADX.Services
             L(s, "    return '[' + (($items | ForEach-Object { '\"' + (ConvertTo-JsonString ([string]$_)) + '\"' }) -join ',') + ']'");
             L(s, "}");
             L(s, "");
+            L(s, "function ConvertTo-JsonFileTime($value) {");
+            L(s, "    if ($null -eq $value -or [int64]$value -le 0 -or [int64]$value -eq [int64]::MaxValue) { return 'null' }");
+            L(s, "    return '\"' + [datetime]::FromFileTimeUtc([int64]$value).ToString('o') + '\"'");
+            L(s, "}");
+            L(s, "");
             L(s, "# userAccountControl bits read by SMAD-X (names = SMAD-X AccountFlags values)");
             L(s, "$uacFlags = [ordered]@{ " + string.Join("; ", Enum.GetValues<ADAccountFlags>()
                 .Where(f => f != ADAccountFlags.None)
@@ -275,6 +280,9 @@ namespace SMADX.Services
             L(s, "        $spnJson     = ConvertTo-JsonArray (Get-AdProp $adObj 'servicePrincipalName')");
             L(s, "        $delegToJson = ConvertTo-JsonArray (Get-AdProp $adObj 'msDS-AllowedToDelegateTo')");
             L(s, "    }");
+            L(s, "    # FileTime dates; 0 = never (lastLogonTimestamp) or 'must change at next logon' (pwdLastSet)");
+            L(s, "    $lastLogonJson = ConvertTo-JsonFileTime (Get-AdProp $adObj 'lastLogonTimestamp')");
+            L(s, "    $pwdLastSetJson = ConvertTo-JsonFileTime (Get-AdProp $adObj 'pwdLastSet')");
             L(s, "    if ((Get-AdProp $adObj 'adminCount') -eq 1) { $adminCountJson = 'true' }");
             L(s, "    $groupType = Get-AdProp $adObj 'groupType'");
             L(s, "    if ($simType -eq 'Group' -and $null -ne $groupType) {");
@@ -327,7 +335,7 @@ namespace SMADX.Services
             L(s, "    try {");
             L(s, "        $leaves = Get-ADObject -Filter { (objectClass -eq 'user') -or (objectClass -eq 'group') -or (objectClass -eq 'computer') -or (objectClass -eq 'msDS-GroupManagedServiceAccount') -or (objectClass -eq 'groupPolicyContainer') -or (objectClass -eq 'msDS-PasswordSettings') } `");
             L(s, "                               -SearchBase $dn -SearchScope OneLevel `");
-            L(s, "                               -Properties SAMAccountName,MemberOf,WhenCreated,WhenChanged,Description,ObjectClass,DisplayName,userAccountControl,servicePrincipalName,adminCount,groupType,'msDS-AllowedToDelegateTo',nTSecurityDescriptor");
+            L(s, "                               -Properties SAMAccountName,MemberOf,WhenCreated,WhenChanged,Description,ObjectClass,DisplayName,userAccountControl,servicePrincipalName,adminCount,groupType,'msDS-AllowedToDelegateTo',nTSecurityDescriptor,lastLogonTimestamp,pwdLastSet");
             L(s, "        foreach ($l in $leaves) {");
             L(s, "            if ($l.ObjectClass -eq 'groupPolicyContainer') {");
             L(s, "                # Use DisplayName as node name; fallback to CN (GUID) if absent");
@@ -341,7 +349,7 @@ namespace SMADX.Services
             L(s, "");
             L(s, "    $childrenJson = if ($childParts.Count -gt 0) { '[' + ($childParts -join ',') + ']' } else { '[]' }");
             L(s, "");
-            L(s, "    return \"{`\"Id`\":`\"$id`\",`\"Name`\":`\"$(ConvertTo-JsonString $name)`\",`\"Type`\":`\"$simType`\",`\"Description`\":`\"$description`\",`\"DistinguishedName`\":`\"$(ConvertTo-JsonString $dn)`\",`\"Children`\":$childrenJson,`\"MemberOf`\":$memberOfJson,`\"LinkedGPOs`\":$linkedGPOJson,`\"Delegations`\":$delegationsJson,`\"PSOAppliesTo`\":$psoAppliesToJson,`\"PSOPrecedence`\":$psoPrec,`\"PSOMinPasswordLength`\":$psoMinLen,`\"PSOPasswordHistoryCount`\":$psoHistory,`\"PSOComplexityEnabled`\":$psoComplex,`\"PSOMaxPasswordAgeDays`\":$psoMaxAge,`\"PSOMinPasswordAgeDays`\":$psoMinAge,`\"PSOLockoutThreshold`\":$psoLockThr,`\"PSOLockoutDurationMinutes`\":$psoLockDur,`\"PSOLockoutObservationWindowMinutes`\":$psoLockObs,`\"AccountFlags`\":`\"$accountFlags`\",`\"ServicePrincipalNames`\":$spnJson,`\"AllowedToDelegateTo`\":$delegToJson,`\"AdminCount`\":$adminCountJson,`\"GroupScope`\":$groupScopeJson,`\"GroupCategory`\":$groupCategoryJson,`\"Owner`\":$ownerJson,`\"CreatedDate`\":`\"$created`\",`\"ModifiedDate`\":`\"$modified`\"}\"");
+            L(s, "    return \"{`\"Id`\":`\"$id`\",`\"Name`\":`\"$(ConvertTo-JsonString $name)`\",`\"Type`\":`\"$simType`\",`\"Description`\":`\"$description`\",`\"DistinguishedName`\":`\"$(ConvertTo-JsonString $dn)`\",`\"Children`\":$childrenJson,`\"MemberOf`\":$memberOfJson,`\"LinkedGPOs`\":$linkedGPOJson,`\"Delegations`\":$delegationsJson,`\"PSOAppliesTo`\":$psoAppliesToJson,`\"PSOPrecedence`\":$psoPrec,`\"PSOMinPasswordLength`\":$psoMinLen,`\"PSOPasswordHistoryCount`\":$psoHistory,`\"PSOComplexityEnabled`\":$psoComplex,`\"PSOMaxPasswordAgeDays`\":$psoMaxAge,`\"PSOMinPasswordAgeDays`\":$psoMinAge,`\"PSOLockoutThreshold`\":$psoLockThr,`\"PSOLockoutDurationMinutes`\":$psoLockDur,`\"PSOLockoutObservationWindowMinutes`\":$psoLockObs,`\"AccountFlags`\":`\"$accountFlags`\",`\"ServicePrincipalNames`\":$spnJson,`\"AllowedToDelegateTo`\":$delegToJson,`\"AdminCount`\":$adminCountJson,`\"GroupScope`\":$groupScopeJson,`\"GroupCategory`\":$groupCategoryJson,`\"Owner`\":$ownerJson,`\"LastLogonTimestamp`\":$lastLogonJson,`\"PwdLastSet`\":$pwdLastSetJson,`\"CreatedDate`\":`\"$created`\",`\"ModifiedDate`\":`\"$modified`\"}\"");
             L(s, "}");
             L(s, "");
             L(s, "# ── 9. Domain root ─────────────────────────────────────────────────────────");

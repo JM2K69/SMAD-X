@@ -82,6 +82,8 @@
                     <MenuItem Header="{Binding MenuSettingsManageTiers}" Command="{Binding #MainWindowRoot.DataContext.ShowTierConfigurationCommand}"/>
                 </MenuItem>
                 <MenuItem Header="Analyse">
+                    <MenuItem Header="{Binding MenuAnalyseAudit}" Command="{Binding #MainWindowRoot.DataContext.ShowAuditCommand}" InputGesture="Ctrl+Shift+A"/>
+                    <Separator/>
                     <MenuItem Header="Domain Timeline (Ctrl+T)" Command="{Binding #MainWindowRoot.DataContext.ShowTimelineCommand}" InputGesture="Ctrl+T"/>
                     <MenuItem Header="Delegations (Ctrl+D)"     Command="{Binding #MainWindowRoot.DataContext.ShowDelegationsCommand}" InputGesture="Ctrl+D"/>
                     <Separator/>
@@ -169,6 +171,12 @@
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="🕸️" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarGraph}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding #MainWindowRoot.DataContext.ShowAuditCommand}" Padding="10,5" Background="#7B241C">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="🛡️" FontSize="14"/>
+                        <TextBlock Text="{Binding MenuAnalyseAudit}" VerticalAlignment="Center" Foreground="White"/>
                     </StackPanel>
                 </Button>
                 <Separator Width="1" Height="30"/>
@@ -362,6 +370,15 @@
                                                    Foreground="#FFD87F"
                                                    FontSize="9" FontWeight="SemiBold"/>
                                     </Border>
+                                    <!-- Badge Audit (après lancement de l'audit) -->
+                                    <Border IsVisible="{Binding HasAuditFindings}"
+                                            Background="{Binding AuditBadgeColor}" CornerRadius="3" Padding="4,1"
+                                            VerticalAlignment="Center"
+                                            ToolTip.Tip="{Binding AuditTooltip}">
+                                        <TextBlock Text="⚠ AUDIT"
+                                                   Foreground="White"
+                                                   FontSize="9" FontWeight="SemiBold"/>
+                                    </Border>
                                 </StackPanel>
                             </TreeDataTemplate>
                         </TreeView.ItemTemplate>
@@ -543,6 +560,15 @@
                                                     <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.ServicePrincipalNamesText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                              AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="60" MaxHeight="140"
                                                              FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+
+                                                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" RowSpacing="4" ColumnSpacing="8" Margin="0,6,0,0">
+                                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding SecurityPwdLastSet}" VerticalAlignment="Center"/>
+                                                        <CalendarDatePicker Grid.Row="0" Grid.Column="1" Width="160"
+                                                                            SelectedDate="{Binding #MainWindowRoot.DataContext.SelectedSecurity.PwdLastSet, Mode=TwoWay}"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding SecurityLastLogon}" VerticalAlignment="Center"/>
+                                                        <CalendarDatePicker Grid.Row="1" Grid.Column="1" Width="160"
+                                                                            SelectedDate="{Binding #MainWindowRoot.DataContext.SelectedSecurity.LastLogonTimestamp, Mode=TwoWay}"/>
+                                                    </Grid>
 
                                                     <TextBlock Text="{Binding SecurityAllowedToDelegateTo}" Margin="0,6,0,0"/>
                                                     <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.AllowedToDelegateToText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"

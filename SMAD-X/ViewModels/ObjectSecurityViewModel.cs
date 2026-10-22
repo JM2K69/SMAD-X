@@ -110,6 +110,30 @@ namespace SMADX.ViewModels
             Touch(property);
         }
 
+        // ─── Dates (lastLogonTimestamp, pwdLastSet) ───────────────────────────────
+
+        public DateTime? LastLogonTimestamp
+        {
+            get => _obj.LastLogonTimestamp;
+            set
+            {
+                if (_obj.LastLogonTimestamp == value) return;
+                _obj.LastLogonTimestamp = value;
+                Touch();
+            }
+        }
+
+        public DateTime? PwdLastSet
+        {
+            get => _obj.PwdLastSet;
+            set
+            {
+                if (_obj.PwdLastSet == value) return;
+                _obj.PwdLastSet = value;
+                Touch();
+            }
+        }
+
         // ─── Groupes, adminCount, propriétaire ────────────────────────────────────
 
         public bool AdminCount

@@ -341,6 +341,8 @@ public class SecurityPowerShellTests
             .AppendLine("    servicePrincipalName = @('MSSQLSvc/sql01.contoso.com:1433', 'MSSQLSvc/sql01.contoso.com')")
             .AppendLine("    'msDS-AllowedToDelegateTo' = @('cifs/fs01.contoso.com')")
             .AppendLine("    adminCount = 1")
+            .AppendLine("    lastLogonTimestamp = 134000000000000000   # FileTime")
+            .AppendLine("    pwdLastSet = 0                            # 0 = doit changer à la prochaine connexion")
             .AppendLine("    nTSecurityDescriptor = [pscustomobject]@{ Owner = 'CONTOSO\\Helpdesk' }")
             .AppendLine("}")
             .AppendLine("Build-NodeJson -dn 'CN=svc-sql,OU=Services,DC=contoso,DC=com' -name 'svc-sql' -simType 'User' -adObj $user")
@@ -360,6 +362,8 @@ public class SecurityPowerShellTests
         Assert.Equal(["cifs/fs01.contoso.com"], user.AllowedToDelegateTo);
         Assert.True(user.AdminCount);
         Assert.Equal("Helpdesk", user.Owner);
+        Assert.Equal(DateTime.FromFileTimeUtc(134000000000000000), user.LastLogonTimestamp!.Value.ToUniversalTime());
+        Assert.Null(user.PwdLastSet);
         Assert.Null(user.GroupScope);
         // groupType -2147483640 = 0x80000008 : groupe de sécurité universel
         Assert.Equal(ADGroupScope.Universal, group.GroupScope);

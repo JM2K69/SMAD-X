@@ -1,0 +1,145 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMADX.ViewModels"
+        xmlns:audit="using:SMADX.Services.Audit"
+        x:Class="SMADX.Views.AuditWindow"
+        x:Name="AuditWindowRoot"
+        x:DataType="vm:AuditViewModel"
+        Title="{Binding Source={StaticResource Loc}, Path=AuditWindowTitle}"
+        Icon="/Assets/icone.ico"
+        Width="1250" Height="800"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*" Margin="12">
+
+        <!-- ═══ Synthèse : score, niveau ANSSI estimé, compteurs, filtre ═══ -->
+        <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                <StackPanel Grid.Column="0" Margin="0,0,30,0">
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=AuditScore}" FontSize="12" Opacity="0.8"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Score}" FontSize="36" FontWeight="Bold" Foreground="{Binding ScoreColor}"/>
+                        <TextBlock Text=" / 100" FontSize="16" VerticalAlignment="Bottom" Margin="0,0,0,7" Opacity="0.7"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="0,0,30,0"
+                            ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=AuditAnssiLevelNote}">
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=AuditAnssiLevel}" FontSize="12" Opacity="0.8"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding EstimatedAnssiLevel}" FontSize="36" FontWeight="Bold"/>
+                        <TextBlock Text=" / 5  ⓘ" FontSize="16" VerticalAlignment="Bottom" Margin="0,0,0,7" Opacity="0.7"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border Background="#C0392B" CornerRadius="10" Padding="10,3">
+                            <TextBlock Foreground="White" FontWeight="SemiBold">
+                                <Run Text="{Binding CriticalCount}"/><Run Text=" "/><Run Text="{Binding Source={StaticResource Loc}, Path=AuditSeverityCritical}"/>
+                            </TextBlock>
+                        </Border>
+                        <Border Background="#E67E22" CornerRadius="10" Padding="10,3">
+                            <TextBlock Foreground="White" FontWeight="SemiBold">
+                                <Run Text="{Binding HighCount}"/><Run Text=" "/><Run Text="{Binding Source={StaticResource Loc}, Path=AuditSeverityHigh}"/>
+                            </TextBlock>
+                        </Border>
+                        <Border Background="#D4AC0D" CornerRadius="10" Padding="10,3">
+                            <TextBlock Foreground="White" FontWeight="SemiBold">
+                                <Run Text="{Binding MediumCount}"/><Run Text=" "/><Run Text="{Binding Source={StaticResource Loc}, Path=AuditSeverityMedium}"/>
+                            </TextBlock>
+                        </Border>
+                        <Border Background="#2E86C1" CornerRadius="10" Padding="10,3">
+                            <TextBlock Foreground="White" FontWeight="SemiBold">
+                                <Run Text="{Binding LowCount}"/><Run Text=" "/><Run Text="{Binding Source={StaticResource Loc}, Path=AuditSeverityLow}"/>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" Opacity="0.85"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <ComboBox ItemsSource="{Binding FilterOptions}" SelectedItem="{Binding SelectedFilter}" Width="190"/>
+                    <Button Content="{Binding Source={StaticResource Loc}, Path=AuditRun}" Command="{Binding RunCommand}" Padding="12,5"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ Constats | fiche de la règle ═══ -->
+        <Grid Grid.Row="1" ColumnDefinitions="5*,Auto,6*">
+
+            <ListBox Grid.Column="0" ItemsSource="{Binding Findings}" SelectedItem="{Binding SelectedFinding}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AuditFindingItem">
+                        <Grid ColumnDefinitions="Auto,*" Margin="0,2">
+                            <Border Grid.Column="0" Background="{Binding SeverityColor}" CornerRadius="4" Padding="6,2"
+                                    VerticalAlignment="Top" Margin="0,2,10,0" MinWidth="70">
+                                <TextBlock Text="{Binding SeverityLabel}" Foreground="White" FontSize="11" FontWeight="SemiBold"
+                                           HorizontalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Spacing="1">
+                                <TextBlock TextWrapping="Wrap" FontWeight="SemiBold">
+                                    <Run Text="{Binding RuleId}" FontFamily="Consolas, Courier New, monospace"/>
+                                    <Run Text=" "/>
+                                    <Run Text="{Binding RuleTitle}"/>
+                                </TextBlock>
+                                <TextBlock Text="{Binding ObjectName}" FontSize="12"/>
+                                <TextBlock Text="{Binding Detail}" FontSize="11" Opacity="0.75" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <GridSplitter Grid.Column="1" Width="6" ResizeDirection="Columns" Background="Transparent"/>
+
+            <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="14"
+                    IsVisible="{Binding HasSelection}">
+                <ScrollViewer>
+                    <StackPanel Spacing="10" DataContext="{Binding SelectedFinding}" x:DataType="vm:AuditFindingItem">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Border Background="{Binding SeverityColor}" CornerRadius="4" Padding="8,3">
+                                <TextBlock Text="{Binding SeverityLabel}" Foreground="White" FontWeight="SemiBold"/>
+                            </Border>
+                            <TextBlock Text="{Binding RuleId}" VerticalAlignment="Center" FontFamily="Consolas, Courier New, monospace"/>
+                            <TextBlock Text="{Binding AnssiLevelLabel}" VerticalAlignment="Center" Opacity="0.8"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding ObjectName}" FontSize="16" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding ObjectDistinguishedName}" FontSize="11" Opacity="0.75" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding Detail}" TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <Button Content="{Binding Source={StaticResource Loc}, Path=AuditSelectInTree}"
+                                Command="{Binding #AuditWindowRoot.DataContext.ShowInTreeCommand}"
+                                Padding="10,4"/>
+
+                        <Separator/>
+
+                        <ContentControl Content="{Binding Documentation, Converter={StaticResource MarkdownConverter}}"/>
+
+                        <Separator/>
+
+                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=AuditReferences}" FontWeight="SemiBold"/>
+                        <ItemsControl ItemsSource="{Binding References}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="audit:AuditReference">
+                                    <HyperlinkButton NavigateUri="{Binding Url}" Padding="0,2" ToolTip.Tip="{Binding Url}">
+                                        <TextBlock TextWrapping="Wrap">
+                                            <Run Text="{Binding FrameworkLabel}" FontWeight="SemiBold"/>
+                                            <Run Text=" · "/>
+                                            <Run Text="{Binding Id}" FontFamily="Consolas, Courier New, monospace"/>
+                                            <Run Text=" — "/>
+                                            <Run Text="{Binding Title}"/>
+                                        </TextBlock>
+                                    </HyperlinkButton>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

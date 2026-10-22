@@ -313,7 +313,7 @@ namespace SMADX.Services
             var readOnlyDCs = new ADObject("Read-only Domain Controllers", ADObjectType.Group)
             {
                 Description = loc["Desc.Users.ReadOnlyDCs"],
-                Tier = GetTier("Tier 1"),
+                Tier = GetTier("Tier 0"),
                 Parent = usersContainer
             };
             usersContainer.Children.Add(readOnlyDCs);
@@ -1171,6 +1171,7 @@ namespace SMADX.Services
             });
 
             BuiltInSecurityDefaults.Apply(domain);
+            BuiltInSecurityDefaults.ApplySampleHistory(domain, DateTime.Now);
             return domain;
         }
 

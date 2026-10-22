@@ -31,6 +31,9 @@ namespace SMADX.Services
         /// <summary>Fenêtre non modale : l'utilisateur peut garder le graphe ouvert en travaillant.</summary>
         void ShowGraph(GraphViewModel viewModel);
 
+        /// <summary>Fenêtre non modale : l'apprenant corrige dans la fenêtre principale puis relance l'audit.</summary>
+        void ShowAudit(AuditViewModel viewModel);
+
         Task ShowTierConfigurationAsync();
 
         Task ShowTimelineAsync();

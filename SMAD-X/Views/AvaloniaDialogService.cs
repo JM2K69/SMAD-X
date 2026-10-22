@@ -59,6 +59,9 @@ namespace SMADX.Views
         public void ShowGraph(GraphViewModel viewModel) =>
             new GraphWindow(viewModel).Show(_owner);
 
+        public void ShowAudit(AuditViewModel viewModel) =>
+            new AuditWindow { DataContext = viewModel }.Show(_owner);
+
         public Task ShowTierConfigurationAsync() =>
             new TierConfigurationWindow().ShowDialog(_owner);
 
@@ -124,6 +127,7 @@ namespace SMADX.Views
                             CreateShortcutItem("Ctrl+T", "Évolution du domaine"),
                             CreateShortcutItem("Ctrl+D", "Délégations"),
                             CreateShortcutItem("Ctrl+Shift+S", "Sites AD"),
+                            CreateShortcutItem("Ctrl+Shift+A", "Audit de sécurité"),
                             new Avalonia.Controls.Separator(),
                             new TextBlock
                             {

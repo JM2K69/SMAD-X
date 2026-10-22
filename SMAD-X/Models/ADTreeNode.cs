@@ -29,6 +29,21 @@ namespace SMADX.Models
         [ObservableProperty]
         private bool _isVisible = true;
 
+        /// <summary>Badge du dernier audit : gravité du constat le plus grave sur l'objet (null = aucun).</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasAuditFindings))]
+        private Services.Audit.AuditSeverity? _auditSeverity;
+
+        /// <summary>Couleur du badge d'audit.</summary>
+        [ObservableProperty]
+        private string _auditBadgeColor = "#7F8C8D";
+
+        /// <summary>Infobulle du badge : nombre de constats et règles concernées.</summary>
+        [ObservableProperty]
+        private string _auditTooltip = string.Empty;
+
+        public bool HasAuditFindings => AuditSeverity.HasValue;
+
         public ADTreeNode? Parent { get; set; }
 
         public ADTreeNode(ADObject data)

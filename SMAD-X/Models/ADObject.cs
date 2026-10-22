@@ -123,6 +123,15 @@ namespace SMADX.Models
         /// <summary>Propriétaire de l'objet (SAMAccountName). Il peut modifier les ACL de l'objet.</summary>
         public string? Owner { get; set; }
 
+        /// <summary>
+        /// Pour User / Computer / GMSA : dernière ouverture de session (lastLogonTimestamp, répliqué
+        /// avec un retard de 9 à 14 jours). Null = jamais connecté ou inconnu.
+        /// </summary>
+        public DateTime? LastLogonTimestamp { get; set; }
+
+        /// <summary>Pour User / Computer / GMSA : dernier changement de mot de passe (pwdLastSet). Null = inconnu.</summary>
+        public DateTime? PwdLastSet { get; set; }
+
         /// <summary>Vrai si le type porte des attributs de compte (userAccountControl, SPN, délégation).</summary>
         [JsonIgnore]
         public bool IsAccount => Type is ADObjectType.User or ADObjectType.Computer or ADObjectType.GMSA;

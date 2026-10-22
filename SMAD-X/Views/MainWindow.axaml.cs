@@ -63,6 +63,7 @@ namespace SMADX.Views
                 (Key.T, true, false)      => vm.ShowTimelineCommand,
                 (Key.D, true, false)      => vm.ShowDelegationsCommand,
                 (Key.S, true, true)       => vm.ShowSitesCommand,
+                (Key.A, true, true)       => vm.ShowAuditCommand,
                 (Key.F2, false, false)    => vm.RenameObjectCommand,
                 (Key.Delete, false, false) => vm.DeleteObjectCommand,
                 _ => null
