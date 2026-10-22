@@ -1,7 +1,5 @@
 # Créer un exercice SMAD-X
 
-*English version: [creating-labs.md](creating-labs.md)*
-
 Un exercice (« lab ») est un fichier `.smadx-lab.json`. Il contient un énoncé, un domaine de départ et des objectifs que SMAD-X corrige automatiquement, grâce à l'audit de sécurité, aux chemins d'attaque et à la comparaison avec le domaine de départ.
 
 Ce mode opératoire va de l'idée au fichier testé. Les exercices fournis avec l'application (menu **Exercices**) ont été écrits ainsi, et servent de modèles.
@@ -22,7 +20,7 @@ Les deux produisent le même format : on peut commencer par A et finir par B.
 ## 2. Méthode A : depuis l'application
 
 ### 2.1 Préparer le domaine de départ
-1. **Fichier > Nouveau domaine** (ou ouvrez un exemple de `Samples/AttackPaths`).
+1. **Fichier > Nouveau domaine** (ou ouvrez un domaine enregistré).
 2. Construisez la situation de départ : OU, comptes, groupes, délégations, options de la section **Sécurité**.
 3. Ajoutez la ou les **faiblesses** que l'apprenant devra trouver. Vérifiez qu'elles se voient :
    - **Analyse > Audit de sécurité** (`Ctrl+Shift+A`) : le constat attendu apparaît ;
@@ -41,14 +39,14 @@ SMAD-X écrit un fichier `.smadx-lab.json` avec :
 ### 2.3 Compléter le fichier
 Ouvrez le fichier dans un éditeur de texte (VS Code reconnaît le JSON) et modifiez :
 - `Id`, `Title`, `Level`, `DurationMinutes` ;
-- `Statement` : l'énoncé en Markdown (voir [§ 4](#4-écrire-un-bon-énoncé)) ;
-- `Objectives` : gardez les objectifs utiles, ajoutez les autres (voir [§ 5](#5-écrire-les-objectifs)).
+- `Statement` : l'énoncé en Markdown (voir § 4) ;
+- `Objectives` : gardez les objectifs utiles, ajoutez les autres (voir § 5).
 
 Ne modifiez pas `Start` à la main : refaites plutôt le domaine dans l'application et régénérez le squelette.
 
 ### 2.4 Tester
 1. **Exercices > Ouvrir un exercice...** et choisissez le fichier.
-2. Cliquez sur **Vérifier** sans rien changer : aucun objectif principal ne doit être atteint, et les objectifs de garde (voir [§ 5.2](#52-les-objectifs-de-garde)) doivent déjà l'être.
+2. Cliquez sur **Vérifier** sans rien changer : aucun objectif principal ne doit être atteint, et les objectifs de garde (voir § 5.2) doivent déjà l'être.
 3. Faites la correction attendue, puis **Vérifier** : tout doit être atteint.
 4. **Recommencer**, puis essayez les mauvaises solutions (supprimer le compte, vider le groupe…) : un objectif doit échouer à chaque fois.
 5. **Exporter le résultat** produit le compte rendu Markdown que l'apprenant pourra rendre.
@@ -61,8 +59,8 @@ Ne modifiez pas `Start` à la main : refaites plutôt le domaine dans l'applicat
 {
   "Format": "smadx-lab",
   "FormatVersion": 1,
-  "Id": "chemin-03-reset-password",
-  "Title": { "fr-FR": "Médiathèque Azur : le support peut-il tout réinitialiser ?" },
+  "Id": "mon-exercice",
+  "Title": { "fr-FR": "Contoso : la revue des droits" },
   "Language": "fr-FR",
   "Category": "attack-paths",
   "Level": "Intermediate",
@@ -74,9 +72,9 @@ Ne modifiez pas `Start` à la main : refaites plutôt le domaine dans l'applicat
     {
       "Id": "o1",
       "Points": 4,
-      "Title": { "fr-FR": "Le chemin depuis « GG-Support » est coupé" },
-      "Hint":  { "fr-FR": "Regardez les droits de GG-Exploitation sur la racine du domaine." },
-      "Check": { "Type": "NoAttackPath", "Object": "GG-Support" }
+      "Title": { "fr-FR": "Le chemin depuis « GG-Equipe » est coupé" },
+      "Hint":  { "fr-FR": "Regardez de quels groupes GG-Equipe est membre." },
+      "Check": { "Type": "NoAttackPath", "Object": "GG-Equipe" }
     }
   ]
 }
@@ -111,8 +109,8 @@ bulletin du CERT-FR, audit avant certification, passation avec un ancien adminis
 
 ## Votre mission
 - Ce qu'il faut trouver et corriger.
-- Les contraintes métier : « l'ERP doit continuer de tourner », « le support garde la
-  réinitialisation des mots de passe ».
+- Les contraintes métier : « l'application métier doit continuer de tourner », « l'équipe
+  garde ses délégations ».
 
 ## Vos outils
 - Analyse > Chemins d'attaque, Audit de sécurité, Avant / après…
@@ -121,7 +119,8 @@ bulletin du CERT-FR, audit avant certification, passation avec un ancien adminis
 Règles :
 - **Ne donnez pas la réponse** : pas de chemin détaillé ni de correction dans l'énoncé. Ces éléments vont dans les **indices** des objectifs, que l'apprenant révèle un à un.
 - **Donnez des contraintes réalistes** : ce sont elles qui empêchent la solution brutale (« supprimer le compte ») et obligent à comprendre.
-- **Une organisation crédible et fictive** : utilisez des noms fictifs (Contoso, Fabrikam, Northwind… ou des noms français inventés). Jamais une vraie organisation.
+- **Ne publiez pas les solutions** : gardez-les pour vous, ou dans les tests du dépôt.
+- **Une organisation crédible et fictive** : utilisez des noms fictifs (Contoso, Wide World Importers… ou des noms français inventés). Jamais une vraie organisation.
 - **Un domaine par exercice** : changez le nom de domaine d'un exercice à l'autre.
 
 ---

@@ -1,0 +1,75 @@
+# Règles d'audit
+
+!!! info "Page générée"
+    Cette page est produite à partir du code de SMAD-X (`tools/DocGenerator`) : elle liste exactement les 28 règles évaluées par l'application.
+
+Chaque règle en échec retire des points au score, une seule fois quel que soit le nombre d'objets concernés : **12** pour une règle critique, **6** élevée, **3** moyenne, **1** faible. Le niveau ANSSI estimé est celui du point de contrôle le plus critique en échec (5 si aucun) ; ce n'est pas le calcul officiel de l'outil ADS de l'ANSSI.
+
+## Kerberos
+
+| Règle | Gravité | Niveau ANSSI | Références |
+|---|---|---|---|
+| **KRB-01** Compte privilégié vulnérable au Kerberoasting | Critique | 1 | [ANSSI · vuln_spn_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1558.003](https://attack.mitre.org/techniques/T1558/003/)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[CIS · CIS Controls v8 5.4](https://cas.docs.cisecurity.org/en/latest/source/Controls5/)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview) |
+| **KRB-02** Compte utilisateur vulnérable au Kerberoasting | Moyenne | — | [ANSSI · info_spn_present](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1558.003](https://attack.mitre.org/techniques/T1558/003/)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[CIS · CIS Controls v8 5.5](https://cas.docs.cisecurity.org/en/latest/source/Controls5/)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview) |
+| **KRB-03** Compte privilégié sans préauthentification Kerberos | Critique | 1 | [ANSSI · vuln_kerberos_properties_preauth_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1558.004](https://attack.mitre.org/techniques/T1558/004/)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **KRB-04** Compte sans préauthentification Kerberos | Élevée | 2 | [ANSSI · vuln_kerberos_properties_preauth](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1558.004](https://attack.mitre.org/techniques/T1558/004/)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **KRB-05** Mot de passe du compte krbtgt trop ancien | Élevée | 2 | [ANSSI · vuln_krbtgt](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1558.001](https://attack.mitre.org/techniques/T1558/001/)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-reset-the-krbtgt-password) |
+
+## Délégation
+
+| Règle | Gravité | Niveau ANSSI | Références |
+|---|---|---|---|
+| **DLG-01** Délégation Kerberos non contrainte | Critique | 1 | [ANSSI · vuln_delegation_t4d](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1558](https://attack.mitre.org/techniques/T1558/)<br>[MITRE ATT&CK · T1550.003](https://attack.mitre.org/techniques/T1550/003/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group) |
+| **DLG-02** Délégation contrainte avec transition de protocole vers un contrôleur de domaine | Critique | 1 | [ANSSI · vuln_delegation_t2a4d](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1558](https://attack.mitre.org/techniques/T1558/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/kerberos/kerberos-constrained-delegation-overview) |
+| **DLG-03** Délégation contrainte vers un contrôleur de domaine | Critique | 1 | [ANSSI · vuln_delegation_a2d2](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1558](https://attack.mitre.org/techniques/T1558/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/kerberos/kerberos-constrained-delegation-overview) |
+| **DLG-04** Compte privilégié non protégé contre la délégation | Moyenne | 3 | [ANSSI · vuln_protected_users](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1550.003](https://attack.mitre.org/techniques/T1550/003/)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group) |
+
+## Mots de passe
+
+| Règle | Gravité | Niveau ANSSI | Références |
+|---|---|---|---|
+| **PWD-01** Compte privilégié dont le mot de passe n'expire jamais | Critique | 1 | [ANSSI · vuln_dont_expire_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[NIST · SP 800-63B](https://pages.nist.gov/800-63-4/sp800-63b.html) |
+| **PWD-02** Mot de passe qui n'expire jamais | Élevée | 2 | [ANSSI · vuln_dont_expire](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[NIST · SP 800-63B](https://pages.nist.gov/800-63-4/sp800-63b.html) |
+| **PWD-03** Mot de passe non requis | Élevée | — | [MITRE ATT&CK · T1078.002](https://attack.mitre.org/techniques/T1078/002/)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[CIS · CIS Controls v8 5.2](https://cas.docs.cisecurity.org/en/latest/source/Controls5/) |
+| **PWD-04** Mot de passe d'un compte privilégié inchangé depuis plus de 3 ans | Critique | 1 | [ANSSI · vuln_password_change_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **PWD-05** Mot de passe machine d'un contrôleur de domaine inchangé | Critique | 1 | [ANSSI · vuln_password_change_dc_no_change](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **PWD-06** Compte d'ordinateur dont le mot de passe ne change plus | Élevée | 2 | [ANSSI · vuln_password_change_server_no_change_90](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[CIS · CIS Controls v8 5.3](https://cas.docs.cisecurity.org/en/latest/source/Controls5/) |
+| **PWD-07** Compte de service managé dont le mot de passe ne change plus | Élevée | 2 | [ANSSI · vuln_password_change_msa_no_change_90](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview) |
+
+## Comptes
+
+| Règle | Gravité | Niveau ANSSI | Références |
+|---|---|---|---|
+| **ACC-01** Compte Invité actif | Élevée | 2 | [ANSSI · vuln_guest](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[MITRE ATT&CK · T1078.002](https://attack.mitre.org/techniques/T1078/002/) |
+| **ACC-02** Compte dormant | Moyenne | — | [ANSSI · info_user_accounts_dormant](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[CIS · CIS Controls v8 5.3](https://cas.docs.cisecurity.org/en/latest/source/Controls5/)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[MITRE ATT&CK · T1078.002](https://attack.mitre.org/techniques/T1078/002/) |
+
+## Groupes privilégiés
+
+| Règle | Gravité | Niveau ANSSI | Références |
+|---|---|---|---|
+| **PRIV-01** Membre d'un groupe privilégié sans adminCount | Élevée | 2 | [ANSSI · vuln_privileged_members_no_admincount](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **PRIV-02** adminCount orphelin | Faible | — | [ANSSI · warning_admincount](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **PRIV-03** Groupe privilégié qui devrait être vide | Moyenne | 3 | [ANSSI · warning_privileged_members_not_empty](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-b--privileged-accounts-and-groups-in-active-directory)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[CIS · CIS Controls v8 5.4](https://cas.docs.cisecurity.org/en/latest/source/Controls5/) |
+| **PRIV-04** Membre non privilégié du groupe DnsAdmins | Critique | 1 | [ANSSI · vuln_dnsadmins](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-b--privileged-accounts-and-groups-in-active-directory)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **PRIV-05** Groupe protégé classé hors du Tier 0 | Moyenne | — | [Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-b--privileged-accounts-and-groups-in-active-directory)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model) |
+
+## Propriétaires et permissions
+
+| Règle | Gravité | Niveau ANSSI | Références |
+|---|---|---|---|
+| **ACL-01** Objet critique avec un propriétaire inadapté | Moyenne | 3 | [ANSSI · vuln_owner](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1222.001](https://attack.mitre.org/techniques/T1222/001/)<br>[MITRE ATT&CK · T1098](https://attack.mitre.org/techniques/T1098/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+
+## Cloisonnement (tiering)
+
+| Règle | Gravité | Niveau ANSSI | Références |
+|---|---|---|---|
+| **TIER-01** Violation du cloisonnement : appartenance à un groupe plus sensible | Élevée | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model)<br>[NIST · SP 800-53 Rev. 5 AC-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[CIS · CIS Controls v8 6.8](https://cas.docs.cisecurity.org/en/latest/source/Controls6/) |
+| **TIER-02** Violation du cloisonnement : GPO d'un tier moins sensible | Élevée | — | [ANSSI · vuln_permissions_gpo_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[MITRE ATT&CK · T1484.001](https://attack.mitre.org/techniques/T1484/001/)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model) |
+| **TIER-03** Violation du cloisonnement : délégation à un tier moins sensible | Élevée | — | [ANSSI · vuln_privileged_members_perm](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[MITRE ATT&CK · T1098](https://attack.mitre.org/techniques/T1098/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models) |
+
+## Groupes
+
+| Règle | Gravité | Niveau ANSSI | Références |
+|---|---|---|---|
+| **GRP-01** Boucle d'imbrication de groupes | Faible | 4 | [ANSSI · vuln_group_loop](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+

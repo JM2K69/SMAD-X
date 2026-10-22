@@ -1,0 +1,57 @@
+name: Documentation
+
+# Site Zensical publié sur GitHub Pages : français à la racine, anglais sous /en/.
+# Prérequis (une fois) : Settings > Pages > Source = « GitHub Actions ».
+on:
+  push:
+    branches: [master]
+    paths:
+      - "docs/**"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Construire et publier
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Zensical
+        run: pip install zensical==0.0.71
+
+      # Mode strict : un lien cassé ou une page introuvable fait échouer la publication
+      - name: Build (FR, puis EN dans site/en)
+        run: |
+          zensical build --clean --strict -f docs/zensical.fr.toml
+          zensical build --strict -f docs/zensical.en.toml
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -24,6 +24,8 @@
 
 ---
 
+> 📖 **Documentation**: [jm2k69.github.io/SMAD-X/en](https://jm2k69.github.io/SMAD-X/en/) (English) · [jm2k69.github.io/SMAD-X](https://jm2k69.github.io/SMAD-X/) (français)
+
 ## 🎯 Features
 
 ### 🏗️ Complete and Faithful Default AD Structure
@@ -121,7 +123,7 @@
 - **Attack paths**: who can take control of the domain and through which steps (Kerberoasting, AS-REP roasting, delegations, owners, GPOs, Kerberos delegation…), highlighted in the graph
 - **Before / after** comparison and **undo / redo**
 - **Labs** (`.smadx-lab.json`): realistic scenarios graded automatically, including 12 attack-path labs in French and English
-- Sample domains in [`Samples/AttackPaths`](Samples/AttackPaths/README.md) — write your own labs with [docs/creating-labs.md](docs/creating-labs.md)
+- Sample domains in [`Samples/AttackPaths`](Samples/AttackPaths/README.md) — write your own labs with the [lab creation guide](https://jm2k69.github.io/SMAD-X/en/labs/create/)
 
 ## 🚀 Quick Start
 

@@ -40,3 +40,6 @@ $RECYCLE.BIN/
 # Logs
 *.log
 logs/
+
+# Site de documentation construit par Zensical
+site/

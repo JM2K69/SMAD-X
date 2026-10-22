@@ -1,7 +1,5 @@
 # Creating a SMAD-X lab
 
-*Version française : [creer-un-exercice.md](creer-un-exercice.md)*
-
 A lab is a `.smadx-lab.json` file. It holds a statement, a starting domain and objectives that SMAD-X grades automatically, using the security audit, attack paths and a comparison with the starting domain.
 
 This guide goes from the idea to a tested file. The labs shipped with the application (**Labs** menu) were written this way and serve as models.
@@ -22,7 +20,7 @@ Both produce the same format: you can start with A and finish with B.
 ## 2. Method A: from the application
 
 ### 2.1 Prepare the starting domain
-1. **File > New domain** (or open a sample from `Samples/AttackPaths`).
+1. **File > New domain** (or open a saved domain).
 2. Build the starting situation: OUs, accounts, groups, delegations, **Security** section options.
 3. Add the **weakness(es)** the learner must find. Check that they show:
    - **Analyse > Security audit** (`Ctrl+Shift+A`): the expected finding appears;
@@ -41,14 +39,14 @@ SMAD-X writes a `.smadx-lab.json` file with:
 ### 2.3 Complete the file
 Open the file in a text editor (VS Code understands JSON) and edit:
 - `Id`, `Title`, `Level`, `DurationMinutes`;
-- `Statement`: the Markdown statement (see [§ 4](#4-writing-a-good-statement));
-- `Objectives`: keep the useful ones, add the others (see [§ 5](#5-writing-objectives)).
+- `Statement`: the Markdown statement (see § 4);
+- `Objectives`: keep the useful ones, add the others (see § 5).
 
 Do not edit `Start` by hand: rebuild the domain in the application and generate the skeleton again.
 
 ### 2.4 Test
 1. **Labs > Open a lab...** and pick the file.
-2. Click **Check** without changing anything: no main objective may be met, and the guard objectives (see [§ 5.2](#52-guard-objectives)) must already be met.
+2. Click **Check** without changing anything: no main objective may be met, and the guard objectives (see § 5.2) must already be met.
 3. Apply the expected fix, then **Check**: everything must be met.
 4. **Start over**, then try the wrong solutions (delete the account, empty the group…): an objective must fail every time.
 5. **Export result** produces the Markdown report the learner can hand in.
@@ -61,8 +59,8 @@ Do not edit `Start` by hand: rebuild the domain in the application and generate 
 {
   "Format": "smadx-lab",
   "FormatVersion": 1,
-  "Id": "path-03-reset-password",
-  "Title": { "en-US": "Tailspin Toys: can the service desk reset everything?" },
+  "Id": "my-lab",
+  "Title": { "en-US": "Contoso: the access review" },
   "Language": "en-US",
   "Category": "attack-paths",
   "Level": "Intermediate",
@@ -74,9 +72,9 @@ Do not edit `Start` by hand: rebuild the domain in the application and generate 
     {
       "Id": "o1",
       "Points": 4,
-      "Title": { "en-US": "The path from \"GG-ServiceDesk\" is cut" },
-      "Hint":  { "en-US": "Look at the rights of GG-Operations on the domain root." },
-      "Check": { "Type": "NoAttackPath", "Object": "GG-ServiceDesk" }
+      "Title": { "en-US": "The path from \"GG-Team\" is cut" },
+      "Hint":  { "en-US": "Look at which groups GG-Team belongs to." },
+      "Check": { "Type": "NoAttackPath", "Object": "GG-Team" }
     }
   ]
 }
@@ -111,7 +109,7 @@ CERT bulletin, pre-certification audit, handover from a former administrator…
 
 ## Your mission
 - What must be found and fixed.
-- Business constraints: "the ERP must keep running", "the service desk keeps password reset".
+- Business constraints: "the business application must keep running", "the team keeps its delegations".
 
 ## Your tools
 - Analyse > Attack paths, Security audit, Before / after…
@@ -120,7 +118,8 @@ CERT bulletin, pre-certification audit, handover from a former administrator…
 Rules:
 - **Do not give the answer away**: no detailed path and no fix in the statement. These go into the objectives' **hints**, which the learner reveals one at a time.
 - **Give realistic constraints**: they are what rules out the brute-force solution ("delete the account") and forces understanding.
-- **A credible, fictional organisation**: use fictional names (Contoso, Fabrikam, Northwind…). Never a real organisation.
+- **Do not publish the solutions**: keep them to yourself, or in the repository's tests.
+- **A credible, fictional organisation**: use fictional names (Contoso, Wide World Importers…). Never a real organisation.
 - **One domain per lab**: change the domain name from one lab to the next.
 
 ---
