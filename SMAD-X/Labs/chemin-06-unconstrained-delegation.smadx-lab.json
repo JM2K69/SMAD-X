@@ -2989,7 +2989,7 @@
         "fr-FR": "Le chemin depuis \u00AB GG-Admins-Serveurs \u00BB est coup\u00E9"
       },
       "Hint": {
-        "fr-FR": "Section **S\u00E9curit\u00E9** de \u0060SRV-IMPRESSION\u0060 : une option fait que tout compte qui s\u0027y authentifie y laisse son TGT."
+        "fr-FR": "Section **S\u00E9curit\u00E9** de SRV-IMPRESSION : une option fait que tout compte qui s\u0027y authentifie y laisse son TGT."
       },
       "Points": 4,
       "Check": {
@@ -3064,7 +3064,7 @@
     {
       "Id": "o4",
       "Title": {
-        "fr-FR": "\u0060SRV-IMPRESSION\u0060 existe toujours"
+        "fr-FR": "SRV-IMPRESSION existe toujours"
       },
       "Hint": {
         "fr-FR": "L\u0027atelier a besoin de ses traceurs."

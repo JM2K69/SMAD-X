@@ -2983,7 +2983,7 @@
         "fr-FR": "Le chemin depuis \u00AB e.chevalier \u00BB est coup\u00E9"
       },
       "Hint": {
-        "fr-FR": "Suivez les appartenances de \u0060GG-Reseau\u0060, puis de \u0060GG-Admins-DNS\u0060."
+        "fr-FR": "Suivez les appartenances de GG-Reseau, puis de GG-Admins-DNS."
       },
       "Points": 4,
       "Check": {
@@ -3058,7 +3058,7 @@
     {
       "Id": "o4",
       "Title": {
-        "fr-FR": "\u0060e.chevalier\u0060 reste dans \u0060GG-Reseau\u0060"
+        "fr-FR": "e.chevalier reste dans GG-Reseau"
       },
       "Hint": {
         "fr-FR": "Le probl\u00E8me n\u0027est pas l\u0027\u00E9quipe r\u00E9seau, mais ce que son groupe h\u00E9rite."

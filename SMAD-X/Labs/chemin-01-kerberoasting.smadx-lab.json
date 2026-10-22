@@ -2915,7 +2915,7 @@
         "fr-FR": "Le chemin depuis \u00AB N\u0027importe quel utilisateur du domaine \u00BB est coup\u00E9"
       },
       "Hint": {
-        "fr-FR": "Un compte avec un SPN peut \u00EAtre kerberoast\u00E9 par n\u0027importe qui. Regardez de quels groupes \u0060GG-ERP-Admins\u0060 est lui-m\u00EAme membre."
+        "fr-FR": "Un compte avec un SPN peut \u00EAtre kerberoast\u00E9 par n\u0027importe qui. Regardez de quels groupes GG-ERP-Admins est lui-m\u00EAme membre."
       },
       "Points": 4,
       "Check": {
@@ -2990,7 +2990,7 @@
     {
       "Id": "o4",
       "Title": {
-        "fr-FR": "Le compte de service \u0060svc-erp\u0060 existe toujours"
+        "fr-FR": "Le compte de service svc-erp existe toujours"
       },
       "Hint": {
         "fr-FR": "Supprimer le compte arr\u00EAterait l\u0027application : retirez-lui plut\u00F4t les droits qu\u0027il n\u0027a pas \u00E0 avoir."

@@ -2983,7 +2983,7 @@
         "en-US": "The path from \u0022l.wilson\u0022 is cut"
       },
       "Hint": {
-        "en-US": "Look at where \u0060GPO-Wallpaper\u0060 is linked, and who owns it (**Security** section, owner)."
+        "en-US": "Look at where GPO-Wallpaper is linked, and who owns it (**Security** section, owner)."
       },
       "Points": 4,
       "Check": {
@@ -3032,7 +3032,7 @@
     {
       "Id": "o3",
       "Title": {
-        "en-US": "GPO \u0060GPO-Wallpaper\u0060 still exists"
+        "en-US": "GPO GPO-Wallpaper still exists"
       },
       "Hint": {
         "en-US": "Deleting the GPO would remove the users\u0027 wallpaper: remove the extra link instead."
@@ -3058,7 +3058,7 @@
     {
       "Id": "o4",
       "Title": {
-        "en-US": "\u0060adm-owilson\u0060 stays a domain administrator"
+        "en-US": "adm-owilson stays a domain administrator"
       },
       "Hint": {
         "en-US": "The admin account is not the problem."

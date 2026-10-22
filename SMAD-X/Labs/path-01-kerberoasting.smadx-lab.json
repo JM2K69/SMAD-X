@@ -2915,7 +2915,7 @@
         "en-US": "The path from \u0022Any domain user\u0022 is cut"
       },
       "Hint": {
-        "en-US": "An account with an SPN can be kerberoasted by anyone. Look at which groups \u0060GG-SharePoint-Admins\u0060 itself belongs to."
+        "en-US": "An account with an SPN can be kerberoasted by anyone. Look at which groups GG-SharePoint-Admins itself belongs to."
       },
       "Points": 4,
       "Check": {
@@ -2990,7 +2990,7 @@
     {
       "Id": "o4",
       "Title": {
-        "en-US": "Service account \u0060svc-sharepoint\u0060 still exists"
+        "en-US": "Service account svc-sharepoint still exists"
       },
       "Hint": {
         "en-US": "Deleting the account would stop the application: remove the rights it should not have instead."

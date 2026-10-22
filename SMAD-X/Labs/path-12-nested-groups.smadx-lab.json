@@ -2983,7 +2983,7 @@
         "en-US": "The path from \u0022k.walker\u0022 is cut"
       },
       "Hint": {
-        "en-US": "Follow the memberships of \u0060GG-Network-Team\u0060, then \u0060GG-DNS-Admins\u0060."
+        "en-US": "Follow the memberships of GG-Network-Team, then GG-DNS-Admins."
       },
       "Points": 4,
       "Check": {
@@ -3058,7 +3058,7 @@
     {
       "Id": "o4",
       "Title": {
-        "en-US": "\u0060k.walker\u0060 stays in \u0060GG-Network-Team\u0060"
+        "en-US": "k.walker stays in GG-Network-Team"
       },
       "Hint": {
         "en-US": "The problem is not the network team, but what its group inherits."

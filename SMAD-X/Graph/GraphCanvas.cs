@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -106,6 +106,9 @@ namespace SMADX.Graph
                 else
                 {
                     _timer.Stop();
+                    // Mise en place terminée : un chemin d'attaque surligné est recadré pour être lisible
+                    if (_highlightedPath.Count > 0)
+                        FitView();
                 }
             };
 
@@ -146,16 +149,19 @@ namespace SMADX.Graph
             _timer.Start();
         }
 
+        /// <summary>Cadre tout le graphe, ou le chemin d'attaque surligné s'il y en a un (avec ses abords).</summary>
         public void FitView()
         {
             if (_nodes.Count == 0) return;
-            double minX = _nodes.Min(n => n.X - n.Radius);
-            double maxX = _nodes.Max(n => n.X + n.Radius);
-            double minY = _nodes.Min(n => n.Y - n.Radius);
-            double maxY = _nodes.Max(n => n.Y + n.Radius);
+            var focus = _highlightedPath.Count > 0 ? _highlightedPath : _nodes;
+            double margin = _highlightedPath.Count > 0 ? 300 : 100;
+            double minX = focus.Min(n => n.X - n.Radius);
+            double maxX = focus.Max(n => n.X + n.Radius);
+            double minY = focus.Min(n => n.Y - n.Radius);
+            double maxY = focus.Max(n => n.Y + n.Radius);
 
-            double graphW = maxX - minX + 100;
-            double graphH = maxY - minY + 100;
+            double graphW = maxX - minX + margin;
+            double graphH = maxY - minY + margin;
             double bw = Bounds.Width > 0 ? Bounds.Width : 800;
             double bh = Bounds.Height > 0 ? Bounds.Height : 600;
 

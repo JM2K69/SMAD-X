@@ -2965,7 +2965,7 @@
         "en-US": "The path from \u0022Any domain user\u0022 is cut"
       },
       "Hint": {
-        "en-US": "**Delegations** window: which rights does Authenticated Users have on the \u0060Service Accounts\u0060 OU?"
+        "en-US": "**Delegations** window: which rights does Authenticated Users have on the Service Accounts OU?"
       },
       "Points": 4,
       "Check": {
@@ -2991,7 +2991,7 @@
         "en-US": "No path to domain control left outside Tier 0"
       },
       "Hint": {
-        "en-US": "\u0060GG-Backup-Admins\u0060 still has full control of the domain: its service account is still a path."
+        "en-US": "GG-Backup-Admins still has full control of the domain: its service account is still a path."
       },
       "Points": 2,
       "Check": {
@@ -3014,7 +3014,7 @@
     {
       "Id": "o3",
       "Title": {
-        "en-US": "Account \u0060svc-backup\u0060 still exists"
+        "en-US": "Account svc-backup still exists"
       },
       "Hint": {
         "en-US": "Without it, no more backups."

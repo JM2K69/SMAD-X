@@ -2999,7 +2999,7 @@
         "fr-FR": "Le chemin depuis \u00AB GG-Gestion-Groupes \u00BB est coup\u00E9"
       },
       "Hint": {
-        "fr-FR": "Quel groupe de l\u0027OU \u0060Groupes\u0060 a des droits sur la racine du domaine ? Rangez-le ailleurs, ou retirez-lui ces droits."
+        "fr-FR": "Quel groupe de l\u0027OU Groupes a des droits sur la racine du domaine ? Rangez-le ailleurs, ou retirez-lui ces droits."
       },
       "Points": 4,
       "Check": {
@@ -3025,7 +3025,7 @@
         "fr-FR": "Plus aucun chemin vers le contr\u00F4le du domaine hors Tier 0"
       },
       "Hint": {
-        "fr-FR": "Un contr\u00F4le total sur la racine du domaine reste un chemin pour les membres de \u0060GG-Exploitation-DC\u0060."
+        "fr-FR": "Un contr\u00F4le total sur la racine du domaine reste un chemin pour les membres de GG-Exploitation-DC."
       },
       "Points": 2,
       "Check": {
@@ -3051,7 +3051,7 @@
         "fr-FR": "Les assistantes g\u00E8rent toujours les groupes"
       },
       "Hint": {
-        "fr-FR": "La d\u00E9l\u00E9gation sur l\u0027attribut \u0060member\u0060 reste en place."
+        "fr-FR": "La d\u00E9l\u00E9gation sur l\u0027attribut member reste en place."
       },
       "Points": 1,
       "Check": {
@@ -3074,7 +3074,7 @@
     {
       "Id": "o4",
       "Title": {
-        "fr-FR": "\u0060c.moreau\u0060 reste dans \u0060GG-Gestion-Groupes\u0060"
+        "fr-FR": "c.moreau reste dans GG-Gestion-Groupes"
       },
       "Hint": {
         "fr-FR": "Retirer l\u0027assistante du groupe ne corrige pas la cause."

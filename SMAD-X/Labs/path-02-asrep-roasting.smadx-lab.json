@@ -2951,7 +2951,7 @@
     {
       "Id": "o4",
       "Title": {
-        "en-US": "Account \u0060copier-scan\u0060 still exists"
+        "en-US": "Account copier-scan still exists"
       },
       "Hint": {
         "en-US": "A write permission on the scan share is enough, not an operators group."

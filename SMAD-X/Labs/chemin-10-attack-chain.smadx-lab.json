@@ -2983,7 +2983,7 @@
         "fr-FR": "Plus aucun chemin vers le contr\u00F4le du domaine hors Tier 0"
       },
       "Hint": {
-        "fr-FR": "Les comptes de la cha\u00EEne sont eux-m\u00EAmes des sources : tant que \u0060it-nfaure\u0060 est dans DnsAdmins, il reste un chemin."
+        "fr-FR": "Les comptes de la cha\u00EEne sont eux-m\u00EAmes des sources : tant que it-nfaure est dans DnsAdmins, il reste un chemin."
       },
       "Points": 2,
       "Check": {
@@ -3032,7 +3032,7 @@
     {
       "Id": "o4",
       "Title": {
-        "fr-FR": "Le compte \u0060svc-planning\u0060 existe toujours"
+        "fr-FR": "Le compte svc-planning existe toujours"
       },
       "Hint": {
         "fr-FR": "Le service RH en a besoin chaque lundi."
@@ -3058,7 +3058,7 @@
     {
       "Id": "o5",
       "Title": {
-        "fr-FR": "Le compte \u0060it-nfaure\u0060 existe toujours"
+        "fr-FR": "Le compte it-nfaure existe toujours"
       },
       "Hint": {
         "fr-FR": "L\u0027administrateur r\u00E9seau a besoin de son compte."

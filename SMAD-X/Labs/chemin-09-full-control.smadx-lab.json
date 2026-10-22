@@ -2965,7 +2965,7 @@
         "fr-FR": "Le chemin depuis \u00AB N\u0027importe quel utilisateur du domaine \u00BB est coup\u00E9"
       },
       "Hint": {
-        "fr-FR": "Fen\u00EAtre **D\u00E9l\u00E9gations** : quels droits a Authenticated Users sur l\u0027OU \u0060Comptes de service\u0060 ?"
+        "fr-FR": "Fen\u00EAtre **D\u00E9l\u00E9gations** : quels droits a Authenticated Users sur l\u0027OU Comptes de service ?"
       },
       "Points": 4,
       "Check": {
@@ -2991,7 +2991,7 @@
         "fr-FR": "Plus aucun chemin vers le contr\u00F4le du domaine hors Tier 0"
       },
       "Hint": {
-        "fr-FR": "\u0060GG-Sauvegarde-Admins\u0060 a encore le contr\u00F4le total du domaine : son compte de service reste un chemin."
+        "fr-FR": "GG-Sauvegarde-Admins a encore le contr\u00F4le total du domaine : son compte de service reste un chemin."
       },
       "Points": 2,
       "Check": {
@@ -3014,7 +3014,7 @@
     {
       "Id": "o3",
       "Title": {
-        "fr-FR": "Le compte \u0060svc-sauvegarde\u0060 existe toujours"
+        "fr-FR": "Le compte svc-sauvegarde existe toujours"
       },
       "Hint": {
         "fr-FR": "Sans lui, plus de sauvegarde."

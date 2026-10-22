@@ -2951,7 +2951,7 @@
     {
       "Id": "o4",
       "Title": {
-        "fr-FR": "Le compte \u0060scan-copieur\u0060 existe toujours"
+        "fr-FR": "Le compte scan-copieur existe toujours"
       },
       "Hint": {
         "fr-FR": "Il suffit d\u0027un droit d\u0027\u00E9criture sur le partage des num\u00E9risations, pas d\u0027un groupe d\u0027op\u00E9rateurs."

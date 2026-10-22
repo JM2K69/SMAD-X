@@ -2983,7 +2983,7 @@
         "fr-FR": "Le chemin depuis \u00AB t.girard \u00BB est coup\u00E9"
       },
       "Hint": {
-        "fr-FR": "Regardez o\u00F9 \u0060GPO-Fond-Ecran\u0060 est li\u00E9e, et \u00E0 qui elle appartient (section **S\u00E9curit\u00E9**, propri\u00E9taire)."
+        "fr-FR": "Regardez o\u00F9 GPO-Fond-Ecran est li\u00E9e, et \u00E0 qui elle appartient (section **S\u00E9curit\u00E9**, propri\u00E9taire)."
       },
       "Points": 4,
       "Check": {
@@ -3032,7 +3032,7 @@
     {
       "Id": "o3",
       "Title": {
-        "fr-FR": "La GPO \u0060GPO-Fond-Ecran\u0060 existe toujours"
+        "fr-FR": "La GPO GPO-Fond-Ecran existe toujours"
       },
       "Hint": {
         "fr-FR": "Supprimer la GPO priverait les utilisateurs du fond d\u0027\u00E9cran : retirez plut\u00F4t le lien en trop."
@@ -3058,7 +3058,7 @@
     {
       "Id": "o4",
       "Title": {
-        "fr-FR": "\u0060adm-lgarnier\u0060 reste administrateur du domaine"
+        "fr-FR": "adm-lgarnier reste administrateur du domaine"
       },
       "Hint": {
         "fr-FR": "Le compte d\u0027administration n\u0027est pas le probl\u00E8me."

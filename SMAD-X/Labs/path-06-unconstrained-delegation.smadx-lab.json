@@ -2989,7 +2989,7 @@
         "en-US": "The path from \u0022GG-Server-Admins\u0022 is cut"
       },
       "Hint": {
-        "en-US": "\u0060PRINT01\u0060\u0027s **Security** section: one option makes every account that authenticates to it leave its TGT there."
+        "en-US": "PRINT01\u0027s **Security** section: one option makes every account that authenticates to it leave its TGT there."
       },
       "Points": 4,
       "Check": {
@@ -3064,7 +3064,7 @@
     {
       "Id": "o4",
       "Title": {
-        "en-US": "\u0060PRINT01\u0060 still exists"
+        "en-US": "PRINT01 still exists"
       },
       "Hint": {
         "en-US": "The factory needs its printers."

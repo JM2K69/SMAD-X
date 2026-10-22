@@ -165,8 +165,9 @@ LabSpec? currentLab = null;
 void Lab(string title, LabLevel level, int minutes, string context, string mission, params LabObjective[] objectives) =>
     currentLab = new LabSpec(title, level, minutes, context, mission, objectives);
 
+// Titres et indices s'affichent en texte brut : pas de `code` Markdown
 LabObjective Obj(string id, int points, string title, string hint, LabCheck check) =>
-    new() { Id = id, Points = points, Title = Text(title), Hint = Text(hint), Check = check };
+    new() { Id = id, Points = points, Title = Text(title.Replace("`", "")), Hint = Text(hint.Replace("`", "")), Check = check };
 
 var anyUser = AttackPathService.AnyUserId;
 string AnyUserLabel() => T("N'importe quel utilisateur du domaine", "Any domain user");

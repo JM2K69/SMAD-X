@@ -2992,7 +2992,7 @@
         "fr-FR": "Le chemin depuis \u00AB GG-Webmestres \u00BB est coup\u00E9"
       },
       "Hint": {
-        "fr-FR": "Section **S\u00E9curit\u00E9** de \u0060SRV-INTRANET\u0060 : vers quels services peut-il d\u00E9l\u00E9guer ?"
+        "fr-FR": "Section **S\u00E9curit\u00E9** de SRV-INTRANET : vers quels services peut-il d\u00E9l\u00E9guer ?"
       },
       "Points": 4,
       "Check": {
@@ -3067,7 +3067,7 @@
     {
       "Id": "o4",
       "Title": {
-        "fr-FR": "\u0060SRV-INTRANET\u0060 existe toujours"
+        "fr-FR": "SRV-INTRANET existe toujours"
       },
       "Hint": {
         "fr-FR": "Les \u00E9l\u00E8ves ont besoin de l\u0027intranet."

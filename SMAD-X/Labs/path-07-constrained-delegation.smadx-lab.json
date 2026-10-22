@@ -2992,7 +2992,7 @@
         "en-US": "The path from \u0022GG-Web-Team\u0022 is cut"
       },
       "Hint": {
-        "en-US": "\u0060WEB01\u0060\u0027s **Security** section: to which services can it delegate?"
+        "en-US": "WEB01\u0027s **Security** section: to which services can it delegate?"
       },
       "Points": 4,
       "Check": {
@@ -3067,7 +3067,7 @@
     {
       "Id": "o4",
       "Title": {
-        "en-US": "\u0060WEB01\u0060 still exists"
+        "en-US": "WEB01 still exists"
       },
       "Hint": {
         "en-US": "Staff need the intranet."

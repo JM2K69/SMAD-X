@@ -2999,7 +2999,7 @@
         "en-US": "The path from \u0022GG-Group-Managers\u0022 is cut"
       },
       "Hint": {
-        "en-US": "Which group of the \u0060Groups\u0060 OU has rights on the domain root? Move it elsewhere, or remove those rights."
+        "en-US": "Which group of the Groups OU has rights on the domain root? Move it elsewhere, or remove those rights."
       },
       "Points": 4,
       "Check": {
@@ -3025,7 +3025,7 @@
         "en-US": "No path to domain control left outside Tier 0"
       },
       "Hint": {
-        "en-US": "Full control on the domain root is still a path for the members of \u0060GG-DC-Operations\u0060."
+        "en-US": "Full control on the domain root is still a path for the members of GG-DC-Operations."
       },
       "Points": 2,
       "Check": {
@@ -3051,7 +3051,7 @@
         "en-US": "Assistants still manage groups"
       },
       "Hint": {
-        "en-US": "The delegation on the \u0060member\u0060 attribute stays."
+        "en-US": "The delegation on the member attribute stays."
       },
       "Points": 1,
       "Check": {
@@ -3074,7 +3074,7 @@
     {
       "Id": "o4",
       "Title": {
-        "en-US": "\u0060e.johnson\u0060 stays in \u0060GG-Group-Managers\u0060"
+        "en-US": "e.johnson stays in GG-Group-Managers"
       },
       "Hint": {
         "en-US": "Removing the assistant from the group does not fix the cause."

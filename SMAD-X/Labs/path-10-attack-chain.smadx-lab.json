@@ -2983,7 +2983,7 @@
         "en-US": "No path to domain control left outside Tier 0"
       },
       "Hint": {
-        "en-US": "The chain\u0027s accounts are sources themselves: as long as \u0060it-swalker\u0060 is in DnsAdmins, a path remains."
+        "en-US": "The chain\u0027s accounts are sources themselves: as long as it-swalker is in DnsAdmins, a path remains."
       },
       "Points": 2,
       "Check": {
@@ -3032,7 +3032,7 @@
     {
       "Id": "o4",
       "Title": {
-        "en-US": "Account \u0060svc-timesheet\u0060 still exists"
+        "en-US": "Account svc-timesheet still exists"
       },
       "Hint": {
         "en-US": "HR needs it every Monday."
@@ -3058,7 +3058,7 @@
     {
       "Id": "o5",
       "Title": {
-        "en-US": "Account \u0060it-swalker\u0060 still exists"
+        "en-US": "Account it-swalker still exists"
       },
       "Hint": {
         "en-US": "The network administrator needs their account."
