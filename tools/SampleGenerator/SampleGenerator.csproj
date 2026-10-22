@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Génère Samples/AttackPaths/{fr,en}/*.smad-x.json (commande dans Samples/AttackPaths/README.md) -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\SMAD-X\SMAD-X.csproj" />
+  </ItemGroup>
+</Project>
