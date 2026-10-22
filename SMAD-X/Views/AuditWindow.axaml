@@ -10,6 +10,20 @@
         Width="1250" Height="800"
         WindowStartupLocation="CenterOwner">
 
+    <!-- Liens des références : le gris par défaut du HyperlinkButton est peu lisible en thème sombre -->
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AuditReferenceBrush" Color="#93C5FD"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="AuditReferenceBrush" Color="#1D4ED8"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid RowDefinitions="Auto,*" Margin="12">
 
         <!-- ═══ Synthèse : score, niveau ANSSI estimé, compteurs, filtre ═══ -->
@@ -126,7 +140,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="audit:AuditReference">
                                     <HyperlinkButton NavigateUri="{Binding Url}" Padding="0,2" ToolTip.Tip="{Binding Url}">
-                                        <TextBlock TextWrapping="Wrap">
+                                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource AuditReferenceBrush}">
                                             <Run Text="{Binding FrameworkLabel}" FontWeight="SemiBold"/>
                                             <Run Text=" · "/>
                                             <Run Text="{Binding Id}" FontFamily="Consolas, Courier New, monospace"/>
