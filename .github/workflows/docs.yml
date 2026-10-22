@@ -42,7 +42,7 @@ jobs:
         run: pip install zensical==0.0.71
 
       # Mode strict : un lien cassé ou une page introuvable fait échouer la publication
-      - name: Build (FR, puis EN dans site/en)
+      - name: Build (FR dans docs/site, puis EN dans docs/site/en)
         run: |
           zensical build --clean --strict -f docs/zensical.fr.toml
           zensical build --strict -f docs/zensical.en.toml
@@ -50,7 +50,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: docs/site
 
       - name: Deploy
         id: deployment

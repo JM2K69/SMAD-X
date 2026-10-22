@@ -1,5 +1,5 @@
 # Site de documentation, version française (racine du site).
-# La version anglaise (zensical.en.toml) est construite ensuite dans site/en/.
+# La version anglaise (zensical.en.toml) est construite ensuite dans docs/site/en/.
 # Construction : voir docs/README.md
 
 [project]
@@ -11,7 +11,7 @@ copyright = "Copyright &copy; 2026 Jérôme Bezet-Torres — SMAD-X, usage non c
 repo_url = "https://github.com/JM2K69/SMAD-X"
 repo_name = "JM2K69/SMAD-X"
 docs_dir = "fr"
-site_dir = "../site"
+site_dir = "site"
 
 nav = [
   { "Accueil" = "index.md" },

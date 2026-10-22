@@ -1,4 +1,4 @@
-# Documentation site, English version (built into site/en/ after the French one).
+# Documentation site, English version (built into docs/site/en/ after the French one).
 # Build: see docs/README.md
 
 [project]
@@ -10,7 +10,7 @@ copyright = "Copyright &copy; 2026 Jérôme Bezet-Torres — SMAD-X, non-commerc
 repo_url = "https://github.com/JM2K69/SMAD-X"
 repo_name = "JM2K69/SMAD-X"
 docs_dir = "en"
-site_dir = "../site/en"
+site_dir = "site/en"
 
 nav = [
   { "Home" = "index.md" },
