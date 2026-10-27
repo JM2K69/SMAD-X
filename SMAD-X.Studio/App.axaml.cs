@@ -31,8 +31,21 @@ namespace SMADX.Studio
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var window = new MainWindow();
-                window.DataContext = new StudioViewModel(new StudioDialogs(window));
+                var viewModel = new StudioViewModel(new StudioDialogs(window));
+                window.DataContext = viewModel;
                 desktop.MainWindow = window;
+
+                // Fichier donné au lancement : un domaine envoyé par SMAD-X (« Créer un exercice avec SMAD-X Studio »),
+                // ou un exercice à ouvrir
+                if (desktop.Args is { Length: > 0 } args)
+                {
+                    void OpenStartupFile(object? sender, System.EventArgs e)
+                    {
+                        window.Opened -= OpenStartupFile;
+                        _ = viewModel.OpenPathAsync(args[0]);
+                    }
+                    window.Opened += OpenStartupFile;
+                }
             }
 
             base.OnFrameworkInitializationCompleted();

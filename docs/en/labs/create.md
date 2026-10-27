@@ -10,15 +10,15 @@ This guide goes from the idea to a tested file. The labs shipped with the applic
 
 | Method | For | Result |
 |---|---|---|
-| **A. From the application** | a teacher, no programming | a file to hand out to learners |
+| **A. A hand-made domain** | a trainer, no programming | a domain prepared in SMAD-X, shaped into a lab in SMAD-X Studio |
 | **B. With a generator** | a repository contributor | a lab embedded in the exe, tested automatically |
-| **C. With [SMAD-X Studio](studio.md)** | a trainer | a lab created, checked and given its trainer sheet, in a window or from the command line |
+| **C. All in [SMAD-X Studio](studio.md)** | a trainer | a lab built from an ANSSI recommendation or a scenario, in a window or from the command line |
 
 All produce the same format: you can start with A or C and finish with B.
 
 ---
 
-## 2. Method A: from the application
+## 2. Method A: a hand-made domain
 
 ### 2.1 Prepare the starting domain
 1. **File > New domain** (or open a saved domain).
@@ -29,28 +29,28 @@ All produce the same format: you can start with A or C and finish with B.
 4. Populate the domain like a real AD (departments, users, workstations): the weakness must be searched for, not sitting alone in an empty domain.
 5. Save the domain (`.smad-x.json`) so you can come back to it.
 
-### 2.2 Generate the skeleton
-**Labs > Create a lab from the current domain...**
+### 2.2 Send the domain to SMAD-X Studio
+**Labs > Create a lab with SMAD-X Studio...**
 
-SMAD-X writes a `.smadx-lab.json` file with:
-- the current domain as the starting domain;
-- one "Clear finding …" objective per failed audit rule;
-- a statement and a title to replace.
+SMAD-X opens [SMAD-X Studio](studio.md), shipped in the same archive, on the current domain. Studio makes it the starting domain of a new lab, lays out the statement template and suggests the objectives drawn from the audit and the attack paths.
 
-### 2.3 Complete the file
-Open the file in a text editor (VS Code understands JSON) and edit:
-- `Id`, `Title`, `Level`, `DurationMinutes`;
-- `Statement`: the Markdown statement (see § 4);
-- `Objectives`: keep the useful ones, add the others (see § 5).
+Without this menu entry (Studio started on its own): in Studio, **File > New lab from a domain (.smad-x.json)...**, then pick the saved domain.
 
-Do not edit `Start` by hand: rebuild the domain in the application and generate the skeleton again.
+### 2.3 Complete the lab in Studio
+- **Lab** tab: title, identifier, level, duration and, if needed, exam mode;
+- **Statement** tab: the Markdown statement (see § 4);
+- **Objectives** tab: keep the useful objectives, add the others and the guards (see § 5);
+- **Validation** tab: Studio checks the lab as the shipped labs' tests do;
+- **File > Save**: the `.smadx-lab.json` lab, with the trainer notes beside it.
+
+The file is still readable JSON (see § 3). Do not edit `Start` by hand: rebuild the domain in SMAD-X and send it to Studio again.
 
 ### 2.4 Test
 1. **Labs > Open a lab...** and pick the file.
 2. Click **Check** without changing anything: no main objective may be met, and the guard objectives (see § 5.2) must already be met.
 3. Apply the expected fix, then **Check**: everything must be met.
 4. **Start over**, then try the wrong solutions (delete the account, empty the group…): an objective must fail every time.
-5. **Export result** produces the Markdown report the learner can hand in.
+5. Enter a name, then **Save my submission**: add this submission in Studio's **Submissions** tab to check the grade the learner will get.
 
 ---
 

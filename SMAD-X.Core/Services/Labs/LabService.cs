@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using SMADX.Models;
-using SMADX.Services.Audit;
 
 namespace SMADX.Services.Labs
 {
@@ -98,40 +97,6 @@ namespace SMADX.Services.Labs
                 obj.PwdLastSet += shift;
             }
             return copy;
-        }
-
-        /// <summary>
-        /// Squelette d'exercice pour l'enseignant : le domaine actuel devient le départ, et chaque règle
-        /// d'audit en échec devient un objectif « lever ce constat ». Il reste à écrire l'énoncé.
-        /// </summary>
-        public LabDefinition CreateFromDocument(ADRootDocument document, DateTime now)
-        {
-            var start = JsonSerializer.Deserialize<ADRootDocument>(JsonSerializer.Serialize(document, Options), Options)!;
-            var report = new ADSecurityAuditService().Run(document.Domain, now);
-            var loc = LocalizationService.Instance;
-
-            string RuleTitle(AuditRule rule, string culture) =>
-                loc.Translate($"Audit.{rule.Id}", culture).Split('\n')[0].TrimStart('#', ' ').Trim();
-
-            return new LabDefinition
-            {
-                Id = "nouvel-exercice",
-                Title = LocalizedText.Of("Nouvel exercice", "New lab"),
-                Statement = LocalizedText.Of(
-                    "# Énoncé\n\nDécrivez ici le contexte et ce que l'apprenant doit faire.",
-                    "# Statement\n\nDescribe the context and what the learner has to do."),
-                ReferenceDate = now.Date,
-                Start = start,
-                Objectives = report.FailedRules.Select((rule, i) => new LabObjective
-                {
-                    Id = $"o{i + 1}",
-                    Title = LocalizedText.Of($"Lever le constat {rule.Id} : {RuleTitle(rule, "fr-FR")}",
-                                             $"Clear finding {rule.Id}: {RuleTitle(rule, "en-US")}"),
-                    Hint = LocalizedText.Of("Lancez l'audit et lisez la fiche de la règle.", "Run the audit and read the rule sheet."),
-                    Points = rule.Severity switch { AuditSeverity.Critical => 3, AuditSeverity.High => 2, _ => 1 },
-                    Check = new LabCheck { Type = LabCheckType.RuleClear, RuleId = rule.Id }
-                }).ToList()
-            };
         }
 
         private static IEnumerable<ADObject> Flatten(ADObject root) =>

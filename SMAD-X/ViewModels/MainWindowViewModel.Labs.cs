@@ -1,7 +1,9 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
 using SMADX.Services;
@@ -12,7 +14,7 @@ namespace SMADX.ViewModels
     /// <summary>Exercice proposé dans le menu « Exercices ».</summary>
     public sealed record LabMenuItem(LabDefinition Lab, string Title);
 
-    // Exercices : ouverture (fournis ou fichier), recommencer, création à partir du domaine actuel
+    // Exercices : ouverture (fournis, fichier ou copie), mode exercice et mode examen, création dans SMAD-X Studio
     public partial class MainWindowViewModel
     {
         private readonly LabService _labService = new();
@@ -62,71 +64,170 @@ namespace SMADX.ViewModels
         {
             OnPropertyChanged(nameof(BuiltInLabs));
             OnPropertyChanged(nameof(AttackPathLabs));
+            OnPropertyChanged(nameof(WindowTitle));
         }
+
+        // ─── Mode exercice ───────────────────────────────────────────────────────
+
+        /// <summary>Exercice en cours (fenêtre « Exercice »), null s'il n'y en a pas.</summary>
+        public LabViewModel? CurrentLab { get; private set; }
+
+        /// <summary>
+        /// Mode exercice : SMAD-X a été ouvert sur un exercice ou une copie, ou l'exercice est un examen.
+        /// Les commandes qui remplacent le domaine (nouveau, ouvrir, autre exercice) sont désactivées :
+        /// la copie de l'apprenant reste le domaine qu'il a travaillé.
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsFreeMode), nameof(WindowTitle), nameof(CanLeaveLabMode))]
+        [NotifyCanExecuteChangedFor(nameof(CreateNewDomainCommand), nameof(InitializeSampleDataCommand), nameof(LoadFromFileCommand),
+                                    nameof(OpenBuiltInLabCommand), nameof(OpenLabFileCommand), nameof(OpenInStudioCommand),
+                                    nameof(LeaveLabModeCommand))]
+        private bool _isLabMode;
+
+        public bool IsFreeMode => !IsLabMode;
+
+        public bool HasCurrentLab => CurrentLab != null;
+
+        /// <summary>Un examen ne se quitte pas : l'apprenant le termine en enregistrant sa copie.</summary>
+        public bool CanLeaveLabMode => IsLabMode && CurrentLab is { IsExam: false };
+
+        public string WindowTitle => IsLabMode && CurrentLab != null
+            ? string.Format(Loc[CurrentLab.IsExam ? "Lab.Mode.ExamTitle" : "Lab.Mode.Title"], CurrentLab.Title)
+            : "SMAD-X";
 
         /// <summary>
         /// Paramètre object : le menu évalue CanExecute avec le DataContext de l'entrée, qui n'est pas
         /// toujours un LabMenuItem (un RelayCommand&lt;LabMenuItem&gt; lèverait alors une exception).
         /// </summary>
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(IsFreeMode))]
         private void OpenBuiltInLab(object? parameter)
         {
             if (parameter is LabMenuItem item)
-                StartLab(item.Lab);
+                StartLab(item.Lab, labMode: false);
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(IsFreeMode))]
         private Task OpenLabFile() => RunFileCommandAsync(async () =>
         {
-            var path = await _dialogs.PickOpenFileAsync(Loc["Lab.Open.Title"], LabFilter, AllFilesFilter);
+            var path = await _dialogs.PickOpenFileAsync(Loc["Lab.Open.Title"], LabFilter,
+                new FileFilter(Loc["FileType.Submission"], "*" + LabSubmissionService.FileExtension), AllFilesFilter);
             if (path == null) return;
+            OpenLabOrSubmission(path, labMode: false);
+        });
 
+        /// <summary>
+        /// Fichier donné au lancement (double-clic ou <c>SMAD-X.exe fichier</c>) : un exercice ou une copie
+        /// ouvre le mode exercice, un domaine s'ouvre comme avec « Ouvrir ».
+        /// </summary>
+        public async Task OpenStartupFileAsync(string path)
+        {
             try
             {
-                StartLab(_labService.LoadFile(path));
+                if (path.EndsWith(LabService.FileExtension, StringComparison.OrdinalIgnoreCase)
+                    || path.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase))
+                    OpenLabOrSubmission(path, labMode: true);
+                else
+                    await LoadDomainFileAsync(path);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                StatusMessage = string.Format(Loc["Lab.Startup.Error"], path, ex.Message);
+            }
+        }
+
+        private void OpenLabOrSubmission(string path, bool labMode)
+        {
+            try
+            {
+                if (path.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase))
+                {
+                    var submission = new LabSubmissionService().LoadFile(path);
+                    StartLab(submission.Lab, labMode, submission, path);
+                    StatusMessage = string.Format(Loc["Lab.Resumed"], submission.Student, CurrentLab!.Title);
+                }
+                else
+                    StartLab(_labService.LoadFile(path), labMode);
             }
             catch (LabFormatException ex)
             {
                 StatusMessage = ex.Message;
             }
-        });
-
-        /// <summary>Squelette d'exercice : le domaine actuel devient le départ, les constats d'audit deviennent les objectifs.</summary>
-        [RelayCommand]
-        private Task CreateLabFromDomain() => RunFileCommandAsync(async () =>
-        {
-            if (RootObject == null) return;
-            var path = await _dialogs.PickSaveFileAsync(Loc["Lab.Create.Title"], "nouvel-exercice" + LabService.FileExtension,
-                "smadx-lab.json", LabFilter);
-            if (path == null) return;
-
-            var lab = _labService.CreateFromDocument(new ADRootDocument
-            {
-                Version = ADRootDocument.CurrentVersion,
-                Domain = RootObject,
-                SitesTopology = SitesTopology,
-                // Les tiers personnalisés de l'enseignant font partie de l'exercice
-                TierConfigurations = TierConfigurationService.Instance.Tiers
-                    .Select(t => new TierConfiguration(t.Name, t.Color, t.Description, t.Level)).ToList()
-            }, DateTime.Now);
-            _labService.SaveFile(lab, path);
-            StatusMessage = string.Format(Loc["Lab.Created"], path, lab.Objectives.Count);
-        });
-
-        /// <summary>Charge le domaine de départ dans la fenêtre principale et ouvre la fenêtre de l'exercice.</summary>
-        private void StartLab(LabDefinition lab)
-        {
-            var reference = _labService.PrepareStart(lab, DateTime.Now);
-            LoadLabStart(lab);
-            _dialogs.ShowLab(new LabViewModel(lab, reference.Domain, () => RootObject, () => LoadLabStart(lab), _dialogs));
         }
 
-        private void LoadLabStart(LabDefinition lab)
+        /// <summary>Charge le domaine de départ (ou celui de la copie reprise) et ouvre la fenêtre de l'exercice.</summary>
+        private void StartLab(LabDefinition lab, bool labMode, LabSubmission? resumed = null, string? submissionPath = null)
         {
-            var working = _labService.PrepareStart(lab, DateTime.Now);
+            var session = resumed != null ? LabSession.Resume(resumed) : LabSession.Begin(lab, DateTime.Now);
+            ShowLabDomain(session, resumed?.Work ?? session.NewWorkingCopy());
+            CurrentLab = new LabViewModel(session, CurrentDocument, () => ShowLabDomain(session, session.NewWorkingCopy()), _dialogs, resumed, submissionPath);
+            OnPropertyChanged(nameof(CurrentLab));
+            OnPropertyChanged(nameof(HasCurrentLab));
+            ShowCurrentLabCommand.NotifyCanExecuteChanged();
+            SaveSubmissionCommand.NotifyCanExecuteChanged();
+            // Un examen est toujours en mode exercice, quelle que soit la façon de l'ouvrir
+            IsLabMode = labMode || lab.Exam;
+            OnPropertyChanged(nameof(WindowTitle));
+            OnPropertyChanged(nameof(CanLeaveLabMode));
+            LeaveLabModeCommand.NotifyCanExecuteChanged();
+            _dialogs.ShowLab(CurrentLab);
+        }
+
+        private void ShowLabDomain(LabSession session, ADRootDocument working)
+        {
             _dataService.ApplyTierConfiguration(working);
             ShowDomain(working, expandDefaultNodes: true);
-            StatusMessage = string.Format(Loc["Lab.Started"], lab.Title.Resolve(Loc.CurrentCulture.Name));
+            StatusMessage = string.Format(Loc["Lab.Started"], session.Lab.Title.Resolve(Loc.CurrentCulture.Name));
         }
+
+        /// <summary>Document complet en cours (domaine, sites, tiers), tel qu'il est enregistré.</summary>
+        private ADRootDocument? CurrentDocument()
+        {
+            if (RootObject == null) return null;
+            var doc = _currentDocument ?? new ADRootDocument();
+            doc.Version = ADRootDocument.CurrentVersion;
+            doc.Domain = RootObject;
+            doc.SitesTopology = SitesTopology;
+            return doc;
+        }
+
+        [RelayCommand(CanExecute = nameof(HasCurrentLab))]
+        private void ShowCurrentLab()
+        {
+            if (CurrentLab != null) _dialogs.ShowLab(CurrentLab);
+        }
+
+        [RelayCommand(CanExecute = nameof(HasCurrentLab))]
+        private Task SaveSubmission() => CurrentLab?.SaveSubmissionCommand.ExecuteAsync(null) ?? Task.CompletedTask;
+
+        [RelayCommand(CanExecute = nameof(CanLeaveLabMode))]
+        private void LeaveLabMode()
+        {
+            IsLabMode = false;
+            StatusMessage = Loc["Lab.Mode.Left"];
+        }
+
+        // ─── Création d'exercices : SMAD-X Studio ───────────────────────────────
+
+        /// <summary>
+        /// Les exercices se créent dans SMAD-X Studio : le domaine actuel y est envoyé (enregistré dans un
+        /// fichier temporaire) pour devenir le domaine de départ d'un nouvel exercice.
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(IsFreeMode))]
+        private Task OpenInStudio() => RunFileCommandAsync(async () =>
+        {
+            if (CurrentDocument() is not { } doc) return;
+            var folder = Path.Combine(Path.GetTempPath(), "SMAD-X");
+            Directory.CreateDirectory(folder);
+            var name = string.Concat(doc.Domain.Name.Split('.')[0].Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
+            var path = Path.Combine(folder, $"{(name.Length > 0 ? name : "domaine")}.smad-x.json");
+            if (!await _dataService.SaveDocumentAsync(doc, path))
+            {
+                StatusMessage = Loc["Status.ErrorSave"];
+                return;
+            }
+            StatusMessage = _dialogs.OpenInStudio(path, out var studio)
+                ? string.Format(Loc["Lab.Studio.Launched"], doc.Domain.Name)
+                : string.Format(Loc["Lab.Studio.Missing"], studio);
+        });
     }
 }

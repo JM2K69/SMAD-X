@@ -21,6 +21,9 @@ namespace SMADX.Studio.ViewModels
     public interface IStudioDialogs
     {
         Task<string?> OpenFileAsync(string title, string filterName, string pattern);
+        /// <summary>Plusieurs fichiers (les copies d'une classe) ; liste vide si l'utilisateur annule.</summary>
+        Task<IReadOnlyList<string>> OpenFilesAsync(string title, string filterName, string pattern);
+        Task<string?> PickFolderAsync(string title);
         Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern);
         Task<RecipeRequest?> ChooseRecipeAsync();
     }
@@ -43,6 +46,7 @@ namespace SMADX.Studio.ViewModels
             Clock = clock ?? (() => DateTime.Now);
             _editCulture = Text.Culture;
             _status = Text["Status.Ready"];
+            _classSummary = Text["Submissions.None"];
         }
 
         public static StudioText Text => StudioText.Instance;
@@ -51,10 +55,11 @@ namespace SMADX.Studio.ViewModels
         // ─── Exercice ouvert ─────────────────────────────────────────────────────
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasLab), nameof(LabId), nameof(LabTitle), nameof(Statement), nameof(Level), nameof(Duration),
+        [NotifyPropertyChangedFor(nameof(HasLab), nameof(LabId), nameof(LabTitle), nameof(Statement), nameof(Level), nameof(Duration), nameof(IsExam),
                                   nameof(LanguageChoice), nameof(CategoryChoice), nameof(DomainSummary), nameof(TotalPoints))]
         [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportSheetCommand), nameof(ValidateCommand),
-                                    nameof(SuggestCommand), nameof(AddObjectiveCommand), nameof(InsertTemplateCommand), nameof(ChooseSolutionCommand))]
+                                    nameof(SuggestCommand), nameof(AddObjectiveCommand), nameof(InsertTemplateCommand), nameof(ChooseSolutionCommand),
+                                    nameof(AddSubmissionsCommand), nameof(AddSubmissionFolderCommand), nameof(RegradeSubmissionsCommand))]
         private LabDefinition? _lab;
 
         [ObservableProperty] private string? _filePath;
@@ -130,6 +135,13 @@ namespace SMADX.Studio.ViewModels
             set { if (Lab == null) return; Lab.DurationMinutes = Math.Max(1, value); OnPropertyChanged(); }
         }
 
+        /// <summary>Mode examen : dans SMAD-X, ni indice, ni vérification, ni « Recommencer ».</summary>
+        public bool IsExam
+        {
+            get => Lab?.Exam ?? false;
+            set { if (Lab == null) return; Lab.Exam = value; OnPropertyChanged(); RefreshSheet(); }
+        }
+
         public IReadOnlyList<Choice<string?>> Languages =>
             [new(null, Text["Lab.Language.Both"]), new("fr-FR", "Français"), new("en-US", "English")];
 
@@ -194,7 +206,12 @@ namespace SMADX.Studio.ViewModels
         private async Task NewFromDomainAsync()
         {
             if (await _dialogs.OpenFileAsync(Text["Menu.NewFromDomain"], Text["File.Domain"], "*.smad-x.json") is not { } path) return;
-            await RunAsync(async () =>
+            await NewFromDomainFileAsync(path);
+        }
+
+        /// <summary>Nouvel exercice dont le domaine de départ est ce fichier ; le titre vient de son nom.</summary>
+        public Task NewFromDomainFileAsync(string path) =>
+            RunAsync(async () =>
             {
                 var document = await LoadDocumentAsync(path);
                 var culture = EditCulture;
@@ -211,6 +228,21 @@ namespace SMADX.Studio.ViewModels
                 Load(lab, null, "");
                 Status = Text["Status.Created"];
             });
+
+        /// <summary>
+        /// Fichier donné au lancement : un exercice s'ouvre, un domaine (envoyé par SMAD-X) devient le
+        /// domaine de départ d'un nouvel exercice.
+        /// </summary>
+        public Task OpenPathAsync(string path)
+        {
+            if (path.EndsWith(LabService.FileExtension, StringComparison.OrdinalIgnoreCase))
+                return OpenLabFileAsync(path);
+            if (path.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase))
+            {
+                Status = Text["Submissions.OpenLabFirst"];
+                return Task.CompletedTask;
+            }
+            return NewFromDomainFileAsync(path);
         }
 
         [RelayCommand]
@@ -230,14 +262,17 @@ namespace SMADX.Studio.ViewModels
         private async Task OpenAsync()
         {
             if (await _dialogs.OpenFileAsync(Text["Menu.Open"], Text["File.Lab"], "*" + LabService.FileExtension) is not { } path) return;
-            await RunAsync(() =>
+            await OpenLabFileAsync(path);
+        }
+
+        public Task OpenLabFileAsync(string path) =>
+            RunAsync(() =>
             {
                 var notesPath = NotesPath(path);
                 Load(_labs.LoadFile(path), path, File.Exists(notesPath) ? File.ReadAllText(notesPath) : "");
                 if (Lab!.Language is { } lang) EditCulture = lang;
                 Status = string.Format(Text["Status.Opened"], path);
             });
-        }
 
         [RelayCommand(CanExecute = nameof(HasLab))]
         private async Task SaveAsync()
@@ -311,6 +346,7 @@ namespace SMADX.Studio.ViewModels
             Suggestions.Clear();
             ShowSuggestions = false;
             Issues.Clear();
+            ResetSubmissions();
             SelectedObjective = Objectives.FirstOrDefault();
             OnPropertyChanged(nameof(TotalPoints));
             RefreshSheet();

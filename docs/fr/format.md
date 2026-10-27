@@ -36,7 +36,13 @@ Un fichier JSON lisible, qui se versionne bien dans Git :
 
 ## L'exercice : `.smadx-lab.json`
 
-Un exercice contient un énoncé, un domaine de départ complet (un document `.smad-x.json`, migré à la lecture comme un fichier normal) et des objectifs. Sa structure est décrite dans [Créer un exercice](exercices/creer.md).
+Un exercice contient un énoncé, un domaine de départ complet (un document `.smad-x.json`, migré à la lecture comme un fichier normal) et des objectifs. Sa structure est décrite dans [Créer un exercice](exercices/creer.md). La clé `"Exam": true`, écrite seulement si elle est activée, met l'exercice en mode examen.
+
+## La copie : `.smadx-submission.json`
+
+La copie d'un apprenant (`"Format": "smadx-submission"`) contient son nom (`Student`), l'identifiant de l'exercice (`LabId`), la date de préparation du domaine de départ (`StartedOn`), la date de la copie (`SavedAt`), les objectifs dont l'indice a été consulté (`HintsUsed`), l'exercice reçu (`Lab`) et le domaine de l'apprenant (`Work`, un document `.smad-x.json`). Elle ne contient pas de note : SMAD-X Studio la corrige avec l'exemplaire de l'exercice du formateur.
+
+`SessionId` identifie la session de travail, tirée au hasard à l'ouverture de l'exercice : les identifiants (`Id`) des objets du domaine de travail en sont dérivés. `Seal` est le sceau : le SHA-256, en hexadécimal, de la copie sans la clé `Seal`, écrite en JSON compact. Il ne dépend pas de la mise en page, mais du moindre changement de contenu.
 
 ## Les scripts PowerShell
 

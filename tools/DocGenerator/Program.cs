@@ -89,6 +89,15 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     Capture(new LabWindow { DataContext = lab, Width = 1400, Height = 900 }, Out("lab-checked"));
     main.Close();
 
+    // ─── Le même exercice de démonstration en mode examen ──────────────────────
+    (main, vm, dialogs) = OpenMain();
+    var exam = DemoLab(culture);
+    exam.Exam = true;
+    vm.OpenBuiltInLabCommand.Execute(new LabMenuItem(exam, ""));
+    dialogs.Lab!.StudentName = T(culture, "Camille Martin", "Alex Morgan");
+    Capture(new LabWindow { DataContext = dialogs.Lab, Width = 1400, Height = 900 }, Out("lab-exam"));
+    main.Close();
+
     WriteRulesPage(repo, culture, lang);
     WriteLabCatalog(repo, culture, lang);
     Console.WriteLine($"{lang} : captures dans {outDir}");
@@ -337,5 +346,6 @@ sealed class CaptureDialogs : IDialogService
     public Task ShowSitesAsync(ADSitesTopology? topology) => Task.CompletedTask;
     public Task<string?> ShowExportReportAsync(ADRootDocument document) => Task.FromResult<string?>(null);
     public Task ShowAboutAsync() => Task.CompletedTask;
+    public bool OpenInStudio(string domainFile, out string studioPath) { studioPath = string.Empty; return false; }
     public Task ShowShortcutsAsync() => Task.CompletedTask;
 }

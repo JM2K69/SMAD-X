@@ -29,8 +29,21 @@ namespace SMADX
             {
                 var mainWindow = new MainWindow();
                 ErrorReporter.ErrorRaised += error => Dispatcher.UIThread.Post(() => ShowError(mainWindow, error));
-                mainWindow.DataContext = new MainWindowViewModel(new AvaloniaDialogService(mainWindow));
+                var viewModel = new MainWindowViewModel(new AvaloniaDialogService(mainWindow));
+                mainWindow.DataContext = viewModel;
                 desktop.MainWindow = mainWindow;
+
+                // Exercice, copie ou domaine donné au lancement (double-clic, « SMAD-X.exe fichier ») :
+                // ouvert une fois la fenêtre affichée, pour que la fenêtre de l'exercice ait son propriétaire
+                if (desktop.Args is { Length: > 0 } args)
+                {
+                    void OpenStartupFile(object? sender, EventArgs e)
+                    {
+                        mainWindow.Opened -= OpenStartupFile;
+                        _ = viewModel.OpenStartupFileAsync(args[0]);
+                    }
+                    mainWindow.Opened += OpenStartupFile;
+                }
             }
 
             base.OnFrameworkInitializationCompleted();

@@ -43,3 +43,4 @@ The PDF embeds its fallback fonts (Noto, including emoji and symbols): it render
 | Delegations | **Delegations** window > **Export CSV** |
 | Differences between two files | **Analyse > Domain Timeline** (`Ctrl+T`), CSV export |
 | Lab report | lab window > **Export result** (Markdown) |
+| Lab submission, to hand in to the trainer | lab window > **Save my submission** (`.smadx-submission.json`) |

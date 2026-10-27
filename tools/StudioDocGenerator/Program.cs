@@ -1,7 +1,8 @@
 // Captures d'écran de SMAD-X Studio pour le site de documentation, en français et en anglais.
 // Les fenêtres sont rendues hors écran (Avalonia Headless avec le moteur Skia) : rien ne s'affiche sur le bureau.
 // L'exercice montré est créé ici à partir d'une recommandation, sur un domaine propre à la documentation ;
-// la fiche formateur et les notes (la solution) ne sont jamais capturées.
+// la fiche formateur et les notes (la solution) ne sont jamais capturées. Les copies de l'onglet « Copies »
+// sont celles d'apprenants fictifs, fabriquées ici ; la capture ne montre que les notes, pas les corrections.
 // Usage : dotnet run --project tools/StudioDocGenerator -- <racine du dépôt>
 using Avalonia;
 using Avalonia.Controls;
@@ -67,12 +68,69 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     Tab(main, 3);
     vm.ValidateCommand.Execute(null);
     Capture(main, Out("studio-validation"));
+
+    // ─── Copies d'une classe fictive ──────────────────────────────────────────
+    vm.AddSubmissions(ClassSubmissions(vm.Lab!, culture));
+    Tab(main, 5);
+    Capture(main, Out("studio-submissions"));
     main.Close();
 
     Console.WriteLine($"{lang} : captures de Studio dans {outDir}");
 }
 
 static string T(string culture, string fr, string en) => culture == "fr-FR" ? fr : en;
+
+static IEnumerable<ADObject> Flatten(ADObject o) => new[] { o }.Concat(o.Children.SelectMany(Flatten));
+
+// Quatre apprenants fictifs sur l'exercice de démonstration (KRB-01, DLG-02 et ACL-01 combinés)
+static IReadOnlyList<string> ClassSubmissions(LabDefinition lab, string culture)
+{
+    var folder = Path.Combine(Path.GetTempPath(), "smadx-doc-studio", culture);
+    if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
+    Directory.CreateDirectory(folder);
+    var started = new DateTime(2026, 10, 27, 9, 0, 0);
+
+    void Kerberoast(ADObject d) => Flatten(d).Single(o => o.Name == "svc-app").MemberOf.Remove("Domain Admins");
+    void Delegation(ADObject d)
+    {
+        var server = Flatten(d).Single(o => o.Name == "SRV-APP01");
+        server.AccountFlags &= ~ADAccountFlags.TrustedToAuthForDelegation;
+        server.AllowedToDelegateTo.Clear();
+    }
+    void Owner(ADObject d) => Flatten(d).Single(o => o.Name == "Domain Admins" && o.Type == ADObjectType.Group).Owner = "Domain Admins";
+    void DeleteAccount(ADObject d)
+    {
+        var svc = Flatten(d).Single(o => o.Name == "svc-app");
+        svc.Parent!.Children.Remove(svc);
+    }
+
+    var students = new (string Fr, string En, Action<ADObject>[] Work, string[] Hints, int Minutes)[]
+    {
+        ("Camille Martin", "Alex Morgan", [Kerberoast, Delegation, Owner], [], 38),
+        ("Lucas Bernard", "Sam Taylor", [Kerberoast, Owner], ["o5", "o6"], 52),
+        ("Inès Moreau", "Jordan Lee", [DeleteAccount, Owner], ["o6"], 45),
+        ("Hugo Petit", "Chris Walker", [], ["o5"], 30),
+    };
+    var paths = new List<string>();
+    foreach (var (fr, en, work, hints, minutes) in students)
+    {
+        var session = LabSession.Begin(lab, started);
+        var document = session.NewWorkingCopy();
+        foreach (var step in work) step(document.Domain);
+        var name = T(culture, fr, en);
+        var path = Path.Combine(folder, LabSubmissionService.SuggestedFileName(lab.Id, name));
+        new LabSubmissionService().SaveFile(session.ToSubmission(name, document, hints, started.AddMinutes(minutes)), path);
+        paths.Add(path);
+    }
+
+    // Un cinquième a rouvert la copie de la première et l'a enregistrée sous son nom : même session, que Studio signale
+    var original = new LabSubmissionService().LoadFile(paths[0]);
+    var copier = T(culture, "Nathan Roux", "Taylor Reed");
+    var copied = Path.Combine(folder, LabSubmissionService.SuggestedFileName(lab.Id, copier));
+    new LabSubmissionService().SaveFile(LabSession.Resume(original).ToSubmission(copier, original.Work, [], started.AddMinutes(41)), copied);
+    paths.Add(copied);
+    return paths;
+}
 
 static void Tab(Window window, int index)
 {
@@ -114,6 +172,8 @@ sealed class CaptureDialogs : IStudioDialogs
 {
     public RecipeRequest? Recipe { get; set; }
     public Task<string?> OpenFileAsync(string title, string filterName, string pattern) => Task.FromResult<string?>(null);
+    public Task<IReadOnlyList<string>> OpenFilesAsync(string title, string filterName, string pattern) => Task.FromResult<IReadOnlyList<string>>([]);
+    public Task<string?> PickFolderAsync(string title) => Task.FromResult<string?>(null);
     public Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern) => Task.FromResult<string?>(null);
     public Task<RecipeRequest?> ChooseRecipeAsync() => Task.FromResult(Recipe);
 }

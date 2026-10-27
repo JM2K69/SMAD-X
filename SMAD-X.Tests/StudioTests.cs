@@ -26,7 +26,12 @@ public class StudioTests
         public string? SavePath { get; set; }
         public RecipeRequest? Recipe { get; set; }
 
+        public List<string> OpenPaths { get; } = new();
+        public string? Folder { get; set; }
+
         public Task<string?> OpenFileAsync(string title, string filterName, string pattern) => Task.FromResult(OpenPath);
+        public Task<IReadOnlyList<string>> OpenFilesAsync(string title, string filterName, string pattern) => Task.FromResult<IReadOnlyList<string>>(OpenPaths);
+        public Task<string?> PickFolderAsync(string title) => Task.FromResult(Folder);
         public Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern) => Task.FromResult(SavePath);
         public Task<RecipeRequest?> ChooseRecipeAsync() => Task.FromResult(Recipe);
     }
@@ -473,5 +478,161 @@ public class StudioTests
         var previous = loc.CurrentCulture.Name;
         Run("list-recipes", "--lang", previous == "fr-FR" ? "en" : "fr");
         Assert.Equal(previous, loc.CurrentCulture.Name);
+    }
+
+    // ─── Ouverture au lancement, mode examen, copies d'une classe ────────────
+
+    /// <summary>Exercice ACC-01 (compte Invité activé) enregistré, et sa correction : désactiver l'Invité.</summary>
+    private static string SavedRecipeLab(string ruleId = "ACC-01", bool exam = false)
+    {
+        var (lab, _) = LabRecipes.CreateLab(LabRecipes.All.Single(r => r.RuleId == ruleId), "fr-FR", "classe.local", Now.Date);
+        lab.Exam = exam;
+        var path = Path.Combine(TempDir(), lab.Id + LabService.FileExtension);
+        new LabService().SaveFile(lab, path);
+        return path;
+    }
+
+    private static void DisableGuest(ADObject domain) =>
+        Flatten(domain).Single(o => o.Name == "Guest").AccountFlags |= ADAccountFlags.AccountDisabled;
+
+    /// <summary>Copie d'un apprenant sur l'exercice du fichier, enregistrée dans <paramref name="folder"/>.</summary>
+    private static string Submission(string labPath, string student, Action<ADObject>? work = null, string? folder = null)
+    {
+        var session = LabSession.Begin(new LabService().LoadFile(labPath), Now);
+        var document = session.NewWorkingCopy();
+        work?.Invoke(document.Domain);
+        var path = Path.Combine(folder ?? TempDir(), LabSubmissionService.SuggestedFileName(session.Lab.Id, student));
+        new LabSubmissionService().SaveFile(session.ToSubmission(student, document, [], Now.AddMinutes(30)), path);
+        return path;
+    }
+
+    [Fact]
+    public async Task OpenPath_ADomainFromSmadX_StartsANewLab()
+    {
+        var (vm, _) = NewStudio();
+        var path = Path.Combine(TempDir(), "contoso.smad-x.json");
+        File.Copy(Sample("fr", "01-kerberoasting"), path);
+
+        await vm.OpenPathAsync(path);
+
+        Assert.True(vm.HasLab, vm.Status);
+        Assert.Equal("contoso", vm.LabId);
+        Assert.Null(vm.FilePath); // à enregistrer ailleurs que dans le dossier temporaire
+    }
+
+    [Fact]
+    public async Task OpenPath_ALabOpensIt_ASubmissionExplainsWhatToDo()
+    {
+        var labPath = SavedRecipeLab();
+        var (vm, _) = NewStudio();
+
+        await vm.OpenPathAsync(Submission(labPath, "Camille"));
+        Assert.False(vm.HasLab);
+        Assert.Equal(StudioText.Instance["Submissions.OpenLabFirst"], vm.Status);
+
+        await vm.OpenPathAsync(labPath);
+        Assert.True(vm.HasLab);
+        Assert.Equal(labPath, vm.FilePath);
+    }
+
+    [Fact]
+    public async Task ExamMode_IsSavedInTheLab()
+    {
+        var vm = await FromRecipe("ACC-01");
+        Assert.False(vm.IsExam);
+
+        vm.IsExam = true;
+        var path = TempFile(LabService.FileExtension);
+        vm.Save(path);
+
+        Assert.True(new LabService().LoadFile(path).Exam);
+    }
+
+    [Fact]
+    public async Task Submissions_AreGradedWithTheOpenLab_AndExported()
+    {
+        var labPath = SavedRecipeLab();
+        var (vm, dialogs) = NewStudio();
+        await vm.OpenPathAsync(labPath);
+        var max = vm.TotalPoints;
+
+        dialogs.OpenPaths.AddRange([Submission(labPath, "Lucas"), Submission(labPath, "Camille", DisableGuest)]);
+        await vm.AddSubmissionsCommand.ExecuteAsync(null);
+
+        Assert.Equal(["Camille", "Lucas"], vm.Submissions.Select(s => s.Student));
+        Assert.Equal($"{max} / {max}", vm.Submissions[0].Grade);
+        Assert.Equal("100 %", vm.Submissions[0].Percent);
+        Assert.All(vm.Submissions[0].Marks, m => Assert.True(m.Passed));
+        Assert.Contains(vm.Submissions[1].Marks, m => !m.Passed);
+        Assert.Equal(vm.Objectives.Count, vm.Submissions[1].Marks.Count);
+        Assert.Equal(vm.Objectives.Count, vm.ObjectiveRates.Count);
+        Assert.Contains("2 copie(s) corrigée(s) sur 2", vm.ClassSummary);
+
+        var csv = TempFile(".csv");
+        dialogs.SavePath = csv;
+        await vm.ExportGradesCommand.ExecuteAsync(null);
+        Assert.StartsWith("Apprenant;", File.ReadAllText(csv).TrimStart('﻿'));
+
+        var report = TempFile(".md");
+        dialogs.SavePath = report;
+        await vm.ExportClassReportCommand.ExecuteAsync(null);
+        Assert.Contains("| Camille |", File.ReadAllText(report));
+
+        // Un autre exercice : la liste est vidée
+        await vm.OpenPathAsync(SavedRecipeLab("PWD-03"));
+        Assert.Empty(vm.Submissions);
+        Assert.False(vm.ExportGradesCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task Submissions_FromAFolder_AndRegradedAfterChangingPoints()
+    {
+        var labPath = SavedRecipeLab();
+        var folder = TempDir();
+        Submission(labPath, "Camille", DisableGuest, folder);
+        Submission(labPath, "Lucas", folder: folder);
+        var (vm, dialogs) = NewStudio();
+        await vm.OpenPathAsync(labPath);
+
+        dialogs.Folder = folder;
+        await vm.AddSubmissionFolderCommand.ExecuteAsync(null);
+        Assert.Equal(2, vm.Submissions.Count);
+
+        vm.Objectives[0].Points += 5;
+        vm.RegradeSubmissionsCommand.Execute(null);
+        Assert.Equal($"{vm.TotalPoints} / {vm.TotalPoints}", vm.Submissions.Single(s => s.Student == "Camille").Grade);
+    }
+
+    [Fact]
+    public void Cli_Grade_PrintsTheGrades_AndWritesTheFiles()
+    {
+        var labPath = SavedRecipeLab();
+        var folder = TempDir();
+        Submission(labPath, "Camille", DisableGuest, folder);
+        Submission(labPath, "Lucas", folder: folder);
+        var csv = Path.Combine(TempDir(), "notes.csv");
+        var report = Path.Combine(TempDir(), "bilan.md");
+
+        var (code, output, error) = Run("grade", labPath, folder, "--lang", "fr", "--csv", csv, "--report", report);
+
+        Assert.True(code == 0, output + error);
+        Assert.Contains("Camille", output);
+        Assert.Contains("2/2 graded", output);
+        Assert.True(File.Exists(csv));
+        Assert.Contains("Réussite par objectif", File.ReadAllText(report));
+
+        // Une copie d'un autre exercice ne peut pas être corrigée
+        var (wrong, wrongOutput, _) = Run("grade", labPath, Submission(SavedRecipeLab("PWD-03"), "Inès"));
+        Assert.Equal(1, wrong);
+        Assert.Contains("error", wrongOutput);
+    }
+
+    [Fact]
+    public void Cli_Exam_MarksTheGeneratedLab()
+    {
+        var dir = TempDir();
+        var (code, output, error) = Run("recipe", "ACC-01", "--exam", "--lang", "fr", "--out", dir);
+        Assert.True(code == 0, output + error);
+        Assert.True(new LabService().LoadFile(Directory.GetFiles(dir, "*" + LabService.FileExtension).Single()).Exam);
     }
 }

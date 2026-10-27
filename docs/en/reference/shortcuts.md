@@ -9,7 +9,7 @@ The list is also in the application: **Help > Keyboard shortcuts...**
 | `Ctrl+N` | New domain |
 | `Ctrl+Shift+N` | New structure (sample) |
 | `Ctrl+O` | Open |
-| `Ctrl+S` | Save |
+| `Ctrl+S` | Save (in lab mode: save my submission) |
 | `Ctrl+E` | Export to JSON |
 | `Ctrl+P` | Export to PowerShell |
 | `Ctrl+I` | Generate AD import script |

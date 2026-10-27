@@ -250,22 +250,6 @@ public class LabFormatTests
 
         Assert.Contains(expectedInMessage, ex.Message);
     }
-
-    [Fact]
-    public void CreateFromDocument_TurnsFailedRulesIntoObjectives()
-    {
-        var domain = new ADDataService().CreateFreshDomainStructure("corp.local");
-        var now = new DateTime(2026, 10, 22);
-
-        var lab = _service.CreateFromDocument(new ADRootDocument { Domain = domain }, now);
-
-        Assert.Equal(["DLG-04", "PRIV-03", "PWD-01"], lab.Objectives.Select(o => o.Check.RuleId!).Order());
-        Assert.All(lab.Objectives, o => Assert.Equal(LabCheckType.RuleClear, o.Check.Type));
-        Assert.Contains("PWD-01", lab.Objectives.Single(o => o.Check.RuleId == "PWD-01").Title["en-US"]);
-        Assert.NotSame(domain, lab.Start.Domain); // copie : modifier le domaine ne modifie pas l'exercice
-        // Le squelette se relit comme n'importe quel exercice
-        Assert.Equal(3, _service.Parse(_service.Serialize(lab)).Objectives.Count);
-    }
 }
 
 /// <summary>Chaque type de vérification, sur un petit domaine.</summary>

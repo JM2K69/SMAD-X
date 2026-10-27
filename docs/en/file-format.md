@@ -36,7 +36,13 @@ On load, a version 1 file is **converted** automatically, and the status bar say
 
 ## The lab: `.smadx-lab.json`
 
-A lab holds a statement, a full starting domain (a `.smad-x.json` document, migrated on load like any file) and objectives. Its structure is described in [Creating a lab](labs/create.md).
+A lab holds a statement, a full starting domain (a `.smad-x.json` document, migrated on load like any file) and objectives. Its structure is described in [Creating a lab](labs/create.md). The `"Exam": true` key, written only when set, puts the lab in exam mode.
+
+## The submission: `.smadx-submission.json`
+
+A learner's submission (`"Format": "smadx-submission"`) holds their name (`Student`), the lab id (`LabId`), the date the starting domain was prepared (`StartedOn`), the date of the submission (`SavedAt`), the objectives whose hint was viewed (`HintsUsed`), the lab received (`Lab`) and the learner's domain (`Work`, a `.smad-x.json` document). It holds no grade: SMAD-X Studio grades it with the trainer's copy of the lab.
+
+`SessionId` identifies the work session, drawn at random when the lab opens: the identifiers (`Id`) of the objects in the working domain are derived from it. `Seal` is the seal: the SHA-256, in hexadecimal, of the submission without the `Seal` key, written as compact JSON. It does not depend on the layout, only on content: the slightest change breaks it.
 
 ## PowerShell scripts
 

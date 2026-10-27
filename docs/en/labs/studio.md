@@ -2,7 +2,7 @@
 
 **SMAD-X Studio** is the trainer's tool: a second executable, shipped in the same archive as SMAD-X, that creates labs, checks them and produces the trainer sheet. It does, with a window, what the [how-to](create.md) describes by hand.
 
-Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the lab is shaped in Studio, and the learner does it in SMAD-X (**Labs > Open a lab...**).
+Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the lab is shaped in Studio, the learner does it in SMAD-X and hands in a **submission**, which Studio grades with the rest of the class.
 
 ![SMAD-X Studio home](../assets/screens/studio-home.png)
 
@@ -17,6 +17,8 @@ Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the 
 | **Convert a scenario into a lab...** | a `.smad-x.json` scenario whose description follows the *Context / The path / Fix it* outline | the statement taken from the context; the path and the fix go into the trainer notes |
 
 **Open a lab...** resumes an existing `.smadx-lab.json` file, with its notes.
+
+From SMAD-X, **Labs > Create a lab with SMAD-X Studio...** opens Studio on the domain shown: it becomes the starting domain of a new lab, as with **New lab from a domain**.
 
 ### From a recommendation
 
@@ -43,6 +45,8 @@ The statement it writes stays general ("check compliance before the yearly audit
 Title, identifier (the file name), language, menu series (general labs or attack paths), level and duration. The starting domain summary gives the number of objects, the attack paths outside Tier 0 and the audit score.
 
 A lab is either **bilingual** or exists in **one language** only. The *Language of the texts being edited* list, at the top of the window, chooses which texts you edit.
+
+**Exam mode**: in SMAD-X, the lab has no hints, no checking, no score and no "Start over", and no other domain can be opened. The learner saves a submission and hands it in.
 
 ### Statement
 
@@ -88,6 +92,39 @@ The **trainer notes** (the solution, things to watch for) and the trainer sheet 
 
 ---
 
+## Grading a class
+
+![Submissions tab](../assets/screens/studio-submissions.png)
+
+Each learner saves their work in SMAD-X with **Save my submission**: a `.smadx-submission.json` file holding the lab they received, their domain and the hints viewed. Open the lab in Studio, then, in the **Submissions** tab:
+
+- **Add submissions...**: pick one or several submissions at once;
+- **Add a folder...**: every submission in the folder and its subfolders, for instance the folder where the class dropped its work.
+
+Studio grades each submission with **your** copy of the lab, as it is open: the starting domain is prepared again at the date the learner started, and the check runs at the date of the submission. The score the learner may have seen is never reused. After changing objectives or points, **Regrade** grades everything again.
+
+Each row gives the grade, the percentage, the number of hints viewed, one dot per objective (green when met, red otherwise; hover to see the objective) and the remarks:
+
+| Remark | Meaning |
+|---|---|
+| submission for another lab | it is not graded |
+| submission changed outside SMAD-X | its seal no longer matches its content: name, dates, hints or domain edited by hand |
+| same work session as …'s submission | one submission handed in under several names: one is a copy of the other |
+| the domain does not come from this submission's session | someone else's work, handed in under one's own submission; Studio names the original learner if it has their submission |
+| unsealed submission, no work session | the submission was not saved by SMAD-X: these checks are impossible |
+| other starting domain | the submission was made on another version of the lab: the grade may be wrong |
+| no name, several submissions | check before recording the grade |
+| unreadable submission | the file is damaged or is not a SMAD-X submission |
+
+Red remarks need your attention; the grade stays displayed. Two identical solutions, each done on its own, are not reported: what gives a copy away is not the solution, it is the work session. SMAD-X draws it at random when the lab opens, derives from it the internal identifiers of every object in the learner's domain, and seals each submission with a SHA-256 fingerprint of all its content.
+
+!!! note "What these checks guarantee"
+    They catch the common cases: a submission edited in a text editor, a classmate's submission handed in under one's own name, a domain taken from someone else. The format is public and SMAD-X runs on the learner's computer: they do not stop a determined forger who would rewrite the whole file consistently. An absolute guarantee would require collecting submissions on a machine the learner does not control.
+
+On the right, the **success per objective** shows what the class understood and what to go over again. **Export grades (CSV)...** produces a spreadsheet for Excel (one column per objective); **Export class results (Markdown)...** produces the class results: average, median, everyone's grade and success per objective.
+
+---
+
 ## The files
 
 | File | Content | Give to learners |
@@ -95,6 +132,7 @@ The **trainer notes** (the solution, things to watch for) and the trainer sheet 
 | `<id>.smadx-lab.json` | the lab: statement, starting domain, objectives | **yes** |
 | `<id>.smadx-lab.notes.md` | the trainer notes, saved beside the lab | **no** |
 | `<id>.trainer.md` | the exported trainer sheet | **no** |
+| `<id>_<name>.smadx-submission.json` | a learner's submission, handed in to the trainer | (written by the learner) |
 
 The notes are never written into the lab: handing out the `.smadx-lab.json` file alone does not reveal the solution.
 
@@ -102,7 +140,7 @@ The notes are never written into the lab: handing out the `.smadx-lab.json` file
 
 ## Command line
 
-Studio also produces labs in batches, without a window:
+Studio also produces labs in batches and grades a class, without a window:
 
 ```bash
 SMAD-X.Studio list-recipes --lang en
@@ -128,12 +166,17 @@ SMAD-X.Studio convert scenarios --lang en --out labs
 SMAD-X.Studio validate labs --solution fixed.smad-x.json
 ```
 
+```bash
+SMAD-X.Studio grade labs/anssi-krb-01.smadx-lab.json submissions-group-a submissions-group-b --lang en --csv grades.csv --report results.md
+```
+
 | Command | Purpose |
 |---|---|
 | `list-recipes` | lists the recipes: rule, severity, ANSSI point, title |
 | `recipe <rule>...` or `recipe all` | creates one lab per recipe; with `--combine`, a single lab that brings them together |
 | `convert <file or folder>...` | converts `.smad-x.json` scenarios |
 | `validate <file or folder>...` | validates labs, with an optional fixed domain |
+| `grade <lab> <submission or folder>...` | grades a class's submissions: as many files and folders as needed; `+` objective met, `-` not met |
 
 | Option | Effect |
 |---|---|
@@ -143,6 +186,9 @@ SMAD-X.Studio validate labs --solution fixed.smad-x.json
 | `--date yyyy-mm-dd` | reference date: the same date gives the same file, byte for byte |
 | `--solution <file>` | fixed domain to grade during validation |
 | `--combine` | `recipe`: a single lab with every misconfiguration in the same domain |
+| `--exam` | `recipe`, `convert`: lab in exam mode |
+| `--csv <file>` | `grade`: grade spreadsheet for Excel |
+| `--report <file>` | `grade`: class results in Markdown |
 | `--verbose` | also shows the checks that passed |
 
-Each lab written is validated straight away. The exit code is **0** when all is well, **1** when a lab has errors or the recipes cannot be combined (it is still written, to be fixed in Studio) and **2** for a wrong command.
+Each lab written is validated straight away. The exit code is **0** when all is well, **1** when a lab has errors (it is still written, to be fixed in Studio), the recipes cannot be combined or a submission needs attention (not graded, changed or copied), and **2** for a wrong command.

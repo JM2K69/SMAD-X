@@ -93,18 +93,155 @@ public class LabViewModelTests
         Assert.Null(_dialogs.LastLab);
     }
 
-    [Fact]
-    public async Task CreateLabFromDomain_WritesALoadableLab()
+    // ─── Mode exercice et mode examen ────────────────────────────────────────
+
+    private static string LabFile(string id, bool exam = false)
     {
+        var service = new LabService();
+        var lab = service.BuiltInLabs().Single(l => l.Id == id);
+        lab.Exam = exam;
         var path = TempFile(LabService.FileExtension);
+        service.SaveFile(lab, path);
+        return path;
+    }
+
+    [Fact]
+    public void BuiltInLab_FromTheMenu_StaysInFreeMode()
+    {
+        Open("02-kerberoasting");
+
+        Assert.False(_main.IsLabMode);
+        Assert.True(_main.LoadFromFileCommand.CanExecute(null));
+        Assert.Equal("SMAD-X", _main.WindowTitle);
+        Assert.True(_main.HasCurrentLab);
+    }
+
+    [Fact]
+    public async Task StartupLabFile_OpensLabMode_WhichLocksTheDomain()
+    {
+        await _main.OpenStartupFileAsync(LabFile("05-hygiene-comptes"));
+
+        Assert.True(_main.IsLabMode);
+        Assert.NotNull(_dialogs.LastLab);
+        Assert.Contains(_dialogs.LastLab!.Title, _main.WindowTitle);
+        foreach (var command in new System.Windows.Input.ICommand[] { _main.CreateNewDomainCommand, _main.InitializeSampleDataCommand,
+                     _main.LoadFromFileCommand, _main.OpenLabFileCommand, _main.OpenBuiltInLabCommand, _main.OpenInStudioCommand })
+            Assert.False(command.CanExecute(null));
+        Assert.True(_main.SaveSubmissionCommand.CanExecute(null));
+
+        Assert.True(_main.LeaveLabModeCommand.CanExecute(null));
+        _main.LeaveLabModeCommand.Execute(null);
+        Assert.False(_main.IsLabMode);
+        Assert.True(_main.LoadFromFileCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task ExamLab_HasNoHintsNoCheckingNoRestart_AndCannotBeLeft()
+    {
+        _dialogs.OpenPath = LabFile("05-hygiene-comptes", exam: true);
+        await _main.OpenLabFileCommand.ExecuteAsync(null); // même ouvert depuis le menu
+
+        var lab = _dialogs.LastLab!;
+        Assert.True(_main.IsLabMode);
+        Assert.True(lab.IsExam);
+        Assert.Equal(string.Format(LocalizationService.Instance["Lab.Mode.ExamTitle"], lab.Title), _main.WindowTitle);
+        Assert.False(lab.CheckCommand.CanExecute(null));
+        Assert.False(lab.RestartCommand.CanExecute(null));
+        Assert.False(lab.ExportResultCommand.CanExecute(null));
+        Assert.All(lab.Objectives, o => Assert.False(o.CanShowHint));
+        lab.Objectives[0].ToggleHintCommand.Execute(null);
+        Assert.Equal(0, lab.HintsUsed);
+        Assert.False(_main.CanLeaveLabMode);
+        Assert.False(_main.LeaveLabModeCommand.CanExecute(null));
+        Assert.False(_main.LoadFromFileCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task SaveSubmission_NeedsAName_ThenRewritesTheSameFile()
+    {
+        var lab = Open("05-hygiene-comptes");
+        Assert.False(lab.SaveSubmissionCommand.CanExecute(null));
+
+        lab.StudentName = "Camille Dupont";
+        var path = TempFile(LabSubmissionService.FileExtension);
         _dialogs.SavePath = path;
+        await lab.SaveSubmissionCommand.ExecuteAsync(null);
+        Assert.True(File.Exists(path));
+        Assert.Contains(_dialogs.Opened, o => o == "Save:05-hygiene-comptes_Camille Dupont.smadx-submission.json");
+        Assert.Contains(path, lab.SubmissionStatus);
 
-        await _main.CreateLabFromDomainCommand.ExecuteAsync(null);
+        Flatten(_main.RootObject!).Single(o => o.Name == "Guest").AccountFlags |= ADAccountFlags.AccountDisabled;
+        _dialogs.SavePath = null; // le deuxième enregistrement ne redemande pas le fichier
+        await lab.SaveSubmissionCommand.ExecuteAsync(null);
 
-        var lab = new LabService().LoadFile(path);
-        Assert.Equal("contoso.com", lab.Start.Domain.Name);
-        Assert.NotEmpty(lab.Objectives);
-        Assert.NotNull(lab.Start.TierConfigurations);
+        var submission = new LabSubmissionService().LoadFile(path);
+        Assert.Equal("Camille Dupont", submission.Student);
+        Assert.True(Flatten(submission.Work.Domain).Single(o => o.Name == "Guest").AccountFlags.HasFlag(ADAccountFlags.AccountDisabled));
+    }
+
+    [Fact]
+    public async Task StartupSubmission_ResumesTheWork_TheNameAndTheHints()
+    {
+        var lab = Open("05-hygiene-comptes");
+        lab.StudentName = "Camille Dupont";
+        lab.Objectives[1].ToggleHintCommand.Execute(null);
+        lab.Objectives[1].ToggleHintCommand.Execute(null); // masqué ensuite : il compte quand même
+        Assert.Equal(1, lab.HintsUsed);
+        Flatten(_main.RootObject!).Single(o => o.Name == "Guest").AccountFlags |= ADAccountFlags.AccountDisabled;
+        var path = TempFile(LabSubmissionService.FileExtension);
+        _dialogs.SavePath = path;
+        await lab.SaveSubmissionCommand.ExecuteAsync(null);
+
+        var dialogs = new FakeDialogService();
+        var other = new MainWindowViewModel(dialogs);
+        await other.OpenStartupFileAsync(path);
+
+        var resumed = dialogs.LastLab!;
+        Assert.True(other.IsLabMode);
+        Assert.Equal("Camille Dupont", resumed.StudentName);
+        Assert.Equal(1, resumed.HintsUsed);
+        Assert.True(Flatten(other.RootObject!).Single(o => o.Name == "Guest").AccountFlags.HasFlag(ADAccountFlags.AccountDisabled));
+        resumed.CheckCommand.Execute(null);
+        Assert.Equal(2, resumed.Points);
+        Assert.Contains("Camille Dupont", other.StatusMessage);
+
+        // « Enregistrer ma copie » réécrit le fichier repris, sans redemander, scellé et dans la même session
+        var session = new LabSubmissionService().LoadFile(path).SessionId;
+        Assert.NotEqual(Guid.Empty, session);
+        dialogs.SavePath = null;
+        await resumed.SaveSubmissionCommand.ExecuteAsync(null);
+        Assert.Contains(path, resumed.SubmissionStatus);
+        var resaved = new LabSubmissionService().LoadFile(path);
+        Assert.Equal(SubmissionSeal.Valid, resaved.SealCheck);
+        Assert.Equal(session, resaved.SessionId);
+        Assert.Empty(SubmissionGrader.Grade(new LabService().BuiltInLabs().Single(l => l.Id == "05-hygiene-comptes"), path, "fr-FR").Issues);
+    }
+
+    [Fact]
+    public async Task StartupDomainFile_OpensItInFreeMode()
+    {
+        var path = TempFile(".smad-x.json");
+        await new ADDataService().SaveDocumentAsync(new ADRootDocument { Version = ADRootDocument.CurrentVersion, Domain = BuildSmallDomain() }, path);
+
+        await _main.OpenStartupFileAsync(path);
+
+        Assert.False(_main.IsLabMode);
+        Assert.Equal(BuildSmallDomain().Name, _main.RootObject!.Name);
+    }
+
+    [Fact]
+    public async Task OpenInStudio_SendsTheCurrentDomain()
+    {
+        await _main.OpenInStudioCommand.ExecuteAsync(null);
+
+        Assert.NotNull(_dialogs.StudioDomain);
+        Assert.EndsWith("contoso.smad-x.json", _dialogs.StudioDomain);
+        var sent = await new ADDataService().LoadDocumentAsync(_dialogs.StudioDomain!);
+        Assert.Equal("contoso.com", sent.Document!.Domain.Name);
+
+        _dialogs.StudioAvailable = false;
+        await _main.OpenInStudioCommand.ExecuteAsync(null);
+        Assert.Contains("SMAD-X.Studio", _main.StatusMessage);
     }
 }
 

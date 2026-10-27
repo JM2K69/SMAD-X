@@ -17,7 +17,8 @@ namespace SMADX.ViewModels
         private static FileFilter MarkdownFilter  => new(Loc["FileType.Markdown"], "*.md");
         private static FileFilter AllFilesFilter  => new(Loc["FileType.AllFiles"], "*");
 
-        [RelayCommand]
+        // En mode exercice, rien ne remplace le domaine de l'apprenant (voir MainWindowViewModel.Labs.cs)
+        [RelayCommand(CanExecute = nameof(IsFreeMode))]
         private void InitializeSampleData()
         {
             TierConfigurationService.Instance.ResetToDefaults();
@@ -30,7 +31,7 @@ namespace SMADX.ViewModels
             StatusMessage = Loc["Status.SampleLoaded"];
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(IsFreeMode))]
         private async Task CreateNewDomain()
         {
             var request = await _dialogs.ShowNewDomainAsync();
@@ -66,12 +67,16 @@ namespace SMADX.ViewModels
             StatusMessage = success ? string.Format(Loc["Status.Saved"], path) : Loc["Status.ErrorSave"];
         });
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(IsFreeMode))]
         private Task LoadFromFile() => RunFileCommandAsync(async () =>
         {
             var path = await _dialogs.PickOpenFileAsync(Loc["Dialog.Load.Title"], SmadxFilter, JsonFilter, AllFilesFilter);
             if (path == null) return;
+            await LoadDomainFileAsync(path);
+        });
 
+        private async Task LoadDomainFileAsync(string path)
+        {
             var result = await _dataService.LoadDocumentAsync(path);
             if (result.Document == null)
             {
@@ -91,7 +96,7 @@ namespace SMADX.ViewModels
                 ? string.Format(Loc["Status.Loaded.Migrated"], result.FileVersion, ADRootDocument.CurrentVersion)
                 : string.Empty;
             StatusMessage = string.Format(Loc["Status.Loaded"], path) + siteInfo + migration;
-        });
+        }
 
         [RelayCommand]
         private Task ExportToJson() => RunFileCommandAsync(async () =>

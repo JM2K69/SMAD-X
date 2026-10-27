@@ -56,6 +56,12 @@ namespace SMADX.Services
 
         Task ShowAboutAsync();
 
+        /// <summary>
+        /// Lance SMAD-X Studio, livré à côté de SMAD-X, sur un domaine enregistré. Faux s'il est introuvable ;
+        /// <paramref name="studioPath"/> donne alors l'emplacement attendu.
+        /// </summary>
+        bool OpenInStudio(string domainFile, out string studioPath);
+
         Task ShowShortcutsAsync();
     }
 }

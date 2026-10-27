@@ -123,6 +123,7 @@
 - **Attack paths**: who can take control of the domain and through which steps (Kerberoasting, AS-REP roasting, delegations, owners, GPOs, Kerberos delegation…), highlighted in the graph
 - **Before / after** comparison and **undo / redo**
 - **Labs** (`.smadx-lab.json`): realistic scenarios graded automatically, including 12 attack-path labs in French and English
+- **Lab mode and exam mode**: open a lab directly (`SMAD-X.exe lab.smadx-lab.json`) with the domain locked; an exam has no hints, no checking and no start over; learners save a **submission** (`.smadx-submission.json`) to resume or hand in, sealed (SHA-256) and tied to a random work session
 - Sample domains in [`Samples/AttackPaths`](Samples/AttackPaths/README.md) — write your own labs with the [lab creation guide](https://jm2k69.github.io/SMAD-X/en/labs/create/)
 
 ### 🧑‍🏫 SMAD-X Studio — lab authoring for trainers
@@ -131,7 +132,9 @@ A second executable, shipped in the same archive ([documentation](https://jm2k69
 - **Convert** a `.smad-x.json` scenario into a lab: the context becomes the statement, the path and the fix go into the trainer notes
 - Markdown statement editor with preview, objective editor with **suggestions** from the audit and attack paths, and **guards** against brute-force fixes
 - **Validation** like the shipped labs' tests (nothing met at start, effective guards, no visible solution), grading of the trainer's fixed domain, and an exported **trainer sheet**
-- **Command line** for batches: `SMAD-X.Studio recipe all --lang en --out labs`, `convert`, `validate`
+- **Grading a class**: add several submissions or a whole folder, get each grade, success per objective, a CSV for Excel and a Markdown class report; submissions edited by hand, handed in under another name or holding someone else's domain are flagged
+- **Command line** for batches: `SMAD-X.Studio recipe all --lang en --out labs`, `convert`, `validate`, `grade lab.smadx-lab.json submissions/ --csv grades.csv`
+- Launched from SMAD-X (**Labs > Create a lab with SMAD-X Studio...**) on the current domain
 
 ## 🚀 Quick Start
 

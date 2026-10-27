@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
@@ -17,6 +19,23 @@ namespace SMADX.Studio.Views
                 FileTypeFilter = [new FilePickerFileType(filterName) { Patterns = [pattern] }, FilePickerFileTypes.All]
             });
             return files.Count > 0 ? files[0].Path.LocalPath : null;
+        }
+
+        public async Task<IReadOnlyList<string>> OpenFilesAsync(string title, string filterName, string pattern)
+        {
+            var files = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = title,
+                AllowMultiple = true,
+                FileTypeFilter = [new FilePickerFileType(filterName) { Patterns = [pattern] }, FilePickerFileTypes.All]
+            });
+            return files.Select(f => f.Path.LocalPath).ToList();
+        }
+
+        public async Task<string?> PickFolderAsync(string title)
+        {
+            var folders = await owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = title, AllowMultiple = false });
+            return folders.Count > 0 ? folders[0].Path.LocalPath : null;
         }
 
         public async Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern)

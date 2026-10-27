@@ -22,8 +22,13 @@
                         </Border>
                         <TextBlock Text="{Binding DurationLabel}" VerticalAlignment="Center" Opacity="0.8"/>
                     </StackPanel>
+                    <!-- Mode examen : ni indice, ni vérification -->
+                    <Border Background="#40C0392B" CornerRadius="4" Padding="8,4" Margin="0,4,0,0" HorizontalAlignment="Left"
+                            IsVisible="{Binding IsExam}">
+                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabExamNotice}" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                    </Border>
                 </StackPanel>
-                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" IsVisible="{Binding ShowGrading}">
                     <TextBlock Text="{Binding ScoreLabel}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Right"/>
                     <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabCompleted}" Foreground="#27AE60" FontWeight="SemiBold"
                                IsVisible="{Binding IsCompleted}"/>
@@ -65,7 +70,7 @@
                                                     <Run Text="{Binding Points}"/><Run Text=" pt"/>
                                                 </TextBlock>
                                                 <Button Content="{Binding Source={StaticResource Loc}, Path=LabHint}" Command="{Binding ToggleHintCommand}"
-                                                        Padding="8,2" FontSize="11"/>
+                                                        Padding="8,2" FontSize="11" IsVisible="{Binding CanShowHint}"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -78,17 +83,24 @@
         </Grid>
 
         <!-- ═══ Actions ═══ -->
-        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" Margin="0,10,0,0">
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" Margin="0,10,0,0">
             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
                 <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabStudentName}" VerticalAlignment="Center"/>
                 <TextBox Text="{Binding StudentName}" Width="220"/>
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                <Button Content="{Binding Source={StaticResource Loc}, Path=LabRestart}" Command="{Binding RestartCommand}" Padding="12,5"/>
-                <Button Content="{Binding Source={StaticResource Loc}, Path=LabExportResult}" Command="{Binding ExportResultCommand}" Padding="12,5"/>
+                <Button Content="{Binding Source={StaticResource Loc}, Path=LabRestart}" Command="{Binding RestartCommand}" Padding="12,5"
+                        IsVisible="{Binding ShowGrading}"/>
+                <Button Content="{Binding Source={StaticResource Loc}, Path=LabExportResult}" Command="{Binding ExportResultCommand}" Padding="12,5"
+                        IsVisible="{Binding ShowGrading}"/>
+                <Button Content="{Binding Source={StaticResource Loc}, Path=LabSaveSubmission}" Command="{Binding SaveSubmissionCommand}" Padding="12,5"/>
                 <Button Content="{Binding Source={StaticResource Loc}, Path=LabCheck}" Command="{Binding CheckCommand}" Padding="16,5"
-                        Background="#1E8449" Foreground="White" FontWeight="SemiBold"/>
+                        Background="#1E8449" Foreground="White" FontWeight="SemiBold" IsVisible="{Binding ShowGrading}"/>
             </StackPanel>
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Margin="0,6,0,0" FontSize="12" Opacity="0.8" TextWrapping="Wrap"
+                       Text="{Binding Source={StaticResource Loc}, Path=LabSubmissionNeedName}" IsVisible="{Binding !HasStudentName}"/>
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Margin="0,6,0,0" FontSize="12" Foreground="#27AE60" TextWrapping="Wrap"
+                       Text="{Binding SubmissionStatus}" IsVisible="{Binding HasStudentName}"/>
         </Grid>
     </Grid>
 </Window>

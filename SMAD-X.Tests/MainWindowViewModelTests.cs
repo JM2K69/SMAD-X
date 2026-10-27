@@ -51,6 +51,15 @@ internal sealed class FakeDialogService : IDialogService
     public Task ShowSitesAsync(ADSitesTopology? topology) { Opened.Add($"Sites:{topology?.Sites.Count}"); return Task.CompletedTask; }
     public Task<string?> ShowExportReportAsync(ADRootDocument document) { Opened.Add($"Report:{document.Domain.Name}"); return Task.FromResult<string?>(null); }
     public Task ShowAboutAsync() { Opened.Add("About"); return Task.CompletedTask; }
+    public string? StudioDomain { get; private set; }
+    public bool StudioAvailable { get; set; } = true;
+    public bool OpenInStudio(string domainFile, out string studioPath)
+    {
+        studioPath = "SMAD-X.Studio";
+        StudioDomain = domainFile;
+        Opened.Add("Studio");
+        return StudioAvailable;
+    }
     public Task ShowShortcutsAsync() { Opened.Add("Shortcuts"); return Task.CompletedTask; }
 }
 

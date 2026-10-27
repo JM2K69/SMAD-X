@@ -10,7 +10,7 @@
         x:DataType="vm:MainWindowViewModel"
         x:Name="MainWindowRoot"
         Icon="/Assets/icone.ico"
-        Title="SMAD-X"
+        Title="{Binding WindowTitle}"
         Width="1400" Height="855">
 
     <Design.DataContext>
@@ -32,11 +32,14 @@
             <!-- Menu principal -->
             <Menu Grid.Row="0" x:Name="MainMenu" DataContext="{StaticResource Loc}">
                 <MenuItem Header="{Binding MenuFile}">
-                    <MenuItem Header="{Binding MenuFileNewDomain}" Command="{Binding #MainWindowRoot.DataContext.CreateNewDomainCommand}" InputGesture="Ctrl+N"/>
-                    <MenuItem Header="{Binding MenuFileNewStructure}" Command="{Binding #MainWindowRoot.DataContext.InitializeSampleDataCommand}" InputGesture="Ctrl+Shift+N"/>
-                    <Separator/>
-                    <MenuItem Header="{Binding MenuFileOpen}" Command="{Binding #MainWindowRoot.DataContext.LoadFromFileCommand}" InputGesture="Ctrl+O"/>
-                    <MenuItem Header="{Binding MenuFileSave}" Command="{Binding #MainWindowRoot.DataContext.SaveToFileCommand}" InputGesture="Ctrl+S"/>
+                    <!-- En mode exercice, rien ne remplace le domaine de l'apprenant, et Ctrl+S enregistre sa copie -->
+                    <MenuItem Header="{Binding MenuFileNewDomain}" Command="{Binding #MainWindowRoot.DataContext.CreateNewDomainCommand}" InputGesture="Ctrl+N" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
+                    <MenuItem Header="{Binding MenuFileNewStructure}" Command="{Binding #MainWindowRoot.DataContext.InitializeSampleDataCommand}" InputGesture="Ctrl+Shift+N" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
+                    <Separator IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
+                    <MenuItem Header="{Binding MenuFileOpen}" Command="{Binding #MainWindowRoot.DataContext.LoadFromFileCommand}" InputGesture="Ctrl+O" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
+                    <MenuItem Header="{Binding MenuFileSave}" Command="{Binding #MainWindowRoot.DataContext.SaveToFileCommand}" InputGesture="Ctrl+S" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
+                    <MenuItem Header="{Binding MenuLabsSaveSubmission}" Command="{Binding #MainWindowRoot.DataContext.SaveSubmissionCommand}" InputGesture="Ctrl+S"
+                              IsVisible="{Binding #MainWindowRoot.DataContext.IsLabMode}"/>
                     <Separator/>
                     <MenuItem Header="{Binding MenuFileExportJson}" Command="{Binding #MainWindowRoot.DataContext.ExportToJsonCommand}" InputGesture="Ctrl+E"/>
                     <MenuItem Header="{Binding MenuFileExportPowerShell}" Command="{Binding #MainWindowRoot.DataContext.ExportToPowerShellCommand}" InputGesture="Ctrl+P"/>
@@ -96,7 +99,14 @@
                     <MenuItem Header="{Binding Source={StaticResource Loc}, Path=MenuSitesView}" Command="{Binding #MainWindowRoot.DataContext.ShowSitesCommand}" InputGesture="Ctrl+Shift+S"/>
                 </MenuItem>
                 <MenuItem Header="{Binding MenuLabs}">
-                    <MenuItem Header="{Binding MenuLabsBuiltIn}" ItemsSource="{Binding #MainWindowRoot.DataContext.BuiltInLabs}">
+                    <MenuItem Header="{Binding MenuLabsShowCurrent}" Command="{Binding #MainWindowRoot.DataContext.ShowCurrentLabCommand}"
+                              IsVisible="{Binding #MainWindowRoot.DataContext.HasCurrentLab}"/>
+                    <MenuItem Header="{Binding MenuLabsSaveSubmission}" Command="{Binding #MainWindowRoot.DataContext.SaveSubmissionCommand}"
+                              IsVisible="{Binding #MainWindowRoot.DataContext.HasCurrentLab}"/>
+                    <MenuItem Header="{Binding MenuLabsLeave}" Command="{Binding #MainWindowRoot.DataContext.LeaveLabModeCommand}"
+                              IsVisible="{Binding #MainWindowRoot.DataContext.CanLeaveLabMode}"/>
+                    <Separator IsVisible="{Binding #MainWindowRoot.DataContext.HasCurrentLab}"/>
+                    <MenuItem Header="{Binding MenuLabsBuiltIn}" ItemsSource="{Binding #MainWindowRoot.DataContext.BuiltInLabs}" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}">
                         <MenuItem.Styles>
                             <Style Selector="MenuItem > MenuItem" x:DataType="vm:LabMenuItem">
                                 <Setter Property="Header" Value="{Binding Title}"/>
@@ -105,7 +115,7 @@
                             </Style>
                         </MenuItem.Styles>
                     </MenuItem>
-                    <MenuItem Header="{Binding MenuLabsAttackPaths}" ItemsSource="{Binding #MainWindowRoot.DataContext.AttackPathLabs}">
+                    <MenuItem Header="{Binding MenuLabsAttackPaths}" ItemsSource="{Binding #MainWindowRoot.DataContext.AttackPathLabs}" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}">
                         <MenuItem.Styles>
                             <Style Selector="MenuItem > MenuItem" x:DataType="vm:LabMenuItem">
                                 <Setter Property="Header" Value="{Binding Title}"/>
@@ -114,9 +124,9 @@
                             </Style>
                         </MenuItem.Styles>
                     </MenuItem>
-                    <MenuItem Header="{Binding MenuLabsOpen}" Command="{Binding #MainWindowRoot.DataContext.OpenLabFileCommand}"/>
-                    <Separator/>
-                    <MenuItem Header="{Binding MenuLabsCreate}" Command="{Binding #MainWindowRoot.DataContext.CreateLabFromDomainCommand}"/>
+                    <MenuItem Header="{Binding MenuLabsOpen}" Command="{Binding #MainWindowRoot.DataContext.OpenLabFileCommand}" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
+                    <Separator IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
+                    <MenuItem Header="{Binding MenuLabsOpenInStudio}" Command="{Binding #MainWindowRoot.DataContext.OpenInStudioCommand}" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
                 </MenuItem>
                 <MenuItem Header="{Binding MenuHelp}">
                     <MenuItem Header="{Binding MenuHelpShortcuts}" Command="{Binding #MainWindowRoot.DataContext.ShowShortcutsCommand}"/>

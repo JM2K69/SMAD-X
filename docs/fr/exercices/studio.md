@@ -2,7 +2,7 @@
 
 **SMAD-X Studio** est l'outil du formateur : un second exécutable, livré dans la même archive que SMAD-X, qui crée des exercices, les vérifie et produit la fiche du formateur. Il fait, avec une fenêtre, ce que le [mode opératoire](creer.md) décrit à la main.
 
-Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X, l'exercice se met en forme dans Studio, et l'apprenant le fait dans SMAD-X (**Exercices > Ouvrir un exercice...**).
+Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X, l'exercice se met en forme dans Studio, l'apprenant le fait dans SMAD-X et rend sa **copie**, que Studio corrige avec celles de toute la classe.
 
 ![Accueil de SMAD-X Studio](../assets/screens/studio-home.png)
 
@@ -17,6 +17,8 @@ Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X
 | **Convertir un scénario en exercice...** | un scénario `.smad-x.json` dont la description suit le plan *Contexte / Le chemin / Le corriger* | l'énoncé tiré du contexte ; le chemin et la correction passent dans les notes du formateur |
 
 **Ouvrir un exercice...** reprend un fichier `.smadx-lab.json` existant, avec ses notes.
+
+Depuis SMAD-X, **Exercices > Créer un exercice avec SMAD-X Studio...** ouvre Studio sur le domaine affiché : il devient le domaine de départ d'un nouvel exercice, comme avec **Nouvel exercice à partir d'un domaine**.
 
 ### À partir d'une recommandation
 
@@ -43,6 +45,8 @@ L'énoncé produit reste général (« vérifiez la conformité avant l'audit an
 Titre, identifiant (le nom du fichier), langue, série du menu (exercices généraux ou chemins d'attaque), niveau et durée. Le résumé du domaine de départ indique le nombre d'objets, les chemins d'attaque hors Tier 0 et le score d'audit.
 
 Un exercice est **bilingue** ou n'existe que dans **une langue**. La liste *Langue des textes en cours d'édition*, en haut de la fenêtre, choisit les textes que vous modifiez.
+
+**Mode examen** : dans SMAD-X, l'exercice n'a plus ni indice, ni vérification, ni score, ni « Recommencer », et aucun autre domaine ne peut être ouvert. L'apprenant enregistre sa copie et vous la rend.
 
 ### Énoncé
 
@@ -88,6 +92,39 @@ Les **notes du formateur** (la solution, les points de vigilance) et l'aperçu d
 
 ---
 
+## Corriger les copies d'une classe
+
+![Onglet Copies](../assets/screens/studio-submissions.png)
+
+Chaque apprenant enregistre son travail dans SMAD-X avec **Enregistrer ma copie** : un fichier `.smadx-submission.json` qui contient l'exercice reçu, son domaine et les indices consultés. Ouvrez l'exercice dans Studio, puis, dans l'onglet **Copies** :
+
+- **Ajouter des copies...** : choisissez une ou plusieurs copies à la fois ;
+- **Ajouter un dossier...** : toutes les copies du dossier et de ses sous-dossiers, par exemple le dossier où la classe a déposé son travail.
+
+Studio corrige chaque copie avec **votre** exemplaire de l'exercice, tel qu'il est ouvert : le domaine de départ est repréparé à la date où l'apprenant a commencé, et la vérification se fait à la date de sa copie. Le score que l'apprenant a pu voir n'est jamais repris. Après avoir changé des objectifs ou des points, **Recorriger** refait toutes les notes.
+
+Chaque ligne donne la note, le pourcentage, le nombre d'indices consultés, une pastille par objectif (verte s'il est atteint, rouge sinon ; l'objectif s'affiche au survol) et les remarques :
+
+| Remarque | Signification |
+|---|---|
+| copie d'un autre exercice | elle n'est pas corrigée |
+| copie modifiée en dehors de SMAD-X | son sceau ne correspond plus à son contenu : nom, dates, indices ou domaine retouchés à la main |
+| même session de travail que la copie de… | une même copie rendue sous plusieurs noms : l'une est la copie de l'autre |
+| le domaine ne vient pas de la session de cette copie | le travail d'un autre, rendu dans sa propre copie ; Studio nomme l'apprenant d'origine s'il a sa copie |
+| copie sans sceau, sans session | la copie n'a pas été enregistrée par SMAD-X : ces contrôles sont impossibles |
+| autre domaine de départ | la copie a été faite sur une autre version de l'exercice : la note peut être fausse |
+| pas de nom, plusieurs copies | à vérifier avant de reporter la note |
+| copie illisible | le fichier est abîmé ou n'est pas une copie SMAD-X |
+
+Les remarques en rouge demandent votre attention ; la note reste affichée. Deux solutions identiques, faites chacun de son côté, ne sont pas signalées : ce qui trahit une copie n'est pas la solution, c'est la session de travail. SMAD-X la tire au hasard à l'ouverture de l'exercice, en dérive les identifiants internes de tous les objets du domaine de l'apprenant, et scelle chaque copie d'une empreinte SHA-256 de tout son contenu.
+
+!!! note "Ce que ces contrôles garantissent"
+    Ils repèrent les cas courants : une copie retouchée dans un éditeur de texte, la copie d'un camarade rendue sous son nom, un domaine récupéré chez un autre. Le format est public et SMAD-X tourne sur le poste de l'apprenant : ils n'arrêtent pas un faussaire déterminé qui réécrirait tout le fichier de façon cohérente. Une garantie absolue demanderait de collecter les copies sur une machine que l'apprenant ne contrôle pas.
+
+À droite, la **réussite par objectif** montre ce que la classe a compris et ce qu'il faut reprendre. **Exporter les notes (CSV)...** produit un tableau pour Excel (une colonne par objectif) ; **Exporter le bilan (Markdown)...** produit le bilan de la classe : moyenne, médiane, notes de chacun et réussite par objectif.
+
+---
+
 ## Les fichiers
 
 | Fichier | Contenu | À donner aux apprenants |
@@ -95,6 +132,7 @@ Les **notes du formateur** (la solution, les points de vigilance) et l'aperçu d
 | `<id>.smadx-lab.json` | l'exercice : énoncé, domaine de départ, objectifs | **oui** |
 | `<id>.smadx-lab.notes.md` | les notes du formateur, enregistrées à côté de l'exercice | **non** |
 | `<id>.formateur.md` | la fiche formateur exportée | **non** |
+| `<id>_<nom>.smadx-submission.json` | la copie d'un apprenant, rendue au formateur | (écrite par l'apprenant) |
 
 Les notes ne sont jamais écrites dans l'exercice : distribuer le seul fichier `.smadx-lab.json` ne révèle pas la solution.
 
@@ -102,7 +140,7 @@ Les notes ne sont jamais écrites dans l'exercice : distribuer le seul fichier `
 
 ## En ligne de commande
 
-Studio produit aussi des exercices en série, sans fenêtre :
+Studio produit aussi des exercices en série et corrige une classe, sans fenêtre :
 
 ```bash
 SMAD-X.Studio list-recipes --lang fr
@@ -128,12 +166,17 @@ SMAD-X.Studio convert scenarios --lang fr --out exercices
 SMAD-X.Studio validate exercices --solution corrige.smad-x.json
 ```
 
+```bash
+SMAD-X.Studio grade exercices/anssi-krb-01.smadx-lab.json copies-groupe-a copies-groupe-b --lang fr --csv notes.csv --report bilan.md
+```
+
 | Commande | Rôle |
 |---|---|
 | `list-recipes` | liste les recettes : règle, gravité, point ANSSI, titre |
 | `recipe <règle>...` ou `recipe all` | crée un exercice par recette ; avec `--combine`, un seul exercice qui les réunit |
 | `convert <fichier ou dossier>...` | convertit des scénarios `.smad-x.json` |
 | `validate <fichier ou dossier>...` | valide des exercices, avec un domaine corrigé facultatif |
+| `grade <exercice> <copie ou dossier>...` | corrige les copies d'une classe : autant de fichiers et de dossiers que nécessaire ; `+` objectif atteint, `-` non atteint |
 
 | Option | Effet |
 |---|---|
@@ -143,6 +186,9 @@ SMAD-X.Studio validate exercices --solution corrige.smad-x.json
 | `--date aaaa-mm-jj` | date de référence : la même date donne le même fichier, octet pour octet |
 | `--solution <fichier>` | domaine corrigé à noter pendant la validation |
 | `--combine` | `recipe` : un seul exercice avec tous les manques dans le même domaine |
+| `--exam` | `recipe`, `convert` : exercice en mode examen |
+| `--csv <fichier>` | `grade` : tableau des notes pour Excel |
+| `--report <fichier>` | `grade` : bilan de la classe en Markdown |
 | `--verbose` | affiche aussi les vérifications réussies |
 
-Chaque exercice écrit est validé aussitôt. Le code de sortie vaut **0** si tout va bien, **1** si un exercice a des erreurs ou si les recettes ne peuvent pas être combinées (il est quand même écrit, pour être corrigé dans Studio) et **2** pour une commande incorrecte.
+Chaque exercice écrit est validé aussitôt. Le code de sortie vaut **0** si tout va bien, **1** si un exercice a des erreurs (il est quand même écrit, pour être corrigé dans Studio), si les recettes ne peuvent pas être combinées ou si une copie est à revoir (non corrigée, modifiée ou recopiée), et **2** pour une commande incorrecte.

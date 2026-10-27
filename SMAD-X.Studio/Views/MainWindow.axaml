@@ -79,6 +79,8 @@
                                 <TextBlock Text="{Binding DomainSummary}" TextWrapping="Wrap"/>
                                 <TextBlock Classes="label" Text="{Binding [Lab.Points], Source={StaticResource S}}"/>
                                 <TextBlock Text="{Binding TotalPoints}"/>
+                                <CheckBox Margin="0,16,0,2" IsChecked="{Binding IsExam}" Content="{Binding [Lab.Exam], Source={StaticResource S}}"/>
+                                <TextBlock Classes="hint" Text="{Binding [Lab.Exam.Hint], Source={StaticResource S}}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
@@ -287,6 +289,80 @@
                                 </Border>
                             </DockPanel>
                         </Grid>
+                    </TabItem>
+                    <!-- ═══ Copies : corriger une classe ═══ -->
+                    <TabItem Header="{Binding [Tab.Submissions], Source={StaticResource S}}">
+                        <DockPanel Margin="8">
+                            <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,10">
+                                <TextBlock Classes="hint" Text="{Binding [Submissions.Intro], Source={StaticResource S}}"/>
+                                <WrapPanel>
+                                    <Button Classes="accent" Command="{Binding AddSubmissionsCommand}" Content="{Binding [Submissions.Add], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding AddSubmissionFolderCommand}" Content="{Binding [Submissions.AddFolder], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding RegradeSubmissionsCommand}" Content="{Binding [Submissions.Regrade], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding ExportGradesCommand}" Content="{Binding [Submissions.ExportCsv], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding ExportClassReportCommand}" Content="{Binding [Submissions.ExportReport], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding ClearSubmissionsCommand}" Content="{Binding [Submissions.Clear], Source={StaticResource S}}"/>
+                                </WrapPanel>
+                                <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding ClassSummary}"/>
+                            </StackPanel>
+                            <Grid ColumnDefinitions="*,6,340">
+                                <DockPanel Grid.Column="0">
+                                    <Grid DockPanel.Dock="Top" ColumnDefinitions="190,80,55,55,150,130,*" Margin="12,0,12,4">
+                                        <TextBlock Grid.Column="0" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Student], Source={StaticResource S}}"/>
+                                        <TextBlock Grid.Column="1" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Grade], Source={StaticResource S}}"/>
+                                        <TextBlock Grid.Column="2" Classes="hint" FontWeight="SemiBold" Text="%"/>
+                                        <TextBlock Grid.Column="3" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Hints], Source={StaticResource S}}"/>
+                                        <TextBlock Grid.Column="4" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Objectives], Source={StaticResource S}}"/>
+                                        <TextBlock Grid.Column="5" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.SavedAt], Source={StaticResource S}}"/>
+                                        <TextBlock Grid.Column="6" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Remarks], Source={StaticResource S}}"/>
+                                    </Grid>
+                                    <ListBox ItemsSource="{Binding Submissions}">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ColumnDefinitions="190,80,55,55,150,130,*">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Student}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FileName}"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Grade}" FontWeight="SemiBold"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding Percent}"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding Hints}"/>
+                                                    <ItemsControl Grid.Column="4" ItemsSource="{Binding Marks}" VerticalAlignment="Center">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border Width="11" Height="11" Margin="0,1,3,1" CornerRadius="2"
+                                                                        Background="{Binding Color}" ToolTip.Tip="{Binding Tip}"/>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                    <TextBlock Grid.Column="5" Text="{Binding SavedAt}" Opacity="0.75"/>
+                                                    <TextBlock Grid.Column="6" Text="{Binding Remarks}" Foreground="{Binding RemarksColor}" TextWrapping="Wrap"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </DockPanel>
+                                <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+                                <DockPanel Grid.Column="2" Margin="8,0,0,0">
+                                    <TextBlock DockPanel.Dock="Top" Classes="label" Margin="0,0,0,8" Text="{Binding [Submissions.Rates], Source={StaticResource S}}"/>
+                                    <ScrollViewer>
+                                        <ItemsControl ItemsSource="{Binding ObjectiveRates}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Margin="0,0,0,10" Spacing="3">
+                                                        <TextBlock Text="{Binding Label}" TextWrapping="Wrap"/>
+                                                        <Grid ColumnDefinitions="*,Auto">
+                                                            <ProgressBar Grid.Column="0" Minimum="0" Maximum="100" Value="{Binding Percent}" Height="8" MinWidth="0" VerticalAlignment="Center"/>
+                                                            <TextBlock Grid.Column="1" Margin="8,0,0,0" Text="{Binding Rate}" Classes="hint"/>
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </DockPanel>
+                            </Grid>
+                        </DockPanel>
                     </TabItem>
                 </TabControl>
             </DockPanel>

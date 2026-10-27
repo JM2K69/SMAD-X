@@ -10,15 +10,15 @@ Ce mode opératoire va de l'idée au fichier testé. Les exercices fournis avec 
 
 | Méthode | Pour qui | Résultat |
 |---|---|---|
-| **A. Depuis l'application** | un enseignant, sans programmer | un fichier à distribuer aux apprenants |
+| **A. Un domaine fait à la main** | un formateur, sans programmer | un domaine préparé dans SMAD-X, mis en forme dans SMAD-X Studio |
 | **B. Par un générateur** | un contributeur du dépôt | un exercice embarqué dans l'exe, testé automatiquement |
-| **C. Avec [SMAD-X Studio](studio.md)** | un formateur | un exercice créé, vérifié et accompagné de sa fiche formateur, dans une fenêtre ou en ligne de commande |
+| **C. Tout dans [SMAD-X Studio](studio.md)** | un formateur | un exercice tiré d'une recommandation de l'ANSSI ou d'un scénario, dans une fenêtre ou en ligne de commande |
 
 Tous produisent le même format : on peut commencer par A ou C et finir par B.
 
 ---
 
-## 2. Méthode A : depuis l'application
+## 2. Méthode A : un domaine fait à la main
 
 ### 2.1 Préparer le domaine de départ
 1. **Fichier > Nouveau domaine** (ou ouvrez un domaine enregistré).
@@ -29,28 +29,28 @@ Tous produisent le même format : on peut commencer par A ou C et finir par B.
 4. Peuplez le domaine comme un vrai AD (services, utilisateurs, postes) : la faiblesse doit être à chercher, pas posée seule au milieu du vide.
 5. Enregistrez le domaine (`.smad-x.json`), pour pouvoir y revenir.
 
-### 2.2 Générer le squelette
-**Exercices > Créer un exercice à partir du domaine actuel...**
+### 2.2 Envoyer le domaine dans SMAD-X Studio
+**Exercices > Créer un exercice avec SMAD-X Studio...**
 
-SMAD-X écrit un fichier `.smadx-lab.json` avec :
-- le domaine actuel comme domaine de départ ;
-- un objectif « Lever le constat … » par règle d'audit en échec ;
-- un énoncé et un titre à remplacer.
+SMAD-X ouvre [SMAD-X Studio](studio.md), livré dans la même archive, sur le domaine actuel. Studio en fait le domaine de départ d'un nouvel exercice, pose le modèle d'énoncé et propose les objectifs tirés de l'audit et des chemins d'attaque.
 
-### 2.3 Compléter le fichier
-Ouvrez le fichier dans un éditeur de texte (VS Code reconnaît le JSON) et modifiez :
-- `Id`, `Title`, `Level`, `DurationMinutes` ;
-- `Statement` : l'énoncé en Markdown (voir § 4) ;
-- `Objectives` : gardez les objectifs utiles, ajoutez les autres (voir § 5).
+Sans cette entrée de menu (Studio lancé seul) : dans Studio, **Fichier > Nouvel exercice à partir d'un domaine (.smad-x.json)...**, puis choisissez le domaine enregistré.
 
-Ne modifiez pas `Start` à la main : refaites plutôt le domaine dans l'application et régénérez le squelette.
+### 2.3 Compléter l'exercice dans Studio
+- onglet **Exercice** : titre, identifiant, niveau, durée et, si besoin, mode examen ;
+- onglet **Énoncé** : l'énoncé en Markdown (voir § 4) ;
+- onglet **Objectifs** : gardez les objectifs utiles, ajoutez les autres et les gardes (voir § 5) ;
+- onglet **Validation** : Studio vérifie l'exercice comme le font les tests des exercices fournis ;
+- **Fichier > Enregistrer** : l'exercice `.smadx-lab.json`, et à côté les notes du formateur.
+
+Le fichier reste du JSON lisible (voir § 3). Ne modifiez pas `Start` à la main : refaites plutôt le domaine dans SMAD-X et renvoyez-le dans Studio.
 
 ### 2.4 Tester
 1. **Exercices > Ouvrir un exercice...** et choisissez le fichier.
 2. Cliquez sur **Vérifier** sans rien changer : aucun objectif principal ne doit être atteint, et les objectifs de garde (voir § 5.2) doivent déjà l'être.
 3. Faites la correction attendue, puis **Vérifier** : tout doit être atteint.
 4. **Recommencer**, puis essayez les mauvaises solutions (supprimer le compte, vider le groupe…) : un objectif doit échouer à chaque fois.
-5. **Exporter le résultat** produit le compte rendu Markdown que l'apprenant pourra rendre.
+5. Indiquez un nom, puis **Enregistrer ma copie** : ajoutez cette copie dans l'onglet **Copies** de Studio pour vérifier la note qu'obtiendra l'apprenant.
 
 ---
 

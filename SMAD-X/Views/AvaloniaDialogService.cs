@@ -1,3 +1,6 @@
+using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -62,8 +65,31 @@ namespace SMADX.Views
         public void ShowAudit(AuditViewModel viewModel) =>
             new AuditWindow { DataContext = viewModel }.Show(_owner);
 
-        public void ShowLab(LabViewModel viewModel) =>
-            new LabWindow { DataContext = viewModel }.Show(_owner);
+        private LabWindow? _labWindow;
+
+        /// <summary>Une seule fenêtre par exercice : « Afficher l'exercice » ramène celle qui est ouverte.</summary>
+        public void ShowLab(LabViewModel viewModel)
+        {
+            if (_labWindow is { IsVisible: true } open && open.DataContext == viewModel)
+            {
+                open.Activate();
+                return;
+            }
+            _labWindow?.Close();
+            _labWindow = new LabWindow { DataContext = viewModel };
+            _labWindow.Closed += (s, _) => { if (s == _labWindow) _labWindow = null; };
+            _labWindow.Show(_owner);
+        }
+
+        public bool OpenInStudio(string domainFile, out string studioPath)
+        {
+            studioPath = Path.Combine(AppContext.BaseDirectory, OperatingSystem.IsWindows() ? "SMAD-X.Studio.exe" : "SMAD-X.Studio");
+            if (!File.Exists(studioPath)) return false;
+            var start = new ProcessStartInfo(studioPath) { UseShellExecute = false };
+            start.ArgumentList.Add(domainFile);
+            Process.Start(start);
+            return true;
+        }
 
         public void ShowComparison(ComparisonViewModel viewModel) =>
             new ComparisonWindow { DataContext = viewModel }.Show(_owner);

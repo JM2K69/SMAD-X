@@ -43,3 +43,4 @@ Le PDF embarque ses polices de secours (Noto, dont les emoji et les symboles) : 
 | Délégations | fenêtre **Délégations** > **Export CSV** |
 | Différences entre deux fichiers | **Analyse > Domain Timeline** (`Ctrl+T`), export CSV |
 | Compte rendu d'exercice | fenêtre d'exercice > **Exporter le résultat** (Markdown) |
+| Copie d'exercice, à rendre au formateur | fenêtre d'exercice > **Enregistrer ma copie** (`.smadx-submission.json`) |

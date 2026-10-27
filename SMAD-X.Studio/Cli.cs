@@ -10,17 +10,17 @@ using SMADX.Services.Labs;
 namespace SMADX.Studio
 {
     /// <summary>
-    /// Ligne de commande de Studio, pour produire des exercices en série :
-    /// <c>list-recipes</c>, <c>recipe</c>, <c>convert</c> et <c>validate</c>. Chaque exercice est écrit avec,
-    /// à côté, ses notes du formateur (<c>.notes.md</c>), jamais dans l'exercice.
+    /// Ligne de commande de Studio, pour produire des exercices en série et corriger une classe :
+    /// <c>list-recipes</c>, <c>recipe</c>, <c>convert</c>, <c>validate</c> et <c>grade</c>. Chaque exercice est
+    /// écrit avec, à côté, ses notes du formateur (<c>.notes.md</c>), jamais dans l'exercice.
     /// </summary>
     public static class Cli
     {
-        public static readonly string[] Commands = ["list-recipes", "recipe", "convert", "validate", "help", "--help", "-h", "/?"];
+        public static readonly string[] Commands = ["list-recipes", "recipe", "convert", "validate", "grade", "help", "--help", "-h", "/?"];
 
         public static bool IsCommand(string[] args) => args.Length > 0 && Commands.Contains(args[0], StringComparer.OrdinalIgnoreCase);
 
-        /// <returns>0 si tout va bien, 1 si un exercice a des erreurs, 2 pour une commande incorrecte.</returns>
+        /// <returns>0 si tout va bien, 1 si un exercice a des erreurs ou une copie est à revoir (non corrigée, modifiée, recopiée), 2 pour une commande incorrecte.</returns>
         public static int Run(string[] args, TextWriter output, TextWriter error)
         {
             var loc = LocalizationService.Instance;
@@ -35,6 +35,7 @@ namespace SMADX.Studio
                     "recipe" => Recipe(options, output, error),
                     "convert" => Convert(options, output, error),
                     "validate" => Validate(options, output, error),
+                    "grade" => Grade(options, output, error),
                     _ => Help(output)
                 };
             }
@@ -58,9 +59,15 @@ namespace SMADX.Studio
                 Without arguments, opens the window. / Sans argument, ouvre la fenêtre.
 
                   SMAD-X.Studio list-recipes [--lang fr|en]
-                  SMAD-X.Studio recipe <RULE-ID>...|all [--combine] [--lang fr|en] [--domain corp.example.lab] [--out <folder>] [--date yyyy-MM-dd]
-                  SMAD-X.Studio convert <scenario.smad-x.json>... [--lang fr|en] [--out <folder>] [--date yyyy-MM-dd]
+                  SMAD-X.Studio recipe <RULE-ID>...|all [--combine] [--exam] [--lang fr|en] [--domain corp.example.lab] [--out <folder>] [--date yyyy-MM-dd]
+                  SMAD-X.Studio convert <scenario.smad-x.json>... [--exam] [--lang fr|en] [--out <folder>] [--date yyyy-MM-dd]
                   SMAD-X.Studio validate <lab.smadx-lab.json>... [--solution <fixed.smad-x.json>] [--lang fr|en]
+                  SMAD-X.Studio grade <lab.smadx-lab.json> <submission.smadx-submission.json|folder>... [--csv <grades.csv>] [--report <results.md>] [--lang fr|en]
+
+                --exam: exam mode in SMAD-X (no hints, no checking, no start over).
+                --exam : mode examen dans SMAD-X (ni indice, ni vérification, ni « Recommencer »).
+                grade: grades the learners' submissions with your lab; + objective met, - not met.
+                grade : corrige les copies des apprenants avec votre exercice ; + objectif atteint, - non atteint.
 
                 recipe writes one lab per rule; with --combine, one lab with every misconfiguration in the same domain.
                 recipe écrit un exercice par règle ; avec --combine, un seul exercice avec tous les manques dans le même domaine.
@@ -70,7 +77,7 @@ namespace SMADX.Studio
                 Chaque exercice est écrit dans <id>.smadx-lab.json, avec les notes du formateur à côté
                 dans <id>.smadx-lab.notes.md : ne les donnez jamais aux apprenants.
 
-                Exit code: 0 ok, 1 a lab has errors, 2 wrong command.
+                Exit code: 0 ok, 1 a lab has errors or a submission needs attention (not graded, changed, copied), 2 wrong command.
                 """);
             return 0;
         }
@@ -155,9 +162,57 @@ namespace SMADX.Studio
             return result;
         }
 
+        /// <summary>
+        /// Corrige les copies d'une classe avec l'exercice du formateur, affiche les notes et, sur demande,
+        /// écrit le tableau des notes (CSV) et le bilan de la classe (Markdown).
+        /// </summary>
+        private static int Grade(Options options, TextWriter output, TextWriter error)
+        {
+            if (options.Inputs.Count < 2) throw new CliException("grade: give the lab (.smadx-lab.json), then the submissions or their folder.");
+            LabDefinition lab;
+            try { lab = new LabService().LoadFile(options.Inputs[0]); }
+            catch (Exception ex) when (ex is LabFormatException or IOException or UnauthorizedAccessException)
+            {
+                error.WriteLine($"{options.Inputs[0]}: {ex.Message}");
+                return 1;
+            }
+
+            var paths = options.Inputs.Skip(1).SelectMany<string, string>(i => Directory.Exists(i)
+                ? Directory.GetFiles(i, "*" + LabSubmissionService.FileExtension, SearchOption.AllDirectories).Order(StringComparer.Ordinal)
+                : new[] { i }).ToList();
+            var rows = SubmissionGrader.GradeAll(lab, paths, options.Culture);
+            var width = Math.Max(12, rows.Select(r => r.Student.Length).DefaultIfEmpty(0).Max());
+            foreach (var r in rows)
+            {
+                var grade = r.Graded ? $"{r.Points}/{lab.MaxPoints}" : "-";
+                var marks = r.Graded ? string.Concat(lab.Objectives.Select(o => r.Passed(o) ? "+" : "-")) : "";
+                output.WriteLine($"{r.Student.PadRight(width)}  {grade,7}  hints {r.HintsUsed}  {marks}");
+                foreach (var issue in r.Issues)
+                    output.WriteLine($"  {(issue.Level == LabIssueLevel.Error ? "error" : "warning")}: {issue.Message}");
+            }
+            var graded = rows.Count(r => r.Graded);
+            var numbers = CultureInfo.GetCultureInfo(options.Culture);
+            output.WriteLine(SubmissionGrader.Average(rows) is { } average && SubmissionGrader.Median(rows) is { } median
+                ? $"{graded}/{rows.Count} graded, average {average.ToString("0.#", numbers)}/{lab.MaxPoints}, median {median.ToString("0.#", numbers)}"
+                : $"{graded}/{rows.Count} graded");
+
+            if (options.Csv != null)
+            {
+                File.WriteAllText(options.Csv, SubmissionGrader.Csv(lab, rows, options.Culture), new System.Text.UTF8Encoding(true));
+                output.WriteLine(options.Csv);
+            }
+            if (options.Report != null)
+            {
+                File.WriteAllText(options.Report, SubmissionGrader.ClassReport(lab, rows, options.Culture));
+                output.WriteLine(options.Report);
+            }
+            return rows.Count == 0 || rows.Any(SubmissionGrader.NeedsAttention) ? 1 : 0;
+        }
+
         /// <summary>Valide puis écrit l'exercice et ses notes ; un exercice en erreur est quand même écrit, pour être corrigé dans Studio.</summary>
         private static int Write(LabDefinition lab, string notes, Options options, TextWriter output, TextWriter error)
         {
+            if (options.Exam) lab.Exam = true;
             Directory.CreateDirectory(options.Out);
             var path = Path.Combine(options.Out, lab.Id + LabService.FileExtension);
             new LabService().SaveFile(lab, path);
@@ -180,10 +235,10 @@ namespace SMADX.Studio
             return report.HasErrors ? 1 : 0;
         }
 
-        /// <summary>Un dossier donne tous les fichiers .json qu'il contient.</summary>
+        /// <summary>Un dossier donne tous les fichiers .json qu'il contient, sauf les copies d'apprenants.</summary>
         private static IEnumerable<string> Expand(IEnumerable<string> inputs) =>
             inputs.SelectMany<string, string>(i => Directory.Exists(i)
-                ? Directory.GetFiles(i, "*.json").Where(f => !f.EndsWith(".notes.json", StringComparison.OrdinalIgnoreCase)).Order(StringComparer.Ordinal)
+                ? Directory.GetFiles(i, "*.json").Where(f => !f.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase)).Order(StringComparer.Ordinal)
                 : new[] { i });
 
         private sealed class CliException(string message) : Exception(message);
@@ -198,6 +253,9 @@ namespace SMADX.Studio
             public DateTime Date { get; private set; } = DateTime.Today;
             public bool Verbose { get; private set; }
             public bool Combine { get; private set; }
+            public bool Exam { get; private set; }
+            public string? Csv { get; private set; }
+            public string? Report { get; private set; }
 
             public static Options Parse(IEnumerable<string> args)
             {
@@ -225,6 +283,9 @@ namespace SMADX.Studio
                             break;
                         case "--verbose": case "-v": options.Verbose = true; break;
                         case "--combine": options.Combine = true; break;
+                        case "--exam": options.Exam = true; break;
+                        case "--csv": options.Csv = Value("--csv"); break;
+                        case "--report": options.Report = Value("--report"); break;
                         default:
                             if (e.Current.StartsWith("--")) throw new CliException($"Unknown option « {e.Current} ».");
                             options.Inputs.Add(e.Current);

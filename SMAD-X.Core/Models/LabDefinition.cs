@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using SMADX.Services.Audit;
 
 namespace SMADX.Models
@@ -33,6 +34,13 @@ namespace SMADX.Models
 
         public LabLevel Level { get; set; } = LabLevel.Beginner;
         public int DurationMinutes { get; set; } = 20;
+
+        /// <summary>
+        /// Mode examen : ni indice, ni vérification, ni « Recommencer » ; l'apprenant enregistre sa copie et
+        /// le formateur la corrige dans SMAD-X Studio. Écrit seulement s'il est activé.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Exam { get; set; }
 
         /// <summary>Énoncé en Markdown.</summary>
         public LocalizedText Statement { get; set; } = new();

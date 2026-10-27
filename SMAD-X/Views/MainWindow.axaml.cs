@@ -52,7 +52,7 @@ namespace SMADX.Views
                 (Key.N, true, false)      => vm.CreateNewDomainCommand,
                 (Key.N, true, true)       => vm.InitializeSampleDataCommand,
                 (Key.O, true, false)      => vm.LoadFromFileCommand,
-                (Key.S, true, false)      => vm.SaveToFileCommand,
+                (Key.S, true, false)      => vm.IsLabMode ? vm.SaveSubmissionCommand : vm.SaveToFileCommand,
                 (Key.E, true, false)      => vm.ExportToJsonCommand,
                 (Key.P, true, false)      => vm.ExportToPowerShellCommand,
                 (Key.I, true, false)      => vm.GenerateImportScriptCommand,
@@ -74,7 +74,8 @@ namespace SMADX.Views
                 _ => null
             };
 
-            if (command != null)
+            // CanExecute : en mode exercice, Ctrl+N ou Ctrl+O ne remplacent pas le domaine de l'apprenant
+            if (command != null && command.CanExecute(null))
             {
                 command.Execute(null);
                 e.Handled = true;
