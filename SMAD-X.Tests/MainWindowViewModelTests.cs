@@ -79,6 +79,9 @@ public class MainWindowViewModelTests
 
     private ADTreeNode Node(string name) => FindNode(_vm.RootNodes[0], name)!;
 
+    /// <summary>Le conteneur Users, et non le groupe Users de Builtin.</summary>
+    private ADTreeNode UsersContainer() => _vm.RootNodes[0].Children.First(c => c.Data is { Name: "Users", Type: ADObjectType.Container });
+
     private static ADTreeNode? FindNode(ADTreeNode node, string name) =>
         node.Data.Name == name ? node : node.Children.Select(c => FindNode(c, name)).FirstOrDefault(n => n != null);
 
@@ -227,7 +230,7 @@ public class MainWindowViewModelTests
     [Fact]
     public void CopyPaste_ClonesIntoSelectedContainer()
     {
-        var ou = FindNode(_vm.RootNodes[0], "Users")!;
+        var ou = UsersContainer();
         _vm.SelectedNode = ou.Children.First(c => c.Data.Type == ADObjectType.User);
         var copied = _vm.SelectedNode.Data.Name;
         _vm.CopyObjectCommand.Execute(null);
@@ -286,7 +289,7 @@ public class MainWindowViewModelTests
     {
         _vm.SelectedNode = Node("Domain Admins");
         _vm.CopyObjectCommand.Execute(null);
-        var users = Node("Users");
+        var users = UsersContainer();
 
         _vm.SelectedNode = users;
         _vm.PasteObjectCommand.Execute(null);

@@ -55,7 +55,8 @@ namespace SMADX.Services
             ["Domain Admins"] = new[] { "Administrators" },
             ["Enterprise Admins"] = new[] { "Administrators" },
             ["Domain Users"] = new[] { "Users" },
-            ["Guest"] = new[] { "Guests" }
+            ["Guest"] = new[] { "Guests", "Domain Guests" },
+            ["Domain Guests"] = new[] { "Guests" }
         };
 
         public static void Apply(ADObject domain)

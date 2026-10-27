@@ -117,6 +117,7 @@ namespace SMADX.ViewModels
     {
         private readonly ADObject _root;
         private readonly ADSitesTopology? _topology;
+        private readonly SMADX.Services.ADValidationService _validation = new();
 
         // --- Onglet User → Group ---
         public ObservableCollection<RelationEntry> Memberships { get; } = new();
@@ -372,6 +373,7 @@ namespace SMADX.ViewModels
                 {
                     case ADObjectType.User:
                     case ADObjectType.Computer:
+                    case ADObjectType.GMSA:
                         AvailableUsers.Add(s);
                         AvailableMembershipTargets.Add(s);
                         break;
@@ -430,14 +432,14 @@ namespace SMADX.ViewModels
 
             foreach (var obj in CollectAll(_root))
             {
-                // User / Computer → Group
-                if (obj.Type == ADObjectType.User || obj.Type == ADObjectType.Computer)
+                // User / Computer / gMSA → Group
+                if (obj.Type is ADObjectType.User or ADObjectType.Computer or ADObjectType.GMSA)
                 {
                     foreach (var grp in obj.MemberOf)
                         Memberships.Add(new RelationEntry
                         {
                             Source = obj.Name,
-                            SourceType = obj.Type == ADObjectType.Computer ? "Computer" : "User",
+                            SourceType = obj.Type.ToString(),
                             Target = grp,
                             RelationType = Loc["Relation.MemberOf"]
                         });
@@ -511,7 +513,7 @@ namespace SMADX.ViewModels
 
             var source = FindObject(MembershipSource);
             if (source == null) { StatusMessage = string.Format(Loc["Relations.Msg.ObjectNotFound"], MembershipSource); return; }
-            if (source.Type != ADObjectType.User && source.Type != ADObjectType.Computer)
+            if (source.Type is not (ADObjectType.User or ADObjectType.Computer or ADObjectType.GMSA))
             {
                 StatusMessage = Loc["Relations.Msg.SourceMustBeAccount"];
                 return;
@@ -521,12 +523,17 @@ namespace SMADX.ViewModels
                 StatusMessage = Loc["Relations.Msg.AlreadyExists"];
                 return;
             }
+            if (FindObject(MembershipTarget) is { } targetGroup && !_validation.ValidateMembership(source, targetGroup, out var refused))
+            {
+                StatusMessage = refused!;
+                return;
+            }
 
             source.MemberOf.Add(MembershipTarget);
             Memberships.Add(new RelationEntry
             {
                 Source = MembershipSource,
-                SourceType = source.Type == ADObjectType.Computer ? "Computer" : "User",
+                SourceType = source.Type.ToString(),
                 Target = MembershipTarget,
                 RelationType = Loc["Relation.MemberOf"]
             });
@@ -562,6 +569,7 @@ namespace SMADX.ViewModels
             }
 
             int added = 0, skipped = 0;
+            string? refusal = null;
             foreach (var src in selectedSources)
             {
                 var sourceObj = FindObject(src.Name);
@@ -571,6 +579,13 @@ namespace SMADX.ViewModels
                 {
                     if (tgt.Name == src.Name) { skipped++; continue; }
                     if (sourceObj.MemberOf.Contains(tgt.Name)) { skipped++; continue; }
+                    // Portées des groupes (AGDLP) : un global ne contient pas d'universel, etc.
+                    if (FindObject(tgt.Name) is { } targetObj && !_validation.ValidateMembership(sourceObj, targetObj, out var error))
+                    {
+                        refusal ??= error;
+                        skipped++;
+                        continue;
+                    }
                     sourceObj.MemberOf.Add(tgt.Name);
                     GroupNestings.Add(new RelationEntry
                     {
@@ -585,11 +600,12 @@ namespace SMADX.ViewModels
             }
             foreach (var tgt in selectedTargets) tgt.IsSelected = false;
 
-            StatusMessage = added > 0
+            StatusMessage = (added > 0
                 ? (skipped > 0
                     ? string.Format(Loc["Relations.Msg.NestingAddedSkipped"], added, skipped)
                     : string.Format(Loc["Relations.Msg.NestingAdded"], added))
-                : Loc["Relations.Msg.NestingNone"];
+                : Loc["Relations.Msg.NestingNone"])
+                + (refusal != null ? " " + refusal : string.Empty);
         }
 
         [RelayCommand]

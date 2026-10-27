@@ -1,0 +1,1 @@
+Conteneur par défaut des comptes de service managés (gMSA).

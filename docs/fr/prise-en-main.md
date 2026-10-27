@@ -17,11 +17,19 @@
 
 === "Partir de l'exemple"
 
-    Au démarrage, SMAD-X charge `contoso.com` : une structure d'AD complète, trois sites (Paris, Lyon et le site par défaut), des GPO et des PSO. **Fichier > Nouvelle structure (exemple)** (`Ctrl+Shift+N`) la recharge à tout moment.
+    Au démarrage, SMAD-X charge `contoso.com` : un domaine en production depuis deux ans, avec trois sites (Paris, Lyon et le site par défaut), des OU métier, des GPO, des PSO et quelques écarts courants que l'audit fait découvrir. Les administrateurs nominatifs (`adm-…`) sont membres de `GG-Tier0-Admins`, lui-même membre de Domain Admins. **Fichier > Nouvelle structure (exemple)** (`Ctrl+Shift+N`) la recharge à tout moment.
 
 === "Créer un domaine"
 
-    **Fichier > Nouveau domaine...** (`Ctrl+N`), saisissez le nom DNS (par exemple `corp.local`) et choisissez d'appliquer ou non le classement en tiers. SMAD-X crée ce qu'un AD contient juste après la promotion du premier contrôleur de domaine : Builtin, Users, Computers, Domain Controllers avec DC01, System (Policies, Password Settings Container), ForeignSecurityPrincipals.
+    **Fichier > Nouveau domaine...** (`Ctrl+N`), saisissez le nom DNS (par exemple `corp.local`) et choisissez d'appliquer ou non le classement en tiers. SMAD-X crée un AD DS tel qu'il sort de l'installation, sans aucune modification :
+
+    - les conteneurs Builtin (tous ses groupes : Administrators, Account Operators, Print Operators, Pre-Windows 2000 Compatible Access…), Users (comptes et groupes intégrés), Computers, ForeignSecurityPrincipals, Keys, LostAndFound, Managed Service Accounts, Program Data, Infrastructure, NTDS Quotas, TPM Devices ;
+    - System, avec AdminSDHolder, Password Settings Container et Policies (Default Domain Policy et Default Domain Controllers Policy) ;
+    - l'OU Domain Controllers et DC01 ;
+    - la politique de mot de passe par défaut : 7 caractères, complexité, historique de 24, durée de vie de 42 jours, pas de verrouillage ;
+    - le quota de jonction : tout utilisateur peut joindre 10 ordinateurs au domaine (ms-DS-MachineAccountQuota).
+
+    Rien n'est durci : l'audit d'un domaine neuf montre ce qu'une installation laisse à corriger.
 
 === "Ouvrir un fichier"
 

@@ -1,0 +1,1 @@
+Read the computed tokenGroupsGlobalAndUniversal attribute of users.

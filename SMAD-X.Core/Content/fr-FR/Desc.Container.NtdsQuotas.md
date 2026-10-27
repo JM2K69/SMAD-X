@@ -1,0 +1,1 @@
+Quotas de l'annuaire : nombre d'objets qu'un compte peut y créer.

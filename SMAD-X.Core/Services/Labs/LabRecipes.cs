@@ -55,6 +55,8 @@ namespace SMADX.Services.Labs
         private static ADObject FirstStaff(ADObject d) =>
             Flatten(d).First(o => o.Type == ADObjectType.User && o.Parent?.Parent?.Type == ADObjectType.OrganizationalUnit && o.Tier == "Tier 2" && o.MemberOf.Count > 0);
 
+        private static ADObject PsoContainer(ADObject d) => Flatten(d).First(ADValidationService.IsPasswordSettingsContainer);
+
         private static ADObject Dc(ADObject d) => Flatten(d).First(o => o.Type == ADObjectType.Computer && o.Parent?.Name == "Domain Controllers");
 
         // ─── Catalogue ───────────────────────────────────────────────────────────
@@ -150,6 +152,39 @@ namespace SMADX.Services.Labs
                 var pc = Flatten(d).First(o => o.Type == ADObjectType.Computer && o.Parent?.Name == b.T("Postes de travail", "Workstations"));
                 pc.PwdLastSet = b.Reference.AddDays(-200);
                 return [pc];
+            }),
+            new("ACC-03", L("Pour gagner du temps, les techniciens joignent les postes au domaine avec le compte de l'utilisateur.",
+                             "To save time, technicians join workstations to the domain with the user's own account."), (b, d) =>
+            {
+                d.MachineAccountQuota = 10;
+                return [];
+            }),
+            new("PWD-08", L("Le domaine a été installé il y a des années ; sa politique de mot de passe n'a jamais été revue.",
+                             "The domain was installed years ago; its password policy has never been reviewed."), (b, d) =>
+            {
+                d.PSOMinPasswordLength = 7;
+                // Les administrateurs ont déjà leur propre PSO : seule la politique du domaine est en cause
+                var pso = Add(PsoContainer(d), new ADObject("PSO-Admins", ADObjectType.PasswordSettingsObject)
+                {
+                    Tier = "Tier 0", Description = b.T("Politique des comptes d'administration.", "Policy of the administration accounts."),
+                    PSOPrecedence = 10, PSOMinPasswordLength = 16, PSOPasswordHistoryCount = 24, PSOComplexityEnabled = true,
+                    PSOMaxPasswordAgeDays = 365, PSOMinPasswordAgeDays = 1, PSOLockoutThreshold = 5, PSOLockoutDurationMinutes = 30,
+                    PSOLockoutObservationWindowMinutes = 30
+                });
+                pso.PSOAppliesTo.Add("Domain Admins");
+                return [];
+            }),
+            new("PWD-09", L("Un prestataire a créé une politique de mot de passe « pratique » pour les administrateurs.",
+                             "A contractor created a \"convenient\" password policy for the administrators."), (b, d) =>
+            {
+                var pso = Add(PsoContainer(d), new ADObject("PSO-Admins", ADObjectType.PasswordSettingsObject)
+                {
+                    Tier = "Tier 0", Description = b.T("Politique des comptes d'administration.", "Policy of the administration accounts."),
+                    PSOPrecedence = 10, PSOMinPasswordLength = 6, PSOPasswordHistoryCount = 0, PSOComplexityEnabled = false,
+                    PSOMaxPasswordAgeDays = 0, PSOMinPasswordAgeDays = 0, PSOLockoutThreshold = 0
+                });
+                pso.PSOAppliesTo.Add("Domain Admins");
+                return [Find(d, "Administrator", ADObjectType.User)];
             }),
             new("PWD-07", L("Une application utilise un compte de service géré (gMSA).", "An application uses a group managed service account (gMSA)."), (b, d) =>
             {

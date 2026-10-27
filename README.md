@@ -116,7 +116,7 @@
 ---
 
 ### 🛡️ Security Audit, Attack Paths and Labs
-- **Security audit**: 28 rules sourced from the ANSSI AD checklist, NIST, CIS, MITRE ATT&CK and Microsoft, with a score and an estimated ANSSI level
+- **Security audit**: 31 rules sourced from the ANSSI AD checklist, NIST, CIS, MITRE ATT&CK and Microsoft, with a score and an estimated ANSSI level
 - **Attack paths**: who can take control of the domain and through which steps (Kerberoasting, AS-REP roasting, delegations, owners, GPOs, Kerberos delegation…), highlighted in the graph
 - **Before / after** comparison and **undo / redo**
 - **Labs** (`.smadx-lab.json`): realistic scenarios graded automatically, including 12 attack-path labs in French and English

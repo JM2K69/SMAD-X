@@ -1,0 +1,1 @@
+Container of the devices' Windows Hello for Business keys (msDS-KeyCredentialLink attribute).

@@ -40,7 +40,9 @@ public class AuditCatalogueTests
         ["vuln_owner"] = [3],
         ["vuln_permissions_gpo_priv"] = [1],
         ["vuln_privileged_members_perm"] = [1, 2],
-        ["vuln_group_loop"] = [4]
+        ["vuln_group_loop"] = [4],
+        ["vuln_privileged_members_password"] = [2],
+        ["vuln_user_accounts_machineaccountquota"] = [4]
     };
 
     public static TheoryData<string> RuleIds()
@@ -409,14 +411,89 @@ public class AuditReportTests
 
     public AuditReportTests() => TierConfigurationService.Instance.ResetToDefaults();
 
+    private static ADObject Pso(ADObject domain, string name, int precedence, int length, int maxAge, params string[] appliesTo)
+    {
+        var container = Flatten(domain).First(ADValidationService.IsPasswordSettingsContainer);
+        var pso = Add(container, new ADObject(name, ADObjectType.PasswordSettingsObject)
+        {
+            PSOPrecedence = precedence, PSOMinPasswordLength = length, PSOMaxPasswordAgeDays = maxAge
+        });
+        foreach (var subject in appliesTo) pso.PSOAppliesTo.Add(subject);
+        return pso;
+    }
+
+    [Fact]
+    public void EffectivePasswordPolicy_FollowsAdPrecedence()
+    {
+        var domain = new ADDataService().CreateFreshDomainStructure("corp.local");
+        var weak = Pso(domain, "PSO-Faible", 5, 6, 0, "Domain Admins");
+        var strong = Pso(domain, "PSO-Fort", 1, 16, 365, "Domain Admins");
+        var direct = Pso(domain, "PSO-Direct", 50, 20, 365, "Administrator");
+        var context = new AuditContext(domain, Now);
+        var admin = context.Objects.Single(o => o is { Name: "Administrator", Type: ADObjectType.User });
+
+        Assert.Same(direct, context.EffectivePasswordPolicy(admin));           // un PSO sur le compte l'emporte sur ceux des groupes
+        direct.PSOAppliesTo.Clear();
+        Assert.Same(strong, new AuditContext(domain, Now).EffectivePasswordPolicy(admin)); // puis la plus petite priorité
+        strong.PSOAppliesTo.Clear();
+        Assert.Same(weak, new AuditContext(domain, Now).EffectivePasswordPolicy(admin));
+        weak.PSOAppliesTo.Clear();
+        Assert.Same(domain, new AuditContext(domain, Now).EffectivePasswordPolicy(admin)); // sinon la politique du domaine
+    }
+
+    [Theory]
+    [InlineData(16, 365, false)]
+    [InlineData(7, 365, true)]       // moins de 8 caractères
+    [InlineData(16, 0, true)]        // jamais renouvelé
+    [InlineData(16, 1200, true)]     // renouvelé tous les plus de 3 ans
+    public void PrivilegedAccounts_NeedAStrongEffectivePolicy(int length, int maxAge, bool weak)
+    {
+        var domain = new ADDataService().CreateFreshDomainStructure("corp.local");
+        domain.PSOMinPasswordLength = 12; // la politique du domaine n'est pas en cause
+        Pso(domain, "PSO-Admins", 10, length, maxAge, "Domain Admins");
+
+        var failed = new ADSecurityAuditService().Run(domain, Now).FailedRules.Select(r => r.Id).ToList();
+
+        Assert.Equal(weak, failed.Contains("PWD-09"));
+        Assert.DoesNotContain("PWD-08", failed);
+    }
+
+    [Fact]
+    public void UnknownPasswordPolicy_IsNotJudged()
+    {
+        // Un document d'avant la 0.9.1 n'a pas de politique de mot de passe : les exercices fournis restent inchangés
+        var domain = new ADDataService().CreateFreshDomainStructure("corp.local");
+        domain.PSOMinPasswordLength = null;
+
+        var failed = new ADSecurityAuditService().Run(domain, Now).FailedRules.Select(r => r.Id).ToList();
+
+        Assert.DoesNotContain("PWD-08", failed);
+        Assert.DoesNotContain("PWD-09", failed);
+    }
+
+    [Theory]
+    [InlineData(10, true)]
+    [InlineData(0, false)]
+    [InlineData(null, false)]   // inconnu : document d'avant la 0.9.1
+    public void MachineAccountQuota_AboveZero_IsReported(int? quota, bool reported)
+    {
+        var domain = new ADDataService().CreateFreshDomainStructure("corp.local");
+        domain.MachineAccountQuota = quota;
+
+        Assert.Equal(reported, new ADSecurityAuditService().Run(domain, Now).FailedRules.Any(r => r.Id == "ACC-03"));
+    }
+
     [Fact]
     public void FreshDomain_IsNotCompliantOutOfTheBox()
     {
-        // Constat pédagogique : un AD tout juste promu ne passe pas les points ANSSI de niveau 1
+        // Constat pédagogique : un AD tout juste promu ne passe pas les points ANSSI de niveau 1, et sa politique
+        // de mot de passe par défaut (7 caractères) est trop courte, pour tous comme pour l'administrateur
         var report = new ADSecurityAuditService().Run(new ADDataService().CreateFreshDomainStructure("corp.local"), Now);
 
-        Assert.Equal(["DLG-04", "PRIV-03", "PWD-01"], report.FailedRules.Select(r => r.Id).Order());
-        Assert.All(report.Findings.Where(f => f.Rule.Id != "PRIV-03"), f => Assert.Equal("Administrator", f.Object.Name));
+        Assert.Equal(["ACC-03", "DLG-04", "PRIV-03", "PWD-01", "PWD-08", "PWD-09"], report.FailedRules.Select(r => r.Id).Order());
+        Assert.Equal("corp.local", Assert.Single(report.Findings, f => f.Rule.Id == "PWD-08").Object.Name);
+        Assert.Equal("corp.local", Assert.Single(report.Findings, f => f.Rule.Id == "ACC-03").Object.Name); // quota de 10 par défaut
+        Assert.All(report.Findings.Where(f => f.Rule.Id is not ("PRIV-03" or "PWD-08" or "ACC-03")), f => Assert.Equal("Administrator", f.Object.Name));
         Assert.Equal(1, report.EstimatedAnssiLevel);
     }
 
@@ -430,6 +507,9 @@ public class AuditReportTests
         Assert.Contains("ACC-02", failed);   // asmith dormant
         Assert.Contains("PWD-06", failed);   // WKS-001 sorti du parc
         Assert.Contains("PRIV-05", failed);  // Read-only Domain Controllers classé Tier 1
+        Assert.Contains("PWD-08", failed);   // politique du domaine jamais durcie
+        Assert.Contains("ACC-03", failed);   // quota de jonction de machines par défaut
+        Assert.DoesNotContain("PWD-09", failed); // les administrateurs ont leur PSO
         Assert.DoesNotContain("PWD-05", failed); // les DC renouvellent leur mot de passe
     }
 

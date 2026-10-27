@@ -1,15 +1,14 @@
-# 👥 Groupe Domain Admins (OU Admin)
+# 👥 GG-Tier0-Admins (OU Admin)
 
-Instance locale du groupe **Domain Admins** dans l'OU Administration.
+Groupe global des **administrateurs du Tier 0** : les comptes d'administration nominatifs (`adm-…`).
 
 ## Rôle
-- Regroupe les comptes administrateurs nominatifs ayant les droits Domain Admins
-- Utilisé pour déléguer l'administration du domaine à des personnes identifiées
+- Le groupe est membre de **Domain Admins** : on donne les droits à un groupe métier plutôt qu'à des comptes un par un (modèle AGDLP)
+- Ajouter ou retirer un administrateur se fait ici, sans toucher aux groupes intégrés
 
 ## ⚠️ Sécurité
 > 🔴 **Tier 0 — Groupe ultra-privilégié**
 
-- Maintenir le nombre de membres **au minimum absolu** (idéalement 2-3 comptes de breakglass)
-- Auditer les membres mensuellement
-- Tout ajout à ce groupe doit passer par un processus de change management
-- Surveiller Event ID 4728 (ajout membre) et 4729 (suppression membre)
+- Maintenir le nombre de membres **au minimum absolu**
+- Auditer les membres chaque mois ; tout ajout passe par un processus de validation
+- Surveiller Event ID 4728 (ajout d'un membre) et 4729 (retrait)

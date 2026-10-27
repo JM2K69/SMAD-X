@@ -1,6 +1,6 @@
 # Audit de sécurité
 
-**Analyse > Audit de sécurité** (`Ctrl+Shift+A`) passe le domaine au crible de **28 règles**. Chacune s'appuie sur des sources reconnues :
+**Analyse > Audit de sécurité** (`Ctrl+Shift+A`) passe le domaine au crible de **31 règles**. Chacune s'appuie sur des sources reconnues :
 
 - la [checklist Active Directory de l'ANSSI](https://cert.cyber.gouv.fr/uploads/ad_checklist.html), avec l'identifiant et le niveau officiels de chaque point de contrôle ;
 - le **NIST** : SP 800-53 (contrôles de sécurité) et SP 800-63B (authentification) ;

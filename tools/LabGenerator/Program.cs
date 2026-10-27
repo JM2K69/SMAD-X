@@ -21,7 +21,7 @@ ADObject User(ADObject parent, string name, string tier) => Add(parent, new ADOb
 ADObject Fresh()
 {
     TierConfigurationService.Instance.ResetToDefaults();
-    var d = data.CreateFreshDomainStructure("contoso.local");
+    var d = data.CreateLabBaseStructure("contoso.local");
     foreach (var o in Flatten(d))
     {
         o.CreatedDate = reference.AddDays(-400);

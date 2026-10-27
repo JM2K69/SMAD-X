@@ -1,0 +1,1 @@
+Emplacement par défaut des données des applications.

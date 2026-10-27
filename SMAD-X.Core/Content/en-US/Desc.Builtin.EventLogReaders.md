@@ -1,0 +1,1 @@
+Can read the event logs of the computer.

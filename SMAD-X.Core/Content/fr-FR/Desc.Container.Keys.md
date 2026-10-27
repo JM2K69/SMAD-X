@@ -1,0 +1,1 @@
+Conteneur des clés Windows Hello for Business des appareils (attribut msDS-KeyCredentialLink).

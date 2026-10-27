@@ -1,0 +1,1 @@
+Record in the directory the Remote Desktop Services licences issued to users.

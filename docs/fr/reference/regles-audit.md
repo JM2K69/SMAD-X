@@ -1,7 +1,7 @@
 # Règles d'audit
 
 !!! info "Page générée"
-    Cette page est produite à partir du code de SMAD-X (`tools/DocGenerator`) : elle liste exactement les 28 règles évaluées par l'application.
+    Cette page est produite à partir du code de SMAD-X (`tools/DocGenerator`) : elle liste exactement les 31 règles évaluées par l'application.
 
 Chaque règle en échec retire des points au score, une seule fois quel que soit le nombre d'objets concernés : **12** pour une règle critique, **6** élevée, **3** moyenne, **1** faible. Le niveau ANSSI estimé est celui du point de contrôle le plus critique en échec (5 si aucun) ; ce n'est pas le calcul officiel de l'outil ADS de l'ANSSI.
 
@@ -35,11 +35,14 @@ Chaque règle en échec retire des points au score, une seule fois quel que soit
 | **PWD-05** Mot de passe machine d'un contrôleur de domaine inchangé | Critique | 1 | [ANSSI · vuln_password_change_dc_no_change](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 | **PWD-06** Compte d'ordinateur dont le mot de passe ne change plus | Élevée | 2 | [ANSSI · vuln_password_change_server_no_change_90](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[CIS · CIS Controls v8 5.3](https://cas.docs.cisecurity.org/en/latest/source/Controls5/) |
 | **PWD-07** Compte de service managé dont le mot de passe ne change plus | Élevée | 2 | [ANSSI · vuln_password_change_msa_no_change_90](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview) |
+| **PWD-08** Politique de mot de passe du domaine trop courte | Moyenne | — | [NIST · SP 800-63B](https://pages.nist.gov/800-63-4/sp800-63b.html)<br>[CIS · CIS Controls v8 5.2](https://cas.docs.cisecurity.org/en/latest/source/Controls5/)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **PWD-09** Compte privilégié soumis à une politique de mot de passe faible | Élevée | 2 | [ANSSI · vuln_privileged_members_password](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-63B](https://pages.nist.gov/800-63-4/sp800-63b.html)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 
 ## Comptes
 
 | Règle | Gravité | Niveau ANSSI | Références |
 |---|---|---|---|
+| **ACC-03** Tout utilisateur peut joindre des ordinateurs au domaine | Faible | 4 | [ANSSI · vuln_user_accounts_machineaccountquota](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows/win32/adschema/a-ms-ds-machineaccountquota)<br>[MITRE ATT&CK · T1136.002](https://attack.mitre.org/techniques/T1136/002/)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 | **ACC-01** Compte Invité actif | Élevée | 2 | [ANSSI · vuln_guest](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[MITRE ATT&CK · T1078.002](https://attack.mitre.org/techniques/T1078/002/) |
 | **ACC-02** Compte dormant | Moyenne | — | [ANSSI · info_user_accounts_dormant](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[CIS · CIS Controls v8 5.3](https://cas.docs.cisecurity.org/en/latest/source/Controls5/)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[MITRE ATT&CK · T1078.002](https://attack.mitre.org/techniques/T1078/002/) |
 

@@ -1,0 +1,1 @@
+Compatibility group for Windows NT, which grants read access to many user and group attributes. It must contain neither Everyone nor Anonymous: they would open the directory to reading without authentication.

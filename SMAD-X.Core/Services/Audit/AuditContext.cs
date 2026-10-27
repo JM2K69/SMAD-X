@@ -102,6 +102,19 @@ namespace SMADX.Services.Audit
             Objects.FirstOrDefault(o => (o.IsAccount || o.Type == ADObjectType.Group) && string.Equals(o.Name, name, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>Âge en jours d'une date (null si inconnue).</summary>
+        /// <summary>
+        /// Politique de mot de passe effective d'un compte, comme AD la calcule (msDS-ResultantPSO) : le PSO de plus
+        /// petite priorité appliqué au compte lui-même, sinon à l'un de ses groupes, sinon la politique du domaine.
+        /// </summary>
+        public ADObject EffectivePasswordPolicy(ADObject account)
+        {
+            var psos = Objects.Where(o => o.Type == ADObjectType.PasswordSettingsObject).ToList();
+            var direct = psos.Where(p => p.PSOAppliesTo.Contains(account.Name, StringComparer.OrdinalIgnoreCase)).ToList();
+            var groups = EffectiveGroups(account).Select(g => g.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var candidates = direct.Count > 0 ? direct : psos.Where(p => p.PSOAppliesTo.Any(groups.Contains)).ToList();
+            return candidates.OrderBy(p => p.PSOPrecedence ?? int.MaxValue).FirstOrDefault() ?? Domain;
+        }
+
         public int? AgeInDays(DateTime? date) => date is { } d ? (int)(Now - d).TotalDays : null;
 
         private static IEnumerable<ADObject> Flatten(ADObject root) =>

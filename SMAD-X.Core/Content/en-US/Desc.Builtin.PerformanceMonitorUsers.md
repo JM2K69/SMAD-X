@@ -1,0 +1,1 @@
+Can read performance counter data, locally and remotely.

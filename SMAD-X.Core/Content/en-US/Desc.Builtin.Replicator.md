@@ -1,0 +1,1 @@
+Supports file replication in the domain. Group protected by AdminSDHolder, which must stay empty.

@@ -1,0 +1,1 @@
+Informations de propriétaire des puces TPM des ordinateurs.

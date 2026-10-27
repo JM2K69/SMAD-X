@@ -1,0 +1,1 @@
+Can change the network configuration of domain controllers.

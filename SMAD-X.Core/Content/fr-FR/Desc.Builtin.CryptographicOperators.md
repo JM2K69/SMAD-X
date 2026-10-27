@@ -1,0 +1,1 @@
+Autorisés à effectuer des opérations de chiffrement.

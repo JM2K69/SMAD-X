@@ -50,62 +50,87 @@ namespace SMADX.Services
             return true;
         }
 
+        /// <summary>Conteneur des GPO : CN=Policies,CN=System.</summary>
+        public static bool IsPoliciesContainer(Models.ADObject o) =>
+            o is { Type: Models.ADObjectType.Container, Name: "Policies", Parent: { Type: Models.ADObjectType.Container, Name: "System" } };
+
+        /// <summary>Conteneur des PSO : CN=Password Settings Container,CN=System.</summary>
+        public static bool IsPasswordSettingsContainer(Models.ADObject o) =>
+            o is { Type: Models.ADObjectType.Container, Name: "Password Settings Container" };
+
         /// <summary>
-        /// Valide si un objet peut être ajouté dans un conteneur
+        /// Vrai si un objet de ce type peut être créé sous <paramref name="parent"/>, comme dans AD (supérieurs possibles du
+        /// schéma) : une OU sous le domaine ou une OU, jamais dans un conteneur ; un conteneur, un compte ou un groupe sous le
+        /// domaine, une OU ou un conteneur ; une GPO seulement dans CN=Policies,CN=System ; un PSO seulement dans le
+        /// Password Settings Container ; rien sous un compte, un groupe, une GPO ou un PSO.
         /// </summary>
-        public bool ValidateContainerRule(Models.ADObjectType parentType, Models.ADObjectType childType, out string? errorMessage)
+        public bool ValidateContainerRule(Models.ADObject parent, Models.ADObjectType childType, out string? errorMessage)
         {
             var loc = LocalizationService.Instance;
             errorMessage = null;
+            string Type(Models.ADObjectType t) => loc[$"ObjectType.{t}"];
 
-            switch (parentType)
+            if (parent.Type is not (Models.ADObjectType.Domain or Models.ADObjectType.OrganizationalUnit or Models.ADObjectType.Container))
             {
-                case Models.ADObjectType.Domain:
-                    // Un domaine peut contenir des OUs, Containers et Policies (pas les PSOs directement)
-                    if (childType != Models.ADObjectType.OrganizationalUnit && 
-                        childType != Models.ADObjectType.Container &&
-                        childType != Models.ADObjectType.Policy)
-                    {
-                        errorMessage = string.Format(loc["Validation.Container.Domain"], loc[$"ObjectType.{childType}"]);
-                        return false;
-                    }
-                    break;
-
-                case Models.ADObjectType.OrganizationalUnit:
-                    // Une OU peut contenir presque tout sauf un domaine, PSO et Container
-                    if (childType == Models.ADObjectType.Domain || 
-                        childType == Models.ADObjectType.PasswordSettingsObject ||
-                        childType == Models.ADObjectType.Container)
-                    {
-                        errorMessage = string.Format(loc["Validation.Container.OU"], loc[$"ObjectType.{childType}"]);
-                        return false;
-                    }
-                    break;
-
-                case Models.ADObjectType.Container:
-                    // Un Container peut contenir des Users, Groups, Computers, et PSOs (pour le container System)
-                    if (childType == Models.ADObjectType.Domain || 
-                        childType == Models.ADObjectType.OrganizationalUnit ||
-                        childType == Models.ADObjectType.Container ||
-                        childType == Models.ADObjectType.Policy)
-                    {
-                        errorMessage = string.Format(loc["Validation.Container.Container"], loc[$"ObjectType.{childType}"]);
-                        return false;
-                    }
-                    break;
-
-                case Models.ADObjectType.User:
-                case Models.ADObjectType.Computer:
-                case Models.ADObjectType.Group:
-                case Models.ADObjectType.GMSA:
-                case Models.ADObjectType.Policy:
-                case Models.ADObjectType.PasswordSettingsObject:
-                    // Ces types ne peuvent pas contenir d'autres objets
-                    errorMessage = string.Format(loc["Validation.Container.Leaf"], loc[$"ObjectType.{parentType}"]);
-                    return false;
+                errorMessage = string.Format(loc["Validation.Container.Leaf"], Type(parent.Type));
+                return false;
             }
 
-            return true;
+            switch (childType)
+            {
+                case Models.ADObjectType.Domain:
+                    errorMessage = loc["Validation.Container.NoDomain"];
+                    return false;
+                case Models.ADObjectType.OrganizationalUnit when parent.Type == Models.ADObjectType.Container:
+                    errorMessage = loc["Validation.Container.OuInContainer"];
+                    return false;
+                case Models.ADObjectType.Policy when !IsPoliciesContainer(parent):
+                    errorMessage = loc["Validation.Container.PolicyPlace"];
+                    return false;
+                case Models.ADObjectType.PasswordSettingsObject when !IsPasswordSettingsContainer(parent):
+                    errorMessage = loc["Validation.Container.PsoPlace"];
+                    return false;
+                default:
+                    return true;
+            }
+        }
+
+        /// <summary>
+        /// Vrai si <paramref name="member"/> peut entrer dans <paramref name="group"/>, selon les portées d'AD (AGDLP) :
+        /// un groupe global ne contient que des comptes et des groupes globaux ; un groupe universel, aussi des groupes
+        /// universels ; un groupe de domaine local, aussi des groupes de domaine local. Une portée inconnue n'est pas vérifiée.
+        /// </summary>
+        public bool ValidateMembership(Models.ADObject member, Models.ADObject group, out string? errorMessage)
+        {
+            var loc = LocalizationService.Instance;
+            errorMessage = null;
+            if (group.Type != Models.ADObjectType.Group)
+            {
+                errorMessage = string.Format(loc["Validation.Member.NotAGroup"], group.Name);
+                return false;
+            }
+            if (member == group)
+            {
+                errorMessage = loc["Relations.Msg.SelfMember"];
+                return false;
+            }
+            if (member.Type is not (Models.ADObjectType.User or Models.ADObjectType.Computer or Models.ADObjectType.GMSA or Models.ADObjectType.Group))
+            {
+                errorMessage = string.Format(loc["Validation.Member.Type"], loc[$"ObjectType.{member.Type}"]);
+                return false;
+            }
+            if (member.Type != Models.ADObjectType.Group || member.GroupScope is not { } inner || group.GroupScope is not { } outer)
+                return true;
+
+            var allowed = outer switch
+            {
+                Models.ADGroupScope.Global => inner == Models.ADGroupScope.Global,
+                Models.ADGroupScope.Universal => inner != Models.ADGroupScope.DomainLocal,
+                _ => true
+            };
+            if (!allowed)
+                errorMessage = string.Format(loc["Validation.Member.Scope"], member.Name, loc[$"GroupScope.{inner}"], group.Name, loc[$"GroupScope.{outer}"]);
+            return allowed;
         }
 
         /// <summary>

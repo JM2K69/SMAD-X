@@ -1,0 +1,1 @@
+Serveurs qui donnent accès aux programmes RemoteApp et aux bureaux virtuels.

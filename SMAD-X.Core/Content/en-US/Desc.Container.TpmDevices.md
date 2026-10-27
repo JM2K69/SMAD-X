@@ -1,0 +1,1 @@
+Owner information of the computers' TPM chips.

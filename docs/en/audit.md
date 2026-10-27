@@ -1,6 +1,6 @@
 # Security audit
 
-**Analysis > Security audit** (`Ctrl+Shift+A`) checks the domain against **28 rules**. Each one relies on recognised sources:
+**Analysis > Security audit** (`Ctrl+Shift+A`) checks the domain against **31 rules**. Each one relies on recognised sources:
 
 - the [ANSSI Active Directory checklist](https://cert.cyber.gouv.fr/uploads/ad_checklist.html), with each control point's official identifier and level;
 - **NIST**: SP 800-53 (security controls) and SP 800-63B (authentication);

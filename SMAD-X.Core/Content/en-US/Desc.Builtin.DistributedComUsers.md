@@ -1,0 +1,1 @@
+Allowed to launch, activate and use Distributed COM objects on the computer.

@@ -67,7 +67,8 @@ public class BuiltInSecurityDefaultsTests
     [Fact]
     public void Workstation_HasHostSpnsButNoDelegation()
     {
-        var workstation = Get("WORKSTATION-01", ADObjectType.Computer);
+        // Un domaine neuf n'a pas de poste : celui de la base des exercices
+        var workstation = Flatten(new ADDataService().CreateLabBaseStructure("corp.local")).First(o => o is { Name: "WORKSTATION-01", Type: ADObjectType.Computer });
 
         Assert.Equal(ADAccountFlags.None, workstation.AccountFlags);
         Assert.Contains("HOST/WORKSTATION-01.corp.local", workstation.ServicePrincipalNames);
@@ -235,6 +236,43 @@ public class ObjectSecurityViewModelTests
         Assert.False(vm.IsAccount);
         Assert.Equal(ADGroupScope.Universal, group.GroupScope);
         Assert.Equal("Helpdesk", group.Owner);
+    }
+
+    [Fact]
+    public void MainViewModel_EditsThePasswordPolicyOfTheDomainAndOfAPso()
+    {
+        var main = new MainWindowViewModel(new FakeDialogService());
+        var domain = main.RootNodes[0];
+
+        main.SelectedNode = domain;
+        Assert.NotNull(main.SelectedPasswordPolicy);
+        Assert.False(main.SelectedPasswordPolicy.IsPso);
+        Assert.Equal(7, main.SelectedPasswordPolicy.MinPasswordLength); // politique par défaut d'AD
+        main.SelectedPasswordPolicy.MinPasswordLength = 14;
+        main.SelectedPasswordPolicy.LockoutThreshold = 10m;
+        Assert.Equal(14, domain.Data.PSOMinPasswordLength);
+        Assert.Equal(10, domain.Data.PSOLockoutThreshold);
+        Assert.True(main.SelectedPasswordPolicy.IsDomain);
+        main.SelectedPasswordPolicy.MachineAccountQuota = 0;
+        Assert.Equal(0, domain.Data.MachineAccountQuota);
+
+        main.SelectedNode = Flatten(main.RootNodes[0]).First(n => n.Data.Type == ADObjectType.PasswordSettingsObject);
+        Assert.True(main.SelectedPasswordPolicy!.IsPso);
+
+        main.SelectedNode = domain.Children.First(c => c.Data.Type == ADObjectType.Container);
+        Assert.Null(main.SelectedPasswordPolicy);
+    }
+
+    private static IEnumerable<ADTreeNode> Flatten(ADTreeNode node) => new[] { node }.Concat(node.Children.SelectMany(Flatten));
+
+    [Fact]
+    public void ImportScript_ReadsTheDefaultDomainPasswordPolicy()
+    {
+        var path = TempFile(".ps1");
+        Assert.True(new ADImportPowerShellService().GenerateImportScriptAsync(path).Result);
+
+        Assert.Contains("Get-ADDefaultDomainPasswordPolicy", File.ReadAllText(path));
+        Assert.Contains("ms-DS-MachineAccountQuota", File.ReadAllText(path));
     }
 
     [Fact]

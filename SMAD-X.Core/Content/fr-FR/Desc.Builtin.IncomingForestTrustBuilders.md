@@ -1,0 +1,1 @@
+Peuvent créer des approbations de forêt entrantes et unidirectionnelles vers cette forêt.

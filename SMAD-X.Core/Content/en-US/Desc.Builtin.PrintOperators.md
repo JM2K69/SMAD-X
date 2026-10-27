@@ -1,0 +1,1 @@
+Can manage the printers shared by domain controllers, and log on to them. Group protected by AdminSDHolder: its members can load a driver on a DC and take control of it, so it must stay empty.

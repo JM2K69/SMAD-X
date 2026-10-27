@@ -738,6 +738,62 @@
                                                     </ItemsControl>
                                                 </ScrollViewer>
                                             </StackPanel>
+
+                                            <!-- ===== Politique de mot de passe : domaine (Default Domain Policy) et PSO ===== -->
+                                            <StackPanel Spacing="5"
+                                                        IsVisible="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                <Separator/>
+                                                <TextBlock Text="{Binding DetailsPasswordPolicy}" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding DetailsPasswordPolicyHint}" FontSize="11" Opacity="0.75" TextWrapping="Wrap"/>
+                                                <DockPanel IsVisible="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.IsPso, FallbackValue=False}">
+                                                    <NumericUpDown DockPanel.Dock="Right" Width="120" Minimum="0" Maximum="100000" FormatString="0"
+                                                                   Value="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.Precedence, Mode=TwoWay}"/>
+                                                    <TextBlock Text="{Binding PolicyPrecedence}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
+                                                <DockPanel>
+                                                    <NumericUpDown DockPanel.Dock="Right" Width="120" Minimum="0" Maximum="100000" FormatString="0"
+                                                                   Value="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.MinPasswordLength, Mode=TwoWay}"/>
+                                                    <TextBlock Text="{Binding PolicyMinLength}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
+                                                <DockPanel>
+                                                    <NumericUpDown DockPanel.Dock="Right" Width="120" Minimum="0" Maximum="100000" FormatString="0"
+                                                                   Value="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.PasswordHistoryCount, Mode=TwoWay}"/>
+                                                    <TextBlock Text="{Binding PolicyHistory}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
+                                                <DockPanel>
+                                                    <NumericUpDown DockPanel.Dock="Right" Width="120" Minimum="0" Maximum="100000" FormatString="0"
+                                                                   Value="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.MaxPasswordAgeDays, Mode=TwoWay}"/>
+                                                    <TextBlock Text="{Binding PolicyMaxAge}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
+                                                <DockPanel>
+                                                    <NumericUpDown DockPanel.Dock="Right" Width="120" Minimum="0" Maximum="100000" FormatString="0"
+                                                                   Value="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.MinPasswordAgeDays, Mode=TwoWay}"/>
+                                                    <TextBlock Text="{Binding PolicyMinAge}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
+                                                <DockPanel>
+                                                    <NumericUpDown DockPanel.Dock="Right" Width="120" Minimum="0" Maximum="100000" FormatString="0"
+                                                                   Value="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.LockoutThreshold, Mode=TwoWay}"/>
+                                                    <TextBlock Text="{Binding PolicyLockoutThreshold}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
+                                                <DockPanel>
+                                                    <NumericUpDown DockPanel.Dock="Right" Width="120" Minimum="0" Maximum="100000" FormatString="0"
+                                                                   Value="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.LockoutDurationMinutes, Mode=TwoWay}"/>
+                                                    <TextBlock Text="{Binding PolicyLockoutDuration}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
+                                                <DockPanel>
+                                                    <NumericUpDown DockPanel.Dock="Right" Width="120" Minimum="0" Maximum="100000" FormatString="0"
+                                                                   Value="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.LockoutObservationWindowMinutes, Mode=TwoWay}"/>
+                                                    <TextBlock Text="{Binding PolicyObservation}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
+                                                <CheckBox Content="{Binding PolicyComplexity}"
+                                                          IsChecked="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.ComplexityEnabled, Mode=TwoWay, FallbackValue=False}"/>
+                                                <!-- Domaine seulement : ms-DS-MachineAccountQuota -->
+                                                <DockPanel Margin="0,6,0,0" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.IsDomain, FallbackValue=False}">
+                                                    <NumericUpDown DockPanel.Dock="Right" Width="120" Minimum="0" Maximum="100000" FormatString="0"
+                                                                   Value="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.MachineAccountQuota, Mode=TwoWay}"/>
+                                                    <TextBlock Text="{Binding DomainMachineAccountQuota}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
+                                            </StackPanel>
                                         </StackPanel>
                                     </Grid>
                                 </ScrollViewer>

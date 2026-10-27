@@ -1,0 +1,1 @@
+Peuvent gérer les imprimantes partagées des contrôleurs de domaine, et y ouvrir une session. Groupe protégé par AdminSDHolder : ses membres peuvent charger un pilote sur un DC et en prendre le contrôle, il doit rester vide.

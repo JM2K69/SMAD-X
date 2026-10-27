@@ -21,6 +21,7 @@ namespace SMADX.Converters
                 "Domain"   => "🌐",
                 "OU"       => "📁",
                 "PSO"      => "🔑",
+                "GMSA"     => "🔐",
                 _          => "📄"
             };
         }

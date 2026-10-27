@@ -1,0 +1,1 @@
+Ont un accès complet à toutes les fonctionnalités d'Hyper-V : sur un contrôleur de domaine, c'est un accès au Tier 0.

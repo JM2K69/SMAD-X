@@ -1,0 +1,1 @@
+Peuvent planifier la journalisation des compteurs de performance et activer des fournisseurs de trace.

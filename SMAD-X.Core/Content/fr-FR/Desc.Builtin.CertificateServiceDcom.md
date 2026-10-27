@@ -1,0 +1,1 @@
+Autorisés à se connecter aux autorités de certification de l'entreprise.

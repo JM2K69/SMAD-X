@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
@@ -16,7 +17,7 @@ namespace SMADX.ViewModels
 
         private bool CanAdd(ADObjectType childType) =>
             SelectedNode != null &&
-            _validationService.ValidateContainerRule(SelectedNode.Data.Type, childType, out _);
+            _validationService.ValidateContainerRule(SelectedNode.Data, childType, out _);
 
         public bool CanAddOU        => CanAdd(ADObjectType.OrganizationalUnit);
         public bool CanAddContainer => CanAdd(ADObjectType.Container);
@@ -24,8 +25,9 @@ namespace SMADX.ViewModels
         public bool CanAddGroup     => CanAdd(ADObjectType.Group);
         public bool CanAddComputer  => CanAdd(ADObjectType.Computer);
         public bool CanAddGMSA      => CanAdd(ADObjectType.GMSA);
-        public bool CanAddPolicy    => CanAdd(ADObjectType.Policy);
-        public bool CanAddPSO       => CanAdd(ADObjectType.PasswordSettingsObject);
+        // Une GPO et un PSO vont toujours dans leur conteneur de System, quel que soit l'objet sélectionné
+        public bool CanAddPolicy    => RootObject != null && FindSystemContainer(RootObject, ADValidationService.IsPoliciesContainer) != null;
+        public bool CanAddPSO       => RootObject != null && FindSystemContainer(RootObject, ADValidationService.IsPasswordSettingsContainer) != null;
         public bool CanDeleteSelected  => SelectedNode != null && SelectedNode.Parent != null;
         public bool CanCopySelected    => SelectedNode != null;
         public bool CanManageRelations => SelectedNode != null;
@@ -67,73 +69,46 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void AddGMSA() => AddObject(ADObjectType.GMSA);
 
+        /// <summary>Une GPO se crée dans CN=Policies,CN=System, comme le fait la console de gestion des stratégies de groupe.</summary>
         [RelayCommand]
-        private void AddPolicy()
+        private void AddPolicy() => AddToSystemContainer(ADObjectType.Policy, ADValidationService.IsPoliciesContainer, "Status.PoliciesMissing", "Status.GpoCreated");
+
+        /// <summary>Un PSO se crée dans le Password Settings Container, comme dans le Centre d'administration AD.</summary>
+        [RelayCommand]
+        private void AddPasswordSettingsObject() =>
+            AddToSystemContainer(ADObjectType.PasswordSettingsObject, ADValidationService.IsPasswordSettingsContainer, "Status.PsoContainerMissing", "Status.PsoCreated");
+
+        private void AddToSystemContainer(ADObjectType type, Func<ADObject, bool> isContainer, string missingKey, string createdKey)
         {
             if (RootObject == null) { StatusMessage = Loc["Status.NoDomain"]; return; }
-
-            // Chercher le container System\Policies
-            var policiesContainer = FindPoliciesContainer(RootObject);
-            if (policiesContainer == null)
+            if (FindSystemContainer(RootObject, isContainer) is not { } container)
             {
-                // Fallback : créer dans le nœud sélectionné comme avant
-                AddObject(ADObjectType.Policy);
-                StatusMessage = Loc["Status.PoliciesMissing"];
+                StatusMessage = Loc[missingKey];
                 return;
             }
 
-            var name = ADDomainEditor.UniqueChildName(policiesContainer, ADObjectType.Policy, _validationService.SuggestName(ADObjectType.Policy));
-            var newObject = new ADObject(name, ADObjectType.Policy)
-            {
-                Parent = policiesContainer,
-                Tier = null
-            };
-            policiesContainer.Children.Add(newObject);
+            var name = ADDomainEditor.UniqueChildName(container, type, _validationService.SuggestName(type));
+            var newObject = new ADObject(name, type) { Parent = container, Tier = null };
+            container.Children.Add(newObject);
             newObject.UpdateDistinguishedName();
 
-            // Trouver le nœud TreeView correspondant et y insérer
-            var policiesNode = FindTreeNode(RootNodes[0], policiesContainer);
-            if (policiesNode != null)
+            if (FindTreeNode(RootNodes[0], container) is { } containerNode)
             {
-                var newNode = new ADTreeNode(newObject) { Parent = policiesNode };
-                policiesNode.Children.Add(newNode);
-                policiesNode.IsExpanded = true;
-                // Remonter pour s'assurer que System est développé aussi
-                if (policiesNode.Parent != null) policiesNode.Parent.IsExpanded = true;
-
+                var newNode = new ADTreeNode(newObject) { Parent = containerNode };
+                containerNode.Children.Add(newNode);
+                for (var node = containerNode; node != null; node = node.Parent)
+                    node.IsExpanded = true;
                 SelectForRenameLater(newNode);
             }
 
             UpdateObjectCounts();
             RecordHistory();
-            StatusMessage = string.Format(Loc["Status.GpoCreated"], name);
+            StatusMessage = string.Format(Loc[createdKey], name);
         }
 
-        /// <summary>Cherche récursivement le container "Policies" fils de "System"</summary>
-        private static ADObject? FindPoliciesContainer(ADObject root)
-        {
-            foreach (var child in root.Children)
-            {
-                if (child.Type == ADObjectType.Container && child.Name == "System")
-                {
-                    foreach (var sys in child.Children)
-                    {
-                        if (sys.Type == ADObjectType.Container && sys.Name == "Policies")
-                            return sys;
-                    }
-                }
-                var found = FindPoliciesContainer(child);
-                if (found != null) return found;
-            }
-            return null;
-        }
-
-        [RelayCommand]
-        private void AddPasswordSettingsObject()
-        {
-            StatusMessage = Loc["Status.AddingPso"];
-            AddObject(ADObjectType.PasswordSettingsObject);
-        }
+        /// <summary>Conteneur de System (Policies, Password Settings Container), cherché dans tout le domaine.</summary>
+        private static ADObject? FindSystemContainer(ADObject root, Func<ADObject, bool> isContainer) =>
+            isContainer(root) ? root : root.Children.Select(c => FindSystemContainer(c, isContainer)).FirstOrDefault(c => c != null);
 
         private void AddObject(ADObjectType type)
         {
@@ -144,7 +119,7 @@ namespace SMADX.ViewModels
             }
 
             // Valider si l'objet peut être ajouté
-            if (!_validationService.ValidateContainerRule(SelectedNode.Data.Type, type, out var errorMessage))
+            if (!_validationService.ValidateContainerRule(SelectedNode.Data, type, out var errorMessage))
             {
                 StatusMessage = errorMessage ?? Loc["Status.CannotAddHere"];
                 return;
@@ -273,7 +248,7 @@ namespace SMADX.ViewModels
             }
 
             // Valider si l'objet peut être collé
-            if (!_validationService.ValidateContainerRule(SelectedNode.Data.Type, _clipboardNode.Data.Type, out var errorMessage))
+            if (!_validationService.ValidateContainerRule(SelectedNode.Data, _clipboardNode.Data.Type, out var errorMessage))
             {
                 StatusMessage = errorMessage ?? Loc["Status.CannotPasteHere"];
                 return;

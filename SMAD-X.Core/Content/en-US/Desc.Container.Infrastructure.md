@@ -1,0 +1,1 @@
+Object of the infrastructure master, the FSMO role that updates references to objects of other domains.

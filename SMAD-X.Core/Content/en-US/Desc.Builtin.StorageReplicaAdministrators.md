@@ -1,0 +1,1 @@
+Have complete access to all Storage Replica features.

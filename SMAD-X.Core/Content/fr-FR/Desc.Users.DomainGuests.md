@@ -1,0 +1,1 @@
+Tous les invités du domaine ; groupe principal du compte Guest.

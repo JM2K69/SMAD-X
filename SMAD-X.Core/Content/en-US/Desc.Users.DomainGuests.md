@@ -1,0 +1,1 @@
+All domain guests; primary group of the Guest account.

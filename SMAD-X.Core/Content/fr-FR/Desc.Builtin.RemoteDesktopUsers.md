@@ -1,0 +1,1 @@
+Autorisés à ouvrir une session Bureau à distance : sur un contrôleur de domaine, c'est un accès au Tier 0.

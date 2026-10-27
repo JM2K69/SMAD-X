@@ -92,7 +92,7 @@ namespace SMADX.Services.Labs
             try
             {
                 TierConfigurationService.Instance.ResetToDefaults();
-                var d = _data.CreateFreshDomainStructure(domainName);
+                var d = _data.CreateLabBaseStructure(domainName);
                 foreach (var o in Flatten(d))
                 {
                     o.CreatedDate = Reference.AddDays(-400);
@@ -105,6 +105,13 @@ namespace SMADX.Services.Labs
                 admin.MemberOf.Remove("Enterprise Admins");
                 admin.MemberOf.Remove("Schema Admins");
                 d.Tier = "Tier 0";
+                // Politique durcie : 12 caractères, verrouillage après 10 échecs
+                d.PSOMinPasswordLength = 12;
+                d.PSOLockoutThreshold = 10;
+                d.PSOLockoutDurationMinutes = 15;
+                d.PSOLockoutObservationWindowMinutes = 15;
+                // Seuls les comptes délégués joignent des ordinateurs au domaine
+                d.MachineAccountQuota = 0;
                 Populate(d);
                 var findings = new ADSecurityAuditService().Run(d, Reference).Findings;
                 if (findings.Count > 0)

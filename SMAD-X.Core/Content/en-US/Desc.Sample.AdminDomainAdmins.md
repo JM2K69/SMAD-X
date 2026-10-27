@@ -1,15 +1,14 @@
-# 👥 Domain Admins Group (Admin OU)
+# 👥 GG-Tier0-Admins (Admin OU)
 
-Local instance of the **Domain Admins** group in the Admin OU.
+Global group of the **Tier 0 administrators**: the named administration accounts (`adm-…`).
 
 ## Role
-- Groups named administrator accounts holding Domain Admins rights
-- Used to delegate domain administration to identified individuals
+- The group is a member of **Domain Admins**: rights are given to a business group rather than to accounts one by one (AGDLP model)
+- Adding or removing an administrator happens here, without touching the built-in groups
 
 ## ⚠️ Security
 > 🔴 **Tier 0 — Ultra-privileged group**
 
-- Keep membership at the **absolute minimum** (ideally 2–3 break-glass accounts)
-- Audit members monthly
-- Any addition must go through a change management process
+- Keep membership at the **absolute minimum**
+- Audit members monthly; any addition goes through an approval process
 - Monitor Event ID 4728 (member added) and 4729 (member removed)

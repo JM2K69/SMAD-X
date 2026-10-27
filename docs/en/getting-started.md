@@ -17,11 +17,19 @@
 
 === "Start from the sample"
 
-    On startup, SMAD-X loads `contoso.com`: a full AD structure, three sites (Paris, Lyon and the default site), GPOs and PSOs. **File > New Structure (sample)** (`Ctrl+Shift+N`) reloads it at any time.
+    On startup, SMAD-X loads `contoso.com`: a domain in production for two years, with three sites (Paris, Lyon and the default site), business OUs, GPOs, PSOs and a few common deviations the audit reveals. The named administrators (`adm-…`) are members of `GG-Tier0-Admins`, itself a member of Domain Admins. **File > New Structure (sample)** (`Ctrl+Shift+N`) reloads it at any time.
 
 === "Create a domain"
 
-    **File > New Domain...** (`Ctrl+N`), enter the DNS name (for example `corp.local`) and choose whether to apply tier classification. SMAD-X creates what an AD holds right after the first domain controller is promoted: Builtin, Users, Computers, Domain Controllers with DC01, System (Policies, Password Settings Container), ForeignSecurityPrincipals.
+    **File > New Domain...** (`Ctrl+N`), enter the DNS name (for example `corp.local`) and choose whether to apply tier classification. SMAD-X creates an AD DS as it comes out of installation, without any change:
+
+    - the Builtin container (all its groups: Administrators, Account Operators, Print Operators, Pre-Windows 2000 Compatible Access…), Users (built-in accounts and groups), Computers, ForeignSecurityPrincipals, Keys, LostAndFound, Managed Service Accounts, Program Data, Infrastructure, NTDS Quotas, TPM Devices;
+    - System, with AdminSDHolder, Password Settings Container and Policies (Default Domain Policy and Default Domain Controllers Policy);
+    - the Domain Controllers OU and DC01;
+    - the default password policy: 7 characters, complexity, history of 24, maximum age of 42 days, no lockout;
+    - the join quota: any user can join 10 computers to the domain (ms-DS-MachineAccountQuota).
+
+    Nothing is hardened: auditing a new domain shows what an installation leaves to fix.
 
 === "Open a file"
 

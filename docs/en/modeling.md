@@ -6,13 +6,23 @@ SMAD-X does not just draw a directory: it models its **security attributes**, th
 
 | Type | Role | Notes |
 |---|---|---|
-| **Domain** | root, holds delegations and GPOs linked to the domain | |
-| **OU** | organizational unit: delegations, GPOs, tier classification | can contain OUs |
-| **Container** | `CN=` such as Users, Computers, System | cannot contain OUs, as in a real AD |
+| **Domain** | root, holds delegations, linked GPOs and the default password policy | |
+| **OU** | organizational unit: delegations, GPOs, tier classification | under the domain or another OU |
+| **Container** | `CN=` such as Users, Computers, System | under the domain, an OU or a container; never holds an OU |
 | **User**, **Computer**, **gMSA** | accounts | account options, SPNs, Kerberos delegation |
-| **Group** | scope (domain local, global, universal) and type (security, distribution) | group nesting |
-| **Policy (GPO)** | created under `System\Policies` | linked to OUs, the domain or sites |
-| **PSO** | fine-grained password policy | applied to users or groups |
+| **Group** | scope (domain local, global, universal) and type (security, distribution) | nesting according to scope |
+| **Policy (GPO)** | created in `CN=Policies,CN=System`, nowhere else | linked to OUs, the domain or sites |
+| **PSO** | fine-grained password policy, created in the Password Settings Container | applied to users or groups |
+
+These placement rules are those of the AD schema: SMAD-X refuses an OU in a container, and the **Policy** and **PSO** buttons always create the object in its System container, whatever object is selected.
+
+## The password policy
+
+Select the **domain**: the **Password policy** section of the panel gives the default policy (Default Domain Policy), which applies to every account without a PSO. A **PSO** has the same section, with its precedence. As in AD, an account's effective policy is the PSO with the lowest precedence applied to the account itself, otherwise to one of its groups, otherwise the domain's.
+
+The domain also holds **ms-DS-MachineAccountQuota**: the number of computers any user can join to the domain (10 by default, to be set to 0).
+
+A new domain keeps the values of an installation (7 characters, quota of 10): the audit reports it (rules PWD-08, PWD-09 and ACC-03).
 
 ## The Security section
 
@@ -52,6 +62,8 @@ Options use the real `userAccountControl` bits: the PowerShell import carries th
 | PSO | accounts and groups a PSO applies to |
 
 The audit and attack paths compute **effective membership**: an account that belongs to a group which is itself a member of Domain Admins is a domain administrator.
+
+Nesting follows AD scopes (AGDLP model): a **global** group only holds accounts and global groups, a **universal** group also accepts universal groups but not domain local ones, a **domain local** group accepts all three. An impossible nesting is refused with its explanation. A gMSA can be a group member, like an account.
 
 ## Delegations
 

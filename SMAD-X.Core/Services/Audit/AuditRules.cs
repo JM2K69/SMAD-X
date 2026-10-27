@@ -48,6 +48,8 @@ namespace SMADX.Services.Audit
             "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/forest-recovery-guide/ad-forest-recovery-reset-the-krbtgt-password");
         private static readonly AuditReference MsLeastPrivilege = Microsoft("Implementing Least-Privilege Administrative Models",
             "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models");
+        private static readonly AuditReference MsMachineAccountQuota = Microsoft("ms-DS-MachineAccountQuota attribute",
+            "https://learn.microsoft.com/en-us/windows/win32/adschema/a-ms-ds-machineaccountquota");
         private static readonly AuditReference MsGmsa = Microsoft("Group Managed Service Accounts overview",
             "https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview");
 
@@ -85,6 +87,20 @@ namespace SMADX.Services.Audit
         public const int DcPasswordMaxDays = 45;
         /// <summary>ANSSI vuln_password_change_server_no_change_90 / msa_no_change_90 : plus de 90 jours.</summary>
         public const int MachinePasswordMaxDays = 90;
+
+        /// <summary>
+        /// Longueur minimale d'un mot de passe : 8 caractères, plancher commun à NIST SP 800-63B, CIS Controls 5.2 et
+        /// à l'ANSSI pour les comptes privilégiés (vuln_privileged_members_password). AD propose 7 par défaut.
+        /// </summary>
+        public const int MinPasswordLength = 8;
+
+        /// <summary>ANSSI vuln_privileged_members_password : renouvellement au maximum tous les 3 ans.</summary>
+        public const int PrivilegedPasswordRenewalMaxDays = 3 * 365;
+
+        /// <summary>Politique trop faible pour un compte privilégié (ANSSI) ; une valeur inconnue n'est pas jugée.</summary>
+        private static bool WeakForPrivileged(ADObject policy) =>
+            policy.PSOMinPasswordLength is { } length &&
+            (length < MinPasswordLength || policy.PSOMaxPasswordAgeDays is 0 || policy.PSOMaxPasswordAgeDays > PrivilegedPasswordRenewalMaxDays);
 
         /// <summary>Groupes qui doivent rester vides hors opérations ponctuelles (ANSSI, Microsoft annexe B).</summary>
         private static readonly string[] GroupsThatShouldBeEmpty =
@@ -267,7 +283,36 @@ namespace SMADX.Services.Audit
                     .Select(o => Finding(o, c.AgeInDays(o.PwdLastSet)!))
             },
 
+            // Politique de mot de passe
+            new()
+            {
+                Id = "PWD-08", Severity = AuditSeverity.Medium,
+                References = new[] { Nist80063B, CisUniquePasswords, NistAuthenticators },
+                Evaluate = c => c.Domain.PSOMinPasswordLength is { } length && length < MinPasswordLength
+                    ? new[] { Finding(c.Domain, length) }
+                    : Array.Empty<(ADObject, object[])>()
+            },
+            new()
+            {
+                Id = "PWD-09", Severity = AuditSeverity.High, AnssiLevel = 2,
+                References = new[] { Anssi("vuln_privileged_members_password", "Comptes membres de groupes privilégiés avec une mauvaise politique de mot de passe"), Nist80063B, NistPrivilegedAccounts },
+                Evaluate = c => c.PrivilegedAccounts
+                    .Where(o => o.Type == ADObjectType.User && IsEnabled(o))
+                    .Select(o => (o, policy: c.EffectivePasswordPolicy(o)))
+                    .Where(x => WeakForPrivileged(x.policy))
+                    .Select(x => Finding(x.o, x.policy.Name, x.policy.PSOMinPasswordLength!, x.policy.PSOMaxPasswordAgeDays ?? 0))
+            },
+
             // Comptes
+            new()
+            {
+                Id = "ACC-03", Severity = AuditSeverity.Low, AnssiLevel = 4,
+                References = new[] { Anssi("vuln_user_accounts_machineaccountquota", "Ajout de machines au domaine non limité"), MsMachineAccountQuota,
+                                     Mitre("T1136.002", "Create Account: Domain Account"), NistAccountManagement },
+                Evaluate = c => c.Domain.MachineAccountQuota is > 0 and var quota
+                    ? new[] { Finding(c.Domain, quota) }
+                    : Array.Empty<(ADObject, object[])>()
+            },
             new()
             {
                 Id = "ACC-01", Severity = AuditSeverity.High, AnssiLevel = 2,

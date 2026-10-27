@@ -1,7 +1,7 @@
 # Audit rules
 
 !!! info "Generated page"
-    This page is produced from the SMAD-X code (`tools/DocGenerator`): it lists exactly the 28 rules the application evaluates.
+    This page is produced from the SMAD-X code (`tools/DocGenerator`): it lists exactly the 31 rules the application evaluates.
 
 Each failed rule takes points off the score, once whatever the number of objects involved: **12** for a critical rule, **6** high, **3** medium, **1** low. The estimated ANSSI level is the level of the most critical failed control point (5 if none); it is not the official computation of ANSSI's ADS tool.
 
@@ -35,11 +35,14 @@ Each failed rule takes points off the score, once whatever the number of objects
 | **PWD-05** Domain controller machine password unchanged | Critical | 1 | [ANSSI · vuln_password_change_dc_no_change](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 | **PWD-06** Computer account whose password no longer changes | High | 2 | [ANSSI · vuln_password_change_server_no_change_90](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[CIS · CIS Controls v8 5.3](https://cas.docs.cisecurity.org/en/latest/source/Controls5/) |
 | **PWD-07** Managed service account whose password no longer changes | High | 2 | [ANSSI · vuln_password_change_msa_no_change_90](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview) |
+| **PWD-08** Domain password policy too short | Medium | — | [NIST · SP 800-63B](https://pages.nist.gov/800-63-4/sp800-63b.html)<br>[CIS · CIS Controls v8 5.2](https://cas.docs.cisecurity.org/en/latest/source/Controls5/)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **PWD-09** Privileged account with a weak password policy | High | 2 | [ANSSI · vuln_privileged_members_password](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-63B](https://pages.nist.gov/800-63-4/sp800-63b.html)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 
 ## Accounts
 
 | Rule | Severity | ANSSI level | References |
 |---|---|---|---|
+| **ACC-03** Any user can join computers to the domain | Low | 4 | [ANSSI · vuln_user_accounts_machineaccountquota](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows/win32/adschema/a-ms-ds-machineaccountquota)<br>[MITRE ATT&CK · T1136.002](https://attack.mitre.org/techniques/T1136/002/)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 | **ACC-01** Active Guest account | High | 2 | [ANSSI · vuln_guest](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[MITRE ATT&CK · T1078.002](https://attack.mitre.org/techniques/T1078/002/) |
 | **ACC-02** Dormant account | Medium | — | [ANSSI · info_user_accounts_dormant](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[CIS · CIS Controls v8 5.3](https://cas.docs.cisecurity.org/en/latest/source/Controls5/)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[MITRE ATT&CK · T1078.002](https://attack.mitre.org/techniques/T1078/002/) |
 

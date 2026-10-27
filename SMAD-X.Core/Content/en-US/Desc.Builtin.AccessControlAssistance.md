@@ -1,0 +1,1 @@
+Can remotely query authorization attributes and permissions for resources on the computer.

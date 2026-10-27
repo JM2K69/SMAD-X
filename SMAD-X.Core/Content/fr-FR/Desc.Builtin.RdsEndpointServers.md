@@ -1,0 +1,1 @@
+Serveurs qui hébergent les sessions des programmes RemoteApp et des bureaux virtuels.

@@ -1,0 +1,1 @@
+Can schedule the logging of performance counters and enable trace providers.

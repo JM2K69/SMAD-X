@@ -10,6 +10,66 @@ public class ADDataServiceTests
 
     public ADDataServiceTests() => TierConfigurationService.Instance.ResetToDefaults();
 
+    public static TheoryData<string> DefaultDomains() => new() { "fresh", "lab", "sample" };
+
+    private ADObject Domain(string kind) => kind switch
+    {
+        "fresh" => _service.CreateFreshDomainStructure("corp.local"),
+        "lab" => _service.CreateLabBaseStructure("corp.local"),
+        _ => _service.CreateSampleStructure()
+    };
+
+    /// <summary>Comme dans AD, un nom de compte (utilisateur, groupe, ordinateur, gMSA) est unique dans le domaine.</summary>
+    [Theory]
+    [MemberData(nameof(DefaultDomains))]
+    public void DefaultDomains_HaveUniqueAccountNames(string kind)
+    {
+        var duplicates = Flatten(Domain(kind))
+            .Where(o => o.Type is ADObjectType.User or ADObjectType.Group or ADObjectType.Computer or ADObjectType.GMSA)
+            .GroupBy(o => o.Name, StringComparer.OrdinalIgnoreCase)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key);
+
+        Assert.Empty(duplicates);
+    }
+
+    [Theory]
+    [MemberData(nameof(DefaultDomains))]
+    public void DefaultDomains_HaveTheBuiltInObjectsOfARealDomain(string kind)
+    {
+        var domain = Domain(kind);
+        var builtin = Flatten(domain).Single(o => o is { Name: "Builtin", Type: ADObjectType.Container });
+
+        Assert.Contains(builtin.Children, g => g.Name == "Print Operators" && g.AdminCount);
+        Assert.Contains(builtin.Children, g => g.Name == "Pre-Windows 2000 Compatible Access" && g.GroupScope == ADGroupScope.DomainLocal);
+        Assert.Contains(Flatten(domain), o => o is { Name: "AdminSDHolder", Parent.Name: "System" });
+        Assert.NotNull(domain.PSOMinPasswordLength); // politique de mot de passe du domaine
+    }
+
+    [Fact]
+    public void FreshDomain_HasOnlyWhatAnInstallationCreates()
+    {
+        var names = Flatten(_service.CreateFreshDomainStructure("corp.local")).Select(o => o.Name).ToHashSet();
+        var lab = Flatten(_service.CreateLabBaseStructure("corp.local")).Select(o => o.Name).ToHashSet();
+
+        foreach (var added in new[] { "WORKSTATION-01", "GPO-Baseline-DC", "GPO-Paris-Workstations", "GG-HelpDesk", "GG-Tier1-Operators" })
+        {
+            Assert.DoesNotContain(added, names);
+            Assert.Contains(added, lab); // la base des exercices les garde
+        }
+        Assert.Empty(Flatten(_service.CreateFreshDomainStructure("corp.local")).SelectMany(o => o.Delegations));
+        Assert.Equal(7, _service.CreateFreshDomainStructure("corp.local").PSOMinPasswordLength); // valeur par défaut d'AD
+    }
+
+    [Fact]
+    public void SampleDomain_NamedAdminAccount_IsInDomainAdmins_ThroughItsGroup()
+    {
+        var context = new SMADX.Services.Audit.AuditContext(_service.CreateSampleStructure(), DateTime.Now);
+        var admin = context.Objects.Single(o => o.Name == "adm-lmartin");
+
+        Assert.Contains(context.EffectiveGroups(admin), g => g.Name == "Domain Admins");
+    }
+
     [Fact]
     public void SwitchingLanguage_TranslatesOnlyDefaultDescriptions()
     {
@@ -26,8 +86,8 @@ public class ADDataServiceTests
 
             Assert.Equal(loc.Translate("Desc.Users.Krbtgt", "en-US"), Find(domain, "krbtgt").Description);
             Assert.Equal(loc.Translate("Desc.Sample.Domain", "en-US"), domain.Description);
-            // Le groupe « Domain Admins » de l'OU Admin garde sa propre description
-            var adminGroup = Flatten(domain).Single(o => o.Name == "Domain Admins" && o.Parent?.Name == "Admin");
+            // Le groupe des administrateurs Tier 0 de l'OU Admin garde sa propre description
+            var adminGroup = Flatten(domain).Single(o => o.Name == "GG-Tier0-Admins");
             Assert.Equal(loc.Translate("Desc.Sample.AdminDomainAdmins", "en-US"), adminGroup.Description);
             Assert.Equal("Compte de test : **ne pas supprimer** (note de l'apprenant)", jdoe.Description);
         }

@@ -1,0 +1,1 @@
+Lisent l'attribut calculé tokenGroupsGlobalAndUniversal des utilisateurs.

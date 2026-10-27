@@ -1,0 +1,1 @@
+Servers that give access to RemoteApp programs and virtual desktops.

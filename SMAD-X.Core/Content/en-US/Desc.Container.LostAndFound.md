@@ -1,0 +1,1 @@
+Receives orphaned objects, whose parent was deleted on another controller during replication.

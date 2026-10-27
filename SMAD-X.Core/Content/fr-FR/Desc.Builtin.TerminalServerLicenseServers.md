@@ -1,0 +1,1 @@
+Inscrivent dans l'annuaire les licences des Services Bureau à distance attribuées aux utilisateurs.

@@ -1,0 +1,1 @@
+Peuvent consulter les compteurs de performance, localement et à distance.

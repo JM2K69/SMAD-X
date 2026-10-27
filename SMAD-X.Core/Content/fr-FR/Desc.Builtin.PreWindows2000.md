@@ -1,0 +1,1 @@
+Groupe de compatibilité avec Windows NT, qui donne la lecture de nombreux attributs des utilisateurs et des groupes. Il ne doit contenir ni Tout le monde ni Anonyme : ils ouvriraient la lecture de l'annuaire sans authentification.

@@ -1,0 +1,1 @@
+Default location of application data.

@@ -6,13 +6,23 @@ SMAD-X ne se contente pas de dessiner un annuaire : il en modélise les **attrib
 
 | Type | Rôle | Remarques |
 |---|---|---|
-| **Domaine** | racine, porte les délégations et les GPO liées au domaine | |
-| **OU** | unité d'organisation : délégations, GPO, classement en tier | peut contenir des OU |
-| **Conteneur** | `CN=` comme Users, Computers, System | ne peut pas contenir d'OU, comme dans un vrai AD |
+| **Domaine** | racine, porte les délégations, les GPO liées et la politique de mot de passe par défaut | |
+| **OU** | unité d'organisation : délégations, GPO, classement en tier | sous le domaine ou une autre OU |
+| **Conteneur** | `CN=` comme Users, Computers, System | sous le domaine, une OU ou un conteneur ; ne contient jamais d'OU |
 | **Utilisateur**, **Ordinateur**, **gMSA** | comptes | options de compte, SPN, délégation Kerberos |
-| **Groupe** | portée (domaine local, global, universel) et type (sécurité, distribution) | imbrication de groupes |
-| **Stratégie (GPO)** | créée sous `System\Policies` | liée aux OU, au domaine ou aux sites |
-| **PSO** | stratégie de mot de passe affinée | appliquée à des utilisateurs ou des groupes |
+| **Groupe** | portée (domaine local, global, universel) et type (sécurité, distribution) | imbrication selon la portée |
+| **Stratégie (GPO)** | créée dans `CN=Policies,CN=System`, nulle part ailleurs | liée aux OU, au domaine ou aux sites |
+| **PSO** | stratégie de mot de passe affinée, créée dans le Password Settings Container | appliquée à des utilisateurs ou des groupes |
+
+Ces règles de placement sont celles du schéma d'AD : SMAD-X refuse une OU dans un conteneur, et les boutons **Stratégie** et **PSO** créent toujours l'objet dans son conteneur de System, quel que soit l'objet sélectionné.
+
+## La politique de mot de passe
+
+Sélectionnez le **domaine** : la section **Politique de mot de passe** du panneau donne la politique par défaut (Default Domain Policy), qui s'applique à tous les comptes sans PSO. Un **PSO** a la même section, avec sa priorité. Comme dans AD, la politique effective d'un compte est le PSO de plus petite priorité appliqué au compte lui-même, sinon à l'un de ses groupes, sinon celle du domaine.
+
+Le domaine porte aussi **ms-DS-MachineAccountQuota** : le nombre d'ordinateurs que tout utilisateur peut joindre au domaine (10 par défaut, à mettre à 0).
+
+Un domaine neuf garde les valeurs d'une installation (7 caractères, quota de 10) : l'audit le signale (règles PWD-08, PWD-09 et ACC-03).
 
 ## La section Sécurité
 
@@ -52,6 +62,8 @@ Les options utilisent les vrais bits de `userAccountControl` : l'import PowerShe
 | PSO | comptes et groupes soumis à une PSO |
 
 L'audit et les chemins d'attaque calculent l'**appartenance effective** : un compte membre d'un groupe lui-même membre de Domain Admins est administrateur du domaine.
+
+Les imbrications suivent les portées d'AD (modèle AGDLP) : un groupe **global** ne contient que des comptes et des groupes globaux, un groupe **universel** accepte aussi des universels mais pas de domaine local, un groupe de **domaine local** accepte les trois. Une imbrication impossible est refusée avec son explication. Un gMSA peut être membre d'un groupe, comme un compte.
 
 ## Les délégations
 

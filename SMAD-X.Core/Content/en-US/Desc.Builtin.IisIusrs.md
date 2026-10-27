@@ -1,0 +1,1 @@
+Built-in group used by Internet Information Services (IIS).

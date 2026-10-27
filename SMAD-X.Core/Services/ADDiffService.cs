@@ -225,6 +225,7 @@ namespace SMADX.Services
             Check(c, "GroupScope",    before.GroupScope?.ToString() ?? "",    after.GroupScope?.ToString() ?? "");
             Check(c, "GroupCategory", before.GroupCategory?.ToString() ?? "", after.GroupCategory?.ToString() ?? "");
             Check(c, "Owner",         before.Owner ?? "",                   after.Owner ?? "");
+            CheckNullable(c, "MachineAccountQuota", before.MachineAccountQuota, after.MachineAccountQuota);
             // pwdLastSet oui (renouveler krbtgt est un événement à voir), lastLogonTimestamp non :
             // il change à chaque connexion et noierait les vrais changements de configuration
             Check(c, "PwdLastSet",    before.PwdLastSet?.ToString("yyyy-MM-dd") ?? "", after.PwdLastSet?.ToString("yyyy-MM-dd") ?? "");

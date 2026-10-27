@@ -148,6 +148,12 @@ namespace SMADX.Models
         public int? PSOLockoutDurationMinutes { get; set; }
         public int? PSOLockoutObservationWindowMinutes { get; set; }
 
+        /// <summary>
+        /// Pour le domaine : ms-DS-MachineAccountQuota, nombre d'ordinateurs que tout utilisateur authentifié peut
+        /// joindre au domaine (10 par défaut). Null = inconnu (document d'avant la 0.9.1).
+        /// </summary>
+        public int? MachineAccountQuota { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public DateTime ModifiedDate { get; set; } = DateTime.Now;

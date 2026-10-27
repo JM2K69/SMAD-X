@@ -20,7 +20,7 @@ public class LocalizationContentTests
     {
         foreach (var culture in Cultures)
         {
-            Assert.Equal(79, EmbeddedKeys(culture).Count(k => k.StartsWith("Desc.")));
+            Assert.Equal(111, EmbeddedKeys(culture).Count(k => k.StartsWith("Desc.")));
             Assert.Equal(AuditRules.All.Count, EmbeddedKeys(culture).Count(k => k.StartsWith("Audit.")));
         }
     }

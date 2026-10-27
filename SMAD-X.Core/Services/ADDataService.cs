@@ -145,11 +145,35 @@ namespace SMADX.Services
         }
 
         /// <summary>
-        /// Crée une structure AD vierge conforme à une installation fraîche d'Active Directory
+        /// Domaine tel qu'il sort d'une installation d'Active Directory : conteneurs et groupes intégrés,
+        /// premier contrôleur de domaine, deux GPO par défaut et la politique de mot de passe par défaut.
         /// </summary>
         /// <param name="domainName">Nom du domaine (FQDN)</param>
         /// <param name="enableTiering">Si true, affecte automatiquement les tiers aux objets</param>
-        public ADObject CreateFreshDomainStructure(string domainName, bool enableTiering = true)
+        public ADObject CreateFreshDomainStructure(string domainName, bool enableTiering = true) =>
+            BuildDomainStructure(domainName, enableTiering, labBase: false);
+
+        /// <summary>
+        /// Base des exercices de SMAD-X Studio : le domaine neuf, plus un poste, trois GPO métier, les groupes de
+        /// délégation GG-* et leurs délégations. Les recettes et les générateurs d'exercices partent de ce domaine.
+        /// </summary>
+        public ADObject CreateLabBaseStructure(string domainName, bool enableTiering = true) =>
+            BuildDomainStructure(domainName, enableTiering, labBase: true);
+
+        /// <summary>Politique de mot de passe par défaut d'un domaine neuf (Default Domain Policy).</summary>
+        public static void ApplyDefaultPasswordPolicy(ADObject domain)
+        {
+            domain.PSOMinPasswordLength = 7;
+            domain.PSOPasswordHistoryCount = 24;
+            domain.PSOComplexityEnabled = true;
+            domain.PSOMaxPasswordAgeDays = 42;
+            domain.PSOMinPasswordAgeDays = 1;
+            domain.PSOLockoutThreshold = 0;
+            // Tout utilisateur authentifié peut joindre 10 ordinateurs au domaine
+            domain.MachineAccountQuota = 10;
+        }
+
+        private ADObject BuildDomainStructure(string domainName, bool enableTiering, bool labBase)
         {
             var loc = LocalizationService.Instance;
 
@@ -157,66 +181,13 @@ namespace SMADX.Services
             {
                 Description = string.Format(loc["Desc.Domain"], domainName)
             };
+            ApplyDefaultPasswordPolicy(domain);
 
             // Helper pour affecter un tier seulement si le tiering est activé
             string? GetTier(string tier) => enableTiering ? tier : null;
 
             // 1. Container Builtin (groupes intégrés système)
-            var builtinContainer = new ADObject("Builtin", ADObjectType.Container)
-            {
-                Description = loc["Desc.Builtin"],
-                Parent = domain
-            };
-            domain.Children.Add(builtinContainer);
-
-            // Groupes Builtin
-            var builtinAdmins = new ADObject("Administrators", ADObjectType.Group)
-            {
-                Description = loc["Desc.Builtin.Administrators"],
-                Tier = GetTier("Tier 0"),
-                Parent = builtinContainer
-            };
-            builtinContainer.Children.Add(builtinAdmins);
-
-            var builtinUsers = new ADObject("Users", ADObjectType.Group)
-            {
-                Description = loc["Desc.Builtin.Users"],
-                Tier = GetTier("Tier 2"),
-                Parent = builtinContainer
-            };
-            builtinContainer.Children.Add(builtinUsers);
-
-            var builtinGuests = new ADObject("Guests", ADObjectType.Group)
-            {
-                Description = loc["Desc.Builtin.Guests"],
-                Tier = GetTier("Tier 2"),
-                Parent = builtinContainer
-            };
-            builtinContainer.Children.Add(builtinGuests);
-
-            var serverOps = new ADObject("Server Operators", ADObjectType.Group)
-            {
-                Description = loc["Desc.Builtin.ServerOperators"],
-                Tier = GetTier("Tier 0"),
-                Parent = builtinContainer
-            };
-            builtinContainer.Children.Add(serverOps);
-
-            var accountOps = new ADObject("Account Operators", ADObjectType.Group)
-            {
-                Description = loc["Desc.Builtin.AccountOperators"],
-                Tier = GetTier("Tier 0"),
-                Parent = builtinContainer
-            };
-            builtinContainer.Children.Add(accountOps);
-
-            var backupOps = new ADObject("Backup Operators", ADObjectType.Group)
-            {
-                Description = loc["Desc.Builtin.BackupOperators"],
-                Tier = GetTier("Tier 0"),
-                Parent = builtinContainer
-            };
-            builtinContainer.Children.Add(backupOps);
+            AddBuiltinContainer(domain, GetTier, loc);
 
             // 2. Container Users (utilisateurs et groupes par défaut)
             var usersContainer = new ADObject("Users", ADObjectType.Container)
@@ -318,6 +289,7 @@ namespace SMADX.Services
                 Parent = usersContainer
             };
             usersContainer.Children.Add(readOnlyDCs);
+            AddUsersContainerExtras(usersContainer, GetTier, loc);
 
             var dnsAdmins = new ADObject("DnsAdmins", ADObjectType.Group)
             {
@@ -424,14 +396,14 @@ namespace SMADX.Services
             };
             domain.Children.Add(computersContainer);
 
-            // Ordinateur par défaut dans Computers
-            var defaultComputer = new ADObject("WORKSTATION-01", ADObjectType.Computer)
-            {
-                Description = loc["Desc.Computers.Workstation"],
-                Tier = GetTier("Tier 2"),
-                Parent = computersContainer
-            };
-            computersContainer.Children.Add(defaultComputer);
+            // Un poste dans Computers (base des exercices ; un domaine neuf n'en a pas)
+            if (labBase)
+                computersContainer.Children.Add(new ADObject("WORKSTATION-01", ADObjectType.Computer)
+                {
+                    Description = loc["Desc.Computers.Workstation"],
+                    Tier = GetTier("Tier 2"),
+                    Parent = computersContainer
+                });
 
             // 4. OU Domain Controllers
             var domainControllersOU = new ADObject("Domain Controllers", ADObjectType.OrganizationalUnit)
@@ -467,6 +439,7 @@ namespace SMADX.Services
                 Parent = systemContainer
             };
             systemContainer.Children.Add(psoContainer);
+            AddAdminSdHolder(systemContainer, GetTier, loc);
 
             // Container Policies (SYSVOL) — contient les 2 GPOs présentes dans tout domaine neuf
             var policiesContainer = new ADObject("Policies", ADObjectType.Container)
@@ -495,6 +468,36 @@ namespace SMADX.Services
             };
             policiesContainer.Children.Add(defaultDCPolicy);
 
+            // Lier les GPOs aux OUs correspondantes
+            domain.LinkedGPOs.Add("Default Domain Policy");
+            domainControllersOU.LinkedGPOs.Add("Default Domain Controllers Policy");
+
+            if (labBase)
+                AddLabBaseObjects(domain, usersContainer, computersContainer, domainControllersOU, policiesContainer, GetTier, loc);
+            else
+                domain.UpdateDistinguishedNameTree();
+
+            // 6. Container ForeignSecurityPrincipals
+            var fspContainer = new ADObject("ForeignSecurityPrincipals", ADObjectType.Container)
+            {
+                Description = loc["Desc.ForeignSecurityPrincipals"],
+                Parent = domain
+            };
+            domain.Children.Add(fspContainer);
+
+            AddRootContainers(domain, loc);
+
+            // Mettre à jour les DN des conteneurs ajoutés après le premier calcul
+            domain.UpdateDistinguishedNameTree();
+
+            BuiltInSecurityDefaults.Apply(domain);
+            return domain;
+        }
+
+        /// <summary>Objets de la base des exercices : GPO métier, groupes de délégation GG-* et leurs délégations.</summary>
+        private static void AddLabBaseObjects(ADObject domain, ADObject usersContainer, ADObject computersContainer, ADObject domainControllersOU,
+            ADObject policiesContainer, Func<string, string?> GetTier, LocalizationService loc)
+        {
             // GPO 3 : GPO-Baseline-DC — Baseline sécurité site par défaut
             var gpoBaselineDC = new ADObject("GPO-Baseline-DC", ADObjectType.Policy)
             {
@@ -521,10 +524,6 @@ namespace SMADX.Services
                 Parent = policiesContainer
             };
             policiesContainer.Children.Add(gpoLyon);
-
-            // Lier les GPOs aux OUs correspondantes
-            domain.LinkedGPOs.Add("Default Domain Policy");
-            domainControllersOU.LinkedGPOs.Add("Default Domain Controllers Policy");
 
             // ── Groupes de délégation ────────────────────────────────────────
             var ggHelpDeskFresh = new ADObject("GG-HelpDesk", ADObjectType.Group)
@@ -604,21 +603,93 @@ namespace SMADX.Services
                 RightCategory = RightCategory.AttributeWrite,
                 Tier = "Tier 0"
             });
-
-            // 6. Container ForeignSecurityPrincipals
-            var fspContainer = new ADObject("ForeignSecurityPrincipals", ADObjectType.Container)
-            {
-                Description = loc["Desc.ForeignSecurityPrincipals"],
-                Parent = domain
-            };
-            domain.Children.Add(fspContainer);
-
-            // Mettre à jour les DN du nouveau container (ajouté après le premier appel)
-            fspContainer.UpdateDistinguishedNameTree();
-
-            BuiltInSecurityDefaults.Apply(domain);
-            return domain;
         }
+
+        /// <summary>
+        /// Container Builtin et ses groupes intégrés (domaine local), tels que les crée la promotion du domaine.
+        /// </summary>
+        private static void AddBuiltinContainer(ADObject domain, Func<string, string?> tier, LocalizationService loc)
+        {
+            var builtin = new ADObject("Builtin", ADObjectType.Container) { Description = loc["Desc.Builtin"], Parent = domain };
+            domain.Children.Add(builtin);
+            // Les groupes de Builtin donnent leurs droits sur les contrôleurs de domaine : Tier 0, sauf Users et Guests
+            foreach (var (name, key, groupTier) in new[]
+            {
+                ("Access Control Assistance Operators", "Desc.Builtin.AccessControlAssistance", "Tier 0"),
+                ("Account Operators", "Desc.Builtin.AccountOperators", "Tier 0"),
+                ("Administrators", "Desc.Builtin.Administrators", "Tier 0"),
+                ("Backup Operators", "Desc.Builtin.BackupOperators", "Tier 0"),
+                ("Certificate Service DCOM Access", "Desc.Builtin.CertificateServiceDcom", "Tier 0"),
+                ("Cryptographic Operators", "Desc.Builtin.CryptographicOperators", "Tier 0"),
+                ("Distributed COM Users", "Desc.Builtin.DistributedComUsers", "Tier 0"),
+                ("Event Log Readers", "Desc.Builtin.EventLogReaders", "Tier 0"),
+                ("Guests", "Desc.Builtin.Guests", "Tier 2"),
+                ("Hyper-V Administrators", "Desc.Builtin.HyperVAdministrators", "Tier 0"),
+                ("IIS_IUSRS", "Desc.Builtin.IisIusrs", "Tier 0"),
+                ("Incoming Forest Trust Builders", "Desc.Builtin.IncomingForestTrustBuilders", "Tier 0"),
+                ("Network Configuration Operators", "Desc.Builtin.NetworkConfigurationOperators", "Tier 0"),
+                ("Performance Log Users", "Desc.Builtin.PerformanceLogUsers", "Tier 0"),
+                ("Performance Monitor Users", "Desc.Builtin.PerformanceMonitorUsers", "Tier 0"),
+                ("Pre-Windows 2000 Compatible Access", "Desc.Builtin.PreWindows2000", "Tier 0"),
+                ("Print Operators", "Desc.Builtin.PrintOperators", "Tier 0"),
+                ("RDS Endpoint Servers", "Desc.Builtin.RdsEndpointServers", "Tier 0"),
+                ("RDS Management Servers", "Desc.Builtin.RdsManagementServers", "Tier 0"),
+                ("RDS Remote Access Servers", "Desc.Builtin.RdsRemoteAccessServers", "Tier 0"),
+                ("Remote Desktop Users", "Desc.Builtin.RemoteDesktopUsers", "Tier 0"),
+                ("Remote Management Users", "Desc.Builtin.RemoteManagementUsers", "Tier 0"),
+                ("Replicator", "Desc.Builtin.Replicator", "Tier 0"),
+                ("Server Operators", "Desc.Builtin.ServerOperators", "Tier 0"),
+                ("Storage Replica Administrators", "Desc.Builtin.StorageReplicaAdministrators", "Tier 0"),
+                ("Terminal Server License Servers", "Desc.Builtin.TerminalServerLicenseServers", "Tier 0"),
+                ("Users", "Desc.Builtin.Users", "Tier 2"),
+                ("Windows Authorization Access Group", "Desc.Builtin.WindowsAuthorizationAccess", "Tier 0")
+            })
+                builtin.Children.Add(new ADObject(name, ADObjectType.Group) { Description = loc[key], Tier = tier(groupTier), Parent = builtin });
+        }
+
+        /// <summary>Groupes du conteneur Users absents des premières versions de SMAD-X : Domain Guests, Enterprise Read-only Domain Controllers.</summary>
+        private static void AddUsersContainerExtras(ADObject usersContainer, Func<string, string?> tier, LocalizationService loc)
+        {
+            usersContainer.Children.Add(new ADObject("Domain Guests", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.DomainGuests"], Tier = tier("Tier 2"), Parent = usersContainer
+            });
+            usersContainer.Children.Add(new ADObject("Enterprise Read-only Domain Controllers", ADObjectType.Group)
+            {
+                Description = loc["Desc.Users.EnterpriseReadOnlyDCs"], Tier = tier("Tier 0"), Parent = usersContainer
+            });
+        }
+
+        /// <summary>
+        /// Conteneurs créés à la racine par l'installation, en plus de Builtin, Users, Computers, System et
+        /// ForeignSecurityPrincipals (visibles dans « Utilisateurs et ordinateurs AD » en mode avancé).
+        /// </summary>
+        private static void AddRootContainers(ADObject domain, LocalizationService loc)
+        {
+            foreach (var (name, key) in new[]
+            {
+                ("Infrastructure", "Desc.Container.Infrastructure"),
+                ("Keys", "Desc.Container.Keys"),
+                ("LostAndFound", "Desc.Container.LostAndFound"),
+                ("Managed Service Accounts", "Desc.Container.ManagedServiceAccounts"),
+                ("NTDS Quotas", "Desc.Container.NtdsQuotas"),
+                ("Program Data", "Desc.Container.ProgramData"),
+                ("TPM Devices", "Desc.Container.TpmDevices")
+            })
+                domain.Children.Add(new ADObject(name, ADObjectType.Container) { Description = loc[key], Parent = domain });
+        }
+
+        /// <summary>
+        /// CN=AdminSDHolder,CN=System : modèle des permissions que SDProp réapplique toutes les heures aux comptes et
+        /// groupes protégés. Le contrôler, c'est contrôler tous les administrateurs.
+        /// </summary>
+        private static void AddAdminSdHolder(ADObject systemContainer, Func<string, string?> tier, LocalizationService loc) =>
+            systemContainer.Children.Add(new ADObject("AdminSDHolder", ADObjectType.Container)
+            {
+                Description = loc["Desc.System.AdminSDHolder"],
+                Tier = tier("Tier 0"),
+                Parent = systemContainer
+            });
 
         /// <summary>
         /// Crée une structure AD d'exemple
@@ -632,8 +703,11 @@ namespace SMADX.Services
                 Description = loc["Desc.Sample.Domain"],
                 //Tier = "Tier 0"
             };
+            // En production depuis deux ans, la politique par défaut n'a jamais été durcie
+            ApplyDefaultPasswordPolicy(domain);
 
             // Containers par défaut (comme dans un vrai AD)
+            AddBuiltinContainer(domain, tier => tier, loc);
 
             var usersContainer = new ADObject("Users", ADObjectType.Container)
             {
@@ -741,6 +815,7 @@ namespace SMADX.Services
             };
             usersContainer.Children.Add(groupPolicyCreatorOwners);
 
+            // Écart voulu, que l'audit enseigne (PRIV-05) : un DC en lecture seule reste un contrôleur de domaine, donc Tier 0
             var readOnlyDCs = new ADObject("Read-only Domain Controllers", ADObjectType.Group)
             {
                 Description = loc["Desc.Users.ReadOnlyDCs"],
@@ -748,6 +823,7 @@ namespace SMADX.Services
                 Parent = usersContainer
             };
             usersContainer.Children.Add(readOnlyDCs);
+            AddUsersContainerExtras(usersContainer, tier => tier, loc);
 
             var dnsAdmins = new ADObject("DnsAdmins", ADObjectType.Group)
             {
@@ -846,7 +922,9 @@ namespace SMADX.Services
             };
             domain.Children.Add(adminOU);
 
-            var adminUser = new ADObject("Administrator", ADObjectType.User)
+            // Compte nominatif et groupe des administrateurs Tier 0 : un nom de compte est unique dans le
+            // domaine, ils ne peuvent pas s'appeler « Administrator » ni « Domain Admins »
+            var adminUser = new ADObject("adm-lmartin", ADObjectType.User)
             {
                 Description = loc["Desc.Sample.AdminUser"],
                 Tier = "Tier 0",
@@ -854,13 +932,13 @@ namespace SMADX.Services
             };
             adminOU.Children.Add(adminUser);
 
-            var adminOUDomainAdmins = new ADObject("Domain Admins", ADObjectType.Group)
+            var tier0Admins = new ADObject("GG-Tier0-Admins", ADObjectType.Group)
             {
                 Description = loc["Desc.Sample.AdminDomainAdmins"],
                 Tier = "Tier 0",
                 Parent = adminOU
             };
-            adminOU.Children.Add(adminOUDomainAdmins);
+            adminOU.Children.Add(tier0Admins);
 
             // OU Servers
             var serversOU = new ADObject("Servers", ADObjectType.OrganizationalUnit)
@@ -989,13 +1067,17 @@ namespace SMADX.Services
                 Parent = systemContainer
             };
             systemContainer.Children.Add(psoContainer);
+            AddAdminSdHolder(systemContainer, tier => tier, loc);
 
-            // PSOs
+            // PSOs : les administrateurs ont une politique renforcée, les utilisateurs une politique standard
             var psoAdmin = new ADObject("PSO-Tier0-Admins", ADObjectType.PasswordSettingsObject)
             {
                 Description = loc["Desc.Sample.PSOAdmin"],
                 Tier = "Tier 0",
-                Parent = psoContainer
+                Parent = psoContainer,
+                PSOPrecedence = 10, PSOMinPasswordLength = 16, PSOPasswordHistoryCount = 24, PSOComplexityEnabled = true,
+                PSOMaxPasswordAgeDays = 365, PSOMinPasswordAgeDays = 1, PSOLockoutThreshold = 5, PSOLockoutDurationMinutes = 30,
+                PSOLockoutObservationWindowMinutes = 30
             };
             psoContainer.Children.Add(psoAdmin);
 
@@ -1003,7 +1085,10 @@ namespace SMADX.Services
             {
                 Description = loc["Desc.Sample.PSOUsers"],
                 Tier = "Tier 2",
-                Parent = psoContainer
+                Parent = psoContainer,
+                PSOPrecedence = 20, PSOMinPasswordLength = 12, PSOPasswordHistoryCount = 24, PSOComplexityEnabled = true,
+                PSOMaxPasswordAgeDays = 0, PSOMinPasswordAgeDays = 1, PSOLockoutThreshold = 10, PSOLockoutDurationMinutes = 15,
+                PSOLockoutObservationWindowMinutes = 15
             };
             psoContainer.Children.Add(psoUsers);
 
@@ -1063,12 +1148,14 @@ namespace SMADX.Services
             domainControllersOU.LinkedGPOs.Add("Default Domain Controllers Policy");
             // ── Relations PSO ────────────────────────────────────────────────
             psoAdmin.PSOAppliesTo.Add("Domain Admins");
-            psoAdmin.PSOAppliesTo.Add("Administrator");
+            psoAdmin.PSOAppliesTo.Add("GG-Tier0-Admins");
             psoUsers.PSOAppliesTo.Add("jdoe");
             psoUsers.PSOAppliesTo.Add("asmith");
 
             // ── Relations MemberOf ───────────────────────────────────────────
-            adminUser.MemberOf.Add("Domain Admins");
+            // AGDLP : le compte nominatif est dans le groupe global des administrateurs Tier 0, lui-même dans Domain Admins
+            adminUser.MemberOf.Add("GG-Tier0-Admins");
+            tier0Admins.MemberOf.Add("Domain Admins");
             user1.MemberOf.Add("Domain Users");
             user2.MemberOf.Add("Domain Users");
 
@@ -1171,6 +1258,8 @@ namespace SMADX.Services
                 Tier = "Tier 0"
             });
 
+            AddRootContainers(domain, loc);
+            domain.UpdateDistinguishedNameTree();
             BuiltInSecurityDefaults.Apply(domain);
             BuiltInSecurityDefaults.ApplySampleHistory(domain, DateTime.Now);
             return domain;

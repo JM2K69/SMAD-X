@@ -234,9 +234,16 @@ namespace SMADX.ViewModels
         [ObservableProperty]
         private ObjectSecurityViewModel? _selectedSecurity;
 
+        /// <summary>Politique de mot de passe du domaine ou du PSO sélectionné (section du panneau de détails), sinon null.</summary>
+        [ObservableProperty]
+        private PasswordPolicyViewModel? _selectedPasswordPolicy;
+
         partial void OnSelectedNodeChanged(ADTreeNode? value)
         {
             SelectedSecurity = value?.Data is { } data ? new ObjectSecurityViewModel(data) : null;
+            SelectedPasswordPolicy = value?.Data is { Type: ADObjectType.Domain or ADObjectType.PasswordSettingsObject } policyHolder
+                ? new PasswordPolicyViewModel(policyHolder)
+                : null;
             // Les modifications faites dans le panneau sur l'objet précédent deviennent un état annulable
             RecordHistory();
         }

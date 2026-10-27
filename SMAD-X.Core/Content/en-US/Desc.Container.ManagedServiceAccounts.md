@@ -1,0 +1,1 @@
+Default container of managed service accounts (gMSA).

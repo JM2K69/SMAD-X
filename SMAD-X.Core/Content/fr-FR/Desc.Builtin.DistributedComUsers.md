@@ -1,0 +1,1 @@
+Autorisés à lancer, activer et utiliser des objets DCOM sur l'ordinateur.

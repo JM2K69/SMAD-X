@@ -1,0 +1,1 @@
+Can manage remotely through WinRM and WMI: on a domain controller, this is Tier 0 access.

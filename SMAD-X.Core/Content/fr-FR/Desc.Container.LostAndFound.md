@@ -1,0 +1,1 @@
+Reçoit les objets orphelins, dont le parent a été supprimé sur un autre contrôleur pendant la réplication.

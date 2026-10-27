@@ -1,0 +1,1 @@
+Objet du maître d'infrastructure, le rôle FSMO qui met à jour les références vers les objets d'autres domaines.

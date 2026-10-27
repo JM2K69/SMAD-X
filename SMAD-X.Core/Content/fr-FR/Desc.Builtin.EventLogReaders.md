@@ -1,0 +1,1 @@
+Peuvent lire les journaux d'événements de l'ordinateur.

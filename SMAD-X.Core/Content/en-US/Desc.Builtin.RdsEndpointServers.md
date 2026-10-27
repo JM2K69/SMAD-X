@@ -1,0 +1,1 @@
+Servers that host the sessions of RemoteApp programs and virtual desktops.

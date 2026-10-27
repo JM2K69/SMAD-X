@@ -1,0 +1,1 @@
+Peuvent interroger à distance les attributs d'autorisation et les permissions des ressources de l'ordinateur.

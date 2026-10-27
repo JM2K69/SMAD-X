@@ -1,0 +1,1 @@
+Groupe intégré utilisé par Internet Information Services (IIS).
