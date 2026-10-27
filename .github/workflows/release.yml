@@ -75,6 +75,11 @@ jobs:
         shell: pwsh
         run: Get-ChildItem -Path publish/${{ matrix.rid }} -Recurse -Filter *.pdb | Remove-Item -Force
 
+      # La licence Apache 2.0 et celles des composants tiers (polices OFL comprises) accompagnent chaque copie
+      - name: Add license files
+        shell: pwsh
+        run: Copy-Item LICENSE, NOTICE, THIRD-PARTY-NOTICES.md, SMAD-X.Core/Fonts/OFL.txt -Destination publish/${{ matrix.rid }}
+
       - name: Zip artifact (Windows)
         if: matrix.rid == 'win-x64'
         shell: pwsh
@@ -82,7 +87,7 @@ jobs:
 
       - name: Zip artifact (Linux / macOS)
         if: matrix.rid != 'win-x64'
-        run: zip -r SMAD-X-${{ matrix.rid }}.zip publish/${{ matrix.rid }}/
+        run: cd publish/${{ matrix.rid }} && zip -r ../../SMAD-X-${{ matrix.rid }}.zip .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

@@ -10,6 +10,53 @@ public class ADDataServiceTests
 
     public ADDataServiceTests() => TierConfigurationService.Instance.ResetToDefaults();
 
+    [Fact]
+    public void SwitchingLanguage_TranslatesOnlyDefaultDescriptions()
+    {
+        var loc = LocalizationService.Instance;
+        var previous = loc.CurrentCulture.Name;
+        loc.SetLanguage("fr-FR");
+        var domain = _service.CreateSampleStructure();
+        var jdoe = Find(domain, "jdoe");
+        jdoe.Description = "Compte de test : **ne pas supprimer** (note de l'apprenant)";
+        try
+        {
+            loc.SetLanguage("en-US");
+            _service.UpdateDescriptionsForCurrentLanguage(domain);
+
+            Assert.Equal(loc.Translate("Desc.Users.Krbtgt", "en-US"), Find(domain, "krbtgt").Description);
+            Assert.Equal(loc.Translate("Desc.Sample.Domain", "en-US"), domain.Description);
+            // Le groupe « Domain Admins » de l'OU Admin garde sa propre description
+            var adminGroup = Flatten(domain).Single(o => o.Name == "Domain Admins" && o.Parent?.Name == "Admin");
+            Assert.Equal(loc.Translate("Desc.Sample.AdminDomainAdmins", "en-US"), adminGroup.Description);
+            Assert.Equal("Compte de test : **ne pas supprimer** (note de l'apprenant)", jdoe.Description);
+        }
+        finally
+        {
+            loc.SetLanguage(previous);
+        }
+    }
+
+    [Fact]
+    public void SwitchingLanguage_TranslatesTheDescriptionOfANewDomain()
+    {
+        var loc = LocalizationService.Instance;
+        var previous = loc.CurrentCulture.Name;
+        loc.SetLanguage("fr-FR");
+        var domain = _service.CreateFreshDomainStructure("corp.local");
+        try
+        {
+            loc.SetLanguage("en-US");
+            _service.UpdateDescriptionsForCurrentLanguage(domain);
+
+            Assert.Equal(string.Format(loc.Translate("Desc.Domain", "en-US"), "corp.local"), domain.Description);
+        }
+        finally
+        {
+            loc.SetLanguage(previous);
+        }
+    }
+
     [Theory]
     [InlineData("Builtin")]
     [InlineData("Users")]

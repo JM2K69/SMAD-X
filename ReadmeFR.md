@@ -6,7 +6,7 @@
   <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-12.0.3-blueviolet"/>
   <img alt="Plateforme" src="https://img.shields.io/badge/plateforme-Windows%20%7C%20Linux%20%7C%20macOS%20Intel%2FM-lightgrey"/>
   <img alt="Langue" src="https://img.shields.io/badge/langue-FR%20%7C%20EN-green"/>
-  <img alt="Licence" src="https://img.shields.io/badge/Licence-CC%20BY--NC%204.0-lightgrey.svg"/>
+  <img alt="Licence" src="https://img.shields.io/badge/Licence-Apache%202.0-blue.svg"/>
   <img alt="Téléchargements" src="https://img.shields.io/github/downloads/JM2K69/SMAD-X/total?label=t%C3%A9l%C3%A9chargements&color=brightgreen&logo=github"/>
 </p>
 
@@ -50,10 +50,7 @@
 
 ### 📤 Export
 - **JSON natif** (`.smadx.json`) : sauvegarde et rechargement complet de la structure
-- **PowerShell** : scripts prêts à déployer pour créer la structure dans un vrai AD
-  - Export de la structure AD (OUs, utilisateurs, groupes)
-  - Export des GPOs liées
-  - Export des PSOs
+- **Import d'un AD réel** : un script PowerShell en lecture seule lit un domaine existant et produit un `.smad-x.json` (SMAD-X n'écrit jamais dans un annuaire)
 
 ### 🎨 Modèle de tiering Microsoft
 - **Tier 0** : Contrôleurs de domaine, comptes et systèmes critiques
@@ -119,7 +116,7 @@
 - **Chemins d'attaque** : qui peut prendre le contrôle du domaine, et par quelles étapes (Kerberoasting, AS-REP roasting, délégations, propriétaires, GPO, délégation Kerberos…), surlignés dans le graphe
 - Comparaison **avant / après** et **annuler / rétablir**
 - **Exercices** (`.smadx-lab.json`) : des scénarios réalistes corrigés automatiquement, dont 12 exercices de chemins d'attaque en français et en anglais
-- Domaines d'exemple dans [`Samples/AttackPaths`](Samples/AttackPaths/README.md) — pour écrire vos propres exercices : le [mode opératoire](https://jm2k69.github.io/SMAD-X/exercices/creer/)
+- **Pour les formateurs** : les domaines d'exemple de [`Samples/AttackPaths`](Samples/AttackPaths/README.md) décrivent chaque chemin et sa correction, ce sont donc les corrigés des exercices de chemins d'attaque ; pour écrire vos propres exercices : le [mode opératoire](https://jm2k69.github.io/SMAD-X/exercices/creer/)
 
 ## 🚀 Démarrage rapide
 
@@ -179,9 +176,7 @@ Visualisez les objets ajoutés, supprimés et modifiés avec export en CSV.
 |---|---|
 | Enregistrer | `Fichier > Enregistrer…` (`.smadx.json`) |
 | Ouvrir | `Fichier > Ouvrir…` |
-| Exporter PowerShell (structure) | `Fichier > Exporter PowerShell > Structure AD` |
-| Exporter PowerShell (GPOs) | `Fichier > Exporter PowerShell > GPOs` |
-| Exporter PowerShell (PSOs) | `Fichier > Exporter PowerShell > PSOs` |
+| Importer un AD réel | `Fichier > Générer le script d'import depuis AD…` (script en lecture seule) |
 
 ---
 
@@ -263,8 +258,7 @@ SMAD-X/
 ├── Services/
 │   ├── ADDataService.cs             # Structure par défaut, sauvegarde/chargement JSON v1/v2
 │   ├── ADDocumentReportService.cs   # Export de rapport MD/DOCX/PDF
-│   ├── ADImportPowerShellService.cs # Génération de scripts PowerShell (v2 + sites)
-│   ├── ADPowerShellExportService.cs # Export vers scripts PowerShell
+│   ├── ADImportPowerShellService.cs # Script d'import en lecture seule (v2 + sites)
 │   ├── ADValidationService.cs       # Validation des noms et règles de conteneurs
 │   ├── LocalizationService.cs       # Support multilingue FR/EN + descriptions sécurité
 │   └── ThemeService.cs              # Gestion du thème clair/sombre
@@ -324,7 +318,6 @@ SMAD-X/
 | **Administrateur** | Documenter et auditer une architecture AD existante |
 | **Architecte** | Concevoir et valider une nouvelle structure avant déploiement |
 | **Pentester / Red Team** | Visualiser les chemins d'attaque via les relations, les tiers et les notes de sécurité des comptes par défaut |
-| **Intégrateur** | Générer des scripts PowerShell prêts à déployer |
 
 ---
 
@@ -343,7 +336,6 @@ SMAD-X/
 - [x] Structure AD par défaut complète et fidèle
 - [x] Vue graphe de relations force-directed
 - [x] Gestion GPO / PSO / MemberOf
-- [x] Export PowerShell (structure, GPOs, PSOs)
 - [x] Support multilingue FR/EN
 - [x] Descriptions Markdown enrichies avec notes de sécurité pour tous les comptes/groupes par défaut
 - [x] Import depuis un Active Directory réel (via PowerShell — format JSON v2 avec topologie sites complète)
@@ -362,25 +354,9 @@ SMAD-X/
 
 ## 📄 Licence
 
-Ce projet est sous licence **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**.
+SMAD-X est sous **[licence Apache 2.0](./LICENSE)** : vous pouvez l'utiliser, le modifier et le redistribuer, y compris dans une formation payante, à condition de conserver la licence et le fichier [NOTICE](./NOTICE). Il est fourni sans garantie.
 
-[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-
-### ✅ Vous êtes libre de
-- **Partager** — copier et redistribuer le matériel sur tout support ou format
-- **Adapter** — remixer, transformer et créer à partir du matériel
-
-### ⚠️ Sous les conditions suivantes
-- **Attribution** — Vous devez créditer l'auteur original, fournir un lien vers ce dépôt et indiquer si des modifications ont été effectuées.
-  ```
-  Basé sur SMAD-X — Expert Active Directory Simulator
-  Œuvre originale : https://github.com/JM2K69/SMAD-X
-  Copyright (c) 2025-2026 SMAD-X Project
-  Sous licence CC BY-NC 4.0
-  ```
-- **Non commercial** — Vous ne pouvez pas utiliser ce projet à des fins commerciales sans autorisation écrite préalable.
-
-Consultez le fichier [LICENSE](./LICENSE) pour les détails complets.
+Les bibliothèques et polices tierces gardent leur propre licence (MIT, BSD, SIL Open Font License) : voir [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md). Ces fichiers sont aussi dans chaque archive de version.
 
 ---
 

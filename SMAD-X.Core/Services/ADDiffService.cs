@@ -14,14 +14,11 @@ namespace SMADX.Services
         public static List<ADChangeItem> Compare(DomainSnapshot fileA, DomainSnapshot fileB)
         {
             var result = new List<ADChangeItem>();
-
-            var flatA = Flatten(fileA.Root).ToDictionary(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase);
-            var flatB = Flatten(fileB.Root).ToDictionary(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase);
+            var (pairs, removed, added) = Pair(Flatten(fileA.Root).ToList(), Flatten(fileB.Root).ToList());
 
             // ── Structural: Added objects ──────────────────────────────────
-            foreach (var dn in flatB.Keys.Except(flatA.Keys, StringComparer.OrdinalIgnoreCase))
+            foreach (var obj in added)
             {
-                var obj = flatB[dn];
                 result.Add(new ADChangeItem
                 {
                     ChangeType        = ChangeType.Added,
@@ -33,9 +30,8 @@ namespace SMADX.Services
             }
 
             // ── Structural: Removed objects ────────────────────────────────
-            foreach (var dn in flatA.Keys.Except(flatB.Keys, StringComparer.OrdinalIgnoreCase))
+            foreach (var obj in removed)
             {
-                var obj = flatA[dn];
                 result.Add(new ADChangeItem
                 {
                     ChangeType        = ChangeType.Removed,
@@ -47,10 +43,9 @@ namespace SMADX.Services
             }
 
             // ── Per-object deltas for objects present in both files ────────
-            foreach (var dn in flatA.Keys.Intersect(flatB.Keys, StringComparer.OrdinalIgnoreCase))
+            foreach (var (before, after) in pairs)
             {
-                var before = flatA[dn];
-                var after  = flatB[dn];
+                var first = result.Count;
 
                 // Structural field changes
                 var structFields = DetectStructureChanges(before, after);
@@ -81,12 +76,16 @@ namespace SMADX.Services
                 var secItems = DetectSecurityChanges(before, after);
                 if (secItems.Count > 0)
                     result.Add(Item(ChangeType.Modified, ChangeCategory.Security, after, secItems));
+
+                // Renamed or moved: keep the former DN so that the change can be found from it
+                if (!string.Equals(before.DistinguishedName, after.DistinguishedName, StringComparison.OrdinalIgnoreCase))
+                    for (var i = first; i < result.Count; i++)
+                        result[i].PreviousDistinguishedName = before.DistinguishedName;
             }
 
             // ── Delegations on added objects ───────────────────────────────
-            foreach (var dn in flatB.Keys.Except(flatA.Keys, StringComparer.OrdinalIgnoreCase))
+            foreach (var obj in added)
             {
-                var obj = flatB[dn];
                 foreach (var del in obj.Delegations)
                     result.Add(new ADChangeItem
                     {
@@ -107,6 +106,43 @@ namespace SMADX.Services
         }
 
         // ── Helpers ────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Pairs the objects of both trees by DN, then by Id: an object renamed or moved keeps its Id.
+        /// Two siblings may share a DN in a file edited by hand: they pair in order instead of failing.
+        /// </summary>
+        private static (List<(ADObject Before, ADObject After)> Pairs, List<ADObject> Removed, List<ADObject> Added) Pair(
+            List<ADObject> a, List<ADObject> b)
+        {
+            var byDn = b.GroupBy(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase)
+                        .ToDictionary(g => g.Key, g => new Queue<ADObject>(g), StringComparer.OrdinalIgnoreCase);
+            var pairs = new List<(ADObject, ADObject)>();
+            var removed = new List<ADObject>();
+            var matched = new HashSet<ADObject>();
+
+            foreach (var before in a)
+            {
+                if (byDn.TryGetValue(before.DistinguishedName, out var queue) && queue.Count > 0)
+                {
+                    var after = queue.Dequeue();
+                    pairs.Add((before, after));
+                    matched.Add(after);
+                }
+                else
+                    removed.Add(before);
+            }
+
+            var unmatched = b.Where(o => !matched.Contains(o)).ToList();
+            var byId = unmatched.Where(o => o.Id != Guid.Empty).GroupBy(o => o.Id).ToDictionary(g => g.Key, g => g.First());
+            foreach (var before in removed.ToList())
+            {
+                if (before.Id == Guid.Empty || !byId.Remove(before.Id, out var after)) continue;
+                pairs.Add((before, after));
+                removed.Remove(before);
+                unmatched.Remove(after);
+            }
+            return (pairs, removed, unmatched);
+        }
 
         private static IEnumerable<ADObject> Flatten(ADObject root)
         {
@@ -133,6 +169,8 @@ namespace SMADX.Services
         {
             var c = new List<(string, string, string)>();
             Check(c, "Name",        before.Name,               after.Name);
+            if (!string.Equals(before.DistinguishedName, after.DistinguishedName, StringComparison.OrdinalIgnoreCase))
+                Check(c, "DN",      before.DistinguishedName,  after.DistinguishedName);
             Check(c, "Description", before.Description ?? "",  after.Description ?? "");
             Check(c, "Tier",        before.Tier ?? "",         after.Tier ?? "");
             Check(c, "Type",        before.Type.ToString(),    after.Type.ToString());

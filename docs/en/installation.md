@@ -66,7 +66,7 @@ Same command with `SMAD-X.Studio/SMAD-X.Studio.csproj` for Studio. Replace `win-
 dotnet test SMAD-X.slnx
 ```
 
-The PowerShell export tests really run the generated scripts: **PowerShell 7** (`pwsh`) must be installed, plus **Windows PowerShell 5.1** on Windows. A test fails if they are missing, rather than passing without checking anything.
+The PowerShell import script tests really run its functions: **PowerShell 7** (`pwsh`) must be installed, plus **Windows PowerShell 5.1** on Windows. A test fails if they are missing, rather than passing without checking anything.
 
 ## Error log
 

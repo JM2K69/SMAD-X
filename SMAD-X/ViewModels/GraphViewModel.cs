@@ -8,7 +8,14 @@ namespace SMADX.ViewModels
 {
     public partial class GraphViewModel : ViewModelBase
     {
-        public ADObject Root { get; }
+        private readonly System.Func<ADObject?> _getRoot;
+        private ADObject _lastRoot;
+
+        /// <summary>
+        /// Domaine à dessiner, relu à chaque rechargement : après Annuler ou l'ouverture d'un fichier,
+        /// « Recharger » montre le domaine courant et non l'ancien.
+        /// </summary>
+        public ADObject Root => _lastRoot = _getRoot() ?? _lastRoot;
 
         // Filtres
         private bool _showMemberOf = true;
@@ -91,16 +98,21 @@ namespace SMADX.ViewModels
             private set => SetProperty(ref _refreshToken, value);
         }
 
-        public GraphViewModel(ADObject root)
+        public GraphViewModel(ADObject root) : this(() => root)
         {
-            Root = root;
+        }
+
+        public GraphViewModel(System.Func<ADObject?> getRoot)
+        {
+            _getRoot = getRoot;
+            _lastRoot = getRoot() ?? throw new System.ArgumentException("Aucun domaine à afficher.", nameof(getRoot));
         }
 
         /// <summary>
         /// Graphe ouvert depuis la fenêtre des chemins d'attaque : le chemin (identifiants des objets,
         /// dans l'ordre) est surligné, et les objets isolés sont affichés pour qu'aucune étape ne manque.
         /// </summary>
-        public GraphViewModel(ADObject root, IReadOnlyList<string> highlightedPath) : this(root)
+        public GraphViewModel(System.Func<ADObject?> getRoot, IReadOnlyList<string> highlightedPath) : this(getRoot)
         {
             HighlightedPath = highlightedPath;
             _showIsolated = true;

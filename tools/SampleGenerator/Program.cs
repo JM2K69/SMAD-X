@@ -1056,6 +1056,8 @@ File.WriteAllText(Path.Combine(outDir, "README.md"), $"""
 
     ## Français
 
+    > **Matériel du formateur.** Chaque domaine décrit son chemin d'attaque et sa correction : ce sont les corrigés des exercices « Chemins d'attaque » de SMAD-X. Ne les donnez pas aux apprenants avant l'exercice.
+
     Ouvrez un fichier avec **Fichier > Ouvrir**, sélectionnez le domaine pour lire le scénario, puis **Analyse > Chemins d'attaque** (`Ctrl+Shift+K`).
 
     | Fichier | Domaine | Chemin |
@@ -1063,6 +1065,8 @@ File.WriteAllText(Path.Combine(outDir, "README.md"), $"""
     {Table("fr")}
 
     ## English
+
+    > **Trainer material.** Each domain describes its attack path and its fix: these are the answer keys of the SMAD-X "Attack paths" labs. Do not give them to learners before the lab.
 
     Open a file with **File > Open**, select the domain to read the scenario, then **Analyse > Attack paths** (`Ctrl+Shift+K`).
 

@@ -11,7 +11,6 @@ La liste est aussi dans l'application : **Aide > Raccourcis clavier...**
 | `Ctrl+O` | Ouvrir |
 | `Ctrl+S` | Enregistrer (en mode exercice : enregistrer ma copie) |
 | `Ctrl+E` | Exporter en JSON |
-| `Ctrl+P` | Exporter en PowerShell |
 | `Ctrl+I` | Générer le script d'import depuis AD |
 | `Ctrl+Shift+R` | Exporter le rapport de documentation |
 | `Ctrl+Shift+M` | Importer une description (.md) |

@@ -253,51 +253,8 @@ public class ObjectSecurityViewModelTests
 
 public class SecurityPowerShellTests
 {
-    private static async Task<string> ExportAsync(ADObject root)
-    {
-        var path = TempFile(".ps1");
-        Assert.True(await new ADPowerShellExportService().ExportToPowerShellAsync(root, path));
-        return await File.ReadAllTextAsync(path);
-    }
-
-    [Fact]
-    public async Task Export_CreatesGroupsWithTheirScope()
-    {
-        var script = await ExportAsync(new ADDataService().CreateSampleStructure());
-
-        Assert.Contains("-Name \"Enterprise Admins\" -SamAccountName \"Enterprise Admins\" -Path \"CN=Users,DC=contoso,DC=com\" -GroupScope \"Universal\" -GroupCategory \"Security\"", script);
-    }
-
-    [Fact]
-    public async Task Export_AppliesAccountSecurityAdditively()
-    {
-        var domain = BuildSmallDomain();
-        var jdoe = Find(domain, "jdoe");
-        jdoe.AccountFlags = ADAccountFlags.DontRequirePreauth | ADAccountFlags.AccountDisabled;
-        jdoe.ServicePrincipalNames.Add("HTTP/intranet.contoso.com");
-
-        var script = await ExportAsync(domain);
-
-        Assert.Contains("Set-ADAccountSecurityIfNeeded -Identity \"jdoe\" -DistinguishedName \"CN=jdoe,OU=Corp,DC=contoso,DC=com\"", script);
-        Assert.Contains("-Flags @{ DoesNotRequirePreAuth = $true }", script); // « désactivé » n'est pas exporté
-        Assert.Contains("-Spns @(\"HTTP/intranet.contoso.com\")", script);
-        Assert.Contains("-Add @{ servicePrincipalName = $newSpns }", script);
-        Assert.DoesNotContain("-Replace", script);
-    }
-
-    [Fact]
-    public async Task Export_NeverTouchesKrbtgtOrDomainControllers()
-    {
-        var script = await ExportAsync(new ADDataService().CreateSampleStructure());
-
-        // Le $ final d'un compte ordinateur est échappé dans la chaîne PowerShell
-        Assert.DoesNotContain("-Identity \"krbtgt\"", script);
-        Assert.DoesNotContain("-Identity \"DC01`$\"", script);
-        Assert.Contains("-Identity \"SRV-FILE-01`$\"", script);
-    }
-
     [Theory]
-    [MemberData(nameof(ADPowerShellExportServiceTests.Shells), MemberType = typeof(ADPowerShellExportServiceTests))]
+    [MemberData(nameof(PowerShellRunner.Shells), MemberType = typeof(PowerShellRunner))]
     public async Task ImportScript_ParsesWithoutErrors(string shell)
     {
         var path = TempFile(".ps1");
@@ -312,11 +269,56 @@ public class SecurityPowerShellTests
     }
 
     /// <summary>
+    /// Classement des ACE par le contrôle qu'elles donnent : une lecture n'est pas une délégation, et un
+    /// contrôle total limité aux ordinateurs n'atteint ni les utilisateurs ni les groupes.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(PowerShellRunner.Shells), MemberType = typeof(PowerShellRunner))]
+    public async Task ImportScript_ClassifiesAcesByTheControlTheyGive(string shell)
+    {
+        var scriptPath = TempFile(".ps1");
+        Assert.True(await new ADImportPowerShellService().GenerateImportScriptAsync(scriptPath));
+        var script = await File.ReadAllTextAsync(scriptPath);
+        var helpers = script[script.IndexOf("function ConvertTo-JsonString", StringComparison.Ordinal)..script.IndexOf("# ── 4. Collect GPOs", StringComparison.Ordinal)];
+
+        const string None = "00000000-0000-0000-0000-000000000000";
+        const string Computer = "bf967a86-0de6-11d0-a285-00aa003049e2";
+        var cases = new (string Rights, string ObjectType, string Inherited, string Expected)[]
+        {
+            ("0x20094", None, None, "-"),                                        // GenericRead : lecture seule
+            ("0xF01FF", None, None, "GenericAll|FullControl"),
+            ("0xF01FF", None, Computer, "GenericAll:computer|ComputerManagement"),
+            ("0x40000", None, None, "WriteDacl|FullControl"),
+            ("0x80000", None, None, "WriteOwner|FullControl"),
+            ("0x100", "00299570-246d-11d0-a768-00aa006e0529", None, "ResetPassword|PasswordReset"),
+            ("0x100", None, None, "AllExtendedRights|PasswordReset"),
+            ("0x100", "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2", None, "DS-Replication-Get-Changes-All|Other"),
+            ("0x20", "bf9679c0-0de6-11d0-a285-00aa003049e2", None, "WriteProperty:member|AttributeWrite"),
+            ("0x20028", None, None, "GenericWrite|AttributeWrite"),
+            ("0x3", Computer, None, "CreateChild:computer|ComputerManagement"),
+        };
+
+        var harness = new StringBuilder()
+            .AppendLine("Set-StrictMode -Version 2.0")
+            .AppendLine("$ErrorActionPreference = 'Stop'")
+            .AppendLine(helpers);
+        foreach (var c in cases)
+            harness.AppendLine($"$r = Get-DelegationRight {c.Rights} '{c.ObjectType}' '{c.Inherited}'; if ($r) {{ $r -join '|' }} else {{ '-' }}");
+        var harnessPath = TempFile(".ps1");
+        await File.WriteAllTextAsync(harnessPath, harness.ToString(), new UTF8Encoding(true));
+
+        var lines = (await PowerShellRunner.RunAsync(shell, "-File", harnessPath))
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        Assert.Equal(cases.Select(c => c.Expected), lines);
+    }
+
+    /// <summary>
     /// Exécute la vraie fonction Build-NodeJson du script d'import, avec les cmdlets AD remplacées par
     /// des bouchons, sur un compte AS-REP roastable avec SPN ; le JSON produit doit se relire en ADObject.
     /// </summary>
     [Theory]
-    [MemberData(nameof(ADPowerShellExportServiceTests.Shells), MemberType = typeof(ADPowerShellExportServiceTests))]
+    [MemberData(nameof(PowerShellRunner.Shells), MemberType = typeof(PowerShellRunner))]
     public async Task ImportScript_EmitsSecurityAttributesAsSmadxJson(string shell)
     {
         var scriptPath = TempFile(".ps1");

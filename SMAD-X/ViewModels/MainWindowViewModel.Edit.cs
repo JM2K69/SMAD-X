@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
+using SMADX.Services;
 
 namespace SMADX.ViewModels
 {
@@ -81,7 +82,7 @@ namespace SMADX.ViewModels
                 return;
             }
 
-            var name = _validationService.SuggestName(ADObjectType.Policy);
+            var name = ADDomainEditor.UniqueChildName(policiesContainer, ADObjectType.Policy, _validationService.SuggestName(ADObjectType.Policy));
             var newObject = new ADObject(name, ADObjectType.Policy)
             {
                 Parent = policiesContainer,
@@ -149,7 +150,7 @@ namespace SMADX.ViewModels
                 return;
             }
 
-            var name = _validationService.SuggestName(type);
+            var name = ADDomainEditor.UniqueChildName(SelectedNode.Data, type, _validationService.SuggestName(type));
             var newObject = new ADObject(name, type)
             {
                 Parent = SelectedNode.Data,
@@ -241,13 +242,15 @@ namespace SMADX.ViewModels
             var dataToDelete = nodeToDelete.Data;
             var deletedName = dataToDelete.Name;
 
-            // Effectuer la suppression
+            // Effectuer la suppression, puis retirer les appartenances, délégations… qui la nommaient
             parentNode.Children.Remove(nodeToDelete);
             parentNode.Data.Children.Remove(dataToDelete);
+            var references = RootObject is { } root ? ADDomainEditor.RemoveReferences(root, dataToDelete, SitesTopology) : 0;
 
             UpdateObjectCounts();
             RecordHistory();
-            StatusMessage = $"Objet supprimé : {deletedName}";
+            StatusMessage = string.Format(Loc["Status.Deleted"], deletedName)
+                            + (references > 0 ? string.Format(Loc["Status.ReferencesRemoved"], references) : string.Empty);
         }
 
         [RelayCommand]
@@ -277,6 +280,7 @@ namespace SMADX.ViewModels
             }
 
             var clone = _clipboardNode.Data.Clone();
+            clone.Name = ADDomainEditor.UniqueChildName(SelectedNode.Data, clone.Type, clone.Name);
             clone.Parent = SelectedNode.Data;
             SelectedNode.Data.Children.Add(clone);
             clone.UpdateDistinguishedNameTree();
@@ -313,25 +317,29 @@ namespace SMADX.ViewModels
         }
 
         [RelayCommand]
-        private void ConfirmRename(string newName)
+        private void ConfirmRename(string newName) => TryRename(newName);
+
+        /// <summary>
+        /// Seul chemin de renommage (panneau, F2, commande) : nom validé et libre parmi les frères,
+        /// DN du sous-arbre recalculés, références par nom réécrites, état annulable.
+        /// </summary>
+        private void TryRename(string newName)
         {
-            if (SelectedNode != null && !string.IsNullOrWhiteSpace(newName))
+            if (SelectedNode?.Data is not { } data || RootObject is not { } root) return;
+
+            var error = ADDomainEditor.Rename(root, data, newName, SitesTopology, out var references);
+            if (error != null)
             {
-                if (_validationService.ValidateName(newName, out var errorMessage))
-                {
-                    SelectedNode.Data.Name = newName;
-                    SelectedNode.Data.ModifiedDate = DateTime.Now;
-                    SelectedNode.Data.UpdateDistinguishedNameTree();
-                    SelectedNode.IsEditing = false;
-                    OnPropertyChanged(nameof(SelectedObjectName));
-                    RecordHistory();
-                    StatusMessage = $"Renommé en : {newName}";
-                }
-                else
-                {
-                    StatusMessage = errorMessage ?? "Nom invalide";
-                }
+                StatusMessage = error;
+                return;
             }
+
+            SelectedNode.IsEditing = false;
+            OnPropertyChanged(nameof(SelectedObjectName));
+            OnPropertyChanged(nameof(SelectedObjectDistinguishedName));
+            RecordHistory();
+            StatusMessage = string.Format(Loc["Status.Renamed"], data.Name)
+                            + (references > 0 ? string.Format(Loc["Status.ReferencesUpdated"], references) : string.Empty);
         }
     }
 }

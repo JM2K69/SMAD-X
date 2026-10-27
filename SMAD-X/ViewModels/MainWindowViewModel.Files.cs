@@ -110,18 +110,7 @@ namespace SMADX.ViewModels
             StatusMessage = success ? string.Format(Loc["Status.ExportedJson"], path) : Loc["Status.ErrorExportJson"];
         });
 
-        [RelayCommand]
-        private Task ExportToPowerShell() => RunFileCommandAsync(async () =>
-        {
-            if (RootObject == null) return;
-            var path = await _dialogs.PickSaveFileAsync(Loc["Dialog.ExportPowerShell.Title"],
-                $"Create-ADStructure_{DateTime.Now:yyyyMMdd_HHmmss}.ps1", "ps1", PowerShellFilter, AllFilesFilter);
-            if (path == null) return;
-
-            var success = await _powerShellExportService.ExportToPowerShellAsync(RootObject, path);
-            StatusMessage = success ? string.Format(Loc["Status.ExportedPowerShell"], path) : Loc["Status.ErrorExportPowerShell"];
-        });
-
+        // Pas d'export vers un AD réel : SMAD-X lit un annuaire (script d'import), il ne l'écrit jamais
         [RelayCommand]
         private Task GenerateImportScript() => RunFileCommandAsync(async () =>
         {

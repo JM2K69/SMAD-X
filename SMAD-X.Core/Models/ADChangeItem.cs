@@ -31,6 +31,9 @@ namespace SMADX.Models
         public ChangeCategory ChangeCategory    { get; set; } = ChangeCategory.Structure;
         public string         ObjectName        { get; set; } = string.Empty;
         public string         DistinguishedName { get; set; } = string.Empty;
+
+        /// <summary>For an object renamed or moved: its DN before the change (null otherwise).</summary>
+        public string?        PreviousDistinguishedName { get; set; }
         public ADObjectType   ObjectType        { get; set; }
 
         /// <summary>

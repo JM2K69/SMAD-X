@@ -35,7 +35,7 @@ It mirrors real Active Directory attributes:
 | adminCount | `adminCount` | object protected by AdminSDHolder |
 | Owner | security descriptor owner | an owner can rewrite permissions |
 
-Options use the real `userAccountControl` bits: PowerShell export and import carry them as they are.
+Options use the real `userAccountControl` bits: the PowerShell import carries them as they are.
 
 !!! tip "AdminSDHolder"
     Members of protected groups (Domain Admins, Account Operators, Backup Operators…) have `adminCount = 1`: the SDProp process applies AdminSDHolder's permissions to them and **disables inheritance**. SMAD-X takes this into account: a delegation set on an OU does not apply to these objects. This is why some attack paths do not exist.

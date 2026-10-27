@@ -23,7 +23,6 @@ namespace SMADX.ViewModels
         private readonly IDialogService _dialogs;
         private readonly ADDataService _dataService;
         private readonly ADValidationService _validationService;
-        private readonly ADPowerShellExportService _powerShellExportService;
         private readonly ADImportPowerShellService _importPowerShellService;
         private readonly ADDocumentReportService _reportService;
 
@@ -91,7 +90,6 @@ namespace SMADX.ViewModels
             _dialogs = dialogs;
             _dataService = new ADDataService();
             _validationService = new ADValidationService();
-            _powerShellExportService = new ADPowerShellExportService();
             _importPowerShellService = new ADImportPowerShellService();
             _reportService = new ADDocumentReportService();
 
@@ -134,19 +132,17 @@ namespace SMADX.ViewModels
 
         // ─── Panneau de détails de l'objet sélectionné ───────────────────────────
 
+        /// <summary>
+        /// Nom de l'objet sélectionné. Le champ du panneau (et F2) ne le transmet qu'à la validation
+        /// (Entrée ou sortie du champ) : un renommage refusé laisse l'ancien nom.
+        /// </summary>
         public string SelectedObjectName
         {
             get => SelectedNode?.Data?.Name ?? string.Empty;
             set
             {
                 if (SelectedNode?.Data != null && SelectedNode.Data.Name != value)
-                {
-                    SelectedNode.Data.Name = value;
-                    SelectedNode.Data.ModifiedDate = DateTime.Now;
-                    SelectedNode.Data.UpdateDistinguishedName();
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(SelectedObjectDistinguishedName));
-                }
+                    TryRename(value);
             }
         }
 

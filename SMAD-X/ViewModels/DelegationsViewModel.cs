@@ -216,7 +216,7 @@ namespace SMADX.ViewModels
         {
             var lines = new List<string> { "TrusteeName,TrusteeType,TargetDN,Right,RightCategory,IsInherited,Tier" };
             lines.AddRange(FilteredDelegations.Select(d =>
-                $"{Q(d.TrusteeName)},{d.TrusteeType},{Q(d.TargetDN)},{Q(d.Right)},{d.RightCategory},{d.IsInherited},{Q(d.Tier ?? string.Empty)}"));
+                $"{Q(d.TrusteeName)},{d.TrusteeType},{Q(d.TargetDN)},{Q(d.Right)},{d.RightCategory},{d.IsInherited},{Q(d.Tier)}"));
             await File.WriteAllLinesAsync(outputPath, lines);
             StatusMessage = $"Exported {FilteredDelegations.Count} row(s) to {outputPath}";
         }
@@ -247,6 +247,7 @@ namespace SMADX.ViewModels
             CountOther              = AllDelegations.Count(d => d.RightCategory == RightCategory.Other);
         }
 
-        private static string Q(string v) => "\"" + v.Replace("\"", "\"\"") + "\"";
+        // Les mandataires viennent du domaine, parfois importé : pas de formule Excel
+        private static string Q(string? v) => SMADX.Services.SafeText.CsvCell(v, ",", alwaysQuote: true);
     }
 }

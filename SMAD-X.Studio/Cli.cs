@@ -187,8 +187,9 @@ namespace SMADX.Studio
                 var grade = r.Graded ? $"{r.Points}/{lab.MaxPoints}" : "-";
                 var marks = r.Graded ? string.Concat(lab.Objectives.Select(o => r.Passed(o) ? "+" : "-")) : "";
                 output.WriteLine($"{r.Student.PadRight(width)}  {grade,7}  hints {r.HintsUsed}  {marks}");
+                // Aucun caractère de contrôle venu d'une copie ne peut masquer ou imiter une ligne
                 foreach (var issue in r.Issues)
-                    output.WriteLine($"  {(issue.Level == LabIssueLevel.Error ? "error" : "warning")}: {issue.Message}");
+                    output.WriteLine($"  {(issue.Level == LabIssueLevel.Error ? "error" : "warning")}: {SafeText.Name(issue.Message)}");
             }
             var graded = rows.Count(r => r.Graded);
             var numbers = CultureInfo.GetCultureInfo(options.Culture);

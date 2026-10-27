@@ -49,9 +49,21 @@ internal static class TestHelpers
     }
 }
 
-/// <summary>Exécute un moteur PowerShell (pwsh ou powershell) pour les tests d'export et d'import.</summary>
+/// <summary>Exécute un moteur PowerShell (pwsh ou powershell) pour les tests du script d'import.</summary>
 internal static class PowerShellRunner
 {
+    /// <summary>
+    /// Moteurs sur lesquels le script d'import doit fonctionner : PowerShell 7 partout,
+    /// Windows PowerShell 5.1 (celui des contrôleurs de domaine) sous Windows.
+    /// </summary>
+    public static TheoryData<string> Shells()
+    {
+        var shells = new TheoryData<string> { "pwsh" };
+        if (OperatingSystem.IsWindows())
+            shells.Add("powershell");
+        return shells;
+    }
+
     /// <summary>
     /// Lance un moteur PowerShell ; échoue explicitement s'il n'est pas installé,
     /// pour qu'un test ne passe jamais sans avoir réellement vérifié le script.
@@ -72,7 +84,7 @@ internal static class PowerShellRunner
         }
         catch (System.ComponentModel.Win32Exception)
         {
-            Assert.Fail($"« {shell} » est introuvable : il doit être installé et dans le PATH pour valider l'export PowerShell.");
+            Assert.Fail($"« {shell} » est introuvable : il doit être installé et dans le PATH pour valider le script PowerShell.");
             throw; // inatteignable, Assert.Fail lève toujours
         }
 

@@ -6,7 +6,7 @@
   <img alt="Avalonia" src="https://img.shields.io/badge/Avalonia-12.0.3-blueviolet"/>
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS%20Intel%2FM-lightgrey"/>
   <img alt="Language" src="https://img.shields.io/badge/language-FR%20%7C%20EN-green"/>
-  <img alt="License" src="https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg"/>
+  <img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/>
   <img alt="Total Downloads" src="https://img.shields.io/github/downloads/JM2K69/SMAD-X/total?label=downloads&color=brightgreen&logo=github"/>
 </p>
 
@@ -54,10 +54,7 @@
 
 ### 📤 Export
 - **Native JSON** (`.smadx.json`): full save and reload of the structure
-- **PowerShell**: ready-to-deploy scripts to create the structure in a real AD
-  - AD structure export (OUs, users, groups)
-  - Linked GPOs export
-  - PSOs export
+- **Real AD import**: a read-only PowerShell script that reads an existing domain into a `.smad-x.json` (SMAD-X never writes to a directory)
 
 ### 🎨 Microsoft Tiering Model
 - **Tier 0**: Domain controllers, critical accounts and systems
@@ -124,7 +121,7 @@
 - **Before / after** comparison and **undo / redo**
 - **Labs** (`.smadx-lab.json`): realistic scenarios graded automatically, including 12 attack-path labs in French and English
 - **Lab mode and exam mode**: open a lab directly (`SMAD-X.exe lab.smadx-lab.json`) with the domain locked; an exam has no hints, no checking and no start over; learners save a **submission** (`.smadx-submission.json`) to resume or hand in, sealed (SHA-256) and tied to a random work session
-- Sample domains in [`Samples/AttackPaths`](Samples/AttackPaths/README.md) — write your own labs with the [lab creation guide](https://jm2k69.github.io/SMAD-X/en/labs/create/)
+- **For trainers**: the sample domains in [`Samples/AttackPaths`](Samples/AttackPaths/README.md) describe each path and its fix, so they are the answer keys of the attack-path labs; write your own labs with the [lab creation guide](https://jm2k69.github.io/SMAD-X/en/labs/create/)
 
 ### 🧑‍🏫 SMAD-X Studio — lab authoring for trainers
 A second executable, shipped in the same archive ([documentation](https://jm2k69.github.io/SMAD-X/en/labs/studio/)):
@@ -194,9 +191,7 @@ Review added, removed and modified objects with export to CSV.
 |---|---|
 | Save | `File > Save…` (`.smadx.json`) |
 | Open | `File > Open…` |
-| Export PowerShell (structure) | `File > Export PowerShell > AD Structure` |
-| Export PowerShell (GPOs) | `File > Export PowerShell > GPOs` |
-| Export PowerShell (PSOs) | `File > Export PowerShell > PSOs` |
+| Import a real AD | `File > Generate AD Import Script…` (read-only script) |
 
 ---
 
@@ -272,8 +267,7 @@ SMAD-X/
 │   └── TierConfiguration.cs        # Tier color configuration
 ├── Services/
 │   ├── ADDataService.cs             # Default structure, JSON save/load
-│   ├── ADImportPowerShellService.cs # Import from PowerShell scripts
-│   ├── ADPowerShellExportService.cs # Export to PowerShell scripts
+│   ├── ADImportPowerShellService.cs # Read-only import script for a real AD
 │   ├── ADValidationService.cs       # Name validation and container rules
 │   ├── LocalizationService.cs       # FR/EN multilingual support + security descriptions
 │   └── ThemeService.cs              # Light/Dark theme management
@@ -330,7 +324,6 @@ SMAD-X/
 | **Administrator** | Document and audit an existing AD architecture |
 | **Architect** | Design and validate a new AD structure before deployment |
 | **Pentester / Red Team** | Visualize attack paths via group relations, tiers and default account security notes |
-| **Integrator** | Generate ready-to-deploy PowerShell scripts |
 
 ---
 <p align="center">
@@ -343,7 +336,6 @@ SMAD-X/
 - [x] Complete default AD structure faithful to a fresh domain
 - [x] Force-directed relationship graph view
 - [x] GPO / PSO / MemberOf management
-- [x] PowerShell export (structure, GPOs, PSOs)
 - [x] Multilingual support FR/EN
 - [x] Rich Markdown descriptions with security notes for all default accounts/groups
 - [x] Import from a real Active Directory (via PowerShell — v2 JSON format with full site topology)
@@ -363,25 +355,9 @@ SMAD-X/
 
 ## 📄 License
 
-This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**.
+SMAD-X is licensed under the **[Apache License 2.0](./LICENSE)**: you may use it, change it and distribute it, including in paid training, provided you keep the license and the [NOTICE](./NOTICE) file. It comes with no warranty.
 
-[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-
-### ✅ You are free to
-- **Share** — copy and redistribute the material in any medium or format
-- **Adapt** — remix, transform, and build upon the material
-
-### ⚠️ Under the following terms
-- **Attribution** — You must give appropriate credit, provide a link to this repository, and indicate if changes were made.
-  ```
-  Based on SMAD-X — Expert Active Directory Simulator
-  Original work: https://github.com/JM2K69/SMAD-X
-  Copyright (c) 2025-2026 SMAD-X Project
-  Licensed under CC BY-NC 4.0
-  ```
-- **NonCommercial** — You may not use this project for commercial purposes without explicit prior written permission.
-
-See the full [LICENSE](./LICENSE) file for details.
+Third-party libraries and fonts keep their own licenses (MIT, BSD, SIL Open Font License): see [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md). These files are also in every release archive.
 
 ---
 

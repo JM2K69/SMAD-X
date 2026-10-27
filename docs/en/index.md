@@ -65,8 +65,8 @@ No infrastructure needed: everything happens in the application, on Windows, Lin
 | **Installation** | a single executable, everything included |
 | **Languages** | English and French, switched at runtime |
 | **Format** | `.smad-x.json` (domain), `.smadx-lab.json` (lab) |
-| **Exports** | JSON, PowerShell script, Markdown / DOCX / PDF report, PNG image |
-| **License** | non-commercial use |
+| **Exports** | JSON, Markdown / DOCX / PDF report, PNG image |
+| **License** | Apache 2.0, including in paid training |
 
 !!! warning "A simulator, not an administration tool"
-    SMAD-X never connects to a real directory. Import goes through a PowerShell script you run yourself, and export produces a script you review before running it.
+    SMAD-X never connects to a real directory. Import goes through a PowerShell script you run yourself, which only reads; SMAD-X produces no script that changes a directory.

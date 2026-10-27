@@ -151,7 +151,7 @@ namespace SMADX.Views
                             CreateShortcutItem("Ctrl+Shift+N", "Structure d'exemple"),
                             CreateShortcutItem("Ctrl+O", "Ouvrir un fichier"),
                             CreateShortcutItem("Ctrl+S", "Enregistrer"),
-                            CreateShortcutItem("Ctrl+E / Ctrl+P", "Exporter en JSON / PowerShell"),
+                            CreateShortcutItem("Ctrl+E", "Exporter en JSON"),
                             CreateShortcutItem("Ctrl+Shift+R", "Exporter la documentation"),
                             new Avalonia.Controls.Separator(),
                             CreateShortcutItem("Ctrl+C", "Copier l'objet sélectionné"),

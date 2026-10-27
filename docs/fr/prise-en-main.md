@@ -42,9 +42,11 @@
 
 SMAD-X applique les règles d'AD : caractères interdits, longueur, unicité des noms, et types d'enfants autorisés (un conteneur ne peut pas contenir d'OU, par exemple).
 
+Un nouveau nom se valide par **Entrée** ou en quittant le champ, **Échap** l'annule. Comme dans l'annuaire, renommer un objet met à jour tout ce qui le désigne : appartenances aux groupes, PSO, GPO liées, propriétaires, délégations et contrôleurs des sites. Supprimer un objet retire ces références ; la barre d'état indique combien ont été touchées.
+
 ## La fiche de chaque objet
 
-Chaque objet porte une **description en Markdown**. Celles des objets intégrés sont déjà rédigées, en français et en anglais : rôle, points de sécurité, recommandations. Le bouton **Éditer** passe en édition, et **Fichier > Importer une description (.md)...** remplace la fiche par un fichier.
+Chaque objet porte une **description en Markdown**. Celles des objets intégrés sont déjà rédigées, en français et en anglais : rôle, points de sécurité, recommandations. Changer de langue traduit ces descriptions d'origine, jamais celles que vous avez écrites ou modifiées. Le bouton **Éditer** passe en édition, et **Fichier > Importer une description (.md)...** remplace la fiche par un fichier.
 
 ## Les sites AD
 

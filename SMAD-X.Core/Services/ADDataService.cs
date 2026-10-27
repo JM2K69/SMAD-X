@@ -1315,251 +1315,31 @@ namespace SMADX.Services
         }
 
         /// <summary>
-        /// Met à jour les descriptions des objets AD dans la langue actuelle
+        /// Met à jour les descriptions des objets AD dans la langue actuelle. Seule une description par défaut
+        /// (le texte d'une clé « Desc.* » dans l'une des langues) est traduite : celle qu'ont écrite l'apprenant,
+        /// le formateur ou l'annuaire importé reste telle quelle.
         /// </summary>
         public void UpdateDescriptionsForCurrentLanguage(ADObject root)
         {
             var loc = LocalizationService.Instance;
-
-            // Mettre à jour récursivement
             UpdateDescriptionRecursive(root, loc);
         }
 
-        private void UpdateDescriptionRecursive(ADObject obj, LocalizationService loc)
+        private static void UpdateDescriptionRecursive(ADObject obj, LocalizationService loc)
         {
-            // Mettre à jour la description selon le type et le nom de l'objet
-            if (obj.Type == ADObjectType.Domain)
+            // La description d'un nouveau domaine contient son nom
+            if (obj.Type == ADObjectType.Domain
+                && loc.Cultures.Any(c => LocalizationService.SameText(obj.Description, string.Format(loc.Translate("Desc.Domain", c), obj.Name))))
             {
                 obj.Description = string.Format(loc["Desc.Domain"], obj.Name);
             }
-            else if (obj.Name == "Builtin" && obj.Type == ADObjectType.Container)
+            else if (loc.FindDescriptionKey(obj.Description) is { } key)
             {
-                obj.Description = loc["Desc.Builtin"];
-            }
-            else if (obj.Name == "Administrators" && obj.Parent?.Name == "Builtin")
-            {
-                obj.Description = loc["Desc.Builtin.Administrators"];
-            }
-            else if (obj.Name == "Users" && obj.Parent?.Name == "Builtin")
-            {
-                obj.Description = loc["Desc.Builtin.Users"];
-            }
-            else if (obj.Name == "Guests" && obj.Parent?.Name == "Builtin")
-            {
-                obj.Description = loc["Desc.Builtin.Guests"];
-            }
-            else if (obj.Name == "Server Operators" && obj.Parent?.Name == "Builtin")
-            {
-                obj.Description = loc["Desc.Builtin.ServerOperators"];
-            }
-            else if (obj.Name == "Account Operators" && obj.Parent?.Name == "Builtin")
-            {
-                obj.Description = loc["Desc.Builtin.AccountOperators"];
-            }
-            else if (obj.Name == "Backup Operators" && obj.Parent?.Name == "Builtin")
-            {
-                obj.Description = loc["Desc.Builtin.BackupOperators"];
-            }
-            else if (obj.Name == "Users" && obj.Type == ADObjectType.Container && obj.Parent?.Type == ADObjectType.Domain)
-            {
-                obj.Description = loc["Desc.Users"];
-            }
-            else if (obj.Name == "Administrator" && obj.Parent?.Name == "Users" && obj.Parent?.Type == ADObjectType.Container)
-            {
-                obj.Description = loc["Desc.Users.Administrator"];
-            }
-            else if (obj.Name == "Guest" && obj.Parent?.Name == "Users")
-            {
-                obj.Description = loc["Desc.Users.Guest"];
-            }
-            else if (obj.Name == "krbtgt")
-            {
-                obj.Description = loc["Desc.Users.Krbtgt"];
-            }
-            else if (obj.Name == "Domain Admins")
-            {
-                obj.Description = loc["Desc.Users.DomainAdmins"];
-            }
-            else if (obj.Name == "Domain Users")
-            {
-                obj.Description = loc["Desc.Users.DomainUsers"];
-            }
-            else if (obj.Name == "Domain Computers")
-            {
-                obj.Description = loc["Desc.Users.DomainComputers"];
-            }
-            else if (obj.Name == "Domain Controllers" && obj.Type == ADObjectType.Group)
-            {
-                obj.Description = loc["Desc.Users.DomainControllers"];
-            }
-            else if (obj.Name == "Schema Admins")
-            {
-                obj.Description = loc["Desc.Users.SchemaAdmins"];
-            }
-            else if (obj.Name == "Enterprise Admins")
-            {
-                obj.Description = loc["Desc.Users.EnterpriseAdmins"];
-            }
-            else if (obj.Name == "Group Policy Creator Owners")
-            {
-                obj.Description = loc["Desc.Users.GroupPolicyCreatorOwners"];
-            }
-            else if (obj.Name == "Read-only Domain Controllers")
-            {
-                obj.Description = loc["Desc.Users.ReadOnlyDCs"];
-            }
-            else if (obj.Name == "DnsAdmins")
-            {
-                obj.Description = loc["Desc.Users.DnsAdmins"];
-            }
-            else if (obj.Name == "Cert Publishers")
-            {
-                obj.Description = loc["Desc.Users.CertPublishers"];
-            }
-            else if (obj.Name == "RAS and IAS Servers")
-            {
-                obj.Description = loc["Desc.Users.RASandIAS"];
-            }
-            else if (obj.Name == "Allowed RODC Password Replication Group")
-            {
-                obj.Description = loc["Desc.Users.AllowedRODCReplication"];
-            }
-            else if (obj.Name == "Denied RODC Password Replication Group")
-            {
-                obj.Description = loc["Desc.Users.DeniedRODCReplication"];
-            }
-            else if (obj.Name == "Cloneable Domain Controllers")
-            {
-                obj.Description = loc["Desc.Users.CloneableDCs"];
-            }
-            else if (obj.Name == "Protected Users")
-            {
-                obj.Description = loc["Desc.Users.ProtectedUsers"];
-            }
-            else if (obj.Name == "Key Admins")
-            {
-                obj.Description = loc["Desc.Users.KeyAdmins"];
-            }
-            else if (obj.Name == "Enterprise Key Admins")
-            {
-                obj.Description = loc["Desc.Users.EnterpriseKeyAdmins"];
-            }
-            else if (obj.Name == "DnsUpdateProxy")
-            {
-                obj.Description = loc["Desc.Users.DnsUpdateProxy"];
-            }
-            else if (obj.Name == "DefaultAccount")
-            {
-                obj.Description = loc["Desc.Users.DefaultAccount"];
-            }
-            else if (obj.Name == "WDAGUtilityAccount")
-            {
-                obj.Description = loc["Desc.Users.WDAGUtilityAccount"];
-            }
-            else if (obj.Name == "Computers" && obj.Type == ADObjectType.Container)
-            {
-                obj.Description = loc["Desc.Computers"];
-            }
-            else if (obj.Name == "WORKSTATION-01")
-            {
-                obj.Description = loc["Desc.Computers.Workstation"];
-            }
-            // ── Sample structure OUs / objects ──────────────────────────────
-            else if (obj.Name == "Admin" && obj.Type == ADObjectType.OrganizationalUnit)
-            {
-                obj.Description = loc["Desc.Sample.AdminOU"];
-            }
-            else if (obj.Name == "Administrator" && obj.Parent?.Name == "Admin" && obj.Type == ADObjectType.User)
-            {
-                obj.Description = loc["Desc.Sample.AdminUser"];
-            }
-            else if (obj.Name == "Domain Admins" && obj.Parent?.Name == "Admin" && obj.Type == ADObjectType.Group)
-            {
-                obj.Description = loc["Desc.Sample.AdminDomainAdmins"];
-            }
-            else if (obj.Name == "Servers" && obj.Type == ADObjectType.OrganizationalUnit)
-            {
-                obj.Description = loc["Desc.Sample.ServersOU"];
-            }
-            else if (obj.Name == "SRV-FILE-01")
-            {
-                obj.Description = loc["Desc.Sample.FileServer"];
-            }
-            else if (obj.Name == "SRV-APP-01")
-            {
-                obj.Description = loc["Desc.Sample.AppServer"];
-            }
-            else if (obj.Name == "Users" && obj.Type == ADObjectType.OrganizationalUnit)
-            {
-                obj.Description = loc["Desc.Sample.UsersOU"];
-            }
-            else if (obj.Name == "jdoe")
-            {
-                obj.Description = loc["Desc.Sample.UserJdoe"];
-            }
-            else if (obj.Name == "asmith")
-            {
-                obj.Description = loc["Desc.Sample.UserAsmith"];
-            }
-            else if (obj.Name == "Workstations" && obj.Type == ADObjectType.OrganizationalUnit)
-            {
-                obj.Description = loc["Desc.Sample.WorkstationsOU"];
-            }
-            else if (obj.Name == "WKS-001")
-            {
-                obj.Description = loc["Desc.Sample.Workstation1"];
-            }
-            else if (obj.Name == "svc-webapp" && obj.Type == ADObjectType.GMSA)
-            {
-                obj.Description = loc["Desc.Sample.GMSA"];
-            }
-            else if (obj.Name == "PSO-Tier0-Admins")
-            {
-                obj.Description = loc["Desc.Sample.PSOAdmin"];
-            }
-            else if (obj.Name == "PSO-Standard-Users")
-            {
-                obj.Description = loc["Desc.Sample.PSOUsers"];
-            }
-            // ────────────────────────────────────────────────────────────────
-            else if (obj.Name == "Domain Controllers" && obj.Type == ADObjectType.OrganizationalUnit)
-            {
-                obj.Description = loc["Desc.Sample.DomainControllersOU"];
-            }
-            else if (obj.Name == "DC01")
-            {
-                obj.Description = loc["Desc.Sample.DC01"];
-            }
-            else if (obj.Name == "System" && obj.Type == ADObjectType.Container)
-            {
-                obj.Description = loc["Desc.Sample.SystemContainer"];
-            }
-            else if (obj.Name == "Password Settings Container")
-            {
-                obj.Description = loc["Desc.Sample.PSOContainer"];
-            }
-            else if (obj.Name == "ForeignSecurityPrincipals")
-            {
-                obj.Description = loc["Desc.ForeignSecurityPrincipals"];
-            }
-            else if (obj.Name == "Policies" && obj.Type == ADObjectType.Container && obj.Parent?.Name == "System")
-            {
-                obj.Description = loc["Desc.GPOPoliciesContainer"];
-            }
-            else if (obj.Name == "Default Domain Policy" && obj.Type == ADObjectType.Policy)
-            {
-                obj.Description = loc["Desc.DefaultDomainPolicy"];
-            }
-            else if (obj.Name == "Default Domain Controllers Policy" && obj.Type == ADObjectType.Policy)
-            {
-                obj.Description = loc["Desc.DefaultDomainControllersPolicy"];
+                obj.Description = loc[key];
             }
 
-            // Parcourir récursivement les enfants
             foreach (var child in obj.Children)
-            {
                 UpdateDescriptionRecursive(child, loc);
-            }
         }
     }
 }

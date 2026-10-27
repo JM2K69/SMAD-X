@@ -148,6 +148,7 @@ namespace SMADX.ViewModels
             StatusMessage = $"Exported {FilteredChanges.Count} row(s) to {outputPath}";
         }
 
-        private static string Escape(string v) => $"\"{v.Replace("\"", "\"\"")}\"";
+        // Les noms viennent des fichiers comparés : pas de formule Excel
+        private static string Escape(string v) => SafeText.CsvCell(v, ",", alwaysQuote: true);
     }
 }

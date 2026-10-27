@@ -12,7 +12,8 @@ namespace SMADX.Services.Labs
     /// <summary>Une copie corrigée : la note, ou pourquoi elle n'a pas pu être corrigée.</summary>
     public sealed record GradedSubmission(string Path, LabSubmission? Submission, LabResult? Result, IReadOnlyList<LabIssue> Issues)
     {
-        public string Student => Submission?.Student is { Length: > 0 } s ? s : System.IO.Path.GetFileName(Path);
+        /// <summary>Nom affiché : celui de la copie, ou son fichier ; sur une ligne, sans caractère de contrôle.</summary>
+        public string Student => SafeText.Name(Submission?.Student is { Length: > 0 } s && SafeText.Name(s).Length > 0 ? s : System.IO.Path.GetFileName(Path));
         public bool Graded => Result != null;
         public int Points => Result?.Points ?? 0;
         public int HintsUsed => Submission?.HintsUsed.Count ?? 0;
@@ -76,9 +77,18 @@ namespace SMADX.Services.Labs
                 Add(LabIssueLevel.Warning, "Faite sur un autre domaine de départ que votre exemplaire de l'exercice : la note peut être fausse.",
                                            "Done on another starting domain than your copy of the lab: the grade may be wrong.");
 
-            var start = new LabService().PrepareStart(lab, submission.StartedOn);
-            var result = new LabGrader().Grade(lab, start.Domain, submission.Work.Domain, submission.SavedAt);
-            return new GradedSubmission(path, submission, result, issues);
+            try
+            {
+                var start = new LabService().PrepareStart(lab, submission.StartedOn);
+                var result = new LabGrader().Grade(lab, start.Domain, submission.Work.Domain, submission.SavedAt);
+                return new GradedSubmission(path, submission, result, issues);
+            }
+            catch (Exception ex)
+            {
+                // Une copie qui fait échouer la correction ne bloque pas le reste de la classe
+                Add(LabIssueLevel.Error, $"Copie impossible à corriger : {ex.Message}", $"Submission could not be graded: {ex.Message}");
+                return new GradedSubmission(path, submission, null, issues);
+            }
         }
 
         /// <summary>Part minimale des objets du départ qui portent les identifiants de la session pour dire « même session ».</summary>
@@ -177,8 +187,7 @@ namespace SMADX.Services.Labs
             var french = !culture.StartsWith("en", StringComparison.OrdinalIgnoreCase);
             var separator = french ? ";" : ",";
             var numbers = CultureInfo.GetCultureInfo(french ? "fr-FR" : "en-US");
-            string Cell(string value) =>
-                value.Contains(separator) || value.Contains('"') || value.Contains('\n') ? $"\"{value.Replace("\"", "\"\"")}\"" : value;
+            string Cell(string value) => SafeText.CsvCell(value, separator);
 
             var sb = new StringBuilder();
             var header = new List<string>
@@ -194,7 +203,7 @@ namespace SMADX.Services.Labs
             {
                 var cells = new List<string>
                 {
-                    r.Student, Path.GetFileName(r.Path), r.Submission?.SavedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? "",
+                    r.Student, SafeText.Name(Path.GetFileName(r.Path)), r.Submission?.SavedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? "",
                     r.Graded ? r.Points.ToString(numbers) : "", lab.MaxPoints.ToString(numbers),
                     r.Graded && lab.MaxPoints > 0 ? (100.0 * r.Points / lab.MaxPoints).ToString("0.#", numbers) : "", r.HintsUsed.ToString(numbers)
                 };
@@ -211,7 +220,8 @@ namespace SMADX.Services.Labs
             var numbers = CultureInfo.GetCultureInfo(culture.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "en-US" : "fr-FR");
             string N(double value) => value.ToString("0.#", numbers);
             string Pct(double rate) => (100 * rate).ToString("0", numbers) + " %";
-            string Cell(string text) => text.Replace("|", "\\|").ReplaceLineEndings(" ");
+            // Le nom vient de la copie : ni lien, ni image, ni balise dans le bilan
+            string Cell(string text) => SafeText.Markdown(text);
             var graded = rows.Where(r => r.Graded).ToList();
 
             var sb = new StringBuilder();

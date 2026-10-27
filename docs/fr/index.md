@@ -65,8 +65,8 @@ Aucune infrastructure n'est nécessaire : tout se passe dans l'application, sur 
 | **Installation** | un seul fichier exécutable, tout inclus |
 | **Langues** | français et anglais, changement à chaud |
 | **Format** | `.smad-x.json` (domaine), `.smadx-lab.json` (exercice) |
-| **Exports** | JSON, script PowerShell, rapport Markdown / DOCX / PDF, image PNG |
-| **Licence** | usage non commercial |
+| **Exports** | JSON, rapport Markdown / DOCX / PDF, image PNG |
+| **Licence** | Apache 2.0, y compris en formation payante |
 
 !!! warning "Un simulateur, pas un outil d'administration"
-    SMAD-X ne se connecte jamais à un annuaire réel. L'import se fait par un script PowerShell que vous lancez vous-même, et l'export produit un script que vous relisez avant toute exécution.
+    SMAD-X ne se connecte jamais à un annuaire réel. L'import se fait par un script PowerShell que vous lancez vous-même et qui ne fait que lire ; SMAD-X ne produit aucun script qui modifie un annuaire.

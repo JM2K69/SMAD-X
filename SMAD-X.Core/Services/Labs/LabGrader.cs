@@ -153,7 +153,8 @@ namespace SMADX.Services.Labs
                                                               && (check.ObjectType is null || o.Type == check.ObjectType));
             if (original == null) return Fail("Lab.Feedback.Missing", check.Object!);
 
-            var touched = changes.Where(c => string.Equals(c.DistinguishedName, original.DistinguishedName, StringComparison.OrdinalIgnoreCase)).ToList();
+            var touched = changes.Where(c => string.Equals(c.DistinguishedName, original.DistinguishedName, StringComparison.OrdinalIgnoreCase)
+                                             || string.Equals(c.PreviousDistinguishedName, original.DistinguishedName, StringComparison.OrdinalIgnoreCase)).ToList();
             return touched.Count == 0
                 ? Ok()
                 : Fail("Lab.Feedback.Modified", original.Name,

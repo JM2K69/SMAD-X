@@ -42,9 +42,11 @@
 
 SMAD-X enforces AD rules: forbidden characters, length, unique names, and allowed child types (a container cannot hold OUs, for example).
 
+A new name is confirmed with **Enter** or by leaving the field; **Esc** cancels it. As in the directory, renaming an object updates everything that refers to it: group memberships, PSOs, linked GPOs, owners, delegations and site domain controllers. Deleting an object removes these references; the status bar says how many were touched.
+
 ## Each object's sheet
 
-Every object has a **Markdown description**. Built-in objects come with sheets written in English and French: role, security notes, recommendations. **Edit** switches to editing, and **File > Import Description (.md)...** replaces the sheet with a file.
+Every object has a **Markdown description**. Built-in objects come with sheets written in English and French: role, security notes, recommendations. Switching language translates these original sheets, never the ones you wrote or changed. **Edit** switches to editing, and **File > Import Description (.md)...** replaces the sheet with a file.
 
 ## AD sites
 

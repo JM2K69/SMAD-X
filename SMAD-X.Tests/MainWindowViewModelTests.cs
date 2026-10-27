@@ -180,14 +180,17 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
-    public async Task ExportToPowerShell_WritesScript()
+    public async Task GenerateImportScript_WritesReadOnlyScript()
     {
         var path = TempFile(".ps1");
         _dialogs.SavePath = path;
 
-        await _vm.ExportToPowerShellCommand.ExecuteAsync(null);
+        await _vm.GenerateImportScriptCommand.ExecuteAsync(null);
 
-        Assert.Contains("New-ADOrganizationalUnitIfNotExists", await File.ReadAllTextAsync(path));
+        // SMAD-X lit un annuaire réel, il ne l'écrit jamais
+        var script = await File.ReadAllTextAsync(path);
+        Assert.Contains("Build-NodeJson", script);
+        Assert.DoesNotMatch(@"\b(New|Set|Remove|Add)-AD\w+", script);
     }
 
     [Fact]
@@ -252,6 +255,66 @@ public class MainWindowViewModelTests
         _vm.ConfirmRenameCommand.Execute("Renamed");
 
         Assert.All(ou.Children, c => Assert.Contains("OU=Renamed,", c.Data.DistinguishedName));
+    }
+
+    [Fact]
+    public void RenamingFromTheDetailsPanel_IsValidatedAndRewritesReferences()
+    {
+        var group = Node("Domain Users");
+        var members = Flatten(_vm.RootObject!).Where(o => o.MemberOf.Contains("Domain Users")).ToList();
+        _vm.SelectedNode = group;
+
+        _vm.SelectedObjectName = "a,b";
+        Assert.Equal("Domain Users", group.Data.Name);
+
+        _vm.SelectedObjectName = "Utilisateurs du domaine";
+        Assert.Equal("Utilisateurs du domaine", group.Data.Name);
+        Assert.StartsWith("CN=Utilisateurs du domaine,", group.Data.DistinguishedName);
+        Assert.NotEmpty(members);
+        Assert.All(members, m => Assert.Contains("Utilisateurs du domaine", m.MemberOf));
+    }
+
+    [Fact]
+    public void PastingTwice_GivesDistinctNames()
+    {
+        _vm.SelectedNode = Node("Domain Admins");
+        _vm.CopyObjectCommand.Execute(null);
+        var users = Node("Users");
+
+        _vm.SelectedNode = users;
+        _vm.PasteObjectCommand.Execute(null);
+        _vm.SelectedNode = users;
+        _vm.PasteObjectCommand.Execute(null);
+
+        var copies = users.Data.Children.Where(c => c.Name.StartsWith("Domain Admins (Copy)")).Select(c => c.Name).ToList();
+        Assert.Equal(["Domain Admins (Copy)", "Domain Admins (Copy) 2"], copies);
+    }
+
+    [Fact]
+    public void DeletingAGroup_RemovesTheMembershipsThatNamedIt()
+    {
+        Assert.Contains(Flatten(_vm.RootObject!), o => o.MemberOf.Contains("Domain Users"));
+        _vm.SelectedNode = Node("Domain Users");
+
+        _vm.DeleteObjectCommand.Execute(null);
+
+        Assert.DoesNotContain(Flatten(_vm.RootObject!), o => o.MemberOf.Contains("Domain Users"));
+    }
+
+    [Fact]
+    public void AfterUndo_ShowInTreeAndTheGraphFollowTheCurrentDomain()
+    {
+        var krbtgt = Node("krbtgt").Data;            // objet vu par une fenêtre ouverte avant Annuler
+        _vm.ShowGraphViewCommand.Execute(null);
+        _vm.SelectedNode = Node("Domain Users");
+        _vm.ConfirmRenameCommand.Execute("Utilisateurs du domaine");
+
+        _vm.UndoCommand.Execute(null);
+
+        Assert.NotSame(krbtgt, Node("krbtgt").Data);
+        _vm.SelectObject(krbtgt);
+        Assert.Same(Node("krbtgt"), _vm.SelectedNode);
+        Assert.Same(_vm.RootObject, _dialogs.LastGraph!.Root);
     }
 
     [Fact]

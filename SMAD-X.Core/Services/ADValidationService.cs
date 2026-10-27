@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace SMADX.Services
 {
@@ -12,17 +13,25 @@ namespace SMADX.Services
         /// </summary>
         public bool ValidateName(string name, out string? errorMessage)
         {
+            var loc = LocalizationService.Instance;
             errorMessage = null;
 
             if (string.IsNullOrWhiteSpace(name))
             {
-                errorMessage = "Le nom ne peut pas être vide.";
+                errorMessage = loc["Validation.Name.Empty"];
                 return false;
             }
 
             if (name.Length > 64)
             {
-                errorMessage = "Le nom ne peut pas dépasser 64 caractères.";
+                errorMessage = loc["Validation.Name.TooLong"];
+                return false;
+            }
+
+            // Un saut de ligne ou une tabulation dans un nom ne s'affiche pas dans l'arbre
+            if (name.Any(char.IsControl))
+            {
+                errorMessage = loc["Validation.Name.Control"];
                 return false;
             }
 
@@ -33,7 +42,7 @@ namespace SMADX.Services
             {
                 if (name.Contains(invalidChar))
                 {
-                    errorMessage = $"Le nom ne peut pas contenir le caractère '{invalidChar}'.";
+                    errorMessage = string.Format(loc["Validation.Name.InvalidChar"], invalidChar);
                     return false;
                 }
             }

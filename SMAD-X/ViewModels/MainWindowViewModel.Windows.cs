@@ -48,7 +48,7 @@ namespace SMADX.ViewModels
         private void ShowGraphView()
         {
             if (RootObject == null) return;
-            _dialogs.ShowGraph(new GraphViewModel(RootObject));
+            _dialogs.ShowGraph(new GraphViewModel(() => RootObject));
         }
 
         [RelayCommand]

@@ -67,6 +67,34 @@ namespace SMADX.Services
             return $"[{key}]"; // Clé manquante
         }
 
+        /// <summary>Langues disponibles (fr-FR, en-US).</summary>
+        public IEnumerable<string> Cultures => _translations.Keys;
+
+        private Dictionary<string, string>? _descriptionKeys;
+
+        /// <summary>
+        /// Clé « Desc.* » dont le texte, dans l'une des langues, est <paramref name="text"/> : null pour une
+        /// description écrite à la main, qui ne doit pas être remplacée au changement de langue.
+        /// </summary>
+        public string? FindDescriptionKey(string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return null;
+            if (_descriptionKeys == null)
+            {
+                _descriptionKeys = new Dictionary<string, string>();
+                foreach (var dictionary in _translations.Values)
+                    foreach (var (key, value) in dictionary)
+                        if (key.StartsWith("Desc.", StringComparison.Ordinal) && !string.IsNullOrWhiteSpace(value))
+                            _descriptionKeys.TryAdd(Normalize(value), key);
+            }
+            return _descriptionKeys.GetValueOrDefault(Normalize(text));
+        }
+
+        /// <summary>Même texte aux fins de ligne et aux blancs d'extrémité près.</summary>
+        public static bool SameText(string? a, string? b) => Normalize(a ?? string.Empty) == Normalize(b ?? string.Empty);
+
+        private static string Normalize(string text) => text.ReplaceLineEndings("\n").Trim();
+
         private LocalizationService()
         {
             _currentCulture = CultureInfo.CurrentUICulture;
@@ -142,7 +170,6 @@ namespace SMADX.Services
                 ["Menu.File.Open"] = "Ouvrir...",
                 ["Menu.File.Save"] = "Enregistrer...",
                 ["Menu.File.ExportJson"] = "Exporter en JSON...",
-                ["Menu.File.ExportPowerShell"] = "Exporter en PowerShell...",
                 ["Menu.File.GenerateImportScript"] = "Générer le script d'import depuis AD...",
                 ["Menu.File.Exit"] = "Quitter",
 
@@ -475,7 +502,6 @@ namespace SMADX.Services
                 ["Status.Saved"] = "Structure sauvegardée : {0}",
                 ["Status.Loaded"] = "Structure chargée : {0}",
                 ["Status.ExportedJson"] = "Exporté en JSON : {0}",
-                ["Status.ExportedPowerShell"] = "Exporté en PowerShell : {0}",
                 ["Status.GeneratedImportScript"] = "Script d'import généré : {0}  —  Exécutez-le sur votre contrôleur de domaine",
                 ["Status.ErrorSave"] = "Erreur lors de la sauvegarde",
                 ["Status.ErrorLoad"] = "Erreur lors du chargement",
@@ -483,7 +509,6 @@ namespace SMADX.Services
                 ["Status.ErrorLoadTooNew"] = "Ce fichier vient d'une version plus récente de SMAD-X (format v{0}, cette version lit jusqu'au format v{1}). Mettez SMAD-X à jour pour l'ouvrir.",
                 ["Status.ErrorLoadInvalid"] = "Ce fichier n'est pas un document SMAD-X valide : {0}",
                 ["Status.ErrorExportJson"] = "Erreur lors de l'export JSON",
-                ["Status.ErrorExportPowerShell"] = "Erreur lors de l'export PowerShell",
                 ["Status.ErrorGenerateImportScript"] = "Erreur lors de la génération du script d'import",
                 ["Status.Error"] = "Erreur : {0}",
 
@@ -506,8 +531,17 @@ namespace SMADX.Services
                 ["Dialog.Save.Title"] = "Sauvegarder la structure AD",
                 ["Dialog.Load.Title"] = "Charger une structure AD",
                 ["Dialog.ExportJson.Title"] = "Exporter la structure en JSON",
-                ["Dialog.ExportPowerShell.Title"] = "Exporter en script PowerShell",
                 ["Dialog.GenerateImportScript.Title"] = "Générer le script PowerShell d'import depuis AD",
+                ["Validation.Name.Empty"] = "Le nom ne peut pas être vide.",
+                ["Validation.Name.TooLong"] = "Le nom ne peut pas dépasser 64 caractères.",
+                ["Validation.Name.Control"] = "Le nom ne peut pas contenir de saut de ligne ni de tabulation.",
+                ["Validation.Name.InvalidChar"] = "Le nom ne peut pas contenir le caractère « {0} ».",
+                ["Validation.Name.Duplicate"] = "Un objet nommé « {0} » existe déjà à cet endroit.",
+                ["Status.Renamed"] = "Renommé en : {0}",
+                ["Status.ObjectGone"] = "« {0} » n'existe plus dans le domaine : relancez l'analyse.",
+                ["Status.Deleted"] = "Objet supprimé : {0}",
+                ["Status.ReferencesUpdated"] = " ({0} référence(s) mise(s) à jour)",
+                ["Status.ReferencesRemoved"] = " ({0} référence(s) retirée(s) : appartenances, PSO, GPO liées, délégations, propriétaires)",
                 ["Dialog.ExportPng.Title"] = "Exporter l'arborescence en PNG",
 
                 // Types de fichiers
@@ -621,12 +655,12 @@ namespace SMADX.Services
                 ["About.Feature1"] = "• Structure AD par défaut complète et fidèle (Builtin, Users, Computers, System, GPOs, PSOs)",
                 ["About.Feature2"] = "• Vue graphe de relations interactive (force-directed) avec filtres par type et tier",
                 ["About.Feature3"] = "• Gestion des GPO (liaisons), PSO (Password Settings Objects) et relations MemberOf",
-                ["About.Feature4"] = "• Export JSON natif et scripts PowerShell prêts à déployer (structure + import AD réel)",
+                ["About.Feature4"] = "• Format JSON natif et import d'un AD réel par un script PowerShell en lecture seule",
                 ["About.Feature5"] = "• Topologie des sites AD (sites, sous-réseaux, DCs, liens de réplication, GPOs liées)",
                 ["About.Feature6"] = "• Export de rapports de documentation (Markdown, DOCX, PDF) avec sélection de thème",
                 ["About.Feature7"] = "• Modèle de tiering Microsoft (Tier 0/1/2) et visualiseur de délégations avec export CSV",
                 ["About.Feature8"] = "• Support multilingue (Français/English), thème Clair/Sombre, descriptions Markdown enrichies",
-                ["About.Copyright"] = "© 2025-2026 SMAD-X - Tous droits réservés",
+                ["About.Copyright"] = "© 2025-2026 Jérôme Bezet-Torres — licence Apache 2.0",
                 ["About.Close"] = "Fermer",
 
                 // Sites AD
@@ -713,7 +747,6 @@ namespace SMADX.Services
                 ["Menu.File.Open"] = "Open...",
                 ["Menu.File.Save"] = "Save...",
                 ["Menu.File.ExportJson"] = "Export to JSON...",
-                ["Menu.File.ExportPowerShell"] = "Export to PowerShell...",
                 ["Menu.File.GenerateImportScript"] = "Generate AD Import Script...",
                 ["Menu.File.Exit"] = "Exit",
 
@@ -1044,7 +1077,6 @@ namespace SMADX.Services
                 ["Status.Saved"] = "Structure saved: {0}",
                 ["Status.Loaded"] = "Structure loaded: {0}",
                 ["Status.ExportedJson"] = "Exported to JSON: {0}",
-                ["Status.ExportedPowerShell"] = "Exported to PowerShell: {0}",
                 ["Status.GeneratedImportScript"] = "Import script generated: {0}  —  Run it on your domain controller",
                 ["Status.ErrorSave"] = "Error saving structure",
                 ["Status.ErrorLoad"] = "Error loading structure",
@@ -1052,7 +1084,6 @@ namespace SMADX.Services
                 ["Status.ErrorLoadTooNew"] = "This file comes from a newer version of SMAD-X (format v{0}; this version reads up to format v{1}). Update SMAD-X to open it.",
                 ["Status.ErrorLoadInvalid"] = "This file is not a valid SMAD-X document: {0}",
                 ["Status.ErrorExportJson"] = "Error exporting to JSON",
-                ["Status.ErrorExportPowerShell"] = "Error exporting to PowerShell",
                 ["Status.ErrorGenerateImportScript"] = "Error generating import script",
                 ["Status.Error"] = "Error: {0}",
 
@@ -1075,8 +1106,17 @@ namespace SMADX.Services
                 ["Dialog.Save.Title"] = "Save AD Structure",
                 ["Dialog.Load.Title"] = "Load AD Structure",
                 ["Dialog.ExportJson.Title"] = "Export Structure to JSON",
-                ["Dialog.ExportPowerShell.Title"] = "Export to PowerShell Script",
                 ["Dialog.GenerateImportScript.Title"] = "Generate PowerShell AD Import Script",
+                ["Validation.Name.Empty"] = "The name cannot be empty.",
+                ["Validation.Name.TooLong"] = "The name cannot be longer than 64 characters.",
+                ["Validation.Name.Control"] = "The name cannot contain a line break or a tab.",
+                ["Validation.Name.InvalidChar"] = "The name cannot contain the character \"{0}\".",
+                ["Validation.Name.Duplicate"] = "An object named \"{0}\" already exists here.",
+                ["Status.Renamed"] = "Renamed to: {0}",
+                ["Status.ObjectGone"] = "\"{0}\" no longer exists in the domain: run the analysis again.",
+                ["Status.Deleted"] = "Object deleted: {0}",
+                ["Status.ReferencesUpdated"] = " ({0} reference(s) updated)",
+                ["Status.ReferencesRemoved"] = " ({0} reference(s) removed: memberships, PSOs, linked GPOs, delegations, owners)",
                 ["Dialog.ExportPng.Title"] = "Export Tree to PNG",
 
                 // File types
@@ -1190,12 +1230,12 @@ namespace SMADX.Services
                 ["About.Feature1"] = "• Complete default AD structure faithful to a fresh domain (Builtin, Users, Computers, System, GPOs, PSOs)",
                 ["About.Feature2"] = "• Interactive force-directed graph view with type and tier filters",
                 ["About.Feature3"] = "• GPO link management, PSO (Password Settings Objects) and MemberOf relationships",
-                ["About.Feature4"] = "• Native JSON export and ready-to-deploy PowerShell scripts (structure + real AD import)",
+                ["About.Feature4"] = "• Native JSON format and real AD import through a read-only PowerShell script",
                 ["About.Feature5"] = "• AD Sites topology (sites, subnets, DCs, replication links, linked GPOs)",
                 ["About.Feature6"] = "• Documentation report export (Markdown, DOCX, PDF) with theme selection",
                 ["About.Feature7"] = "• Microsoft tiering model (Tier 0/1/2) and delegations viewer with CSV export",
                 ["About.Feature8"] = "• Multilingual support (Français/English), Light/Dark theme, rich Markdown descriptions",
-                ["About.Copyright"] = "© 2025-2026 SMAD-X - All rights reserved",
+                ["About.Copyright"] = "© 2025-2026 Jérôme Bezet-Torres — Apache License 2.0",
                 ["About.Close"] = "Close",
 
                 // AD Sites

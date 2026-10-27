@@ -54,7 +54,6 @@ namespace SMADX.Views
                 (Key.O, true, false)      => vm.LoadFromFileCommand,
                 (Key.S, true, false)      => vm.IsLabMode ? vm.SaveSubmissionCommand : vm.SaveToFileCommand,
                 (Key.E, true, false)      => vm.ExportToJsonCommand,
-                (Key.P, true, false)      => vm.ExportToPowerShellCommand,
                 (Key.I, true, false)      => vm.GenerateImportScriptCommand,
                 (Key.R, true, true)       => vm.ExportReportCommand,
                 (Key.M, true, true)       => vm.ImportDescriptionCommand,
@@ -80,6 +79,42 @@ namespace SMADX.Views
                 command.Execute(null);
                 e.Handled = true;
             }
+        }
+
+        /// <summary>Entrée valide le nouveau nom, Échap reprend l'ancien ; le focus revient à l'arbre.</summary>
+        private void OnObjectNameKeyDown(object? sender, KeyEventArgs e)
+        {
+            if (sender is not TextBox box || DataContext is not MainWindowViewModel vm || e.Key is not (Key.Enter or Key.Escape))
+                return;
+
+            if (e.Key == Key.Enter)
+                CommitObjectName(box, vm);
+            else
+                box.SetCurrentValue(TextBox.TextProperty, vm.SelectedObjectName);
+            if (vm.SelectedNode != null)
+                vm.SelectedNode.IsEditing = false;
+            // Retour à l'élément sélectionné de l'arbre, pour enchaîner au clavier
+            var tree = this.FindControl<TreeView>("MainTreeView");
+            if (tree?.TreeContainerFromItem(vm.SelectedNode!) is Control item)
+                item.Focus();
+            e.Handled = true;
+        }
+
+        private void OnObjectNameLostFocus(object? sender, RoutedEventArgs e)
+        {
+            if (sender is TextBox box && DataContext is MainWindowViewModel vm)
+                CommitObjectName(box, vm);
+        }
+
+        /// <summary>
+        /// Transmet le nom saisi ; s'il est refusé, le champ reprend celui de l'objet. Si la sélection a déjà
+        /// changé, le champ affiche le nom du nouvel objet et rien n'est renommé.
+        /// SetCurrentValue garde la liaison du champ, qu'une affectation de Text remplacerait.
+        /// </summary>
+        private static void CommitObjectName(TextBox box, MainWindowViewModel vm)
+        {
+            vm.SelectedObjectName = box.Text ?? string.Empty;
+            box.SetCurrentValue(TextBox.TextProperty, vm.SelectedObjectName);
         }
 
         private async void OnExportTreePngClick(object? sender, RoutedEventArgs e)

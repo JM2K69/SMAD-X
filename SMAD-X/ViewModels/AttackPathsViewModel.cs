@@ -122,7 +122,7 @@ namespace SMADX.ViewModels
                 .Where(n => n.Object != null)
                 .Select(n => n.Id)
                 .ToList();
-            _dialogs.ShowGraph(new GraphViewModel(domain, ids));
+            _dialogs.ShowGraph(new GraphViewModel(_getDomain, ids));
         }
     }
 }

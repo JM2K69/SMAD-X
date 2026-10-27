@@ -28,10 +28,11 @@ namespace SMADX.ViewModels
         /// <summary>Badge sur chaque nœud : gravité du constat le plus grave et liste des règles en échec.</summary>
         public void ApplyAuditBadges(AuditReport report)
         {
-            var byObject = report.Findings.GroupBy(f => f.Object).ToDictionary(g => g.Key, g => g.ToList());
+            // Par identifiant : après Annuler, l'arbre porte de nouveaux objets, avec les mêmes identifiants
+            var byObject = report.Findings.GroupBy(f => f.Object.Id).ToDictionary(g => g.Key, g => g.ToList());
             foreach (var node in RootNodes.SelectMany(AllNodes))
             {
-                if (byObject.TryGetValue(node.Data, out var findings))
+                if (byObject.TryGetValue(node.Data.Id, out var findings))
                 {
                     var worst = findings.Min(f => f.Severity);
                     node.AuditSeverity = worst;
@@ -46,11 +47,19 @@ namespace SMADX.ViewModels
             }
         }
 
-        /// <summary>Sélectionne l'objet dans l'arbre en dépliant ses parents et en levant un éventuel filtre de recherche.</summary>
+        /// <summary>
+        /// Sélectionne l'objet dans l'arbre en dépliant ses parents et en levant un éventuel filtre de recherche.
+        /// L'objet est retrouvé par son identifiant : un constat calculé avant Annuler désigne encore le bon nœud.
+        /// </summary>
         public void SelectObject(ADObject target)
         {
-            var node = RootNodes.SelectMany(AllNodes).FirstOrDefault(n => n.Data == target);
-            if (node == null) return;
+            var nodes = RootNodes.SelectMany(AllNodes).ToList();
+            var node = nodes.FirstOrDefault(n => n.Data == target) ?? nodes.FirstOrDefault(n => n.Data.Id == target.Id);
+            if (node == null)
+            {
+                StatusMessage = string.Format(Loc["Status.ObjectGone"], target.Name);
+                return;
+            }
 
             if (!node.IsVisible)
                 SearchText = string.Empty;

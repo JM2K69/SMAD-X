@@ -44,11 +44,6 @@ La copie d'un apprenant (`"Format": "smadx-submission"`) contient son nom (`Stud
 
 `SessionId` identifie la session de travail, tirée au hasard à l'ouverture de l'exercice : les identifiants (`Id`) des objets du domaine de travail en sont dérivés. `Seal` est le sceau : le SHA-256, en hexadécimal, de la copie sans la clé `Seal`, écrite en JSON compact. Il ne dépend pas de la mise en page, mais du moindre changement de contenu.
 
-## Les scripts PowerShell
+## Le script PowerShell d'import
 
-| Script | Produit par | Rôle |
-|---|---|---|
-| Export | **Fichier > Exporter en PowerShell...** | recrée la structure dans un AD |
-| Import | **Fichier > Générer le script d'import depuis AD...** | lit un AD et écrit un `.smad-x.json` |
-
-Voir [Importer et exporter](export.md).
+**Fichier > Générer le script d'import depuis AD...** produit un script qui lit un AD et écrit un `.smad-x.json`. SMAD-X ne produit aucun script qui modifie un annuaire. Voir [Importer et exporter](export.md).

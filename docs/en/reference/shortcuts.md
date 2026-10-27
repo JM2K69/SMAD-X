@@ -11,7 +11,6 @@ The list is also in the application: **Help > Keyboard shortcuts...**
 | `Ctrl+O` | Open |
 | `Ctrl+S` | Save (in lab mode: save my submission) |
 | `Ctrl+E` | Export to JSON |
-| `Ctrl+P` | Export to PowerShell |
 | `Ctrl+I` | Generate AD import script |
 | `Ctrl+Shift+R` | Export documentation report |
 | `Ctrl+Shift+M` | Import description (.md) |

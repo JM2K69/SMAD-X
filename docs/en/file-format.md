@@ -44,11 +44,6 @@ A learner's submission (`"Format": "smadx-submission"`) holds their name (`Stude
 
 `SessionId` identifies the work session, drawn at random when the lab opens: the identifiers (`Id`) of the objects in the working domain are derived from it. `Seal` is the seal: the SHA-256, in hexadecimal, of the submission without the `Seal` key, written as compact JSON. It does not depend on the layout, only on content: the slightest change breaks it.
 
-## PowerShell scripts
+## The PowerShell import script
 
-| Script | Produced by | Purpose |
-|---|---|---|
-| Export | **File > Export to PowerShell...** | recreates the structure in an AD |
-| Import | **File > Generate AD Import Script...** | reads an AD and writes a `.smad-x.json` |
-
-See [Import and export](export.md).
+**File > Generate AD Import Script...** produces a script that reads an AD and writes a `.smad-x.json`. SMAD-X produces no script that changes a directory. See [Import and export](export.md).

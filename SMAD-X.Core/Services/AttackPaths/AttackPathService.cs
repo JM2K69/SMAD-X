@@ -170,7 +170,8 @@ namespace SMADX.Services.AttackPaths
                     foreach (var target in Descendants(container).Where(o => o.Type == ADObjectType.User && !o.AdminCount))
                         yield return new AttackEdge(trustee, Node(target), AttackEdgeKind.ResetPassword, string.Format(loc["AttackPath.Edge.ResetPassword"], d.TrusteeName, target.Name, container.Name));
                 }
-                else if (d.RightCategory == RightCategory.AttributeWrite && d.Right.EndsWith(":member", StringComparison.OrdinalIgnoreCase))
+                else if (d.RightCategory == RightCategory.AttributeWrite
+                         && (d.Right.EndsWith(":member", StringComparison.OrdinalIgnoreCase) || d.Right.Equals("GenericWrite", StringComparison.OrdinalIgnoreCase)))
                 {
                     foreach (var target in Descendants(container).Where(o => o.Type == ADObjectType.Group && !o.AdminCount))
                         yield return new AttackEdge(trustee, Node(target), AttackEdgeKind.WriteMembers, string.Format(loc["AttackPath.Edge.WriteMembers"], d.TrusteeName, target.Name, container.Name));

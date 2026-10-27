@@ -62,6 +62,38 @@ public class ADDiffServiceTests
     }
 
     [Fact]
+    public void SiblingsWithTheSameDn_DoNotThrow()
+    {
+        // Un fichier retouché à la main peut contenir deux frères de même nom
+        var before = BuildSmallDomain();
+        var after = BuildSmallDomain();
+        Add(Find(before, "Corp"), new ADObject("jdoe", ADObjectType.User));
+        Add(Find(after, "Corp"), new ADObject("jdoe", ADObjectType.User));
+        Add(Find(after, "Corp"), new ADObject("jdoe", ADObjectType.User));
+
+        var change = Assert.Single(Compare(before, after));
+
+        Assert.Equal(ChangeType.Added, change.ChangeType);
+        Assert.Equal("CN=jdoe,OU=Corp,DC=contoso,DC=com", change.DistinguishedName);
+    }
+
+    [Fact]
+    public void RenamedObject_IsOneChangeThatKeepsItsFormerDn()
+    {
+        var before = BuildSmallDomain();
+        var after = BuildSmallDomain();
+        Find(after, "Helpdesk").Id = Find(before, "Helpdesk").Id;
+        Find(after, "Helpdesk").Name = "GG-HelpDesk";
+        UpdateDns(after);
+
+        var change = Assert.Single(Compare(before, after));
+
+        Assert.Equal(ChangeType.Modified, change.ChangeType);
+        Assert.Equal("CN=Helpdesk,OU=Corp,DC=contoso,DC=com", change.PreviousDistinguishedName);
+        Assert.Contains(change.ChangedFields, f => f is { Field: "Name", OldValue: "Helpdesk", NewValue: "GG-HelpDesk" });
+    }
+
+    [Fact]
     public void DelegationBecomingDirect_IsReported()
     {
         var before = BuildSmallDomain();

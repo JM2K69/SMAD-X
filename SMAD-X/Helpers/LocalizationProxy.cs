@@ -32,7 +32,6 @@ namespace SMADX.Helpers
         public string MenuFileOpen => _localizationService["Menu.File.Open"];
         public string MenuFileSave => _localizationService["Menu.File.Save"];
         public string MenuFileExportJson => _localizationService["Menu.File.ExportJson"];
-        public string MenuFileExportPowerShell => _localizationService["Menu.File.ExportPowerShell"];
         public string MenuFileGenerateImportScript => _localizationService["Menu.File.GenerateImportScript"];
         public string MenuFileExit => _localizationService["Menu.File.Exit"];
 

@@ -65,7 +65,7 @@ namespace SMADX.Services.Labs
 
         public LabSubmission ToSubmission(string student, ADRootDocument work, IEnumerable<string> hintsUsed, DateTime now) => new()
         {
-            Student = student.Trim(),
+            Student = SafeText.Name(student),
             LabId = Lab.Id,
             SessionId = SessionId,
             StartedOn = StartedOn,

@@ -42,7 +42,6 @@
                               IsVisible="{Binding #MainWindowRoot.DataContext.IsLabMode}"/>
                     <Separator/>
                     <MenuItem Header="{Binding MenuFileExportJson}" Command="{Binding #MainWindowRoot.DataContext.ExportToJsonCommand}" InputGesture="Ctrl+E"/>
-                    <MenuItem Header="{Binding MenuFileExportPowerShell}" Command="{Binding #MainWindowRoot.DataContext.ExportToPowerShellCommand}" InputGesture="Ctrl+P"/>
                     <MenuItem Header="{Binding MenuFileGenerateImportScript}" Command="{Binding #MainWindowRoot.DataContext.GenerateImportScriptCommand}" InputGesture="Ctrl+I"/>
                     <MenuItem Header="{Binding MenuFileExportReport}" Command="{Binding #MainWindowRoot.DataContext.ExportReportCommand}" InputGesture="Ctrl+Shift+R"/>
                     <MenuItem Header="{Binding MenuFileImportDescription}" Command="{Binding #MainWindowRoot.DataContext.ImportDescriptionCommand}" InputGesture="Ctrl+Shift+M"/>
@@ -495,7 +494,11 @@
                         <StackPanel Grid.Row="1" Spacing="10">
                             <StackPanel Spacing="5">
                                 <TextBlock Text="{Binding DetailsName}" FontWeight="SemiBold"/>
-                                <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedObjectName, Mode=TwoWay}"
+                                <!-- Validé par Entrée ou en quittant le champ, pas à chaque frappe ; Échap annule (voir le code-behind) -->
+                                <TextBox x:Name="ObjectNameBox"
+                                     Text="{Binding #MainWindowRoot.DataContext.SelectedObjectName, Mode=OneWay}"
+                                     KeyDown="OnObjectNameKeyDown"
+                                     LostFocus="OnObjectNameLostFocus"
                                      helpers:FocusExtensions.IsFocused="{Binding #MainWindowRoot.DataContext.SelectedNode.IsEditing, Mode=TwoWay}" />
                             </StackPanel>
 
