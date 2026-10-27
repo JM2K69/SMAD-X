@@ -182,7 +182,7 @@ namespace SMADX.ViewModels
                         {
                             X    = (x1 + x2) / 2 - 35,
                             Y    = (y1 + y2) / 2 - 10,
-                            Text = $"{link.Name}  cost={link.Cost}  {link.ReplicationIntervalMinutes}min",
+                            Text = string.Format(SMADX.Services.LocalizationService.Instance["Sites.Graph.LinkLabel"], link.Name, link.Cost, link.ReplicationIntervalMinutes),
                         });
                     }
                 }
@@ -228,7 +228,7 @@ namespace SMADX.ViewModels
             ? new SolidColorBrush(Color.Parse("#E3A21A"))
             : new SolidColorBrush(Color.Parse("#0078D4"));
 
-        public string Label => $"{Name}\n🌐 {SubnetsText}\n🖥 {DomainControllersText}\n🔗 {LinkedSitesText}\n📄 GPO: {LinkedGPOsText}";
+        public string Label => $"{Name}\n🌐 {SubnetsText}\n🖥 {DomainControllersText}\n🔗 {LinkedSitesText}\n📄 {string.Format(SMADX.Services.LocalizationService.Instance["Sites.Graph.Gpos"], LinkedGPOsText)}";
     }
 
     public class SiteLinkLineViewModel

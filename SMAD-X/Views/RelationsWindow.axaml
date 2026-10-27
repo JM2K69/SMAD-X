@@ -95,7 +95,7 @@
                             BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
                         <Grid ColumnDefinitions="*,30,*,10,Auto" RowDefinitions="Auto,Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0"
-                                       Text="User / Computer"
+                                       Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelUserComputer}"
                                        FontWeight="SemiBold" Margin="0,0,0,4"/>
                             <TextBlock Grid.Row="0" Grid.Column="2"
                                        Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelTargetGroup}"
@@ -103,7 +103,7 @@
                             <ComboBox Grid.Row="1" Grid.Column="0"
                                       SelectedItem="{Binding MembershipSourceObject, Mode=TwoWay}"
                                       ItemsSource="{Binding AvailableUsers}"
-                                      PlaceholderText="Choose a user or computer..."
+                                      PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsChooseUserComputer}"
                                       HorizontalAlignment="Stretch">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:ADObjectSuggestion">
@@ -138,9 +138,9 @@
                     </Border>
 
                     <!-- En-têtes de colonnes -->
-                    <Grid Grid.Row="1" ColumnDefinitions="80,160,160,*">
-                        <Border Grid.Column="0" Classes="RelHeader"><TextBlock Text="Type"/></Border>
-                        <Border Grid.Column="1" Classes="RelHeader"><TextBlock Text="User / Computer"/></Border>
+                    <Grid Grid.Row="1" ColumnDefinitions="100,160,160,*">
+                        <Border Grid.Column="0" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColType}"/></Border>
+                        <Border Grid.Column="1" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelUserComputer}"/></Border>
                         <Border Grid.Column="2" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColGroup}"/></Border>
                         <Border Grid.Column="3" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColRelation}"/></Border>
                     </Grid>
@@ -148,13 +148,13 @@
                     <ListBox Grid.Row="2" ItemsSource="{Binding Memberships}" SelectedItem="{Binding SelectedMembership, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="vm:RelationEntry">
-                                <Grid ColumnDefinitions="80,160,160,*">
+                                <Grid ColumnDefinitions="100,160,160,*">
                                     <Border Grid.Column="0" Classes="RelRow">
                                         <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                             <TextBlock Classes="EmojiIcon"
                                                        Text="{Binding SourceType, Converter={StaticResource ObjectTypeToIconConverter}}"
                                                        FontSize="14" VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding SourceType}"
+                                            <TextBlock Text="{Binding SourceType, Converter={StaticResource LocValue}, ConverterParameter=ObjectType}"
                                                        FontSize="11" FontWeight="SemiBold"
                                                        Foreground="#4FC3F7" VerticalAlignment="Center"/>
                                         </StackPanel>
@@ -193,7 +193,7 @@
                                            FontWeight="SemiBold" Margin="0,0,0,6"/>
                                 <TextBox Grid.Row="1"
                                          Text="{Binding NestingSourceFilter, Mode=TwoWay}"
-                                         PlaceholderText="🔍 Filtrer..."
+                                         PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsFilter}"
                                          Margin="0,0,0,4" Padding="6,4"/>
                                 <Border Grid.Row="2"
                                         BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
@@ -228,7 +228,7 @@
                                            FontWeight="SemiBold" Margin="0,0,0,6"/>
                                 <TextBox Grid.Row="1"
                                          Text="{Binding NestingTargetFilter, Mode=TwoWay}"
-                                         PlaceholderText="🔍 Filtrer..."
+                                         PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsFilter}"
                                          Margin="0,0,0,4" Padding="6,4"/>
                                 <Border Grid.Row="2"
                                         BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"

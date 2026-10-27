@@ -207,6 +207,27 @@ public class AttackPathLabTests
         }
     }
 
+    /// <summary>
+    /// Supprimer le compte au lieu de le corriger coupe le chemin et lève le constat : la garde violée annule
+    /// ces objectifs, et la solution brutale ne rapporte pas plus de la moitié des points.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(Labs))]
+    public void Lab_BruteForceShortcuts_DoNotPay(string culture, string id)
+    {
+        foreach (var guard in Lab(culture, id).Objectives.Where(o => o.Guard && o.Check.Type == LabCheckType.ObjectExists))
+        {
+            var (lab, start, working) = Prepare(culture, id);
+            var target = Flatten(working).First(o => o.Name == guard.Check.Object);
+            target.Parent!.Children.Remove(target);
+
+            var result = Grade(lab, start, working);
+
+            Assert.True(result.Points * 2 <= result.MaxPoints, $"{id} : supprimer {guard.Check.Object} rapporte {result.Points} / {result.MaxPoints}");
+            Assert.All(result.Objectives.Where(o => !o.Objective.Guard && o.Passed), o => Assert.DoesNotContain(guard.Check.Object!, o.Feedback));
+        }
+    }
+
     [Theory]
     [InlineData("02-asrep-roasting")]
     [InlineData("10-attack-chain")]

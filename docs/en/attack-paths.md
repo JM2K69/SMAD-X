@@ -1,6 +1,6 @@
 # Attack paths
 
-The audit lists weaknesses one by one. An attacker **chains** them. **Analyse > Attack paths** (`Ctrl+Shift+K`) answers the question that matters: *who can take control of the domain, and through which steps?*
+The audit lists weaknesses one by one. An attacker **chains** them. **Analysis > Attack paths** (`Ctrl+Shift+K`) answers the question that matters: *who can take control of the domain, and through which steps?*
 
 ![Attack paths window](assets/screens/attack-paths.png)
 

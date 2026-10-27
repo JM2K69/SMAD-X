@@ -37,7 +37,7 @@ Each objective is an automatic check. An objective that is not met explains what
 
 The screenshots show a demo lab built for this documentation and absent from the application. The solutions of the shipped labs are not published.
 
-Labs also include **guard objectives**, already met at the start, which refuse brute-force solutions: deleting the service account, removing the service desk's legitimate delegation, emptying a business group…
+Labs also include **guards**, already met at the start and marked 🛡, which refuse brute-force solutions: deleting the service account, removing the service desk's legitimate delegation, emptying a business group… A guard earns no points. If you break it, the objectives that concerned the protected object no longer count: deleting the vulnerable account does cut the attack path, but it is not a fix.
 
 ## Lab mode
 
@@ -53,7 +53,9 @@ Opened directly on a lab or a submission (double-click, or file name after `SMAD
 - your domain as you left it;
 - the hints viewed and the date of your work.
 
-Each save **seals** the submission: a SHA-256 fingerprint of all its content (name, dates, hints, domain). The domain also carries the mark of **your work session**, drawn at random when the lab opens. A submission edited by hand, handed in under another name or whose domain comes from a classmate is reported to the trainer. Two identical solutions, each done on its own, are not.
+Each save **seals** the submission: a SHA-256 fingerprint of all its content (name, dates, hints, domain). The domain also carries the mark of **your work session**, drawn at random when the lab opens. A submission edited by hand, handed in under another name or whose domain comes from a classmate is usually reported to the trainer (see the limits of these checks in [SMAD-X Studio](studio.md)). Two identical solutions, each done on its own, are not.
+
+SMAD-X also keeps a **recovery copy**: every minute in lab mode, and when closing, your unsaved work is written to a SMAD-X folder. If it closes badly (power cut, crash), the next time the lab opens SMAD-X offers to resume that work. Closing SMAD-X with unsaved changes always asks you to save your submission.
 
 Later saves rewrite the same file. To resume later, open the submission: SMAD-X reloads your domain, your name and your hints. To hand in your work, give the file to the trainer: they grade it in [SMAD-X Studio](studio.md), with their own copy of the lab. The score shown in your window is never reused as is.
 
@@ -61,7 +63,9 @@ Later saves rewrite the same file. To resume later, open the submission: SMAD-X 
 
 ![A lab in exam mode](../assets/screens/lab-exam.png)
 
-The trainer can mark a lab as an **exam** in SMAD-X Studio. An exam always opens in lab mode and cannot be left. It has no hints, no **Check** button, no score and no **Start over**: the learner does the work, saves the submission and hands it in.
+The trainer can mark a lab as an **exam** in SMAD-X Studio. An exam always opens in lab mode and cannot be left. It has no hints, no score and no **Start over**: the learner does the work, saves the submission and hands it in. The **time spent** is shown and written in the submission; going over it blocks nothing, but the trainer sees it.
+
+Depending on the trainer's settings, the **Check** button shows which objectives are met, with no score and no explanation, and some tools may be closed: security audit, the "How to fix" section of the sheets, attack paths, before / after comparison. By default, everything is open.
 
 !!! note "What exam mode guarantees"
     Exam mode removes the aids and prevents opening another domain from SMAD-X. It is not proctoring software: it locks neither the computer nor other applications.

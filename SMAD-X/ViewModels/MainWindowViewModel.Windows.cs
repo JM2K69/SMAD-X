@@ -39,7 +39,7 @@ namespace SMADX.ViewModels
             OnPropertyChanged(nameof(SelectedLinkedGPOs));
             OnPropertyChanged(nameof(SelectedPSOAppliesTo));
             RecordHistory();
-            StatusMessage = "Relations mises à jour.";
+            StatusMessage = Loc["Status.RelationsUpdated"];
         }
 
         // ─── Graphe et analyses ───────────────────────────────────────────────────

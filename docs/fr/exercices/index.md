@@ -37,7 +37,7 @@ Chaque objectif est une vérification automatique. Un objectif non atteint expli
 
 Les captures montrent un exercice de démonstration, construit pour la documentation et absent de l'application. Les solutions des exercices fournis ne sont pas publiées.
 
-Les exercices contiennent aussi des **objectifs de garde**, déjà atteints au départ, qui refusent les solutions brutales : supprimer le compte de service, retirer au support sa délégation légitime, vider un groupe métier…
+Les exercices contiennent aussi des **gardes**, déjà atteintes au départ et marquées 🛡, qui refusent les solutions brutales : supprimer le compte de service, retirer au support sa délégation légitime, vider un groupe métier… Une garde ne rapporte aucun point. Si vous la violez, les objectifs qui concernaient l'objet protégé ne comptent plus : supprimer le compte vulnérable coupe bien le chemin d'attaque, mais ce n'est pas une correction.
 
 ## Le mode exercice
 
@@ -53,7 +53,9 @@ Ouvert directement sur un exercice ou une copie (double-clic, ou nom du fichier 
 - votre domaine dans l'état où vous l'avez laissé ;
 - les indices consultés et la date de votre travail.
 
-Chaque enregistrement **scelle** la copie : une empreinte SHA-256 de tout son contenu (nom, dates, indices, domaine). Le domaine porte aussi la marque de **votre session de travail**, tirée au hasard à l'ouverture de l'exercice. Une copie retouchée à la main, rendue sous un autre nom ou dont le domaine vient d'un camarade est signalée au formateur. Deux solutions identiques, faites chacun de son côté, ne le sont pas.
+Chaque enregistrement **scelle** la copie : une empreinte SHA-256 de tout son contenu (nom, dates, indices, domaine). Le domaine porte aussi la marque de **votre session de travail**, tirée au hasard à l'ouverture de l'exercice. Une copie retouchée à la main, rendue sous un autre nom ou dont le domaine vient d'un camarade est en général signalée au formateur (voir les limites de ces contrôles dans [SMAD-X Studio](studio.md)). Deux solutions identiques, faites chacun de son côté, ne le sont pas.
+
+SMAD-X garde aussi une **copie de secours** : chaque minute en mode exercice, et à la fermeture, votre travail non enregistré est écrit dans un dossier de SMAD-X. S'il se ferme mal (coupure, plantage), la prochaine ouverture de l'exercice propose de reprendre ce travail. Fermer SMAD-X avec des modifications non enregistrées demande toujours d'enregistrer votre copie.
 
 Les enregistrements suivants réécrivent le même fichier. Pour reprendre plus tard, ouvrez la copie : SMAD-X recharge votre domaine, votre nom et vos indices. Pour rendre le travail, donnez le fichier au formateur : il le corrige dans [SMAD-X Studio](studio.md), avec son propre exemplaire de l'exercice. Le score affiché dans votre fenêtre n'est jamais repris tel quel.
 
@@ -61,7 +63,9 @@ Les enregistrements suivants réécrivent le même fichier. Pour reprendre plus 
 
 ![Exercice en mode examen](../assets/screens/lab-exam.png)
 
-Le formateur peut marquer un exercice comme **examen** dans SMAD-X Studio. Un examen s'ouvre toujours en mode exercice et ne se quitte pas. Il n'a ni indice, ni bouton **Vérifier**, ni score, ni **Recommencer** : l'apprenant fait son travail, enregistre sa copie et la rend.
+Le formateur peut marquer un exercice comme **examen** dans SMAD-X Studio. Un examen s'ouvre toujours en mode exercice et ne se quitte pas. Il n'a ni indice, ni score, ni **Recommencer** : l'apprenant fait son travail, enregistre sa copie et la rend. Le **temps passé** est affiché et écrit dans la copie ; le dépasser ne bloque rien, mais le formateur le voit.
+
+Selon les réglages du formateur, le bouton **Vérifier** montre quels objectifs sont atteints, sans score ni explication, et certains outils peuvent être fermés : audit de sécurité, section « Comment corriger » des fiches, chemins d'attaque, comparaison avant / après. Par défaut, tout est ouvert.
 
 !!! note "Ce que le mode examen garantit"
     Le mode examen retire les aides et empêche d'ouvrir un autre domaine depuis SMAD-X. Ce n'est pas un logiciel de surveillance : il ne verrouille ni l'ordinateur, ni les autres applications.

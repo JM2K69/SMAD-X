@@ -1,3 +1,5 @@
+using SMADX.Services;
+
 namespace SMADX.Graph
 {
     public enum EdgeType
@@ -23,17 +25,20 @@ namespace SMADX.Graph
         /// <summary>Nom de la GPO source pour les arêtes d'héritage</summary>
         public string? GpoName { get; set; }
 
+        /// <summary>Libellé de l'arête dans la langue courante (relu à chaque dessin du graphe).</summary>
         public string Label => Type switch
         {
-            EdgeType.MemberOf        => "MemberOf",
-            EdgeType.GroupNesting    => "Group in Group",
-            EdgeType.GpoLink         => "GPO Link",
-            EdgeType.GpoInheritance  => $"⬇ Héritage GPO",
-            EdgeType.PsoSubject      => "PSO Subject",
-            EdgeType.ParentChild     => "Contains",
-            EdgeType.Delegation      => GpoName ?? "Delegation",
+            EdgeType.MemberOf        => Loc["Relation.MemberOf"],
+            EdgeType.GroupNesting    => Loc["Relation.GroupNesting"],
+            EdgeType.GpoLink         => Loc["Relation.GpoLink"],
+            EdgeType.GpoInheritance  => $"⬇ {Loc["Relation.GpoInheritance"]}",
+            EdgeType.PsoSubject      => Loc["Relation.PsoSubject"],
+            EdgeType.ParentChild     => Loc["Relation.ParentChild"],
+            EdgeType.Delegation      => GpoName ?? Loc["Relation.Delegation"],
             _                        => string.Empty
         };
+
+        private static LocalizationService Loc => LocalizationService.Instance;
 
         public GraphEdge(GraphNode source, GraphNode target, EdgeType type, string? gpoName = null)
         {

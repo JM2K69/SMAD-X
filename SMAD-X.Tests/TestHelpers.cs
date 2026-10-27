@@ -9,6 +9,11 @@ namespace SMADX.Tests;
 
 internal static class TestHelpers
 {
+    /// <summary>Les tests n'écrivent ni ne suppriment jamais les copies de secours de l'utilisateur.</summary>
+    [System.Runtime.CompilerServices.ModuleInitializer]
+    internal static void IsolateRecoveryFolder() =>
+        SMADX.ViewModels.MainWindowViewModel.DefaultRecoveryFolder = Path.Combine(Path.GetTempPath(), "smadx-tests", "recovery-" + Guid.NewGuid().ToString("N"));
+
     /// <summary>Crée un domaine minimal : contoso.com / OU=Corp / jdoe + Helpdesk.</summary>
     public static ADObject BuildSmallDomain()
     {

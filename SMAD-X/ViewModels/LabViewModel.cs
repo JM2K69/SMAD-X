@@ -28,6 +28,10 @@ namespace SMADX.ViewModels
         public string Hint { get; }
         public int Points => Objective.Points;
 
+        /// <summary>Une garde ne rapporte pas de point : elle est marquée 🛡.</summary>
+        public bool IsGuard => Objective.Guard;
+        public bool IsScored => !Objective.Guard;
+
         /// <summary>Faux en mode examen : pas d'indice.</summary>
         public bool CanShowHint { get; }
 
@@ -64,7 +68,8 @@ namespace SMADX.ViewModels
     /// <summary>
     /// Fenêtre « Exercice » : énoncé, objectifs, vérification par le correcteur, indices, recommencer,
     /// compte rendu Markdown et copie (.smadx-submission.json) à rendre au formateur. En mode examen,
-    /// il n'y a ni indice, ni vérification, ni « Recommencer » : seule la copie est enregistrée.
+    /// il n'y a ni indice, ni score, ni « Recommencer » : la copie est enregistrée, et « Vérifier », si le
+    /// formateur l'a permis, montre seulement les objectifs atteints. Le temps passé est mesuré.
     /// </summary>
     public sealed partial class LabViewModel : ViewModelBase
     {
@@ -112,10 +117,39 @@ namespace SMADX.ViewModels
         public string DurationLabel => string.Format(Loc["Lab.Duration"], _lab.DurationMinutes);
         public ObservableCollection<LabObjectiveItem> Objectives { get; }  = new();
 
+        public LabDefinition Lab => _lab;
+
+        public Guid SessionId => _session.SessionId;
+
+        /// <summary>Après chaque enregistrement réussi de la copie.</summary>
+        public event Action? Saved;
+
+        /// <summary>La copie dans son état actuel (copie de secours), sans l'écrire dans le fichier de l'apprenant.</summary>
+        public LabSubmission Snapshot(ADRootDocument work, DateTime now) =>
+            _session.ToSubmission(StudentName, work, Objectives.Where(o => o.HintSeen).Select(o => o.Objective.Id), now);
+
         public bool IsExam => _lab.Exam;
 
-        /// <summary>Vérification, score, « Recommencer » et compte rendu : tout sauf en examen.</summary>
+        /// <summary>Score, « Recommencer » et compte rendu : tout sauf en examen.</summary>
         public bool ShowGrading => !IsExam;
+
+        /// <summary>« Vérifier » : hors examen, ou en examen si le formateur l'a permis (objectifs atteints, sans score ni explication).</summary>
+        public bool CanCheck => !IsExam || _lab.ExamCheck;
+
+        /// <summary>Temps passé, séances reprises comprises ; rafraîchi par la fenêtre.</summary>
+        public int ElapsedMinutes => _session.ElapsedMinutes(_clock());
+
+        public bool IsOverTime => ElapsedMinutes > _lab.DurationMinutes;
+
+        public string ElapsedLabel => string.Format(Loc["Lab.Elapsed"], ElapsedMinutes, _lab.DurationMinutes);
+
+        /// <summary>Appelé périodiquement par la fenêtre : temps passé.</summary>
+        public void Tick()
+        {
+            OnPropertyChanged(nameof(ElapsedMinutes));
+            OnPropertyChanged(nameof(ElapsedLabel));
+            OnPropertyChanged(nameof(IsOverTime));
+        }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasStudentName))]
@@ -142,7 +176,7 @@ namespace SMADX.ViewModels
         public string ScoreLabel => string.Format(Loc["Lab.Score"], Points, MaxPoints);
         public int HintsUsed => Objectives.Count(o => o.HintSeen);
 
-        [RelayCommand(CanExecute = nameof(ShowGrading))]
+        [RelayCommand(CanExecute = nameof(CanCheck))]
         private void Check()
         {
             if (_getCurrent()?.Domain is not { } current) return;
@@ -152,7 +186,8 @@ namespace SMADX.ViewModels
             {
                 var item = Objectives.First(o => o.Objective == result.Objective);
                 item.Passed = result.Passed;
-                item.Feedback = result.Feedback;
+                // En examen, l'explication serait un indice
+                item.Feedback = IsExam ? string.Empty : result.Feedback;
             }
             Points = _lastResult.Points;
             IsCompleted = _lastResult.Completed;
@@ -181,7 +216,7 @@ namespace SMADX.ViewModels
             Check();
             if (_lastResult == null) return;
 
-            var name = string.IsNullOrWhiteSpace(StudentName) ? "apprenant" : StudentName.Trim();
+            var name = string.IsNullOrWhiteSpace(StudentName) ? Loc["Lab.Export.DefaultStudent"] : StudentName.Trim();
             foreach (var c in Path.GetInvalidFileNameChars())
                 name = name.Replace(c, '_');
             var path = await _dialogs.PickSaveFileAsync(Loc["Lab.Export.Title"], $"{_lab.Id}_{name}_{_clock():yyyyMMdd_HHmm}.md", "md",
@@ -211,6 +246,7 @@ namespace SMADX.ViewModels
                 await File.WriteAllTextAsync(path, new LabSubmissionService().Serialize(submission), new UTF8Encoding(false));
                 _submissionPath = path;
                 SubmissionStatus = string.Format(Loc["Lab.Submission.Saved"], path, now.ToString("HH:mm"));
+                Saved?.Invoke();
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {

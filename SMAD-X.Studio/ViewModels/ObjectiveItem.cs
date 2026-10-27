@@ -41,6 +41,23 @@ namespace SMADX.Studio.ViewModels
             set { Model.Points = Math.Max(0, value); OnPropertyChanged(); OnPropertyChanged(nameof(Summary)); }
         }
 
+        /// <summary>Garde : 0 point ; violée, elle annule les objectifs qui concernaient l'objet protégé.</summary>
+        public bool IsGuard
+        {
+            get => Model.Guard;
+            set
+            {
+                Model.Guard = value;
+                if (value) Model.Points = 0;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Points));
+                OnPropertyChanged(nameof(Summary));
+                OnPropertyChanged(nameof(IsScored));
+            }
+        }
+
+        public bool IsScored => !Model.Guard;
+
         public LabCheckType CheckType
         {
             get => Check.Type;
@@ -51,7 +68,7 @@ namespace SMADX.Studio.ViewModels
                 Changed();
                 foreach (var name in new[] { nameof(ShowObject), nameof(ShowObjectType), nameof(ShowGroup), nameof(ShowRule), nameof(ShowSeverity),
                                              nameof(ShowScore), nameof(ShowFlag), nameof(ShowTier), nameof(ShowTrustee), nameof(ShowTarget),
-                                             nameof(ShowRight), nameof(ShowAnyUserHint), nameof(IsGuard) })
+                                             nameof(ShowRight), nameof(ShowAnyUserHint), nameof(CanBeGuard) })
                     OnPropertyChanged(name);
             }
         }
@@ -83,10 +100,10 @@ namespace SMADX.Studio.ViewModels
         public bool ShowTarget => CheckType == LabCheckType.DelegationExists;
         public bool ShowRight => CheckType == LabCheckType.DelegationExists;
         public bool ShowAnyUserHint => CheckType == LabCheckType.NoAttackPath;
-        public bool IsGuard => LabAuthoring.IsGuard(Check);
+        public bool CanBeGuard => LabAuthoring.CanBeGuard(Check);
 
-        /// <summary>Ligne de la liste : points, titre et vérification lisible.</summary>
-        public string Summary => $"{Model.Id} · {Points} pt · {Title}";
+        /// <summary>Ligne de la liste : points (ou « garde »), titre et vérification lisible.</summary>
+        public string Summary => Model.Guard ? $"{Model.Id} · 🛡 · {Title}" : $"{Model.Id} · {Points} pt · {Title}";
         public string Description => LabAuthoring.Describe(Check, _culture());
 
         /// <summary>Après un changement de langue d'édition.</summary>
@@ -102,7 +119,7 @@ namespace SMADX.Studio.ViewModels
         private void Changed()
         {
             OnPropertyChanged(nameof(Description));
-            OnPropertyChanged(nameof(IsGuard));
+            OnPropertyChanged(nameof(CanBeGuard));
         }
 
         private static string? Empty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
@@ -118,7 +135,7 @@ namespace SMADX.Studio.ViewModels
             Title = suggestion.Objective.Title.Resolve(culture);
             Reason = suggestion.Reason.Resolve(culture);
             Detail = LabAuthoring.Describe(suggestion.Objective.Check, culture);
-            IsGuard = LabAuthoring.IsGuard(suggestion.Objective.Check);
+            IsGuard = suggestion.Objective.Guard;
         }
 
         public LabObjectiveSuggestion Suggestion { get; }

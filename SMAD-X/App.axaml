@@ -9,6 +9,9 @@
     <Application.Resources>
         <converters:BoolToStringConverter x:Key="BoolToStringConverter"/>
         <converters:MarkdownConverter x:Key="MarkdownConverter"/>
+        <!-- Textes traduits : valeur d'énumération (LocValue) ou valeur placée dans un texte (LocFormat) -->
+        <converters:LocalizedValueConverter x:Key="LocValue"/>
+        <converters:LocalizedFormatConverter x:Key="LocFormat"/>
         <helpers:LocalizationProxy x:Key="Loc"/>
     </Application.Resources>
 

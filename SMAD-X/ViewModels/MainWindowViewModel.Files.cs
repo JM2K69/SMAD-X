@@ -64,6 +64,7 @@ namespace SMADX.ViewModels
             doc.Domain = RootObject;
             doc.SitesTopology = SitesTopology;
             var success = await _dataService.SaveDocumentAsync(doc, path);
+            if (success) MarkSaved();
             StatusMessage = success ? string.Format(Loc["Status.Saved"], path) : Loc["Status.ErrorSave"];
         });
 
@@ -84,14 +85,14 @@ namespace SMADX.ViewModels
                 {
                     DocumentLoadStatus.TooNew        => string.Format(Loc["Status.ErrorLoadTooNew"], result.FileVersion, ADRootDocument.CurrentVersion),
                     DocumentLoadStatus.InvalidFormat => string.Format(Loc["Status.ErrorLoadInvalid"], result.Error),
-                    _                                => result.Error is null ? Loc["Status.ErrorLoad"] : $"{Loc["Status.ErrorLoad"]} : {result.Error}"
+                    _                                => result.Error is null ? Loc["Status.ErrorLoad"] : string.Format(Loc["Status.ErrorLoadDetail"], result.Error)
                 };
                 return;
             }
 
             _dataService.ApplyTierConfiguration(result.Document);
             ShowDomain(result.Document, expandDefaultNodes: false);
-            var siteInfo = SitesTopology != null ? $" (+{SitesTopology.Sites.Count} sites)" : string.Empty;
+            var siteInfo = SitesTopology != null ? string.Format(Loc["Status.Loaded.Sites"], SitesTopology.Sites.Count) : string.Empty;
             var migration = result.WasMigrated
                 ? string.Format(Loc["Status.Loaded.Migrated"], result.FileVersion, ADRootDocument.CurrentVersion)
                 : string.Empty;

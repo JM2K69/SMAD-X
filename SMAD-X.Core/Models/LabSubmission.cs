@@ -11,8 +11,8 @@ namespace SMADX.Models
     /// </summary>
     public sealed class LabSubmission
     {
-        /// <summary>Version du format des copies écrite par cette version de SMAD-X.</summary>
-        public const int CurrentFormatVersion = 1;
+        /// <summary>Version du format des copies écrite par cette version de SMAD-X. v2 : version du moteur et temps passé.</summary>
+        public const int CurrentFormatVersion = 2;
 
         public string Format { get; set; } = "smadx-submission";
         public int FormatVersion { get; set; } = CurrentFormatVersion;
@@ -28,6 +28,17 @@ namespace SMADX.Models
 
         /// <summary>Dernier enregistrement de la copie : la correction se fait à cette date.</summary>
         public DateTime SavedAt { get; set; }
+
+        /// <summary>Temps passé sur l'exercice, en minutes, sessions reprises comprises (null avant la 0.9).</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? ElapsedMinutes { get; set; }
+
+        /// <summary>Version de SMAD-X qui a écrit la copie, et empreinte de ses règles d'audit (null avant la 0.9).</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? EngineVersion { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? RulesVersion { get; set; }
 
         /// <summary>Identifiants des objectifs dont l'indice a été consulté.</summary>
         public List<string> HintsUsed { get; set; } = new();

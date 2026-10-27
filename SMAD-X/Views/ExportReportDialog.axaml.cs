@@ -19,7 +19,16 @@ namespace SMADX.Views
     {
         private bool _isChecked = true;
 
+        /// <summary>Type du filtre (valeur de ADObjectType, « Site » ou « SiteLink »), comparé au TypeLabel des éléments.</summary>
         public string Label { get; }
+
+        /// <summary>Type affiché, dans la langue courante.</summary>
+        public string DisplayLabel => Label switch
+        {
+            "Site"     => LocalizationService.Instance["Report.Type.Site"],
+            "SiteLink" => LocalizationService.Instance["Report.Type.SiteLink"],
+            _          => LocalizationService.Instance[$"ObjectType.{Label}"]
+        };
 
         public bool IsChecked
         {
@@ -258,7 +267,7 @@ namespace SMADX.Views
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 Title             = _loc["Report.Dialog.Title"],
-                SuggestedFileName = $"rapport-ad.{firstExt}",
+                SuggestedFileName = $"{_loc["Report.Export.DefaultName"]}.{firstExt}",
                 DefaultExtension  = firstExt,
                 FileTypeChoices   = BuildFileTypeChoices(firstExt),
             });
@@ -330,7 +339,7 @@ namespace SMADX.Views
 
             var msg = string.Format(_loc["Report.Export.MultiDone"], saved) + " " + rootDir;
             if (failedPdf > 0)
-                msg += $"\n⚠ {failedPdf} PDF non généré(s) — voir la fenêtre Debug/Output pour les détails.";
+                msg += "\n" + string.Format(_loc["Report.Export.PdfFailed"], failedPdf);
             Close(msg);
         }
 

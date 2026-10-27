@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using SMADX.Services;
 using SMADX.Studio.ViewModels;
 
 namespace SMADX.Studio.Views
@@ -10,6 +11,12 @@ namespace SMADX.Studio.Views
     /// <summary>Sélecteurs de fichiers du système et fenêtre de choix de la recette.</summary>
     public sealed class StudioDialogs(Window owner) : IStudioDialogs
     {
+        public Task<UnsavedChoice> AskUnsavedAsync()
+        {
+            var text = StudioText.Instance;
+            return ChoiceDialog.AskUnsavedAsync(owner, text["Unsaved.Title"], text["Unsaved.Message"], text["Unsaved.Save"], text["Unsaved.Discard"], text["Unsaved.Cancel"]);
+        }
+
         public async Task<string?> OpenFileAsync(string title, string filterName, string pattern)
         {
             var files = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions

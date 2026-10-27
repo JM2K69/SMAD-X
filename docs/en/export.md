@@ -33,6 +33,6 @@ The PDF embeds its fallback fonts (Noto, including emoji and symbols): it render
 |---|---|
 | Tree image | **Export PNG** button |
 | Delegations | **Delegations** window > **Export CSV** |
-| Differences between two files | **Analyse > Domain Timeline** (`Ctrl+T`), CSV export |
+| Differences between two files | **Analysis > Domain timeline...** (`Ctrl+T`), CSV export |
 | Lab report | lab window > **Export result** (Markdown) |
 | Lab submission, to hand in to the trainer | lab window > **Save my submission** (`.smadx-submission.json`) |

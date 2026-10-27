@@ -100,10 +100,10 @@ namespace SMADX.ViewModels
         /// toujours un LabMenuItem (un RelayCommand&lt;LabMenuItem&gt; lèverait alors une exception).
         /// </summary>
         [RelayCommand(CanExecute = nameof(IsFreeMode))]
-        private void OpenBuiltInLab(object? parameter)
+        private async Task OpenBuiltInLab(object? parameter)
         {
             if (parameter is LabMenuItem item)
-                StartLab(item.Lab, labMode: false);
+                await StartLabAsync(item.Lab, labMode: false);
         }
 
         [RelayCommand(CanExecute = nameof(IsFreeMode))]
@@ -112,7 +112,7 @@ namespace SMADX.ViewModels
             var path = await _dialogs.PickOpenFileAsync(Loc["Lab.Open.Title"], LabFilter,
                 new FileFilter(Loc["FileType.Submission"], "*" + LabSubmissionService.FileExtension), AllFilesFilter);
             if (path == null) return;
-            OpenLabOrSubmission(path, labMode: false);
+            await OpenLabOrSubmissionAsync(path, labMode: false);
         });
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace SMADX.ViewModels
             {
                 if (path.EndsWith(LabService.FileExtension, StringComparison.OrdinalIgnoreCase)
                     || path.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase))
-                    OpenLabOrSubmission(path, labMode: true);
+                    await OpenLabOrSubmissionAsync(path, labMode: true);
                 else
                     await LoadDomainFileAsync(path);
             }
@@ -135,23 +135,46 @@ namespace SMADX.ViewModels
             }
         }
 
-        private void OpenLabOrSubmission(string path, bool labMode)
+        private async Task OpenLabOrSubmissionAsync(string path, bool labMode)
         {
             try
             {
                 if (path.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase))
                 {
                     var submission = new LabSubmissionService().LoadFile(path);
-                    StartLab(submission.Lab, labMode, submission, path);
-                    StatusMessage = string.Format(Loc["Lab.Resumed"], submission.Student, CurrentLab!.Title);
+                    await StartLabAsync(submission.Lab, labMode, submission, path);
+                    StatusMessage = string.Format(Loc["Lab.Resumed"], CurrentLab!.StudentName, CurrentLab.Title);
                 }
                 else
-                    StartLab(_labService.LoadFile(path), labMode);
+                    await StartLabAsync(_labService.LoadFile(path), labMode);
             }
             catch (LabFormatException ex)
             {
                 StatusMessage = ex.Message;
             }
+        }
+
+        /// <summary>
+        /// Ouvre l'exercice, après avoir proposé de reprendre sa copie de secours s'il y en a une : SMAD-X
+        /// s'est fermé sans que l'apprenant enregistre. Refusée, elle est supprimée.
+        /// </summary>
+        private async Task StartLabAsync(LabDefinition lab, bool labMode, LabSubmission? resumed = null, string? submissionPath = null)
+        {
+            if (FindRecovery(lab, resumed) is { } recovery)
+            {
+                var name = string.IsNullOrWhiteSpace(recovery.Submission.Student) ? "—" : recovery.Submission.Student;
+                if (await _dialogs.ConfirmAsync(Loc["Lab.Recovery.Title"],
+                        string.Format(Loc["Lab.Recovery.Message"], recovery.Submission.SavedAt.ToString("g", Loc.CurrentCulture), name),
+                        Loc["Lab.Recovery.Resume"], Loc["Lab.Recovery.Discard"]))
+                {
+                    StartLab(recovery.Submission.Lab, labMode, recovery.Submission, submissionPath);
+                    _savedState = string.Empty; // le travail repris n'est pas encore dans la copie de l'apprenant
+                    return;
+                }
+                try { System.IO.File.Delete(recovery.Path); }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { ErrorReporter.Log("Copie de secours", ex); }
+            }
+            StartLab(lab, labMode, resumed, submissionPath);
         }
 
         /// <summary>Charge le domaine de départ (ou celui de la copie reprise) et ouvre la fenêtre de l'exercice.</summary>
@@ -160,12 +183,21 @@ namespace SMADX.ViewModels
             var session = resumed != null ? LabSession.Resume(resumed) : LabSession.Begin(lab, DateTime.Now);
             ShowLabDomain(session, resumed?.Work ?? session.NewWorkingCopy());
             CurrentLab = new LabViewModel(session, CurrentDocument, () => ShowLabDomain(session, session.NewWorkingCopy()), _dialogs, resumed, submissionPath);
+            // Copie enregistrée : plus rien à perdre, la copie de secours ne sert plus
+            var current = CurrentLab;
+            current.Saved += () =>
+            {
+                MarkSaved();
+                DeleteRecovery(current);
+            };
+            _recoveredState = null;
             OnPropertyChanged(nameof(CurrentLab));
             OnPropertyChanged(nameof(HasCurrentLab));
             ShowCurrentLabCommand.NotifyCanExecuteChanged();
             SaveSubmissionCommand.NotifyCanExecuteChanged();
             // Un examen est toujours en mode exercice, quelle que soit la façon de l'ouvrir
             IsLabMode = labMode || lab.Exam;
+            RefreshLabTools();
             OnPropertyChanged(nameof(WindowTitle));
             OnPropertyChanged(nameof(CanLeaveLabMode));
             LeaveLabModeCommand.NotifyCanExecuteChanged();
@@ -203,6 +235,7 @@ namespace SMADX.ViewModels
         private void LeaveLabMode()
         {
             IsLabMode = false;
+            RefreshLabTools();
             StatusMessage = Loc["Lab.Mode.Left"];
         }
 

@@ -17,13 +17,24 @@ namespace SMADX.Services.Labs
     {
         private static readonly LabService Labs = new();
 
-        private LabSession(LabDefinition lab, DateTime startedOn, Guid sessionId)
+        private LabSession(LabDefinition lab, DateTime startedOn, Guid sessionId, DateTime openedAt, int elapsedBefore)
         {
             Lab = lab;
             StartedOn = startedOn.Date;
             SessionId = sessionId;
             Start = Labs.PrepareStart(lab, StartedOn);
+            OpenedAt = openedAt;
+            ElapsedBefore = elapsedBefore;
         }
+
+        /// <summary>Ouverture de cette séance de travail : le temps passé se compte à partir d'elle.</summary>
+        public DateTime OpenedAt { get; }
+
+        /// <summary>Minutes déjà passées lors des séances précédentes (copie reprise).</summary>
+        public int ElapsedBefore { get; }
+
+        /// <summary>Temps passé sur l'exercice, en minutes entamées, séances reprises comprises.</summary>
+        public int ElapsedMinutes(DateTime now) => ElapsedBefore + (int)Math.Ceiling(Math.Max(0, (now - OpenedAt).TotalMinutes));
 
         public LabDefinition Lab { get; }
 
@@ -36,10 +47,11 @@ namespace SMADX.Services.Labs
         /// <summary>Domaine de départ préparé, référence de la comparaison « non modifié » (identifiants de l'exercice).</summary>
         public ADRootDocument Start { get; }
 
-        public static LabSession Begin(LabDefinition lab, DateTime now, Guid? sessionId = null) => new(lab, now, sessionId ?? Guid.NewGuid());
+        public static LabSession Begin(LabDefinition lab, DateTime now, Guid? sessionId = null) => new(lab, now, sessionId ?? Guid.NewGuid(), now, 0);
 
-        /// <summary>Reprend une copie enregistrée : même exercice, même date de départ, même session.</summary>
-        public static LabSession Resume(LabSubmission submission) => new(submission.Lab, submission.StartedOn, submission.SessionId);
+        /// <summary>Reprend une copie enregistrée : même exercice, même date de départ, même session ; le temps passé continue.</summary>
+        public static LabSession Resume(LabSubmission submission, DateTime? now = null) =>
+            new(submission.Lab, submission.StartedOn, submission.SessionId, now ?? DateTime.Now, submission.ElapsedMinutes ?? 0);
 
         /// <summary>
         /// Nouvelle copie de travail du domaine de départ, aux mêmes dates que la référence et aux identifiants
@@ -70,6 +82,9 @@ namespace SMADX.Services.Labs
             SessionId = SessionId,
             StartedOn = StartedOn,
             SavedAt = now,
+            ElapsedMinutes = ElapsedMinutes(now),
+            EngineVersion = EngineInfo.Version,
+            RulesVersion = EngineInfo.RulesVersion,
             HintsUsed = hintsUsed.Distinct().ToList(),
             Lab = Lab,
             Work = work

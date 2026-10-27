@@ -10,7 +10,8 @@ namespace SMADX.Services.Labs
     /// <summary>Résultat d'un objectif : réussi ou non, et pourquoi (pour guider l'apprenant).</summary>
     public sealed record LabObjectiveResult(LabObjective Objective, bool Passed, string Feedback)
     {
-        public int EarnedPoints => Passed ? Objective.Points : 0;
+        /// <summary>Une garde ne rapporte pas de point.</summary>
+        public int EarnedPoints => Passed && !Objective.Guard ? Objective.Points : 0;
     }
 
     public sealed record LabResult(LabDefinition Lab, IReadOnlyList<LabObjectiveResult> Objectives, AuditReport Audit, DateTime GradedAt)
@@ -23,6 +24,9 @@ namespace SMADX.Services.Labs
     /// <summary>
     /// Corrige un exercice : chaque objectif est une vérification déclarative évaluée sur le domaine
     /// de l'apprenant, avec l'audit de sécurité et la comparaison avec le domaine de départ.
+    /// Une garde violée (le compte vulnérable supprimé au lieu d'être corrigé…) annule les objectifs qui
+    /// concernaient l'objet protégé au départ : son constat, les chemins d'attaque qui le traversaient et
+    /// les vérifications qui le nomment. La solution brutale ne rapporte donc rien.
     /// </summary>
     public sealed class LabGrader
     {
@@ -38,22 +42,96 @@ namespace SMADX.Services.Labs
             var changes = new Lazy<List<ADChangeItem>>(() => ADDiffService.Compare(
                 new DomainSnapshot { Root = start }, new DomainSnapshot { Root = current }));
 
+            var lazyAudit = new Lazy<AuditReport>(() => audit);
             var results = lab.Objectives
-                .Select(o => Evaluate(o, o.Check, audit, context, start, changes, attackPaths))
+                .Select(o =>
+                {
+                    var (passed, feedback) = Evaluate(o.Check, lazyAudit, context, start, changes, attackPaths);
+                    return new LabObjectiveResult(o, passed, feedback);
+                })
                 .ToList();
+
+            var broken = results.Where(r => r.Objective.Guard && !r.Passed).ToList();
+            if (broken.Count > 0)
+            {
+                var scope = new StartScope(start, now);
+                var culture = Loc.CurrentCulture.Name;
+                results = results.Select(r =>
+                {
+                    if (r.Objective.Guard || !r.Passed) return r;
+                    var involved = scope.Involved(r.Objective.Check);
+                    var guard = broken.FirstOrDefault(g => Protected(g.Objective.Check).Overlaps(involved));
+                    return guard == null ? r : r with
+                    {
+                        Passed = false,
+                        Feedback = string.Format(Loc["Lab.Feedback.GuardBroken"], guard.Objective.Title.Resolve(culture), guard.Feedback)
+                    };
+                }).ToList();
+            }
             return new LabResult(lab, results, audit, now);
         }
 
-        private static LabObjectiveResult Evaluate(LabObjective objective, LabCheck check, AuditReport audit,
+        /// <summary>Vrai si la vérification est atteinte sur ce domaine (comparé à lui-même pour « non modifié ») : sert à reconnaître les gardes.</summary>
+        public static bool IsMet(LabCheck check, ADObject domain, DateTime now)
+        {
+            var audit = new Lazy<AuditReport>(() => new ADSecurityAuditService().Run(domain, now));
+            var paths = new Lazy<AttackPathService>(() => new AttackPathService(domain, now));
+            return Evaluate(check, audit, new AuditContext(domain, now), domain, new Lazy<List<ADChangeItem>>(() => new()), paths).Passed;
+        }
+
+        /// <summary>Objets que protège une garde : celui qu'elle nomme, ou le mandataire d'une délégation.</summary>
+        private static HashSet<string> Protected(LabCheck check) =>
+            new[] { check.Object, check.Trustee }.OfType<string>()
+                .Where(n => !string.Equals(n, AttackPathService.AnyUserId, StringComparison.OrdinalIgnoreCase))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>Objets qu'une vérification concernait au départ : ceux qu'elle nomme, ses constats et ses chemins d'attaque.</summary>
+        private sealed class StartScope(ADObject start, DateTime now)
+        {
+            private readonly Lazy<AuditReport> _audit = new(() => new ADSecurityAuditService().Run(start, now));
+            private readonly Lazy<AttackPathService> _paths = new(() => new AttackPathService(start, now));
+            private readonly Lazy<AuditContext> _context = new(() => new AuditContext(start, now));
+
+            public HashSet<string> Involved(LabCheck check)
+            {
+                var names = new[] { check.Object, check.Group, check.Trustee, check.Target }.OfType<string>()
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                switch (check.Type)
+                {
+                    case LabCheckType.RuleClear:
+                        names.UnionWith(_audit.Value.Findings
+                            .Where(f => f.Rule.Id == check.RuleId && (check.Object is null || string.Equals(f.Object.Name, check.Object, StringComparison.OrdinalIgnoreCase)))
+                            .Select(f => f.Object.Name));
+                        break;
+                    case LabCheckType.NoFindingAtOrAbove:
+                        names.UnionWith(_audit.Value.Findings.Where(f => f.Severity <= (check.Severity ?? AuditSeverity.Critical)).Select(f => f.Object.Name));
+                        break;
+                    case LabCheckType.ScoreAtLeast:
+                        names.UnionWith(_audit.Value.Findings.Select(f => f.Object.Name));
+                        break;
+                    case LabCheckType.NoAttackPath:
+                        IEnumerable<AttackPath> paths = check.Object is null ? _paths.Value.PathsOutsideTier0()
+                            : string.Equals(check.Object, AttackPathService.AnyUserId, StringComparison.OrdinalIgnoreCase)
+                                ? _paths.Value.PathsToDomainControl().Where(p => p.Start.IsAnyUser)
+                            : Find(_context.Value, check) is { } source && _paths.Value.PathFrom(source) is { } path ? [path] : [];
+                        foreach (var p in paths)
+                            names.UnionWith(new[] { p.Start }.Concat(p.Steps.Select(s => s.To)).Select(n => n.Object?.Name).OfType<string>());
+                        break;
+                }
+                return names;
+            }
+        }
+
+        private static (bool Passed, string Feedback) Evaluate(LabCheck check, Lazy<AuditReport> lazyAudit,
             AuditContext context, ADObject start, Lazy<List<ADChangeItem>> changes, Lazy<AttackPathService> attackPaths)
         {
-            (bool passed, string feedback) = check.Type switch
+            return check.Type switch
             {
-                LabCheckType.RuleClear => RuleClear(check, audit),
-                LabCheckType.NoFindingAtOrAbove => NoFindingAtOrAbove(check, audit),
-                LabCheckType.ScoreAtLeast => audit.Score >= (check.Score ?? 100)
+                LabCheckType.RuleClear => RuleClear(check, lazyAudit.Value),
+                LabCheckType.NoFindingAtOrAbove => NoFindingAtOrAbove(check, lazyAudit.Value),
+                LabCheckType.ScoreAtLeast => lazyAudit.Value.Score >= (check.Score ?? 100)
                     ? Ok()
-                    : Fail("Lab.Feedback.Score", audit.Score, check.Score ?? 100),
+                    : Fail("Lab.Feedback.Score", lazyAudit.Value.Score, check.Score ?? 100),
                 LabCheckType.ObjectExists => Find(context, check) != null ? Ok() : Fail("Lab.Feedback.Missing", check.Object!),
                 LabCheckType.ObjectAbsent => Find(context, check) == null ? Ok() : Fail("Lab.Feedback.StillPresent", check.Object!),
                 LabCheckType.MemberOf => Membership(check, context, expected: true),
@@ -69,7 +147,6 @@ namespace SMADX.Services.Labs
                 LabCheckType.NoAttackPath => NoAttackPath(check, context, attackPaths.Value),
                 _ => Fail("Lab.Feedback.UnknownCheck", check.Type)
             };
-            return new LabObjectiveResult(objective, passed, feedback);
         }
 
         private static (bool, string) Ok() => (true, Loc["Lab.Feedback.Ok"]);

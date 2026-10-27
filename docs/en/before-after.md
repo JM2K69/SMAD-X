@@ -2,10 +2,10 @@
 
 ## Measuring the effect of a fix
 
-**Analyse > Before / after...** (`Ctrl+Shift+B`) compares the domain with its **reference point**:
+**Analysis > Before / after...** (`Ctrl+Shift+B`) compares the domain with its **reference point**:
 
 - by default, the state of the domain when it was opened or created;
-- or the current state, after **Analyse > Set the reference point here**, just before starting a fix.
+- or the current state, after **Analysis > Set the reference point here**, just before starting a fix.
 
 ![Before / after comparison](assets/screens/comparison.png)
 

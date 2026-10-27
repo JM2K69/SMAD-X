@@ -21,6 +21,8 @@
                             <TextBlock Text="{Binding LevelLabel}" Foreground="White" FontSize="12"/>
                         </Border>
                         <TextBlock Text="{Binding DurationLabel}" VerticalAlignment="Center" Opacity="0.8"/>
+                        <TextBlock Text="{Binding ElapsedLabel}" VerticalAlignment="Center" Opacity="0.8" IsVisible="{Binding !IsOverTime}"/>
+                        <TextBlock Text="{Binding ElapsedLabel}" VerticalAlignment="Center" Foreground="#C0392B" FontWeight="SemiBold" IsVisible="{Binding IsOverTime}"/>
                     </StackPanel>
                     <!-- Mode examen : ni indice, ni vérification -->
                     <Border Background="#40C0392B" CornerRadius="4" Padding="8,4" Margin="0,4,0,0" HorizontalAlignment="Left"
@@ -66,9 +68,12 @@
                                                 </Border>
                                             </StackPanel>
                                             <StackPanel Grid.Column="2" Spacing="4" Margin="10,0,0,0" HorizontalAlignment="Right">
-                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Opacity="0.8">
-                                                    <Run Text="{Binding Points}"/><Run Text=" pt"/>
+                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Opacity="0.8" IsVisible="{Binding IsScored}">
+                                                    <Run Text="{Binding Points}"/><Run Text="{Binding Source={StaticResource Loc}, Path=LabPointsUnit}"/>
                                                 </TextBlock>
+                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Opacity="0.8" IsVisible="{Binding IsGuard}"
+                                                           Text="{Binding Source={StaticResource Loc}, Path=LabGuard}"
+                                                           ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=LabGuardTip}"/>
                                                 <Button Content="{Binding Source={StaticResource Loc}, Path=LabHint}" Command="{Binding ToggleHintCommand}"
                                                         Padding="8,2" FontSize="11" IsVisible="{Binding CanShowHint}"/>
                                             </StackPanel>
@@ -95,7 +100,7 @@
                         IsVisible="{Binding ShowGrading}"/>
                 <Button Content="{Binding Source={StaticResource Loc}, Path=LabSaveSubmission}" Command="{Binding SaveSubmissionCommand}" Padding="12,5"/>
                 <Button Content="{Binding Source={StaticResource Loc}, Path=LabCheck}" Command="{Binding CheckCommand}" Padding="16,5"
-                        Background="#1E8449" Foreground="White" FontWeight="SemiBold" IsVisible="{Binding ShowGrading}"/>
+                        Background="#1E8449" Foreground="White" FontWeight="SemiBold" IsVisible="{Binding CanCheck}"/>
             </StackPanel>
             <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Margin="0,6,0,0" FontSize="12" Opacity="0.8" TextWrapping="Wrap"
                        Text="{Binding Source={StaticResource Loc}, Path=LabSubmissionNeedName}" IsVisible="{Binding !HasStudentName}"/>

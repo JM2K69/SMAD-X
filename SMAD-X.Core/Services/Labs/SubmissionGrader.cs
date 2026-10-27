@@ -17,6 +17,7 @@ namespace SMADX.Services.Labs
         public bool Graded => Result != null;
         public int Points => Result?.Points ?? 0;
         public int HintsUsed => Submission?.HintsUsed.Count ?? 0;
+        public int? ElapsedMinutes => Submission?.ElapsedMinutes;
         public bool Passed(LabObjective objective) => Result?.Objectives.FirstOrDefault(o => o.Objective == objective)?.Passed ?? false;
     }
 
@@ -67,15 +68,49 @@ namespace SMADX.Services.Labs
                     Add(LabIssueLevel.Warning, "Copie sans sceau : elle n'a pas été enregistrée par SMAD-X.", "Unsealed submission: it was not saved by SMAD-X.");
                     break;
             }
+            // L'exercice reçu (dans la copie) remplacé par un autre domaine de départ échapperait au contrôle de session
+            var replaced = !Flatten(submission.Lab.Start.Domain).Select(o => o.DistinguishedName)
+                .Intersect(Flatten(lab.Start.Domain).Select(o => o.DistinguishedName), StringComparer.OrdinalIgnoreCase).Any();
+            if (replaced)
+                Add(LabIssueLevel.Error, "Le domaine de départ de la copie n'a rien de commun avec votre exercice : l'exercice reçu a été remplacé.",
+                                         "The submission's starting domain has nothing in common with your lab: the lab received was replaced.");
             if (submission.SessionId == Guid.Empty)
                 Add(LabIssueLevel.Warning, "Copie sans session de travail : impossible de vérifier que le domaine est celui de l'apprenant.",
                                            "Submission without a work session: the domain cannot be checked as the learner's own.");
-            else if (SessionMatch(submission.Work.Domain, StartIds(submission.Lab), submission.SessionId) < SameSession)
+            else if (SessionMatch(submission.Work.Domain, StartIds(submission.Lab), submission.SessionId) is not { } match)
+                Add(LabIssueLevel.Error, "Contrôle de session impossible : aucun objet du domaine ne vient du départ de l'exercice.",
+                                         "Session check impossible: no object of the domain comes from the lab's start.");
+            else if (match < SameSession)
                 Add(LabIssueLevel.Error, "Le domaine ne vient pas de la session de cette copie : c'est sans doute le travail d'un autre.",
                                          "The domain does not come from this submission's session: it is probably someone else's work.");
-            if (LabSubmissionService.StartFingerprint(submission.Lab) != LabSubmissionService.StartFingerprint(lab))
+            if (!replaced && LabSubmissionService.StartFingerprint(submission.Lab) != LabSubmissionService.StartFingerprint(lab))
                 Add(LabIssueLevel.Warning, "Faite sur un autre domaine de départ que votre exemplaire de l'exercice : la note peut être fausse.",
                                            "Done on another starting domain than your copy of the lab: the grade may be wrong.");
+
+            // Examen : l'exercice reçu ne doit pas avoir été rouvert hors mode examen
+            if (lab.Exam)
+            {
+                if (!submission.Lab.Exam)
+                    Add(LabIssueLevel.Error, "Copie d'examen faite hors mode examen : l'exercice reçu a été modifié pour retrouver vérification et « Recommencer ».",
+                                             "Exam submission made outside exam mode: the lab received was changed to get Check and Restart back.");
+                else if (submission.Lab.ExamCheck != lab.ExamCheck || submission.Lab.ExamClosedTools != lab.ExamClosedTools)
+                    Add(LabIssueLevel.Error, "Les réglages d'examen de l'exercice reçu ne sont pas les vôtres : il a été modifié.",
+                                             "The exam settings of the lab received are not yours: it was changed.");
+                if (submission.HintsUsed.Count > 0)
+                    Add(LabIssueLevel.Error, $"Indices consultés pendant l'examen : {string.Join(", ", submission.HintsUsed)}.",
+                                             $"Hints viewed during the exam: {string.Join(", ", submission.HintsUsed)}.");
+                if (submission.ElapsedMinutes is { } elapsed && elapsed > lab.DurationMinutes)
+                    Add(LabIssueLevel.Warning, $"Temps dépassé : {elapsed} min pour {lab.DurationMinutes} prévues.",
+                                               $"Time exceeded: {elapsed} min for {lab.DurationMinutes} planned.");
+            }
+
+            // La note dépend des règles d'audit de la version qui corrige
+            if (submission.RulesVersion == null)
+                Add(LabIssueLevel.Warning, $"Copie faite avec une version de SMAD-X antérieure à la 0.9, corrigée avec la {EngineInfo.Version} : la note peut différer.",
+                                           $"Submission made with a SMAD-X version older than 0.9, graded with {EngineInfo.Version}: the grade may differ.");
+            else if (submission.RulesVersion != EngineInfo.RulesVersion)
+                Add(LabIssueLevel.Warning, $"Copie faite avec SMAD-X {submission.EngineVersion}, dont les règles d'audit diffèrent de celles de la {EngineInfo.Version} qui la corrige : la note peut différer.",
+                                           $"Submission made with SMAD-X {submission.EngineVersion}, whose audit rules differ from those of {EngineInfo.Version} grading it: the grade may differ.");
 
             try
             {
@@ -105,12 +140,13 @@ namespace SMADX.Services.Labs
 
         /// <summary>
         /// Part des objets du domaine, présents au départ (même DN), dont l'identifiant est celui de la session :
-        /// 1 pour le domaine de cette session, 0 pour un domaine venu d'une autre session.
+        /// 1 pour le domaine de cette session, 0 pour un domaine venu d'une autre session ; null si aucun objet
+        /// ne vient du départ, et que le contrôle est donc impossible.
         /// </summary>
-        public static double SessionMatch(ADObject work, IReadOnlyDictionary<string, Guid> startIds, Guid sessionId)
+        public static double? SessionMatch(ADObject work, IReadOnlyDictionary<string, Guid> startIds, Guid sessionId)
         {
             var candidates = Flatten(work).Where(o => startIds.ContainsKey(o.DistinguishedName)).ToList();
-            if (candidates.Count == 0) return 1;
+            if (candidates.Count == 0) return null;
             return candidates.Count(o => o.Id == LabSession.SessionObjectId(sessionId, startIds[o.DistinguishedName])) / (double)candidates.Count;
         }
 
@@ -143,7 +179,7 @@ namespace SMADX.Services.Labs
             foreach (var row in sameLab.Where(r => r.Submission!.SessionId != Guid.Empty))
             {
                 var startIds = StartIds(row.Submission!.Lab);
-                if (SessionMatch(row.Submission.Work.Domain, startIds, row.Submission.SessionId) >= SameSession) continue;
+                if (SessionMatch(row.Submission.Work.Domain, startIds, row.Submission.SessionId) is not { } own || own >= SameSession) continue;
                 var owners = sameLab.Where(o => o != row && o.Submission!.SessionId != Guid.Empty && o.Submission.SessionId != row.Submission.SessionId
                                                 && SessionMatch(row.Submission.Work.Domain, startIds, o.Submission.SessionId) >= SameSession)
                     .Select(o => o.Student).ToList();
@@ -193,7 +229,8 @@ namespace SMADX.Services.Labs
             var header = new List<string>
             {
                 T(culture, "Apprenant", "Learner"), T(culture, "Fichier", "File"), T(culture, "Enregistrée le", "Saved at"),
-                T(culture, "Points", "Points"), T(culture, "Sur", "Out of"), T(culture, "Pourcentage", "Percentage"), T(culture, "Indices", "Hints")
+                T(culture, "Points", "Points"), T(culture, "Sur", "Out of"), T(culture, "Pourcentage", "Percentage"), T(culture, "Indices", "Hints"),
+                T(culture, "Temps (min)", "Time (min)")
             };
             header.AddRange(lab.Objectives.Select(o => o.Id));
             header.Add(T(culture, "Remarques", "Remarks"));
@@ -205,7 +242,8 @@ namespace SMADX.Services.Labs
                 {
                     r.Student, SafeText.Name(Path.GetFileName(r.Path)), r.Submission?.SavedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? "",
                     r.Graded ? r.Points.ToString(numbers) : "", lab.MaxPoints.ToString(numbers),
-                    r.Graded && lab.MaxPoints > 0 ? (100.0 * r.Points / lab.MaxPoints).ToString("0.#", numbers) : "", r.HintsUsed.ToString(numbers)
+                    r.Graded && lab.MaxPoints > 0 ? (100.0 * r.Points / lab.MaxPoints).ToString("0.#", numbers) : "", r.HintsUsed.ToString(numbers),
+                    r.Submission?.ElapsedMinutes?.ToString(numbers) ?? ""
                 };
                 cells.AddRange(lab.Objectives.Select(o => !r.Graded ? "" : r.Passed(o) ? o.Points.ToString(numbers) : "0"));
                 cells.Add(string.Join(" ", r.Issues.Select(i => i.Message)));
@@ -227,6 +265,7 @@ namespace SMADX.Services.Labs
             var sb = new StringBuilder();
             sb.AppendLine($"# {Cell(lab.Title.Resolve(culture))} — {T(culture, "bilan de la classe", "class results")}").AppendLine();
             sb.AppendLine($"- **{T(culture, "Exercice", "Lab")}** : `{lab.Id}`{(lab.Exam ? T(culture, " (mode examen)", " (exam mode)") : "")}");
+            sb.AppendLine($"- **{T(culture, "Corrigé avec", "Graded with")}** : SMAD-X {EngineInfo.Version}");
             sb.AppendLine($"- **{T(culture, "Copies corrigées", "Graded submissions")}** : {graded.Count} / {rows.Count}");
             if (Average(rows) is { } average && Median(rows) is { } median)
             {
@@ -237,12 +276,13 @@ namespace SMADX.Services.Labs
             sb.AppendLine();
 
             sb.AppendLine($"## {T(culture, "Notes", "Grades")}").AppendLine();
-            sb.AppendLine($"| {T(culture, "Apprenant", "Learner")} | {T(culture, "Note", "Grade")} | {T(culture, "Indices", "Hints")} | {string.Join(" | ", lab.Objectives.Select(o => o.Id))} | {T(culture, "Remarques", "Remarks")} |");
-            sb.AppendLine($"|---|---|---|{string.Concat(lab.Objectives.Select(_ => "---|"))}---|");
+            sb.AppendLine($"| {T(culture, "Apprenant", "Learner")} | {T(culture, "Note", "Grade")} | {T(culture, "Indices", "Hints")} | {T(culture, "Temps", "Time")} | {string.Join(" | ", lab.Objectives.Select(o => o.Id))} | {T(culture, "Remarques", "Remarks")} |");
+            sb.AppendLine($"|---|---|---|---|{string.Concat(lab.Objectives.Select(_ => "---|"))}---|");
             foreach (var r in rows)
             {
                 var marks = lab.Objectives.Select(o => !r.Graded ? "—" : r.Passed(o) ? "✔" : "✘");
-                sb.AppendLine($"| {Cell(r.Student)} | {(r.Graded ? $"{r.Points} / {lab.MaxPoints}" : "—")} | {r.HintsUsed} | {string.Join(" | ", marks)} | {Cell(string.Join(" ", r.Issues.Select(i => i.Message)))} |");
+                var time = r.ElapsedMinutes is { } minutes ? $"{minutes} min" : "—";
+                sb.AppendLine($"| {Cell(r.Student)} | {(r.Graded ? $"{r.Points} / {lab.MaxPoints}" : "—")} | {r.HintsUsed} | {time} | {string.Join(" | ", marks)} | {Cell(string.Join(" ", r.Issues.Select(i => i.Message)))} |");
             }
             sb.AppendLine();
 

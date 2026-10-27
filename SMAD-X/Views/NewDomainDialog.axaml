@@ -30,14 +30,12 @@
         <StackPanel Grid.Row="2" Spacing="10" Margin="0,0,0,20">
             <TextBlock Text="{Binding DialogNewDomainDomainName}" FontWeight="SemiBold"/>
             <TextBox Name="DomainNameTextBox" 
-                     PlaceholderText="{Binding DialogNewDomainDomainPlaceholder}"
-                     Text="contoso.com"/>
+                     PlaceholderText="{Binding DialogNewDomainDomainPlaceholder}"/>
 
             <TextBlock Name="ValidationMessage" 
                        Foreground="Red" 
                        FontSize="12" 
-                       IsVisible="False"
-                       Text="Le nom de domaine doit contenir au moins un point (ex: contoso.com)"/>
+                       IsVisible="False"/>
 
             <!-- Option Tiering -->
             <CheckBox Name="EnableTieringCheckBox" 
@@ -55,37 +53,11 @@
                 Padding="10"
                 Margin="0,0,0,20">
             <ScrollViewer MaxHeight="150">
-                <TextBlock TextWrapping="Wrap" FontSize="11" FontFamily="Consolas">
-                    <Run Text="{Binding DialogNewDomainStructurePreview}" FontWeight="Bold"/>
-                    <LineBreak/>
-                    <Run Text="📦 Users (container par défaut)"/>
-                    <LineBreak/>
-                    <Run Text="   ├─ 👤 Administrator"/>
-                    <LineBreak/>
-                    <Run Text="   ├─ 👤 Guest"/>
-                    <LineBreak/>
-                    <Run Text="   ├─ 🔐 Krbtgt (Kerberos)"/>
-                    <LineBreak/>
-                    <Run Text="   └─ 👥 Domain Admins, Enterprise Admins, etc."/>
-                    <LineBreak/>
-                    <Run Text="📦 Computers (container par défaut)"/>
-                    <LineBreak/>
-                    <Run Text="   └─ 💻 WORKSTATION-01 (exemple)"/>
-                    <LineBreak/>
-                    <Run Text="📦 Builtin (groupes intégrés)"/>
-                    <LineBreak/>
-                    <Run Text="   └─ 👥 Administrators, Users, Server Operators, etc."/>
-                    <LineBreak/>
-                    <Run Text="📁 Domain Controllers (OU)"/>
-                    <LineBreak/>
-                    <Run Text="   └─ 💻 DC01 (contrôleur de domaine principal)"/>
-                    <LineBreak/>
-                    <Run Text="📦 System (container système)"/>
-                    <LineBreak/>
-                    <Run Text="   └─ 📦 Password Settings Container"/>
-                    <LineBreak/>
-                    <Run Text="📦 ForeignSecurityPrincipals"/>
-                </TextBlock>
+                <!-- Aperçu traduit : une ligne par objet (Dialog.NewDomain.PreviewTree) -->
+                <StackPanel>
+                    <TextBlock Text="{Binding DialogNewDomainStructurePreview}" FontWeight="Bold" FontSize="11" FontFamily="Consolas"/>
+                    <TextBlock Text="{Binding DialogNewDomainPreviewTree}" TextWrapping="Wrap" FontSize="11" FontFamily="Consolas"/>
+                </StackPanel>
             </ScrollViewer>
         </Border>
 

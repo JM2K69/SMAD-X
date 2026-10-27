@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
+using SMADX.Services;
 
 namespace SMADX.ViewModels
 {
@@ -133,21 +134,35 @@ namespace SMADX.ViewModels
             ShowIsolated       = ShowIsolated,
         };
 
+        private Graph.GraphNode? _selectedNode;
+        private int _nodeCount, _edgeCount;
+
         public void SetSelectedNode(Graph.GraphNode? node)
         {
+            _selectedNode = node;
             if (node == null)
             {
                 SelectedNodeInfo = string.Empty;
                 return;
             }
+            var loc = LocalizationService.Instance;
             SelectedNodeInfo =
-                $"{GetIcon(node.NodeType)} {node.Label}  |  Type : {node.NodeType}" +
-                (string.IsNullOrEmpty(node.Tier) ? "" : $"  |  Tier : {node.Tier}");
+                $"{GetIcon(node.NodeType)} {node.Label}  |  {loc["Details.Type"]} {loc[$"ObjectType.{node.NodeType}"]}" +
+                (string.IsNullOrEmpty(node.Tier) ? string.Empty : $"  |  {loc["Details.Tier"]} {node.Tier}");
         }
 
         public void UpdateStats(int nodeCount, int edgeCount)
         {
-            StatsText = $"Nœuds : {nodeCount}   Arêtes : {edgeCount}";
+            _nodeCount = nodeCount;
+            _edgeCount = edgeCount;
+            StatsText = string.Format(LocalizationService.Instance["Graph.Stats"], nodeCount, edgeCount);
+        }
+
+        /// <summary>Après un changement de langue : statistiques et nœud sélectionné réécrits dans la nouvelle langue.</summary>
+        public void Relocalize()
+        {
+            UpdateStats(_nodeCount, _edgeCount);
+            SetSelectedNode(_selectedNode);
         }
 
         private void RequestRefresh() => RefreshToken++;

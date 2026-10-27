@@ -13,7 +13,13 @@ namespace SMADX.ViewModels
     /// <summary>Un constat tel qu'affiché dans la fenêtre d'audit.</summary>
     public sealed class AuditFindingItem
     {
-        public AuditFindingItem(AuditFinding finding) => Finding = finding;
+        private readonly bool _hideFixGuidance;
+
+        public AuditFindingItem(AuditFinding finding, bool hideFixGuidance = false)
+        {
+            Finding = finding;
+            _hideFixGuidance = hideFixGuidance;
+        }
 
         public AuditFinding Finding { get; }
         public AuditSeverity Severity => Finding.Severity;
@@ -24,7 +30,22 @@ namespace SMADX.ViewModels
         public string ObjectName => Finding.Object.Name;
         public string ObjectDistinguishedName => Finding.Object.DistinguishedName;
         public string Detail => Finding.Detail;
-        public string Documentation => Finding.Rule.Documentation;
+        public string Documentation => _hideFixGuidance ? WithoutFixGuidance(Finding.Rule.Documentation) : Finding.Rule.Documentation;
+
+        /// <summary>La fiche sans sa section « Comment corriger » (examen) : le reste explique le constat sans donner la réponse.</summary>
+        public static string WithoutFixGuidance(string markdown)
+        {
+            var lines = markdown.ReplaceLineEndings("\n").Split('\n');
+            var kept = new List<string>();
+            var skipping = false;
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("## ", StringComparison.Ordinal))
+                    skipping = line.StartsWith("## Comment corriger", StringComparison.Ordinal) || line.StartsWith("## How to fix", StringComparison.Ordinal);
+                if (!skipping) kept.Add(line);
+            }
+            return string.Join("\n", kept);
+        }
         public IReadOnlyList<AuditReference> References => Finding.Rule.References;
         public string AnssiLevelLabel => Finding.Rule.AnssiLevel is { } level
             ? string.Format(LocalizationService.Instance["Audit.AnssiLevel.Item"], level)
@@ -47,6 +68,7 @@ namespace SMADX.ViewModels
         private readonly Action<ADObject> _showInTree;
         private readonly Action<AuditReport> _onReport;
         private readonly ADSecurityAuditService _audit = new();
+        private readonly bool _hideFixGuidance;
 
         [ObservableProperty]
         private AuditReport? _report;
@@ -65,8 +87,10 @@ namespace SMADX.ViewModels
         /// <param name="getDomain">Domaine courant, relu à chaque audit (il change si l'utilisateur ouvre un autre fichier).</param>
         /// <param name="showInTree">Sélectionne un objet dans l'arbre de la fenêtre principale.</param>
         /// <param name="onReport">Appelé après chaque audit (badges de l'arbre).</param>
-        public AuditViewModel(Func<ADObject?> getDomain, Action<ADObject> showInTree, Action<AuditReport> onReport)
+        /// <param name="hideFixGuidance">Examen : les fiches n'ont pas leur section « Comment corriger ».</param>
+        public AuditViewModel(Func<ADObject?> getDomain, Action<ADObject> showInTree, Action<AuditReport> onReport, bool hideFixGuidance = false)
         {
+            _hideFixGuidance = hideFixGuidance;
             _getDomain = getDomain;
             _showInTree = showInTree;
             _onReport = onReport;
@@ -117,7 +141,7 @@ namespace SMADX.ViewModels
             Findings.Clear();
             foreach (var finding in Report?.Findings ?? Array.Empty<AuditFinding>())
                 if (SelectedFilter.Severity is null || finding.Severity == SelectedFilter.Severity)
-                    Findings.Add(new AuditFindingItem(finding));
+                    Findings.Add(new AuditFindingItem(finding, _hideFixGuidance));
 
             SelectedFinding = Findings.FirstOrDefault(f => previous != null && f.Finding.Rule == previous.Rule && f.Finding.Object == previous.Object)
                               ?? Findings.FirstOrDefault();

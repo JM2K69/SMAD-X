@@ -7,7 +7,7 @@
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="740"
         x:Class="SMADX.Views.DomainTimelineWindow"
         x:DataType="vm:DomainTimelineViewModel"
-        Title="AD Timeline — File Comparison"
+        Title="{Binding Source={StaticResource Loc}, Path=TimelineWindowTitle}"
         Icon="/Assets/icone.ico"
         Width="1200" Height="740"
         WindowStartupLocation="CenterOwner">
@@ -26,17 +26,17 @@
                     CornerRadius="6" Padding="12,8">
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <StackPanel Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center">
-                        <TextBlock Text="FILE  A  (older)" FontWeight="Bold"
+                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TimelineFileA}" FontWeight="Bold"
                                    Foreground="#4FC3F7" FontSize="13"/>
                         <TextBlock Text="{Binding FileA.DomainName, FallbackValue='—'}"
                                    FontSize="11" Foreground="#AAAAAA"/>
                         <TextBlock Text="{Binding FileA.SnapshotDate, StringFormat='{}{0:yyyy-MM-dd  HH:mm}', FallbackValue=''}"
                                    FontSize="11" Foreground="#888888"/>
                     </StackPanel>
-                    <TextBlock Grid.Column="1" Text="{Binding FileA.FilePath, FallbackValue='No file selected'}"
+                    <TextBlock Grid.Column="1" Text="{Binding FileALabel}"
                                VerticalAlignment="Center" Foreground="#CCCCCC"
                                TextTrimming="CharacterEllipsis" FontSize="11"/>
-                    <Button Grid.Column="2" Content="📂 Open…"
+                    <Button Grid.Column="2" Content="{Binding Source={StaticResource Loc}, Path=TimelineOpen}"
                             Click="OnOpenFileAClick"
                             Margin="10,0,0,0" VerticalAlignment="Center"/>
                 </Grid>
@@ -47,17 +47,17 @@
                     CornerRadius="6" Padding="12,8">
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <StackPanel Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center">
-                        <TextBlock Text="FILE  B  (newer)" FontWeight="Bold"
+                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TimelineFileB}" FontWeight="Bold"
                                    Foreground="#81C784" FontSize="13"/>
                         <TextBlock Text="{Binding FileB.DomainName, FallbackValue='—'}"
                                    FontSize="11" Foreground="#AAAAAA"/>
                         <TextBlock Text="{Binding FileB.SnapshotDate, StringFormat='{}{0:yyyy-MM-dd  HH:mm}', FallbackValue=''}"
                                    FontSize="11" Foreground="#888888"/>
                     </StackPanel>
-                    <TextBlock Grid.Column="1" Text="{Binding FileB.FilePath, FallbackValue='No file selected'}"
+                    <TextBlock Grid.Column="1" Text="{Binding FileBLabel}"
                                VerticalAlignment="Center" Foreground="#CCCCCC"
                                TextTrimming="CharacterEllipsis" FontSize="11"/>
-                    <Button Grid.Column="2" Content="📂 Open…"
+                    <Button Grid.Column="2" Content="{Binding Source={StaticResource Loc}, Path=TimelineOpen}"
                             Click="OnOpenFileBClick"
                             Margin="10,0,0,0" VerticalAlignment="Center"/>
                 </Grid>
@@ -67,7 +67,7 @@
         <!-- ── Row 1 : Compare button + stats ───────────────────────────── -->
         <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto,Auto"
               Margin="0,0,0,10">
-            <Button Grid.Column="0" Content="⚡ Compare"
+            <Button Grid.Column="0" Content="{Binding Source={StaticResource Loc}, Path=TimelineCompare}"
                     Command="{Binding CompareCommand}"
                     FontWeight="Bold" Padding="16,6"/>
 
@@ -75,23 +75,23 @@
             <Border Grid.Column="2" Background="#1B5E20" CornerRadius="4"
                     Padding="10,4" Margin="8,0,4,0">
                 <TextBlock Foreground="#A5D6A7">
-                    <Run Text="+ Added: "/><Run Text="{Binding CountAdded}"/>
+                    <Run Text="{Binding Source={StaticResource Loc}, Path=TimelineAdded}"/><Run Text="{Binding CountAdded}"/>
                 </TextBlock>
             </Border>
             <Border Grid.Column="3" Background="#B71C1C" CornerRadius="4"
                     Padding="10,4" Margin="4,0">
                 <TextBlock Foreground="#EF9A9A">
-                    <Run Text="− Removed: "/><Run Text="{Binding CountRemoved}"/>
+                    <Run Text="{Binding Source={StaticResource Loc}, Path=TimelineRemoved}"/><Run Text="{Binding CountRemoved}"/>
                 </TextBlock>
             </Border>
             <Border Grid.Column="4" Background="#E65100" CornerRadius="4"
                     Padding="10,4" Margin="4,0">
                 <TextBlock Foreground="#FFCC80">
-                    <Run Text="~ Modified: "/><Run Text="{Binding CountModified}"/>
+                    <Run Text="{Binding Source={StaticResource Loc}, Path=TimelineModified}"/><Run Text="{Binding CountModified}"/>
                 </TextBlock>
             </Border>
 
-            <Button Grid.Column="6" Content="📤 Export CSV"
+            <Button Grid.Column="6" Content="{Binding Source={StaticResource Loc}, Path=TimelineExportCsv}"
                     Click="OnExportCsvClick"
                     Margin="8,0,0,0"/>
         </Grid>
@@ -99,20 +99,33 @@
         <!-- ── Row 2 : Filters ──────────────────────────────────────────── -->
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto,Auto"
               Margin="0,0,0,8">
-            <TextBox Grid.Column="0" PlaceholderText="Search name, DN or details…"
+            <TextBox Grid.Column="0" PlaceholderText="{Binding Source={StaticResource Loc}, Path=TimelineFilterText}"
                      Text="{Binding FilterText}" Margin="0,0,8,0"/>
 
-            <ComboBox Grid.Column="1" PlaceholderText="Change type"
+            <ComboBox Grid.Column="1" PlaceholderText="{Binding Source={StaticResource Loc}, Path=TimelineFilterChangeType}"
                       ItemsSource="{Binding ChangeTypeOptions}"
                       SelectedItem="{Binding FilterChangeType}"
-                      Width="140" Margin="0,0,8,0"/>
+                      Width="180" Margin="0,0,8,0">
+                <!-- "" (aucun filtre) s'affiche « Tous les changements » -->
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource LocValue}, ConverterParameter=Timeline.Change}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
 
-            <ComboBox Grid.Column="2" PlaceholderText="Category"
+            <ComboBox Grid.Column="2" PlaceholderText="{Binding Source={StaticResource Loc}, Path=TimelineFilterCategory}"
                       ItemsSource="{Binding CategoryOptions}"
                       SelectedItem="{Binding FilterCategory}"
-                      Width="150" Margin="0,0,8,0"/>
+                      Width="180" Margin="0,0,8,0">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource LocValue}, ConverterParameter=Timeline.Category}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
 
-            <Button Grid.Column="3" Content="🔍 Apply"
+            <Button Grid.Column="3" Content="{Binding Source={StaticResource Loc}, Path=TimelineApply}"
                     Command="{Binding ApplyFiltersCommand}"/>
         </Grid>
 
@@ -123,12 +136,12 @@
                   GridLinesVisibility="Horizontal"
                   AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Change"     Binding="{Binding ChangeType}"           Width="90"/>
-                <DataGridTextColumn Header="Category"   Binding="{Binding ChangeCategory}"        Width="110"/>
-                <DataGridTextColumn Header="Object"     Binding="{Binding ObjectName}"            Width="180"/>
-                <DataGridTextColumn Header="Type"       Binding="{Binding ObjectType}"            Width="110"/>
-                <DataGridTextColumn Header="DN"         Binding="{Binding DistinguishedName}"     Width="*"/>
-                <DataGridTextColumn Header="Details"    Binding="{Binding ChangedFieldsSummary}"  Width="320"/>
+                <DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=TimelineColumnChange}"   Binding="{Binding ChangeType, Mode=OneWay, Converter={StaticResource LocValue}, ConverterParameter=Timeline.Change}" Width="100"/>
+                <DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=TimelineColumnCategory}" Binding="{Binding ChangeCategory, Mode=OneWay, Converter={StaticResource LocValue}, ConverterParameter=Timeline.Category}" Width="120"/>
+                <DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=TimelineColumnObject}"   Binding="{Binding ObjectName}"            Width="180"/>
+                <DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=TimelineColumnType}"     Binding="{Binding ObjectType, Mode=OneWay, Converter={StaticResource LocValue}, ConverterParameter=ObjectType}" Width="150"/>
+                <DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=TimelineColumnDN}"       Binding="{Binding DistinguishedName}"     Width="*"/>
+                <DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=TimelineColumnDetails}"  Binding="{Binding ChangedFieldsSummary}"  Width="320"/>
             </DataGrid.Columns>
         </DataGrid>
 

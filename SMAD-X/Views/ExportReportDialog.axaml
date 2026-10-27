@@ -8,7 +8,7 @@
 		Width="545" MaxHeight="700" SizeToContent="Height"
 		CanResize="True"
 		WindowStartupLocation="CenterOwner"
-		Title="Export">
+		Title="{Binding Source={StaticResource Loc}, Path=ReportDialogTitle}">
 
 	<Window.Resources>
 		<helpers:LocalizationProxy x:Key="Loc"/>
@@ -54,7 +54,7 @@
 								<ItemsControl.ItemTemplate>
 									<DataTemplate>
 										<CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
-													  Content="{Binding Label}"
+													  Content="{Binding DisplayLabel}"
 													  Margin="4,2"
 													  Click="OnTypeFilterCheckChanged"/>
 									</DataTemplate>
@@ -108,7 +108,7 @@
 									  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatMarkdown}"
 									  IsChecked="True"
 									  IsEnabled="False"
-									  ToolTip.Tip="Markdown is always exported"/>
+									  ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=ReportFormatMarkdownAlways}"/>
 							<CheckBox x:Name="ChkDocx"
 									  Content="{Binding Source={StaticResource Loc}, Path=ReportFormatDocx}"
 									  IsCheckedChanged="OnFormatCheckChanged"/>
@@ -123,12 +123,12 @@
 							<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportThemeLabel}"
 									   VerticalAlignment="Center" FontWeight="SemiBold"/>
 							<ComboBox x:Name="ThemeCombo" MinWidth="180" SelectedIndex="0">
-								<ComboBoxItem Tag="WordLike">WordLike</ComboBoxItem>
-								<ComboBoxItem Tag="Plain">Plain</ComboBoxItem>
-								<ComboBoxItem Tag="TechnicalDocument">Technical Document</ComboBoxItem>
-								<ComboBoxItem Tag="GitHubLike">GitHub</ComboBoxItem>
-								<ComboBoxItem Tag="Compact">Compact</ComboBoxItem>
-								<ComboBoxItem Tag="Report">Report</ComboBoxItem>
+								<ComboBoxItem Tag="WordLike" Content="{Binding Source={StaticResource Loc}, Path=ReportThemeWordLike}"/>
+								<ComboBoxItem Tag="Plain" Content="{Binding Source={StaticResource Loc}, Path=ReportThemePlain}"/>
+								<ComboBoxItem Tag="TechnicalDocument" Content="{Binding Source={StaticResource Loc}, Path=ReportThemeTechnicalDocument}"/>
+								<ComboBoxItem Tag="GitHubLike" Content="{Binding Source={StaticResource Loc}, Path=ReportThemeGitHubLike}"/>
+								<ComboBoxItem Tag="Compact" Content="{Binding Source={StaticResource Loc}, Path=ReportThemeCompact}"/>
+								<ComboBoxItem Tag="Report" Content="{Binding Source={StaticResource Loc}, Path=ReportThemeReport}"/>
 							</ComboBox>
 						</StackPanel>
 					</StackPanel>

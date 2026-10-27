@@ -55,6 +55,7 @@ namespace SMADX.Services
         /// </summary>
         public bool ValidateContainerRule(Models.ADObjectType parentType, Models.ADObjectType childType, out string? errorMessage)
         {
+            var loc = LocalizationService.Instance;
             errorMessage = null;
 
             switch (parentType)
@@ -65,7 +66,7 @@ namespace SMADX.Services
                         childType != Models.ADObjectType.Container &&
                         childType != Models.ADObjectType.Policy)
                     {
-                        errorMessage = $"Un domaine ne peut contenir que des OUs, Containers et Policies, pas des {childType}.";
+                        errorMessage = string.Format(loc["Validation.Container.Domain"], loc[$"ObjectType.{childType}"]);
                         return false;
                     }
                     break;
@@ -76,7 +77,7 @@ namespace SMADX.Services
                         childType == Models.ADObjectType.PasswordSettingsObject ||
                         childType == Models.ADObjectType.Container)
                     {
-                        errorMessage = $"Une OU ne peut pas contenir un {childType}.";
+                        errorMessage = string.Format(loc["Validation.Container.OU"], loc[$"ObjectType.{childType}"]);
                         return false;
                     }
                     break;
@@ -88,7 +89,7 @@ namespace SMADX.Services
                         childType == Models.ADObjectType.Container ||
                         childType == Models.ADObjectType.Policy)
                     {
-                        errorMessage = $"Un Container ne peut pas contenir un {childType}.";
+                        errorMessage = string.Format(loc["Validation.Container.Container"], loc[$"ObjectType.{childType}"]);
                         return false;
                     }
                     break;
@@ -100,7 +101,7 @@ namespace SMADX.Services
                 case Models.ADObjectType.Policy:
                 case Models.ADObjectType.PasswordSettingsObject:
                     // Ces types ne peuvent pas contenir d'autres objets
-                    errorMessage = $"Un {parentType} ne peut pas contenir d'autres objets.";
+                    errorMessage = string.Format(loc["Validation.Container.Leaf"], loc[$"ObjectType.{parentType}"]);
                     return false;
             }
 

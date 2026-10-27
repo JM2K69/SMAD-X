@@ -33,5 +33,5 @@ The list is also in the application: **Help > Keyboard shortcuts...**
 | `Ctrl+Shift+K` | Attack paths |
 | `Ctrl+Shift+B` | Before / after |
 | `Ctrl+D` | Delegations |
-| `Ctrl+T` | Domain Timeline (compare two files) |
+| `Ctrl+T` | Domain timeline (compare two files) |
 | `Ctrl+Shift+S` | AD sites |

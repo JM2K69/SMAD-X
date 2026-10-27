@@ -120,16 +120,17 @@
 - **Attack paths**: who can take control of the domain and through which steps (Kerberoasting, AS-REP roasting, delegations, owners, GPOs, Kerberos delegation…), highlighted in the graph
 - **Before / after** comparison and **undo / redo**
 - **Labs** (`.smadx-lab.json`): realistic scenarios graded automatically, including 12 attack-path labs in French and English
-- **Lab mode and exam mode**: open a lab directly (`SMAD-X.exe lab.smadx-lab.json`) with the domain locked; an exam has no hints, no checking and no start over; learners save a **submission** (`.smadx-submission.json`) to resume or hand in, sealed (SHA-256) and tied to a random work session
+- **Lab mode and exam mode**: open a lab directly (`SMAD-X.exe lab.smadx-lab.json`) with the domain locked; an exam has no hints, no score and no start over, measures the time spent, and can close the audit, its "How to fix" sections, the attack paths or the comparison; learners save a **submission** (`.smadx-submission.json`) to resume or hand in, sealed (SHA-256) and tied to a random work session
+- Nothing is lost: closing with unsaved changes asks to save, and lab mode keeps a recovery copy every minute, offered at the next opening
 - **For trainers**: the sample domains in [`Samples/AttackPaths`](Samples/AttackPaths/README.md) describe each path and its fix, so they are the answer keys of the attack-path labs; write your own labs with the [lab creation guide](https://jm2k69.github.io/SMAD-X/en/labs/create/)
 
 ### 🧑‍🏫 SMAD-X Studio — lab authoring for trainers
 A second executable, shipped in the same archive ([documentation](https://jm2k69.github.io/SMAD-X/en/labs/studio/)):
 - **New lab from a recommendation**: one recipe per audit rule / ANSSI control point, alone or **several combined** in the same domain; Studio builds a healthy, populated domain and injects only those misconfigurations
 - **Convert** a `.smad-x.json` scenario into a lab: the context becomes the statement, the path and the fix go into the trainer notes
-- Markdown statement editor with preview, objective editor with **suggestions** from the audit and attack paths, and **guards** against brute-force fixes
+- Markdown statement editor with preview, objective editor with **suggestions** from the audit and attack paths, and **guards** against brute-force fixes: a broken guard cancels the objectives that concerned the protected object
 - **Validation** like the shipped labs' tests (nothing met at start, effective guards, no visible solution), grading of the trainer's fixed domain, and an exported **trainer sheet**
-- **Grading a class**: add several submissions or a whole folder, get each grade, success per objective, a CSV for Excel and a Markdown class report; submissions edited by hand, handed in under another name or holding someone else's domain are flagged
+- **Grading a class**: add several submissions or a whole folder, get each grade, success per objective, a CSV for Excel and a Markdown class report; submissions edited by hand, handed in under another name, holding someone else's domain, reopened outside exam mode or made with another SMAD-X version are flagged
 - **Command line** for batches: `SMAD-X.Studio recipe all --lang en --out labs`, `convert`, `validate`, `grade lab.smadx-lab.json submissions/ --csv grades.csv`
 - Launched from SMAD-X (**Labs > Create a lab with SMAD-X Studio...**) on the current domain
 

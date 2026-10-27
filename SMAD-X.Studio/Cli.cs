@@ -59,13 +59,16 @@ namespace SMADX.Studio
                 Without arguments, opens the window. / Sans argument, ouvre la fenêtre.
 
                   SMAD-X.Studio list-recipes [--lang fr|en]
-                  SMAD-X.Studio recipe <RULE-ID>...|all [--combine] [--exam] [--lang fr|en] [--domain corp.example.lab] [--out <folder>] [--date yyyy-MM-dd]
-                  SMAD-X.Studio convert <scenario.smad-x.json>... [--exam] [--lang fr|en] [--out <folder>] [--date yyyy-MM-dd]
+                  SMAD-X.Studio recipe <RULE-ID>...|all [--combine] [--exam [--exam-check] [--exam-close <tools>]] [--lang fr|en] [--domain corp.example.lab] [--out <folder>] [--date yyyy-MM-dd]
+                  SMAD-X.Studio convert <scenario.smad-x.json>... [--exam [--exam-check] [--exam-close <tools>]] [--lang fr|en] [--out <folder>] [--date yyyy-MM-dd]
                   SMAD-X.Studio validate <lab.smadx-lab.json>... [--solution <fixed.smad-x.json>] [--lang fr|en]
                   SMAD-X.Studio grade <lab.smadx-lab.json> <submission.smadx-submission.json|folder>... [--csv <grades.csv>] [--report <results.md>] [--lang fr|en]
 
-                --exam: exam mode in SMAD-X (no hints, no checking, no start over).
-                --exam : mode examen dans SMAD-X (ni indice, ni vérification, ni « Recommencer »).
+                --exam: exam mode in SMAD-X (no hints, no score, no start over; time measured; file written without hints).
+                --exam : mode examen dans SMAD-X (ni indice, ni score, ni « Recommencer » ; temps mesuré ; fichier écrit sans les indices).
+                --exam-check: allows Check during the exam (objectives met, no score). / autorise « Vérifier » pendant l'examen.
+                --exam-close audit,fixes,paths,comparison: tools closed during the exam (all open by default).
+                --exam-close audit,fixes,paths,comparison : outils fermés pendant l'examen (tous ouverts par défaut).
                 grade: grades the learners' submissions with your lab; + objective met, - not met.
                 grade : corrige les copies des apprenants avec votre exercice ; + objectif atteint, - non atteint.
 
@@ -213,7 +216,12 @@ namespace SMADX.Studio
         /// <summary>Valide puis écrit l'exercice et ses notes ; un exercice en erreur est quand même écrit, pour être corrigé dans Studio.</summary>
         private static int Write(LabDefinition lab, string notes, Options options, TextWriter output, TextWriter error)
         {
-            if (options.Exam) lab.Exam = true;
+            if (options.Exam)
+            {
+                lab.Exam = true;
+                lab.ExamCheck = options.ExamCheck;
+                lab.ExamClosedTools = options.ExamClosedTools;
+            }
             Directory.CreateDirectory(options.Out);
             var path = Path.Combine(options.Out, lab.Id + LabService.FileExtension);
             new LabService().SaveFile(lab, path);
@@ -255,6 +263,8 @@ namespace SMADX.Studio
             public bool Verbose { get; private set; }
             public bool Combine { get; private set; }
             public bool Exam { get; private set; }
+            public bool ExamCheck { get; private set; }
+            public LabTools ExamClosedTools { get; private set; }
             public string? Csv { get; private set; }
             public string? Report { get; private set; }
 
@@ -285,6 +295,18 @@ namespace SMADX.Studio
                         case "--verbose": case "-v": options.Verbose = true; break;
                         case "--combine": options.Combine = true; break;
                         case "--exam": options.Exam = true; break;
+                        case "--exam-check": options.ExamCheck = true; break;
+                        case "--exam-close":
+                            foreach (var tool in Value("--exam-close").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                                options.ExamClosedTools |= tool.ToLowerInvariant() switch
+                                {
+                                    "audit" => LabTools.Audit,
+                                    "fixes" => LabTools.FixGuidance,
+                                    "paths" => LabTools.AttackPaths,
+                                    "comparison" => LabTools.Comparison,
+                                    _ => throw new CliException($"--exam-close: « {tool} » is not audit, fixes, paths or comparison.")
+                                };
+                            break;
                         case "--csv": options.Csv = Value("--csv"); break;
                         case "--report": options.Report = Value("--report"); break;
                         default:
@@ -293,6 +315,8 @@ namespace SMADX.Studio
                             break;
                     }
                 }
+                if ((options.ExamCheck || options.ExamClosedTools != LabTools.None) && !options.Exam)
+                    throw new CliException("--exam-check and --exam-close need --exam.");
                 return options;
             }
         }

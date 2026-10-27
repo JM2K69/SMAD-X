@@ -52,7 +52,7 @@ Every object has a **Markdown description**. Built-in objects come with sheets w
 
 ![Sites window](assets/screens/sites.png)
 
-**Analyse > View sites...** (`Ctrl+Shift+S`) manages the topology: sites, subnets, domain controllers, replication links, with a table and a graph view.
+**Analysis > View sites...** (`Ctrl+Shift+S`) manages the topology: sites, subnets, domain controllers, replication links, with a table and a graph view.
 
 ## Language and theme
 

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using SMADX.Models;
+using SMADX.Services;
 using SMADX.ViewModels;
 
 namespace SMADX.Views
@@ -35,11 +36,11 @@ namespace SMADX.Views
 
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
-                Title             = "Export delegations to CSV",
+                Title             = LocalizationService.Instance["Delegations.Export.Title"],
                 SuggestedFileName = "delegations.csv",
                 FileTypeChoices   = new List<FilePickerFileType>
                 {
-                    new("CSV file") { Patterns = new[] { "*.csv" } }
+                    new(LocalizationService.Instance["Csv.FileType"]) { Patterns = new[] { "*.csv" } }
                 }
             });
 

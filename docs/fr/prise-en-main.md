@@ -7,7 +7,7 @@
 | Zone | Rôle |
 |---|---|
 | **Menus** | Fichier, Édition, Affichage, Configuration, **Analyse**, **Exercices**, Aide |
-| **Barre d'outils** | créer un objet (OU, conteneur, utilisateur, groupe, ordinateur, gMSA, stratégie, PSO) sous l'objet sélectionné ; Relations, Graphe, Audit de sécurité, Export PNG |
+| **Barre d'outils** | créer un objet (OU, conteneur, utilisateur, groupe, ordinateur, gMSA, stratégie, PSO) sous l'objet sélectionné ; Relations, Graphe, Audit de sécurité, Exporter en PNG |
 | **Structure Active Directory** | l'arbre du domaine, avec une barre de recherche (nom, type ou description) et des badges : tier, `GPO` liée, `DEL` délégation, `AUDIT` constat |
 | **Sites AD** | sous l'arbre : les sites, leurs sous-réseaux et leurs contrôleurs de domaine |
 | **Détails de l'objet** | nom, type, DN, tier, fiche Markdown, actions, section **Sécurité** |

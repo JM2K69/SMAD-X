@@ -3,6 +3,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
+using SMADX.Services;
 
 namespace SMADX.ViewModels
 {
@@ -63,10 +64,11 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void ResetToDefaults()
         {
+            var loc = LocalizationService.Instance;
             Tiers.Clear();
-            Tiers.Add(new TierConfiguration("Tier 0", "#FF0000", "Administration et contrôle de domaine", 0));
-            Tiers.Add(new TierConfiguration("Tier 1", "#FFA500", "Serveurs et infrastructure", 1));
-            Tiers.Add(new TierConfiguration("Tier 2", "#00FF00", "Postes de travail utilisateurs", 2));
+            Tiers.Add(new TierConfiguration("Tier 0", "#FF0000", loc["TierConfig.Default.Tier0"], 0));
+            Tiers.Add(new TierConfiguration("Tier 1", "#FFA500", loc["TierConfig.Default.Tier1"], 1));
+            Tiers.Add(new TierConfiguration("Tier 2", "#00FF00", loc["TierConfig.Default.Tier2"], 2));
         }
     }
 }

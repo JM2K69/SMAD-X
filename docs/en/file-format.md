@@ -42,6 +42,8 @@ A lab holds a statement, a full starting domain (a `.smad-x.json` document, migr
 
 A learner's submission (`"Format": "smadx-submission"`) holds their name (`Student`), the lab id (`LabId`), the date the starting domain was prepared (`StartedOn`), the date of the submission (`SavedAt`), the objectives whose hint was viewed (`HintsUsed`), the lab received (`Lab`) and the learner's domain (`Work`, a `.smad-x.json` document). It holds no grade: SMAD-X Studio grades it with the trainer's copy of the lab.
 
+`ElapsedMinutes` gives the time spent on the lab, resumed sessions included; `EngineVersion` and `RulesVersion`, the SMAD-X version that wrote the submission and the fingerprint of its audit rules: Studio warns when they differ from its own. These three fields exist since format v2 (SMAD-X 0.9).
+
 `SessionId` identifies the work session, drawn at random when the lab opens: the identifiers (`Id`) of the objects in the working domain are derived from it. `Seal` is the seal: the SHA-256, in hexadecimal, of the submission without the `Seal` key, written as compact JSON. It does not depend on the layout, only on content: the slightest change breaks it.
 
 ## The PowerShell import script

@@ -57,7 +57,7 @@ The audit and attack paths compute **effective membership**: an account that bel
 
 ![Delegations window](assets/screens/delegations.png)
 
-**Analyse > Delegations** (`Ctrl+D`) lists delegations: trustee, right, category, target DN, inheritance, tier. Filter by trustee, target or category, hide inherited delegations, and export to CSV.
+**Analysis > Delegations...** (`Ctrl+D`) lists delegations: trustee, right, category, target DN, inheritance, tier. Filter by trustee, target or category, hide inherited delegations, and export to CSV.
 
 To **delegate**, select an OU on the left, choose the trustee and the category (password reset, computer management, account unlock, attribute write, full control), then **Add**. **Remove the selected delegation** deletes it.
 

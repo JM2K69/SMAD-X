@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using SMADX.ViewModels;
 using SMADX.Graph;
+using SMADX.Services;
 
 namespace SMADX.Views
 {
@@ -37,7 +38,17 @@ namespace SMADX.Views
                 vm.SetSelectedNode(node);
             };
 
+            // Changement de langue : les textes composés par le ViewModel sont réécrits (le canvas se redessine seul)
+            LocalizationService.Instance.PropertyChanged += OnLanguageChanged;
+            Closed += (_, _) => LocalizationService.Instance.PropertyChanged -= OnLanguageChanged;
+
             ReloadGraph();
+        }
+
+        private void OnLanguageChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(LocalizationService.CurrentCulture))
+                _vm?.Relocalize();
         }
 
         private void ReloadGraph()

@@ -7,7 +7,7 @@
 		mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="740"
 		x:Class="SMADX.Views.DelegationsWindow"
 		x:DataType="vm:DelegationsViewModel"
-		Title="Active Directory — Delegations"
+		Title="{Binding Source={StaticResource Loc}, Path=DelegationsWindowTitle}"
 		Icon="/Assets/icone.ico"
 		Width="1400" Height="740"
 		WindowStartupLocation="CenterOwner">
@@ -23,27 +23,27 @@
 				Padding="12,8" Margin="0,0,0,10">
 			<StackPanel Orientation="Horizontal" Spacing="20">
 				<StackPanel>
-					<TextBlock Text="Password Reset" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryPasswordReset}" FontSize="11" Foreground="#666"/>
 					<TextBlock Text="{Binding CountPasswordReset}" FontSize="20" FontWeight="Bold" Foreground="#0078D4"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="Computer Mgmt" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryComputerManagement}" FontSize="11" Foreground="#666"/>
 					<TextBlock Text="{Binding CountComputerManagement}" FontSize="20" FontWeight="Bold" Foreground="#107C10"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="Account Unlock" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryAccountUnlock}" FontSize="11" Foreground="#666"/>
 					<TextBlock Text="{Binding CountAccountUnlock}" FontSize="20" FontWeight="Bold" Foreground="#E3A21A"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="Attr Write" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryAttributeWrite}" FontSize="11" Foreground="#666"/>
 					<TextBlock Text="{Binding CountAttributeWrite}" FontSize="20" FontWeight="Bold" Foreground="#8764B8"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="Full Control" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryFullControl}" FontSize="11" Foreground="#666"/>
 					<TextBlock Text="{Binding CountFullControl}" FontSize="20" FontWeight="Bold" Foreground="#D13438"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="Other" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryOther}" FontSize="11" Foreground="#666"/>
 					<TextBlock Text="{Binding CountOther}" FontSize="20" FontWeight="Bold" Foreground="#767676"/>
 				</StackPanel>
 			</StackPanel>
@@ -56,7 +56,7 @@
 			<Border Grid.Column="0" BorderBrush="#CCCCCC" BorderThickness="0,0,1,0">
 				<Grid RowDefinitions="Auto,*,Auto">
 					<Border Grid.Row="0" Padding="10,7" Background="#1A5FAF" CornerRadius="4,4,0,0">
-						<TextBlock Text="🏗 OU / Containers" FontWeight="SemiBold" FontSize="13"
+						<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationsTreeTitle}" FontWeight="SemiBold" FontSize="13"
 								   Foreground="White"/>
 					</Border>
 
@@ -93,7 +93,7 @@
 						</TreeView.ItemTemplate>
 					</TreeView>
 
-					<Button Grid.Row="2" Content="Show all OUs"
+					<Button Grid.Row="2" Content="{Binding Source={StaticResource Loc}, Path=DelegationsShowAll}"
 							Command="{Binding ClearOUFilterCommand}"
 							HorizontalAlignment="Stretch" Margin="6"
 							HorizontalContentAlignment="Center"/>
@@ -110,20 +110,27 @@
 				<!-- Filter bar -->
 				<Grid Grid.Row="0" ColumnDefinitions="*,*,Auto,Auto,Auto"
 					  Margin="0,0,0,10">
-					<TextBox Grid.Column="0" PlaceholderText="Filter trustee…"
+					<TextBox Grid.Column="0" PlaceholderText="{Binding Source={StaticResource Loc}, Path=DelegationsFilterTrustee}"
 							 Text="{Binding FilterTrustee}" Margin="0,0,8,0"/>
-					<TextBox Grid.Column="1" PlaceholderText="Filter target DN…"
+					<TextBox Grid.Column="1" PlaceholderText="{Binding Source={StaticResource Loc}, Path=DelegationsFilterTargetDN}"
 							 Text="{Binding FilterTargetDN}" Margin="0,0,8,0"/>
-					<ComboBox Grid.Column="2" PlaceholderText="Category"
+					<ComboBox Grid.Column="2" PlaceholderText="{Binding Source={StaticResource Loc}, Path=DelegationsFilterCategory}"
 							  ItemsSource="{Binding CategoryItems}"
 							  SelectedItem="{Binding FilterCategory, Mode=TwoWay}"
-							  Width="160" Margin="0,0,8,0"/>
-					<CheckBox Grid.Column="3" Content="Hide inherited"
+							  Width="220" Margin="0,0,8,0">
+						<!-- "" (aucun filtre) s'affiche « Toutes les catégories » -->
+						<ComboBox.ItemTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Converter={StaticResource LocValue}, ConverterParameter=Delegation.Category}"/>
+							</DataTemplate>
+						</ComboBox.ItemTemplate>
+					</ComboBox>
+					<CheckBox Grid.Column="3" Content="{Binding Source={StaticResource Loc}, Path=DelegationsHideInherited}"
 							  IsChecked="{Binding HideInherited}" Margin="0,0,8,0"
 							  VerticalAlignment="Center"/>
 					<StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="8">
-						<Button Content="Apply"      Command="{Binding ApplyFiltersCommand}"/>
-						<Button Content="Export CSV" Click="OnExportCsvClick"/>
+						<Button Content="{Binding Source={StaticResource Loc}, Path=DelegationsApply}" Command="{Binding ApplyFiltersCommand}"/>
+						<Button Content="{Binding Source={StaticResource Loc}, Path=DelegationsExportCsv}" Click="OnExportCsvClick"/>
 					</StackPanel>
 				</Grid>
 
@@ -132,7 +139,13 @@
 					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationAddLabel}" VerticalAlignment="Center"/>
 					<ComboBox ItemsSource="{Binding Principals}" SelectedItem="{Binding NewTrustee}" Width="220"
 							  PlaceholderText="{Binding Source={StaticResource Loc}, Path=DelegationTrustee}"/>
-					<ComboBox ItemsSource="{Binding RightCategories}" SelectedItem="{Binding NewCategory}" Width="180"/>
+					<ComboBox ItemsSource="{Binding RightCategories}" SelectedItem="{Binding NewCategory}" Width="240">
+						<ComboBox.ItemTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Converter={StaticResource LocValue}, ConverterParameter=Delegation.Category}"/>
+							</DataTemplate>
+						</ComboBox.ItemTemplate>
+					</ComboBox>
 					<Button Content="{Binding Source={StaticResource Loc}, Path=DelegationAdd}" Command="{Binding AddDelegationCommand}"/>
 					<Button Content="{Binding Source={StaticResource Loc}, Path=DelegationRemove}" Command="{Binding RemoveDelegationCommand}"/>
 				</StackPanel>
@@ -145,13 +158,13 @@
 						  GridLinesVisibility="Horizontal"
 						  AutoGenerateColumns="False">
 					<DataGrid.Columns>
-						<DataGridTextColumn Header="Trustee"    Binding="{Binding TrusteeName}"   Width="180"/>
-						<DataGridTextColumn Header="Type"       Binding="{Binding TrusteeType}"   Width="80"/>
-						<DataGridTextColumn Header="Category"   Binding="{Binding RightCategory}" Width="150"/>
-						<DataGridTextColumn Header="Right"      Binding="{Binding Right}"         Width="220"/>
-						<DataGridTextColumn Header="Target DN"  Binding="{Binding TargetDN}"      Width="*"/>
-						<DataGridTextColumn Header="Inherited"  Binding="{Binding IsInherited}"   Width="80"/>
-						<DataGridTextColumn Header="Tier  "     Binding="{Binding Tier}"          Width="110"/>
+						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnTrustee}"   Binding="{Binding TrusteeName}"   Width="180"/>
+						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnType}"      Binding="{Binding TrusteeType, Mode=OneWay, Converter={StaticResource LocValue}, ConverterParameter=ObjectType}" Width="100"/>
+						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnCategory}"  Binding="{Binding RightCategory, Mode=OneWay, Converter={StaticResource LocValue}, ConverterParameter=Delegation.Category}" Width="210"/>
+						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnRight}"     Binding="{Binding Right}"         Width="220"/>
+						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnTargetDN}"  Binding="{Binding TargetDN}"      Width="*"/>
+						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnInherited}" Binding="{Binding IsInherited, Mode=OneWay, Converter={StaticResource LocValue}, ConverterParameter=Delegations.Inherited}" Width="80"/>
+						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnTier}"      Binding="{Binding Tier}"          Width="110"/>
 					</DataGrid.Columns>
 				</DataGrid>
 			</Grid>

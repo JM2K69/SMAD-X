@@ -12,8 +12,11 @@ namespace SMADX.Models
     /// </summary>
     public sealed class LabDefinition
     {
-        /// <summary>Version du format des exercices écrite par cette version de SMAD-X.</summary>
-        public const int CurrentFormatVersion = 1;
+        /// <summary>
+        /// Version du format des exercices écrite par cette version de SMAD-X. v2 : gardes explicites
+        /// (<see cref="LabObjective.Guard"/>), réglages d'examen et version du moteur.
+        /// </summary>
+        public const int CurrentFormatVersion = 2;
 
         public string Format { get; set; } = "smadx-lab";
         public int FormatVersion { get; set; } = CurrentFormatVersion;
@@ -42,6 +45,21 @@ namespace SMADX.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool Exam { get; set; }
 
+        /// <summary>
+        /// En examen, « Vérifier » reste disponible : l'apprenant voit quels objectifs sont atteints, sans
+        /// score ni explication. Écrit seulement s'il est activé.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool ExamCheck { get; set; }
+
+        /// <summary>Outils d'analyse fermés pendant l'examen ; tous ouverts par défaut.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public LabTools ExamClosedTools { get; set; }
+
+        /// <summary>Version de SMAD-X qui a écrit l'exercice (null avant la 0.9).</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? EngineVersion { get; set; }
+
         /// <summary>Énoncé en Markdown.</summary>
         public LocalizedText Statement { get; set; } = new();
 
@@ -57,7 +75,26 @@ namespace SMADX.Models
 
         public List<LabObjective> Objectives { get; set; } = new();
 
-        public int MaxPoints => Objectives.Sum(o => o.Points);
+        /// <summary>Total des points ; une garde n'en rapporte pas.</summary>
+        public int MaxPoints => Objectives.Where(o => !o.Guard).Sum(o => o.Points);
+
+        /// <summary>Vrai si l'outil est fermé : seulement en examen.</summary>
+        public bool IsClosed(LabTools tool) => Exam && ExamClosedTools.HasFlag(tool);
+    }
+
+    /// <summary>Outils d'analyse de SMAD-X que le formateur peut fermer pendant un examen.</summary>
+    [Flags]
+    public enum LabTools
+    {
+        None = 0,
+        /// <summary>Audit de sécurité (constats et score).</summary>
+        Audit = 1,
+        /// <summary>Chemins d'attaque, et le graphe qui les montre.</summary>
+        AttackPaths = 2,
+        /// <summary>Comparaison avant / après.</summary>
+        Comparison = 4,
+        /// <summary>Section « Comment corriger » des fiches de l'audit.</summary>
+        FixGuidance = 8
     }
 
     public enum LabLevel
@@ -88,6 +125,15 @@ namespace SMADX.Models
         public LocalizedText Title { get; set; } = new();
         public LocalizedText Hint { get; set; } = new();
         public int Points { get; set; } = 1;
+
+        /// <summary>
+        /// Garde : déjà atteinte au départ, elle ne rapporte aucun point et protège un objet contre une
+        /// correction brutale (supprimer le compte au lieu de le corriger). Violée, elle annule les objectifs
+        /// qui concernaient cet objet au départ. Écrit seulement pour une garde.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Guard { get; set; }
+
         public LabCheck Check { get; set; } = new();
     }
 

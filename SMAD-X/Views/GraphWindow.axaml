@@ -57,7 +57,7 @@
                     <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterMemberOf}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowMemberOf, Mode=TwoWay}"
                               Foreground="#BB86FC" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="Group in Group"
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterGroupNesting}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowGroupNesting, Mode=TwoWay}"
                               Foreground="#E040FB" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterGpoLinks}"

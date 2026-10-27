@@ -81,6 +81,17 @@
                                 <TextBlock Text="{Binding TotalPoints}"/>
                                 <CheckBox Margin="0,16,0,2" IsChecked="{Binding IsExam}" Content="{Binding [Lab.Exam], Source={StaticResource S}}"/>
                                 <TextBlock Classes="hint" Text="{Binding [Lab.Exam.Hint], Source={StaticResource S}}"/>
+                                <!-- Réglages de l'examen : Vérifier permis, outils fermés (tous ouverts par défaut) -->
+                                <StackPanel Margin="24,6,0,0" Spacing="2" IsVisible="{Binding IsExam}">
+                                    <CheckBox IsChecked="{Binding ExamCheck}" Content="{Binding [Lab.ExamCheck], Source={StaticResource S}}"/>
+                                    <TextBlock Classes="hint" Text="{Binding [Lab.ExamCheck.Hint], Source={StaticResource S}}"/>
+                                    <TextBlock Classes="label" Text="{Binding [Lab.ExamTools], Source={StaticResource S}}"/>
+                                    <CheckBox IsChecked="{Binding ExamCloseAudit}" Content="{Binding [Lab.ExamTools.Audit], Source={StaticResource S}}"/>
+                                    <CheckBox IsChecked="{Binding ExamCloseFixGuidance}" Content="{Binding [Lab.ExamTools.FixGuidance], Source={StaticResource S}}"/>
+                                    <CheckBox IsChecked="{Binding ExamCloseAttackPaths}" Content="{Binding [Lab.ExamTools.AttackPaths], Source={StaticResource S}}"/>
+                                    <CheckBox IsChecked="{Binding ExamCloseComparison}" Content="{Binding [Lab.ExamTools.Comparison], Source={StaticResource S}}"/>
+                                    <TextBlock Classes="hint" Text="{Binding [Lab.ExamTools.Hint], Source={StaticResource S}}"/>
+                                </StackPanel>
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
@@ -147,7 +158,7 @@
                                         <Grid ColumnDefinitions="120,16,*">
                                             <StackPanel Grid.Column="0">
                                                 <TextBlock Classes="label" Text="{Binding [Objective.Points], Source={StaticResource S}}"/>
-                                                <NumericUpDown Minimum="0" Maximum="50" FormatString="0" Value="{Binding Points}"/>
+                                                <NumericUpDown Minimum="0" Maximum="50" FormatString="0" Value="{Binding Points}" IsEnabled="{Binding IsScored}"/>
                                             </StackPanel>
                                             <StackPanel Grid.Column="2">
                                                 <TextBlock Classes="label" Text="{Binding [Objective.Check], Source={StaticResource S}}"/>
@@ -205,7 +216,8 @@
                                         <Border Margin="0,14,0,0" Padding="10" CornerRadius="4" Background="#22FFFFFF">
                                             <StackPanel Spacing="4">
                                                 <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
-                                                <TextBlock Classes="hint" IsVisible="{Binding IsGuard}" Text="{Binding [Objective.Guard], Source={StaticResource S}}"/>
+                                                <CheckBox IsVisible="{Binding CanBeGuard}" IsChecked="{Binding IsGuard}" Content="{Binding [Objective.IsGuard], Source={StaticResource S}}"/>
+                                                <TextBlock Classes="hint" IsVisible="{Binding CanBeGuard}" Text="{Binding [Objective.Guard], Source={StaticResource S}}"/>
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>

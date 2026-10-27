@@ -24,8 +24,8 @@ All produce the same format: you can start with A or C and finish with B.
 1. **File > New domain** (or open a saved domain).
 2. Build the starting situation: OUs, accounts, groups, delegations, **Security** section options.
 3. Add the **weakness(es)** the learner must find. Check that they show:
-   - **Analyse > Security audit** (`Ctrl+Shift+A`): the expected finding appears;
-   - **Analyse > Attack paths** (`Ctrl+Shift+K`): the expected path appears.
+   - **Analysis > Security audit** (`Ctrl+Shift+A`): the expected finding appears;
+   - **Analysis > Attack paths** (`Ctrl+Shift+K`): the expected path appears.
 4. Populate the domain like a real AD (departments, users, workstations): the weakness must be searched for, not sitting alone in an empty domain.
 5. Save the domain (`.smad-x.json`) so you can come back to it.
 
@@ -83,7 +83,9 @@ The file is still readable JSON (see § 3). Do not edit `Start` by hand: rebuild
 
 | Field | Purpose |
 |---|---|
-| `Format`, `FormatVersion` | Always `"smadx-lab"` and `1`. A file from a newer version is refused with a clear message. |
+| `Format`, `FormatVersion` | `"smadx-lab"` and `2` (marked guards, exam settings). A v1 file is read and its guards recognised; a file from a newer version is refused with a clear message. |
+| `EngineVersion` | SMAD-X version that wrote the lab; grading depends on its audit rules. |
+| `Exam`, `ExamCheck`, `ExamClosedTools` | Optional. Exam mode, "Check" allowed during the exam, closed tools (`Audit`, `FixGuidance`, `AttackPaths`, `Comparison`). |
 | `Id` | Stable identifier, no spaces. Also used for the report file name. |
 | `Title`, `Statement` | Texts per language (`fr-FR`, `en-US`). When the interface language is missing, SMAD-X falls back to French, then to the first text. |
 | `Language` | Optional. Set it when the **domain** is written in one language only (OU and account names…): the menu then only offers the lab in that language. Leave it empty for a bilingual lab. |
@@ -92,7 +94,7 @@ The file is still readable JSON (see § 3). Do not edit `Start` by hand: rebuild
 | `DurationMinutes` | Indicative duration. |
 | `ReferenceDate` | Date at which the domain's dates were frozen. When the lab opens, every date is shifted by "today − ReferenceDate": an account that logged on "yesterday" still did, whatever day the lab is taken. |
 | `Start` | The starting domain: a full `.smad-x.json` document, migrated on load like any file. |
-| `Objectives` | The graded objectives (§ 5). The point total is computed. |
+| `Objectives` | The graded objectives (§ 5). The point total is computed, guards excluded. |
 
 ---
 
@@ -113,7 +115,7 @@ CERT bulletin, pre-certification audit, handover from a former administrator…
 - Business constraints: "the business application must keep running", "the team keeps its delegations".
 
 ## Your tools
-- Analyse > Attack paths, Security audit, Before / after…
+- Analysis > Attack paths, Security audit, Before / after…
 ```
 
 Rules:
@@ -150,7 +152,7 @@ Audit rule identifiers (`KRB-01`, `DLG-01`, `PRIV-04`…) are the ones shown in 
 ### 5.2 Guard objectives
 A good lab combines:
 1. **main objectives**: cut the path (`NoAttackPath`), clear the audit rule (`RuleClear`);
-2. **guard objectives**, already met at the start, which fail if the learner "cheats":
+2. **guards** (`"Guard": true`, 0 points), already met at the start, which fail if the learner "cheats"; a broken guard cancels the objectives that concerned the protected object at start (its finding, the paths that went through it, the checks that name it):
    - `ObjectExists` on the service account, server or domain controller that must not be deleted;
    - `MemberOf` on a user who must stay in their team;
    - `DelegationExists` on a legitimate delegation (the service desk keeps password reset);
@@ -159,7 +161,7 @@ A good lab combines:
 Also consider the "**no path left outside Tier 0**" objective (`NoAttackPath` without `Object`): it shows that cutting one link is not always enough. When it fails, the grader shows the remaining path step by step.
 
 ### 5.3 Points and hints
-- 3 to 4 points for the main objective, 2 for "outside Tier 0" and critical rules, 1 for guards.
+- 3 to 4 points for the main objective, 2 for "outside Tier 0" and critical rules; a guard earns nothing.
 - One hint per objective, pointing in the right direction without giving the exact action: "Look at which groups X itself belongs to" rather than "Remove X from Domain Admins".
 
 ---
@@ -185,6 +187,7 @@ The generator is **deterministic**: identifiers derived from the DN, dates froze
 ### Automated tests
 Every shipped lab must have tests (models: `SMAD-X.Tests/LabTests.cs` and `SMAD-X.Tests/AttackPathLabTests.cs`):
 - **not solved at start**: main objectives fail, guards pass;
+- **the shortcut does not pay**: deleting the object a guard protects earns at most half the points;
 - **the solution gets all points**;
 - **every shortcut is refused**: deleting the guarded object, removing the member, removing the legitimate delegation;
 - **the statement does not contain the answer** and every objective has a hint.

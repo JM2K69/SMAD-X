@@ -14,8 +14,14 @@ namespace SMADX.ViewModels
     public partial class DomainTimelineViewModel : ViewModelBase
     {
         // ── The two files being compared ────────────────────────────────────
-        [ObservableProperty] private DomainSnapshot? _fileA;
-        [ObservableProperty] private DomainSnapshot? _fileB;
+        private static LocalizationService Loc => LocalizationService.Instance;
+
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(FileALabel))] private DomainSnapshot? _fileA;
+        [ObservableProperty, NotifyPropertyChangedFor(nameof(FileBLabel))] private DomainSnapshot? _fileB;
+
+        /// <summary>Chemin du fichier affiché sous A ou B, ou « aucun fichier sélectionné ».</summary>
+        public string FileALabel => FileA?.FilePath ?? Loc["Timeline.NoFile"];
+        public string FileBLabel => FileB?.FilePath ?? Loc["Timeline.NoFile"];
 
         // ── Diff results ────────────────────────────────────────────────────
         [ObservableProperty] private ObservableCollection<ADChangeItem> _allChanges    = new();
@@ -38,7 +44,7 @@ namespace SMADX.ViewModels
             new[] { "", "Structure", "MemberOf", "GPO", "PSO", "Delegation" };
 
         // ── Status ──────────────────────────────────────────────────────────
-        [ObservableProperty] private string _statusMessage = "Open two .smad-x.json files to compare.";
+        [ObservableProperty] private string _statusMessage = Loc["Timeline.Status.Intro"];
 
         // ── Commands ────────────────────────────────────────────────────────
 
@@ -49,14 +55,14 @@ namespace SMADX.ViewModels
         {
             try
             {
-                StatusMessage = $"Loading {System.IO.Path.GetFileName(path)}…";
+                StatusMessage = string.Format(Loc["Timeline.Status.Loading"], System.IO.Path.GetFileName(path));
                 var result = await _dataService.LoadDocumentAsync(path);
                 var root = result.Document?.Domain;
                 if (root is null)
                 {
                     StatusMessage = result.Status == DocumentLoadStatus.TooNew
-                        ? string.Format(LocalizationService.Instance["Status.ErrorLoadTooNew"], result.FileVersion, ADRootDocument.CurrentVersion)
-                        : $"Failed to load file — {result.Error ?? "invalid format"}.";
+                        ? string.Format(Loc["Status.ErrorLoadTooNew"], result.FileVersion, ADRootDocument.CurrentVersion)
+                        : string.Format(Loc["Timeline.Status.LoadFailed"], result.Error ?? Loc["Timeline.Status.InvalidFormat"]);
                     return;
                 }
 
@@ -71,11 +77,11 @@ namespace SMADX.ViewModels
                 if (isFileA) FileA = snap;
                 else         FileB = snap;
 
-                StatusMessage = $"File {(isFileA ? "A" : "B")} loaded: {System.IO.Path.GetFileName(path)}  ({snap.DomainName}  {snap.SnapshotDate:yyyy-MM-dd HH:mm})";
+                StatusMessage = string.Format(Loc["Timeline.Status.Loaded"], isFileA ? 'A' : 'B', System.IO.Path.GetFileName(path), snap.DomainName, snap.SnapshotDate);
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error loading file: {ex.Message}";
+                StatusMessage = string.Format(Loc["Timeline.Status.LoadError"], ex.Message);
             }
         }
 
@@ -85,7 +91,7 @@ namespace SMADX.ViewModels
         {
             if (FileA is null || FileB is null)
             {
-                StatusMessage = "Please open both File A and File B before comparing.";
+                StatusMessage = Loc["Timeline.Status.NeedBoth"];
                 return;
             }
 
@@ -101,11 +107,11 @@ namespace SMADX.ViewModels
                 CountModified = AllChanges.Count(c => c.ChangeType == ChangeType.Modified);
 
                 ApplyFilters();
-                StatusMessage = $"Comparison complete — {AllChanges.Count} change(s)  ·  +{CountAdded}  -{CountRemoved}  ~{CountModified}";
+                StatusMessage = string.Format(Loc["Timeline.Status.Done"], AllChanges.Count, CountAdded, CountRemoved, CountModified);
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Comparison error: {ex.Message}";
+                StatusMessage = string.Format(Loc["Timeline.Status.CompareError"], ex.Message);
             }
         }
 
@@ -145,7 +151,7 @@ namespace SMADX.ViewModels
             lines.AddRange(FilteredChanges.Select(c =>
                 $"{c.ChangeType},{c.ChangeCategory},{Escape(c.ObjectName)},{c.ObjectType},{Escape(c.DistinguishedName)},{Escape(c.ChangedFieldsSummary)}"));
             await File.WriteAllLinesAsync(outputPath, lines);
-            StatusMessage = $"Exported {FilteredChanges.Count} row(s) to {outputPath}";
+            StatusMessage = string.Format(Loc["Csv.Exported"], FilteredChanges.Count, outputPath);
         }
 
         // Les noms viennent des fichiers comparés : pas de formule Excel

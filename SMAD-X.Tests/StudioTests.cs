@@ -22,6 +22,8 @@ public class StudioTests
 
     private sealed class FakeDialogs : IStudioDialogs
     {
+        public UnsavedChoice UnsavedAnswer { get; set; } = UnsavedChoice.Cancel;
+        public Task<UnsavedChoice> AskUnsavedAsync() => Task.FromResult(UnsavedAnswer);
         public string? OpenPath { get; set; }
         public string? SavePath { get; set; }
         public RecipeRequest? Recipe { get; set; }
@@ -51,6 +53,21 @@ public class StudioTests
     }
 
     // ─── Fenêtre d'édition ───────────────────────────────────────────────────
+
+    [Fact]
+    public async Task ClosingStudio_AsksBeforeLosingAnUnsavedLab()
+    {
+        var vm = await FromRecipe("KRB-01");
+        Assert.True(vm.HasUnsavedChanges); // tout juste créé, pas encore enregistré
+        Assert.False(await vm.ConfirmCloseAsync());
+
+        vm.Save(TempFile(LabService.FileExtension));
+        Assert.False(vm.HasUnsavedChanges);
+        Assert.True(await vm.ConfirmCloseAsync());
+
+        vm.Notes = "Corrigé : retirer le SPN.";
+        Assert.True(vm.HasUnsavedChanges);
+    }
 
     [Fact]
     public async Task NewFromRecipe_LoadsAValidLabWithItsNotes()

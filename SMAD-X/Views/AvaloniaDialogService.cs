@@ -21,6 +21,16 @@ namespace SMADX.Views
 
         public AvaloniaDialogService(Window owner) => _owner = owner;
 
+        public Task<UnsavedChoice> AskUnsavedAsync(bool submission)
+        {
+            var loc = LocalizationService.Instance;
+            return ChoiceDialog.AskUnsavedAsync(_owner, loc["Unsaved.Title"], loc[submission ? "Unsaved.Submission" : "Unsaved.Domain"],
+                loc[submission ? "Unsaved.SaveSubmission" : "Unsaved.Save"], loc["Unsaved.Discard"], loc["Unsaved.Cancel"]);
+        }
+
+        public async Task<bool> ConfirmAsync(string title, string message, string yes, string no) =>
+            await ChoiceDialog.ShowAsync(_owner, title, message, yes, no) == 0;
+
         private static FilePickerFileType[] ToPickerTypes(FileFilter[] filters) =>
             filters.Select(f => new FilePickerFileType(f.Name) { Patterns = f.Patterns }).ToArray();
 
@@ -117,9 +127,10 @@ namespace SMADX.Views
 
         public async Task ShowShortcutsAsync()
         {
+            var loc = LocalizationService.Instance;
             var closeButton = new Button
             {
-                Content = "Fermer",
+                Content = loc["Shortcut.CloseButton"],
                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
                 Padding = new Avalonia.Thickness(20, 5),
                 Margin = new Avalonia.Thickness(0, 20, 0, 0)
@@ -127,7 +138,7 @@ namespace SMADX.Views
 
             var dialog = new Window
             {
-                Title = "Raccourcis clavier",
+                Title = loc["Shortcut.WindowTitle"],
                 Width = 500,
                 Height = 400,
                 CanResize = false,
@@ -142,31 +153,31 @@ namespace SMADX.Views
                         {
                             new TextBlock
                             {
-                                Text = "Raccourcis clavier disponibles",
+                                Text = loc["Shortcut.Header"],
                                 FontSize = 16,
                                 FontWeight = Avalonia.Media.FontWeight.Bold,
                                 Margin = new Avalonia.Thickness(0, 0, 0, 10)
                             },
-                            CreateShortcutItem("Ctrl+N", "Nouveau domaine"),
-                            CreateShortcutItem("Ctrl+Shift+N", "Structure d'exemple"),
-                            CreateShortcutItem("Ctrl+O", "Ouvrir un fichier"),
-                            CreateShortcutItem("Ctrl+S", "Enregistrer"),
-                            CreateShortcutItem("Ctrl+E", "Exporter en JSON"),
-                            CreateShortcutItem("Ctrl+Shift+R", "Exporter la documentation"),
+                            CreateShortcutItem("Ctrl+N", loc["Shortcut.Ctrl_N"]),
+                            CreateShortcutItem("Ctrl+Shift+N", loc["Shortcut.Ctrl_Shift_N"]),
+                            CreateShortcutItem("Ctrl+O", loc["Shortcut.Ctrl_O"]),
+                            CreateShortcutItem("Ctrl+S", loc["Shortcut.Ctrl_S"]),
+                            CreateShortcutItem("Ctrl+E", loc["Shortcut.Ctrl_E"]),
+                            CreateShortcutItem("Ctrl+Shift+R", loc["Shortcut.Ctrl_Shift_R"]),
                             new Avalonia.Controls.Separator(),
-                            CreateShortcutItem("Ctrl+C", "Copier l'objet sélectionné"),
-                            CreateShortcutItem("Ctrl+V", "Coller l'objet copié"),
-                            CreateShortcutItem("F2", "Renommer l'objet sélectionné"),
-                            CreateShortcutItem("Delete", "Supprimer l'objet sélectionné"),
+                            CreateShortcutItem("Ctrl+C", loc["Shortcut.Ctrl_C"]),
+                            CreateShortcutItem("Ctrl+V", loc["Shortcut.Ctrl_V"]),
+                            CreateShortcutItem("F2", loc["Shortcut.F2"]),
+                            CreateShortcutItem("Delete", loc["Shortcut.Delete"]),
                             new Avalonia.Controls.Separator(),
-                            CreateShortcutItem("Ctrl+T", "Évolution du domaine"),
-                            CreateShortcutItem("Ctrl+D", "Délégations"),
-                            CreateShortcutItem("Ctrl+Shift+S", "Sites AD"),
-                            CreateShortcutItem("Ctrl+Shift+A", "Audit de sécurité"),
+                            CreateShortcutItem("Ctrl+T", loc["Shortcut.Ctrl_T"]),
+                            CreateShortcutItem("Ctrl+D", loc["Shortcut.Ctrl_D"]),
+                            CreateShortcutItem("Ctrl+Shift+S", loc["Shortcut.Ctrl_Shift_S"]),
+                            CreateShortcutItem("Ctrl+Shift+A", loc["Shortcut.Ctrl_Shift_A"]),
                             new Avalonia.Controls.Separator(),
                             new TextBlock
                             {
-                                Text = "Astuce : Vous pouvez aussi utiliser les menus et les boutons de la barre d'outils.",
+                                Text = loc["Shortcut.Tip"],
                                 FontStyle = Avalonia.Media.FontStyle.Italic,
                                 TextWrapping = Avalonia.Media.TextWrapping.Wrap,
                                 Margin = new Avalonia.Thickness(0, 10, 0, 0)

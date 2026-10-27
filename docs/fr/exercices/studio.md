@@ -46,7 +46,12 @@ Titre, identifiant (le nom du fichier), langue, série du menu (exercices géné
 
 Un exercice est **bilingue** ou n'existe que dans **une langue**. La liste *Langue des textes en cours d'édition*, en haut de la fenêtre, choisit les textes que vous modifiez.
 
-**Mode examen** : dans SMAD-X, l'exercice n'a plus ni indice, ni vérification, ni score, ni « Recommencer », et aucun autre domaine ne peut être ouvert. L'apprenant enregistre sa copie et vous la rend.
+**Mode examen** : dans SMAD-X, l'exercice n'a plus ni indice, ni score, ni « Recommencer », et aucun autre domaine ne peut être ouvert ; le temps passé est mesuré. L'apprenant enregistre sa copie et vous la rend. Le fichier d'examen est écrit **sans les indices** : l'apprenant ne peut pas les lire dans le fichier. Deux réglages complètent le mode examen :
+
+- **Autoriser « Vérifier »** : l'apprenant voit quels objectifs sont atteints, sans score ni explication ;
+- **Outils fermés pendant l'examen** : audit de sécurité, section « Comment corriger » des fiches, chemins d'attaque, comparaison avant / après. Tous sont ouverts par défaut : ils aident à analyser, mais ils montrent aussi ce que la correction vérifie.
+
+Fermer Studio avec un exercice ou des notes non enregistrés demande d'enregistrer.
 
 ### Énoncé
 
@@ -69,7 +74,7 @@ L'énoncé s'écrit en Markdown, avec un aperçu tel que l'apprenant le verra. *
 
 - un objectif par chemin d'attaque hors Tier 0, et « plus aucun chemin vers le contrôle du domaine » ;
 - un objectif par règle d'audit en échec ;
-- des **gardes**, déjà atteintes au départ, qui refusent une solution brutale (supprimer le compte au lieu de le corriger).
+- des **gardes** (case **Garde**, 🛡 dans la liste), déjà atteintes au départ, qui refusent une solution brutale (supprimer le compte au lieu de le corriger). Une garde ne rapporte aucun point ; violée, elle annule les objectifs qui concernaient l'objet protégé au départ : son constat d'audit, les chemins d'attaque qui le traversaient, les vérifications qui le nomment.
 
 Les propositions recommandées sont cochées ; **Ajouter la sélection** les ajoute à la liste.
 
@@ -80,7 +85,7 @@ Les propositions recommandées sont cochées ; **Ajouter la sélection** les ajo
 **Valider l'exercice** fait les vérifications des tests des exercices fournis :
 
 - textes présents dans chaque langue de l'exercice, identifiants uniques, points positifs ;
-- aucun objectif principal atteint au départ, toutes les gardes atteintes, et chaque garde réellement efficace ;
+- aucun objectif principal atteint au départ, toutes les gardes atteintes, chaque garde réellement efficace, et le raccourci qu'elle refuse ne rapporte pas plus de la moitié des points ;
 - objets et règles cités qui existent dans le domaine de départ ;
 - aucune solution visible par l'apprenant, ni dans l'énoncé, ni dans les descriptions du domaine.
 
@@ -103,7 +108,7 @@ Chaque apprenant enregistre son travail dans SMAD-X avec **Enregistrer ma copie*
 
 Studio corrige chaque copie avec **votre** exemplaire de l'exercice, tel qu'il est ouvert : le domaine de départ est repréparé à la date où l'apprenant a commencé, et la vérification se fait à la date de sa copie. Le score que l'apprenant a pu voir n'est jamais repris. Après avoir changé des objectifs ou des points, **Recorriger** refait toutes les notes.
 
-Chaque ligne donne la note, le pourcentage, le nombre d'indices consultés, une pastille par objectif (verte s'il est atteint, rouge sinon ; l'objectif s'affiche au survol) et les remarques :
+Chaque ligne donne la note, le pourcentage, le nombre d'indices consultés, le temps passé, une pastille par objectif (verte s'il est atteint, rouge sinon ; l'objectif s'affiche au survol) et les remarques :
 
 | Remarque | Signification |
 |---|---|
@@ -112,6 +117,11 @@ Chaque ligne donne la note, le pourcentage, le nombre d'indices consultés, une 
 | même session de travail que la copie de… | une même copie rendue sous plusieurs noms : l'une est la copie de l'autre |
 | le domaine ne vient pas de la session de cette copie | le travail d'un autre, rendu dans sa propre copie ; Studio nomme l'apprenant d'origine s'il a sa copie |
 | copie sans sceau, sans session | la copie n'a pas été enregistrée par SMAD-X : ces contrôles sont impossibles |
+| domaine de départ remplacé, contrôle de session impossible | l'exercice reçu, dans la copie, a été remplacé par un autre domaine pour échapper au contrôle de session |
+| copie d'examen faite hors mode examen, réglages d'examen modifiés | l'exercice reçu a été modifié pour retrouver la vérification, « Recommencer » ou des outils fermés |
+| indices consultés pendant l'examen | la copie porte des indices alors que l'examen n'en a pas |
+| temps dépassé | l'apprenant a passé plus que la durée prévue (rien n'a été bloqué) |
+| copie faite avec une autre version de SMAD-X | ses règles d'audit diffèrent de celles de votre Studio : la note peut différer de celle de l'apprenant ; corrigez une classe avec une seule version |
 | autre domaine de départ | la copie a été faite sur une autre version de l'exercice : la note peut être fausse |
 | pas de nom, plusieurs copies | à vérifier avant de reporter la note |
 | copie illisible | le fichier est abîmé ou n'est pas une copie SMAD-X |
@@ -186,7 +196,9 @@ SMAD-X.Studio grade exercices/anssi-krb-01.smadx-lab.json copies-groupe-a copies
 | `--date aaaa-mm-jj` | date de référence : la même date donne le même fichier, octet pour octet |
 | `--solution <fichier>` | domaine corrigé à noter pendant la validation |
 | `--combine` | `recipe` : un seul exercice avec tous les manques dans le même domaine |
-| `--exam` | `recipe`, `convert` : exercice en mode examen |
+| `--exam` | `recipe`, `convert` : exercice en mode examen, écrit sans les indices |
+| `--exam-check` | avec `--exam` : « Vérifier » permis (objectifs atteints, sans score) |
+| `--exam-close audit,fixes,paths,comparison` | avec `--exam` : outils fermés pendant l'examen |
 | `--csv <fichier>` | `grade` : tableau des notes pour Excel |
 | `--report <fichier>` | `grade` : bilan de la classe en Markdown |
 | `--verbose` | affiche aussi les vérifications réussies |

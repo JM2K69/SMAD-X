@@ -106,6 +106,12 @@ namespace SMADX.ViewModels
                     StatusMessage = LocalizationService.Instance["Status.Ready"];
                     RefreshLabMenus();
 
+                    // Textes composés ici, et non liés au proxy de traduction : type affiché, comptes, panneau des sites
+                    OnPropertyChanged(nameof(SelectedObjectType));
+                    UpdateObjectCounts();
+                    foreach (var site in SiteRootNodes)
+                        site.Relocalize();
+
                     // Mettre à jour les descriptions des objets existants
                     if (RootObject != null)
                     {
@@ -146,7 +152,7 @@ namespace SMADX.ViewModels
             }
         }
 
-        public string SelectedObjectType => SelectedNode?.Data?.Type.ToString() ?? string.Empty;
+        public string SelectedObjectType => SelectedNode?.Data is { } data ? Loc[$"ObjectType.{data.Type}"] : string.Empty;
 
         public string SelectedObjectDescription
         {
@@ -256,19 +262,21 @@ namespace SMADX.ViewModels
             UpdateObjectCounts();
             ResetHistory();
             ResetBaseline();
+            MarkSaved();
         }
 
         private void UpdateObjectCounts()
         {
             if (RootObject == null) return;
 
-            var counts = RootObject.CountObjectsByType();
-            var summary = string.Join(" | ", counts.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
+            var counts = RootObject.CountObjectsByType()
+                .Select(kvp => string.Format(Loc["Status.ObjectCount"], Loc[$"ObjectCount.{kvp.Key}"], kvp.Value))
+                .ToList();
 
             if (SitesTopology != null && SitesTopology.Sites.Count > 0)
-                summary += $" | 🏢 Sites: {SitesTopology.Sites.Count}";
+                counts.Add(string.Format(Loc["Status.SiteCount"], SitesTopology.Sites.Count));
 
-            ObjectCountsSummary = summary;
+            ObjectCountsSummary = string.Join(" | ", counts);
         }
 
         /// <summary>

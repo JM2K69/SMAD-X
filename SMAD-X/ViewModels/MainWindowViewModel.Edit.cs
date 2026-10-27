@@ -70,7 +70,7 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void AddPolicy()
         {
-            if (RootObject == null) { StatusMessage = "Aucun domaine chargé."; return; }
+            if (RootObject == null) { StatusMessage = Loc["Status.NoDomain"]; return; }
 
             // Chercher le container System\Policies
             var policiesContainer = FindPoliciesContainer(RootObject);
@@ -78,7 +78,7 @@ namespace SMADX.ViewModels
             {
                 // Fallback : créer dans le nœud sélectionné comme avant
                 AddObject(ADObjectType.Policy);
-                StatusMessage = "Conteneur System\\Policies introuvable — GPO ajoutée dans le nœud sélectionné.";
+                StatusMessage = Loc["Status.PoliciesMissing"];
                 return;
             }
 
@@ -106,7 +106,7 @@ namespace SMADX.ViewModels
 
             UpdateObjectCounts();
             RecordHistory();
-            StatusMessage = $"GPO '{name}' créée dans System\\Policies.";
+            StatusMessage = string.Format(Loc["Status.GpoCreated"], name);
         }
 
         /// <summary>Cherche récursivement le container "Policies" fils de "System"</summary>
@@ -131,7 +131,7 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private void AddPasswordSettingsObject()
         {
-            StatusMessage = "Ajout d'un PSO (doit être créé dans un Container comme 'Password Settings Container')...";
+            StatusMessage = Loc["Status.AddingPso"];
             AddObject(ADObjectType.PasswordSettingsObject);
         }
 
@@ -139,14 +139,14 @@ namespace SMADX.ViewModels
         {
             if (SelectedNode == null)
             {
-                StatusMessage = "Veuillez sélectionner un conteneur parent";
+                StatusMessage = Loc["Status.SelectParent"];
                 return;
             }
 
             // Valider si l'objet peut être ajouté
             if (!_validationService.ValidateContainerRule(SelectedNode.Data.Type, type, out var errorMessage))
             {
-                StatusMessage = errorMessage ?? "Impossible d'ajouter cet objet ici";
+                StatusMessage = errorMessage ?? Loc["Status.CannotAddHere"];
                 return;
             }
 
@@ -173,7 +173,7 @@ namespace SMADX.ViewModels
 
             UpdateObjectCounts();
             RecordHistory();
-            StatusMessage = $"{type} ajouté : {name}";
+            StatusMessage = string.Format(Loc["Status.ObjectAdded"], Loc[$"ObjectType.{type}"], name);
 
             SelectForRenameLater(newNode);
         }
@@ -232,7 +232,7 @@ namespace SMADX.ViewModels
         {
             if (SelectedNode == null || SelectedNode.Parent == null)
             {
-                StatusMessage = "Impossible de supprimer le nœud racine";
+                StatusMessage = Loc["Status.CannotDeleteRoot"];
                 return;
             }
 
@@ -259,7 +259,7 @@ namespace SMADX.ViewModels
             if (SelectedNode != null)
             {
                 _clipboardNode = SelectedNode;
-                StatusMessage = $"Copié : {SelectedNode.Data.Name}";
+                StatusMessage = string.Format(Loc["Status.Copied"], SelectedNode.Data.Name);
             }
         }
 
@@ -268,14 +268,14 @@ namespace SMADX.ViewModels
         {
             if (_clipboardNode == null || SelectedNode == null)
             {
-                StatusMessage = "Aucun objet à coller ou aucun conteneur sélectionné";
+                StatusMessage = Loc["Status.NothingToPaste"];
                 return;
             }
 
             // Valider si l'objet peut être collé
             if (!_validationService.ValidateContainerRule(SelectedNode.Data.Type, _clipboardNode.Data.Type, out var errorMessage))
             {
-                StatusMessage = errorMessage ?? "Impossible de coller ici";
+                StatusMessage = errorMessage ?? Loc["Status.CannotPasteHere"];
                 return;
             }
 
@@ -298,7 +298,7 @@ namespace SMADX.ViewModels
 
             UpdateObjectCounts();
             RecordHistory();
-            StatusMessage = $"Collé : {clone.Name}";
+            StatusMessage = string.Format(Loc["Status.Pasted"], clone.Name);
         }
 
         [RelayCommand]

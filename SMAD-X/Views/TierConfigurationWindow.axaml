@@ -61,7 +61,7 @@
                                                        TextWrapping="Wrap" Margin="0,5,0,0"
                                                        FontSize="12" Foreground="Gray"/>
                                             <TextBlock Grid.Row="2" 
-                                                       Text="{Binding Level, StringFormat='Level: {0}'}"
+                                                       Text="{Binding Level, Converter={StaticResource LocFormat}, ConverterParameter=TierConfig.Level}"
                                                        FontSize="11" Foreground="DarkGray" Margin="0,3,0,0"/>
                                         </Grid>
                                     </Grid>

@@ -57,7 +57,8 @@ namespace SMADX.Services.Labs
                 {
                     if (!o.Title.ContainsKey(lang) || string.IsNullOrWhiteSpace(o.Title[lang]))
                         Add(LabIssueLevel.Error, $"Titre de l'objectif manquant en {lang}.", $"Objective title missing in {lang}.", o.Id);
-                    if (!o.Hint.ContainsKey(lang) || string.IsNullOrWhiteSpace(o.Hint[lang]))
+                    // Un examen est écrit sans ses indices : il n'en montre pas
+                    if (!lab.Exam && !o.Guard && (!o.Hint.ContainsKey(lang) || string.IsNullOrWhiteSpace(o.Hint[lang])))
                         Add(LabIssueLevel.Warning, $"Pas d'indice en {lang}.", $"No hint in {lang}.", o.Id);
                 }
             }
@@ -67,8 +68,11 @@ namespace SMADX.Services.Labs
                 Add(LabIssueLevel.Error, "L'exercice n'a aucun objectif.", "The lab has no objective.");
             foreach (var dup in lab.Objectives.GroupBy(o => o.Id).Where(g => g.Count() > 1))
                 Add(LabIssueLevel.Error, $"Identifiant d'objectif en double : {dup.Key}.", $"Duplicate objective identifier: {dup.Key}.");
-            foreach (var o in lab.Objectives.Where(o => o.Points <= 0))
+            foreach (var o in lab.Objectives.Where(o => o.Points <= 0 && !o.Guard))
                 Add(LabIssueLevel.Warning, "Objectif sans point.", "Objective worth no points.", o.Id);
+            foreach (var o in lab.Objectives.Where(o => o.Guard && !CanBeGuard(o.Check)))
+                Add(LabIssueLevel.Warning, "Cette vérification ne protège aucun objet : elle ne peut pas servir de garde.",
+                    "This check protects no object: it cannot be a guard.", o.Id);
 
             // ─── Pas de solution visible par l'apprenant ─────────────────────────
             foreach (var (lang, text) in lab.Statement)
@@ -109,22 +113,30 @@ namespace SMADX.Services.Labs
             var atStart = grader.Grade(lab, start, service.PrepareStart(lab, now).Domain, now);
             foreach (var r in atStart.Objectives)
             {
-                var guard = IsGuard(r.Objective.Check);
+                var guard = r.Objective.Guard;
                 if (guard && !r.Passed)
                     Add(LabIssueLevel.Error, $"Garde non atteinte au départ : {r.Feedback}", $"Guard not met at start: {r.Feedback}", r.Objective.Id);
                 else if (!guard && r.Passed)
-                    Add(LabIssueLevel.Error, "Objectif déjà atteint au départ : il ne demande rien à l'apprenant.", "Objective already met at start: it asks nothing of the learner.", r.Objective.Id);
+                    Add(LabIssueLevel.Error,
+                        CanBeGuard(r.Objective.Check) ? "Objectif déjà atteint au départ : il ne demande rien à l'apprenant. Si c'est une garde, cochez « Garde »."
+                                                      : "Objectif déjà atteint au départ : il ne demande rien à l'apprenant.",
+                        CanBeGuard(r.Objective.Check) ? "Objective already met at start: it asks nothing of the learner. If it is a guard, tick \"Guard\"."
+                                                      : "Objective already met at start: it asks nothing of the learner.", r.Objective.Id);
             }
             if (atStart.Completed)
                 Add(LabIssueLevel.Error, "L'exercice est résolu dès le départ.", "The lab is solved from the start.");
 
-            // ─── Chaque garde refuse bien son raccourci ──────────────────────────
-            foreach (var o in lab.Objectives.Where(o => o.Check.Type is LabCheckType.ObjectExists or LabCheckType.MemberOf or LabCheckType.DelegationExists))
+            // ─── Chaque garde refuse bien son raccourci, et le raccourci ne paie pas ──
+            foreach (var o in lab.Objectives.Where(o => o.Guard && o.Check.Type is LabCheckType.ObjectExists or LabCheckType.MemberOf or LabCheckType.DelegationExists))
             {
                 var working = service.PrepareStart(lab, now).Domain;
                 if (!Violate(working, o.Check)) continue;
-                if (grader.Grade(lab, start, working, now).Objectives.Single(x => x.Objective == o).Passed)
+                var shortcut = grader.Grade(lab, start, working, now);
+                if (shortcut.Objectives.Single(x => x.Objective == o).Passed)
                     Add(LabIssueLevel.Warning, "Garde inefficace : elle reste atteinte même quand on supprime ce qu'elle protège.", "Ineffective guard: it stays met even when what it protects is removed.", o.Id);
+                else if (shortcut.MaxPoints > 0 && shortcut.Points * 2 > shortcut.MaxPoints)
+                    Add(LabIssueLevel.Warning, $"Le raccourci que refuse cette garde rapporte encore {shortcut.Points} / {shortcut.MaxPoints} points : les objectifs qu'il atteint ne concernent pas l'objet protégé.",
+                        $"The shortcut this guard refuses still earns {shortcut.Points} / {shortcut.MaxPoints} points: the objectives it meets do not concern the protected object.", o.Id);
             }
 
             // ─── Solution du formateur ───────────────────────────────────────────
@@ -142,6 +154,17 @@ namespace SMADX.Services.Labs
             if (!issues.Any(i => i.Level != LabIssueLevel.Ok))
                 Add(LabIssueLevel.Ok, "Aucun problème détecté.", "No problem found.");
             return new LabValidationReport(issues, solutionResult);
+        }
+
+        /// <summary>Réglages d'examen en une ligne : vérification permise ou non, outils fermés.</summary>
+        public static string ExamSummary(LabDefinition lab, string culture)
+        {
+            var check = lab.ExamCheck ? T(culture, "Vérifier permis (sans score)", "Check allowed (no score)") : T(culture, "sans Vérifier", "no Check");
+            var closed = Enum.GetValues<LabTools>().Where(t => t != LabTools.None && lab.ExamClosedTools.HasFlag(t))
+                .Select(t => LocalizationService.Instance.Translate($"Lab.Tool.{t}", culture)).ToList();
+            return closed.Count == 0
+                ? $"{check}, {T(culture, "tous les outils ouverts", "all tools open")}"
+                : $"{check}, {T(culture, "fermés", "closed")} : {string.Join(", ", closed)}";
         }
 
         /// <summary>Applique le raccourci qu'une garde doit refuser ; faux si l'objet visé est introuvable.</summary>
@@ -180,13 +203,15 @@ namespace SMADX.Services.Labs
             sb.AppendLine($"| {T(culture, "Fichier", "File")} | `{lab.Id}{LabService.FileExtension}` |");
             sb.AppendLine($"| {T(culture, "Niveau", "Level")} | {loc.Translate($"Lab.Level.{lab.Level}", culture)} |");
             sb.AppendLine($"| {T(culture, "Durée", "Duration")} | {lab.DurationMinutes} min |");
+            if (lab.Exam)
+                sb.AppendLine($"| {T(culture, "Examen", "Exam")} | {ExamSummary(lab, culture)} |");
             sb.AppendLine($"| {T(culture, "Domaine", "Domain")} | `{lab.Start.Domain.Name}` |");
             sb.AppendLine($"| {T(culture, "Points", "Points")} | {lab.MaxPoints} |").AppendLine();
 
             sb.AppendLine(T(culture, "## Objectifs", "## Objectives")).AppendLine();
             sb.AppendLine(T(culture, "| Id | Points | Objectif | Vérification | Garde |", "| Id | Points | Objective | Check | Guard |")).AppendLine("|---|---|---|---|---|");
             foreach (var o in lab.Objectives)
-                sb.AppendLine($"| {o.Id} | {o.Points} | {o.Title.Resolve(culture)} | {Describe(o.Check, culture)} | {(IsGuard(o.Check) ? "✓" : "")} |");
+                sb.AppendLine($"| {o.Id} | {o.Points} | {o.Title.Resolve(culture)} | {Describe(o.Check, culture)} | {(o.Guard ? "✓" : "")} |");
             sb.AppendLine();
 
             var start = new LabService().PrepareStart(lab, now).Domain;

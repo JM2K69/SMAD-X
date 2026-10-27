@@ -4,6 +4,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
+using SMADX.Services;
 
 namespace SMADX.ViewModels
 {
@@ -308,6 +309,8 @@ namespace SMADX.ViewModels
             set { SetProperty(ref _psoLinkTargetObject, value); PsoLinkTarget = value?.Name ?? string.Empty; }
         }
 
+        private static LocalizationService Loc => LocalizationService.Instance;
+
         private string _statusMessage = string.Empty;
         public string StatusMessage
         {
@@ -411,7 +414,7 @@ namespace SMADX.ViewModels
             // Sites section
             if (_topology != null && _topology.Sites.Count > 0)
             {
-                var siteFolder = new GpoTargetNode("Sites AD");
+                var siteFolder = new GpoTargetNode(Loc["Relations.SitesFolder"]);
                 foreach (var site in _topology.Sites)
                     siteFolder.Children.Add(new GpoTargetNode(site));
                 OuTreeRoots.Add(siteFolder);
@@ -436,7 +439,7 @@ namespace SMADX.ViewModels
                             Source = obj.Name,
                             SourceType = obj.Type == ADObjectType.Computer ? "Computer" : "User",
                             Target = grp,
-                            RelationType = "MemberOf"
+                            RelationType = Loc["Relation.MemberOf"]
                         });
                 }
                 // Group → Group
@@ -448,7 +451,7 @@ namespace SMADX.ViewModels
                             Source = obj.Name,
                             SourceType = "Group",
                             Target = grp,
-                            RelationType = "Group in Group"
+                            RelationType = Loc["Relation.GroupNesting"]
                         });
                 }
                 if (obj.Type == ADObjectType.OrganizationalUnit || obj.Type == ADObjectType.Domain)
@@ -459,7 +462,7 @@ namespace SMADX.ViewModels
                             Source = obj.Name,
                             SourceType = obj.Type == ADObjectType.Domain ? "Domain" : "OU",
                             Target = gpo,
-                            RelationType = "GPO Link"
+                            RelationType = Loc["Relation.GpoLink"]
                         });
                 }
                 if (obj.Type == ADObjectType.PasswordSettingsObject)
@@ -470,7 +473,7 @@ namespace SMADX.ViewModels
                             Source = obj.Name,
                             SourceType = "PSO",
                             Target = t,
-                            RelationType = "PSO Subject"
+                            RelationType = Loc["Relation.PsoSubject"]
                         });
                 }
             }
@@ -485,7 +488,7 @@ namespace SMADX.ViewModels
                             Source = site.Name,
                             SourceType = "Site",
                             Target = gpo,
-                            RelationType = "GPO Link"
+                            RelationType = Loc["Relation.GpoLink"]
                         });
             }
         }
@@ -497,25 +500,25 @@ namespace SMADX.ViewModels
         {
             if (string.IsNullOrWhiteSpace(MembershipSource) || string.IsNullOrWhiteSpace(MembershipTarget))
             {
-                StatusMessage = "Sélectionnez un utilisateur source et un groupe cible.";
+                StatusMessage = Loc["Relations.Msg.SelectMembership"];
                 return;
             }
             if (MembershipSource == MembershipTarget)
             {
-                StatusMessage = "Un objet ne peut pas être membre de lui-même.";
+                StatusMessage = Loc["Relations.Msg.SelfMember"];
                 return;
             }
 
             var source = FindObject(MembershipSource);
-            if (source == null) { StatusMessage = $"Objet '{MembershipSource}' introuvable."; return; }
+            if (source == null) { StatusMessage = string.Format(Loc["Relations.Msg.ObjectNotFound"], MembershipSource); return; }
             if (source.Type != ADObjectType.User && source.Type != ADObjectType.Computer)
             {
-                StatusMessage = "La source doit être un utilisateur ou un ordinateur. Pour Group→Group, utilisez l'onglet dédié.";
+                StatusMessage = Loc["Relations.Msg.SourceMustBeAccount"];
                 return;
             }
             if (source.MemberOf.Contains(MembershipTarget))
             {
-                StatusMessage = "Cette relation existe déjà.";
+                StatusMessage = Loc["Relations.Msg.AlreadyExists"];
                 return;
             }
 
@@ -525,9 +528,9 @@ namespace SMADX.ViewModels
                 Source = MembershipSource,
                 SourceType = source.Type == ADObjectType.Computer ? "Computer" : "User",
                 Target = MembershipTarget,
-                RelationType = "MemberOf"
+                RelationType = Loc["Relation.MemberOf"]
             });
-            StatusMessage = $"✔ {MembershipSource} → {MembershipTarget} ajouté.";
+            StatusMessage = string.Format(Loc["Relations.Msg.MembershipAdded"], MembershipSource, MembershipTarget);
             MembershipSourceObject = null;
             MembershipTargetObject = null;
             MembershipSource = string.Empty;
@@ -541,7 +544,7 @@ namespace SMADX.ViewModels
             var source = FindObject(SelectedMembership.Source);
             source?.MemberOf.Remove(SelectedMembership.Target);
             Memberships.Remove(SelectedMembership);
-            StatusMessage = "✔ Relation supprimée.";
+            StatusMessage = Loc["Relations.Msg.Removed"];
         }
 
         // --- Commandes Group → Group ---
@@ -554,7 +557,7 @@ namespace SMADX.ViewModels
 
             if (selectedSources.Count == 0 || selectedTargets.Count == 0)
             {
-                StatusMessage = "Cochez au moins un groupe source et un groupe parent cible.";
+                StatusMessage = Loc["Relations.Msg.SelectNesting"];
                 return;
             }
 
@@ -574,7 +577,7 @@ namespace SMADX.ViewModels
                         Source = src.Name,
                         SourceType = "Group",
                         Target = tgt.Name,
-                        RelationType = "Group in Group"
+                        RelationType = Loc["Relation.GroupNesting"]
                     });
                     added++;
                 }
@@ -583,8 +586,10 @@ namespace SMADX.ViewModels
             foreach (var tgt in selectedTargets) tgt.IsSelected = false;
 
             StatusMessage = added > 0
-                ? $"✔ {added} relation(s) ajoutée(s){(skipped > 0 ? $", {skipped} ignorée(s) (doublon/identique)" : "")}."
-                : "Aucune relation ajoutée (doublons ou source = cible).";
+                ? (skipped > 0
+                    ? string.Format(Loc["Relations.Msg.NestingAddedSkipped"], added, skipped)
+                    : string.Format(Loc["Relations.Msg.NestingAdded"], added))
+                : Loc["Relations.Msg.NestingNone"];
         }
 
         [RelayCommand]
@@ -594,7 +599,7 @@ namespace SMADX.ViewModels
             var source = FindObject(SelectedGroupNesting.Source);
             source?.MemberOf.Remove(SelectedGroupNesting.Target);
             GroupNestings.Remove(SelectedGroupNesting);
-            StatusMessage = "✔ Imbrication supprimée.";
+            StatusMessage = Loc["Relations.Msg.NestingRemoved"];
         }
 
         // --- Commandes GPO Links ---
@@ -604,7 +609,7 @@ namespace SMADX.ViewModels
         {
             if (SelectedOuNode == null || !SelectedOuNode.IsTarget || string.IsNullOrWhiteSpace(GpoLinkGpo))
             {
-                StatusMessage = "Sélectionnez un domaine/OU/site cible et une GPO.";
+                StatusMessage = Loc["Relations.Msg.SelectGpoLink"];
                 return;
             }
 
@@ -614,7 +619,7 @@ namespace SMADX.ViewModels
                 var site = SelectedOuNode.SiteRef;
                 if (site.LinkedGPOs.Contains(GpoLinkGpo))
                 {
-                    StatusMessage = "Ce lien GPO existe déjà.";
+                    StatusMessage = Loc["Relations.Msg.GpoLinkExists"];
                     return;
                 }
                 site.LinkedGPOs.Add(GpoLinkGpo);
@@ -623,9 +628,9 @@ namespace SMADX.ViewModels
                     Source = site.Name,
                     SourceType = "Site",
                     Target = GpoLinkGpo,
-                    RelationType = "GPO Link"
+                    RelationType = Loc["Relation.GpoLink"]
                 });
-                StatusMessage = $"✔ GPO '{GpoLinkGpo}' liée au site '{site.Name}'.";
+                StatusMessage = string.Format(Loc["Relations.Msg.GpoLinkedToSite"], GpoLinkGpo, site.Name);
             }
             else if (SelectedOuNode.AdObjectRef != null)
             {
@@ -633,7 +638,7 @@ namespace SMADX.ViewModels
                 var ou = SelectedOuNode.AdObjectRef;
                 if (ou.LinkedGPOs.Contains(GpoLinkGpo))
                 {
-                    StatusMessage = "Ce lien GPO existe déjà.";
+                    StatusMessage = Loc["Relations.Msg.GpoLinkExists"];
                     return;
                 }
                 ou.LinkedGPOs.Add(GpoLinkGpo);
@@ -642,9 +647,9 @@ namespace SMADX.ViewModels
                     Source = ou.Name,
                     SourceType = ou.Type == ADObjectType.Domain ? "Domain" : "OU",
                     Target = GpoLinkGpo,
-                    RelationType = "GPO Link"
+                    RelationType = Loc["Relation.GpoLink"]
                 });
-                StatusMessage = $"✔ GPO '{GpoLinkGpo}' liée à '{ou.Name}'.";
+                StatusMessage = string.Format(Loc["Relations.Msg.GpoLinked"], GpoLinkGpo, ou.Name);
             }
 
             GpoLinkGpoObject = null;
@@ -666,7 +671,7 @@ namespace SMADX.ViewModels
                 {
                     site.LinkedGPOs.Remove(SelectedGpoLink.Target);
                     GpoLinks.Remove(SelectedGpoLink);
-                    StatusMessage = "✔ Lien GPO supprimé.";
+                    StatusMessage = Loc["Relations.Msg.GpoLinkRemoved"];
                     return;
                 }
             }
@@ -675,7 +680,7 @@ namespace SMADX.ViewModels
             var ou = FindObject(SelectedGpoLink.Source);
             ou?.LinkedGPOs.Remove(SelectedGpoLink.Target);
             GpoLinks.Remove(SelectedGpoLink);
-            StatusMessage = "✔ Lien GPO supprimé.";
+            StatusMessage = Loc["Relations.Msg.GpoLinkRemoved"];
         }
 
         // --- Commandes PSO ---
@@ -685,15 +690,15 @@ namespace SMADX.ViewModels
         {
             if (string.IsNullOrWhiteSpace(PsoLinkPso) || string.IsNullOrWhiteSpace(PsoLinkTarget))
             {
-                StatusMessage = "Sélectionnez un PSO et un utilisateur/groupe cible.";
+                StatusMessage = Loc["Relations.Msg.SelectPso"];
                 return;
             }
 
             var pso = FindObject(PsoLinkPso);
-            if (pso == null) { StatusMessage = $"PSO '{PsoLinkPso}' introuvable."; return; }
+            if (pso == null) { StatusMessage = string.Format(Loc["Relations.Msg.PsoNotFound"], PsoLinkPso); return; }
             if (pso.PSOAppliesTo.Contains(PsoLinkTarget))
             {
-                StatusMessage = "Cette application PSO existe déjà.";
+                StatusMessage = Loc["Relations.Msg.PsoExists"];
                 return;
             }
 
@@ -703,9 +708,9 @@ namespace SMADX.ViewModels
                 Source = PsoLinkPso,
                 SourceType = "PSO",
                 Target = PsoLinkTarget,
-                RelationType = "PSO Subject"
+                RelationType = Loc["Relation.PsoSubject"]
             });
-            StatusMessage = $"✔ PSO '{PsoLinkPso}' appliqué à '{PsoLinkTarget}'.";
+            StatusMessage = string.Format(Loc["Relations.Msg.PsoApplied"], PsoLinkPso, PsoLinkTarget);
             PsoLinkPsoObject = null;
             PsoLinkTargetObject = null;
             PsoLinkPso = string.Empty;
@@ -719,7 +724,7 @@ namespace SMADX.ViewModels
             var pso = FindObject(SelectedPsoLink.Source);
             pso?.PSOAppliesTo.Remove(SelectedPsoLink.Target);
             PsoLinks.Remove(SelectedPsoLink);
-            StatusMessage = "✔ Application PSO supprimée.";
+            StatusMessage = Loc["Relations.Msg.PsoRemoved"];
         }
 
         private ADObject? FindObject(string name)

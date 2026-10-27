@@ -31,8 +31,8 @@ Le PDF embarque ses polices de secours (Noto, dont les emoji et les symboles) : 
 
 | Export | Où |
 |---|---|
-| Image de l'arbre | bouton **Export PNG** |
+| Image de l'arbre | bouton **Exporter en PNG** |
 | Délégations | fenêtre **Délégations** > **Export CSV** |
-| Différences entre deux fichiers | **Analyse > Domain Timeline** (`Ctrl+T`), export CSV |
+| Différences entre deux fichiers | **Analyse > Évolution du domaine...** (`Ctrl+T`), export CSV |
 | Compte rendu d'exercice | fenêtre d'exercice > **Exporter le résultat** (Markdown) |
 | Copie d'exercice, à rendre au formateur | fenêtre d'exercice > **Enregistrer ma copie** (`.smadx-submission.json`) |

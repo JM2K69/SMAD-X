@@ -33,5 +33,5 @@ La liste est aussi dans l'application : **Aide > Raccourcis clavier...**
 | `Ctrl+Shift+K` | Chemins d'attaque |
 | `Ctrl+Shift+B` | Avant / après |
 | `Ctrl+D` | Délégations |
-| `Ctrl+T` | Domain Timeline (comparer deux fichiers) |
+| `Ctrl+T` | Évolution du domaine (comparer deux fichiers) |
 | `Ctrl+Shift+S` | Sites AD |

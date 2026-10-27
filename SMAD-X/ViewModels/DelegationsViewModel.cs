@@ -6,6 +6,7 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
+using SMADX.Services;
 
 namespace SMADX.ViewModels
 {
@@ -208,7 +209,7 @@ namespace SMADX.ViewModels
                 FilteredDelegations.Add(d);
 
             var ouLabel = SelectedOUNode is not null ? $" \u2014 {SelectedOUNode.Name}" : string.Empty;
-            StatusMessage = $"{FilteredDelegations.Count} / {AllDelegations.Count} delegation(s){ouLabel}.";
+            StatusMessage = string.Format(LocalizationService.Instance["Delegations.Status"], FilteredDelegations.Count, AllDelegations.Count, ouLabel);
         }
 
         [RelayCommand]
@@ -218,7 +219,7 @@ namespace SMADX.ViewModels
             lines.AddRange(FilteredDelegations.Select(d =>
                 $"{Q(d.TrusteeName)},{d.TrusteeType},{Q(d.TargetDN)},{Q(d.Right)},{d.RightCategory},{d.IsInherited},{Q(d.Tier)}"));
             await File.WriteAllLinesAsync(outputPath, lines);
-            StatusMessage = $"Exported {FilteredDelegations.Count} row(s) to {outputPath}";
+            StatusMessage = string.Format(LocalizationService.Instance["Csv.Exported"], FilteredDelegations.Count, outputPath);
         }
 
         // ── Helpers ────────────────────────────────────────────────────────────

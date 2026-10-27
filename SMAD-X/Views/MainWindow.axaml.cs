@@ -17,10 +17,31 @@ namespace SMADX.Views
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly Avalonia.Threading.DispatcherTimer _autoSave = new() { Interval = TimeSpan.FromMinutes(1) };
+        private bool _closeConfirmed;
+
         public MainWindow()
         {
             InitializeComponent();
             this.KeyDown += OnKeyDown;
+            Closing += OnClosing;
+            _autoSave.Tick += (_, _) => (DataContext as MainWindowViewModel)?.AutoSave();
+            Opened += (_, _) => _autoSave.Start();
+            Closed += (_, _) => _autoSave.Stop();
+        }
+
+        /// <summary>
+        /// Fermeture : une copie de secours d'abord (mode exercice), puis, s'il reste des modifications non
+        /// enregistrées, la question « enregistrer ? ». La fenêtre se ferme ensuite pour de bon.
+        /// </summary>
+        private async void OnClosing(object? sender, WindowClosingEventArgs e)
+        {
+            if (_closeConfirmed || DataContext is not MainWindowViewModel vm) return;
+            e.Cancel = true;
+            vm.AutoSave();
+            if (!await vm.ConfirmCloseAsync()) return;
+            _closeConfirmed = true;
+            Close();
         }
 
         private void OnTierComboBoxSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -128,7 +149,7 @@ namespace SMADX.Views
 
             var loc = LocalizationService.Instance;
             var path = await new AvaloniaDialogService(this).PickSaveFileAsync(
-                loc["Dialog.ExportPng.Title"], "arborescence_ad.png", "png",
+                loc["Dialog.ExportPng.Title"], loc["Dialog.ExportPng.DefaultName"], "png",
                 new FileFilter(loc["FileType.ImagePNG"], "*.png"));
 
             if (path is null) return;

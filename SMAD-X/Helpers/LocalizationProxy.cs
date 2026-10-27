@@ -139,6 +139,8 @@ namespace SMADX.Helpers
         public string LabSaveSubmission => _localizationService["Lab.SaveSubmission"];
         public string LabSubmissionNeedName => _localizationService["Lab.Submission.NeedName"];
         public string LabExamNotice => _localizationService["Lab.Exam.Notice"];
+        public string LabGuard => _localizationService["Lab.Guard"];
+        public string LabGuardTip => _localizationService["Lab.Guard.Tip"];
         public string LabObjectives => _localizationService["Lab.Objectives"];
         public string LabHint => _localizationService["Lab.Hint"];
         public string LabCheck => _localizationService["Lab.Check"];
@@ -375,5 +377,96 @@ namespace SMADX.Helpers
         public string ReportImportError         => _localizationService["Report.Import.Error"];
         public string ReportImportNoSelection   => _localizationService["Report.Import.NoSelection"];
         public string ReportThemeLabel          => _localizationService["Report.Theme.Label"];
+        public string ReportThemePlain          => _localizationService["Report.Theme.Plain"];
+        public string ReportThemeWordLike       => _localizationService["Report.Theme.WordLike"];
+        public string ReportThemeTechnicalDocument => _localizationService["Report.Theme.TechnicalDocument"];
+        public string ReportThemeGitHubLike     => _localizationService["Report.Theme.GitHubLike"];
+        public string ReportThemeCompact        => _localizationService["Report.Theme.Compact"];
+        public string ReportThemeReport         => _localizationService["Report.Theme.Report"];
+        public string ReportFormatMarkdownAlways => _localizationService["Report.Format.MarkdownAlways"];
+
+        /// <summary>Culture courante : une MultiBinding qui la lit est recalculée au changement de langue.</summary>
+        public string CurrentCulture => _localizationService.CurrentCulture.Name;
+
+        // Menu Analyse, barre d'outils, badges et panneau des sites de la fenêtre principale
+        public string MenuAnalyse            => _localizationService["Menu.Analyse"];
+        public string MenuAnalyseTimeline    => _localizationService["Menu.Analyse.Timeline"];
+        public string MenuAnalyseDelegations => _localizationService["Menu.Analyse.Delegations"];
+        public string ToolbarExportPNG       => _localizationService["Toolbar.ExportPNG"];
+        public string BadgeGpo               => _localizationService["Badge.Gpo"];
+        public string BadgeDelegations       => _localizationService["Badge.Delegations"];
+        public string BadgeAudit             => _localizationService["Badge.Audit"];
+        public string SitesPanelTitle        => _localizationService["Sites.Panel.Title"];
+
+        // À propos (suite)
+        public string AboutFeature7 => _localizationService["About.Feature7"];
+        public string AboutFeature8 => _localizationService["About.Feature8"];
+
+        // Exercices (suite)
+        public string LabPointsUnit => _localizationService["Lab.PointsUnit"];
+
+        // Graphe et relations (suite)
+        public string GraphFilterGroupNesting    => _localizationService["Graph.FilterGroupNesting"];
+        public string RelationsLabelUserComputer => _localizationService["Relations.LabelUserComputer"];
+        public string RelationsChooseUserComputer => _localizationService["Relations.ChooseUserComputer"];
+        public string RelationsFilter            => _localizationService["Relations.Filter"];
+
+        // Nouveau domaine (aperçu de la structure créée)
+        public string DialogNewDomainPreviewTree => _localizationService["Dialog.NewDomain.PreviewTree"];
+
+        // Sélecteur de couleur
+        public string ColorPickerTitle   => _localizationService["ColorPicker.Title"];
+        public string ColorPickerRed     => _localizationService["ColorPicker.Red"];
+        public string ColorPickerGreen   => _localizationService["ColorPicker.Green"];
+        public string ColorPickerBlue    => _localizationService["ColorPicker.Blue"];
+        public string ColorPickerHex     => _localizationService["ColorPicker.Hex"];
+        public string ColorPickerPresets => _localizationService["ColorPicker.Presets"];
+        public string ColorPickerOk      => _localizationService["ColorPicker.Ok"];
+        public string ColorPickerCancel  => _localizationService["ColorPicker.Cancel"];
+
+        // Délégations
+        public string DelegationsWindowTitle     => _localizationService["Delegations.Window.Title"];
+        public string DelegationsTreeTitle       => _localizationService["Delegations.Tree.Title"];
+        public string DelegationsShowAll         => _localizationService["Delegations.ShowAll"];
+        public string DelegationsFilterTrustee   => _localizationService["Delegations.Filter.Trustee"];
+        public string DelegationsFilterTargetDN  => _localizationService["Delegations.Filter.TargetDN"];
+        public string DelegationsFilterCategory  => _localizationService["Delegations.Filter.Category"];
+        public string DelegationsHideInherited   => _localizationService["Delegations.HideInherited"];
+        public string DelegationsApply           => _localizationService["Delegations.Apply"];
+        public string DelegationsExportCsv       => _localizationService["Delegations.ExportCsv"];
+        public string DelegationsColumnTrustee   => _localizationService["Delegations.Column.Trustee"];
+        public string DelegationsColumnType      => _localizationService["Delegations.Column.Type"];
+        public string DelegationsColumnCategory  => _localizationService["Delegations.Column.Category"];
+        public string DelegationsColumnRight     => _localizationService["Delegations.Column.Right"];
+        public string DelegationsColumnTargetDN  => _localizationService["Delegations.Column.TargetDN"];
+        public string DelegationsColumnInherited => _localizationService["Delegations.Column.Inherited"];
+        public string DelegationsColumnTier      => _localizationService["Delegations.Column.Tier"];
+        public string DelegationCategoryPasswordReset      => _localizationService["Delegation.Category.PasswordReset"];
+        public string DelegationCategoryComputerManagement => _localizationService["Delegation.Category.ComputerManagement"];
+        public string DelegationCategoryAccountUnlock      => _localizationService["Delegation.Category.AccountUnlock"];
+        public string DelegationCategoryAttributeWrite     => _localizationService["Delegation.Category.AttributeWrite"];
+        public string DelegationCategoryFullControl        => _localizationService["Delegation.Category.FullControl"];
+        public string DelegationCategoryOther              => _localizationService["Delegation.Category.Other"];
+
+        // Évolution du domaine (comparaison de deux fichiers)
+        public string TimelineWindowTitle       => _localizationService["Timeline.Window.Title"];
+        public string TimelineFileA             => _localizationService["Timeline.FileA"];
+        public string TimelineFileB             => _localizationService["Timeline.FileB"];
+        public string TimelineOpen              => _localizationService["Timeline.Open"];
+        public string TimelineCompare           => _localizationService["Timeline.Compare"];
+        public string TimelineAdded             => _localizationService["Timeline.Added"];
+        public string TimelineRemoved           => _localizationService["Timeline.Removed"];
+        public string TimelineModified          => _localizationService["Timeline.Modified"];
+        public string TimelineExportCsv         => _localizationService["Timeline.ExportCsv"];
+        public string TimelineFilterText        => _localizationService["Timeline.Filter.Text"];
+        public string TimelineFilterChangeType  => _localizationService["Timeline.Filter.ChangeType"];
+        public string TimelineFilterCategory    => _localizationService["Timeline.Filter.Category"];
+        public string TimelineApply             => _localizationService["Timeline.Apply"];
+        public string TimelineColumnChange      => _localizationService["Timeline.Column.Change"];
+        public string TimelineColumnCategory    => _localizationService["Timeline.Column.Category"];
+        public string TimelineColumnObject      => _localizationService["Timeline.Column.Object"];
+        public string TimelineColumnType        => _localizationService["Timeline.Column.Type"];
+        public string TimelineColumnDN          => _localizationService["Timeline.Column.DN"];
+        public string TimelineColumnDetails     => _localizationService["Timeline.Column.Details"];
     }
 }

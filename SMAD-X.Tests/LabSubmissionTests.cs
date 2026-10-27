@@ -248,6 +248,122 @@ public class LabSubmissionTests
         File.WriteAllText(path, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }
 
+    /// <summary>Retouche la copie puis la rescelle, comme un faussaire qui connaît le format.</summary>
+    private static void Forge(string path, Action<JsonObject> change) => Rewrite(path, node =>
+    {
+        change(node);
+        node["Seal"] = LabSubmissionService.ComputeSeal(node);
+    });
+
+    private LabDefinition Exam(Action<LabDefinition>? settings = null)
+    {
+        var lab = _labs.Parse(_labs.Serialize(Hygiene()));
+        lab.Exam = true;
+        settings?.Invoke(lab);
+        return _labs.Parse(_labs.Serialize(lab)); // le fichier distribué
+    }
+
+    private static IEnumerable<string> Errors(GradedSubmission row) => row.Issues.Where(i => i.Level == LabIssueLevel.Error).Select(i => i.Message);
+
+    [Fact]
+    public void ExamFile_IsWrittenWithoutHints_AndAsFormatV2()
+    {
+        var lab = Exam();
+        var json = _labs.Serialize(lab);
+
+        Assert.All(lab.Objectives, o => Assert.Empty(o.Hint));
+        Assert.Contains("\"FormatVersion\": 2", json);
+        Assert.Contains($"\"EngineVersion\": \"{EngineInfo.Version}\"", json);
+    }
+
+    [Fact]
+    public void ExamReopenedOutsideExamMode_IsReported()
+    {
+        var lab = Exam();
+        var path = Submit(lab, "Lou");
+        Forge(path, node => node["Lab"]!["Exam"] = false);
+
+        var row = SubmissionGrader.Grade(lab, path, "fr-FR");
+
+        Assert.Equal(SubmissionSeal.Valid, row.Submission!.SealCheck);
+        Assert.Contains(Errors(row), m => m.Contains("hors mode examen"));
+    }
+
+    [Fact]
+    public void ExamWithChangedSettingsOrHints_IsReported()
+    {
+        var lab = Exam(l => l.ExamClosedTools = LabTools.Audit);
+        var path = Submit(lab, "Lou", hints: ["o1"]);
+        Forge(path, node => node["Lab"]!.AsObject().Remove("ExamClosedTools"));
+
+        var errors = Errors(SubmissionGrader.Grade(lab, path, "fr-FR")).ToList();
+
+        Assert.Contains(errors, m => m.Contains("réglages d'examen"));
+        Assert.Contains(errors, m => m.Contains("Indices consultés pendant l'examen : o1"));
+    }
+
+    [Fact]
+    public void AReplacedStartDomain_DefeatsTheSessionCheck_NoMore()
+    {
+        // Le faussaire remplace le départ embarqué par un domaine aux DN disjoints, puis rescelle
+        var lab = Hygiene();
+        var path = Submit(lab, "Lou", DisableGuest);
+        Forge(path, node =>
+        {
+            var start = node["Lab"]!["Start"]!["Domain"]!.AsObject();
+            start["Name"] = "autre.local";
+            start["DistinguishedName"] = "DC=autre,DC=local";
+            start["Children"] = new JsonArray();
+        });
+
+        var errors = Errors(SubmissionGrader.Grade(lab, path, "fr-FR")).ToList();
+
+        Assert.Contains(errors, m => m.Contains("remplacé"));
+        Assert.Contains(errors, m => m.Contains("Contrôle de session impossible"));
+    }
+
+    [Fact]
+    public void ElapsedTime_IsMeasured_AndAnExceededExamIsReported()
+    {
+        var lab = Exam(l => l.DurationMinutes = 30);
+        var path = Submit(lab, "Lou", savedAt: Started.AddMinutes(45));
+
+        var row = SubmissionGrader.Grade(lab, path, "fr-FR");
+
+        Assert.Equal(45, row.ElapsedMinutes);
+        Assert.Contains(row.Issues, i => i.Level == LabIssueLevel.Warning && i.Message.Contains("Temps dépassé : 45 min pour 30"));
+        Assert.Contains(";45;", SubmissionGrader.Csv(lab, [row], "fr-FR"));
+    }
+
+    [Fact]
+    public void ASubmissionFromAnotherEngine_IsGradedWithAWarning()
+    {
+        var lab = Hygiene();
+        var path = Submit(lab, "Lou", DisableGuest);
+        Forge(path, node =>
+        {
+            node["EngineVersion"] = "0.9.0-ancienne";
+            node["RulesVersion"] = "000000000000";
+        });
+
+        var row = SubmissionGrader.Grade(lab, path, "fr-FR");
+
+        Assert.True(row.Graded);
+        Assert.Contains(row.Issues, i => i.Level == LabIssueLevel.Warning && i.Message.Contains("0.9.0-ancienne"));
+        Assert.False(SubmissionGrader.NeedsAttention(row));
+    }
+
+    [Fact]
+    public void ResumingASubmission_KeepsCountingTheTime()
+    {
+        var lab = Hygiene();
+        var submission = _submissions.LoadFile(Submit(lab, "Lou", savedAt: Started.AddMinutes(20)));
+
+        var resumed = LabSession.Resume(submission, Started.AddDays(1));
+
+        Assert.Equal(20 + 15, resumed.ElapsedMinutes(Started.AddDays(1).AddMinutes(15)));
+    }
+
     [Fact]
     public void Seal_IsValidAfterSaving_WhateverTheLayout()
     {

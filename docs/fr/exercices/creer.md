@@ -83,7 +83,9 @@ Le fichier reste du JSON lisible (voir § 3). Ne modifiez pas `Start` à la main
 
 | Champ | Rôle |
 |---|---|
-| `Format`, `FormatVersion` | Toujours `"smadx-lab"` et `1`. Un fichier d'une version plus récente est refusé avec un message clair. |
+| `Format`, `FormatVersion` | `"smadx-lab"` et `2` (gardes marquées, réglages d'examen). Un fichier v1 est lu et ses gardes reconnues ; un fichier d'une version plus récente est refusé avec un message clair. |
+| `EngineVersion` | Version de SMAD-X qui a écrit l'exercice ; la correction dépend de ses règles d'audit. |
+| `Exam`, `ExamCheck`, `ExamClosedTools` | Facultatifs. Mode examen, « Vérifier » permis en examen, outils fermés (`Audit`, `FixGuidance`, `AttackPaths`, `Comparison`). |
 | `Id` | Identifiant stable, sans espace. Il sert aussi au nom du compte rendu. |
 | `Title`, `Statement` | Textes par langue (`fr-FR`, `en-US`). Si la langue de l'interface manque, SMAD-X prend le français, puis le premier texte. |
 | `Language` | Facultatif. À renseigner quand le **domaine** est écrit dans une seule langue (noms d'OU, de comptes…) : le menu ne propose alors l'exercice que dans cette langue. Laisser vide pour un exercice bilingue. |
@@ -92,7 +94,7 @@ Le fichier reste du JSON lisible (voir § 3). Ne modifiez pas `Start` à la main
 | `DurationMinutes` | Durée indicative. |
 | `ReferenceDate` | Date à laquelle les dates du domaine ont été figées. À l'ouverture, toutes les dates sont décalées de « aujourd'hui − ReferenceDate » : un compte connecté « hier » le restera, quel que soit le jour où l'exercice est fait. |
 | `Start` | Le domaine de départ : un document `.smad-x.json` complet, migré à la lecture comme un fichier normal. |
-| `Objectives` | Les objectifs corrigés (§ 5). Le total des points est calculé. |
+| `Objectives` | Les objectifs corrigés (§ 5). Le total des points est calculé, sans les gardes. |
 
 ---
 
@@ -151,7 +153,7 @@ Les identifiants de règles d'audit (`KRB-01`, `DLG-01`, `PRIV-04`…) sont ceux
 ### 5.2 Les objectifs de garde
 Un bon exercice combine :
 1. **les objectifs principaux** : couper le chemin (`NoAttackPath`), lever la règle d'audit (`RuleClear`) ;
-2. **les objectifs de garde**, déjà atteints au départ, qui échouent si l'apprenant « triche » :
+2. **les gardes** (`"Guard": true`, 0 point), déjà atteintes au départ, qui échouent si l'apprenant « triche » ; une garde violée annule les objectifs qui concernaient l'objet protégé au départ (son constat, les chemins qui le traversaient, les vérifications qui le nomment) :
    - `ObjectExists` sur le compte de service, le serveur ou le contrôleur de domaine qu'il ne faut pas supprimer ;
    - `MemberOf` sur un utilisateur qui doit rester dans son équipe ;
    - `DelegationExists` sur une délégation légitime (le support garde la réinitialisation) ;
@@ -160,7 +162,7 @@ Un bon exercice combine :
 Pensez aussi à l'objectif « **plus aucun chemin hors Tier 0** » (`NoAttackPath` sans `Object`) : il montre qu'un seul maillon coupé ne suffit pas toujours. Quand il échoue, le correcteur affiche le chemin restant étape par étape.
 
 ### 5.3 Points et indices
-- 3 à 4 points pour l'objectif principal, 2 pour l'objectif « hors Tier 0 » et les règles critiques, 1 pour les gardes.
+- 3 à 4 points pour l'objectif principal, 2 pour l'objectif « hors Tier 0 » et les règles critiques ; une garde ne rapporte rien.
 - Un indice par objectif, qui met sur la piste sans donner la manipulation exacte : « Regardez de quels groupes X est lui-même membre » plutôt que « Retirez X de Domain Admins ».
 
 ---
@@ -186,6 +188,7 @@ Le générateur est **déterministe** : identifiants tirés du DN, dates figées
 ### Tests automatiques
 Chaque exercice fourni doit avoir ses tests (modèles : `SMAD-X.Tests/LabTests.cs` et `SMAD-X.Tests/AttackPathLabTests.cs`) :
 - **non résolu au départ** : les objectifs principaux échouent, les gardes réussissent ;
+- **le raccourci ne paie pas** : supprimer l'objet qu'une garde protège rapporte au plus la moitié des points ;
 - **la solution obtient tous les points** ;
 - **chaque raccourci est refusé** : supprimer l'objet gardé, retirer le membre, retirer la délégation légitime ;
 - **l'énoncé ne contient pas la réponse** et chaque objectif a un indice.

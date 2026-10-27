@@ -42,6 +42,8 @@ Un exercice contient un énoncé, un domaine de départ complet (un document `.s
 
 La copie d'un apprenant (`"Format": "smadx-submission"`) contient son nom (`Student`), l'identifiant de l'exercice (`LabId`), la date de préparation du domaine de départ (`StartedOn`), la date de la copie (`SavedAt`), les objectifs dont l'indice a été consulté (`HintsUsed`), l'exercice reçu (`Lab`) et le domaine de l'apprenant (`Work`, un document `.smad-x.json`). Elle ne contient pas de note : SMAD-X Studio la corrige avec l'exemplaire de l'exercice du formateur.
 
+`ElapsedMinutes` donne le temps passé sur l'exercice, séances reprises comprises ; `EngineVersion` et `RulesVersion`, la version de SMAD-X qui a écrit la copie et l'empreinte de ses règles d'audit : Studio prévient si elles diffèrent des siennes. Ces trois champs existent depuis le format v2 (SMAD-X 0.9).
+
 `SessionId` identifie la session de travail, tirée au hasard à l'ouverture de l'exercice : les identifiants (`Id`) des objets du domaine de travail en sont dérivés. `Seal` est le sceau : le SHA-256, en hexadécimal, de la copie sans la clé `Seal`, écrite en JSON compact. Il ne dépend pas de la mise en page, mais du moindre changement de contenu.
 
 ## Le script PowerShell d'import

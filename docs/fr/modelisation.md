@@ -57,7 +57,7 @@ L'audit et les chemins d'attaque calculent l'**appartenance effective** : un com
 
 ![Fenêtre des délégations](assets/screens/delegations.png)
 
-**Analyse > Delegations** (`Ctrl+D`) liste les délégations : mandataire, droit, catégorie, DN cible, héritage, tier. On filtre par mandataire, cible ou catégorie, on masque les délégations héritées, et on exporte en CSV.
+**Analyse > Délégations...** (`Ctrl+D`) liste les délégations : mandataire, droit, catégorie, DN cible, héritage, tier. On filtre par mandataire, cible ou catégorie, on masque les délégations héritées, et on exporte en CSV.
 
 Pour **déléguer**, sélectionnez une OU à gauche, choisissez le mandataire et la catégorie (réinitialisation de mot de passe, gestion des ordinateurs, déverrouillage, écriture d'attribut, contrôle total), puis **Ajouter**. **Retirer la délégation sélectionnée** la supprime.
 

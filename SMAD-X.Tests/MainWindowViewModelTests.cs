@@ -35,6 +35,13 @@ internal sealed class FakeDialogService : IDialogService
         return Task.CompletedTask;
     }
 
+    public UnsavedChoice UnsavedAnswer { get; set; } = UnsavedChoice.Cancel;
+    public int UnsavedAsked { get; private set; }
+    public Task<UnsavedChoice> AskUnsavedAsync(bool submission) { UnsavedAsked++; return Task.FromResult(UnsavedAnswer); }
+    public bool ConfirmAnswer { get; set; }
+    public List<string> Confirmations { get; } = new();
+    public Task<bool> ConfirmAsync(string title, string message, string yes, string no) { Confirmations.Add(message); return Task.FromResult(ConfirmAnswer); }
+
     public GraphViewModel? LastGraph { get; private set; }
     public void ShowGraph(GraphViewModel viewModel) { LastGraph = viewModel; Opened.Add("Graph"); }
     public AttackPathsViewModel? LastAttackPaths { get; private set; }
@@ -315,6 +322,31 @@ public class MainWindowViewModelTests
         _vm.SelectObject(krbtgt);
         Assert.Same(Node("krbtgt"), _vm.SelectedNode);
         Assert.Same(_vm.RootObject, _dialogs.LastGraph!.Root);
+    }
+
+    [Fact]
+    public async Task Closing_AsksOnlyWhenTheDomainHasUnsavedChanges()
+    {
+        Assert.False(_vm.HasUnsavedChanges);
+        Assert.True(await _vm.ConfirmCloseAsync());
+        Assert.Equal(0, _dialogs.UnsavedAsked);
+
+        _vm.SelectedNode = Node("Domain Users");
+        _vm.ConfirmRenameCommand.Execute("Utilisateurs du domaine");
+        Assert.True(_vm.HasUnsavedChanges);
+
+        _dialogs.UnsavedAnswer = UnsavedChoice.Cancel;
+        Assert.False(await _vm.ConfirmCloseAsync());
+        _dialogs.UnsavedAnswer = UnsavedChoice.Save;
+        _dialogs.SavePath = null;                         // sélecteur annulé : on reste
+        Assert.False(await _vm.ConfirmCloseAsync());
+        _dialogs.SavePath = TempFile(".smad-x.json");
+        Assert.True(await _vm.ConfirmCloseAsync());
+        Assert.False(_vm.HasUnsavedChanges);
+
+        _vm.ConfirmRenameCommand.Execute("Domain Users");
+        _dialogs.UnsavedAnswer = UnsavedChoice.Discard;
+        Assert.True(await _vm.ConfirmCloseAsync());
     }
 
     [Fact]

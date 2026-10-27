@@ -19,6 +19,8 @@ using SMADX.ViewModels;
 using SMADX.Views;
 
 var repo = Path.GetFullPath(args.Length > 0 ? args[0] : ".");
+// Jamais les copies de secours de l'utilisateur
+MainWindowViewModel.DefaultRecoveryFolder = Path.Combine(Path.GetTempPath(), "smadx-docgen-recovery");
 
 AppBuilder.Configure<App>()
     .UseSkia()
@@ -158,7 +160,7 @@ static LabDefinition DemoLab(string culture)
             new() { Id = "o2", Points = 2, Title = Text(T(culture, "Les groupes privilégiés ont un propriétaire administratif", "Privileged groups have an administrative owner")),
                     Hint = Text(T(culture, "Fiche ACL-01.", "Rule sheet ACL-01.")),
                     Check = new LabCheck { Type = LabCheckType.RuleClear, RuleId = "ACL-01", Object = group.Name } },
-            new() { Id = "o3", Points = 1, Title = Text(T(culture, "Le groupe GG-HelpDesk existe toujours", "Group GG-HelpDesk still exists")),
+            new() { Id = "o3", Points = 0, Guard = true, Title = Text(T(culture, "Le groupe GG-HelpDesk existe toujours", "Group GG-HelpDesk still exists")),
                     Hint = Text(T(culture, "Le helpdesk a besoin de son groupe.", "The help desk needs its group.")),
                     Check = new LabCheck { Type = LabCheckType.ObjectExists, Object = "GG-HelpDesk", ObjectType = ADObjectType.Group } }
         ]
@@ -348,4 +350,6 @@ sealed class CaptureDialogs : IDialogService
     public Task ShowAboutAsync() => Task.CompletedTask;
     public bool OpenInStudio(string domainFile, out string studioPath) { studioPath = string.Empty; return false; }
     public Task ShowShortcutsAsync() => Task.CompletedTask;
+    public Task<UnsavedChoice> AskUnsavedAsync(bool submission) => Task.FromResult(UnsavedChoice.Cancel);
+    public Task<bool> ConfirmAsync(string title, string message, string yes, string no) => Task.FromResult(false);
 }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using SMADX.Services;
 using SMADX.ViewModels;
 
 namespace SMADX.Views
@@ -26,11 +27,11 @@ namespace SMADX.Views
 
             var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                Title          = isFileA ? "Open File A (older snapshot)" : "Open File B (newer snapshot)",
+                Title          = LocalizationService.Instance[isFileA ? "Timeline.OpenA.Title" : "Timeline.OpenB.Title"],
                 AllowMultiple  = false,
                 FileTypeFilter = new List<FilePickerFileType>
                 {
-                    new("SMAD-X file") { Patterns = new[] { "*.smad-x.json" } },
+                    new(LocalizationService.Instance["FileType.SMADXJSON"]) { Patterns = new[] { "*.smad-x.json" } },
                     FilePickerFileTypes.All
                 }
             });
@@ -46,11 +47,11 @@ namespace SMADX.Views
 
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
-                Title             = "Export changes to CSV",
+                Title             = LocalizationService.Instance["Timeline.Export.Title"],
                 SuggestedFileName = $"{vm.FileA?.DomainName ?? "domain"}-diff.csv",
                 FileTypeChoices   = new List<FilePickerFileType>
                 {
-                    new("CSV file") { Patterns = new[] { "*.csv" } }
+                    new(LocalizationService.Instance["Csv.FileType"]) { Patterns = new[] { "*.csv" } }
                 }
             });
 

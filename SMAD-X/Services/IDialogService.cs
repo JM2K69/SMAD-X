@@ -63,5 +63,14 @@ namespace SMADX.Services
         bool OpenInStudio(string domainFile, out string studioPath);
 
         Task ShowShortcutsAsync();
+
+        /// <summary>
+        /// Avant de fermer, des modifications ne sont pas enregistrées : enregistrer (le domaine, ou la copie
+        /// en mode exercice), ne pas enregistrer ou annuler.
+        /// </summary>
+        Task<UnsavedChoice> AskUnsavedAsync(bool submission);
+
+        /// <summary>Question oui / non ; vrai pour la première réponse.</summary>
+        Task<bool> ConfirmAsync(string title, string message, string yes, string no);
     }
 }

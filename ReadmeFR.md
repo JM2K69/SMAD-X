@@ -116,7 +116,19 @@
 - **Chemins d'attaque** : qui peut prendre le contrôle du domaine, et par quelles étapes (Kerberoasting, AS-REP roasting, délégations, propriétaires, GPO, délégation Kerberos…), surlignés dans le graphe
 - Comparaison **avant / après** et **annuler / rétablir**
 - **Exercices** (`.smadx-lab.json`) : des scénarios réalistes corrigés automatiquement, dont 12 exercices de chemins d'attaque en français et en anglais
+- **Mode exercice et mode examen** : un exercice ouvert directement (`SMAD-X.exe exercice.smadx-lab.json`) verrouille le domaine ; un examen n'a ni indice, ni score, ni « Recommencer », mesure le temps passé et peut fermer l'audit, ses sections « Comment corriger », les chemins d'attaque ou la comparaison ; l'apprenant enregistre une **copie** (`.smadx-submission.json`) pour reprendre ou rendre son travail, scellée (SHA-256) et liée à une session de travail tirée au hasard
+- Rien ne se perd : fermer avec des modifications non enregistrées demande d'enregistrer, et le mode exercice garde chaque minute une copie de secours, proposée à l'ouverture suivante
 - **Pour les formateurs** : les domaines d'exemple de [`Samples/AttackPaths`](Samples/AttackPaths/README.md) décrivent chaque chemin et sa correction, ce sont donc les corrigés des exercices de chemins d'attaque ; pour écrire vos propres exercices : le [mode opératoire](https://jm2k69.github.io/SMAD-X/exercices/creer/)
+
+### 🧑‍🏫 SMAD-X Studio — création d'exercices pour les formateurs
+Un second exécutable, livré dans la même archive ([documentation](https://jm2k69.github.io/SMAD-X/exercices/studio/)) :
+- **Nouvel exercice à partir d'une recommandation** : une recette par règle d'audit / point de contrôle ANSSI, seule ou **plusieurs réunies** dans le même domaine ; Studio construit un domaine sain et peuplé et n'y injecte que ces manques
+- **Convertir** un scénario `.smad-x.json` en exercice : le contexte devient l'énoncé, le chemin et la correction vont dans les notes du formateur
+- Éditeur d'énoncé Markdown avec aperçu, éditeur d'objectifs avec **suggestions** tirées de l'audit et des chemins d'attaque, et **gardes** contre les corrections brutales : une garde violée annule les objectifs qui concernaient l'objet protégé
+- **Validation** comme les tests des exercices fournis (rien d'atteint au départ, gardes efficaces, aucune solution visible), correction du domaine corrigé par le formateur, et **fiche formateur** exportée
+- **Corriger une classe** : plusieurs copies ou un dossier entier, la note de chacun, la réussite par objectif, un CSV pour Excel et un bilan Markdown ; les copies retouchées, rendues sous un autre nom, contenant le domaine d'un autre, rouvertes hors mode examen ou faites avec une autre version de SMAD-X sont signalées
+- **Ligne de commande** pour les lots : `SMAD-X.Studio recipe all --lang fr --out exercices`, `convert`, `validate`, `grade exercice.smadx-lab.json copies/ --csv notes.csv`
+- Lancé depuis SMAD-X (**Exercices > Créer un exercice avec SMAD-X Studio...**) sur le domaine affiché
 
 ## 🚀 Démarrage rapide
 

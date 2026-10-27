@@ -26,6 +26,8 @@ namespace SMADX.Studio.ViewModels
         Task<string?> PickFolderAsync(string title);
         Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern);
         Task<RecipeRequest?> ChooseRecipeAsync();
+        /// <summary>Avant de fermer, l'exercice a des modifications non enregistrées.</summary>
+        Task<UnsavedChoice> AskUnsavedAsync();
     }
 
     /// <summary>
@@ -55,7 +57,8 @@ namespace SMADX.Studio.ViewModels
         // ─── Exercice ouvert ─────────────────────────────────────────────────────
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasLab), nameof(LabId), nameof(LabTitle), nameof(Statement), nameof(Level), nameof(Duration), nameof(IsExam),
+        [NotifyPropertyChangedFor(nameof(HasLab), nameof(LabId), nameof(LabTitle), nameof(Statement), nameof(Level), nameof(Duration), nameof(IsExam), nameof(ExamCheck),
+            nameof(ExamCloseAudit), nameof(ExamCloseFixGuidance), nameof(ExamCloseAttackPaths), nameof(ExamCloseComparison),
                                   nameof(LanguageChoice), nameof(CategoryChoice), nameof(DomainSummary), nameof(TotalPoints))]
         [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportSheetCommand), nameof(ValidateCommand),
                                     nameof(SuggestCommand), nameof(AddObjectiveCommand), nameof(InsertTemplateCommand), nameof(ChooseSolutionCommand),
@@ -135,11 +138,33 @@ namespace SMADX.Studio.ViewModels
             set { if (Lab == null) return; Lab.DurationMinutes = Math.Max(1, value); OnPropertyChanged(); }
         }
 
-        /// <summary>Mode examen : dans SMAD-X, ni indice, ni vérification, ni « Recommencer ».</summary>
+        /// <summary>Mode examen : dans SMAD-X, ni indice, ni score, ni « Recommencer ».</summary>
         public bool IsExam
         {
             get => Lab?.Exam ?? false;
             set { if (Lab == null) return; Lab.Exam = value; OnPropertyChanged(); RefreshSheet(); }
+        }
+
+        /// <summary>En examen, « Vérifier » montre les objectifs atteints, sans score ni explication.</summary>
+        public bool ExamCheck
+        {
+            get => Lab?.ExamCheck ?? false;
+            set { if (Lab == null) return; Lab.ExamCheck = value; OnPropertyChanged(); RefreshSheet(); }
+        }
+
+        public bool ExamCloseAudit { get => IsClosedInExam(LabTools.Audit); set => CloseInExam(LabTools.Audit, value); }
+        public bool ExamCloseFixGuidance { get => IsClosedInExam(LabTools.FixGuidance); set => CloseInExam(LabTools.FixGuidance, value); }
+        public bool ExamCloseAttackPaths { get => IsClosedInExam(LabTools.AttackPaths); set => CloseInExam(LabTools.AttackPaths, value); }
+        public bool ExamCloseComparison { get => IsClosedInExam(LabTools.Comparison); set => CloseInExam(LabTools.Comparison, value); }
+
+        private bool IsClosedInExam(LabTools tool) => Lab?.ExamClosedTools.HasFlag(tool) ?? false;
+
+        private void CloseInExam(LabTools tool, bool closed, [System.Runtime.CompilerServices.CallerMemberName] string? property = null)
+        {
+            if (Lab == null) return;
+            Lab.ExamClosedTools = closed ? Lab.ExamClosedTools | tool : Lab.ExamClosedTools & ~tool;
+            OnPropertyChanged(property);
+            RefreshSheet();
         }
 
         public IReadOnlyList<Choice<string?>> Languages =>
@@ -166,7 +191,7 @@ namespace SMADX.Studio.ViewModels
             set { if (Lab == null || value == null) return; Lab.Category = value.Value; OnPropertyChanged(); }
         }
 
-        public int TotalPoints => Objectives.Sum(o => o.Points);
+        public int TotalPoints => Objectives.Where(o => !o.IsGuard).Sum(o => o.Points);
 
         public string DomainSummary => Lab == null ? "" : string.Format(Text.T(
             "{0} — {1} objets, {2} chemin(s) d'attaque hors Tier 0, score d'audit {3} / 100",
@@ -301,6 +326,33 @@ namespace SMADX.Studio.ViewModels
                 File.Delete(notesPath);
             FilePath = path;
             Status = string.Format(Text["Status.Saved"], path);
+            MarkSaved();
+        }
+
+        /// <summary>Exercice et notes au dernier enregistrement (ou à l'ouverture).</summary>
+        private string? _savedSnapshot;
+
+        private string Snapshot() => Lab == null ? string.Empty
+            : System.Text.Json.JsonSerializer.Serialize(CurrentLab(), ADDataService.SerializerOptions) + "\n" + Notes;
+
+        private void MarkSaved() => _savedSnapshot = Snapshot();
+
+        public bool HasUnsavedChanges => Lab != null && Snapshot() != _savedSnapshot;
+
+        /// <summary>Avant de fermer Studio : vrai si la fenêtre peut se fermer (rien à perdre, enregistré, ou abandonné).</summary>
+        public async Task<bool> ConfirmCloseAsync()
+        {
+            if (!HasUnsavedChanges) return true;
+            switch (await _dialogs.AskUnsavedAsync())
+            {
+                case UnsavedChoice.Discard:
+                    return true;
+                case UnsavedChoice.Save:
+                    await SaveCommand.ExecuteAsync(null);
+                    return !HasUnsavedChanges;
+                default:
+                    return false;
+            }
         }
 
         /// <summary>« X.smadx-lab.json » → « X.smadx-lab.notes.md ».</summary>
@@ -350,6 +402,9 @@ namespace SMADX.Studio.ViewModels
             SelectedObjective = Objectives.FirstOrDefault();
             OnPropertyChanged(nameof(TotalPoints));
             RefreshSheet();
+            // Un exercice tout juste créé (recette, conversion) n'est pas encore enregistré
+            if (path != null) MarkSaved();
+            else _savedSnapshot = string.Empty;
         }
 
         private ObjectiveItem NewItem(LabObjective o)

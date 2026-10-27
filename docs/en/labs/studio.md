@@ -46,7 +46,12 @@ Title, identifier (the file name), language, menu series (general labs or attack
 
 A lab is either **bilingual** or exists in **one language** only. The *Language of the texts being edited* list, at the top of the window, chooses which texts you edit.
 
-**Exam mode**: in SMAD-X, the lab has no hints, no checking, no score and no "Start over", and no other domain can be opened. The learner saves a submission and hands it in.
+**Exam mode**: in SMAD-X, the lab has no hints, no score and no "Start over", and no other domain can be opened; the time spent is measured. The learner saves a submission and hands it in. The exam file is written **without the hints**: the learner cannot read them in the file. Two settings complete exam mode:
+
+- **Allow "Check"**: the learner sees which objectives are met, with no score and no explanation;
+- **Tools closed during the exam**: security audit, the "How to fix" section of the sheets, attack paths, before / after comparison. All are open by default: they help analyse, but they also show what grading checks.
+
+Closing Studio with an unsaved lab or notes asks you to save.
 
 ### Statement
 
@@ -69,7 +74,7 @@ On the left, the objectives and the total points; on the right, the selected obj
 
 - one objective per attack path outside Tier 0, and "no path left to domain control";
 - one objective per failed audit rule;
-- **guards**, already met at start, that refuse a brute-force solution (deleting the account instead of fixing it).
+- **guards** (**Guard** box, 🛡 in the list), already met at start, that refuse a brute-force solution (deleting the account instead of fixing it). A guard earns no points; broken, it cancels the objectives that concerned the protected object at start: its audit finding, the attack paths that went through it, the checks that name it.
 
 Recommended suggestions are ticked; **Add selection** adds them to the list.
 
@@ -80,7 +85,7 @@ Recommended suggestions are ticked; **Add selection** adds them to the list.
 **Validate the lab** runs the checks of the shipped labs' tests:
 
 - texts present in every language of the lab, unique ids, positive points;
-- no main objective met at start, every guard met, and each guard actually effective;
+- no main objective met at start, every guard met, each guard actually effective, and the shortcut it refuses earns no more than half the points;
 - cited objects and rules exist in the starting domain;
 - no solution visible to the learner, neither in the statement nor in the domain descriptions.
 
@@ -103,7 +108,7 @@ Each learner saves their work in SMAD-X with **Save my submission**: a `.smadx-s
 
 Studio grades each submission with **your** copy of the lab, as it is open: the starting domain is prepared again at the date the learner started, and the check runs at the date of the submission. The score the learner may have seen is never reused. After changing objectives or points, **Regrade** grades everything again.
 
-Each row gives the grade, the percentage, the number of hints viewed, one dot per objective (green when met, red otherwise; hover to see the objective) and the remarks:
+Each row gives the grade, the percentage, the number of hints viewed, the time spent, one dot per objective (green when met, red otherwise; hover to see the objective) and the remarks:
 
 | Remark | Meaning |
 |---|---|
@@ -112,6 +117,11 @@ Each row gives the grade, the percentage, the number of hints viewed, one dot pe
 | same work session as …'s submission | one submission handed in under several names: one is a copy of the other |
 | the domain does not come from this submission's session | someone else's work, handed in under one's own submission; Studio names the original learner if it has their submission |
 | unsealed submission, no work session | the submission was not saved by SMAD-X: these checks are impossible |
+| starting domain replaced, session check impossible | the lab received, inside the submission, was replaced by another domain to escape the session check |
+| exam submission made outside exam mode, exam settings changed | the lab received was changed to get checking, "Start over" or closed tools back |
+| hints viewed during the exam | the submission carries hints although the exam has none |
+| time exceeded | the learner spent more than the planned duration (nothing was blocked) |
+| submission made with another SMAD-X version | its audit rules differ from those of your Studio: the grade may differ from the learner's; grade a class with a single version |
 | other starting domain | the submission was made on another version of the lab: the grade may be wrong |
 | no name, several submissions | check before recording the grade |
 | unreadable submission | the file is damaged or is not a SMAD-X submission |
@@ -186,7 +196,9 @@ SMAD-X.Studio grade labs/anssi-krb-01.smadx-lab.json submissions-group-a submiss
 | `--date yyyy-mm-dd` | reference date: the same date gives the same file, byte for byte |
 | `--solution <file>` | fixed domain to grade during validation |
 | `--combine` | `recipe`: a single lab with every misconfiguration in the same domain |
-| `--exam` | `recipe`, `convert`: lab in exam mode |
+| `--exam` | `recipe`, `convert`: lab in exam mode, written without the hints |
+| `--exam-check` | with `--exam`: "Check" allowed (objectives met, no score) |
+| `--exam-close audit,fixes,paths,comparison` | with `--exam`: tools closed during the exam |
 | `--csv <file>` | `grade`: grade spreadsheet for Excel |
 | `--report <file>` | `grade`: class results in Markdown |
 | `--verbose` | also shows the checks that passed |

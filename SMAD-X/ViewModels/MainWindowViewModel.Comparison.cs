@@ -12,14 +12,14 @@ namespace SMADX.ViewModels
         private void ResetBaseline() => _baseline = RootObject != null ? SerializeDocument() : null;
 
         /// <summary>Repose le point de référence sur l'état actuel, par exemple avant de commencer une correction.</summary>
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanShowComparison))]
         private void MarkBaseline()
         {
             ResetBaseline();
             StatusMessage = Loc["Comparison.BaselineSet"];
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanShowComparison))]
         private void ShowComparison()
         {
             if (RootObject == null) return;

@@ -38,7 +38,7 @@ public class LabViewModelTests
         Assert.Equal("contoso.local", _main.RootObject!.Name);
         Assert.Contains(Flatten(_main.RootObject), o => o.Name == "svc-sql");
         Assert.Equal(5, lab.Objectives.Count);
-        Assert.Equal(10, lab.MaxPoints);
+        Assert.Equal(9, lab.MaxPoints); // la garde « svc-sql existe » ne compte pas
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class LabViewModelTests
         var report = await File.ReadAllTextAsync(path);
         Assert.Contains("Camille Dupont", report);
         Assert.Contains("`01-premier-audit`", report);
-        Assert.Contains("1 / 10", report);            // seul l'objectif « garde-fou » est acquis au départ
+        Assert.Contains("0 / 9", report);             // la garde, acquise au départ, ne rapporte rien
         Assert.Contains("✘", report);
         Assert.Contains(_dialogs.Opened, o => o.StartsWith("Save:01-premier-audit_Camille Dupont_"));
     }
@@ -95,11 +95,12 @@ public class LabViewModelTests
 
     // ─── Mode exercice et mode examen ────────────────────────────────────────
 
-    private static string LabFile(string id, bool exam = false)
+    private static string LabFile(string id, bool exam = false, Action<LabDefinition>? settings = null)
     {
         var service = new LabService();
         var lab = service.BuiltInLabs().Single(l => l.Id == id);
         lab.Exam = exam;
+        settings?.Invoke(lab);
         var path = TempFile(LabService.FileExtension);
         service.SaveFile(lab, path);
         return path;
@@ -154,6 +155,121 @@ public class LabViewModelTests
         Assert.False(_main.CanLeaveLabMode);
         Assert.False(_main.LeaveLabModeCommand.CanExecute(null));
         Assert.False(_main.LoadFromFileCommand.CanExecute(null));
+        // Tous les outils restent ouverts par défaut
+        Assert.True(_main.ShowAuditCommand.CanExecute(null));
+        Assert.True(_main.ShowAttackPathsCommand.CanExecute(null));
+        Assert.True(_main.ShowComparisonCommand.CanExecute(null));
+    }
+
+    // ─── Travail non enregistré et copie de secours ─────────────────────────
+
+    private static void DisableGuest(MainWindowViewModel main) =>
+        Flatten(main.RootObject!).Single(o => o.Name == "Guest").AccountFlags |= ADAccountFlags.AccountDisabled;
+
+    [Fact]
+    public async Task LabMode_AutoSave_WritesARecoveryCopy_OfferedAtTheNextOpening()
+    {
+        var file = LabFile("05-hygiene-comptes", exam: true);
+        await _main.OpenStartupFileAsync(file);
+        _dialogs.LastLab!.StudentName = "Lou";
+        DisableGuest(_main);
+        Assert.True(_main.HasUnsavedChanges);
+
+        _main.AutoSave();
+        Assert.Single(Directory.GetFiles(_main.RecoveryFolder));
+
+        // SMAD-X s'est mal fermé : la réouverture propose de reprendre le travail
+        var dialogs = new FakeDialogService { ConfirmAnswer = true };
+        var next = new MainWindowViewModel(dialogs) { RecoveryFolder = _main.RecoveryFolder };
+        await next.OpenStartupFileAsync(file);
+
+        Assert.Single(dialogs.Confirmations);
+        Assert.True(Flatten(next.RootObject!).Single(o => o.Name == "Guest").AccountFlags.HasFlag(ADAccountFlags.AccountDisabled));
+        Assert.Equal("Lou", dialogs.LastLab!.StudentName);
+        Assert.Equal(_dialogs.LastLab.SessionId, dialogs.LastLab.SessionId);
+        Assert.True(next.HasUnsavedChanges); // pas encore dans la copie de l'apprenant
+    }
+
+    [Fact]
+    public async Task ARecoveryCopy_IsDeleted_WhenDeclinedOrOnceTheSubmissionIsSaved()
+    {
+        var file = LabFile("05-hygiene-comptes");
+        await _main.OpenStartupFileAsync(file);
+        DisableGuest(_main);
+        _main.AutoSave();
+
+        var dialogs = new FakeDialogService { ConfirmAnswer = false };
+        var declined = new MainWindowViewModel(dialogs) { RecoveryFolder = _main.RecoveryFolder };
+        await declined.OpenStartupFileAsync(file);
+        Assert.Empty(Directory.GetFiles(_main.RecoveryFolder));
+
+        DisableGuest(declined);
+        declined.AutoSave();
+        Assert.Single(Directory.GetFiles(_main.RecoveryFolder));
+        dialogs.LastLab!.StudentName = "Lou";
+        dialogs.SavePath = TempFile(LabSubmissionService.FileExtension);
+        await dialogs.LastLab.SaveSubmissionCommand.ExecuteAsync(null);
+
+        Assert.Empty(Directory.GetFiles(_main.RecoveryFolder));
+        Assert.False(declined.HasUnsavedChanges);
+    }
+
+    [Fact]
+    public async Task ClosingWithAnUnsavedSubmission_AsksForTheName_ThenSaves()
+    {
+        await _main.OpenStartupFileAsync(LabFile("05-hygiene-comptes"));
+        DisableGuest(_main);
+        _dialogs.UnsavedAnswer = UnsavedChoice.Save;
+
+        Assert.False(await _main.ConfirmCloseAsync()); // pas encore de nom : la fenêtre de l'exercice s'ouvre
+        Assert.Equal(LocalizationService.Instance["Lab.Submission.NeedName"], _main.StatusMessage);
+
+        _dialogs.LastLab!.StudentName = "Lou";
+        _dialogs.SavePath = TempFile(LabSubmissionService.FileExtension);
+        Assert.True(await _main.ConfirmCloseAsync());
+        Assert.True(File.Exists(_dialogs.SavePath));
+    }
+
+    [Fact]
+    public async Task ExamTools_ClosedByTheTrainer_CannotBeOpened()
+    {
+        await _main.OpenStartupFileAsync(LabFile("05-hygiene-comptes", exam: true,
+            l => l.ExamClosedTools = LabTools.AttackPaths | LabTools.Comparison | LabTools.FixGuidance));
+
+        Assert.True(_main.ShowAuditCommand.CanExecute(null));
+        Assert.False(_main.ShowAttackPathsCommand.CanExecute(null));
+        Assert.False(_main.ShowComparisonCommand.CanExecute(null));
+        Assert.False(_main.MarkBaselineCommand.CanExecute(null));
+
+        // L'audit reste ouvert, mais ses fiches n'ont plus de section « Comment corriger »
+        _main.ShowAuditCommand.Execute(null);
+        var sheet = _dialogs.LastAudit!.Findings.First().Documentation;
+        Assert.DoesNotContain("## Comment corriger", sheet);
+        Assert.DoesNotContain("## How to fix", sheet);
+        Assert.Contains("## ", sheet);
+    }
+
+    [Fact]
+    public async Task ExamCheck_ShowsTheObjectivesMet_WithoutScoreNorExplanation()
+    {
+        await _main.OpenStartupFileAsync(LabFile("05-hygiene-comptes", exam: true, l => l.ExamCheck = true));
+        var lab = _dialogs.LastLab!;
+
+        Assert.True(lab.CanCheck);
+        Assert.False(lab.ShowGrading);
+        lab.CheckCommand.Execute(null);
+
+        Assert.All(lab.Objectives, o => Assert.NotNull(o.Passed));
+        Assert.All(lab.Objectives, o => Assert.Empty(o.Feedback));
+    }
+
+    [Fact]
+    public void ElapsedTime_IsShownToTheLearner()
+    {
+        var lab = Open("02-kerberoasting");
+
+        Assert.Equal(string.Format(LocalizationService.Instance["Lab.Elapsed"], lab.ElapsedMinutes, lab.Lab.DurationMinutes), lab.ElapsedLabel);
+        Assert.False(lab.IsOverTime);
     }
 
     [Fact]

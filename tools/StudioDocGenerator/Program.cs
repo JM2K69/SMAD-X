@@ -170,6 +170,7 @@ static void Capture(Window window, string path)
 /// <summary>Dialogues de capture : la recette est fournie, aucun fichier n'est ouvert ni enregistré.</summary>
 sealed class CaptureDialogs : IStudioDialogs
 {
+    public Task<UnsavedChoice> AskUnsavedAsync() => Task.FromResult(UnsavedChoice.Cancel);
     public RecipeRequest? Recipe { get; set; }
     public Task<string?> OpenFileAsync(string title, string filterName, string pattern) => Task.FromResult<string?>(null);
     public Task<IReadOnlyList<string>> OpenFilesAsync(string title, string filterName, string pattern) => Task.FromResult<IReadOnlyList<string>>([]);

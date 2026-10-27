@@ -85,7 +85,7 @@ public class BuiltInLabTests
             admin.MemberOf.Remove("Schema Admins");
         });
 
-        Assert.Equal(1, start.Points); // seul « Administrator reste dans Domain Admins » est acquis au départ
+        Assert.Equal(0, start.Points); // la garde « Administrator reste dans Domain Admins », atteinte au départ, ne rapporte rien
         AssertSolved(solved);
     }
 
@@ -112,7 +112,7 @@ public class BuiltInLabTests
             Flatten(d).Single(o => o.Name == "legacy-scan").AccountFlags = ADAccountFlags.None;
         });
 
-        Assert.Equal(1, start.Points); // seul « svc-sql existe » est acquis
+        Assert.Equal(0, start.Points); // la garde « svc-sql existe » ne rapporte rien
         AssertSolved(solved);
     }
 
@@ -172,7 +172,7 @@ public class BuiltInLabTests
             Flatten(d).Single(o => o.Name == "Read-only Domain Controllers").Tier = "Tier 0";
         });
 
-        Assert.Equal(2, start.Points); // jdupont existe et la GPO par défaut est intacte
+        Assert.Equal(0, start.Points); // gardes : jdupont existe et la GPO par défaut est intacte
         AssertSolved(solved);
     }
 

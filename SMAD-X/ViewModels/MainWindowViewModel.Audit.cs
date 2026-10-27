@@ -11,14 +11,34 @@ namespace SMADX.ViewModels
     // Audit de sécurité : fenêtre, badges dans l'arbre, navigation vers l'objet d'un constat
     public partial class MainWindowViewModel
     {
-        [RelayCommand]
+        /// <summary>Faux pour un outil que le formateur a fermé pendant l'examen en cours.</summary>
+        private bool IsToolOpen(LabTools tool) => !(IsLabMode && CurrentLab?.Lab.IsClosed(tool) == true);
+
+        public bool CanShowAudit => IsToolOpen(LabTools.Audit);
+        public bool CanShowAttackPaths => IsToolOpen(LabTools.AttackPaths);
+        public bool CanShowComparison => IsToolOpen(LabTools.Comparison);
+
+        /// <summary>Après l'ouverture d'un exercice ou un changement de mode : menus, boutons et raccourcis.</summary>
+        private void RefreshLabTools()
+        {
+            OnPropertyChanged(nameof(CanShowAudit));
+            OnPropertyChanged(nameof(CanShowAttackPaths));
+            OnPropertyChanged(nameof(CanShowComparison));
+            ShowAuditCommand.NotifyCanExecuteChanged();
+            ShowAttackPathsCommand.NotifyCanExecuteChanged();
+            ShowComparisonCommand.NotifyCanExecuteChanged();
+            MarkBaselineCommand.NotifyCanExecuteChanged();
+        }
+
+        [RelayCommand(CanExecute = nameof(CanShowAudit))]
         private void ShowAudit()
         {
             if (RootObject == null) return;
-            _dialogs.ShowAudit(new AuditViewModel(() => RootObject, SelectObject, ApplyAuditBadges));
+            _dialogs.ShowAudit(new AuditViewModel(() => RootObject, SelectObject, ApplyAuditBadges,
+                hideFixGuidance: !IsToolOpen(LabTools.FixGuidance)));
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanShowAttackPaths))]
         private void ShowAttackPaths()
         {
             if (RootObject == null) return;

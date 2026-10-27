@@ -80,6 +80,33 @@ jobs:
         shell: pwsh
         run: Copy-Item LICENSE, NOTICE, THIRD-PARTY-NOTICES.md, SMAD-X.Core/Fonts/OFL.txt -Destination publish/${{ matrix.rid }}
 
+      # Les exe publiés tels qu'ils seront livrés : extraction single-file, runtime, contenu embarqué.
+      # osx-x64 est compilé sur un runner Apple Silicon et n'y est pas lancé.
+      - name: Smoke test the published executables
+        if: matrix.rid != 'osx-x64'
+        shell: pwsh
+        run: |
+          $dir = "publish/${{ matrix.rid }}"
+          $ext = if ($IsWindows) { '.exe' } else { '' }
+          function Invoke-Published([string]$exe, [string[]]$arguments) {
+            $path = Join-Path $dir "$exe$ext"
+            if (-not $IsWindows) { chmod +x $path }
+            # Exe fenêtrés sous Windows : Start-Process attend la fin et rend le code de sortie
+            $out = New-TemporaryFile
+            $p = Start-Process -FilePath $path -ArgumentList $arguments -Wait -PassThru -NoNewWindow -RedirectStandardOutput $out
+            Get-Content $out
+            if ($p.ExitCode -ne 0) { throw "$exe $($arguments -join ' ') : code $($p.ExitCode)" }
+          }
+          Invoke-Published 'SMAD-X' @('--self-test')
+          Invoke-Published 'SMAD-X.Studio' @('list-recipes')
+          Invoke-Published 'SMAD-X.Studio' @('validate', 'SMAD-X.Core/Labs/01-premier-audit.smadx-lab.json')
+
+      - name: Archive sizes
+        shell: pwsh
+        run: |
+          Get-ChildItem publish/${{ matrix.rid }} -File | ForEach-Object { "| ${{ matrix.rid }} | $($_.Name) | $([math]::Round($_.Length / 1MB, 1)) Mo |" } |
+            Add-Content $env:GITHUB_STEP_SUMMARY
+
       - name: Zip artifact (Windows)
         if: matrix.rid == 'win-x64'
         shell: pwsh

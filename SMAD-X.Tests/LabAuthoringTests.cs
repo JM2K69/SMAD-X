@@ -157,7 +157,7 @@ public class LabAuthoringTests
 
         Assert.Contains(suggestions, s => s.Recommended && s.Objective.Check.Type == LabCheckType.NoAttackPath && s.Objective.Check.Object == SMADX.Services.AttackPaths.AttackPathService.AnyUserId);
         Assert.Contains(suggestions, s => s.Recommended && s.Objective.Check.RuleId == "KRB-01");
-        Assert.All(suggestions.Where(s => LabAuthoring.IsGuard(s.Objective.Check)), s => Assert.False(s.Recommended));
+        Assert.All(suggestions.Where(s => s.Objective.Guard), s => Assert.False(s.Recommended));
         Assert.Equal(suggestions.Count, suggestions.Select(s => s.Objective.Id).Distinct().Count());
     }
 }

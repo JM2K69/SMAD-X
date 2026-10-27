@@ -86,14 +86,14 @@
                 <MenuItem Header="{Binding MenuSettings}">
                     <MenuItem Header="{Binding MenuSettingsManageTiers}" Command="{Binding #MainWindowRoot.DataContext.ShowTierConfigurationCommand}"/>
                 </MenuItem>
-                <MenuItem Header="Analyse">
+                <MenuItem Header="{Binding MenuAnalyse}">
                     <MenuItem Header="{Binding MenuAnalyseAudit}" Command="{Binding #MainWindowRoot.DataContext.ShowAuditCommand}" InputGesture="Ctrl+Shift+A"/>
                     <MenuItem Header="{Binding MenuAnalyseAttackPaths}" Command="{Binding #MainWindowRoot.DataContext.ShowAttackPathsCommand}" InputGesture="Ctrl+Shift+K"/>
                     <MenuItem Header="{Binding MenuAnalyseComparison}" Command="{Binding #MainWindowRoot.DataContext.ShowComparisonCommand}" InputGesture="Ctrl+Shift+B"/>
                     <MenuItem Header="{Binding MenuAnalyseMarkBaseline}" Command="{Binding #MainWindowRoot.DataContext.MarkBaselineCommand}"/>
                     <Separator/>
-                    <MenuItem Header="Domain Timeline (Ctrl+T)" Command="{Binding #MainWindowRoot.DataContext.ShowTimelineCommand}" InputGesture="Ctrl+T"/>
-                    <MenuItem Header="Delegations (Ctrl+D)"     Command="{Binding #MainWindowRoot.DataContext.ShowDelegationsCommand}" InputGesture="Ctrl+D"/>
+                    <MenuItem Header="{Binding MenuAnalyseTimeline}" Command="{Binding #MainWindowRoot.DataContext.ShowTimelineCommand}" InputGesture="Ctrl+T"/>
+                    <MenuItem Header="{Binding MenuAnalyseDelegations}" Command="{Binding #MainWindowRoot.DataContext.ShowDelegationsCommand}" InputGesture="Ctrl+D"/>
                     <Separator/>
                     <MenuItem Header="{Binding Source={StaticResource Loc}, Path=MenuSitesView}" Command="{Binding #MainWindowRoot.DataContext.ShowSitesCommand}" InputGesture="Ctrl+Shift+S"/>
                 </MenuItem>
@@ -221,7 +221,7 @@
                 <Button Click="OnExportTreePngClick" Padding="10,5" Background="#1E5631">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="📷" FontSize="14"/>
-                        <TextBlock Text="Export PNG" VerticalAlignment="Center" Foreground="White"/>
+                        <TextBlock Text="{Binding ToolbarExportPNG}" VerticalAlignment="Center" Foreground="White"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -256,7 +256,7 @@
                                     Background="Transparent" BorderThickness="0"
                                     Padding="6,4" FontSize="11"
                                     Foreground="{DynamicResource AppTreeFgBrush}"
-                                    ToolTip.Tip="Effacer la recherche"/>
+                                    ToolTip.Tip="{Binding TooltipClearSearch}"/>
                         </Grid>
                     </Border>
 
@@ -395,7 +395,7 @@
                                             Background="#1A6B2F" CornerRadius="3" Padding="4,1"
                                             VerticalAlignment="Center"
                                             ToolTip.Tip="{Binding LinkedGPOsSummary}">
-                                        <TextBlock Text="🔗 GPO"
+                                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=BadgeGpo}"
                                                    Foreground="#7FFF9A"
                                                    FontSize="9" FontWeight="SemiBold"/>
                                     </Border>
@@ -404,7 +404,7 @@
                                             Background="#7B5800" CornerRadius="3" Padding="4,1"
                                             VerticalAlignment="Center"
                                             ToolTip.Tip="{Binding DelegationsSummary}">
-                                        <TextBlock Text="🔑 DEL"
+                                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=BadgeDelegations}"
                                                    Foreground="#FFD87F"
                                                    FontSize="9" FontWeight="SemiBold"/>
                                     </Border>
@@ -413,7 +413,7 @@
                                             Background="{Binding AuditBadgeColor}" CornerRadius="3" Padding="4,1"
                                             VerticalAlignment="Center"
                                             ToolTip.Tip="{Binding AuditTooltip}">
-                                        <TextBlock Text="⚠ AUDIT"
+                                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=BadgeAudit}"
                                                    Foreground="White"
                                                    FontSize="9" FontWeight="SemiBold"/>
                                     </Border>
@@ -436,7 +436,7 @@
                             <Grid ColumnDefinitions="*,Auto">
                                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                     <TextBlock Text="🏢" FontFamily="Segoe UI Emoji" FontSize="14" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Sites AD" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
+                                    <TextBlock Text="{Binding SitesPanelTitle}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
                                                Foreground="{DynamicResource AppTreeFgBrush}"/>
                                     <Border Background="#1A3A8F" CornerRadius="3" Padding="5,1" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding #MainWindowRoot.DataContext.SiteRootNodes.Count}"
@@ -622,13 +622,40 @@
                                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" RowSpacing="4" ColumnSpacing="8"
                                                       IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.IsGroup, FallbackValue=False}">
                                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding SecurityGroupScope}" VerticalAlignment="Center"/>
+                                                    <!-- Valeurs traduites ; la culture dans la MultiBinding les recalcule au changement de langue -->
                                                     <ComboBox Grid.Row="0" Grid.Column="1" Width="160"
                                                               ItemsSource="{x:Static vm:ObjectSecurityViewModel.GroupScopes}"
-                                                              SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GroupScope, Mode=TwoWay}"/>
+                                                              SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GroupScope, Mode=TwoWay}">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock>
+                                                                    <TextBlock.Text>
+                                                                        <MultiBinding Converter="{StaticResource LocValue}" ConverterParameter="GroupScope">
+                                                                            <Binding/>
+                                                                            <Binding Source="{StaticResource Loc}" Path="CurrentCulture"/>
+                                                                        </MultiBinding>
+                                                                    </TextBlock.Text>
+                                                                </TextBlock>
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
                                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding SecurityGroupCategory}" VerticalAlignment="Center"/>
                                                     <ComboBox Grid.Row="1" Grid.Column="1" Width="160"
                                                               ItemsSource="{x:Static vm:ObjectSecurityViewModel.GroupCategories}"
-                                                              SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GroupCategory, Mode=TwoWay}"/>
+                                                              SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GroupCategory, Mode=TwoWay}">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock>
+                                                                    <TextBlock.Text>
+                                                                        <MultiBinding Converter="{StaticResource LocValue}" ConverterParameter="GroupCategory">
+                                                                            <Binding/>
+                                                                            <Binding Source="{StaticResource Loc}" Path="CurrentCulture"/>
+                                                                        </MultiBinding>
+                                                                    </TextBlock.Text>
+                                                                </TextBlock>
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
                                                 </Grid>
 
                                                 <CheckBox Content="{Binding SecurityAdminCount}"

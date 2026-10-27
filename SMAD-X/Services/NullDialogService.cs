@@ -27,5 +27,7 @@ namespace SMADX.Services
         public Task ShowAboutAsync() => Task.CompletedTask;
         public bool OpenInStudio(string domainFile, out string studioPath) { studioPath = string.Empty; return false; }
         public Task ShowShortcutsAsync() => Task.CompletedTask;
+        public Task<UnsavedChoice> AskUnsavedAsync(bool submission) => Task.FromResult(UnsavedChoice.Cancel);
+        public Task<bool> ConfirmAsync(string title, string message, string yes, string no) => Task.FromResult(false);
     }
 }

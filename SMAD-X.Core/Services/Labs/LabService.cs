@@ -49,6 +49,9 @@ namespace SMADX.Services.Labs
                 if (lab.Start?.Domain == null)
                     throw new LabFormatException("Le domaine de départ de l'exercice est vide.");
                 ADDataService.RestoreParentReferences(lab.Start.Domain, null);
+                if (version < 2)
+                    MarkGuards(lab);
+                lab.FormatVersion = LabDefinition.CurrentFormatVersion;
                 return lab;
             }
             catch (Exception ex) when (ex is JsonException or FormatException or InvalidOperationException or DocumentTooNewException)
@@ -57,9 +60,38 @@ namespace SMADX.Services.Labs
             }
         }
 
+        /// <summary>
+        /// Format v1 : les gardes n'étaient pas marquées. Une vérification de garde (l'objet existe, reste
+        /// membre, garde sa délégation…) déjà atteinte au départ en est une ; elle ne rapporte plus de point.
+        /// </summary>
+        private static void MarkGuards(LabDefinition lab)
+        {
+            foreach (var o in lab.Objectives.Where(o => LabAuthoring.CanBeGuard(o.Check)))
+                if (LabGrader.IsMet(o.Check, lab.Start.Domain, lab.ReferenceDate))
+                {
+                    o.Guard = true;
+                    o.Points = 0;
+                }
+        }
+
         public LabDefinition LoadFile(string path) => Parse(File.ReadAllText(path));
 
-        public string Serialize(LabDefinition lab) => JsonSerializer.Serialize(lab, Options);
+        /// <summary>
+        /// Écrit l'exercice, avec la version du moteur. Un examen est écrit sans ses indices : l'apprenant
+        /// ne peut pas les lire dans le fichier. L'exercice en mémoire les garde.
+        /// </summary>
+        public string Serialize(LabDefinition lab)
+        {
+            lab.FormatVersion = LabDefinition.CurrentFormatVersion;
+            lab.EngineVersion = EngineInfo.Version;
+            if (!lab.Exam)
+                return JsonSerializer.Serialize(lab, Options);
+
+            var node = JsonSerializer.SerializeToNode(lab, Options)!.AsObject();
+            foreach (var objective in node["Objectives"]!.AsArray().OfType<JsonObject>())
+                objective["Hint"] = new JsonObject();
+            return node.ToJsonString(Options);
+        }
 
         public void SaveFile(LabDefinition lab, string path) => File.WriteAllText(path, Serialize(lab));
 

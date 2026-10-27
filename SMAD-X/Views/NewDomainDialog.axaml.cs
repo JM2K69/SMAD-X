@@ -14,6 +14,9 @@ namespace SMADX.Views
         {
             InitializeComponent();
 
+            // Nom proposé : le domaine d'exemple de Microsoft, identique dans toutes les langues
+            DomainNameTextBox.Text = "contoso.com";
+
             // Focus sur le champ de texte au démarrage
             DomainNameTextBox.AttachedToVisualTree += (s, e) =>
             {

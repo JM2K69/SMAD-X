@@ -11,6 +11,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using SMADX.Models;
+using SMADX.Services;
 
 namespace SMADX.Graph
 {
@@ -114,8 +115,23 @@ namespace SMADX.Graph
 
             // Démarrer le timer uniquement quand le control est dans le visual tree,
             // l'arrêter dès qu'il en est retiré (fermeture de GraphWindow).
-            AttachedToVisualTree   += (_, _) => { if (_simStepsRemaining > 0) _timer.Start(); };
-            DetachedFromVisualTree += (_, _) => _timer.Stop();
+            // Même durée de vie pour l'abonnement à la langue : le canvas redessine ses textes quand elle change.
+            AttachedToVisualTree += (_, _) =>
+            {
+                if (_simStepsRemaining > 0) _timer.Start();
+                LocalizationService.Instance.PropertyChanged += OnLanguageChanged;
+            };
+            DetachedFromVisualTree += (_, _) =>
+            {
+                _timer.Stop();
+                LocalizationService.Instance.PropertyChanged -= OnLanguageChanged;
+            };
+        }
+
+        private void OnLanguageChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(LocalizationService.CurrentCulture))
+                InvalidateVisual();
         }
 
         // ── API publique ──────────────────────────────────────────────────────
@@ -196,8 +212,7 @@ namespace SMADX.Graph
             if (_nodes.Count == 0)
             {
                 DrawCenteredText(ctx,
-                    "Aucune relation à afficher.\n" +
-                    "Configurez des relations (Memberships, GPO, PSO) puis rechargez.",
+                    LocalizationService.Instance["Graph.Empty"],
                     14, Color.FromArgb(160, 180, 180, 180),
                     Bounds.Width / 2, Bounds.Height / 2);
                 return;
@@ -435,74 +450,77 @@ namespace SMADX.Graph
 
         private void DrawLegend(DrawingContext ctx)
         {
-            var nodeEntries = new (ADObjectType type, string label)[]
+            var loc = LocalizationService.Instance;
+            var labelColor = Color.FromArgb(200, 220, 220, 220);
+            var nodeEntries = new[]
             {
-                (ADObjectType.Domain,               "Domain"),
-                (ADObjectType.OrganizationalUnit,   "OU"),
-                (ADObjectType.User,                 "User"),
-                (ADObjectType.Group,                "Group"),
-                (ADObjectType.Computer,             "Computer"),
-                (ADObjectType.Policy,               "GPO"),
-                (ADObjectType.PasswordSettingsObject,"PSO"),
-            };
+                ADObjectType.Domain,
+                ADObjectType.OrganizationalUnit,
+                ADObjectType.User,
+                ADObjectType.Group,
+                ADObjectType.Computer,
+                ADObjectType.Policy,
+                ADObjectType.PasswordSettingsObject,
+            }.Select(type => (type, text: MakeFT(loc[$"ObjectType.{type}"], 11, labelColor))).ToArray();
 
             // Arêtes de légende (trait plein + pointillé pour héritage)
             var edgeEntries = new (Color color, bool dashed, string label)[]
             {
-                (EdgeColors[EdgeType.GpoLink],        false, "GPO lié"),
-                (EdgeColors[EdgeType.GpoInheritance], true,  "GPO hérité"),
-                (EdgeColors[EdgeType.MemberOf],       false, "MemberOf"),
-                (EdgeColors[EdgeType.GroupNesting],   true,  "Group in Group"),
-                (EdgeColors[EdgeType.PsoSubject],     false, "PSO Subject"),
-                (EdgeColors[EdgeType.Delegation],     false, "Délégation"),
-            };
+                (EdgeColors[EdgeType.GpoLink],        false, loc["Relation.GpoLink"]),
+                (EdgeColors[EdgeType.GpoInheritance], true,  loc["Relation.GpoInheritance"]),
+                (EdgeColors[EdgeType.MemberOf],       false, loc["Relation.MemberOf"]),
+                (EdgeColors[EdgeType.GroupNesting],   true,  loc["Relation.GroupNesting"]),
+                (EdgeColors[EdgeType.PsoSubject],     false, loc["Relation.PsoSubject"]),
+                (EdgeColors[EdgeType.Delegation],     false, loc["Relation.Delegation"]),
+            }.Select(e => (e.color, e.dashed, text: MakeFT(e.label, 11, labelColor))).ToArray();
+
+            var title = MakeFT(loc["Graph.Legend"], 11, Color.FromArgb(200, 255, 255, 255));
 
             const double lx = 10;
             double ly = 10;
             const double rowH = 20;
             double boxH = rowH * (nodeEntries.Length + edgeEntries.Length + 2) + 14;
+            // Largeur selon les libellés traduits, jamais moins que les 145 px d'origine
+            double boxW = Math.Max(145, Math.Max(title.Width,
+                Math.Max(nodeEntries.Max(e => e.text.Width), edgeEntries.Max(e => e.text.Width))) + 30);
 
             ctx.DrawRectangle(
                 new SolidColorBrush(Color.FromArgb(170, 18, 20, 26)),
                 new Pen(new SolidColorBrush(Color.FromArgb(80, 255, 255, 255)), 1),
-                new Rect(lx - 4, ly - 4, 145, boxH));
+                new Rect(lx - 4, ly - 4, boxW, boxH));
 
-            var title = MakeFT("Légende", 11, Color.FromArgb(200, 255, 255, 255));
             ctx.DrawText(title, new Point(lx + 2, ly));
             ly += rowH;
 
-            foreach (var (type, label) in nodeEntries)
+            foreach (var (type, text) in nodeEntries)
             {
                 var color = NodeColors.TryGetValue(type, out var c) ? c : Colors.Gray;
                 ctx.DrawEllipse(new SolidColorBrush(color), null, new Point(lx + 7, ly + 7), 7, 7);
-                var ft = MakeFT(label, 11, Color.FromArgb(200, 220, 220, 220));
-                ctx.DrawText(ft, new Point(lx + 20, ly + 1));
+                ctx.DrawText(text, new Point(lx + 20, ly + 1));
                 ly += rowH;
             }
 
             // Séparateur
             ctx.DrawLine(
                 new Pen(new SolidColorBrush(Color.FromArgb(60, 255, 255, 255)), 1),
-                new Point(lx, ly), new Point(lx + 133, ly));
+                new Point(lx, ly), new Point(lx + boxW - 12, ly));
             ly += 6;
 
-            foreach (var (color, dashed, label) in edgeEntries)
+            foreach (var (color, dashed, text) in edgeEntries)
             {
                 Pen linePen = dashed
                     ? new Pen(new SolidColorBrush(Color.FromArgb(200, color.R, color.G, color.B)), 1.5,
                         new DashStyle(new double[] { 5, 3 }, 0))
                     : new Pen(new SolidColorBrush(Color.FromArgb(200, color.R, color.G, color.B)), 1.5);
                 ctx.DrawLine(linePen, new Point(lx + 2, ly + 8), new Point(lx + 18, ly + 8));
-                var ft = MakeFT(label, 11, Color.FromArgb(200, 220, 220, 220));
-                ctx.DrawText(ft, new Point(lx + 22, ly + 1));
+                ctx.DrawText(text, new Point(lx + 22, ly + 1));
                 ly += rowH;
             }
         }
 
         private void DrawHint(DrawingContext ctx)
         {
-            string hint = $"Nœuds: {_nodes.Count}  |  Arêtes: {_edges.Count}" +
-                          "    [Scroll: zoom  •  Glisser fond: pan  •  Glisser nœud: déplacer  •  Clic: sélectionner]";
+            string hint = string.Format(LocalizationService.Instance["Graph.Hint"], _nodes.Count, _edges.Count);
             var ft = MakeFT(hint, 11, Color.FromArgb(120, 200, 200, 200));
             ctx.DrawText(ft, new Point(Bounds.Width / 2 - ft.Width / 2, Bounds.Height - 22));
         }
@@ -516,10 +534,11 @@ namespace SMADX.Graph
             int connIn  = _edges.Count(e => e.Target == node);
             int connOut = _edges.Count(e => e.Source == node);
 
-            string typeName = node.NodeType.ToString();
+            var loc = LocalizationService.Instance;
+            string typeName = loc[$"ObjectType.{node.NodeType}"];
             string line1 = node.Label;
-            string line2 = $"Type: {typeName}";
-            string line3 = $"Relations entrantes: {connIn}   sortantes: {connOut}";
+            string line2 = string.Format(loc["Graph.Selection.Type"], typeName);
+            string line3 = string.Format(loc["Graph.Selection.Relations"], connIn, connOut);
             if (!string.IsNullOrEmpty(node.Tier))
                 line3 += $"   {node.Tier}";
 
@@ -560,7 +579,7 @@ namespace SMADX.Graph
             double sx = node.X * _scale + _offsetX;
             double sy = node.Y * _scale + _offsetY;
 
-            string text = node.Label + " (" + node.NodeType + ")";
+            string text = node.Label + " (" + LocalizationService.Instance[$"ObjectType.{node.NodeType}"] + ")";
             var ft = MakeFT(text, 11, Colors.White);
             double tw = ft.Width + 12, th = ft.Height + 8;
             double tx = sx - tw / 2;

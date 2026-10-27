@@ -138,7 +138,7 @@ namespace SMADX.Services.Labs
             foreach (var obj in onPaths)
                 suggestions.Add(new LabObjectiveSuggestion(new LabObjective
                 {
-                    Id = NextId(), Points = 1,
+                    Id = NextId(), Points = 0, Guard = true,
                     Title = LocalizedText.Of($"« {obj.Name} » existe toujours", $"\"{obj.Name}\" still exists"),
                     Hint = LocalizedText.Of("Supprimer l'objet n'est pas une correction.", "Deleting the object is not a fix."),
                     Check = new LabCheck { Type = LabCheckType.ObjectExists, Object = obj.Name, ObjectType = obj.Type }
@@ -150,7 +150,7 @@ namespace SMADX.Services.Labs
                 foreach (var d in target.Delegations.Where(d => !d.IsInherited && d.RightCategory != RightCategory.FullControl && trustees.Contains(d.TrusteeName)))
                     suggestions.Add(new LabObjectiveSuggestion(new LabObjective
                     {
-                        Id = NextId(), Points = 1,
+                        Id = NextId(), Points = 0, Guard = true,
                         Title = LocalizedText.Of($"« {d.TrusteeName} » garde sa délégation {d.RightCategory} sur « {target.Name} »", $"\"{d.TrusteeName}\" keeps its {d.RightCategory} delegation on \"{target.Name}\""),
                         Hint = LocalizedText.Of("Cette délégation est légitime : gardez-la.", "This delegation is legitimate: keep it."),
                         Check = new LabCheck { Type = LabCheckType.DelegationExists, Trustee = d.TrusteeName, Target = target.Name, RightCategory = d.RightCategory }
@@ -271,8 +271,8 @@ namespace SMADX.Services.Labs
             };
         }
 
-        /// <summary>Objectif de garde : déjà atteint au départ, il refuse une solution brutale.</summary>
-        public static bool IsGuard(LabCheck check) =>
+        /// <summary>Vérification qui peut servir de garde : déjà atteinte au départ, elle refuse une solution brutale.</summary>
+        public static bool CanBeGuard(LabCheck check) =>
             check.Type is LabCheckType.ObjectExists or LabCheckType.MemberOf or LabCheckType.DelegationExists or LabCheckType.NotModified or LabCheckType.TierIs or LabCheckType.HasFlag;
 
         internal static IEnumerable<ADObject> AllObjects(ADObject root) => new[] { root }.Concat(root.Children.SelectMany(AllObjects));

@@ -339,7 +339,7 @@ namespace SMADX.Services.Labs
             foreach (var obj in keep.Where(k => objectives.All(o => !(o.Check.Type == LabCheckType.ObjectExists && o.Check.Object == k.Name))))
                 objectives.Add(new LabObjective
                 {
-                    Points = 1,
+                    Points = 0, Guard = true,
                     Title = LocalizedText.Of($"« {obj.Name} » existe toujours", $"\"{obj.Name}\" still exists"),
                     Hint = LocalizedText.Of("Supprimer l'objet n'est pas une correction.", "Deleting the object is not a fix."),
                     Check = new LabCheck { Type = LabCheckType.ObjectExists, Object = obj.Name, ObjectType = obj.Type }
