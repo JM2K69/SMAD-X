@@ -296,13 +296,18 @@ public class ObjectSecurityViewModelTests
     private static IEnumerable<ADTreeNode> Flatten(ADTreeNode node) => new[] { node }.Concat(node.Children.SelectMany(Flatten));
 
     [Fact]
-    public void ImportScript_ReadsTheDefaultDomainPasswordPolicy()
+    public async Task ImportScript_ReadsTheDefaultDomainPasswordPolicy_LapsAndGmsaReaders()
     {
         var path = TempFile(".ps1");
-        Assert.True(new ADImportPowerShellService().GenerateImportScriptAsync(path).Result);
+        Assert.True(await new ADImportPowerShellService().GenerateImportScriptAsync(path));
 
-        Assert.Contains("Get-ADDefaultDomainPasswordPolicy", File.ReadAllText(path));
-        Assert.Contains("ms-DS-MachineAccountQuota", File.ReadAllText(path));
+        var script = await File.ReadAllTextAsync(path);
+        Assert.Contains("Get-ADDefaultDomainPasswordPolicy", script);
+        Assert.Contains("ms-DS-MachineAccountQuota", script);
+        // LAPS vient d'une extension du schéma : ses attributs y sont cherchés, pour l'ancien LAPS comme pour Windows LAPS
+        Assert.Contains("msLAPS-PasswordExpirationTime", script);
+        Assert.Contains("ms-Mcs-AdmPwd", script);
+        Assert.Contains("PrincipalsAllowedToRetrieveManagedPassword", script);
     }
 
     [Fact]
