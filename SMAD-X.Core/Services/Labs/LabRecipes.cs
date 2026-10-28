@@ -20,6 +20,22 @@ namespace SMADX.Services.Labs
 
         /// <summary>Point de contrôle ANSSI cité par la règle, s'il y en a un.</summary>
         public AuditReference? Anssi => Rule.References.FirstOrDefault(r => r.Framework == AuditFramework.Anssi && !r.Id.StartsWith("ANSSI-PA"));
+
+        /// <summary>Correction attendue, appliquée au domaine de départ pour obtenir le domaine corrigé (voir <see cref="LabRecipes.Fixes"/>).</summary>
+        public Action<LabDomainBuilder, ADObject> Fix => LabRecipes.Fixes[RuleId];
+    }
+
+    /// <summary>
+    /// Exercice tiré de recettes : l'exercice, les notes du formateur et le domaine corrigé (la solution), qui
+    /// obtient tous les points. Les dates du domaine corrigé sont celles du départ : voir <see cref="LabService.PrepareSolution"/>.
+    /// </summary>
+    public sealed record RecipeLab(LabDefinition Lab, string TeacherNotes, ADRootDocument Solution)
+    {
+        public void Deconstruct(out LabDefinition lab, out string teacherNotes)
+        {
+            lab = Lab;
+            teacherNotes = TeacherNotes;
+        }
     }
 
     /// <summary>
@@ -280,6 +296,118 @@ namespace SMADX.Services.Labs
             }),
         };
 
+        // ─── Corrections attendues ───────────────────────────────────────────────
+
+        /// <summary>
+        /// Correction de chaque manque, celle que décrit la fiche de la règle (« Comment corriger ») : appliquée au
+        /// domaine de départ, elle donne le domaine corrigé de l'exercice. Elle corrige sans rien supprimer, comme
+        /// on le demande à l'apprenant : les gardes restent atteintes.
+        /// </summary>
+        public static IReadOnlyDictionary<string, Action<LabDomainBuilder, ADObject>> Fixes { get; } = new Dictionary<string, Action<LabDomainBuilder, ADObject>>
+        {
+            // Un compte de service n'a pas à être administrateur du domaine ; l'application passe à un gMSA
+            ["KRB-01"] = (b, d) =>
+            {
+                var svc = Find(d, "svc-app", ADObjectType.User);
+                svc.MemberOf.Remove("Domain Admins");
+                svc.AdminCount = false;
+                svc.Tier = "Tier 1";
+                MoveToGmsa(b, svc);
+            },
+            ["KRB-02"] = (b, d) => MoveToGmsa(b, Find(d, "svc-app", ADObjectType.User)),
+            ["KRB-03"] = (b, d) => Find(d, "adm-supervision", ADObjectType.User).AccountFlags &= ~ADAccountFlags.DontRequirePreauth,
+            ["KRB-04"] = (b, d) => Find(d, b.T("scan-reseau", "network-scan"), ADObjectType.User).AccountFlags &= ~ADAccountFlags.DontRequirePreauth,
+            ["KRB-05"] = (b, d) => Find(d, "krbtgt", ADObjectType.User).PwdLastSet = b.Reference.AddDays(-1),
+            ["DLG-01"] = (b, d) => Find(d, "SRV-APP01", ADObjectType.Computer).AccountFlags &= ~ADAccountFlags.TrustedForDelegation,
+            ["DLG-02"] = (b, d) =>
+            {
+                var srv = Find(d, "SRV-APP01", ADObjectType.Computer);
+                srv.AccountFlags &= ~ADAccountFlags.TrustedToAuthForDelegation;
+                RemoveDelegationToDc(d, srv);
+            },
+            ["DLG-03"] = (b, d) => RemoveDelegationToDc(d, Find(d, "SRV-APP01", ADObjectType.Computer)),
+            ["DLG-04"] = (b, d) => Find(d, "adm-nouveau", ADObjectType.User).AccountFlags |= ADAccountFlags.NotDelegated,
+            ["PWD-01"] = (b, d) => Find(d, "Administrator", ADObjectType.User).AccountFlags &= ~ADAccountFlags.PasswordNeverExpires,
+            ["PWD-02"] = (b, d) => FirstStaff(d).AccountFlags &= ~ADAccountFlags.PasswordNeverExpires,
+            ["PWD-03"] = (b, d) =>
+            {
+                var user = Find(d, b.T("intervenant", "contractor"), ADObjectType.User);
+                user.AccountFlags &= ~ADAccountFlags.PasswordNotRequired;
+                user.PwdLastSet = b.Reference.AddDays(-1);
+            },
+            ["PWD-04"] = (b, d) => Find(d, "adm-historique", ADObjectType.User).PwdLastSet = b.Reference.AddDays(-1),
+            ["PWD-05"] = (b, d) => Dc(d).PwdLastSet = b.Reference.AddDays(-5),
+            // Retrouvé dans un placard : désactivé, il sera supprimé après une période d'observation
+            ["PWD-06"] = (b, d) => Flatten(d).First(o => o.Type == ADObjectType.Computer && o.Parent?.Name == b.T("Postes de travail", "Workstations"))
+                .AccountFlags |= ADAccountFlags.AccountDisabled,
+            ["ACC-03"] = (b, d) => d.MachineAccountQuota = 0,
+            ["PWD-08"] = (b, d) => d.PSOMinPasswordLength = 12,
+            ["PWD-09"] = (b, d) =>
+            {
+                var pso = Find(d, "PSO-Admins", ADObjectType.PasswordSettingsObject);
+                pso.PSOMinPasswordLength = 16;
+                pso.PSOPasswordHistoryCount = 24;
+                pso.PSOComplexityEnabled = true;
+                pso.PSOMaxPasswordAgeDays = 365;
+                pso.PSOMinPasswordAgeDays = 1;
+                pso.PSOLockoutThreshold = 5;
+                pso.PSOLockoutDurationMinutes = 30;
+                pso.PSOLockoutObservationWindowMinutes = 30;
+            },
+            // Le service tourne toujours : son mot de passe se renouvelle de nouveau
+            ["PWD-07"] = (b, d) => Find(d, "gmsa-app", ADObjectType.GMSA).PwdLastSet = b.Reference.AddDays(-10),
+            ["ACC-01"] = (b, d) => Find(d, "Guest", ADObjectType.User).AccountFlags |= ADAccountFlags.AccountDisabled,
+            ["ACC-02"] = (b, d) => FirstStaff(d).AccountFlags |= ADAccountFlags.AccountDisabled,
+            ["PRIV-01"] = (b, d) => Find(d, "adm-urgence", ADObjectType.User).AdminCount = true,
+            ["PRIV-02"] = (b, d) => FirstStaff(d).AdminCount = false,
+            // Sorti du groupe protégé, le compte garde adminCount (SDProp ne le remet pas à 0) : on le remet à la main
+            ["PRIV-03"] = (b, d) =>
+            {
+                var admin = Find(d, "adm-comptes", ADObjectType.User);
+                admin.MemberOf.Remove("Account Operators");
+                admin.AdminCount = false;
+            },
+            ["PRIV-04"] = (b, d) => Find(d, b.T("tech-reseau", "network-tech"), ADObjectType.User).MemberOf.Remove("DnsAdmins"),
+            ["PRIV-05"] = (b, d) => Find(d, "Backup Operators", ADObjectType.Group).Tier = "Tier 0",
+            ["ACL-01"] = (b, d) => Find(d, "Domain Admins", ADObjectType.Group).Owner = "Domain Admins",
+            ["TIER-01"] = (b, d) => FirstStaff(d).MemberOf.Remove(b.T("GG-Admins-Serveurs", "GG-Server-Admins")),
+            // Une GPO de bureautique n'a rien à faire sur les contrôleurs de domaine
+            ["TIER-02"] = (b, d) => Find(d, "Domain Controllers", ADObjectType.OrganizationalUnit).LinkedGPOs.Remove(b.T("GPO-Bureautique", "GPO-Office")),
+            ["TIER-03"] = (b, d) =>
+            {
+                var admins = Find(d, b.T("Administration", "Admin Accounts"), ADObjectType.OrganizationalUnit);
+                foreach (var delegation in admins.Delegations.Where(x => x.TrusteeName == b.T("GG-Support", "GG-HelpDesk-Team")).ToList())
+                    admins.Delegations.Remove(delegation);
+            },
+            ["GRP-01"] = (b, d) => Find(d, b.T("GG-Equipe-B", "GG-Team-B"), ADObjectType.Group).MemberOf.Remove(b.T("GG-Equipe-A", "GG-Team-A")),
+        };
+
+        /// <summary>
+        /// Migration vers un gMSA : le service et ses SPN passent à un compte de service géré, l'ancien compte est
+        /// désactivé (il sera supprimé quand l'application aura été vérifiée).
+        /// </summary>
+        private static void MoveToGmsa(LabDomainBuilder b, ADObject account)
+        {
+            var gmsa = Add(account.Parent!, new ADObject("gmsa-" + account.Name, ADObjectType.GMSA)
+            {
+                Tier = account.Tier, Owner = "Domain Admins",
+                Description = b.T("Compte de service géré de l'application métier.", "Business application managed service account."),
+                PwdLastSet = b.Reference.AddDays(-1), LastLogonTimestamp = b.Reference, CreatedDate = b.Reference.AddDays(-2), ModifiedDate = b.Reference.AddDays(-1)
+            });
+            foreach (var spn in account.ServicePrincipalNames)
+                gmsa.ServicePrincipalNames.Add(spn);
+            account.ServicePrincipalNames.Clear();
+            account.AccountFlags |= ADAccountFlags.AccountDisabled;
+        }
+
+        /// <summary>Retire les services des contrôleurs de domaine des cibles de la délégation contrainte.</summary>
+        private static void RemoveDelegationToDc(ADObject d, ADObject account)
+        {
+            var dcs = Flatten(d).Where(o => o.Type == ADObjectType.Computer && o.Parent?.Name == "Domain Controllers").Select(o => o.Name).ToList();
+            foreach (var spn in account.AllowedToDelegateTo.Where(s => dcs.Any(dc => s.Contains(dc, StringComparison.OrdinalIgnoreCase))).ToList())
+                account.AllowedToDelegateTo.Remove(spn);
+        }
+
         /// <summary>Nom d'organisation tiré du domaine : « atelier-boreal.local » → « Atelier Boreal ».</summary>
         public static string OrganisationName(string domainName) =>
             CultureInfo.InvariantCulture.TextInfo.ToTitleCase(domainName.Split('.')[0].Replace('-', ' '));
@@ -289,7 +417,7 @@ namespace SMADX.Services.Labs
         /// objectifs proposés (dont la règle visée) et gardes. Les notes du formateur citent le point de contrôle
         /// et la correction attendue, tirée de la fiche de la règle.
         /// </summary>
-        public static (LabDefinition Lab, string TeacherNotes) CreateLab(LabRecipe recipe, string culture, string domainName, DateTime reference) =>
+        public static RecipeLab CreateLab(LabRecipe recipe, string culture, string domainName, DateTime reference) =>
             CreateLab([recipe], culture, domainName, reference);
 
         /// <summary>
@@ -341,7 +469,7 @@ namespace SMADX.Services.Labs
         /// les objectifs recommandés par l'audit et les chemins d'attaque, et les gardes de chaque recette.
         /// </summary>
         /// <exception cref="InvalidOperationException">Les recettes ne peuvent pas être combinées (voir <see cref="Incompatibility"/>).</exception>
-        public static (LabDefinition Lab, string TeacherNotes) CreateLab(IReadOnlyList<LabRecipe> recipes, string culture, string domainName, DateTime reference)
+        public static RecipeLab CreateLab(IReadOnlyList<LabRecipe> recipes, string culture, string domainName, DateTime reference)
         {
             var (builder, domain, keep) = Inject(recipes, culture, domainName, reference);
             var document = builder.Document(domain);
@@ -413,7 +541,19 @@ namespace SMADX.Services.Labs
                     notes.AppendLine($"- {r.FrameworkLabel} · {r.Id} : [{r.Title}]({r.Url})");
                 notes.AppendLine().AppendLine(T("**Correction attendue** (fiche de la règle) :", "**Expected fix** (rule sheet):")).AppendLine().AppendLine(fix).AppendLine();
             }
-            return (lab, notes.ToString().Trim().ReplaceLineEndings("\n"));
+            return new RecipeLab(lab, notes.ToString().Trim().ReplaceLineEndings("\n"), Solve(builder, document, recipes));
+        }
+
+        /// <summary>Domaine corrigé : une copie du départ, chaque correction attendue appliquée, aux mêmes identifiants.</summary>
+        private static ADRootDocument Solve(LabDomainBuilder builder, ADRootDocument start, IReadOnlyList<LabRecipe> recipes)
+        {
+            var options = ADDataService.SerializerOptions;
+            var solution = System.Text.Json.JsonSerializer.Deserialize<ADRootDocument>(System.Text.Json.JsonSerializer.Serialize(start, options), options)!;
+            ADDataService.RestoreParentReferences(solution.Domain, null);
+            foreach (var recipe in recipes)
+                recipe.Fix(builder, solution.Domain);
+            AssignStableIds(solution, builder.Reference);
+            return solution;
         }
     }
 }

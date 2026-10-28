@@ -126,13 +126,14 @@
 
 ### 🧑‍🏫 SMAD-X Studio — lab authoring for trainers
 A second executable, shipped in the same archive ([documentation](https://jm2k69.github.io/SMAD-X/en/labs/studio/)):
-- **New lab from a recommendation**: one recipe per audit rule / ANSSI control point, alone or **several combined** in the same domain; Studio builds a healthy, populated domain and injects only those misconfigurations
+- **New lab from a recommendation**: one recipe per audit rule / ANSSI control point, alone or **several combined** in the same domain; Studio builds a healthy, populated domain, injects only those misconfigurations, and produces the **fixed domain**, which gets all the points
 - **Convert** a `.smad-x.json` scenario into a lab: the context becomes the statement, the path and the fix go into the trainer notes
 - Markdown statement editor with preview, objective editor with **suggestions** from the audit and attack paths, and **guards** against brute-force fixes: a broken guard cancels the objectives that concerned the protected object
-- **Validation** like the shipped labs' tests (nothing met at start, effective guards, no visible solution), grading of the trainer's fixed domain, and an exported **trainer sheet**
-- **Grading a class**: add several submissions or a whole folder, get each grade, success per objective, a CSV for Excel and a Markdown class report; submissions edited by hand, handed in under another name, holding someone else's domain, reopened outside exam mode or made with another SMAD-X version are flagged
-- **Command line** for batches: `SMAD-X.Studio recipe all --lang en --out labs`, `convert`, `validate`, `grade lab.smadx-lab.json submissions/ --csv grades.csv`
-- Launched from SMAD-X (**Labs > Create a lab with SMAD-X Studio...**) on the current domain
+- **Comprehension questions** asked with the objectives: single or multiple choice, yes / no, matching, written answer; **partial credit** for objectives that can be counted and for questions with several answers
+- **Trainer's copy and subject**: your file keeps the hints and the answer key; the exported **subject** has neither, and SMAD-X refuses to open the trainer's copy of an exam
+- **Validation** like the shipped labs' tests (nothing met at start, effective guards, no visible solution, complete questions), a **suggested solution** for any lab (each audit finding fixed without deleting, guards kept) or one made by hand in SMAD-X, kept with the lab, and a **trainer sheet**
+- **Grading a class**: add several submissions or a whole folder, get each grade, written answers graded by hand with a comment, success per objective and per question; CSV export (grade out of 20 for the school platform), **Moodle**, **individual PDF reports** and a Markdown class report; submissions edited by hand, handed in under another name, holding someone else's domain, reopened outside exam mode or made with another SMAD-X version are flagged
+- **Command line** for batches: `SMAD-X.Studio recipe all --lang en --out labs`, `convert`, `validate`, `export-subject`, `grade lab.smadx-lab.json submissions/ --csv grades.csv --moodle moodle.csv --reports reports`
 
 ## 🚀 Quick Start
 

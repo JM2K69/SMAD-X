@@ -10,15 +10,25 @@ namespace SMADX.Services.Labs
     /// <summary>Résultat d'un objectif : réussi ou non, et pourquoi (pour guider l'apprenant).</summary>
     public sealed record LabObjectiveResult(LabObjective Objective, bool Passed, string Feedback)
     {
+        /// <summary>Part atteinte, de 0 à 1 : 1 s'il est atteint ; entre les deux pour un objectif à crédit partiel.</summary>
+        public double Fraction { get; init; } = Passed ? 1 : 0;
+
         /// <summary>Une garde ne rapporte pas de point.</summary>
-        public int EarnedPoints => Passed && !Objective.Guard ? Objective.Points : 0;
+        public double EarnedPoints => Objective.Guard ? 0 : Math.Round(Objective.Points * Fraction, 2);
     }
 
     public sealed record LabResult(LabDefinition Lab, IReadOnlyList<LabObjectiveResult> Objectives, AuditReport Audit, DateTime GradedAt)
     {
-        public int Points => Objectives.Sum(o => o.EarnedPoints);
+        /// <summary>Questions de compréhension, dans l'ordre de l'exercice.</summary>
+        public IReadOnlyList<LabQuestionResult> Questions { get; init; } = [];
+
+        public double Points => Math.Round(Objectives.Sum(o => o.EarnedPoints) + Questions.Sum(q => q.EarnedPoints), 2);
         public int MaxPoints => Lab.MaxPoints;
-        public bool Completed => Objectives.All(o => o.Passed);
+
+        /// <summary>Tous les objectifs du domaine sont atteints (ce qu'obtient le domaine corrigé).</summary>
+        public bool ObjectivesCompleted => Objectives.All(o => o.Passed);
+
+        public bool Completed => ObjectivesCompleted && Questions.All(q => q.Passed);
     }
 
     /// <summary>
@@ -27,6 +37,10 @@ namespace SMADX.Services.Labs
     /// Une garde violée (le compte vulnérable supprimé au lieu d'être corrigé…) annule les objectifs qui
     /// concernaient l'objet protégé au départ : son constat, les chemins d'attaque qui le traversaient et
     /// les vérifications qui le nomment. La solution brutale ne rapporte donc rien.
+    /// <para>
+    /// Un objectif à crédit partiel rapporte la part du chemin parcouru depuis le départ : constats ou chemins
+    /// levés, score gagné. Les questions sont corrigées par <see cref="LabQuestionGrader"/>.
+    /// </para>
     /// </summary>
     public sealed class LabGrader
     {
@@ -34,7 +48,8 @@ namespace SMADX.Services.Labs
 
         /// <param name="start">Domaine de départ préparé (le même que celui donné à l'apprenant).</param>
         /// <param name="current">Domaine dans son état actuel.</param>
-        public LabResult Grade(LabDefinition lab, ADObject start, ADObject current, DateTime now)
+        /// <param name="answers">Réponses aux questions, par identifiant (aucune : les questions valent 0).</param>
+        public LabResult Grade(LabDefinition lab, ADObject start, ADObject current, DateTime now, IReadOnlyDictionary<string, LabAnswer>? answers = null)
         {
             var audit = new ADSecurityAuditService().Run(current, now);
             var attackPaths = new Lazy<AttackPathService>(() => new AttackPathService(current, now));
@@ -43,33 +58,68 @@ namespace SMADX.Services.Labs
                 new DomainSnapshot { Root = start }, new DomainSnapshot { Root = current }));
 
             var lazyAudit = new Lazy<AuditReport>(() => audit);
+            var scope = new StartScope(start, now);
             var results = lab.Objectives
                 .Select(o =>
                 {
                     var (passed, feedback) = Evaluate(o.Check, lazyAudit, context, start, changes, attackPaths);
-                    return new LabObjectiveResult(o, passed, feedback);
+                    if (passed || !o.Partial || !LabAuthoring.CanBePartial(o.Check))
+                        return new LabObjectiveResult(o, passed, feedback);
+                    var fraction = Progress(o.Check, scope, audit, attackPaths.Value);
+                    return new LabObjectiveResult(o, false, fraction > 0 ? string.Format(Loc["Lab.Feedback.Partial"], feedback, Math.Round(100 * fraction)) : feedback)
+                    {
+                        Fraction = fraction
+                    };
                 })
                 .ToList();
 
             var broken = results.Where(r => r.Objective.Guard && !r.Passed).ToList();
             if (broken.Count > 0)
             {
-                var scope = new StartScope(start, now);
                 var culture = Loc.CurrentCulture.Name;
                 results = results.Select(r =>
                 {
-                    if (r.Objective.Guard || !r.Passed) return r;
+                    if (r.Objective.Guard || r.Fraction == 0) return r;
                     var involved = scope.Involved(r.Objective.Check);
                     var guard = broken.FirstOrDefault(g => Protected(g.Objective.Check).Overlaps(involved));
                     return guard == null ? r : r with
                     {
                         Passed = false,
+                        Fraction = 0,
                         Feedback = string.Format(Loc["Lab.Feedback.GuardBroken"], guard.Objective.Title.Resolve(culture), guard.Feedback)
                     };
                 }).ToList();
             }
-            return new LabResult(lab, results, audit, now);
+            var questions = lab.Questions.Select(q => LabQuestionGrader.Grade(q, answers?.GetValueOrDefault(q.Id))).ToList();
+            return new LabResult(lab, results, audit, now) { Questions = questions };
         }
+
+        /// <summary>
+        /// Part du chemin parcouru depuis le départ (0 à 1, jamais 1 pour un objectif non atteint) : constats ou chemins
+        /// restants comparés à ceux du départ, ou score gagné vers le score visé.
+        /// </summary>
+        private static double Progress(LabCheck check, StartScope scope, AuditReport audit, AttackPathService paths)
+        {
+            if (check.Type == LabCheckType.ScoreAtLeast)
+            {
+                var startScore = scope.Audit.Score;
+                var target = check.Score ?? 100;
+                return target <= startScore ? 0 : Math.Clamp((audit.Score - startScore) / (double)(target - startScore), 0, 0.99);
+            }
+            var atStart = Remaining(check, scope.Audit, scope.Paths);
+            var now = Remaining(check, audit, paths);
+            return atStart == 0 ? 0 : Math.Clamp(1 - now / (double)atStart, 0, 1);
+        }
+
+        /// <summary>Ce qui reste à lever pour une vérification qui se compte : objets en constat, constats, chemins.</summary>
+        private static int Remaining(LabCheck check, AuditReport audit, AttackPathService paths) => check.Type switch
+        {
+            LabCheckType.RuleClear => audit.Findings.Where(f => f.Rule.Id == check.RuleId).Select(f => f.Object.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+            LabCheckType.NoFindingAtOrAbove => audit.Findings.Count(f => f.Severity <= (check.Severity ?? AuditSeverity.Critical)),
+            LabCheckType.NoAttackPath when check.Object is null => paths.PathsOutsideTier0().Count,
+            LabCheckType.NoAttackPath => paths.PathsToDomainControl().Count(p => p.Start.IsAnyUser),
+            _ => 0
+        };
 
         /// <summary>Vrai si la vérification est atteinte sur ce domaine (comparé à lui-même pour « non modifié ») : sert à reconnaître les gardes.</summary>
         public static bool IsMet(LabCheck check, ADObject domain, DateTime now)
@@ -91,6 +141,9 @@ namespace SMADX.Services.Labs
             private readonly Lazy<AuditReport> _audit = new(() => new ADSecurityAuditService().Run(start, now));
             private readonly Lazy<AttackPathService> _paths = new(() => new AttackPathService(start, now));
             private readonly Lazy<AuditContext> _context = new(() => new AuditContext(start, now));
+
+            public AuditReport Audit => _audit.Value;
+            public AttackPathService Paths => _paths.Value;
 
             public HashSet<string> Involved(LabCheck check)
             {

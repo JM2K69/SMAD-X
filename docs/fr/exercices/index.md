@@ -20,12 +20,12 @@ L'ouverture remplace le domaine actuel par le domaine de départ de l'exercice. 
 ![Énoncé d'un exercice](../assets/screens/lab-statement.png)
 
 - **À gauche, l'énoncé** : le contexte, votre mission et vos outils. Il ne donne pas la réponse.
-- **À droite, les objectifs**, avec leurs points.
+- **À droite, les objectifs**, avec leurs points, puis les **questions** de compréhension s'il y en a : cocher un choix, associer chaque élément à une proposition dans la liste, ou écrire sa réponse.
 - **Indice** révèle une piste pour l'objectif ; un indice consulté compte, même masqué ensuite.
 - **Vérifier** corrige tous les objectifs sur l'état actuel du domaine.
 - **Recommencer** recharge le domaine de départ.
 - **Exporter le résultat** produit un compte rendu Markdown (objectifs, résultat, indices consultés, nom de l'apprenant).
-- **Enregistrer ma copie** écrit votre travail dans un fichier `.smadx-submission.json`, à rendre au formateur (voir plus bas). Il faut d'abord indiquer votre nom.
+- **Enregistrer ma copie** écrit votre travail dans un fichier `.smadx-submission.json`, à rendre au formateur (voir plus bas). Il faut d'abord indiquer votre nom ; l'**identifiant** (votre numéro ou votre adresse), facultatif, sert au formateur pour reporter la note dans l'ENT ou Moodle.
 
 Si la fenêtre est fermée, **Exercices > Afficher l'exercice** la rouvre.
 
@@ -33,7 +33,9 @@ Si la fenêtre est fermée, **Exercices > Afficher l'exercice** la rouvre.
 
 ![Exercice vérifié](../assets/screens/lab-checked.png)
 
-Chaque objectif est une vérification automatique. Un objectif non atteint explique ce qui manque. Pour un chemin d'attaque, il montre le **chemin restant**, étape par étape.
+Chaque objectif est une vérification automatique. Un objectif non atteint explique ce qui manque. Pour un chemin d'attaque, il montre le **chemin restant**, étape par étape. Un objectif à **crédit partiel** (◐) rapporte déjà la part du travail faite : 3 constats levés sur 4 donnent 75 % de ses points.
+
+Les questions sont corrigées avec les objectifs. Une réponse écrite que SMAD-X ne reconnaît pas est laissée au formateur, qui la lira.
 
 Les captures montrent un exercice de démonstration, construit pour la documentation et absent de l'application. Les solutions des exercices fournis ne sont pas publiées.
 
@@ -51,13 +53,13 @@ Ouvert directement sur un exercice ou une copie (double-clic, ou nom du fichier 
 
 - l'exercice tel que vous l'avez reçu ;
 - votre domaine dans l'état où vous l'avez laissé ;
-- les indices consultés et la date de votre travail.
+- vos réponses aux questions, les indices consultés et la date de votre travail.
 
 Chaque enregistrement **scelle** la copie : une empreinte SHA-256 de tout son contenu (nom, dates, indices, domaine). Le domaine porte aussi la marque de **votre session de travail**, tirée au hasard à l'ouverture de l'exercice. Une copie retouchée à la main, rendue sous un autre nom ou dont le domaine vient d'un camarade est en général signalée au formateur (voir les limites de ces contrôles dans [SMAD-X Studio](studio.md)). Deux solutions identiques, faites chacun de son côté, ne le sont pas.
 
 SMAD-X garde aussi une **copie de secours** : chaque minute en mode exercice, et à la fermeture, votre travail non enregistré est écrit dans un dossier de SMAD-X. S'il se ferme mal (coupure, plantage), la prochaine ouverture de l'exercice propose de reprendre ce travail. Fermer SMAD-X avec des modifications non enregistrées demande toujours d'enregistrer votre copie.
 
-Les enregistrements suivants réécrivent le même fichier. Pour reprendre plus tard, ouvrez la copie : SMAD-X recharge votre domaine, votre nom et vos indices. Pour rendre le travail, donnez le fichier au formateur : il le corrige dans [SMAD-X Studio](studio.md), avec son propre exemplaire de l'exercice. Le score affiché dans votre fenêtre n'est jamais repris tel quel.
+Les enregistrements suivants réécrivent le même fichier. Pour reprendre plus tard, ouvrez la copie : SMAD-X recharge votre domaine, vos réponses, votre nom et vos indices. Pour rendre le travail, donnez le fichier au formateur : il le corrige dans [SMAD-X Studio](studio.md), avec son propre exemplaire de l'exercice. Le score affiché dans votre fenêtre n'est jamais repris tel quel.
 
 ## Le mode examen
 
@@ -66,6 +68,8 @@ Les enregistrements suivants réécrivent le même fichier. Pour reprendre plus 
 Le formateur peut marquer un exercice comme **examen** dans SMAD-X Studio. Un examen s'ouvre toujours en mode exercice et ne se quitte pas. Il n'a ni indice, ni score, ni **Recommencer** : l'apprenant fait son travail, enregistre sa copie et la rend. Le **temps passé** est affiché et écrit dans la copie ; le dépasser ne bloque rien, mais le formateur le voit.
 
 Selon les réglages du formateur, le bouton **Vérifier** montre quels objectifs sont atteints, sans score ni explication, et certains outils peuvent être fermés : audit de sécurité, section « Comment corriger » des fiches, chemins d'attaque, comparaison avant / après. Par défaut, tout est ouvert.
+
+Les questions d'un examen ne sont pas corrigées dans SMAD-X : le sujet que vous avez reçu n'a pas le corrigé. Vos réponses sont enregistrées dans la copie, et le formateur les corrige dans SMAD-X Studio. Le fichier de son propre exemplaire, qui contient les indices et le corrigé, ne s'ouvre pas en examen : SMAD-X l'explique et ne l'ouvre pas.
 
 !!! note "Ce que le mode examen garantit"
     Le mode examen retire les aides et empêche d'ouvrir un autre domaine depuis SMAD-X. Ce n'est pas un logiciel de surveillance : il ne verrouille ni l'ordinateur, ni les autres applications.

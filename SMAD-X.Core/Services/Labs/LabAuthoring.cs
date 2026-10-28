@@ -101,6 +101,18 @@ namespace SMADX.Services.Labs
             foreach (var path in paths)
             {
                 var source = path.Start.IsAnyUser ? AttackPathService.AnyUserId : path.Start.Label;
+                // Groupe privilégié ou contrôleur de domaine classé hors Tier 0 : son chemin ne se coupe pas, il se reclasse
+                if (path.Start.Object is { } privileged && path.Length == 1 && path.Steps[0].Kind is AttackEdgeKind.PrivilegedGroup or AttackEdgeKind.DomainController)
+                {
+                    suggestions.Add(new LabObjectiveSuggestion(new LabObjective
+                    {
+                        Id = NextId(), Points = 3,
+                        Title = LocalizedText.Of($"« {privileged.Name} » est classé en Tier 0", $"\"{privileged.Name}\" is classified Tier 0"),
+                        Hint = LocalizedText.Of("Regardez le tier de cet objet : que permet-il par nature ?", "Look at this object's tier: what does it allow by nature?"),
+                        Check = new LabCheck { Type = LabCheckType.TierIs, Object = privileged.Name, Tier = "Tier 0" }
+                    }, LocalizedText.Of("Privilégié par nature, classé hors Tier 0.", "Privileged by nature, classified outside Tier 0."), true));
+                    continue;
+                }
                 var label = path.Start.IsAnyUser ? LocalizedText.Of("N'importe quel utilisateur du domaine", "Any domain user") : LocalizedText.Of(path.Start.Label, path.Start.Label);
                 suggestions.Add(new LabObjectiveSuggestion(new LabObjective
                 {
@@ -272,6 +284,19 @@ namespace SMADX.Services.Labs
         }
 
         /// <summary>Vérification qui peut servir de garde : déjà atteinte au départ, elle refuse une solution brutale.</summary>
+        /// <summary>
+        /// Vérification qui se compte, et peut donc rapporter une part des points : les constats d'une règle sur tout
+        /// le domaine, les constats d'une gravité, le score d'audit, les chemins hors Tier 0 ou depuis n'importe quel
+        /// utilisateur.
+        /// </summary>
+        public static bool CanBePartial(LabCheck check) => check.Type switch
+        {
+            LabCheckType.RuleClear => check.Object is null,
+            LabCheckType.NoFindingAtOrAbove or LabCheckType.ScoreAtLeast => true,
+            LabCheckType.NoAttackPath => check.Object is null || string.Equals(check.Object, AttackPathService.AnyUserId, StringComparison.OrdinalIgnoreCase),
+            _ => false
+        };
+
         public static bool CanBeGuard(LabCheck check) =>
             check.Type is LabCheckType.ObjectExists or LabCheckType.MemberOf or LabCheckType.DelegationExists or LabCheckType.NotModified or LabCheckType.TierIs or LabCheckType.HasFlag;
 

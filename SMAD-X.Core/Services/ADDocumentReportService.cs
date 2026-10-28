@@ -511,6 +511,9 @@ namespace SMADX.Services
         /// cannot encode a character, a second attempt substitutes app emoji with short text
         /// labels — DOCX/.md are never affected.
         /// </summary>
+        /// <summary>PDF d'un texte Markdown (compte rendu d'exercice…), avec les polices embarquées.</summary>
+        public static void MarkdownToPdf(string markdown, string filePath, string theme = "WordLike") => RenderPdf(markdown, filePath, theme);
+
         private static void RenderPdf(string markdown, string filePath, string theme)
         {
             var pdfOptions = new PdfOptions();

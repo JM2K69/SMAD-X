@@ -144,7 +144,6 @@ namespace SMADX.Helpers
         public string MenuLabsOpen => _localizationService["Menu.Labs.Open"];
         public string MenuLabsBuiltIn => _localizationService["Menu.Labs.BuiltIn"];
         public string MenuLabsAttackPaths => _localizationService["Menu.Labs.AttackPaths"];
-        public string MenuLabsOpenInStudio => _localizationService["Menu.Labs.OpenInStudio"];
         public string MenuLabsShowCurrent => _localizationService["Menu.Labs.ShowCurrent"];
         public string MenuLabsSaveSubmission => _localizationService["Menu.Labs.SaveSubmission"];
         public string MenuLabsLeave => _localizationService["Menu.Labs.Leave"];
@@ -154,6 +153,10 @@ namespace SMADX.Helpers
         public string LabGuard => _localizationService["Lab.Guard"];
         public string LabGuardTip => _localizationService["Lab.Guard.Tip"];
         public string LabObjectives => _localizationService["Lab.Objectives"];
+        public string LabQuestions => _localizationService["Lab.Questions"];
+        public string LabAnswerWatermark => _localizationService["Lab.Answer.Watermark"];
+        public string LabStudentId => _localizationService["Lab.StudentId"];
+        public string LabStudentIdTip => _localizationService["Lab.StudentId.Tip"];
         public string LabHint => _localizationService["Lab.Hint"];
         public string LabCheck => _localizationService["Lab.Check"];
         public string LabRestart => _localizationService["Lab.Restart"];

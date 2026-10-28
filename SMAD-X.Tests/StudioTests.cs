@@ -109,6 +109,208 @@ public class StudioTests
     }
 
     [Fact]
+    public async Task NewFromRecipe_GeneratesTheFixedDomain_SavedBesideTheLabAndReadBack()
+    {
+        var vm = await FromRecipe("KRB-01");
+        Assert.True(vm.HasFixedDomain);
+
+        vm.ValidateCommand.Execute(null);
+        Assert.DoesNotContain(vm.Issues, i => i.Issue.Level == LabIssueLevel.Error);
+        Assert.Contains(vm.Issues, i => i.Issue.Level == LabIssueLevel.Ok && i.Issue.Message.Contains("tous les points"));
+        Assert.Contains("## Domaine corrigé", vm.SheetPreview);
+        Assert.Contains("svc-app", vm.SheetPreview);
+
+        var path = TempFile(LabService.FileExtension);
+        vm.Save(path);
+        var solutionPath = StudioViewModel.SolutionPath(path);
+        Assert.EndsWith(".smadx-lab.solution.smad-x.json", solutionPath);
+        // Un domaine ordinaire, que SMAD-X ouvre ; pas dans l'exercice
+        var solution = await new ADDataService().LoadDocumentAsync(solutionPath);
+        Assert.NotNull(solution.Document);
+        Assert.DoesNotContain("gmsa-svc-app", File.ReadAllText(path));
+
+        var (other, dialogs) = NewStudio();
+        dialogs.OpenPath = path;
+        await other.OpenCommand.ExecuteAsync(null);
+        Assert.True(other.HasFixedDomain);
+        other.ValidateCommand.Execute(null);
+        Assert.Contains(other.Issues, i => i.Issue.Level == LabIssueLevel.Ok && i.Issue.Message.Contains("tous les points"));
+
+        // Une solution choisie à la main remplace celle de l'exercice pour la validation
+        other.SetSolution(other.Lab!.Start.Domain, "départ");
+        Assert.False(other.HasFixedDomain);
+        other.ValidateCommand.Execute(null);
+        Assert.Contains(other.Issues, i => i.Issue.Message.Contains("La solution échoue"));
+    }
+
+    [Fact]
+    public async Task Questions_AreEditedInEveryForm_SavedInTheTrainerCopy_AndLeftOutOfTheSubject()
+    {
+        var vm = await FromRecipe("ACC-01");
+        vm.IsExam = true;
+
+        vm.AddQuestionCommand.Execute(null);
+        var single = vm.SelectedQuestion!;
+        Assert.Equal("q1", single.Id);
+        Assert.Equal(2, single.Choices.Count);
+        single.Title = "Quel compte est en cause ?";
+        single.Choices[0].Text = "Guest";
+        single.Choices[1].Text = "krbtgt";
+        single.Choices[0].Correct = true;
+        single.Choices[1].Correct = true; // choix unique : décoche l'autre
+        Assert.False(single.Choices[0].Correct);
+        single.Choices[0].Correct = true;
+
+        vm.AddQuestionCommand.Execute(null);
+        var yesNo = vm.SelectedQuestion!;
+        yesNo.Title = "Le compte Invité doit rester désactivé.";
+        yesNo.KindChoice = yesNo.Kinds.Single(k => k.Value == LabQuestionKind.TrueFalse);
+        Assert.Equal(["yes", "no"], yesNo.Model.Choices.Select(c => c.Id));
+        Assert.False(yesNo.CanEditChoices);
+
+        vm.AddQuestionCommand.Execute(null);
+        var matching = vm.SelectedQuestion!;
+        matching.Title = "Associez chaque compte à son rôle.";
+        matching.Kind = LabQuestionKind.Matching;
+        Assert.Empty(matching.Choices); // les deux choix vides de départ ne deviennent pas des intrus
+        matching.AddPairCommand.Execute(null);
+        matching.AddPairCommand.Execute(null);
+        matching.Pairs[0].Left = "krbtgt";
+        matching.Pairs[0].Right = "Signe les tickets";
+        matching.Pairs[1].Left = "Guest";
+        matching.Pairs[1].Right = "Accès anonyme";
+        matching.AddChoiceCommand.Execute(null);
+        matching.Choices.Last().Text = "Intrus";
+        matching.Partial = true;
+        Assert.Equal(["p1", "p2"], matching.Model.Prompts!.Select(p => p.Id));
+        Assert.All(matching.Model.Prompts!, p => Assert.Contains(matching.Model.Choices, c => c.Id == p.Match));
+
+        vm.AddQuestionCommand.Execute(null);
+        var written = vm.SelectedQuestion!;
+        written.Title = "Comment s'appelle ce point de contrôle ?";
+        written.Kind = LabQuestionKind.Text;
+        written.AcceptedAnswers = "compte invité\n\n guest account ";
+        Assert.Equal(["compte invité", "guest account"], written.Model.AcceptedAnswers);
+        Assert.Empty(written.Model.Choices);
+
+        Assert.Equal(vm.Lab!.ObjectivePoints + 4, vm.TotalPoints);
+        vm.ValidateCommand.Execute(null);
+        Assert.DoesNotContain(vm.Issues, i => i.Issue.Level == LabIssueLevel.Error && i.Issue.ObjectiveId?.StartsWith('q') == true);
+
+        var path = TempFile(LabService.FileExtension);
+        vm.Save(path);
+        var (other, dialogs) = NewStudio();
+        dialogs.OpenPath = path;
+        await other.OpenCommand.ExecuteAsync(null);
+        Assert.Equal(4, other.Questions.Count);
+        Assert.Equal(2, other.Questions[2].Pairs.Count);
+        Assert.Single(other.Questions[2].Choices); // l'intrus
+        Assert.True(other.Lab!.IsTrainerCopy);
+
+        // Le sujet ne remplace pas l'exemplaire, et se distribue sans corrigé
+        other.ExportSubject(path);
+        Assert.True(new LabService().LoadFile(path).IsTrainerCopy);
+        var subject = TempFile(LabService.FileExtension);
+        other.ExportSubject(subject);
+        var distributed = new LabService().LoadFile(subject);
+        Assert.False(distributed.IsTrainerCopy);
+        Assert.All(distributed.Questions, q => Assert.False(q.HasAnswerKey));
+    }
+
+    [Fact]
+    public async Task Submissions_AreGradedByHand_WithACommentKeptBesideTheCopy_AndGetAPdfReport()
+    {
+        var vm = await FromRecipe("ACC-01");
+        vm.IsExam = true;
+        vm.AddQuestionCommand.Execute(null);
+        var written = vm.SelectedQuestion!;
+        written.Kind = LabQuestionKind.Text;
+        written.Points = 3;
+        written.Title = "Expliquez le risque.";
+        vm.Save(TempFile(LabService.FileExtension));
+
+        var subject = new LabService().Parse(new LabService().SerializeSubject(vm.Lab!));
+        var session = LabSession.Begin(subject, Now);
+        var path = TempFile(LabSubmissionService.FileExtension);
+        new LabSubmissionService().SaveFile(session.ToSubmission("Lou", session.NewWorkingCopy(), [], Now.AddMinutes(20),
+            new Dictionary<string, LabAnswer> { ["q1"] = new() { Text = "Un accès sans mot de passe." } }), path);
+        vm.AddSubmissions([path]);
+
+        var row = vm.Submissions.Single();
+        Assert.Equal(1, row.ToReview);
+        Assert.EndsWith("*", row.Grade);
+        vm.SelectedSubmission = row;
+        var answer = vm.SelectedAnswers.Single();
+        Assert.Equal("Un accès sans mot de passe.", answer.Answer);
+        Assert.True(answer.NeedsReview);
+
+        answer.Points = 2.5;
+        vm.Comment = "Risque bien vu ; pensez à la correction.";
+        vm.SaveMarksCommand.Execute(null);
+
+        Assert.True(File.Exists(SubmissionMarksService.MarksPath(path)));
+        var regraded = vm.Submissions.Single();
+        Assert.Equal(0, regraded.ToReview);
+        Assert.Equal(2.5, regraded.Graded.Question(vm.Lab!.Questions[0])!.EarnedPoints);
+        Assert.Same(regraded, vm.SelectedSubmission);
+        Assert.Equal(2.5, vm.SelectedAnswers.Single().Points);
+        Assert.Equal("Risque bien vu ; pensez à la correction.", vm.Comment);
+
+        var folder = Path.Combine(Path.GetTempPath(), "smadx-tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(folder);
+        Assert.Equal(1, vm.ExportReports(folder));
+        Assert.Single(Directory.GetFiles(folder, "*.pdf"));
+    }
+
+    [Fact]
+    public async Task ProposeSolution_ForALabFromADomain_IsValidatedAndKeptInTheLabFolder()
+    {
+        // Un exercice fait à partir d'un domaine (pas d'une recommandation) : pas de domaine corrigé au départ
+        var (vm, dialogs) = NewStudio();
+        await vm.NewFromDomainFileAsync(Sample("fr", "08-owner"));
+        Assert.False(vm.HasFixedDomain);
+
+        vm.ProposeSolutionCommand.Execute(null);
+
+        Assert.True(vm.HasFixedDomain);
+        Assert.Contains("proposé par Studio", vm.SolutionLabel);
+        Assert.Contains(vm.Issues, i => i.Issue.Level == LabIssueLevel.Ok && i.Issue.Message.Contains("tous les points"));
+        Assert.True(vm.HasUnsavedChanges);
+        Assert.Contains("## Domaine corrigé", vm.SheetPreview);
+
+        var path = vm.SaveToFolder(TempDir());
+        Assert.True(File.Exists(LabProject.Of(path)!.SolutionPath));
+        Assert.False(vm.HasUnsavedChanges);
+    }
+
+    [Fact]
+    public async Task HandMadeSolution_IsBroughtBackToTheStart_AndSavedWithTheLab()
+    {
+        var vm = await FromRecipe("KRB-05");
+        var path = vm.SaveToFolder(TempDir());
+        // Le formateur ouvre l'exercice dans SMAD-X un mois plus tard, corrige et enregistre son domaine
+        var session = LabSession.Begin(vm.Lab!, Now.AddMonths(1));
+        var work = session.NewWorkingCopy();
+        Flatten(work.Domain).Single(o => o.Name == "krbtgt").PwdLastSet = Now.AddMonths(1).AddDays(-1);
+
+        vm.ChooseSolution(work, "corrige.smad-x.json");
+        Assert.True(vm.HasUnsavedChanges);
+        vm.ValidateCommand.Execute(null);
+        Assert.Contains(vm.Issues, i => i.Issue.Level == LabIssueLevel.Ok && i.Issue.Message.Contains("tous les points"));
+        vm.Save(path);
+
+        // Rouvert, il est relu avec l'exercice, aux dates du départ
+        var (other, dialogs) = NewStudio();
+        dialogs.OpenPath = path;
+        await other.OpenCommand.ExecuteAsync(null);
+        Assert.True(other.HasFixedDomain);
+        Assert.False(other.HasUnsavedChanges);
+        var saved = await new ADDataService().LoadDocumentAsync(LabProject.Of(path)!.SolutionPath);
+        var start = Flatten(vm.Lab!.Start.Domain).ToDictionary(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase);
+        Assert.All(Flatten(saved.Document!.Domain), o => Assert.Equal(start[o.DistinguishedName].CreatedDate, o.CreatedDate));
+    }
+
+    [Fact]
     public async Task Save_WithoutNotes_RemovesAnOldNotesFile()
     {
         var vm = await FromRecipe("ACC-01");
@@ -384,6 +586,10 @@ public class StudioTests
         return dir;
     }
 
+    /// <summary>Les exemplaires écrits sous un dossier : un dossier d'exercice chacun, rangé par rôle.</summary>
+    private static string[] TrainerCopies(string dir) =>
+        Directory.GetFiles(dir, "*" + LabService.FileExtension, SearchOption.AllDirectories).Where(f => !LabProject.IsHandOut(f)).Order().ToArray();
+
     [Fact]
     public void Cli_RecognisesItsCommandsOnly()
     {
@@ -409,16 +615,27 @@ public class StudioTests
         var (code, output, error) = Run("recipe", "KRB-01", "DLG-02", "--lang", "en", "--domain", "cli.example.lab", "--out", dir, "--date", "2026-10-22");
         Assert.True(code == 0, output + error);
 
-        var labs = Directory.GetFiles(dir, "*" + LabService.FileExtension);
+        var labs = TrainerCopies(dir);
         Assert.Equal(2, labs.Length);
         foreach (var lab in labs)
-            Assert.True(File.Exists(StudioViewModel.NotesPath(lab)));
+        {
+            // Un dossier par exercice, à son nom, rangé par rôle
+            var project = LabProject.Of(lab)!;
+            Assert.Equal(Path.Combine(dir, Path.GetFileName(lab).Split('.')[0]), project.Root);
+            Assert.Equal("1-trainer", Path.GetFileName(project.TrainerFolder));
+            foreach (var file in new[] { project.NotesPath, project.SolutionPath, project.SheetPath, project.SubjectPath(lab), project.ReadMePath })
+                Assert.True(File.Exists(file), file);
+            Assert.True(Directory.Exists(project.SubmissionsFolder));
+            Assert.True(Directory.Exists(project.ResultsFolder));
+        }
         var loaded = new LabService().LoadFile(labs[0]);
         Assert.Equal("en-US", loaded.Language);
         Assert.Equal("cli.example.lab", loaded.Start.Domain.Name);
 
-        var (validate, report, _) = Run(["validate", .. labs]);
+        // Le dossier : les domaines corrigés ne sont pas pris pour des exercices, mais servent à la validation
+        var (validate, report, _) = Run("validate", dir, "--verbose", "--lang", "en");
         Assert.True(validate == 0, report);
+        Assert.Equal(2, report.Split('\n').Count(l => l.Contains("The solution gets all the objectives' points")));
     }
 
     [Fact]
@@ -427,7 +644,7 @@ public class StudioTests
         var dir = TempDir();
         var (code, output, error) = Run("recipe", "PWD-03", "PRIV-04", "--combine", "--lang", "fr", "--out", dir, "--date", "2026-10-22");
         Assert.True(code == 0, output + error);
-        Assert.Equal(Path.Combine(dir, "anssi-pwd-03-priv-04" + LabService.FileExtension), Directory.GetFiles(dir, "*" + LabService.FileExtension).Single());
+        Assert.Equal(Path.Combine(dir, "anssi-pwd-03-priv-04", "1-formateur", "anssi-pwd-03-priv-04" + LabService.FileExtension), TrainerCopies(dir).Single());
 
         var (conflict, _, message) = Run("recipe", "KRB-01", "KRB-02", "--combine", "--lang", "fr", "--out", TempDir());
         Assert.Equal(1, conflict);
@@ -441,7 +658,7 @@ public class StudioTests
         {
             var dir = TempDir();
             Run("recipe", "PRIV-01", "--lang", "fr", "--out", dir, "--date", "2026-10-22");
-            return File.ReadAllText(Directory.GetFiles(dir, "*" + LabService.FileExtension).Single());
+            return File.ReadAllText(TrainerCopies(dir).Single());
         }
         Assert.Equal(Generate(), Generate());
     }
@@ -453,8 +670,8 @@ public class StudioTests
         var (code, output, error) = Run("convert", Path.GetDirectoryName(Sample("fr", "x"))!, "--lang", "fr", "--out", dir, "--date", "2026-10-22");
         Assert.True(code == 0, output + error);
 
-        var samples = Directory.GetFiles(Path.GetDirectoryName(Sample("fr", "x"))!, "*.json");
-        var labs = Directory.GetFiles(dir, "*" + LabService.FileExtension);
+        var samples = Directory.GetFiles(Path.GetDirectoryName(Sample("fr", "x"))!, "*.smad-x.json");
+        var labs = TrainerCopies(dir);
         Assert.Equal(samples.Length, labs.Length);
         Assert.All(labs, l => Assert.DoesNotContain("## Le corriger", File.ReadAllText(l)));
     }
@@ -464,7 +681,7 @@ public class StudioTests
     {
         var dir = TempDir();
         Run("recipe", "ACC-02", "--lang", "fr", "--out", dir);
-        var path = Directory.GetFiles(dir, "*" + LabService.FileExtension).Single();
+        var path = TrainerCopies(dir).Single();
         var lab = new LabService().LoadFile(path);
         lab.Statement["fr-FR"] += "\n\n## Le corriger\n\nDésactivez le compte.\n";
         new LabService().SaveFile(lab, path);
@@ -650,6 +867,107 @@ public class StudioTests
         var dir = TempDir();
         var (code, output, error) = Run("recipe", "ACC-01", "--exam", "--lang", "fr", "--out", dir);
         Assert.True(code == 0, output + error);
-        Assert.True(new LabService().LoadFile(Directory.GetFiles(dir, "*" + LabService.FileExtension).Single()).Exam);
+
+        // L'exemplaire du formateur, avec ses indices, et le sujet à distribuer, sans eux : même nom, autre dossier
+        var trainer = new LabService().LoadFile(Path.Combine(dir, "anssi-acc-01", "1-formateur", "anssi-acc-01" + LabService.FileExtension));
+        Assert.True(trainer.Exam);
+        Assert.True(trainer.IsTrainerCopy);
+        var subject = new LabService().LoadFile(Path.Combine(dir, "anssi-acc-01", "2-a-distribuer", "anssi-acc-01" + LabService.FileExtension));
+        Assert.True(subject.Exam);
+        Assert.False(subject.IsTrainerCopy);
+    }
+
+    [Fact]
+    public void Cli_ExportSubject_AndGradeALabFolder_WriteEverythingInItsFolders()
+    {
+        var dir = TempDir();
+        Assert.Equal(0, Run("recipe", "ACC-01", "--lang", "en", "--out", dir, "--date", "2026-10-22").Code);
+        var project = LabProject.OfRoot(Path.Combine(dir, "anssi-acc-01"))!;
+        var labPath = project.FindLab()!;
+        var labs = new LabService();
+        var lab = labs.LoadFile(labPath);
+        lab.Exam = true;
+        lab.Questions = [new LabQuestion { Id = "q1", Kind = LabQuestionKind.TrueFalse, Points = 2, Title = LocalizedText.Of("Invité désactivé ?", "Guest disabled?"),
+                                           Choices = [new() { Id = "yes", Text = LocalizedText.Of("Oui", "Yes"), Correct = true }, new() { Id = "no", Text = LocalizedText.Of("Non", "No") }] }];
+        labs.SaveFile(lab, labPath);
+
+        var (code, output, _) = Run("export-subject", labPath, "--lang", "en");
+        Assert.Equal(0, code);
+        var subjectPath = project.SubjectPath(labPath);
+        Assert.Contains(subjectPath, output);
+        var subject = labs.LoadFile(subjectPath);
+        Assert.False(subject.Questions.Single().HasAnswerKey);
+
+        // Une copie déposée dans 3-submissions ; « grade <dossier> » écrit tous les résultats dans 4-results
+        var session = LabSession.Begin(subject, new DateTime(2026, 10, 23));
+        var submission = Path.Combine(project.SubmissionsFolder, "lou.smadx-submission.json");
+        new LabSubmissionService().SaveFile(session.ToSubmission("Lou", session.NewWorkingCopy(), [], new DateTime(2026, 10, 23, 10, 0, 0),
+            new Dictionary<string, LabAnswer> { ["q1"] = new() { Choices = ["yes"] } }, "lou@example.org"), submission);
+
+        var graded = Run("grade", project.Root, "--scale", "10", "--lang", "en");
+        Assert.Contains("lou@example.org,Lou,", File.ReadAllText(project.MoodlePath));
+        Assert.True(File.Exists(project.GradesPath));
+        Assert.True(File.Exists(project.ClassReportPath));
+        Assert.Single(Directory.GetFiles(project.ReportsFolder, "*.pdf"));
+        Assert.Contains(" +", graded.Out); // la question, juste
+
+        // Des fichiers donnés à la main gardent la main
+        var moodle = Path.Combine(dir, "moodle.csv");
+        Run("grade", labPath, project.SubmissionsFolder, "--moodle", moodle, "--lang", "en");
+        Assert.Contains("lou@example.org,Lou,", File.ReadAllText(moodle));
+    }
+
+    [Fact]
+    public async Task StudioSavesALabFolder_ByRole_AndReopensItWithItsSubmissions()
+    {
+        var vm = await FromRecipe("ACC-01");
+        vm.IsExam = true;
+        var parent = TempDir();
+        File.WriteAllText(Path.Combine(parent, "autre.txt"), "un dossier déjà occupé");
+
+        var path = vm.SaveToFolder(parent);
+
+        // Le dossier choisi n'est pas vide : l'exercice a son propre dossier, à son nom
+        var project = LabProject.Of(path)!;
+        Assert.Equal(Path.Combine(parent, vm.LabId), project.Root);
+        Assert.Equal(project.Root, vm.Project!.Root);
+        foreach (var file in new[] { project.NotesPath, project.SolutionPath, project.SheetPath, project.SubjectPath(path), project.ReadMePath })
+            Assert.True(File.Exists(file), file);
+        Assert.False(new LabService().LoadFile(project.SubjectPath(path)).IsTrainerCopy);
+        Assert.Contains("2-a-distribuer", File.ReadAllText(project.ReadMePath));
+        Assert.False(vm.HasUnsavedChanges);
+
+        // Une copie rendue, déposée dans 3-copies-rendues : corrigée dès l'ouverture
+        var subject = new LabService().LoadFile(project.SubjectPath(path));
+        var session = LabSession.Begin(subject, Now);
+        new LabSubmissionService().SaveFile(session.ToSubmission("Lou", session.NewWorkingCopy(), [], Now.AddMinutes(10)),
+            Path.Combine(project.SubmissionsFolder, LabSubmissionService.SuggestedFileName(vm.LabId, "Lou")));
+        var (other, dialogs) = NewStudio();
+        dialogs.OpenPath = path;
+        await other.OpenCommand.ExecuteAsync(null);
+        Assert.True(other.HasFixedDomain);
+        Assert.Single(other.Submissions);
+
+        // Les exports vont dans 4-resultats, sans rien demander
+        await other.ExportGradesCommand.ExecuteAsync(null);
+        await other.ExportReportsCommand.ExecuteAsync(null);
+        Assert.True(File.Exists(project.GradesPath));
+        Assert.Single(Directory.GetFiles(project.ReportsFolder, "*.pdf"));
+
+        // Une nouvelle copie déposée depuis : « Recorriger » la prend
+        var second = LabSession.Begin(subject, Now);
+        new LabSubmissionService().SaveFile(second.ToSubmission("Sam", second.NewWorkingCopy(), [], Now.AddMinutes(12)),
+            Path.Combine(project.SubmissionsFolder, LabSubmissionService.SuggestedFileName(vm.LabId, "Sam")));
+        other.RegradeSubmissionsCommand.Execute(null);
+        Assert.Equal(2, other.Submissions.Count);
+
+        // Ouvrir le sujet par erreur : Studio le signale
+        var (third, thirdDialogs) = NewStudio();
+        thirdDialogs.OpenPath = project.SubjectPath(path);
+        await third.OpenCommand.ExecuteAsync(null);
+        Assert.Equal(StudioText.Instance["Status.OpenedSubject"], third.Status);
+
+        // Enregistrer de nouveau dans le même dossier : pas de sous-dossier en plus
+        Assert.Equal(path, other.SaveToFolder(project.Root));
     }
 }

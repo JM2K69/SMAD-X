@@ -49,9 +49,9 @@
             <GridSplitter Grid.Column="1" Width="6" ResizeDirection="Columns" Background="Transparent"/>
 
             <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="10">
-                <Grid RowDefinitions="Auto,*">
-                    <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource Loc}, Path=LabObjectives}" FontWeight="SemiBold" FontSize="15" Margin="4,0,0,8"/>
-                    <ScrollViewer Grid.Row="1">
+                <ScrollViewer>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabObjectives}" FontWeight="SemiBold" FontSize="15" Margin="4,0,0,8"/>
                         <ItemsControl ItemsSource="{Binding Objectives}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:LabObjectiveItem">
@@ -82,8 +82,70 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
+
+                        <!-- Questions de compréhension : la réponse s'enregistre dans la copie -->
+                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabQuestions}" FontWeight="SemiBold" FontSize="15" Margin="4,16,0,8"
+                                   IsVisible="{Binding HasQuestions}"/>
+                        <ItemsControl ItemsSource="{Binding Questions}" IsVisible="{Binding HasQuestions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LabQuestionItem">
+                                    <Border BorderBrush="#40808080" BorderThickness="0,0,0,1" Padding="4,8">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <TextBlock Grid.Column="0" Text="{Binding StatusIcon}" Foreground="{Binding StatusColor}"
+                                                       FontSize="18" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Top"/>
+                                            <StackPanel Grid.Column="1" Spacing="4">
+                                                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                                                <ItemsControl ItemsSource="{Binding Choices}" IsVisible="{Binding IsSingleChoice}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="vm:LabChoiceItem">
+                                                            <RadioButton GroupName="{Binding GroupName}" IsChecked="{Binding IsSelected}">
+                                                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
+                                                            </RadioButton>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <ItemsControl ItemsSource="{Binding Choices}" IsVisible="{Binding IsMultipleChoice}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="vm:LabChoiceItem">
+                                                            <CheckBox IsChecked="{Binding IsSelected}">
+                                                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
+                                                            </CheckBox>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <ItemsControl ItemsSource="{Binding Prompts}" IsVisible="{Binding IsMatching}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="vm:LabPromptItem">
+                                                            <Grid ColumnDefinitions="*,Auto,*" Margin="0,2">
+                                                                <TextBlock Grid.Column="0" Text="{Binding Text}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="1" Text="→" Margin="8,0" VerticalAlignment="Center"/>
+                                                                <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <TextBox Text="{Binding Text}" IsVisible="{Binding IsText}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50"
+                                                         PlaceholderText="{Binding Source={StaticResource Loc}, Path=LabAnswerWatermark}"/>
+                                                <TextBlock Text="{Binding Feedback}" TextWrapping="Wrap" FontSize="12"
+                                                           Foreground="{Binding StatusColor}" IsVisible="{Binding Feedback, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                                <Border Background="#202E86C1" CornerRadius="4" Padding="8,4" IsVisible="{Binding IsHintVisible}">
+                                                    <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" FontSize="12"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Spacing="4" Margin="10,0,0,0" HorizontalAlignment="Right">
+                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Opacity="0.8">
+                                                    <Run Text="{Binding Points}"/><Run Text="{Binding Source={StaticResource Loc}, Path=LabPointsUnit}"/>
+                                                </TextBlock>
+                                                <Button Content="{Binding Source={StaticResource Loc}, Path=LabHint}" Command="{Binding ToggleHintCommand}"
+                                                        Padding="8,2" FontSize="11" IsVisible="{Binding CanShowHint}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
 
@@ -92,6 +154,9 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
                 <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabStudentName}" VerticalAlignment="Center"/>
                 <TextBox Text="{Binding StudentName}" Width="220"/>
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabStudentId}" VerticalAlignment="Center" Margin="8,0,0,0"
+                           ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=LabStudentIdTip}"/>
+                <TextBox Text="{Binding StudentId}" Width="160" ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=LabStudentIdTip}"/>
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
                 <Button Content="{Binding Source={StaticResource Loc}, Path=LabRestart}" Command="{Binding RestartCommand}" Padding="12,5"

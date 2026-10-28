@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +29,8 @@ namespace SMADX.Views
 
         public async Task<bool> ConfirmAsync(string title, string message, string yes, string no) =>
             await ChoiceDialog.ShowAsync(_owner, title, message, yes, no) == 0;
+
+        public Task ShowMessageAsync(string title, string message) => ChoiceDialog.ShowAsync(_owner, title, message, "OK");
 
         private static FilePickerFileType[] ToPickerTypes(FileFilter[] filters) =>
             filters.Select(f => new FilePickerFileType(f.Name) { Patterns = f.Patterns }).ToArray();
@@ -89,16 +90,6 @@ namespace SMADX.Views
             _labWindow = new LabWindow { DataContext = viewModel };
             _labWindow.Closed += (s, _) => { if (s == _labWindow) _labWindow = null; };
             _labWindow.Show(_owner);
-        }
-
-        public bool OpenInStudio(string domainFile, out string studioPath)
-        {
-            studioPath = Path.Combine(AppContext.BaseDirectory, OperatingSystem.IsWindows() ? "SMAD-X.Studio.exe" : "SMAD-X.Studio");
-            if (!File.Exists(studioPath)) return false;
-            var start = new ProcessStartInfo(studioPath) { UseShellExecute = false };
-            start.ArgumentList.Add(domainFile);
-            Process.Start(start);
-            return true;
         }
 
         public void ShowComparison(ComparisonViewModel viewModel) =>

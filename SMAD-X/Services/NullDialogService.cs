@@ -25,9 +25,9 @@ namespace SMADX.Services
         public Task ShowSitesAsync(ADSitesTopology? topology) => Task.CompletedTask;
         public Task<string?> ShowExportReportAsync(ADRootDocument document) => Task.FromResult<string?>(null);
         public Task ShowAboutAsync() => Task.CompletedTask;
-        public bool OpenInStudio(string domainFile, out string studioPath) { studioPath = string.Empty; return false; }
         public Task ShowShortcutsAsync() => Task.CompletedTask;
         public Task<UnsavedChoice> AskUnsavedAsync(bool submission) => Task.FromResult(UnsavedChoice.Cancel);
         public Task<bool> ConfirmAsync(string title, string message, string yes, string no) => Task.FromResult(false);
+        public Task ShowMessageAsync(string title, string message) => Task.CompletedTask;
     }
 }

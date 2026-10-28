@@ -23,9 +23,12 @@ namespace SMADX.ViewModels
         /// <summary>État écrit dans la dernière copie de secours.</summary>
         private string? _recoveredState;
 
-        public bool HasUnsavedChanges => RootObject != null && _savedState != null && SerializeDocument() != _savedState;
+        public bool HasUnsavedChanges => RootObject != null && _savedState != null && WorkState() != _savedState;
 
-        private void MarkSaved() => _savedState = RootObject != null ? SerializeDocument() : null;
+        private void MarkSaved() => _savedState = RootObject != null ? WorkState() : null;
+
+        /// <summary>Le travail à ne pas perdre : le domaine et, pendant un exercice, les réponses aux questions.</summary>
+        private string WorkState() => SerializeDocument() + (CurrentLab is { } lab ? "\n" + lab.AnswersState() : "");
 
         private string RecoveryPath(LabViewModel lab)
         {
@@ -41,7 +44,7 @@ namespace SMADX.ViewModels
         public void AutoSave(DateTime? now = null)
         {
             if (!IsLabMode || CurrentLab == null || CurrentDocument() is not { } work || !HasUnsavedChanges) return;
-            var state = SerializeDocument();
+            var state = WorkState();
             if (state == _recoveredState) return;
             try
             {

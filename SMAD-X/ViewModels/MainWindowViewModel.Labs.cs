@@ -14,7 +14,7 @@ namespace SMADX.ViewModels
     /// <summary>Exercice proposé dans le menu « Exercices ».</summary>
     public sealed record LabMenuItem(LabDefinition Lab, string Title);
 
-    // Exercices : ouverture (fournis, fichier ou copie), mode exercice et mode examen, création dans SMAD-X Studio
+    // Exercices : ouverture (fournis, fichier ou copie), mode exercice et mode examen
     public partial class MainWindowViewModel
     {
         private readonly LabService _labService = new();
@@ -80,7 +80,7 @@ namespace SMADX.ViewModels
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsFreeMode), nameof(WindowTitle), nameof(CanLeaveLabMode))]
         [NotifyCanExecuteChangedFor(nameof(CreateNewDomainCommand), nameof(InitializeSampleDataCommand), nameof(LoadFromFileCommand),
-                                    nameof(OpenBuiltInLabCommand), nameof(OpenLabFileCommand), nameof(OpenInStudioCommand),
+                                    nameof(OpenBuiltInLabCommand), nameof(OpenLabFileCommand),
                                     nameof(LeaveLabModeCommand))]
         private bool _isLabMode;
 
@@ -146,7 +146,17 @@ namespace SMADX.ViewModels
                     StatusMessage = string.Format(Loc["Lab.Resumed"], CurrentLab!.StudentName, CurrentLab.Title);
                 }
                 else
-                    await StartLabAsync(_labService.LoadFile(path), labMode);
+                {
+                    var lab = _labService.LoadFile(path);
+                    // L'exemplaire du formateur (indices, corrigé des questions) ne se passe pas : on distribue le sujet
+                    if (lab.IsTrainerCopy)
+                    {
+                        StatusMessage = Loc["Lab.TrainerCopy.Status"];
+                        await _dialogs.ShowMessageAsync(Loc["Lab.TrainerCopy.Title"], Loc["Lab.TrainerCopy.Message"]);
+                        return;
+                    }
+                    await StartLabAsync(lab, labMode);
+                }
             }
             catch (LabFormatException ex)
             {
@@ -183,6 +193,7 @@ namespace SMADX.ViewModels
             var session = resumed != null ? LabSession.Resume(resumed) : LabSession.Begin(lab, DateTime.Now);
             ShowLabDomain(session, resumed?.Work ?? session.NewWorkingCopy());
             CurrentLab = new LabViewModel(session, CurrentDocument, () => ShowLabDomain(session, session.NewWorkingCopy()), _dialogs, resumed, submissionPath);
+            MarkSaved(); // les réponses reprises font partie de l'état enregistré
             // Copie enregistrée : plus rien à perdre, la copie de secours ne sert plus
             var current = CurrentLab;
             current.Saved += () =>
@@ -238,29 +249,5 @@ namespace SMADX.ViewModels
             RefreshLabTools();
             StatusMessage = Loc["Lab.Mode.Left"];
         }
-
-        // ─── Création d'exercices : SMAD-X Studio ───────────────────────────────
-
-        /// <summary>
-        /// Les exercices se créent dans SMAD-X Studio : le domaine actuel y est envoyé (enregistré dans un
-        /// fichier temporaire) pour devenir le domaine de départ d'un nouvel exercice.
-        /// </summary>
-        [RelayCommand(CanExecute = nameof(IsFreeMode))]
-        private Task OpenInStudio() => RunFileCommandAsync(async () =>
-        {
-            if (CurrentDocument() is not { } doc) return;
-            var folder = Path.Combine(Path.GetTempPath(), "SMAD-X");
-            Directory.CreateDirectory(folder);
-            var name = string.Concat(doc.Domain.Name.Split('.')[0].Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
-            var path = Path.Combine(folder, $"{(name.Length > 0 ? name : "domaine")}.smad-x.json");
-            if (!await _dataService.SaveDocumentAsync(doc, path))
-            {
-                StatusMessage = Loc["Status.ErrorSave"];
-                return;
-            }
-            StatusMessage = _dialogs.OpenInStudio(path, out var studio)
-                ? string.Format(Loc["Lab.Studio.Launched"], doc.Domain.Name)
-                : string.Format(Loc["Lab.Studio.Missing"], studio);
-        });
     }
 }

@@ -144,13 +144,14 @@ public class LabSubmissionTests
         var rows = SubmissionGrader.GradeAll(lab, [Submit(lab, "Dupont; Camille", DisableGuest)], "fr-FR");
 
         var fr = SubmissionGrader.Csv(lab, rows, "fr-FR").Split('\n');
-        Assert.StartsWith("Apprenant;Fichier;", fr[0]);
+        Assert.StartsWith("Apprenant;Identifiant;Fichier;", fr[0]);
+        Assert.Contains(";Note sur 20;", fr[0]);
         Assert.EndsWith(";Remarques", fr[0]);
         Assert.StartsWith("\"Dupont; Camille\";", fr[1]); // le séparateur dans un nom est protégé
         Assert.Contains(";2;", fr[1]);
 
         var en = SubmissionGrader.Csv(lab, rows, "en-US").Split('\n');
-        Assert.StartsWith("Learner,File,", en[0]);
+        Assert.StartsWith("Learner,ID,File,", en[0]);
     }
 
     [Theory]
@@ -260,19 +261,27 @@ public class LabSubmissionTests
         var lab = _labs.Parse(_labs.Serialize(Hygiene()));
         lab.Exam = true;
         settings?.Invoke(lab);
-        return _labs.Parse(_labs.Serialize(lab)); // le fichier distribué
+        return _labs.Parse(_labs.SerializeSubject(lab)); // le sujet distribué
     }
 
     private static IEnumerable<string> Errors(GradedSubmission row) => row.Issues.Where(i => i.Level == LabIssueLevel.Error).Select(i => i.Message);
 
     [Fact]
-    public void ExamFile_IsWrittenWithoutHints_AndAsFormatV2()
+    public void ExamSubject_IsWrittenWithoutHints_WhileTheTrainerCopyKeepsThem()
     {
-        var lab = Exam();
-        var json = _labs.Serialize(lab);
+        var lab = _labs.Parse(_labs.Serialize(Hygiene()));
+        lab.Exam = true;
 
-        Assert.All(lab.Objectives, o => Assert.Empty(o.Hint));
-        Assert.Contains("\"FormatVersion\": 2", json);
+        var trainer = _labs.Parse(_labs.Serialize(lab));
+        Assert.Contains(trainer.Objectives, o => o.Hint.Count > 0);
+        Assert.True(trainer.IsTrainerCopy);
+
+        var json = _labs.SerializeSubject(lab);
+        var subject = _labs.Parse(json);
+        Assert.All(subject.Objectives, o => Assert.Empty(o.Hint));
+        Assert.False(subject.IsTrainerCopy);
+        Assert.Contains(lab.Objectives, o => o.Hint.Count > 0); // l'exercice en mémoire garde ses indices
+        Assert.Contains("\"FormatVersion\": 3", json);
         Assert.Contains($"\"EngineVersion\": \"{EngineInfo.Version}\"", json);
     }
 

@@ -56,11 +56,6 @@ namespace SMADX.Services
 
         Task ShowAboutAsync();
 
-        /// <summary>
-        /// Lance SMAD-X Studio, livré à côté de SMAD-X, sur un domaine enregistré. Faux s'il est introuvable ;
-        /// <paramref name="studioPath"/> donne alors l'emplacement attendu.
-        /// </summary>
-        bool OpenInStudio(string domainFile, out string studioPath);
 
         Task ShowShortcutsAsync();
 
@@ -72,5 +67,8 @@ namespace SMADX.Services
 
         /// <summary>Question oui / non ; vrai pour la première réponse.</summary>
         Task<bool> ConfirmAsync(string title, string message, string yes, string no);
+
+        /// <summary>Message à lire, avec un seul bouton.</summary>
+        Task ShowMessageAsync(string title, string message);
     }
 }

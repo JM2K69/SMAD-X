@@ -80,6 +80,105 @@ public class LabViewModelTests
         Assert.Contains(_dialogs.Opened, o => o.StartsWith("Save:01-premier-audit_Camille Dupont_"));
     }
 
+    // ─── Questions et exemplaire du formateur ─────────────────────────────────
+
+    private static LabDefinition HygieneWithQuestions(bool exam)
+    {
+        var lab = new LabService().BuiltInLabs().Single(l => l.Id == "05-hygiene-comptes");
+        lab.Exam = exam;
+        LabChoice Choice(string id, bool correct = false) => new() { Id = id, Text = LocalizedText.Of($"Choix {id}", $"Choice {id}"), Correct = correct };
+        lab.Questions =
+        [
+            new() { Id = "q1", Kind = LabQuestionKind.SingleChoice, Points = 2, Title = LocalizedText.Of("Question 1", "Question 1"),
+                    Choices = [Choice("a", correct: true), Choice("b")] },
+            new() { Id = "q2", Kind = LabQuestionKind.Matching, Points = 2, Title = LocalizedText.Of("Question 2", "Question 2"),
+                    Prompts = [new() { Id = "p1", Text = LocalizedText.Of("Un", "One"), Match = "a" }, new() { Id = "p2", Text = LocalizedText.Of("Deux", "Two"), Match = "b" }],
+                    Choices = [Choice("a"), Choice("b")] },
+            new() { Id = "q3", Kind = LabQuestionKind.Text, Points = 1, Title = LocalizedText.Of("Question 3", "Question 3"), AcceptedAnswers = ["Kerberoasting"] }
+        ];
+        return lab;
+    }
+
+    [Fact]
+    public async Task TrainerCopyOfAnExam_IsRefused_ButItsSubjectOpens()
+    {
+        var service = new LabService();
+        var lab = HygieneWithQuestions(exam: true);
+        var trainer = TempFile(LabService.FileExtension);
+        service.SaveFile(lab, trainer); // indices et corrigé compris
+
+        await _main.OpenStartupFileAsync(trainer);
+        Assert.Null(_dialogs.LastLab);
+        Assert.Equal([LocalizationService.Instance["Lab.TrainerCopy.Message"]], _dialogs.Messages);
+
+        var subject = TempFile(LabService.FileExtension);
+        service.SaveSubject(lab, subject);
+        await _main.OpenStartupFileAsync(subject);
+        Assert.NotNull(_dialogs.LastLab);
+        Assert.Equal(3, _dialogs.LastLab!.Questions.Count);
+    }
+
+    [Fact]
+    public async Task Answers_AreSavedInTheSubmission_CountAsUnsavedWork_AndAreResumed()
+    {
+        var file = TempFile(LabService.FileExtension);
+        new LabService().SaveSubject(HygieneWithQuestions(exam: true), file);
+        await _main.OpenStartupFileAsync(file);
+        var lab = _dialogs.LastLab!;
+        lab.StudentName = "Lou";
+        lab.StudentId = "e42";
+        var path = TempFile(LabSubmissionService.FileExtension);
+        _dialogs.SavePath = path;
+        await lab.SaveSubmissionCommand.ExecuteAsync(null);
+        Assert.False(_main.HasUnsavedChanges);
+
+        // Choix unique : cocher un choix décoche l'autre
+        lab.Questions[0].Choices[1].IsSelected = true;
+        lab.Questions[0].Choices[0].IsSelected = true;
+        Assert.False(lab.Questions[0].Choices[1].IsSelected);
+        lab.Questions[1].Prompts[0].Selected = lab.Questions[1].Prompts[0].Options.Single(o => o.Id == "b");
+        lab.Questions[2].Text = " Kerberoasting ";
+        Assert.True(_main.HasUnsavedChanges);
+
+        await lab.SaveSubmissionCommand.ExecuteAsync(null);
+        var saved = new LabSubmissionService().LoadFile(path);
+        Assert.Equal(["a"], saved.Answers["q1"].Choices);
+        Assert.Equal("b", saved.Answers["q2"].Matches!["p1"]);
+        Assert.Equal("Kerberoasting", saved.Answers["q3"].Text);
+        Assert.Equal("e42", saved.StudentId);
+        Assert.DoesNotContain(saved.Lab.Questions, q => q.HasAnswerKey); // le sujet, sans corrigé
+
+        var dialogs = new FakeDialogService();
+        var next = new MainWindowViewModel(dialogs) { RecoveryFolder = _main.RecoveryFolder };
+        await next.OpenStartupFileAsync(path);
+        var resumed = dialogs.LastLab!;
+        Assert.True(resumed.Questions[0].Choices[0].IsSelected);
+        Assert.Equal("b", resumed.Questions[1].Prompts[0].Selected!.Id);
+        Assert.Equal("Kerberoasting", resumed.Questions[2].Text);
+        Assert.Equal("e42", resumed.StudentId);
+        Assert.False(next.HasUnsavedChanges);
+    }
+
+    [Fact]
+    public async Task Check_GradesTheQuestions_OutsideAnExamOnly()
+    {
+        var file = TempFile(LabService.FileExtension);
+        new LabService().SaveFile(HygieneWithQuestions(exam: false), file);
+        await _main.OpenStartupFileAsync(file);
+        var lab = _dialogs.LastLab!;
+        lab.Questions[0].Choices[0].IsSelected = true;
+        lab.Questions[1].Prompts[0].Selected = lab.Questions[1].Prompts[0].Options.Single(o => o.Id == "a");
+        lab.Questions[2].Text = "autre chose";
+
+        lab.CheckCommand.Execute(null);
+
+        Assert.True(lab.Questions[0].Passed);
+        Assert.False(lab.Questions[1].Passed);
+        Assert.False(lab.Questions[2].Passed);
+        Assert.Equal(2, lab.Points); // q1 seulement : aucun objectif atteint
+        Assert.Equal(lab.Lab.ObjectivePoints + 5, lab.MaxPoints);
+    }
+
     [Fact]
     public async Task OpeningAnInvalidLabFile_ExplainsWhy()
     {
@@ -102,7 +201,7 @@ public class LabViewModelTests
         lab.Exam = exam;
         settings?.Invoke(lab);
         var path = TempFile(LabService.FileExtension);
-        service.SaveFile(lab, path);
+        service.SaveSubject(lab, path); // le fichier distribué
         return path;
     }
 
@@ -126,7 +225,7 @@ public class LabViewModelTests
         Assert.NotNull(_dialogs.LastLab);
         Assert.Contains(_dialogs.LastLab!.Title, _main.WindowTitle);
         foreach (var command in new System.Windows.Input.ICommand[] { _main.CreateNewDomainCommand, _main.InitializeSampleDataCommand,
-                     _main.LoadFromFileCommand, _main.OpenLabFileCommand, _main.OpenBuiltInLabCommand, _main.OpenInStudioCommand })
+                     _main.LoadFromFileCommand, _main.OpenLabFileCommand, _main.OpenBuiltInLabCommand })
             Assert.False(command.CanExecute(null));
         Assert.True(_main.SaveSubmissionCommand.CanExecute(null));
 
@@ -343,21 +442,6 @@ public class LabViewModelTests
 
         Assert.False(_main.IsLabMode);
         Assert.Equal(BuildSmallDomain().Name, _main.RootObject!.Name);
-    }
-
-    [Fact]
-    public async Task OpenInStudio_SendsTheCurrentDomain()
-    {
-        await _main.OpenInStudioCommand.ExecuteAsync(null);
-
-        Assert.NotNull(_dialogs.StudioDomain);
-        Assert.EndsWith("contoso.smad-x.json", _dialogs.StudioDomain);
-        var sent = await new ADDataService().LoadDocumentAsync(_dialogs.StudioDomain!);
-        Assert.Equal("contoso.com", sent.Document!.Domain.Name);
-
-        _dialogs.StudioAvailable = false;
-        await _main.OpenInStudioCommand.ExecuteAsync(null);
-        Assert.Contains("SMAD-X.Studio", _main.StatusMessage);
     }
 }
 

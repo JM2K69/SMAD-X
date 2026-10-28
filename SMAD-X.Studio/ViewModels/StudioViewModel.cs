@@ -40,7 +40,15 @@ namespace SMADX.Studio.ViewModels
         private readonly IStudioDialogs _dialogs;
         private readonly LabService _labs = new();
         private readonly ADDataService _data = new();
+
+        /// <summary>Domaine corrigé choisi par le formateur (enregistré depuis SMAD-X), utilisé tel quel.</summary>
         private ADObject? _solution;
+
+        /// <summary>
+        /// Domaine corrigé de l'exercice, aux dates du départ : généré à partir des recommandations, ou relu à côté
+        /// de l'exercice (.solution.smad-x.json). Il est décalé à aujourd'hui, comme le départ, pour la validation.
+        /// </summary>
+        private ADRootDocument? _fixedDomain;
 
         public StudioViewModel(IStudioDialogs dialogs, Func<DateTime>? clock = null)
         {
@@ -60,8 +68,8 @@ namespace SMADX.Studio.ViewModels
         [NotifyPropertyChangedFor(nameof(HasLab), nameof(LabId), nameof(LabTitle), nameof(Statement), nameof(Level), nameof(Duration), nameof(IsExam), nameof(ExamCheck),
             nameof(ExamCloseAudit), nameof(ExamCloseFixGuidance), nameof(ExamCloseAttackPaths), nameof(ExamCloseComparison),
                                   nameof(LanguageChoice), nameof(CategoryChoice), nameof(DomainSummary), nameof(TotalPoints))]
-        [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportSheetCommand), nameof(ValidateCommand),
-                                    nameof(SuggestCommand), nameof(AddObjectiveCommand), nameof(InsertTemplateCommand), nameof(ChooseSolutionCommand),
+        [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportSheetCommand), nameof(ExportSubjectCommand), nameof(ValidateCommand),
+                                    nameof(SuggestCommand), nameof(AddObjectiveCommand), nameof(AddQuestionCommand), nameof(InsertTemplateCommand), nameof(ChooseSolutionCommand), nameof(ProposeSolutionCommand),
                                     nameof(AddSubmissionsCommand), nameof(AddSubmissionFolderCommand), nameof(RegradeSubmissionsCommand))]
         private LabDefinition? _lab;
 
@@ -74,12 +82,17 @@ namespace SMADX.Studio.ViewModels
         public bool HasLab => Lab != null;
 
         public ObservableCollection<ObjectiveItem> Objectives { get; } = new();
+        public ObservableCollection<QuestionItem> Questions { get; } = new();
         public ObservableCollection<SuggestionItem> Suggestions { get; } = new();
         public ObservableCollection<IssueItem> Issues { get; } = new();
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(RemoveObjectiveCommand), nameof(MoveUpCommand), nameof(MoveDownCommand))]
         private ObjectiveItem? _selectedObjective;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(RemoveQuestionCommand), nameof(MoveQuestionUpCommand), nameof(MoveQuestionDownCommand))]
+        private QuestionItem? _selectedQuestion;
 
         [ObservableProperty] private bool _showSuggestions;
 
@@ -100,6 +113,7 @@ namespace SMADX.Studio.ViewModels
         partial void OnEditCultureChanged(string value)
         {
             foreach (var o in Objectives) o.Refresh();
+            foreach (var q in Questions) q.Refresh();
             RefreshSheet();
         }
 
@@ -191,7 +205,7 @@ namespace SMADX.Studio.ViewModels
             set { if (Lab == null || value == null) return; Lab.Category = value.Value; OnPropertyChanged(); }
         }
 
-        public int TotalPoints => Objectives.Where(o => !o.IsGuard).Sum(o => o.Points);
+        public int TotalPoints => Objectives.Where(o => !o.IsGuard).Sum(o => o.Points) + Questions.Sum(q => q.Points);
 
         public string DomainSummary => Lab == null ? "" : string.Format(Text.T(
             "{0} — {1} objets, {2} chemin(s) d'attaque hors Tier 0, score d'audit {3} / 100",
@@ -209,6 +223,13 @@ namespace SMADX.Studio.ViewModels
         public IReadOnlyList<ADAccountFlags> Flags { get; } = Enum.GetValues<ADAccountFlags>().Where(f => f != ADAccountFlags.None).ToList();
         public IReadOnlyList<string> RuleIds { get; } = AuditRules.All.Select(r => r.Id).ToList();
 
+        /// <summary>
+        /// Formes des questions, pour la liste de l'éditeur : une seule liste pour toutes les questions (une liste propre
+        /// à chacune, changée avec la question sélectionnée, ferait repousser l'ancienne forme dans la nouvelle question).
+        /// </summary>
+        public IReadOnlyList<Choice<LabQuestionKind>> QuestionKinds => _questionKinds ??= QuestionItem.KindChoices();
+        private IReadOnlyList<Choice<LabQuestionKind>>? _questionKinds;
+
         /// <summary>Noms des objets du domaine de départ, pour les champs Objet, Groupe, Mandataire et Cible.</summary>
         public ObservableCollection<string> ObjectNames { get; } = new();
 
@@ -220,8 +241,9 @@ namespace SMADX.Studio.ViewModels
             if (await _dialogs.ChooseRecipeAsync() is not { } request) return;
             await RunAsync(() =>
             {
-                var (lab, notes) = LabRecipes.CreateLab(request.Recipes, request.Culture, request.DomainName, Clock().Date);
-                Load(lab, null, notes);
+                var created = LabRecipes.CreateLab(request.Recipes, request.Culture, request.DomainName, Clock().Date);
+                Load(created.Lab, null, created.TeacherNotes);
+                SetFixedDomain(created.Solution, Text["Validation.FixedDomain.Generated"]);
                 EditCulture = request.Culture;
                 Status = Text["Status.Created"];
             });
@@ -290,14 +312,33 @@ namespace SMADX.Studio.ViewModels
             await OpenLabFileAsync(path);
         }
 
+        /// <summary>
+        /// Ouvre un exercice, avec ses notes et son domaine corrigé. Rangé dans son dossier d'exercice, il retrouve
+        /// aussi les copies déposées dans 3-copies-rendues, aussitôt corrigées.
+        /// </summary>
         public Task OpenLabFileAsync(string path) =>
-            RunAsync(() =>
+            RunAsync(async () =>
             {
-                var notesPath = NotesPath(path);
+                var project = LabProject.Of(path);
+                var notesPath = project?.NotesPath ?? NotesPath(path);
                 Load(_labs.LoadFile(path), path, File.Exists(notesPath) ? File.ReadAllText(notesPath) : "");
+                var solutionPath = project?.SolutionPath ?? SolutionPath(path);
+                if (File.Exists(solutionPath))
+                {
+                    SetFixedDomain(await LoadDocumentAsync(solutionPath), Path.GetFileName(solutionPath));
+                    MarkSaved(); // relu avec l'exercice : rien de neuf à enregistrer
+                }
                 if (Lab!.Language is { } lang) EditCulture = lang;
                 Status = string.Format(Text["Status.Opened"], path);
+                if (project?.SubmissionFiles() is { Count: > 0 } submissions)
+                    AddSubmissions(submissions);
+                // Le sujet n'a ni indices d'examen ni corrigé : on corrige avec l'exemplaire
+                if (LabProject.IsHandOut(path))
+                    Status = Text["Status.OpenedSubject"];
             });
+
+        /// <summary>Dossier de l'exercice (rangé par rôle), ou null pour un exercice enregistré seul.</summary>
+        public LabProject? Project => FilePath != null ? LabProject.Of(FilePath) : null;
 
         [RelayCommand(CanExecute = nameof(HasLab))]
         private async Task SaveAsync()
@@ -306,24 +347,48 @@ namespace SMADX.Studio.ViewModels
             await RunAsync(() => Save(FilePath));
         }
 
+        /// <summary>Range l'exercice dans un dossier choisi : un sous-dossier à son nom, sauf si le dossier est vide.</summary>
         [RelayCommand(CanExecute = nameof(HasLab))]
         private async Task SaveAsAsync()
         {
-            if (await _dialogs.SaveFileAsync(Text["Menu.SaveAs"], LabId + LabService.FileExtension, Text["File.Lab"], "*" + LabService.FileExtension) is not { } path) return;
-            await RunAsync(() => Save(path));
+            if (await _dialogs.PickFolderAsync(Text["Menu.SaveAs"]) is not { } folder) return;
+            await RunAsync(() => SaveToFolder(folder));
         }
 
-        /// <summary>Écrit l'exercice et, à côté, les notes du formateur (fichier .notes.md, jamais distribué).</summary>
+        /// <summary>Enregistre l'exercice dans un dossier d'exercice rangé par rôle ; renvoie le chemin de l'exemplaire.</summary>
+        public string SaveToFolder(string folder)
+        {
+            var project = LabProject.Create(LabProject.RootFor(folder, LabId), Text.Culture);
+            var path = project.LabPath(LabId);
+            Save(path);
+            return path;
+        }
+
+        /// <summary>
+        /// Enregistre l'exercice. Rangé dans son dossier d'exercice, Studio y écrit tout : l'exemplaire, les notes du
+        /// formateur, le domaine corrigé, la fiche formateur, le sujet à distribuer et le LISEZMOI. Enregistré seul,
+        /// il écrit à côté les notes (.notes.md) et le domaine corrigé (.solution.smad-x.json).
+        /// </summary>
         public void Save(string path)
         {
             if (Lab == null) return;
-            Lab.Objectives = Objectives.Select(o => o.Model).ToList();
+            CurrentLab();
+            if (LabProject.Of(path) is { } project)
+            {
+                project.Save(Lab, path, Notes, _fixedDomain, Clock());
+                FilePath = path;
+                Status = string.Format(Text["Status.SavedProject"], project.Root);
+                MarkSaved();
+                return;
+            }
             _labs.SaveFile(Lab, path);
             var notesPath = NotesPath(path);
             if (!string.IsNullOrWhiteSpace(Notes))
                 File.WriteAllText(notesPath, Notes.ReplaceLineEndings("\n"));
             else if (File.Exists(notesPath))
                 File.Delete(notesPath);
+            if (_fixedDomain != null)
+                File.WriteAllText(SolutionPath(path), System.Text.Json.JsonSerializer.Serialize(_fixedDomain, ADDataService.SerializerOptions));
             FilePath = path;
             Status = string.Format(Text["Status.Saved"], path);
             MarkSaved();
@@ -332,8 +397,11 @@ namespace SMADX.Studio.ViewModels
         /// <summary>Exercice et notes au dernier enregistrement (ou à l'ouverture).</summary>
         private string? _savedSnapshot;
 
+        /// <summary>Change avec le domaine corrigé : en proposer ou en choisir un est une modification à enregistrer.</summary>
+        private int _solutionVersion;
+
         private string Snapshot() => Lab == null ? string.Empty
-            : System.Text.Json.JsonSerializer.Serialize(CurrentLab(), ADDataService.SerializerOptions) + "\n" + Notes;
+            : System.Text.Json.JsonSerializer.Serialize(CurrentLab(), ADDataService.SerializerOptions) + "\n" + Notes + "\n" + _solutionVersion;
 
         private void MarkSaved() => _savedSnapshot = Snapshot();
 
@@ -356,8 +424,36 @@ namespace SMADX.Studio.ViewModels
         }
 
         /// <summary>« X.smadx-lab.json » → « X.smadx-lab.notes.md ».</summary>
-        public static string NotesPath(string labPath) =>
-            (labPath.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ? labPath[..^".json".Length] : labPath) + ".notes.md";
+        public static string NotesPath(string labPath) => WithoutJson(labPath) + ".notes.md";
+
+        /// <summary>« X.smadx-lab.json » → « X.smadx-lab.solution.smad-x.json » : un domaine, qui s'ouvre dans SMAD-X.</summary>
+        public static string SolutionPath(string labPath) => WithoutJson(labPath) + ".solution.smad-x.json";
+
+        private static string WithoutJson(string path) =>
+            path.EndsWith(".json", StringComparison.OrdinalIgnoreCase) ? path[..^".json".Length] : path;
+
+        /// <summary>
+        /// Sujet à distribuer : l'exercice sans le corrigé des questions et, pour un examen, sans les indices. L'exemplaire
+        /// ouvert dans Studio, lui, garde tout : c'est avec lui que les copies se corrigent.
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(HasLab))]
+        private async Task ExportSubjectAsync()
+        {
+            if (await _dialogs.SaveFileAsync(Text["Menu.ExportSubject"], LabService.SubjectFileName(LabId, EditCulture), Text["File.Lab"], "*" + LabService.FileExtension) is not { } path) return;
+            await RunAsync(() => ExportSubject(path));
+        }
+
+        public void ExportSubject(string path)
+        {
+            if (Lab == null) return;
+            if (FilePath != null && string.Equals(Path.GetFullPath(path), Path.GetFullPath(FilePath), StringComparison.OrdinalIgnoreCase))
+            {
+                Status = Text["Status.SubjectOverMaster"];
+                return;
+            }
+            _labs.SaveSubject(CurrentLab(), path);
+            Status = string.Format(Text["Status.SubjectSaved"], path);
+        }
 
         [RelayCommand(CanExecute = nameof(HasLab))]
         private async Task ExportSheetAsync()
@@ -366,7 +462,7 @@ namespace SMADX.Studio.ViewModels
             if (await _dialogs.SaveFileAsync(Text["Menu.ExportSheet"], suggested, Text["File.Markdown"], "*.md") is not { } path) return;
             await RunAsync(() =>
             {
-                File.WriteAllText(path, LabValidator.TeacherSheet(CurrentLab(), EditCulture, Notes, Clock()));
+                File.WriteAllText(path, LabValidator.TeacherSheet(CurrentLab(), EditCulture, Notes, Clock(), SolutionDomain()));
                 Status = string.Format(Text["Status.Saved"], path);
             });
         }
@@ -382,15 +478,21 @@ namespace SMADX.Studio.ViewModels
         {
             // Copie d'abord : l'aperçu de la fiche, rafraîchi par Notes, réécrit lab.Objectives depuis la liste affichée
             var objectives = lab.Objectives.ToList();
+            var questions = lab.Questions.ToList();
             Objectives.Clear();
+            Questions.Clear();
             Lab = lab;
             FilePath = path;
             Notes = notes;
             _solution = null;
+            _fixedDomain = null;
             SolutionLabel = Text["Validation.NoSolution"];
             foreach (var o in objectives)
                 Objectives.Add(NewItem(o));
             lab.Objectives = objectives;
+            foreach (var q in questions)
+                Questions.Add(NewQuestion(q));
+            lab.Questions = questions;
             ObjectNames.Clear();
             ObjectNames.Add(AttackPathService.AnyUserId);
             foreach (var name in LabAuthoring.AllObjects(lab.Start.Domain).Select(o => o.Name).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase))
@@ -400,6 +502,7 @@ namespace SMADX.Studio.ViewModels
             Issues.Clear();
             ResetSubmissions();
             SelectedObjective = Objectives.FirstOrDefault();
+            SelectedQuestion = Questions.FirstOrDefault();
             OnPropertyChanged(nameof(TotalPoints));
             RefreshSheet();
             // Un exercice tout juste créé (recette, conversion) n'est pas encore enregistré
@@ -414,10 +517,73 @@ namespace SMADX.Studio.ViewModels
             return item;
         }
 
+        private QuestionItem NewQuestion(LabQuestion q)
+        {
+            var item = new QuestionItem(q, () => EditCulture);
+            item.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(QuestionItem.Points)) OnPropertyChanged(nameof(TotalPoints)); };
+            return item;
+        }
+
         private LabDefinition CurrentLab()
         {
             Lab!.Objectives = Objectives.Select(o => o.Model).ToList();
+            Lab.Questions = Questions.Select(q => q.Model).ToList();
             return Lab;
+        }
+
+        // ─── Questions ───────────────────────────────────────────────────────────
+
+        [RelayCommand(CanExecute = nameof(HasLab))]
+        private void AddQuestion()
+        {
+            var question = new LabQuestion
+            {
+                Kind = LabQuestionKind.SingleChoice, Points = 1,
+                Title = new LocalizedText { [EditCulture] = Text.T("Nouvelle question", "New question") }, Hint = new LocalizedText { [EditCulture] = "" }
+            };
+            var item = NewQuestion(question);
+            item.AddChoiceCommand.Execute(null);
+            item.AddChoiceCommand.Execute(null);
+            Questions.Add(item);
+            RenumberQuestions();
+            SelectedQuestion = item;
+        }
+
+        private bool HasSelectedQuestion => SelectedQuestion != null;
+
+        [RelayCommand(CanExecute = nameof(HasSelectedQuestion))]
+        private void RemoveQuestion()
+        {
+            var index = Questions.IndexOf(SelectedQuestion!);
+            Questions.Remove(SelectedQuestion!);
+            RenumberQuestions();
+            SelectedQuestion = Questions.Count == 0 ? null : Questions[Math.Min(index, Questions.Count - 1)];
+        }
+
+        [RelayCommand(CanExecute = nameof(HasSelectedQuestion))]
+        private void MoveQuestionUp() => MoveQuestion(-1);
+
+        [RelayCommand(CanExecute = nameof(HasSelectedQuestion))]
+        private void MoveQuestionDown() => MoveQuestion(1);
+
+        private void MoveQuestion(int delta)
+        {
+            var item = SelectedQuestion!;
+            var index = Questions.IndexOf(item);
+            var target = index + delta;
+            if (target < 0 || target >= Questions.Count) return;
+            Questions.Move(index, target);
+            RenumberQuestions();
+            SelectedQuestion = item;
+        }
+
+        /// <summary>Questions numérotées q1, q2… dans l'ordre.</summary>
+        private void RenumberQuestions()
+        {
+            for (var i = 0; i < Questions.Count; i++)
+                Questions[i].Model.Id = $"q{i + 1}";
+            foreach (var q in Questions) q.Refresh();
+            OnPropertyChanged(nameof(TotalPoints));
         }
 
         // ─── Énoncé ──────────────────────────────────────────────────────────────
@@ -517,7 +683,7 @@ namespace SMADX.Studio.ViewModels
         [RelayCommand(CanExecute = nameof(HasLab))]
         private void Validate()
         {
-            var report = LabValidator.Validate(CurrentLab(), EditCulture, Clock(), _solution);
+            var report = LabValidator.Validate(CurrentLab(), EditCulture, Clock(), SolutionDomain());
             Issues.Clear();
             foreach (var issue in report.Issues.OrderByDescending(i => i.Level))
                 Issues.Add(new IssueItem(issue));
@@ -531,18 +697,63 @@ namespace SMADX.Studio.ViewModels
             if (await _dialogs.OpenFileAsync(Text["Validation.Solution"], Text["File.Domain"], "*.smad-x.json") is not { } path) return;
             await RunAsync(async () =>
             {
-                _solution = (await LoadDocumentAsync(path)).Domain;
-                SolutionLabel = path;
+                // Fait dans SMAD-X, il a les dates du jour où l'exercice y a été ouvert : on le ramène à celles du départ
+                ChooseSolution(await LoadDocumentAsync(path), Path.GetFileName(path));
                 Validate();
             });
         }
 
-        /// <summary>Domaine corrigé par le formateur, utilisé par la validation.</summary>
+        /// <summary>Domaine corrigé à la main : ramené aux dates du départ, il devient celui de l'exercice et se garde avec lui.</summary>
+        public void ChooseSolution(ADRootDocument solution, string label)
+        {
+            if (Lab == null) return;
+            SetFixedDomain(_labs.NormalizeSolution(Lab, solution), string.Format(Text["Validation.FixedDomain.Chosen"], label));
+        }
+
+        /// <summary>
+        /// Propose une solution : la correction de chaque constat de l'audit du départ (voir <see cref="LabSolver"/>), puis la
+        /// validation, qui dit ce qui reste à faire à la main.
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(HasLab))]
+        private void ProposeSolution()
+        {
+            var lab = CurrentLab();
+            var proposed = LabSolver.Propose(lab);
+            SetFixedDomain(proposed.Solution, Text["Validation.FixedDomain.Proposed"]);
+            Validate();
+            var now = Clock();
+            var missed = new LabGrader().Grade(lab, _labs.PrepareStart(lab, now).Domain, _labs.PrepareSolution(lab, proposed.Solution, now).Domain, now)
+                .Objectives.Count(o => !o.Passed);
+            Status = missed == 0
+                ? string.Format(Text["Status.SolutionProposed"], proposed.Fixes)
+                : string.Format(Text["Status.SolutionPartial"], proposed.Fixes, missed);
+        }
+
+        /// <summary>Domaine corrigé par le formateur, utilisé tel quel par la validation (il remplace celui de l'exercice).</summary>
         public void SetSolution(ADObject? solution, string label)
         {
             _solution = solution;
+            _fixedDomain = null;
+            _solutionVersion++;
             SolutionLabel = label;
+            RefreshSheet();
         }
+
+        /// <summary>Domaine corrigé de l'exercice, aux dates du départ : enregistré avec lui, et décalé comme lui pour la validation.</summary>
+        public void SetFixedDomain(ADRootDocument fixedDomain, string label)
+        {
+            _fixedDomain = fixedDomain;
+            _solution = null;
+            _solutionVersion++;
+            SolutionLabel = string.Format(Text["Validation.FixedDomain"], label);
+            RefreshSheet();
+        }
+
+        public bool HasFixedDomain => _fixedDomain != null;
+
+        /// <summary>Domaine corrigé utilisé par la validation et la fiche : celui de l'exercice, ou celui choisi.</summary>
+        private ADObject? SolutionDomain() =>
+            _fixedDomain != null && Lab != null ? _labs.PrepareSolution(Lab, _fixedDomain, Clock()).Domain : _solution;
 
         partial void OnNotesChanged(string value) => RefreshSheet();
 
@@ -550,7 +761,7 @@ namespace SMADX.Studio.ViewModels
         private void RefreshSheet()
         {
             if (Lab == null) { SheetPreview = ""; return; }
-            try { SheetPreview = LabValidator.TeacherSheet(CurrentLab(), EditCulture, Notes, Clock()); }
+            try { SheetPreview = LabValidator.TeacherSheet(CurrentLab(), EditCulture, Notes, Clock(), SolutionDomain()); }
             catch (Exception ex) { SheetPreview = ex.Message; }
         }
 
@@ -562,8 +773,10 @@ namespace SMADX.Studio.ViewModels
             var ready = Status == Text["Status.Ready"];
             Text.Culture = culture;
             if (ready) Status = Text["Status.Ready"];
-            foreach (var name in new[] { nameof(Levels), nameof(Level), nameof(Languages), nameof(LanguageChoice), nameof(Categories), nameof(CategoryChoice), nameof(DomainSummary) })
+            _questionKinds = null;
+            foreach (var name in new[] { nameof(Levels), nameof(Level), nameof(Languages), nameof(LanguageChoice), nameof(Categories), nameof(CategoryChoice), nameof(DomainSummary), nameof(QuestionKinds) })
                 OnPropertyChanged(name);
+            foreach (var q in Questions) q.Refresh();
             if (Lab?.Language == null) EditCulture = culture;
         }
 

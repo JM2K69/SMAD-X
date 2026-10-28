@@ -53,10 +53,20 @@ namespace SMADX.Studio.ViewModels
                 OnPropertyChanged(nameof(Points));
                 OnPropertyChanged(nameof(Summary));
                 OnPropertyChanged(nameof(IsScored));
+                OnPropertyChanged(nameof(CanBePartial));
             }
         }
 
         public bool IsScored => !Model.Guard;
+
+        /// <summary>Crédit partiel : la part du chemin parcouru (constats levés, score gagné) rapporte la part des points.</summary>
+        public bool IsPartial
+        {
+            get => Model.Partial;
+            set { Model.Partial = value; OnPropertyChanged(); OnPropertyChanged(nameof(Summary)); }
+        }
+
+        public bool CanBePartial => !Model.Guard && LabAuthoring.CanBePartial(Check);
 
         public LabCheckType CheckType
         {
@@ -68,7 +78,7 @@ namespace SMADX.Studio.ViewModels
                 Changed();
                 foreach (var name in new[] { nameof(ShowObject), nameof(ShowObjectType), nameof(ShowGroup), nameof(ShowRule), nameof(ShowSeverity),
                                              nameof(ShowScore), nameof(ShowFlag), nameof(ShowTier), nameof(ShowTrustee), nameof(ShowTarget),
-                                             nameof(ShowRight), nameof(ShowAnyUserHint), nameof(CanBeGuard) })
+                                             nameof(ShowRight), nameof(ShowAnyUserHint), nameof(CanBeGuard), nameof(CanBePartial) })
                     OnPropertyChanged(name);
             }
         }
@@ -103,7 +113,7 @@ namespace SMADX.Studio.ViewModels
         public bool CanBeGuard => LabAuthoring.CanBeGuard(Check);
 
         /// <summary>Ligne de la liste : points (ou « garde »), titre et vérification lisible.</summary>
-        public string Summary => Model.Guard ? $"{Model.Id} · 🛡 · {Title}" : $"{Model.Id} · {Points} pt · {Title}";
+        public string Summary => Model.Guard ? $"{Model.Id} · 🛡 · {Title}" : $"{Model.Id} · {Points} pt{(Model.Partial ? " ◐" : "")} · {Title}";
         public string Description => LabAuthoring.Describe(Check, _culture());
 
         /// <summary>Après un changement de langue d'édition.</summary>
@@ -120,6 +130,7 @@ namespace SMADX.Studio.ViewModels
         {
             OnPropertyChanged(nameof(Description));
             OnPropertyChanged(nameof(CanBeGuard));
+            OnPropertyChanged(nameof(CanBePartial));
         }
 
         private static string? Empty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();

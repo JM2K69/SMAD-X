@@ -26,8 +26,8 @@ namespace SMADX.Services.Labs
     /// <summary>
     /// Vérifie un exercice avant de le distribuer, comme le font les tests des exercices fournis :
     /// objectifs non atteints au départ, gardes atteintes et efficaces, objets cités qui existent,
-    /// textes présents, aucune solution dans l'énoncé ni dans le domaine, et solution du formateur
-    /// qui obtient tous les points.
+    /// textes présents, aucune solution dans l'énoncé ni dans le domaine, questions qui ont leur corrigé,
+    /// et solution du formateur qui obtient tous les points des objectifs.
     /// </summary>
     public static class LabValidator
     {
@@ -73,6 +73,60 @@ namespace SMADX.Services.Labs
             foreach (var o in lab.Objectives.Where(o => o.Guard && !CanBeGuard(o.Check)))
                 Add(LabIssueLevel.Warning, "Cette vérification ne protège aucun objet : elle ne peut pas servir de garde.",
                     "This check protects no object: it cannot be a guard.", o.Id);
+            foreach (var o in lab.Objectives.Where(o => o.Partial && (o.Guard || !CanBePartial(o.Check))))
+                Add(LabIssueLevel.Warning, "Cette vérification ne se compte pas : le crédit partiel n'y change rien (constats d'une règle sur tout le domaine, gravité, score ou chemins seulement).",
+                    "This check cannot be counted: partial credit changes nothing (a rule's findings over the whole domain, severity, score or paths only).", o.Id);
+
+            // ─── Questions ───────────────────────────────────────────────────────
+            if (lab.Questions.Select(q => q.Id).Concat(lab.Objectives.Select(o => o.Id)).GroupBy(id => id, StringComparer.OrdinalIgnoreCase).FirstOrDefault(g => g.Count() > 1) is { } dupQuestion)
+                Add(LabIssueLevel.Error, $"Identifiant en double : {dupQuestion.Key}.", $"Duplicate identifier: {dupQuestion.Key}.");
+            foreach (var q in lab.Questions)
+            {
+                foreach (var lang in languages)
+                {
+                    if (!q.Title.ContainsKey(lang) || string.IsNullOrWhiteSpace(q.Title[lang]))
+                        Add(LabIssueLevel.Error, $"Texte de la question manquant en {lang}.", $"Question text missing in {lang}.", q.Id);
+                    if (q.Kind != LabQuestionKind.Text && q.Choices.Any(c => !c.Text.ContainsKey(lang) || string.IsNullOrWhiteSpace(c.Text[lang])))
+                        Add(LabIssueLevel.Error, $"Choix sans texte en {lang}.", $"Choice without text in {lang}.", q.Id);
+                    if ((q.Prompts ?? []).Any(p => !p.Text.ContainsKey(lang) || string.IsNullOrWhiteSpace(p.Text[lang])))
+                        Add(LabIssueLevel.Error, $"Élément à associer sans texte en {lang}.", $"Item to match without text in {lang}.", q.Id);
+                }
+                if (q.Points <= 0)
+                    Add(LabIssueLevel.Warning, "Question sans point.", "Question worth no points.", q.Id);
+                var correct = q.Choices.Count(c => c.Correct);
+                var prompts = q.Prompts ?? [];
+                switch (q.Kind)
+                {
+                    case LabQuestionKind.SingleChoice or LabQuestionKind.MultipleChoice when q.Choices.Count < 2:
+                        Add(LabIssueLevel.Error, "Une question à choix demande au moins deux choix.", "A choice question needs at least two choices.", q.Id);
+                        break;
+                    case LabQuestionKind.SingleChoice or LabQuestionKind.TrueFalse when correct != 1:
+                        Add(LabIssueLevel.Error, "Cochez une et une seule bonne réponse.", "Tick exactly one right answer.", q.Id);
+                        break;
+                    case LabQuestionKind.TrueFalse when q.Choices.Count != 2:
+                        Add(LabIssueLevel.Error, "Oui / non : exactement deux choix.", "Yes / no: exactly two choices.", q.Id);
+                        break;
+                    case LabQuestionKind.Matching when prompts.Count < 2:
+                        Add(LabIssueLevel.Error, "Une association demande au moins deux éléments à associer.", "A matching question needs at least two items to match.", q.Id);
+                        break;
+                    case LabQuestionKind.Matching when prompts.Any(p => q.Choices.All(c => !string.Equals(c.Id, p.Match, StringComparison.OrdinalIgnoreCase))):
+                        Add(LabIssueLevel.Error, "Chaque élément doit être associé à l'une des propositions.", "Each item must be matched with one of the proposals.", q.Id);
+                        break;
+                    case LabQuestionKind.MultipleChoice when correct == 0:
+                        Add(LabIssueLevel.Error, "Choix multiple : cochez au moins une bonne réponse.", "Multiple choice: tick at least one right answer.", q.Id);
+                        break;
+                    case LabQuestionKind.Text when q.AcceptedAnswers is not { Count: > 0 }:
+                        Add(LabIssueLevel.Warning, "Aucune réponse acceptée : chaque réponse sera notée à la main dans l'onglet Copies.",
+                            "No accepted answer: every answer will be graded by hand in the Submissions tab.", q.Id);
+                        break;
+                }
+                if (q.Choices.GroupBy(c => c.Id, StringComparer.OrdinalIgnoreCase).Any(g => g.Count() > 1)
+                    || prompts.GroupBy(p => p.Id, StringComparer.OrdinalIgnoreCase).Any(g => g.Count() > 1))
+                    Add(LabIssueLevel.Error, "Deux choix ou deux éléments ont le même identifiant.", "Two choices or two items have the same identifier.", q.Id);
+            }
+            if (!lab.Exam && lab.Questions.Any(q => q.HasAnswerKey))
+                Add(LabIssueLevel.Warning, "Hors examen, le fichier de l'exercice contient le corrigé des questions : l'apprenant peut le lire. Pour une évaluation, passez en mode examen et distribuez le sujet.",
+                    "Outside exam mode, the lab file contains the answer key: the learner can read it. For an assessment, switch to exam mode and hand out the subject.");
 
             // ─── Pas de solution visible par l'apprenant ─────────────────────────
             foreach (var (lang, text) in lab.Statement)
@@ -123,7 +177,7 @@ namespace SMADX.Services.Labs
                         CanBeGuard(r.Objective.Check) ? "Objective already met at start: it asks nothing of the learner. If it is a guard, tick \"Guard\"."
                                                       : "Objective already met at start: it asks nothing of the learner.", r.Objective.Id);
             }
-            if (atStart.Completed)
+            if (atStart.ObjectivesCompleted && lab.Objectives.Count > 0)
                 Add(LabIssueLevel.Error, "L'exercice est résolu dès le départ.", "The lab is solved from the start.");
 
             // ─── Chaque garde refuse bien son raccourci, et le raccourci ne paie pas ──
@@ -134,18 +188,19 @@ namespace SMADX.Services.Labs
                 var shortcut = grader.Grade(lab, start, working, now);
                 if (shortcut.Objectives.Single(x => x.Objective == o).Passed)
                     Add(LabIssueLevel.Warning, "Garde inefficace : elle reste atteinte même quand on supprime ce qu'elle protège.", "Ineffective guard: it stays met even when what it protects is removed.", o.Id);
-                else if (shortcut.MaxPoints > 0 && shortcut.Points * 2 > shortcut.MaxPoints)
-                    Add(LabIssueLevel.Warning, $"Le raccourci que refuse cette garde rapporte encore {shortcut.Points} / {shortcut.MaxPoints} points : les objectifs qu'il atteint ne concernent pas l'objet protégé.",
-                        $"The shortcut this guard refuses still earns {shortcut.Points} / {shortcut.MaxPoints} points: the objectives it meets do not concern the protected object.", o.Id);
+                else if (lab.ObjectivePoints > 0 && shortcut.Points * 2 > lab.ObjectivePoints)
+                    Add(LabIssueLevel.Warning, $"Le raccourci que refuse cette garde rapporte encore {shortcut.Points:0.##} / {lab.ObjectivePoints} points : les objectifs qu'il atteint ne concernent pas l'objet protégé.",
+                        $"The shortcut this guard refuses still earns {shortcut.Points:0.##} / {lab.ObjectivePoints} points: the objectives it meets do not concern the protected object.", o.Id);
             }
 
             // ─── Solution du formateur ───────────────────────────────────────────
             LabResult? solutionResult = null;
             if (solution != null)
             {
+                // Le domaine corrigé ne répond pas aux questions : il obtient les points des objectifs
                 solutionResult = grader.Grade(lab, start, solution, now);
-                if (solutionResult.Completed)
-                    Add(LabIssueLevel.Ok, $"La solution obtient tous les points ({solutionResult.Points} / {solutionResult.MaxPoints}).", $"The solution gets all points ({solutionResult.Points} / {solutionResult.MaxPoints}).");
+                if (solutionResult.ObjectivesCompleted)
+                    Add(LabIssueLevel.Ok, $"La solution obtient tous les points des objectifs ({solutionResult.Points:0.##} / {lab.ObjectivePoints}).", $"The solution gets all the objectives' points ({solutionResult.Points:0.##} / {lab.ObjectivePoints}).");
                 else
                     foreach (var r in solutionResult.Objectives.Where(r => !r.Passed))
                         Add(LabIssueLevel.Error, $"La solution échoue : {r.Feedback}", $"The solution fails: {r.Feedback}", r.Objective.Id);
@@ -191,8 +246,11 @@ namespace SMADX.Services.Labs
 
         // ─── Fiche formateur ─────────────────────────────────────────────────────
 
-        /// <summary>Document réservé au formateur : objectifs, vérifications, chemins au départ et notes (la solution).</summary>
-        public static string TeacherSheet(LabDefinition lab, string culture, string? notes, DateTime now)
+        /// <summary>
+        /// Document réservé au formateur : objectifs, vérifications, chemins au départ, ce que change le domaine
+        /// corrigé (s'il est connu, préparé à la même date que le départ) et notes (la solution).
+        /// </summary>
+        public static string TeacherSheet(LabDefinition lab, string culture, string? notes, DateTime now, ADObject? solution = null)
         {
             var loc = LocalizationService.Instance;
             var sb = new StringBuilder();
@@ -206,13 +264,38 @@ namespace SMADX.Services.Labs
             if (lab.Exam)
                 sb.AppendLine($"| {T(culture, "Examen", "Exam")} | {ExamSummary(lab, culture)} |");
             sb.AppendLine($"| {T(culture, "Domaine", "Domain")} | `{lab.Start.Domain.Name}` |");
-            sb.AppendLine($"| {T(culture, "Points", "Points")} | {lab.MaxPoints} |").AppendLine();
+            sb.AppendLine($"| {T(culture, "Points", "Points")} | {lab.MaxPoints}{(lab.Questions.Count > 0 ? T(culture, $" (dont {lab.MaxPoints - lab.ObjectivePoints} pour les questions)", $" ({lab.MaxPoints - lab.ObjectivePoints} for the questions)") : "")} |").AppendLine();
 
             sb.AppendLine(T(culture, "## Objectifs", "## Objectives")).AppendLine();
             sb.AppendLine(T(culture, "| Id | Points | Objectif | Vérification | Garde |", "| Id | Points | Objective | Check | Guard |")).AppendLine("|---|---|---|---|---|");
             foreach (var o in lab.Objectives)
-                sb.AppendLine($"| {o.Id} | {o.Points} | {o.Title.Resolve(culture)} | {Describe(o.Check, culture)} | {(o.Guard ? "✓" : "")} |");
+                sb.AppendLine($"| {o.Id} | {o.Points} | {o.Title.Resolve(culture)} | {Describe(o.Check, culture)}{(o.Partial ? T(culture, " (crédit partiel)", " (partial credit)") : "")} | {(o.Guard ? "✓" : "")} |");
             sb.AppendLine();
+
+            if (lab.Questions.Count > 0)
+            {
+                sb.AppendLine(T(culture, "## Questions et corrigé", "## Questions and answer key")).AppendLine();
+                foreach (var q in lab.Questions)
+                {
+                    var kind = LocalizationService.Instance.Translate($"Lab.QuestionKind.{q.Kind}", culture);
+                    sb.AppendLine($"**{q.Id} · {q.Title.Resolve(culture)}** ({q.Points} pt, {kind}{(q.Partial ? T(culture, ", crédit partiel", ", partial credit") : "")})").AppendLine();
+                    if (q.Kind == LabQuestionKind.Matching)
+                    {
+                        foreach (var p in q.Prompts ?? [])
+                            sb.AppendLine($"- {p.Text.Resolve(culture)} → {q.Choices.FirstOrDefault(c => c.Id == p.Match)?.Text.Resolve(culture) ?? "—"}");
+                        foreach (var c in q.Choices.Where(c => (q.Prompts ?? []).All(p => p.Match != c.Id)))
+                            sb.AppendLine($"- {T(culture, "Intrus", "Distractor")} : {c.Text.Resolve(culture)}");
+                    }
+                    else
+                        foreach (var c in q.Choices)
+                            sb.AppendLine($"- {(c.Correct ? "✔" : "✘")} {c.Text.Resolve(culture)}");
+                    if (q.Kind == LabQuestionKind.Text)
+                        sb.AppendLine(q.AcceptedAnswers is { Count: > 0 } accepted
+                            ? T(culture, "- Réponses acceptées : ", "- Accepted answers: ") + string.Join(" ; ", accepted)
+                            : T(culture, "- Notée à la main.", "- Graded by hand."));
+                    sb.AppendLine();
+                }
+            }
 
             var start = new LabService().PrepareStart(lab, now).Domain;
             var paths = new AttackPathService(start, now).PathsOutsideTier0();
@@ -231,6 +314,27 @@ namespace SMADX.Services.Labs
             foreach (var rule in audit.FailedRules)
                 sb.AppendLine($"- **{rule.Id}** : {string.Join(", ", audit.Findings.Where(f => f.Rule == rule).Select(f => f.Object.Name).Distinct())}");
             sb.AppendLine();
+
+            if (solution != null)
+            {
+                sb.AppendLine(T(culture, "## Domaine corrigé", "## Fixed domain")).AppendLine();
+                var changes = ADDiffService.Compare(new DomainSnapshot { Root = start }, new DomainSnapshot { Root = solution });
+                if (changes.Count == 0)
+                    sb.AppendLine(T(culture, "Identique au domaine de départ.", "Same as the starting domain.")).AppendLine();
+                foreach (var change in changes)
+                {
+                    var what = change.ChangeType switch
+                    {
+                        ChangeType.Added => T(culture, "ajouté", "added"),
+                        ChangeType.Removed => T(culture, "supprimé", "removed"),
+                        _ => change.ChangedFieldsSummary
+                    };
+                    sb.AppendLine($"- **{change.ObjectName}** : {what}");
+                }
+                var solved = new LabGrader().Grade(lab, start, solution, now);
+                var met = solved.Objectives.Count(o => o.Passed);
+                sb.AppendLine().AppendLine(T(culture, $"Objectifs atteints : {met} / {solved.Objectives.Count}.", $"Objectives met: {met} / {solved.Objectives.Count}.")).AppendLine();
+            }
 
             sb.AppendLine(T(culture, "## Solution et notes", "## Solution and notes")).AppendLine();
             sb.AppendLine(string.IsNullOrWhiteSpace(notes) ? T(culture, "*Aucune note.*", "*No notes.*") : notes.Trim()).AppendLine();

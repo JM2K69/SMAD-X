@@ -12,19 +12,34 @@ namespace SMADX.Services.Labs
     /// <summary>Une copie corrigée : la note, ou pourquoi elle n'a pas pu être corrigée.</summary>
     public sealed record GradedSubmission(string Path, LabSubmission? Submission, LabResult? Result, IReadOnlyList<LabIssue> Issues)
     {
+        /// <summary>Notes du formateur sur cette copie (points donnés à la main, appréciation), s'il y en a.</summary>
+        public SubmissionMarks? Marks { get; init; }
+
         /// <summary>Nom affiché : celui de la copie, ou son fichier ; sur une ligne, sans caractère de contrôle.</summary>
         public string Student => SafeText.Name(Submission?.Student is { Length: > 0 } s && SafeText.Name(s).Length > 0 ? s : System.IO.Path.GetFileName(Path));
+        public string StudentId => SafeText.Name(Submission?.StudentId ?? string.Empty);
         public bool Graded => Result != null;
-        public int Points => Result?.Points ?? 0;
+        public double Points => Result?.Points ?? 0;
         public int HintsUsed => Submission?.HintsUsed.Count ?? 0;
         public int? ElapsedMinutes => Submission?.ElapsedMinutes;
         public bool Passed(LabObjective objective) => Result?.Objectives.FirstOrDefault(o => o.Objective == objective)?.Passed ?? false;
+        public bool Passed(LabQuestion question) => Result?.Questions.FirstOrDefault(q => q.Question == question)?.Passed ?? false;
+        public double Earned(LabObjective objective) => Result?.Objectives.FirstOrDefault(o => o.Objective == objective)?.EarnedPoints ?? 0;
+        public LabQuestionResult? Question(LabQuestion question) => Result?.Questions.FirstOrDefault(q => q.Question == question);
+
+        /// <summary>Questions que le formateur doit encore noter : la note n'est pas définitive.</summary>
+        public int ToReview => Result?.Questions.Count(q => q.NeedsReview) ?? 0;
+
+        /// <summary>Note ramenée à un barème (sur 20…), arrondie au centième.</summary>
+        public double Scaled(int scale) => Result is { MaxPoints: > 0 } r ? Math.Round(scale * r.Points / r.MaxPoints, 2) : 0;
     }
 
     /// <summary>
     /// Correction des copies d'une classe avec l'exemplaire de l'exercice du formateur : le domaine de départ
     /// est repréparé à la date où l'apprenant a commencé et la vérification se fait à la date de sa copie,
-    /// comme l'aurait fait SMAD-X. Le score que l'apprenant a pu voir n'est jamais repris.
+    /// comme l'aurait fait SMAD-X. Le score que l'apprenant a pu voir n'est jamais repris. Les questions sont
+    /// corrigées avec le corrigé de l'exemplaire du formateur, puis avec les points qu'il a donnés à la main
+    /// (<see cref="SubmissionMarks"/>).
     /// <para>
     /// Chaque copie est aussi contrôlée : son sceau (modifiée hors de SMAD-X ?), sa session (le domaine
     /// porte-t-il les identifiants de la session de la copie ?) et, sur la classe, les copies qui partagent
@@ -34,6 +49,9 @@ namespace SMADX.Services.Labs
     /// </summary>
     public static class SubmissionGrader
     {
+        /// <summary>Barème par défaut des notes exportées.</summary>
+        public const int DefaultScale = 20;
+
         public static GradedSubmission Grade(LabDefinition lab, string path, string culture)
         {
             LabSubmission submission;
@@ -42,10 +60,10 @@ namespace SMADX.Services.Labs
             {
                 return new GradedSubmission(path, null, null, [new LabIssue(LabIssueLevel.Error, ex.Message)]);
             }
-            return Grade(lab, submission, path, culture);
+            return Grade(lab, submission, path, culture, SubmissionMarksService.Load(path, submission));
         }
 
-        public static GradedSubmission Grade(LabDefinition lab, LabSubmission submission, string path, string culture)
+        public static GradedSubmission Grade(LabDefinition lab, LabSubmission submission, string path, string culture, SubmissionMarks? marks = null)
         {
             var issues = new List<LabIssue>();
             void Add(LabIssueLevel level, string fr, string en) => issues.Add(new LabIssue(level, T(culture, fr, en)));
@@ -87,7 +105,7 @@ namespace SMADX.Services.Labs
                 Add(LabIssueLevel.Warning, "Faite sur un autre domaine de départ que votre exemplaire de l'exercice : la note peut être fausse.",
                                            "Done on another starting domain than your copy of the lab: the grade may be wrong.");
 
-            // Examen : l'exercice reçu ne doit pas avoir été rouvert hors mode examen
+            // Examen : l'exercice reçu ne doit pas avoir été rouvert hors mode examen, ni être votre exemplaire
             if (lab.Exam)
             {
                 if (!submission.Lab.Exam)
@@ -96,6 +114,9 @@ namespace SMADX.Services.Labs
                 else if (submission.Lab.ExamCheck != lab.ExamCheck || submission.Lab.ExamClosedTools != lab.ExamClosedTools)
                     Add(LabIssueLevel.Error, "Les réglages d'examen de l'exercice reçu ne sont pas les vôtres : il a été modifié.",
                                              "The exam settings of the lab received are not yours: it was changed.");
+                if (submission.Lab.IsTrainerCopy)
+                    Add(LabIssueLevel.Error, "Copie faite sur un exercice qui contenait les indices ou les réponses : l'apprenant a reçu votre exemplaire au lieu du sujet.",
+                                             "Submission made on a lab that contained the hints or the answers: the learner received your copy instead of the subject.");
                 if (submission.HintsUsed.Count > 0)
                     Add(LabIssueLevel.Error, $"Indices consultés pendant l'examen : {string.Join(", ", submission.HintsUsed)}.",
                                              $"Hints viewed during the exam: {string.Join(", ", submission.HintsUsed)}.");
@@ -103,6 +124,9 @@ namespace SMADX.Services.Labs
                     Add(LabIssueLevel.Warning, $"Temps dépassé : {elapsed} min pour {lab.DurationMinutes} prévues.",
                                                $"Time exceeded: {elapsed} min for {lab.DurationMinutes} planned.");
             }
+            foreach (var q in lab.Questions.Where(q => !q.HasAnswerKey && q.Kind != LabQuestionKind.Text))
+                Add(LabIssueLevel.Warning, $"La question {q.Id} n'a pas de corrigé dans votre exercice : ouvrez votre exemplaire, pas le sujet.",
+                                           $"Question {q.Id} has no answer key in your lab: open your copy, not the subject.");
 
             // La note dépend des règles d'audit de la version qui corrige
             if (submission.RulesVersion == null)
@@ -115,14 +139,26 @@ namespace SMADX.Services.Labs
             try
             {
                 var start = new LabService().PrepareStart(lab, submission.StartedOn);
-                var result = new LabGrader().Grade(lab, start.Domain, submission.Work.Domain, submission.SavedAt);
-                return new GradedSubmission(path, submission, result, issues);
+                var result = new LabGrader().Grade(lab, start.Domain, submission.Work.Domain, submission.SavedAt, submission.Answers);
+                if (marks != null)
+                    result = result with
+                    {
+                        Questions = result.Questions.Select(q =>
+                        {
+                            if (!marks.Questions.TryGetValue(q.Question.Id, out var mark)) return q;
+                            if (mark.Answer == (q.Answer?.Signature() ?? string.Empty)) return LabQuestionGrader.Marked(q, mark.Points);
+                            Add(LabIssueLevel.Warning, $"La réponse à {q.Question.Id} a changé depuis votre note : à noter de nouveau.",
+                                                       $"The answer to {q.Question.Id} changed since you graded it: grade it again.");
+                            return q;
+                        }).ToList()
+                    };
+                return new GradedSubmission(path, submission, result, issues) { Marks = marks };
             }
             catch (Exception ex)
             {
                 // Une copie qui fait échouer la correction ne bloque pas le reste de la classe
                 Add(LabIssueLevel.Error, $"Copie impossible à corriger : {ex.Message}", $"Submission could not be graded: {ex.Message}");
-                return new GradedSubmission(path, submission, null, issues);
+                return new GradedSubmission(path, submission, null, issues) { Marks = marks };
             }
         }
 
@@ -204,7 +240,7 @@ namespace SMADX.Services.Labs
 
         public static double? Median(IReadOnlyList<GradedSubmission> rows)
         {
-            var points = rows.Where(r => r.Graded).Select(r => (double)r.Points).Order().ToList();
+            var points = rows.Where(r => r.Graded).Select(r => r.Points).Order().ToList();
             if (points.Count == 0) return null;
             var middle = points.Count / 2;
             return points.Count % 2 == 1 ? points[middle] : (points[middle - 1] + points[middle]) / 2;
@@ -217,22 +253,45 @@ namespace SMADX.Services.Labs
             return graded.Count == 0 ? null : graded.Count(r => r.Passed(objective)) / (double)graded.Count;
         }
 
-        /// <summary>Notes au format CSV, avec « ; » et la virgule décimale en français pour Excel.</summary>
-        public static string Csv(LabDefinition lab, IReadOnlyList<GradedSubmission> rows, string culture)
+        /// <summary>Part des copies corrigées qui répondent juste à la question (0 à 1), null sans copie corrigée.</summary>
+        public static double? SuccessRate(LabQuestion question, IReadOnlyList<GradedSubmission> rows)
+        {
+            var graded = rows.Where(r => r.Graded).ToList();
+            return graded.Count == 0 ? null : graded.Count(r => r.Passed(question)) / (double)graded.Count;
+        }
+
+        /// <summary>Nombre de points, au centième : « 7,5 », « 12 ».</summary>
+        public static string Format(double points, CultureInfo numbers) => points.ToString("0.##", numbers);
+
+        private static CultureInfo Numbers(string culture) => CultureInfo.GetCultureInfo(culture.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "en-US" : "fr-FR");
+
+        /// <summary>Points d'une question pour un tableau : les points, « à noter » si le formateur doit la relire.</summary>
+        private static string QuestionCell(GradedSubmission row, LabQuestion question, CultureInfo numbers, string culture) =>
+            !row.Graded || row.Question(question) is not { } q ? ""
+            : q.NeedsReview ? T(culture, "à noter", "to grade")
+            : Format(q.EarnedPoints, numbers);
+
+        /// <summary>
+        /// Notes au format CSV, avec « ; » et la virgule décimale en français pour Excel : points, note sur le barème
+        /// (à copier dans l'ENT), points de chaque objectif et de chaque question.
+        /// </summary>
+        public static string Csv(LabDefinition lab, IReadOnlyList<GradedSubmission> rows, string culture, int scale = DefaultScale)
         {
             var french = !culture.StartsWith("en", StringComparison.OrdinalIgnoreCase);
             var separator = french ? ";" : ",";
-            var numbers = CultureInfo.GetCultureInfo(french ? "fr-FR" : "en-US");
+            var numbers = Numbers(culture);
             string Cell(string value) => SafeText.CsvCell(value, separator);
 
             var sb = new StringBuilder();
             var header = new List<string>
             {
-                T(culture, "Apprenant", "Learner"), T(culture, "Fichier", "File"), T(culture, "Enregistrée le", "Saved at"),
-                T(culture, "Points", "Points"), T(culture, "Sur", "Out of"), T(culture, "Pourcentage", "Percentage"), T(culture, "Indices", "Hints"),
-                T(culture, "Temps (min)", "Time (min)")
+                T(culture, "Apprenant", "Learner"), T(culture, "Identifiant", "ID"), T(culture, "Fichier", "File"), T(culture, "Enregistrée le", "Saved at"),
+                T(culture, "Points", "Points"), T(culture, "Sur", "Out of"), T(culture, $"Note sur {scale}", $"Grade out of {scale}"),
+                T(culture, "Pourcentage", "Percentage"), T(culture, "Indices", "Hints"), T(culture, "Temps (min)", "Time (min)"),
+                T(culture, "À noter", "To grade")
             };
             header.AddRange(lab.Objectives.Select(o => o.Id));
+            header.AddRange(lab.Questions.Select(q => q.Id));
             header.Add(T(culture, "Remarques", "Remarks"));
             sb.AppendLine(string.Join(separator, header.Select(Cell)));
 
@@ -240,27 +299,44 @@ namespace SMADX.Services.Labs
             {
                 var cells = new List<string>
                 {
-                    r.Student, SafeText.Name(Path.GetFileName(r.Path)), r.Submission?.SavedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? "",
-                    r.Graded ? r.Points.ToString(numbers) : "", lab.MaxPoints.ToString(numbers),
+                    r.Student, r.StudentId, SafeText.Name(Path.GetFileName(r.Path)), r.Submission?.SavedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? "",
+                    r.Graded ? Format(r.Points, numbers) : "", lab.MaxPoints.ToString(numbers), r.Graded ? Format(r.Scaled(scale), numbers) : "",
                     r.Graded && lab.MaxPoints > 0 ? (100.0 * r.Points / lab.MaxPoints).ToString("0.#", numbers) : "", r.HintsUsed.ToString(numbers),
-                    r.Submission?.ElapsedMinutes?.ToString(numbers) ?? ""
+                    r.Submission?.ElapsedMinutes?.ToString(numbers) ?? "", r.Graded ? r.ToReview.ToString(numbers) : ""
                 };
-                cells.AddRange(lab.Objectives.Select(o => !r.Graded ? "" : r.Passed(o) ? o.Points.ToString(numbers) : "0"));
+                cells.AddRange(lab.Objectives.Select(o => !r.Graded ? "" : Format(r.Earned(o), numbers)));
+                cells.AddRange(lab.Questions.Select(q => QuestionCell(r, q, numbers, culture)));
                 cells.Add(string.Join(" ", r.Issues.Select(i => i.Message)));
                 sb.AppendLine(string.Join(separator, cells.Select(Cell)));
             }
             return sb.ToString().ReplaceLineEndings("\n");
         }
 
-        /// <summary>Bilan Markdown de la classe : résumé, notes de chacun et réussite par objectif.</summary>
+        /// <summary>
+        /// Notes pour l'import de Moodle (Notes > Importer > Fichier CSV) : virgule, point décimal, une ligne par copie
+        /// corrigée, l'identifiant de l'apprenant (à associer à son adresse ou à son numéro d'identification) et la
+        /// note sur le barème de l'élément d'évaluation.
+        /// </summary>
+        public static string MoodleCsv(LabDefinition lab, IReadOnlyList<GradedSubmission> rows, string culture, int scale = DefaultScale)
+        {
+            string Cell(string value) => SafeText.CsvCell(value, ",");
+            var sb = new StringBuilder();
+            sb.AppendLine(string.Join(",", new[] { T(culture, "Identifiant", "ID"), T(culture, "Apprenant", "Learner"), lab.Id }.Select(Cell)));
+            foreach (var r in rows.Where(r => r.Graded))
+                sb.AppendLine(string.Join(",", new[] { r.StudentId, r.Student, Format(r.Scaled(scale), CultureInfo.InvariantCulture) }.Select(Cell)));
+            return sb.ToString().ReplaceLineEndings("\n");
+        }
+
+        /// <summary>Bilan Markdown de la classe : résumé, notes de chacun et réussite par objectif et par question.</summary>
         public static string ClassReport(LabDefinition lab, IReadOnlyList<GradedSubmission> rows, string culture)
         {
-            var numbers = CultureInfo.GetCultureInfo(culture.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "en-US" : "fr-FR");
+            var numbers = Numbers(culture);
             string N(double value) => value.ToString("0.#", numbers);
             string Pct(double rate) => (100 * rate).ToString("0", numbers) + " %";
             // Le nom vient de la copie : ni lien, ni image, ni balise dans le bilan
             string Cell(string text) => SafeText.Markdown(text);
             var graded = rows.Where(r => r.Graded).ToList();
+            var items = lab.Objectives.Select(o => o.Id).Concat(lab.Questions.Select(q => q.Id)).ToList();
 
             var sb = new StringBuilder();
             sb.AppendLine($"# {Cell(lab.Title.Resolve(culture))} — {T(culture, "bilan de la classe", "class results")}").AppendLine();
@@ -271,18 +347,21 @@ namespace SMADX.Services.Labs
             {
                 sb.AppendLine($"- **{T(culture, "Moyenne", "Average")}** : {N(average)} / {lab.MaxPoints}{(lab.MaxPoints > 0 ? $" ({Pct(average / lab.MaxPoints)})" : "")}");
                 sb.AppendLine($"- **{T(culture, "Médiane", "Median")}** : {N(median)} / {lab.MaxPoints}");
-                sb.AppendLine($"- **{T(culture, "Plus basse, plus haute", "Lowest, highest")}** : {graded.Min(r => r.Points)}, {graded.Max(r => r.Points)}");
+                sb.AppendLine($"- **{T(culture, "Plus basse, plus haute", "Lowest, highest")}** : {Format(graded.Min(r => r.Points), numbers)}, {Format(graded.Max(r => r.Points), numbers)}");
             }
+            if (graded.Sum(r => r.ToReview) is > 0 and var toReview)
+                sb.AppendLine($"- **{T(culture, "Réponses à noter", "Answers to grade")}** : {toReview}");
             sb.AppendLine();
 
             sb.AppendLine($"## {T(culture, "Notes", "Grades")}").AppendLine();
-            sb.AppendLine($"| {T(culture, "Apprenant", "Learner")} | {T(culture, "Note", "Grade")} | {T(culture, "Indices", "Hints")} | {T(culture, "Temps", "Time")} | {string.Join(" | ", lab.Objectives.Select(o => o.Id))} | {T(culture, "Remarques", "Remarks")} |");
-            sb.AppendLine($"|---|---|---|---|{string.Concat(lab.Objectives.Select(_ => "---|"))}---|");
+            sb.AppendLine($"| {T(culture, "Apprenant", "Learner")} | {T(culture, "Note", "Grade")} | {T(culture, "Indices", "Hints")} | {T(culture, "Temps", "Time")} | {string.Join(" | ", items)} | {T(culture, "Remarques", "Remarks")} |");
+            sb.AppendLine($"|---|---|---|---|{string.Concat(items.Select(_ => "---|"))}---|");
             foreach (var r in rows)
             {
-                var marks = lab.Objectives.Select(o => !r.Graded ? "—" : r.Passed(o) ? "✔" : "✘");
+                var marks = lab.Objectives.Select(o => !r.Graded ? "—" : r.Passed(o) ? "✔" : r.Earned(o) > 0 ? "◐" : "✘")
+                    .Concat(lab.Questions.Select(q => r.Question(q) is not { } a ? "—" : a.NeedsReview ? "?" : a.Passed ? "✔" : a.EarnedPoints > 0 ? "◐" : "✘"));
                 var time = r.ElapsedMinutes is { } minutes ? $"{minutes} min" : "—";
-                sb.AppendLine($"| {Cell(r.Student)} | {(r.Graded ? $"{r.Points} / {lab.MaxPoints}" : "—")} | {r.HintsUsed} | {time} | {string.Join(" | ", marks)} | {Cell(string.Join(" ", r.Issues.Select(i => i.Message)))} |");
+                sb.AppendLine($"| {Cell(r.Student)} | {(r.Graded ? $"{Format(r.Points, numbers)} / {lab.MaxPoints}" : "—")} | {r.HintsUsed} | {time} | {string.Join(" | ", marks)} | {Cell(string.Join(" ", r.Issues.Select(i => i.Message)))} |");
             }
             sb.AppendLine();
 
@@ -294,7 +373,100 @@ namespace SMADX.Services.Labs
                 var rate = SuccessRate(o, rows);
                 sb.AppendLine($"| {o.Id} · {Cell(o.Title.Resolve(culture))} | {o.Points} | {(rate is { } value ? $"{graded.Count(r => r.Passed(o))} / {graded.Count} ({Pct(value)})" : "—")} |");
             }
+            foreach (var q in lab.Questions)
+            {
+                var rate = SuccessRate(q, rows);
+                sb.AppendLine($"| {q.Id} · {Cell(q.Title.Resolve(culture))} | {q.Points} | {(rate is { } value ? $"{graded.Count(r => r.Passed(q))} / {graded.Count} ({Pct(value)})" : "—")} |");
+            }
             return sb.ToString().ReplaceLineEndings("\n");
+        }
+
+        /// <summary>
+        /// Compte rendu individuel, à remettre à l'apprenant : sa note, ce qu'il a atteint et pourquoi, ses réponses et
+        /// l'appréciation du formateur. Sans le corrigé des questions ni les contrôles de la copie (réservés au formateur).
+        /// </summary>
+        public static string StudentReport(LabDefinition lab, GradedSubmission row, string culture, int scale = DefaultScale)
+        {
+            var numbers = Numbers(culture);
+            string Cell(string text) => SafeText.Markdown(text).Replace("\n", " ");
+            var sb = new StringBuilder();
+            sb.AppendLine($"# {Cell(lab.Title.Resolve(culture))}").AppendLine();
+            sb.AppendLine($"- **{T(culture, "Apprenant", "Learner")}** : {Cell(row.Student)}{(row.StudentId.Length > 0 ? $" ({Cell(row.StudentId)})" : "")}");
+            if (row.Submission is { } s)
+                sb.AppendLine($"- **{T(culture, "Copie enregistrée le", "Submission saved on")}** : {s.SavedAt.ToString("g", numbers)}{(s.ElapsedMinutes is { } m ? T(culture, $", après {m} min", $", after {m} min") : "")}");
+            if (row.Result is not { } result)
+            {
+                sb.AppendLine().AppendLine(T(culture, "Cette copie n'a pas pu être corrigée\u00A0: voyez-le avec votre formateur.", "This submission could not be graded: see your trainer.")).AppendLine();
+                return sb.ToString().ReplaceLineEndings("\n");
+            }
+            sb.AppendLine($"- **{T(culture, "Note", "Grade")}** : {Format(result.Points, numbers)} / {result.MaxPoints}{(result.MaxPoints > 0 ? T(culture, $", soit {Format(row.Scaled(scale), numbers)} / {scale}", $", that is {Format(row.Scaled(scale), numbers)} / {scale}") : "")}");
+            if (row.ToReview > 0)
+                sb.AppendLine($"- **{T(culture, "Note provisoire", "Provisional grade")}** : {T(culture, $"{row.ToReview} réponse(s) reste(nt) à noter par le formateur.", $"{row.ToReview} answer(s) still to be graded by the trainer.")}");
+            if (row.HintsUsed > 0 && !lab.Exam)
+                sb.AppendLine($"- **{T(culture, "Indices consultés", "Hints viewed")}** : {row.HintsUsed}");
+            sb.AppendLine();
+
+            sb.AppendLine($"## {T(culture, "Objectifs", "Objectives")}").AppendLine();
+            sb.AppendLine($"| | {T(culture, "Objectif", "Objective")} | {T(culture, "Points", "Points")} | {T(culture, "Commentaire", "Comment")} |");
+            sb.AppendLine("|---|---|---|---|");
+            foreach (var o in result.Objectives.Where(o => !o.Objective.Guard || !o.Passed))
+            {
+                var mark = o.Passed ? "✔" : o.EarnedPoints > 0 ? "◐" : "✘";
+                var points = o.Objective.Guard ? T(culture, "garde", "guard") : $"{Format(o.EarnedPoints, numbers)} / {o.Objective.Points}";
+                sb.AppendLine($"| {mark} | {Cell(o.Objective.Title.Resolve(culture))} | {points} | {Cell(o.Feedback)} |");
+            }
+            sb.AppendLine();
+
+            // Un tableau, comme les objectifs : le PDF prendrait une ligne « mot : mot » pour une ligne de tableau
+            if (result.Questions.Count > 0)
+            {
+                sb.AppendLine($"## {T(culture, "Questions", "Questions")}").AppendLine();
+                sb.AppendLine($"| | {T(culture, "Question", "Question")} | {T(culture, "Votre réponse", "Your answer")} | {T(culture, "Points", "Points")} |");
+                sb.AppendLine("|---|---|---|---|");
+                foreach (var q in result.Questions)
+                {
+                    var mark = q.NeedsReview ? "?" : q.Passed ? "✔" : q.EarnedPoints > 0 ? "◐" : "✘";
+                    var points = q.NeedsReview ? T(culture, "à noter", "to grade") : $"{Format(q.EarnedPoints, numbers)} / {q.Question.Points}";
+                    sb.AppendLine($"| {mark} | {Cell(q.Question.Title.Resolve(culture))} | {Cell(AnswerText(q.Question, q.Answer, culture))} | {points} |");
+                }
+                sb.AppendLine();
+            }
+
+            if (!string.IsNullOrWhiteSpace(row.Marks?.Comment))
+            {
+                sb.AppendLine($"## {T(culture, "Appréciation du formateur", "Trainer's comment")}").AppendLine();
+                sb.AppendLine(Prose(SafeText.Markdown(row.Marks!.Comment!.Trim()))).AppendLine();
+            }
+            return sb.ToString().ReplaceLineEndings("\n");
+        }
+
+        /// <summary>
+        /// Texte libre d'un paragraphe : l'espace avant les deux-points devient insécable (la typographie française), sans quoi
+        /// le moteur PDF lit « mot : mot » comme une ligne de tableau et coupe le paragraphe en deux colonnes.
+        /// </summary>
+        private static string Prose(string text) => text.Replace(" :", "\u00A0:");
+
+        /// <summary>La réponse en clair : le texte des choix cochés, les associations faites, ou le texte écrit.</summary>
+        public static string AnswerText(LabQuestion question, LabAnswer? answer, string culture)
+        {
+            if (answer == null || answer.IsEmpty) return T(culture, "(pas de réponse)", "(no answer)");
+            string Choice(string id) => question.Choices.FirstOrDefault(c => string.Equals(c.Id, id, StringComparison.OrdinalIgnoreCase)) is { } c ? c.Text.Resolve(culture) : id;
+            return question.Kind switch
+            {
+                LabQuestionKind.Text => (answer.Text ?? string.Empty).Trim(),
+                LabQuestionKind.Matching => string.Join(" ; ", (question.Prompts ?? [])
+                    .Select(p => $"{p.Text.Resolve(culture)} → {(answer.Matches?.GetValueOrDefault(p.Id) is { } id ? Choice(id) : "—")}")),
+                _ => string.Join(" ; ", (answer.Choices ?? []).Select(Choice))
+            };
+        }
+
+        /// <summary>Nom proposé pour le compte rendu d'une copie : « id_Prénom Nom.pdf », sans caractère interdit.</summary>
+        public static string StudentReportFileName(LabDefinition lab, GradedSubmission row, string extension)
+        {
+            var name = row.Student;
+            foreach (var c in Path.GetInvalidFileNameChars())
+                name = name.Replace(c, '_');
+            return $"{lab.Id}_{name}{extension}";
         }
     }
 }

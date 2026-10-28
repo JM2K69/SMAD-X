@@ -75,9 +75,11 @@ namespace SMADX.Services.Labs
             return new Guid(bytes);
         }
 
-        public LabSubmission ToSubmission(string student, ADRootDocument work, IEnumerable<string> hintsUsed, DateTime now) => new()
+        public LabSubmission ToSubmission(string student, ADRootDocument work, IEnumerable<string> hintsUsed, DateTime now,
+                                          IReadOnlyDictionary<string, LabAnswer>? answers = null, string? studentId = null) => new()
         {
             Student = SafeText.Name(student),
+            StudentId = string.IsNullOrWhiteSpace(studentId) ? null : SafeText.Name(studentId),
             LabId = Lab.Id,
             SessionId = SessionId,
             StartedOn = StartedOn,
@@ -86,6 +88,7 @@ namespace SMADX.Services.Labs
             EngineVersion = EngineInfo.Version,
             RulesVersion = EngineInfo.RulesVersion,
             HintsUsed = hintsUsed.Distinct().ToList(),
+            Answers = (answers ?? new Dictionary<string, LabAnswer>()).Where(a => !a.Value.IsEmpty).ToDictionary(a => a.Key, a => a.Value),
             Lab = Lab,
             Work = work
         };

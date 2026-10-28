@@ -95,9 +95,15 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     (main, vm, dialogs) = OpenMain();
     var exam = DemoLab(culture);
     exam.Exam = true;
+    exam.Questions = DemoQuestions(culture);
+    // L'apprenant reçoit le sujet : ni indices, ni corrigé des questions
+    var labs = new LabService();
+    exam = labs.Parse(labs.SerializeSubject(exam));
     vm.OpenBuiltInLabCommand.Execute(new LabMenuItem(exam, ""));
     dialogs.Lab!.StudentName = T(culture, "Camille Martin", "Alex Morgan");
-    Capture(new LabWindow { DataContext = dialogs.Lab, Width = 1400, Height = 900 }, Out("lab-exam"));
+    dialogs.Lab.Questions[0].Choices[0].IsSelected = true;
+    dialogs.Lab.Questions[1].Prompts[0].Selected = dialogs.Lab.Questions[1].Prompts[0].Options[1];
+    Capture(new LabWindow { DataContext = dialogs.Lab, Width = 1400, Height = 1000 }, Out("lab-exam"));
     main.Close();
 
     WriteRulesPage(repo, culture, lang);
@@ -106,6 +112,35 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
 }
 
 // ─── Démonstration propre à la documentation ────────────────────────────────
+
+// Questions de compréhension de l'examen de démonstration : générales, elles ne donnent pas la solution de l'exercice
+static List<LabQuestion> DemoQuestions(string culture)
+{
+    LocalizedText L(string fr, string en) => LocalizedText.Of(fr, en);
+    return
+    [
+        new() { Id = "q1", Kind = LabQuestionKind.TrueFalse, Points = 1,
+                Title = L("Le propriétaire d'un groupe peut en modifier les membres.", "The owner of a group can change its members."),
+                Choices = [new() { Id = "yes", Text = L("Oui", "Yes"), Correct = true }, new() { Id = "no", Text = L("Non", "No") }] },
+        new() { Id = "q2", Kind = LabQuestionKind.Matching, Points = 3, Partial = true,
+                Title = L("Associez chaque faiblesse à ce qu'elle permet.", "Match each weakness with what it allows."),
+                Prompts =
+                [
+                    new() { Id = "p1", Text = L("SPN sur un compte privilégié", "SPN on a privileged account"), Match = "a" },
+                    new() { Id = "p2", Text = L("Pré-authentification Kerberos désactivée", "Kerberos pre-authentication disabled"), Match = "b" },
+                    new() { Id = "p3", Text = L("Délégation non contrainte", "Unconstrained delegation"), Match = "c" }
+                ],
+                Choices =
+                [
+                    new() { Id = "a", Text = L("Kerberoasting", "Kerberoasting") },
+                    new() { Id = "b", Text = L("AS-REP roasting", "AS-REP roasting") },
+                    new() { Id = "c", Text = L("Capture des tickets des comptes qui s'y connectent", "Capture of the tickets of accounts that connect to it") },
+                    new() { Id = "d", Text = L("Désactivation de l'audit", "Disabling auditing") }
+                ] },
+        new() { Id = "q3", Kind = LabQuestionKind.Text, Points = 2,
+                Title = L("En une phrase : pourquoi un chemin d'attaque hors Tier 0 est-il grave ?", "In one sentence: why is an attack path outside Tier 0 serious?") }
+    ];
+}
 
 // Lors d'une migration, la propriété du groupe Schema Admins a été donnée au helpdesk, et personne ne l'a reprise.
 // Aucun exercice fourni n'utilise cette faiblesse.
@@ -348,8 +383,8 @@ sealed class CaptureDialogs : IDialogService
     public Task ShowSitesAsync(ADSitesTopology? topology) => Task.CompletedTask;
     public Task<string?> ShowExportReportAsync(ADRootDocument document) => Task.FromResult<string?>(null);
     public Task ShowAboutAsync() => Task.CompletedTask;
-    public bool OpenInStudio(string domainFile, out string studioPath) { studioPath = string.Empty; return false; }
     public Task ShowShortcutsAsync() => Task.CompletedTask;
     public Task<UnsavedChoice> AskUnsavedAsync(bool submission) => Task.FromResult(UnsavedChoice.Cancel);
     public Task<bool> ConfirmAsync(string title, string message, string yes, string no) => Task.FromResult(false);
+    public Task ShowMessageAsync(string title, string message) => Task.CompletedTask;
 }

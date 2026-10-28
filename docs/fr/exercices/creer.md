@@ -29,19 +29,18 @@ Tous produisent le même format : on peut commencer par A ou C et finir par B.
 4. Peuplez le domaine comme un vrai AD (services, utilisateurs, postes) : la faiblesse doit être à chercher, pas posée seule au milieu du vide.
 5. Enregistrez le domaine (`.smad-x.json`), pour pouvoir y revenir.
 
-### 2.2 Envoyer le domaine dans SMAD-X Studio
-**Exercices > Créer un exercice avec SMAD-X Studio...**
+### 2.2 Ouvrir le domaine dans SMAD-X Studio
+Lancez [SMAD-X Studio](studio.md), livré dans la même archive que SMAD-X, puis **Fichier > Nouvel exercice à partir d'un domaine (.smad-x.json)...** et choisissez le domaine enregistré.
 
-SMAD-X ouvre [SMAD-X Studio](studio.md), livré dans la même archive, sur le domaine actuel. Studio en fait le domaine de départ d'un nouvel exercice, pose le modèle d'énoncé et propose les objectifs tirés de l'audit et des chemins d'attaque.
-
-Sans cette entrée de menu (Studio lancé seul) : dans Studio, **Fichier > Nouvel exercice à partir d'un domaine (.smad-x.json)...**, puis choisissez le domaine enregistré.
+Studio en fait le domaine de départ d'un nouvel exercice, pose le modèle d'énoncé et propose les objectifs tirés de l'audit et des chemins d'attaque.
 
 ### 2.3 Compléter l'exercice dans Studio
 - onglet **Exercice** : titre, identifiant, niveau, durée et, si besoin, mode examen ;
 - onglet **Énoncé** : l'énoncé en Markdown (voir § 4) ;
 - onglet **Objectifs** : gardez les objectifs utiles, ajoutez les autres et les gardes (voir § 5) ;
+- onglet **Questions**, facultatif : des questions de compréhension (choix unique ou multiple, oui / non, association, réponse écrite) ;
 - onglet **Validation** : Studio vérifie l'exercice comme le font les tests des exercices fournis ;
-- **Fichier > Enregistrer** : l'exercice `.smadx-lab.json`, et à côté les notes du formateur.
+- **Fichier > Enregistrer dans un dossier...** : Studio range l'exercice dans un dossier à son nom, par rôle : votre exemplaire et ses notes dans `1-formateur`, le sujet à distribuer (sans le corrigé des questions et, pour un examen, sans les indices) dans `2-a-distribuer` ; les copies rendues iront dans `3-copies-rendues` (voir [SMAD-X Studio](studio.md#les-fichiers)).
 
 Le fichier reste du JSON lisible (voir § 3). Ne modifiez pas `Start` à la main : refaites plutôt le domaine dans SMAD-X et renvoyez-le dans Studio.
 
@@ -83,7 +82,7 @@ Le fichier reste du JSON lisible (voir § 3). Ne modifiez pas `Start` à la main
 
 | Champ | Rôle |
 |---|---|
-| `Format`, `FormatVersion` | `"smadx-lab"` et `2` (gardes marquées, réglages d'examen). Un fichier v1 est lu et ses gardes reconnues ; un fichier d'une version plus récente est refusé avec un message clair. |
+| `Format`, `FormatVersion` | `"smadx-lab"` et `3` (v2 : gardes marquées, réglages d'examen ; v3 : questions et crédit partiel). Un fichier v1 est lu et ses gardes reconnues ; un fichier d'une version plus récente est refusé avec un message clair. |
 | `EngineVersion` | Version de SMAD-X qui a écrit l'exercice ; la correction dépend de ses règles d'audit. |
 | `Exam`, `ExamCheck`, `ExamClosedTools` | Facultatifs. Mode examen, « Vérifier » permis en examen, outils fermés (`Audit`, `FixGuidance`, `AttackPaths`, `Comparison`). |
 | `Id` | Identifiant stable, sans espace. Il sert aussi au nom du compte rendu. |
@@ -95,6 +94,7 @@ Le fichier reste du JSON lisible (voir § 3). Ne modifiez pas `Start` à la main
 | `ReferenceDate` | Date à laquelle les dates du domaine ont été figées. À l'ouverture, toutes les dates sont décalées de « aujourd'hui − ReferenceDate » : un compte connecté « hier » le restera, quel que soit le jour où l'exercice est fait. |
 | `Start` | Le domaine de départ : un document `.smad-x.json` complet, migré à la lecture comme un fichier normal. |
 | `Objectives` | Les objectifs corrigés (§ 5). Le total des points est calculé, sans les gardes. |
+| `Questions` | Facultatif. Les questions de compréhension, avec leur corrigé dans l'exemplaire du formateur (voir [Format des fichiers](../format.md)). |
 
 ---
 
@@ -163,6 +163,7 @@ Pensez aussi à l'objectif « **plus aucun chemin hors Tier 0** » (`NoAttackPat
 
 ### 5.3 Points et indices
 - 3 à 4 points pour l'objectif principal, 2 pour l'objectif « hors Tier 0 » et les règles critiques ; une garde ne rapporte rien.
+- **Crédit partiel** (`"Partial": true`) pour un objectif qui se compte (constats d'une règle sur tout le domaine, gravité, score, chemins hors Tier 0) : quand il y a plusieurs comptes à corriger, l'apprenant qui en corrige une partie obtient la part correspondante des points.
 - Un indice par objectif, qui met sur la piste sans donner la manipulation exacte : « Regardez de quels groupes X est lui-même membre » plutôt que « Retirez X de Domain Admins ».
 
 ---

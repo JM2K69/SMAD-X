@@ -122,13 +122,14 @@
 
 ### 🧑‍🏫 SMAD-X Studio — création d'exercices pour les formateurs
 Un second exécutable, livré dans la même archive ([documentation](https://jm2k69.github.io/SMAD-X/exercices/studio/)) :
-- **Nouvel exercice à partir d'une recommandation** : une recette par règle d'audit / point de contrôle ANSSI, seule ou **plusieurs réunies** dans le même domaine ; Studio construit un domaine sain et peuplé et n'y injecte que ces manques
+- **Nouvel exercice à partir d'une recommandation** : une recette par règle d'audit / point de contrôle ANSSI, seule ou **plusieurs réunies** dans le même domaine ; Studio construit un domaine sain et peuplé, n'y injecte que ces manques, et produit le **domaine corrigé**, qui obtient tous les points
 - **Convertir** un scénario `.smad-x.json` en exercice : le contexte devient l'énoncé, le chemin et la correction vont dans les notes du formateur
 - Éditeur d'énoncé Markdown avec aperçu, éditeur d'objectifs avec **suggestions** tirées de l'audit et des chemins d'attaque, et **gardes** contre les corrections brutales : une garde violée annule les objectifs qui concernaient l'objet protégé
-- **Validation** comme les tests des exercices fournis (rien d'atteint au départ, gardes efficaces, aucune solution visible), correction du domaine corrigé par le formateur, et **fiche formateur** exportée
-- **Corriger une classe** : plusieurs copies ou un dossier entier, la note de chacun, la réussite par objectif, un CSV pour Excel et un bilan Markdown ; les copies retouchées, rendues sous un autre nom, contenant le domaine d'un autre, rouvertes hors mode examen ou faites avec une autre version de SMAD-X sont signalées
-- **Ligne de commande** pour les lots : `SMAD-X.Studio recipe all --lang fr --out exercices`, `convert`, `validate`, `grade exercice.smadx-lab.json copies/ --csv notes.csv`
-- Lancé depuis SMAD-X (**Exercices > Créer un exercice avec SMAD-X Studio...**) sur le domaine affiché
+- **Questions de compréhension** posées avec les objectifs : choix unique ou multiple, oui / non, association, réponse écrite ; **crédit partiel** pour les objectifs qui se comptent et les questions à plusieurs réponses
+- **Exemplaire du formateur et sujet** : votre fichier garde les indices et le corrigé ; le **sujet** exporté n'en a aucun, et SMAD-X refuse d'ouvrir l'exemplaire d'un examen
+- **Validation** comme les tests des exercices fournis (rien d'atteint au départ, gardes efficaces, aucune solution visible, questions complètes), **solution proposée** pour n'importe quel exercice (chaque constat de l'audit corrigé sans rien supprimer, gardes respectées) ou faite à la main dans SMAD-X, gardée avec l'exercice, et **fiche formateur**
+- **Corriger une classe** : plusieurs copies ou un dossier entier, la note de chacun, les réponses écrites notées à la main avec une appréciation, la réussite par objectif et par question ; exports CSV (note sur 20 pour l'ENT), **Moodle**, **comptes rendus individuels en PDF** et bilan Markdown ; les copies retouchées, rendues sous un autre nom, contenant le domaine d'un autre, rouvertes hors mode examen ou faites avec une autre version de SMAD-X sont signalées
+- **Ligne de commande** pour les lots : `SMAD-X.Studio recipe all --lang fr --out exercices`, `convert`, `validate`, `export-subject`, `grade exercice.smadx-lab.json copies/ --csv notes.csv --moodle moodle.csv --reports comptes-rendus`
 
 ## 🚀 Démarrage rapide
 

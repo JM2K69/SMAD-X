@@ -124,8 +124,6 @@
                         </MenuItem.Styles>
                     </MenuItem>
                     <MenuItem Header="{Binding MenuLabsOpen}" Command="{Binding #MainWindowRoot.DataContext.OpenLabFileCommand}" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
-                    <Separator IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
-                    <MenuItem Header="{Binding MenuLabsOpenInStudio}" Command="{Binding #MainWindowRoot.DataContext.OpenInStudioCommand}" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
                 </MenuItem>
                 <MenuItem Header="{Binding MenuHelp}">
                     <MenuItem Header="{Binding MenuHelpShortcuts}" Command="{Binding #MainWindowRoot.DataContext.ShowShortcutsCommand}"/>

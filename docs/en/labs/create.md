@@ -29,19 +29,18 @@ All produce the same format: you can start with A or C and finish with B.
 4. Populate the domain like a real AD (departments, users, workstations): the weakness must be searched for, not sitting alone in an empty domain.
 5. Save the domain (`.smad-x.json`) so you can come back to it.
 
-### 2.2 Send the domain to SMAD-X Studio
-**Labs > Create a lab with SMAD-X Studio...**
+### 2.2 Open the domain in SMAD-X Studio
+Start [SMAD-X Studio](studio.md), shipped in the same archive as SMAD-X, then **File > New lab from a domain (.smad-x.json)...** and pick the saved domain.
 
-SMAD-X opens [SMAD-X Studio](studio.md), shipped in the same archive, on the current domain. Studio makes it the starting domain of a new lab, lays out the statement template and suggests the objectives drawn from the audit and the attack paths.
-
-Without this menu entry (Studio started on its own): in Studio, **File > New lab from a domain (.smad-x.json)...**, then pick the saved domain.
+Studio makes it the starting domain of a new lab, lays out the statement template and suggests the objectives drawn from the audit and the attack paths.
 
 ### 2.3 Complete the lab in Studio
 - **Lab** tab: title, identifier, level, duration and, if needed, exam mode;
 - **Statement** tab: the Markdown statement (see § 4);
 - **Objectives** tab: keep the useful objectives, add the others and the guards (see § 5);
+- **Questions** tab, optional: comprehension questions (single or multiple choice, yes / no, matching, written answer);
 - **Validation** tab: Studio checks the lab as the shipped labs' tests do;
-- **File > Save**: the `.smadx-lab.json` lab, with the trainer notes beside it.
+- **File > Save to a folder...**: Studio lays the lab out in a folder named after it, by role: your copy and its notes in `1-trainer`, the subject to hand out (without the answer key and, for an exam, without the hints) in `2-to-hand-out`; the submissions handed in will go to `3-submissions` (see [SMAD-X Studio](studio.md#the-files)).
 
 The file is still readable JSON (see § 3). Do not edit `Start` by hand: rebuild the domain in SMAD-X and send it to Studio again.
 
@@ -83,7 +82,7 @@ The file is still readable JSON (see § 3). Do not edit `Start` by hand: rebuild
 
 | Field | Purpose |
 |---|---|
-| `Format`, `FormatVersion` | `"smadx-lab"` and `2` (marked guards, exam settings). A v1 file is read and its guards recognised; a file from a newer version is refused with a clear message. |
+| `Format`, `FormatVersion` | `"smadx-lab"` and `3` (v2: marked guards, exam settings; v3: questions and partial credit). A v1 file is read and its guards recognised; a file from a newer version is refused with a clear message. |
 | `EngineVersion` | SMAD-X version that wrote the lab; grading depends on its audit rules. |
 | `Exam`, `ExamCheck`, `ExamClosedTools` | Optional. Exam mode, "Check" allowed during the exam, closed tools (`Audit`, `FixGuidance`, `AttackPaths`, `Comparison`). |
 | `Id` | Stable identifier, no spaces. Also used for the report file name. |
@@ -95,6 +94,7 @@ The file is still readable JSON (see § 3). Do not edit `Start` by hand: rebuild
 | `ReferenceDate` | Date at which the domain's dates were frozen. When the lab opens, every date is shifted by "today − ReferenceDate": an account that logged on "yesterday" still did, whatever day the lab is taken. |
 | `Start` | The starting domain: a full `.smad-x.json` document, migrated on load like any file. |
 | `Objectives` | The graded objectives (§ 5). The point total is computed, guards excluded. |
+| `Questions` | Optional. The comprehension questions, with their answer key in the trainer's copy (see [File format](../file-format.md)). |
 
 ---
 
@@ -162,6 +162,7 @@ Also consider the "**no path left outside Tier 0**" objective (`NoAttackPath` wi
 
 ### 5.3 Points and hints
 - 3 to 4 points for the main objective, 2 for "outside Tier 0" and critical rules; a guard earns nothing.
+- **Partial credit** (`"Partial": true`) for an objective that can be counted (a rule's findings over the whole domain, severity, score, paths outside Tier 0): when several accounts need fixing, a learner who fixes some of them earns the matching share of the points.
 - One hint per objective, pointing in the right direction without giving the exact action: "Look at which groups X itself belongs to" rather than "Remove X from Domain Admins".
 
 ---

@@ -18,6 +18,7 @@
                 <MenuItem Header="{Binding [Menu.Save], Source={StaticResource S}}" Command="{Binding SaveCommand}" InputGesture="Ctrl+S" HotKey="Ctrl+S"/>
                 <MenuItem Header="{Binding [Menu.SaveAs], Source={StaticResource S}}" Command="{Binding SaveAsCommand}"/>
                 <MenuItem Header="{Binding [Menu.ExportSheet], Source={StaticResource S}}" Command="{Binding ExportSheetCommand}"/>
+                <MenuItem Header="{Binding [Menu.ExportSubject], Source={StaticResource S}}" Command="{Binding ExportSubjectCommand}"/>
                 <Separator/>
                 <MenuItem Header="{Binding [Menu.Quit], Source={StaticResource S}}" Click="Quit"/>
             </MenuItem>
@@ -92,6 +93,9 @@
                                     <CheckBox IsChecked="{Binding ExamCloseComparison}" Content="{Binding [Lab.ExamTools.Comparison], Source={StaticResource S}}"/>
                                     <TextBlock Classes="hint" Text="{Binding [Lab.ExamTools.Hint], Source={StaticResource S}}"/>
                                 </StackPanel>
+                                <!-- Le sujet : ce qui se distribue, sans indices (examen) ni corrigé des questions -->
+                                <Button Margin="0,16,0,2" Command="{Binding ExportSubjectCommand}" Content="{Binding [Menu.ExportSubject], Source={StaticResource S}}"/>
+                                <TextBlock Classes="hint" Text="{Binding [Lab.Subject.Hint], Source={StaticResource S}}"/>
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
@@ -218,6 +222,8 @@
                                                 <TextBlock Text="{Binding Description}" TextWrapping="Wrap"/>
                                                 <CheckBox IsVisible="{Binding CanBeGuard}" IsChecked="{Binding IsGuard}" Content="{Binding [Objective.IsGuard], Source={StaticResource S}}"/>
                                                 <TextBlock Classes="hint" IsVisible="{Binding CanBeGuard}" Text="{Binding [Objective.Guard], Source={StaticResource S}}"/>
+                                                <CheckBox IsVisible="{Binding CanBePartial}" IsChecked="{Binding IsPartial}" Content="{Binding [Objective.IsPartial], Source={StaticResource S}}"/>
+                                                <TextBlock Classes="hint" IsVisible="{Binding CanBePartial}" Text="{Binding [Objective.Partial], Source={StaticResource S}}"/>
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
@@ -255,6 +261,102 @@
                         </Grid>
                     </TabItem>
 
+                    <!-- ═══ Questions de compréhension ═══ -->
+                    <TabItem Header="{Binding [Tab.Questions], Source={StaticResource S}}">
+                        <Grid ColumnDefinitions="380,6,*" Margin="8">
+                            <DockPanel Grid.Column="0">
+                                <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,8" Text="{Binding [Questions.Intro], Source={StaticResource S}}"/>
+                                <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                    <Button Classes="accent" Command="{Binding AddQuestionCommand}" Content="{Binding [Questions.Add], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding RemoveQuestionCommand}" Content="{Binding [Objectives.Remove], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding MoveQuestionUpCommand}" Content="▲"/>
+                                    <Button Command="{Binding MoveQuestionDownCommand}" Content="▼"/>
+                                </WrapPanel>
+                                <TextBlock DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                                    <Run Text="{Binding [Lab.Points], Source={StaticResource S}}"/><Run Text=" : "/><Run Text="{Binding TotalPoints}"/>
+                                </TextBlock>
+                                <ListBox ItemsSource="{Binding Questions}" SelectedItem="{Binding SelectedQuestion}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Summary}" TextWrapping="Wrap"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+
+                            <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+
+                            <ScrollViewer Grid.Column="2">
+                                <StackPanel Margin="8,0,8,8" DataContext="{Binding SelectedQuestion}" IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <TextBlock Classes="label" Text="{Binding [Question.Title], Source={StaticResource S}}"/>
+                                    <TextBox Text="{Binding Title}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50"/>
+                                    <Grid ColumnDefinitions="200,16,120">
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Classes="label" Text="{Binding [Question.Kind], Source={StaticResource S}}"/>
+                                            <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #Root.DataContext.QuestionKinds}" SelectedItem="{Binding KindChoice}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Classes="label" Text="{Binding [Question.Points], Source={StaticResource S}}"/>
+                                            <NumericUpDown Minimum="0" Maximum="50" FormatString="0" Value="{Binding Points}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <CheckBox Margin="0,8,0,0" IsVisible="{Binding CanBePartial}" IsChecked="{Binding Partial}" Content="{Binding [Question.Partial], Source={StaticResource S}}"/>
+
+                                    <!-- Association : les paires -->
+                                    <StackPanel IsVisible="{Binding IsMatching}">
+                                        <TextBlock Classes="label" Text="{Binding [Question.Pairs], Source={StaticResource S}}" TextWrapping="Wrap"/>
+                                        <ItemsControl ItemsSource="{Binding Pairs}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid ColumnDefinitions="*,Auto,*,Auto" Margin="0,2">
+                                                        <TextBox Grid.Column="0" Text="{Binding Left}"/>
+                                                        <TextBlock Grid.Column="1" Text="→" Margin="8,0" VerticalAlignment="Center"/>
+                                                        <TextBox Grid.Column="2" Text="{Binding Right}"/>
+                                                        <Button Grid.Column="3" Margin="6,0,0,0" Content="✕"
+                                                                Command="{Binding #Root.DataContext.SelectedQuestion.RemovePairCommand}" CommandParameter="{Binding}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <Button Margin="0,4,0,0" Command="{Binding AddPairCommand}" Content="{Binding [Question.AddPair], Source={StaticResource S}}"/>
+                                    </StackPanel>
+
+                                    <!-- Choix à cocher, ou intrus d'une association -->
+                                    <StackPanel IsVisible="{Binding ShowChoices}">
+                                        <TextBlock Classes="label" IsVisible="{Binding IsChoice}" Text="{Binding [Question.Choices], Source={StaticResource S}}"/>
+                                        <TextBlock Classes="label" IsVisible="{Binding IsMatching}" Text="{Binding [Question.Distractors], Source={StaticResource S}}" TextWrapping="Wrap"/>
+                                        <ItemsControl ItemsSource="{Binding Choices}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,2">
+                                                        <CheckBox Grid.Column="0" IsChecked="{Binding Correct}" IsVisible="{Binding !#Root.DataContext.SelectedQuestion.IsMatching}"/>
+                                                        <TextBox Grid.Column="1" Text="{Binding Text}"/>
+                                                        <Button Grid.Column="2" Margin="6,0,0,0" Content="✕" IsVisible="{Binding #Root.DataContext.SelectedQuestion.CanEditChoices}"
+                                                                Command="{Binding #Root.DataContext.SelectedQuestion.RemoveChoiceCommand}" CommandParameter="{Binding}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <Button Margin="0,4,0,0" Command="{Binding AddChoiceCommand}" IsVisible="{Binding IsChoice}"
+                                                IsEnabled="{Binding CanEditChoices}" Content="{Binding [Question.AddChoice], Source={StaticResource S}}"/>
+                                        <Button Margin="0,4,0,0" Command="{Binding AddChoiceCommand}" IsVisible="{Binding IsMatching}"
+                                                Content="{Binding [Question.AddDistractor], Source={StaticResource S}}"/>
+                                    </StackPanel>
+
+                                    <!-- Réponse écrite -->
+                                    <StackPanel IsVisible="{Binding IsText}">
+                                        <TextBlock Classes="label" Text="{Binding [Question.Accepted], Source={StaticResource S}}"/>
+                                        <TextBox Text="{Binding AcceptedAnswers}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60"/>
+                                        <TextBlock Classes="hint" Text="{Binding [Question.Accepted.Hint], Source={StaticResource S}}"/>
+                                    </StackPanel>
+
+                                    <TextBlock Classes="label" Text="{Binding [Question.Hint], Source={StaticResource S}}"/>
+                                    <TextBox Text="{Binding Hint}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="40"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
+                    </TabItem>
+
                     <!-- ═══ Validation ═══ -->
                     <TabItem Header="{Binding [Tab.Validation], Source={StaticResource S}}">
                         <DockPanel Margin="8">
@@ -262,6 +364,7 @@
                                 <TextBlock Classes="hint" Text="{Binding [Validation.Intro], Source={StaticResource S}}"/>
                                 <StackPanel Orientation="Horizontal">
                                     <Button Classes="accent" Command="{Binding ValidateCommand}" Content="{Binding [Validation.Run], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding ProposeSolutionCommand}" Content="{Binding [Validation.Propose], Source={StaticResource S}}"/>
                                     <Button Command="{Binding ChooseSolutionCommand}" Content="{Binding [Validation.Solution], Source={StaticResource S}}"/>
                                 </StackPanel>
                                 <TextBlock Classes="hint" Text="{Binding SolutionLabel}"/>
@@ -312,12 +415,18 @@
                                     <Button Command="{Binding AddSubmissionFolderCommand}" Content="{Binding [Submissions.AddFolder], Source={StaticResource S}}"/>
                                     <Button Command="{Binding RegradeSubmissionsCommand}" Content="{Binding [Submissions.Regrade], Source={StaticResource S}}"/>
                                     <Button Command="{Binding ExportGradesCommand}" Content="{Binding [Submissions.ExportCsv], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding ExportMoodleCommand}" Content="{Binding [Submissions.ExportMoodle], Source={StaticResource S}}"/>
+                                    <Button Command="{Binding ExportReportsCommand}" Content="{Binding [Submissions.ExportReports], Source={StaticResource S}}"/>
                                     <Button Command="{Binding ExportClassReportCommand}" Content="{Binding [Submissions.ExportReport], Source={StaticResource S}}"/>
                                     <Button Command="{Binding ClearSubmissionsCommand}" Content="{Binding [Submissions.Clear], Source={StaticResource S}}"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="12,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding [Submissions.Scale], Source={StaticResource S}}"/>
+                                        <NumericUpDown Minimum="1" Maximum="1000" FormatString="0" Value="{Binding Scale}" Width="110"/>
+                                    </StackPanel>
                                 </WrapPanel>
                                 <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding ClassSummary}"/>
                             </StackPanel>
-                            <Grid ColumnDefinitions="*,6,340">
+                            <Grid ColumnDefinitions="*,6,400">
                                 <DockPanel Grid.Column="0">
                                     <Grid DockPanel.Dock="Top" ColumnDefinitions="190,80,55,55,150,130,*" Margin="12,0,12,4">
                                         <TextBlock Grid.Column="0" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Student], Source={StaticResource S}}"/>
@@ -328,7 +437,7 @@
                                         <TextBlock Grid.Column="5" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.SavedAt], Source={StaticResource S}}"/>
                                         <TextBlock Grid.Column="6" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Remarks], Source={StaticResource S}}"/>
                                     </Grid>
-                                    <ListBox ItemsSource="{Binding Submissions}">
+                                    <ListBox ItemsSource="{Binding Submissions}" SelectedItem="{Binding SelectedSubmission}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid ColumnDefinitions="190,80,55,55,150,130,*">
@@ -355,8 +464,42 @@
                                     </ListBox>
                                 </DockPanel>
                                 <GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
-                                <DockPanel Grid.Column="2" Margin="8,0,0,0">
-                                    <TextBlock DockPanel.Dock="Top" Classes="label" Margin="0,0,0,8" Text="{Binding [Submissions.Rates], Source={StaticResource S}}"/>
+                                <TabControl Grid.Column="2" Margin="8,0,0,0">
+                                  <!-- Copie sélectionnée : les réponses, les points donnés à la main, l'appréciation -->
+                                  <TabItem FontSize="15" Header="{Binding [Submissions.Selected], Source={StaticResource S}}">
+                                    <ScrollViewer>
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding !HasSelectedSubmission}" Text="{Binding [Submissions.NoSelection], Source={StaticResource S}}"/>
+                                            <StackPanel Spacing="6" IsVisible="{Binding HasSelectedSubmission}">
+                                                <TextBlock FontWeight="SemiBold" Text="{Binding SelectedSubmission.Student}"/>
+                                                <TextBlock Text="{Binding SelectedSubmission.Grade}"/>
+                                                <ItemsControl ItemsSource="{Binding SelectedAnswers}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Margin="0,0,0,8" Padding="8" CornerRadius="4" Background="#18FFFFFF">
+                                                                <StackPanel Spacing="3">
+                                                                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                                    <TextBlock TextWrapping="Wrap">
+                                                                        <Run Text="{Binding [Submissions.Answer], Source={StaticResource S}}"/><Run Text=" : "/><Run Text="{Binding Answer}"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Classes="hint">
+                                                                        <Run Text="{Binding [Submissions.Automatic], Source={StaticResource S}}"/><Run Text=" : "/><Run Text="{Binding Automatic}"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock Classes="hint" Text="{Binding [Submissions.Manual], Source={StaticResource S}}" TextWrapping="Wrap"/>
+                                                                    <NumericUpDown Minimum="0" Maximum="{Binding Max}" Increment="0.5" FormatString="0.##" Value="{Binding Points}" Width="120" HorizontalAlignment="Left"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <TextBlock Classes="label" Text="{Binding [Submissions.Comment], Source={StaticResource S}}"/>
+                                                <TextBox Text="{Binding Comment}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="70"/>
+                                                <Button Classes="accent" Command="{Binding SaveMarksCommand}" Content="{Binding [Submissions.SaveMarks], Source={StaticResource S}}"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </ScrollViewer>
+                                  </TabItem>
+                                  <TabItem FontSize="15" Header="{Binding [Submissions.Rates], Source={StaticResource S}}">
                                     <ScrollViewer>
                                         <ItemsControl ItemsSource="{Binding ObjectiveRates}">
                                             <ItemsControl.ItemTemplate>
@@ -372,7 +515,8 @@
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                     </ScrollViewer>
-                                </DockPanel>
+                                  </TabItem>
+                                </TabControl>
                             </Grid>
                         </DockPanel>
                     </TabItem>

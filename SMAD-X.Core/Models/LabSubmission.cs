@@ -11,13 +11,21 @@ namespace SMADX.Models
     /// </summary>
     public sealed class LabSubmission
     {
-        /// <summary>Version du format des copies écrite par cette version de SMAD-X. v2 : version du moteur et temps passé.</summary>
-        public const int CurrentFormatVersion = 2;
+        /// <summary>
+        /// Version du format des copies écrite par cette version de SMAD-X. v2 : version du moteur et temps passé.
+        /// v3 : réponses aux questions et identifiant de l'apprenant.
+        /// </summary>
+        public const int CurrentFormatVersion = 3;
 
         public string Format { get; set; } = "smadx-submission";
         public int FormatVersion { get; set; } = CurrentFormatVersion;
 
         public string Student { get; set; } = string.Empty;
+
+        /// <summary>Identifiant de l'apprenant (numéro, adresse) pour l'export vers Moodle ou l'ENT ; facultatif.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? StudentId { get; set; }
+
         public string LabId { get; set; } = string.Empty;
 
         /// <summary>Session de travail : les identifiants des objets du domaine en sont dérivés.</summary>
@@ -40,8 +48,11 @@ namespace SMADX.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? RulesVersion { get; set; }
 
-        /// <summary>Identifiants des objectifs dont l'indice a été consulté.</summary>
+        /// <summary>Identifiants des objectifs (et des questions) dont l'indice a été consulté.</summary>
         public List<string> HintsUsed { get; set; } = new();
+
+        /// <summary>Réponses aux questions, par identifiant de question.</summary>
+        public Dictionary<string, LabAnswer> Answers { get; set; } = new();
 
         /// <summary>Exercice reçu par l'apprenant (pour reprendre le travail ; la correction utilise celui du formateur).</summary>
         public LabDefinition Lab { get; set; } = null!;

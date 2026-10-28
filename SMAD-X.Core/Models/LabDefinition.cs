@@ -14,9 +14,10 @@ namespace SMADX.Models
     {
         /// <summary>
         /// Version du format des exercices écrite par cette version de SMAD-X. v2 : gardes explicites
-        /// (<see cref="LabObjective.Guard"/>), réglages d'examen et version du moteur.
+        /// (<see cref="LabObjective.Guard"/>), réglages d'examen et version du moteur. v3 : questions de
+        /// compréhension (<see cref="Questions"/>) et crédit partiel (<see cref="LabObjective.Partial"/>).
         /// </summary>
-        public const int CurrentFormatVersion = 2;
+        public const int CurrentFormatVersion = 3;
 
         public string Format { get; set; } = "smadx-lab";
         public int FormatVersion { get; set; } = CurrentFormatVersion;
@@ -75,8 +76,25 @@ namespace SMADX.Models
 
         public List<LabObjective> Objectives { get; set; } = new();
 
-        /// <summary>Total des points ; une garde n'en rapporte pas.</summary>
-        public int MaxPoints => Objectives.Where(o => !o.Guard).Sum(o => o.Points);
+        /// <summary>Questions de compréhension, notées avec les objectifs.</summary>
+        public List<LabQuestion> Questions { get; set; } = new();
+
+        /// <summary>Total des points, objectifs et questions ; une garde n'en rapporte pas.</summary>
+        public int MaxPoints => ObjectivePoints + Questions.Sum(q => q.Points);
+
+        /// <summary>Points des objectifs seuls : ceux que rapporte le domaine (le domaine corrigé les obtient tous).</summary>
+        [JsonIgnore]
+        public int ObjectivePoints => Objectives.Where(o => !o.Guard).Sum(o => o.Points);
+
+        /// <summary>
+        /// Exemplaire du formateur : un examen qui contient encore des indices ou le corrigé de ses questions.
+        /// Il ne se distribue pas, et SMAD-X refuse de l'ouvrir : on distribue le sujet (voir
+        /// <see cref="Services.Labs.LabService.SerializeSubject"/>).
+        /// </summary>
+        [JsonIgnore]
+        public bool IsTrainerCopy => Exam && (Questions.Any(q => q.HasAnswerKey || HasText(q.Hint)) || Objectives.Any(o => HasText(o.Hint)));
+
+        private static bool HasText(LocalizedText text) => text.Values.Any(t => !string.IsNullOrWhiteSpace(t));
 
         /// <summary>Vrai si l'outil est fermé : seulement en examen.</summary>
         public bool IsClosed(LabTools tool) => Exam && ExamClosedTools.HasFlag(tool);
@@ -133,6 +151,14 @@ namespace SMADX.Models
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool Guard { get; set; }
+
+        /// <summary>
+        /// Crédit partiel : un objectif à moitié atteint (3 constats levés sur 4, score à mi-chemin) rapporte la part
+        /// correspondante des points. Pour les vérifications qui se comptent (voir
+        /// <see cref="Services.Labs.LabAuthoring.CanBePartial"/>). Écrit seulement s'il est activé.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Partial { get; set; }
 
         public LabCheck Check { get; set; } = new();
     }

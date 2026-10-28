@@ -65,13 +65,52 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     vm.SuggestCommand.Execute(null);
     Capture(main, Out("studio-suggestions"));
     vm.CloseSuggestionsCommand.Execute(null);
+
+    // Deux questions de compréhension : un oui / non et une association
     Tab(main, 3);
+    vm.AddQuestionCommand.Execute(null);
+    var yesNo = vm.SelectedQuestion!;
+    yesNo.Kind = LabQuestionKind.TrueFalse;
+    yesNo.Title = T(culture, "Un compte de service peut rester membre de Domain Admins s'il a un mot de passe long.",
+                             "A service account may stay a member of Domain Admins if its password is long.");
+    yesNo.Choices[1].Correct = true;
+    vm.AddQuestionCommand.Execute(null);
+    var matching = vm.SelectedQuestion!;
+    matching.Kind = LabQuestionKind.Matching;
+    matching.Points = 3;
+    matching.Partial = true;
+    matching.Title = T(culture, "Associez chaque faiblesse à ce qu'elle permet.", "Match each weakness with what it allows.");
+    foreach (var (left, right) in new[]
+             {
+                 (T(culture, "SPN sur un compte privilégié", "SPN on a privileged account"), T(culture, "Casser son mot de passe hors ligne", "Crack its password offline")),
+                 (T(culture, "Délégation vers les services d'un DC", "Delegation to a DC's services"), T(culture, "Se faire passer pour un administrateur auprès du DC", "Impersonate an administrator to the DC")),
+                 (T(culture, "Propriétaire de Domain Admins", "Owner of Domain Admins"), T(culture, "Modifier les membres du groupe", "Change the group's members"))
+             })
+    {
+        matching.AddPairCommand.Execute(null);
+        matching.Pairs[^1].Left = left;
+        matching.Pairs[^1].Right = right;
+    }
+    matching.AddChoiceCommand.Execute(null);
+    matching.Choices[^1].Text = T(culture, "Désactiver l'audit", "Disable auditing");
+    Capture(main, Out("studio-questions"));
+    // Passer d'une question à l'autre ne doit rien changer à leur forme (la liste « Forme » est partagée)
+    foreach (var q in new[] { yesNo, matching, yesNo, matching })
+    {
+        vm.SelectedQuestion = q;
+        Pump(100);
+    }
+    if (yesNo.Kind != LabQuestionKind.TrueFalse || matching.Kind != LabQuestionKind.Matching || matching.Model.Choices.Count != 4)
+        throw new Exception("Changer de question a modifié la forme d'une question.");
+
+    Tab(main, 4);
     vm.ValidateCommand.Execute(null);
     Capture(main, Out("studio-validation"));
 
     // ─── Copies d'une classe fictive ──────────────────────────────────────────
     vm.AddSubmissions(ClassSubmissions(vm.Lab!, culture));
-    Tab(main, 5);
+    vm.SelectedSubmission = vm.Submissions.FirstOrDefault(s => s.Graded.Graded && s.Graded.Result!.Questions.Count > 0);
+    Tab(main, 6);
     Capture(main, Out("studio-submissions"));
     main.Close();
 
@@ -104,22 +143,30 @@ static IReadOnlyList<string> ClassSubmissions(LabDefinition lab, string culture)
         svc.Parent!.Children.Remove(svc);
     }
 
-    var students = new (string Fr, string En, Action<ADObject>[] Work, string[] Hints, int Minutes)[]
+    // Réponses aux deux questions : oui / non (q1), puis les associations (q2) ; les propositions sont celles saisies plus haut
+    var matching = lab.Questions.Single(q => q.Kind == LabQuestionKind.Matching);
+    var pairs = matching.Prompts!.Select(p => p.Match!).ToList();
+    Dictionary<string, LabAnswer> Answers(string yesNo, params int[] order) => new()
     {
-        ("Camille Martin", "Alex Morgan", [Kerberoast, Delegation, Owner], [], 38),
-        ("Lucas Bernard", "Sam Taylor", [Kerberoast, Owner], ["o5", "o6"], 52),
-        ("Inès Moreau", "Jordan Lee", [DeleteAccount, Owner], ["o6"], 45),
-        ("Hugo Petit", "Chris Walker", [], ["o5"], 30),
+        ["q1"] = new LabAnswer { Choices = [yesNo] },
+        ["q2"] = new LabAnswer { Matches = matching.Prompts!.Select((p, i) => (p.Id, pairs[order[i]])).ToDictionary(x => x.Id, x => x.Item2) }
+    };
+    var students = new (string Fr, string En, Action<ADObject>[] Work, string[] Hints, int Minutes, Dictionary<string, LabAnswer> Answers)[]
+    {
+        ("Camille Martin", "Alex Morgan", [Kerberoast, Delegation, Owner], [], 38, Answers("no", 0, 1, 2)),
+        ("Lucas Bernard", "Sam Taylor", [Kerberoast, Owner], ["o5", "o6"], 52, Answers("no", 1, 0, 2)),
+        ("Inès Moreau", "Jordan Lee", [DeleteAccount, Owner], ["o6"], 45, Answers("yes", 0, 1, 2)),
+        ("Hugo Petit", "Chris Walker", [], ["o5"], 30, Answers("yes", 2, 0, 1)),
     };
     var paths = new List<string>();
-    foreach (var (fr, en, work, hints, minutes) in students)
+    foreach (var (fr, en, work, hints, minutes, answers) in students)
     {
         var session = LabSession.Begin(lab, started);
         var document = session.NewWorkingCopy();
         foreach (var step in work) step(document.Domain);
         var name = T(culture, fr, en);
         var path = Path.Combine(folder, LabSubmissionService.SuggestedFileName(lab.Id, name));
-        new LabSubmissionService().SaveFile(session.ToSubmission(name, document, hints, started.AddMinutes(minutes)), path);
+        new LabSubmissionService().SaveFile(session.ToSubmission(name, document, hints, started.AddMinutes(minutes), answers), path);
         paths.Add(path);
     }
 
@@ -134,7 +181,7 @@ static IReadOnlyList<string> ClassSubmissions(LabDefinition lab, string culture)
 
 static void Tab(Window window, int index)
 {
-    window.GetVisualDescendants().OfType<TabControl>().Single().SelectedIndex = index;
+    window.GetVisualDescendants().OfType<TabControl>().First().SelectedIndex = index;
     Pump();
 }
 
