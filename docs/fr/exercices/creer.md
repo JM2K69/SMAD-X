@@ -40,7 +40,7 @@ Studio en fait le domaine de départ d'un nouvel exercice, pose le modèle d'én
 - onglet **Objectifs** : gardez les objectifs utiles, ajoutez les autres et les gardes (voir § 5) ;
 - onglet **Questions**, facultatif : des questions de compréhension (choix unique ou multiple, oui / non, association, réponse écrite) ;
 - onglet **Validation** : Studio vérifie l'exercice comme le font les tests des exercices fournis ;
-- **Fichier > Enregistrer dans un dossier...** : Studio range l'exercice dans un dossier à son nom, par rôle : votre exemplaire et ses notes dans `1-formateur`, le sujet à distribuer (sans le corrigé des questions et, pour un examen, sans les indices) dans `2-a-distribuer` ; les copies rendues iront dans `3-copies-rendues` (voir [SMAD-X Studio](studio.md#les-fichiers)).
+- dès la création, Studio a demandé où ranger l'exercice et l'a rangé dans un dossier à son nom, par rôle ; **Enregistrer** (`Ctrl+S`) le réécrit : votre exemplaire et ses notes dans `1-formateur`, le sujet à distribuer (sans le corrigé des questions et, pour un examen, sans les indices) dans `2-a-distribuer` ; les copies rendues iront dans `3-copies-rendues` (voir [SMAD-X Studio](studio.md#les-fichiers)).
 
 Le fichier reste du JSON lisible (voir § 3). Ne modifiez pas `Start` à la main : refaites plutôt le domaine dans SMAD-X et renvoyez-le dans Studio.
 

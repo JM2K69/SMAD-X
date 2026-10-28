@@ -8,6 +8,9 @@ namespace SMADX.Models
     /// Historique du format :
     ///   - v1 : fichier = ADObject directement (pas de champ "Version")
     ///   - v2 : fichier = { "Version": 2, "Domain": {...}, "SitesTopology": {...}, "TierConfigurations": [...] }
+    ///   - v3 (0.11) : même structure ; nouveaux droits de délégation (WriteDacl, Replication…), LAPS,
+    ///     administrateurs locaux et sessions des ordinateurs. Une version plus ancienne de SMAD-X refuse le
+    ///     fichier au lieu de perdre ces données à l'enregistrement.
     ///
     /// À la lecture, Services.ADDocumentMigrator fait passer un fichier ancien à la version
     /// courante et refuse un fichier écrit par une version plus récente de SMAD-X.
@@ -18,7 +21,7 @@ namespace SMADX.Models
         /// Version du format écrite par cette version de SMAD-X. Une modification incompatible
         /// du format l'incrémente et ajoute l'étape correspondante dans ADDocumentMigrator.
         /// </summary>
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
 
         /// <summary>Version du format. Toujours <see cref="CurrentVersion"/> à l'écriture.</summary>
         public int Version { get; set; } = CurrentVersion;

@@ -8,6 +8,8 @@
 
 **File > Generate AD Import Script...** (`Ctrl+I`) produces a PowerShell script to run on a domain machine, with the ActiveDirectory module. It reads the structure, security attributes (`userAccountControl`, SPNs, delegation, `adminCount`, owners, `pwdLastSet` and `lastLogonTimestamp` dates), delegations and the site topology, then writes a `.smad-x.json` to open in SMAD-X.
 
+Of the permissions, it keeps those that give control, sorted into the SMAD-X categories (see [Modeling](modeling.md#delegations)): on OUs, containers and the domain, all of them; on an account, a group, a computer or a GPO, the ACEs set on the object itself, without those its class gives everywhere (Account Operators, Cert Publishers…). It also reads each computer's LAPS password expiration and who can read the password (legacy LAPS or Windows LAPS, from the forest schema), and who can read each gMSA password. Local administrators are not in the directory: every computer gets those of a joined machine (Domain Admins, Builtin Administrators on a DC). Sessions are not collected: add them in SMAD-X to show where an administrator logs on.
+
 This is the fastest way to **audit an existing domain** and look for attack paths in it, without installing an agent or granting SMAD-X any right: the script only reads.
 
 Only the permissions that give control are kept: full control, changing the permissions or the owner, password reset, writing the members of a group or every attribute, directory replication. Read access and denied permissions (`Deny`) are ignored.

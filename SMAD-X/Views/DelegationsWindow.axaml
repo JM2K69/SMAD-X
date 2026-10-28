@@ -43,6 +43,10 @@
 					<TextBlock Text="{Binding CountFullControl}" FontSize="20" FontWeight="Bold" Foreground="#D13438"/>
 				</StackPanel>
 				<StackPanel>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCardSensitive}" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding CountSensitive}" FontSize="20" FontWeight="Bold" Foreground="#A4262C"/>
+				</StackPanel>
+				<StackPanel>
 					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryOther}" FontSize="11" Foreground="#666"/>
 					<TextBlock Text="{Binding CountOther}" FontSize="20" FontWeight="Bold" Foreground="#767676"/>
 				</StackPanel>
@@ -160,7 +164,7 @@
 					<DataGrid.Columns>
 						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnTrustee}"   Binding="{Binding TrusteeName}"   Width="180"/>
 						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnType}"      Binding="{Binding TrusteeType, Mode=OneWay, Converter={StaticResource LocValue}, ConverterParameter=ObjectType}" Width="100"/>
-						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnCategory}"  Binding="{Binding RightCategory, Mode=OneWay, Converter={StaticResource LocValue}, ConverterParameter=Delegation.Category}" Width="210"/>
+						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnCategory}"  Binding="{Binding Effective, Mode=OneWay, Converter={StaticResource LocValue}, ConverterParameter=Delegation.Category}" Width="210"/>
 						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnRight}"     Binding="{Binding Right}"         Width="220"/>
 						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnTargetDN}"  Binding="{Binding TargetDN}"      Width="*"/>
 						<DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=DelegationsColumnInherited}" Binding="{Binding IsInherited, Mode=OneWay, Converter={StaticResource LocValue}, ConverterParameter=Delegations.Inherited}" Width="80"/>

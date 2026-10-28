@@ -28,7 +28,10 @@ public class AttackPathSampleTests
         ["09-full-control"] = (true, [FullControl, MemberOf, FullControl]),
         ["10-attack-chain"] = (true, [Kerberoasting, ResetPassword, MemberOf, PrivilegedGroup]),
         ["11-empty-password"] = (true, [EmptyPassword, MemberOf, PrivilegedGroup]),
-        ["12-nested-groups"] = (false, [MemberOf, MemberOf, MemberOf, PrivilegedGroup])
+        ["12-nested-groups"] = (false, [MemberOf, MemberOf, MemberOf, PrivilegedGroup]),
+        ["13-dcsync"] = (true, [Kerberoasting, DCSync]),
+        ["14-shadow-credentials"] = (false, [MemberOf, ShadowCredentials, HasSession, MemberOf, PrivilegedGroup]),
+        ["15-rbcd"] = (false, [MemberOf, Rbcd, HasSession, MemberOf, PrivilegedGroup])
     };
 
     /// <summary>Copiés depuis Samples/AttackPaths par le projet de tests.</summary>

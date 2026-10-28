@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SMADX.Models;
+using SMADX.Services.AttackPaths;
 using static SMADX.Services.Audit.AuditContext;
 
 namespace SMADX.Services.Audit
@@ -52,6 +53,10 @@ namespace SMADX.Services.Audit
             "https://learn.microsoft.com/en-us/windows/win32/adschema/a-ms-ds-machineaccountquota");
         private static readonly AuditReference MsGmsa = Microsoft("Group Managed Service Accounts overview",
             "https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview");
+        private static readonly AuditReference MsLaps = Microsoft("Windows LAPS overview",
+            "https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-overview");
+        private static readonly AuditReference MsSilos = Microsoft("Authentication policies and authentication policy silos",
+            "https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/authentication-policies-and-authentication-policy-silos");
 
         private static readonly AuditReference MitreKerberoasting = Mitre("T1558.003", "Steal or Forge Kerberos Tickets: Kerberoasting");
         private static readonly AuditReference MitreAsRepRoasting = Mitre("T1558.004", "Steal or Forge Kerberos Tickets: AS-REP Roasting");
@@ -62,6 +67,10 @@ namespace SMADX.Services.Audit
         private static readonly AuditReference MitreAccountManipulation = Mitre("T1098", "Account Manipulation");
         private static readonly AuditReference MitreWindowsPermissions = Mitre("T1222.001", "File and Directory Permissions Modification: Windows Permissions");
         private static readonly AuditReference MitreGpoModification = Mitre("T1484.001", "Domain or Tenant Policy Modification: Group Policy Modification");
+        private static readonly AuditReference MitreDcSync = Mitre("T1003.006", "OS Credential Dumping: DCSync");
+        private static readonly AuditReference MitreLsass = Mitre("T1003.001", "OS Credential Dumping: LSASS Memory");
+        private static readonly AuditReference MitreLocalAccounts = Mitre("T1078.003", "Valid Accounts: Local Accounts");
+        private static readonly AuditReference MitrePassTheHash = Mitre("T1550.002", "Use Alternate Authentication Material: Pass the Hash");
 
         private static readonly AuditReference NistAccountManagement = Nist("AC-2", "Account Management");
         private static readonly AuditReference NistSeparationOfDuties = Nist("AC-5", "Separation of Duties");
@@ -106,9 +115,39 @@ namespace SMADX.Services.Audit
         private static readonly string[] GroupsThatShouldBeEmpty =
             { "Schema Admins", "Enterprise Admins", "Account Operators", "Server Operators", "Print Operators", "Backup Operators" };
 
-        /// <summary>Propriétaires légitimes d'un objet privilégié.</summary>
+        /// <summary>Propriétaires légitimes d'un objet privilégié, en plus des mandataires privilégiés du domaine.</summary>
         private static readonly HashSet<string> AdministrativeOwners = new(StringComparer.OrdinalIgnoreCase)
             { "Domain Admins", "Enterprise Admins", "Administrators", "SYSTEM" };
+
+        /// <summary>Droits qui donnent le contrôle d'un objet ou de ses secrets (TIER-03 : entre tiers).</summary>
+        public static readonly IReadOnlySet<RightCategory> ControlRights = new HashSet<RightCategory>
+        {
+            RightCategory.FullControl, RightCategory.AttributeWrite, RightCategory.PasswordReset, RightCategory.GenericWrite,
+            RightCategory.WriteDacl, RightCategory.WriteOwner, RightCategory.WriteMembers, RightCategory.Replication,
+            RightCategory.WriteKeyCredentialLink, RightCategory.WriteAllowedToAct, RightCategory.WriteSpn, RightCategory.ReadLapsPassword,
+            RightCategory.ReadGmsaPassword, RightCategory.WriteGPLink, RightCategory.AllExtendedRights
+        };
+
+        /// <summary>
+        /// Droits dangereux sur la racine du domaine, AdminSDHolder, l'OU Domain Controllers et les DC (ACL-03) : contrôle
+        /// total ou écriture générale, réécriture des permissions ou du propriétaire, réplication (DCSync), tous les droits
+        /// étendus (dont la réplication), Shadow Credentials, RBCD, liaison de GPO, réinitialisation du mot de passe.
+        /// </summary>
+        public static readonly IReadOnlySet<RightCategory> NamingContextRights = new HashSet<RightCategory>
+        {
+            RightCategory.FullControl, RightCategory.GenericWrite, RightCategory.WriteDacl, RightCategory.WriteOwner,
+            RightCategory.Replication, RightCategory.AllExtendedRights, RightCategory.WriteKeyCredentialLink,
+            RightCategory.WriteAllowedToAct, RightCategory.WriteGPLink, RightCategory.PasswordReset
+        };
+
+        /// <summary>Arêtes du graphe d'attaque qui passent par une permission (ACE ou propriétaire) : ce qu'ACL-02 signale.</summary>
+        private static readonly HashSet<AttackEdgeKind> PermissionEdges = new()
+        {
+            AttackEdgeKind.Owner, AttackEdgeKind.FullControl, AttackEdgeKind.ResetPassword, AttackEdgeKind.WriteMembers,
+            AttackEdgeKind.GenericWrite, AttackEdgeKind.WriteDacl, AttackEdgeKind.WriteOwner, AttackEdgeKind.DCSync,
+            AttackEdgeKind.ShadowCredentials, AttackEdgeKind.Rbcd, AttackEdgeKind.WriteSpn, AttackEdgeKind.ReadLapsPassword,
+            AttackEdgeKind.ReadGmsaPassword, AttackEdgeKind.WriteGPLink
+        };
 
         // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -136,9 +175,74 @@ namespace SMADX.Services.Audit
                 string.Equals(host, $"{dc.Name}.{c.Domain.Name}", StringComparison.OrdinalIgnoreCase));
         }
 
-        /// <summary>Objets dont la compromission donne le contrôle du domaine (cible du propriétaire inadapté).</summary>
-        private static IEnumerable<ADObject> CriticalObjects(AuditContext c) =>
-            c.Objects.Where(o => o == c.Domain || c.ProtectedGroups.Contains(o) || c.IsPrivileged(o) || IsDomainController(o));
+        /// <summary>
+        /// Objets dont la compromission donne le contrôle du domaine (cible du propriétaire inadapté) : le domaine, les
+        /// groupes et comptes privilégiés, les DC, et les GPO liées au domaine ou à l'OU Domain Controllers.
+        /// </summary>
+        private static IEnumerable<ADObject> CriticalObjects(AuditContext c)
+        {
+            var tier0Gpos = c.Objects
+                .Where(o => o == c.Domain || o is { Type: ADObjectType.OrganizationalUnit, Name: "Domain Controllers" })
+                .SelectMany(o => o.LinkedGPOs).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            return c.Objects.Where(o => o == c.Domain || c.ProtectedGroups.Contains(o) || c.IsPrivileged(o) || IsDomainController(o)
+                                        || o.Type == ADObjectType.Policy && tier0Gpos.Contains(o.Name));
+        }
+
+        /// <summary>Propriétaire légitime : un groupe d'administration, ou un mandataire privilégié du domaine.</summary>
+        private static bool IsAdministrativeOwner(AuditContext c, string owner) =>
+            AdministrativeOwners.Contains(owner) || c.Principal(owner) is { } principal && c.IsPrivilegedPrincipal(principal);
+
+        /// <summary>Objets qui donnent le domaine à qui les contrôle : sa racine, AdminSDHolder, l'OU Domain Controllers et les DC.</summary>
+        public static IEnumerable<ADObject> NamingContextObjects(AuditContext c) =>
+            c.Objects.Where(o => o == c.Domain || o is { Type: ADObjectType.Container, Name: "AdminSDHolder" }
+                                 || o is { Type: ADObjectType.OrganizationalUnit, Name: "Domain Controllers" } && o.Parent == c.Domain
+                                 || IsDomainController(o));
+
+        /// <summary>Mandataire d'une ACE qui n'est pas déjà maître du domaine : tout utilisateur, ou un compte ou groupe non privilégié.</summary>
+        public static bool IsUnprivilegedTrustee(AuditContext c, string trustee) =>
+            AttackPathService.AnyUserTrustees.Contains(trustee) || c.Principal(trustee) is { } principal && !c.IsPrivilegedPrincipal(principal);
+
+        /// <summary>
+        /// Session exposée (TIER-04) : un compte privilégié sur une machine hors Tier 0, ou un compte d'un tier plus sensible
+        /// que la machine. Un contrôleur de domaine n'expose rien : il est du Tier 0.
+        /// </summary>
+        public static bool IsExposedSession(AuditContext c, ADObject account, ADObject machine) =>
+            account.IsAccount && IsEnabled(account) && account != machine && !IsDomainController(machine)
+            && (c.IsPrivileged(account) && TierLevel(machine) is not 0
+                || TierLevel(account) is { } accountTier && TierLevel(machine) is { } machineTier && machineTier > accountTier);
+
+        /// <summary>
+        /// Chemins de contrôle par les permissions (ACL-02) : pour chaque chemin vers le contrôle du domaine qui part d'une
+        /// source non privilégiée (tout utilisateur, un compte ou un groupe ordinaire), la première permission qu'il
+        /// emprunte depuis un mandataire non privilégié. Un constat par permission, sur l'objet qui la porte (là où elle se
+        /// corrige). Ce que signale déjà une autre règle est laissé : une permission sur le domaine, AdminSDHolder ou les DC
+        /// (ACL-03), un propriétaire d'objet critique (ACL-01), une délégation à un tier moins sensible (TIER-03), et un
+        /// chemin qui passe par la session exposée d'un administrateur (TIER-04).
+        /// </summary>
+        private static IEnumerable<(ADObject, object[])> PermissionPaths(AuditContext c)
+        {
+            var namingContext = NamingContextObjects(c).ToHashSet();
+            var critical = CriticalObjects(c).ToHashSet();
+            bool ReportedElsewhere(AttackEdge e) =>
+                e.Kind != AttackEdgeKind.Owner && e.Holder != null && namingContext.Contains(e.Holder)
+                || e.Kind == AttackEdgeKind.Owner && e.Holder != null && critical.Contains(e.Holder)
+                || e.Holder != null && TierLevel(e.Holder) is { } holderTier && e.From.Object is { } trustee && TierLevel(trustee) is { } trusteeTier && trusteeTier > holderTier;
+            bool ThroughExposedSession(AttackPath p) =>
+                p.Steps.Any(s => s.Kind == AttackEdgeKind.HasSession && s.From.Object is { } machine && s.To.Object is { } account && IsExposedSession(c, account, machine));
+
+            var loc = LocalizationService.Instance;
+            return new AttackPathService(c.Domain, c.Now).PathsToDomainControl()
+                .Where(p => p.Start.IsAnyUser || p.Start.Object is { Type: not ADObjectType.Policy } start && !c.IsPrivilegedPrincipal(start))
+                .Where(p => !ThroughExposedSession(p))
+                .Select(p => p.Steps.FirstOrDefault(s => PermissionEdges.Contains(s.Kind) && !(s.From.Object is { } from && c.IsPrivilegedPrincipal(from))))
+                .OfType<AttackEdge>()
+                .Where(e => !ReportedElsewhere(e))
+                .GroupBy(e => (e.From.Id, holder: e.Holder ?? e.To.Object, e.Kind))
+                .Select(g => (edge: g.First(), sources: g.Count()))
+                // Arguments en plus du détail, pour la correction proposée par Studio : la permission et le mandataire (null : tout utilisateur)
+                .Select(x => Finding(x.edge.Holder ?? x.edge.To.Object ?? c.Domain, x.edge.From.Label, loc[$"AttackPath.Kind.{x.edge.Kind}"], x.sources,
+                                     x.edge.Kind, (object?)x.edge.From.Object?.Name ?? string.Empty));
+        }
 
         // ─── Catalogue ────────────────────────────────────────────────────────────
 
@@ -379,8 +483,35 @@ namespace SMADX.Services.Audit
                 Id = "ACL-01", Severity = AuditSeverity.Medium, AnssiLevel = 3,
                 References = new[] { Anssi("vuln_owner", "Objets ayant un propriétaire inadapté"), MitreWindowsPermissions, MitreAccountManipulation, NistLeastPrivilege },
                 Evaluate = c => CriticalObjects(c)
-                    .Where(o => !string.IsNullOrWhiteSpace(o.Owner) && !AdministrativeOwners.Contains(o.Owner!))
+                    .Where(o => !string.IsNullOrWhiteSpace(o.Owner) && !IsAdministrativeOwner(c, o.Owner!))
                     .Select(o => Finding(o, o.Owner!))
+            },
+            new()
+            {
+                Id = "ACL-02", Severity = AuditSeverity.High, AnssiLevel = 2,
+                References = new[]
+                {
+                    Anssi("vuln_privileged_members_perm", "Permissions dangereuses sur des membres de groupes privilégiés (chemins de contrôle)"),
+                    Anssi("vuln_permissions_gpo_container_priv", "Permissions dangereuses sur des conteneurs d'objets privilégiés (chemins de contrôle)"),
+                    AnssiPa099, MitreWindowsPermissions, MitreAccountManipulation, NistLeastPrivilege, MsLeastPrivilege
+                },
+                Evaluate = PermissionPaths
+            },
+            new()
+            {
+                Id = "ACL-03", Severity = AuditSeverity.Critical, AnssiLevel = 1,
+                References = new[]
+                {
+                    Anssi("vuln_permissions_naming_context", "Permissions dangereuses sur la racine des naming contexts (chemins de contrôle)"),
+                    Anssi("vuln_permissions_adminsdholder", "Permissions dangereuses sur l'objet adminSDHolder"),
+                    Anssi("vuln_permissions_dc", "Permissions dangereuses sur les objets contrôleurs de domaine (chemins de contrôle)"),
+                    MitreDcSync, MitreWindowsPermissions, NistLeastPrivilege, MsProtectedAccounts
+                },
+                Evaluate = c => NamingContextObjects(c)
+                    .SelectMany(o => o.Delegations.Where(d => !d.IsInherited).Select(d => (o, d)))
+                    .Where(x => NamingContextRights.Contains(x.d.Effective) && (x.d.Effective != RightCategory.Replication || x.o == c.Domain)
+                                && IsUnprivilegedTrustee(c, x.d.TrusteeName))
+                    .Select(x => Finding(x.o, x.d.TrusteeName, x.d.Right))
             },
             new()
             {
@@ -407,11 +538,30 @@ namespace SMADX.Services.Audit
                 Id = "TIER-03", Severity = AuditSeverity.High,
                 References = new[] { Anssi("vuln_privileged_members_perm", "Permissions dangereuses sur des membres de groupes privilégiés"), AnssiPa099, MitreAccountManipulation, NistLeastPrivilege, MsLeastPrivilege },
                 Evaluate = c => c.Objects
-                    .SelectMany(o => o.Delegations.Where(d => !d.IsInherited).Select(d => (o, d)))
-                    .Where(x => x.d.RightCategory is RightCategory.FullControl or RightCategory.AttributeWrite or RightCategory.PasswordReset)
-                    .Select(x => (x.o, x.d, trustee: c.Principal(x.d.TrusteeName)))
+                    .SelectMany(o => o.Delegations.Where(d => !d.IsInherited && ControlRights.Contains(d.Effective)).Select(d => (o, name: d.TrusteeName, right: d.Right))
+                        // Administrateur local d'une machine : il en contrôle tout, sessions comprises
+                        .Concat((o.Type == ADObjectType.Computer ? o.LocalAdmins ?? [] : []).Select(a => (o, name: a, right: LocalizationService.Instance["Audit.TIER-03.LocalAdmin"]))))
+                    .Select(x => (x.o, x.name, x.right, trustee: c.Principal(x.name)))
                     .Where(x => x.trustee != null && TierLevel(x.o) is { } target && TierLevel(x.trustee) is { } trustee && trustee > target)
-                    .Select(x => Finding(x.o, x.d.TrusteeName, x.trustee!.Tier!, x.d.Right, x.o.Tier!))
+                    .Select(x => Finding(x.o, x.name, x.trustee!.Tier!, x.right, x.o.Tier!))
+            },
+            new()
+            {
+                Id = "TIER-04", Severity = AuditSeverity.High,
+                References = new[] { AnssiPa099, Anssi("vuln_silo_priv", "Membres des groupes privilégiés hors silo d'authentification"), MitreLsass, MsAccessModel, MsSilos, NistSeparationOfDuties },
+                Evaluate = c => c.Objects
+                    .Where(m => m.Type == ADObjectType.Computer && !IsDomainController(m))
+                    .SelectMany(m => (m.Sessions ?? []).Select(name => (m, account: c.Principal(name))))
+                    .Where(x => x.account != null && IsExposedSession(c, x.account, x.m))
+                    .Select(x => Finding(x.account!, x.m.Name, x.m.Tier ?? "—"))
+            },
+            new()
+            {
+                Id = "LAPS-01", Severity = AuditSeverity.Medium,
+                References = new[] { MsLaps, MitreLocalAccounts, MitrePassTheHash, CisUniquePasswords, NistAuthenticators },
+                Evaluate = c => c.Objects
+                    .Where(o => o.Type == ADObjectType.Computer && !IsDomainController(o) && IsEnabled(o) && o.LapsPasswordExpiration == null)
+                    .Select(o => Finding(o))
             },
 
             // Groupes

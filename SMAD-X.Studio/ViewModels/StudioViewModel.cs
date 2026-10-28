@@ -17,17 +17,23 @@ namespace SMADX.Studio.ViewModels
     /// <summary>Recettes choisies dans la fenêtre « Nouvel exercice à partir d'une recommandation » : une seule, ou plusieurs à combiner.</summary>
     public sealed record RecipeRequest(IReadOnlyList<LabRecipe> Recipes, string Culture, string DomainName);
 
+    /// <summary>Un exercice récent, sur l'écran d'accueil : son titre et son dossier (ou son fichier, s'il est enregistré seul).</summary>
+    public sealed record RecentLabItem(string Title, string Path);
+
     /// <summary>Fenêtres de Studio vues par le ViewModel : sélecteurs de fichiers et choix de la recette.</summary>
     public interface IStudioDialogs
     {
         Task<string?> OpenFileAsync(string title, string filterName, string pattern);
         /// <summary>Plusieurs fichiers (les copies d'une classe) ; liste vide si l'utilisateur annule.</summary>
         Task<IReadOnlyList<string>> OpenFilesAsync(string title, string filterName, string pattern);
-        Task<string?> PickFolderAsync(string title);
+        /// <param name="startFolder">Dossier où s'ouvre la fenêtre (null : celui du système).</param>
+        Task<string?> PickFolderAsync(string title, string? startFolder = null);
         Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern);
         Task<RecipeRequest?> ChooseRecipeAsync();
         /// <summary>Avant de fermer, l'exercice a des modifications non enregistrées.</summary>
         Task<UnsavedChoice> AskUnsavedAsync();
+        /// <summary>Montre le dossier dans l'explorateur de fichiers.</summary>
+        Task ShowFolderAsync(string folder);
     }
 
     /// <summary>
@@ -57,6 +63,7 @@ namespace SMADX.Studio.ViewModels
             _editCulture = Text.Culture;
             _status = Text["Status.Ready"];
             _classSummary = Text["Submissions.None"];
+            LoadRecentLabs();
         }
 
         public static StudioText Text => StudioText.Instance;
@@ -73,7 +80,10 @@ namespace SMADX.Studio.ViewModels
                                     nameof(AddSubmissionsCommand), nameof(AddSubmissionFolderCommand), nameof(RegradeSubmissionsCommand))]
         private LabDefinition? _lab;
 
-        [ObservableProperty] private string? _filePath;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Project), nameof(HasProject))]
+        [NotifyCanExecuteChangedFor(nameof(ShowProjectFolderCommand))]
+        private string? _filePath;
         [ObservableProperty] private string _status;
         [ObservableProperty] private string _notes = "";
         [ObservableProperty] private string _sheetPreview = "";
@@ -239,14 +249,49 @@ namespace SMADX.Studio.ViewModels
         private async Task NewFromRecipeAsync()
         {
             if (await _dialogs.ChooseRecipeAsync() is not { } request) return;
-            await RunAsync(() =>
+            await CreateAsync(() =>
             {
                 var created = LabRecipes.CreateLab(request.Recipes, request.Culture, request.DomainName, Clock().Date);
                 Load(created.Lab, null, created.TeacherNotes);
                 SetFixedDomain(created.Solution, Text["Validation.FixedDomain.Generated"]);
                 EditCulture = request.Culture;
-                Status = Text["Status.Created"];
+                return Task.CompletedTask;
             });
+        }
+
+        /// <summary>
+        /// Crée un exercice, puis le range aussitôt dans son dossier : Studio demande où (en proposant le dossier du
+        /// précédent), y crée les quatre dossiers par rôle et y enregistre tout. Sans dossier choisi, l'exercice reste
+        /// ouvert, à enregistrer plus tard.
+        /// </summary>
+        private async Task CreateAsync(Func<Task> create)
+        {
+            if (!await ConfirmCloseAsync()) return;
+            var before = Lab;
+            await RunAsync(create);
+            if (Lab == null || ReferenceEquals(Lab, before)) return;
+            Status = await PlaceInFolderAsync()
+                ? string.Format(Text["Status.CreatedProject"], Project!.Root)
+                : Text["Status.CreatedNotSaved"];
+        }
+
+        /// <summary>
+        /// Range l'exercice, jamais enregistré, dans un nouveau dossier d'exercice, dans le dossier choisi (proposé : celui
+        /// du dernier exercice rangé). Faux si l'utilisateur annule ou si l'écriture échoue.
+        /// </summary>
+        private async Task<bool> PlaceInFolderAsync()
+        {
+            var settings = StudioSettings.Load();
+            var start = settings.LabsFolder is { } last && Directory.Exists(last) ? last : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (await _dialogs.PickFolderAsync(Text["Create.PickFolder"], start) is not { } chosen) return false;
+            await RunAsync(() =>
+            {
+                var project = LabProject.Create(LabProject.RootForNew(chosen, LabId), Text.Culture);
+                Save(project.LabPath(LabId));
+                settings.LabsFolder = Path.GetDirectoryName(project.Root);
+                settings.Save();
+            });
+            return Project != null;
         }
 
         [RelayCommand]
@@ -258,7 +303,7 @@ namespace SMADX.Studio.ViewModels
 
         /// <summary>Nouvel exercice dont le domaine de départ est ce fichier ; le titre vient de son nom.</summary>
         public Task NewFromDomainFileAsync(string path) =>
-            RunAsync(async () =>
+            CreateAsync(async () =>
             {
                 var document = await LoadDocumentAsync(path);
                 var culture = EditCulture;
@@ -273,15 +318,16 @@ namespace SMADX.Studio.ViewModels
                     Start = document, Objectives = objectives
                 };
                 Load(lab, null, "");
-                Status = Text["Status.Created"];
             });
 
         /// <summary>
-        /// Fichier donné au lancement : un exercice s'ouvre, un domaine (envoyé par SMAD-X) devient le
+        /// Fichier donné au lancement : un exercice s'ouvre (ou son dossier), un domaine (envoyé par SMAD-X) devient le
         /// domaine de départ d'un nouvel exercice.
         /// </summary>
         public Task OpenPathAsync(string path)
         {
+            if (Directory.Exists(path))
+                return OpenFolderPathAsync(path);
             if (path.EndsWith(LabService.FileExtension, StringComparison.OrdinalIgnoreCase))
                 return OpenLabFileAsync(path);
             if (path.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase))
@@ -296,12 +342,11 @@ namespace SMADX.Studio.ViewModels
         private async Task ConvertScenarioAsync()
         {
             if (await _dialogs.OpenFileAsync(Text["Menu.Convert"], Text["File.Domain"], "*.smad-x.json") is not { } path) return;
-            await RunAsync(async () =>
+            await CreateAsync(async () =>
             {
                 var document = await LoadDocumentAsync(path);
                 var (lab, notes) = LabAuthoring.ConvertScenario(document, EditCulture, Path.GetFileName(path).Split('.')[0], Clock().Date);
                 Load(lab, null, notes);
-                Status = Text["Status.Created"];
             });
         }
 
@@ -313,11 +358,130 @@ namespace SMADX.Studio.ViewModels
         }
 
         /// <summary>
+        /// Ouvre un exercice par son dossier : Studio y retrouve tout ce que la création a rangé (l'exemplaire, le sujet, le
+        /// domaine corrigé, les notes) et corrige les copies de 3-copies-rendues.
+        /// </summary>
+        [RelayCommand]
+        private async Task OpenFolderAsync()
+        {
+            var start = Project is { } project ? Path.GetDirectoryName(project.Root) : StudioSettings.Load().LabsFolder;
+            if (await _dialogs.PickFolderAsync(Text["Menu.OpenFolder"], start) is not { } folder) return;
+            await OpenFolderPathAsync(folder);
+        }
+
+        /// <summary>
+        /// Le dossier d'un exercice, ou l'un de ses dossiers par rôle ; un dossier qui ne contient qu'un exercice enregistré
+        /// seul (par une version précédente) l'ouvre aussi.
+        /// </summary>
+        public Task OpenFolderPathAsync(string folder)
+        {
+            if (LabProject.Find(folder)?.FindLab() is { } lab) return OpenLabFileAsync(lab);
+            if (Directory.Exists(folder) && Directory.GetFiles(folder, "*" + LabService.FileExtension) is [var single]) return OpenLabFileAsync(single);
+            Status = string.Format(Text["Status.NotALabFolder"], folder);
+            return Task.CompletedTask;
+        }
+
+        // ─── Exercices récents ───────────────────────────────────────────────────
+
+        /// <summary>Les derniers exercices ouverts ou enregistrés, sur l'écran d'accueil : un clic les rouvre.</summary>
+        public ObservableCollection<RecentLabItem> RecentLabs { get; } = new();
+
+        public bool HasRecentLabs => RecentLabs.Count > 0;
+
+        private const int MaxRecentLabs = 8;
+
+        private void LoadRecentLabs()
+        {
+            RecentLabs.Clear();
+            foreach (var recent in StudioSettings.Load().RecentLabs.Where(r => Directory.Exists(r.Path) || File.Exists(r.Path)))
+                RecentLabs.Add(new RecentLabItem(recent.Title, recent.Path));
+            OnPropertyChanged(nameof(HasRecentLabs));
+        }
+
+        /// <summary>L'exercice ouvert passe en tête des récents : son dossier, ou son fichier s'il est enregistré seul.</summary>
+        private void RememberRecent()
+        {
+            if (Lab == null || FilePath == null) return;
+            var location = Project?.Root ?? FilePath;
+            var title = Lab.Title.Resolve(EditCulture) is { Length: > 0 } t ? t : Lab.Id;
+            var settings = StudioSettings.Load();
+            settings.RecentLabs.RemoveAll(r => string.Equals(r.Path, location, StringComparison.OrdinalIgnoreCase)
+                                                || !Directory.Exists(r.Path) && !File.Exists(r.Path));
+            settings.RecentLabs.Insert(0, new RecentLab { Path = location, Title = title });
+            if (settings.RecentLabs.Count > MaxRecentLabs)
+                settings.RecentLabs.RemoveRange(MaxRecentLabs, settings.RecentLabs.Count - MaxRecentLabs);
+            settings.Save();
+            LoadRecentLabs();
+        }
+
+        [RelayCommand]
+        private Task OpenRecentAsync(RecentLabItem? recent)
+        {
+            if (recent == null) return Task.CompletedTask;
+            if (Directory.Exists(recent.Path)) return OpenFolderPathAsync(recent.Path);
+            if (File.Exists(recent.Path)) return OpenLabFileAsync(recent.Path);
+            Status = string.Format(Text["Status.NotALabFolder"], recent.Path);
+            LoadRecentLabs();
+            return Task.CompletedTask;
+        }
+
+        // ─── Glisser-déposer ─────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Fichiers glissés sur la fenêtre : le dossier d'un exercice (ou son exemplaire) l'ouvre, un domaine crée un exercice,
+        /// les copies et les dossiers de copies sont rangés dans 3-copies-rendues de l'exercice ouvert et corrigés.
+        /// </summary>
+        public async Task DropAsync(IReadOnlyList<string> paths)
+        {
+            var labFolder = paths.FirstOrDefault(p => Directory.Exists(p) && LabProject.Find(p)?.FindLab() != null && !IsOpenProject(p));
+            var open = labFolder
+                ?? paths.FirstOrDefault(p => File.Exists(p) && p.EndsWith(LabService.FileExtension, StringComparison.OrdinalIgnoreCase))
+                ?? paths.FirstOrDefault(p => File.Exists(p) && p.EndsWith(".smad-x.json", StringComparison.OrdinalIgnoreCase));
+            if (open != null) await OpenPathAsync(open);
+
+            var submissions = paths.Where(p => File.Exists(p) && p.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase)).ToList();
+            var folders = paths.Where(p => Directory.Exists(p) && p != labFolder).ToList();
+            if (submissions.Count == 0 && folders.Count == 0) return;
+            if (Lab == null)
+            {
+                Status = Text["Submissions.OpenLabFirst"];
+                return;
+            }
+            await RunAsync(() =>
+            {
+                if (submissions.Count > 0) AddSubmissions(submissions);
+                foreach (var folder in folders)
+                {
+                    var files = Directory.GetFiles(folder, "*" + LabSubmissionService.FileExtension, SearchOption.AllDirectories);
+                    if (files.Length > 0) AddSubmissions(files, folder);
+                    else Status = string.Format(Text["Status.NotALabFolder"], folder);
+                }
+            });
+        }
+
+        /// <summary>Le dossier glissé est dans le dossier de l'exercice déjà ouvert (ses copies, par exemple).</summary>
+        private bool IsOpenProject(string folder) =>
+            Project is { } project && string.Equals(LabProject.Find(folder)?.Root, project.Root, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// De retour dans Studio : les copies déposées entre-temps dans 3-copies-rendues (depuis l'explorateur, l'ENT ou une
+        /// clé USB) sont ajoutées et corrigées, sans « Recorriger ».
+        /// </summary>
+        public void PickUpNewSubmissions()
+        {
+            if (Lab == null || Project is not { } project) return;
+            if (project.SubmissionFiles().Any(p => !_submissionPaths.Contains(p, StringComparer.OrdinalIgnoreCase)))
+                RegradeSubmissions();
+        }
+
+        /// <summary>
         /// Ouvre un exercice, avec ses notes et son domaine corrigé. Rangé dans son dossier d'exercice, il retrouve
         /// aussi les copies déposées dans 3-copies-rendues, aussitôt corrigées.
         /// </summary>
-        public Task OpenLabFileAsync(string path) =>
-            RunAsync(async () =>
+        public async Task OpenLabFileAsync(string path)
+        {
+            if (!await ConfirmCloseAsync()) return;
+            await RunAsync(async () =>
             {
                 var project = LabProject.Of(path);
                 var notesPath = project?.NotesPath ?? NotesPath(path);
@@ -335,15 +499,24 @@ namespace SMADX.Studio.ViewModels
                 // Le sujet n'a ni indices d'examen ni corrigé : on corrige avec l'exemplaire
                 if (LabProject.IsHandOut(path))
                     Status = Text["Status.OpenedSubject"];
+                else
+                    RememberRecent();
             });
+        }
 
         /// <summary>Dossier de l'exercice (rangé par rôle), ou null pour un exercice enregistré seul.</summary>
         public LabProject? Project => FilePath != null ? LabProject.Of(FilePath) : null;
 
+        public bool HasProject => Project != null;
+
+        [RelayCommand(CanExecute = nameof(HasProject))]
+        private Task ShowProjectFolderAsync() => Project is { } project ? _dialogs.ShowFolderAsync(project.Root) : Task.CompletedTask;
+
+        /// <summary>Jamais enregistré, l'exercice est d'abord rangé dans son dossier (Studio demande où).</summary>
         [RelayCommand(CanExecute = nameof(HasLab))]
         private async Task SaveAsync()
         {
-            if (FilePath == null) { await SaveAsAsync(); return; }
+            if (FilePath == null) { await PlaceInFolderAsync(); return; }
             await RunAsync(() => Save(FilePath));
         }
 
@@ -351,7 +524,8 @@ namespace SMADX.Studio.ViewModels
         [RelayCommand(CanExecute = nameof(HasLab))]
         private async Task SaveAsAsync()
         {
-            if (await _dialogs.PickFolderAsync(Text["Menu.SaveAs"]) is not { } folder) return;
+            var start = Project is { } project ? Path.GetDirectoryName(project.Root) : StudioSettings.Load().LabsFolder;
+            if (await _dialogs.PickFolderAsync(Text["Menu.SaveAs"], start) is not { } folder) return;
             await RunAsync(() => SaveToFolder(folder));
         }
 
@@ -375,10 +549,14 @@ namespace SMADX.Studio.ViewModels
             CurrentLab();
             if (LabProject.Of(path) is { } project)
             {
-                project.Save(Lab, path, Notes, _fixedDomain, Clock());
-                FilePath = path;
-                Status = string.Format(Text["Status.SavedProject"], project.Root);
+                // Renommé, l'exercice change de nom de fichier, et son dossier aussi s'il portait l'ancien
+                var saved = project.Save(Lab, path, Notes, _fixedDomain, Clock());
+                FilePath = saved;
+                if (LabProject.Of(saved) is { } moved && moved.Root != project.Root)
+                    MoveSubmissions(project.Root, moved.Root);
+                Status = string.Format(Text["Status.SavedProject"], Project!.Root);
                 MarkSaved();
+                RememberRecent();
                 return;
             }
             _labs.SaveFile(Lab, path);
@@ -392,6 +570,7 @@ namespace SMADX.Studio.ViewModels
             FilePath = path;
             Status = string.Format(Text["Status.Saved"], path);
             MarkSaved();
+            RememberRecent();
         }
 
         /// <summary>Exercice et notes au dernier enregistrement (ou à l'ouverture).</summary>
@@ -436,9 +615,23 @@ namespace SMADX.Studio.ViewModels
         /// Sujet à distribuer : l'exercice sans le corrigé des questions et, pour un examen, sans les indices. L'exemplaire
         /// ouvert dans Studio, lui, garde tout : c'est avec lui que les copies se corrigent.
         /// </summary>
+        /// <remarks>
+        /// Rangé dans son dossier, l'exercice est enregistré et le sujet écrit dans 2-a-distribuer, sans rien demander :
+        /// le sujet et l'exemplaire qui corrigera les copies restent ainsi identiques.
+        /// </remarks>
         [RelayCommand(CanExecute = nameof(HasLab))]
         private async Task ExportSubjectAsync()
         {
+            if (FilePath == null && !await PlaceInFolderAsync()) return;
+            if (Project != null)
+            {
+                await RunAsync(() =>
+                {
+                    Save(FilePath!);
+                    Status = string.Format(Text["Status.SubjectInProject"], Project!.SubjectPath(FilePath!));
+                });
+                return;
+            }
             if (await _dialogs.SaveFileAsync(Text["Menu.ExportSubject"], LabService.SubjectFileName(LabId, EditCulture), Text["File.Lab"], "*" + LabService.FileExtension) is not { } path) return;
             await RunAsync(() => ExportSubject(path));
         }
@@ -455,9 +648,20 @@ namespace SMADX.Studio.ViewModels
             Status = string.Format(Text["Status.SubjectSaved"], path);
         }
 
+        /// <remarks>Rangé dans son dossier, l'exercice est enregistré et la fiche écrite dans 1-formateur, sans rien demander.</remarks>
         [RelayCommand(CanExecute = nameof(HasLab))]
         private async Task ExportSheetAsync()
         {
+            if (FilePath == null && !await PlaceInFolderAsync()) return;
+            if (Project != null)
+            {
+                await RunAsync(() =>
+                {
+                    Save(FilePath!);
+                    Status = string.Format(Text["Status.SheetInProject"], Project!.SheetPath);
+                });
+                return;
+            }
             var suggested = LabId + Text.T(".formateur.md", ".trainer.md");
             if (await _dialogs.SaveFileAsync(Text["Menu.ExportSheet"], suggested, Text["File.Markdown"], "*.md") is not { } path) return;
             await RunAsync(() =>

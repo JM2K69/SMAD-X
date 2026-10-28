@@ -73,6 +73,9 @@ namespace SMADX.Services.Audit
         public required ADObject Object { get; init; }
         public required string Detail { get; init; }
 
+        /// <summary>Arguments du détail (le mandataire, le droit, la machine…), pour les corrections proposées par Studio.</summary>
+        public IReadOnlyList<object> Args { get; init; } = [];
+
         public AuditSeverity Severity => Rule.Severity;
     }
 

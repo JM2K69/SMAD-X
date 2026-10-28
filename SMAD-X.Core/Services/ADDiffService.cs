@@ -226,6 +226,10 @@ namespace SMADX.Services
             Check(c, "GroupCategory", before.GroupCategory?.ToString() ?? "", after.GroupCategory?.ToString() ?? "");
             Check(c, "Owner",         before.Owner ?? "",                   after.Owner ?? "");
             CheckNullable(c, "MachineAccountQuota", before.MachineAccountQuota, after.MachineAccountQuota);
+            // Ordinateurs : LAPS en place ou retiré, administrateurs locaux, sessions
+            Check(c, "LAPS", (before.LapsPasswordExpiration != null).ToString(), (after.LapsPasswordExpiration != null).ToString());
+            c.AddRange(DeltaStrings(before.LocalAdmins ?? [], after.LocalAdmins ?? [], "LocalAdmins"));
+            c.AddRange(DeltaStrings(before.Sessions ?? [], after.Sessions ?? [], "Sessions"));
             // pwdLastSet oui (renouveler krbtgt est un événement à voir), lastLogonTimestamp non :
             // il change à chaque connexion et noierait les vrais changements de configuration
             Check(c, "PwdLastSet",    before.PwdLastSet?.ToString("yyyy-MM-dd") ?? "", after.PwdLastSet?.ToString("yyyy-MM-dd") ?? "");

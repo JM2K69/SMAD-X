@@ -7,7 +7,7 @@ A lab puts the learner in a realistic situation (an organisation, a role, a trig
 | How | Content |
 |---|---|
 | **Labs > Built-in labs** | five general labs, bilingual |
-| **Labs > Attack paths** | twelve labs, each in the interface language, with its own domain |
+| **Labs > Attack paths** | fifteen labs, each in the interface language, with its own domain |
 | **Labs > Open a lab...** | a `.smadx-lab.json` file received from a trainer, or a `.smadx-submission.json` submission to resume |
 | Double-click the file, or `SMAD-X.exe lab.smadx-lab.json` | the same file, opened directly in lab mode (see below) |
 

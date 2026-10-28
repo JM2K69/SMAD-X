@@ -110,6 +110,47 @@ namespace SMADX.ViewModels
             Touch(property);
         }
 
+        // ─── Ordinateur : LAPS, administrateurs locaux, sessions ───────────────────
+
+        /// <summary>LAPS gère le mot de passe de l'administrateur local ; l'activer fixe une expiration dans 30 jours.</summary>
+        public bool Laps
+        {
+            get => _obj.LapsPasswordExpiration != null;
+            set
+            {
+                if (Laps == value) return;
+                _obj.LapsPasswordExpiration = value ? DateTime.Now.Date.AddDays(Services.Labs.LabDomainBuilder.LapsRenewalDays) : null;
+                Touch();
+                OnPropertyChanged(nameof(LapsPasswordExpiration));
+            }
+        }
+
+        public DateTime? LapsPasswordExpiration
+        {
+            get => _obj.LapsPasswordExpiration;
+            set
+            {
+                if (_obj.LapsPasswordExpiration == value) return;
+                _obj.LapsPasswordExpiration = value;
+                Touch();
+                OnPropertyChanged(nameof(Laps));
+            }
+        }
+
+        /// <summary>Comptes et groupes membres du groupe local Administrateurs (absent de l'annuaire : posé à la main).</summary>
+        public string LocalAdminsText
+        {
+            get => string.Join(Environment.NewLine, _obj.LocalAdmins ?? []);
+            set => ReplaceLines(_obj.LocalAdmins ??= new(), value);
+        }
+
+        /// <summary>Comptes qui ont une session ouverte sur la machine : leurs identifiants y sont en mémoire.</summary>
+        public string SessionsText
+        {
+            get => string.Join(Environment.NewLine, _obj.Sessions ?? []);
+            set => ReplaceLines(_obj.Sessions ??= new(), value);
+        }
+
         // ─── Dates (lastLogonTimestamp, pwdLastSet) ───────────────────────────────
 
         public DateTime? LastLogonTimestamp

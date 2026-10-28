@@ -141,15 +141,7 @@ namespace SMADX.Services.Labs
         }
 
         /// <summary>Nom du droit d'une délégation, comme l'import les nomme.</summary>
-        private static string RightName(RightCategory category) => category switch
-        {
-            RightCategory.PasswordReset => "ResetPassword",
-            RightCategory.AccountUnlock => "UnlockAccount",
-            RightCategory.ComputerManagement => "CreateChild:computer",
-            RightCategory.AttributeWrite => "WriteProperty",
-            RightCategory.FullControl => "GenericAll",
-            _ => "ExtendedRight"
-        };
+        private static string RightName(RightCategory category) => ADDelegation.DefaultRight(category);
 
         private static string Key(AuditFinding finding) => $"{finding.Rule.Id}|{finding.Object.DistinguishedName}|{finding.Detail}";
 
@@ -224,6 +216,26 @@ namespace SMADX.Services.Labs
                 case "ACL-01":
                     o.Owner = "Domain Admins";
                     return true;
+                // La première permission d'un chemin de contrôle : le propriétaire redevient Domain Admins, ou l'ACE est retirée
+                case "ACL-02" when finding.Args is [_, _, _, AttackPaths.AttackEdgeKind kind, string from, ..]:
+                    if (kind == AttackPaths.AttackEdgeKind.Owner)
+                    {
+                        if (string.Equals(o.Owner, "Domain Admins", StringComparison.OrdinalIgnoreCase)) return false;
+                        o.Owner = "Domain Admins";
+                        return true;
+                    }
+                    return RemoveDelegations(o, d => AuditRules.ControlRights.Contains(d.Effective)
+                        && (from.Length == 0 ? AttackPaths.AttackPathService.AnyUserTrustees.Contains(d.TrusteeName) : string.Equals(d.TrusteeName, from, StringComparison.OrdinalIgnoreCase)));
+                case "ACL-03" when finding.Args is [string trusteeName, string right, ..]:
+                    return RemoveDelegations(o, d => string.Equals(d.TrusteeName, trusteeName, StringComparison.OrdinalIgnoreCase) && string.Equals(d.Right, right, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(d.TrusteeName, trusteeName, StringComparison.OrdinalIgnoreCase) && d.Right.StartsWith("DS-Replication-Get-Changes", StringComparison.OrdinalIgnoreCase) && right.StartsWith("DS-Replication", StringComparison.OrdinalIgnoreCase));
+                // Une session d'administrateur sur une machine moins sensible : elle se ferme
+                case "TIER-04" when finding.Args is [string machine, ..]:
+                    return RemoveAll(c.Objects.FirstOrDefault(m => m.Type == ADObjectType.Computer && m.Name == machine)?.Sessions, s => string.Equals(s, o.Name, StringComparison.OrdinalIgnoreCase)) > 0;
+                case "LAPS-01":
+                    if (o.LapsPasswordExpiration != null) return false;
+                    o.LapsPasswordExpiration = now.AddDays(LabDomainBuilder.LapsRenewalDays - 1);
+                    return true;
                 // Une appartenance qui fait monter de tier : on la retire
                 case "TIER-01":
                     var tier = TierLevel(o);
@@ -234,13 +246,12 @@ namespace SMADX.Services.Labs
                     foreach (var container in c.Objects.Where(x => x.Type is ADObjectType.OrganizationalUnit or ADObjectType.Domain && TierLevel(x) < TierLevel(o)))
                         unlinked |= container.LinkedGPOs.Remove(o.Name);
                     return unlinked;
-                // Une délégation confiée à un tier inférieur : on la retire
+                // Une délégation confiée à un tier inférieur, ou un administrateur local d'un tier inférieur : on la retire
                 case "TIER-03":
                     var target = TierLevel(o);
-                    var dangerous = o.Delegations.Where(d => !d.IsInherited && d.RightCategory is RightCategory.FullControl or RightCategory.AttributeWrite or RightCategory.PasswordReset
-                                                             && c.Principal(d.TrusteeName) is { } trustee && TierLevel(trustee) > target).ToList();
-                    foreach (var d in dangerous) o.Delegations.Remove(d);
-                    return dangerous.Count > 0;
+                    bool Lower(string name) => c.Principal(name) is { } trustee && TierLevel(trustee) > target;
+                    var removedAdmins = RemoveAll(o.LocalAdmins, Lower);
+                    return RemoveDelegations(o, d => AuditRules.ControlRights.Contains(d.Effective) && Lower(d.TrusteeName)) || removedAdmins > 0;
                 // Une boucle d'imbrication : on retire une appartenance de la boucle
                 case "GRP-01":
                     var back = o.MemberOf.FirstOrDefault(name => c.Group(name) is { } g && c.EffectiveGroups(g).Contains(o));
@@ -277,6 +288,23 @@ namespace SMADX.Services.Labs
             var groups = o.MemberOf.Where(name => c.Group(name) is { } g && matches(g)).ToList();
             foreach (var name in groups) o.MemberOf.Remove(name);
             return groups.Count > 0;
+        }
+
+        /// <summary>Retire d'une liste (administrateurs locaux, sessions) les noms qui répondent au critère ; renvoie leur nombre.</summary>
+        private static int RemoveAll(System.Collections.ObjectModel.ObservableCollection<string>? names, Func<string, bool> matches)
+        {
+            if (names == null) return 0;
+            var removed = names.Where(matches).ToList();
+            foreach (var name in removed) names.Remove(name);
+            return removed.Count;
+        }
+
+        /// <summary>Retire les délégations directes de l'objet qui répondent au critère ; vrai si l'une a été retirée.</summary>
+        private static bool RemoveDelegations(ADObject o, Func<ADDelegation, bool> matches)
+        {
+            var removed = o.Delegations.Where(d => !d.IsInherited && matches(d)).ToList();
+            foreach (var d in removed) o.Delegations.Remove(d);
+            return removed.Count > 0;
         }
 
         private static bool RemoveDelegationToDc(ADObject o, AuditContext c)

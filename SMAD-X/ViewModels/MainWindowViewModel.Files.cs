@@ -24,7 +24,7 @@ namespace SMADX.ViewModels
             TierConfigurationService.Instance.ResetToDefaults();
             ShowDomain(new ADRootDocument
             {
-                Version = 2,
+                Version = ADRootDocument.CurrentVersion,
                 Domain = _dataService.CreateSampleStructure(),
                 SitesTopology = _dataService.CreateSampleTopology()
             }, expandDefaultNodes: true);
@@ -41,7 +41,7 @@ namespace SMADX.ViewModels
             TierConfigurationService.Instance.ResetToDefaults();
             ShowDomain(new ADRootDocument
             {
-                Version = 2,
+                Version = ADRootDocument.CurrentVersion,
                 Domain = _dataService.CreateFreshDomainStructure(request.DomainName, request.EnableTiering),
                 SitesTopology = _dataService.CreateFreshTopology(request.DomainName)
             }, expandDefaultNodes: true);
@@ -60,7 +60,7 @@ namespace SMADX.ViewModels
 
             // Build a v2 document preserving SitesTopology if loaded
             var doc = _currentDocument ?? new ADRootDocument();
-            doc.Version = 2;
+            doc.Version = ADRootDocument.CurrentVersion;
             doc.Domain = RootObject;
             doc.SitesTopology = SitesTopology;
             var success = await _dataService.SaveDocumentAsync(doc, path);
@@ -132,7 +132,7 @@ namespace SMADX.ViewModels
 
             var result = await _dialogs.ShowExportReportAsync(new ADRootDocument
             {
-                Version = 2,
+                Version = ADRootDocument.CurrentVersion,
                 Domain = RootObject,
                 SitesTopology = SitesTopology
             });

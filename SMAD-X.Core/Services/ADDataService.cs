@@ -1262,6 +1262,13 @@ namespace SMADX.Services
             domain.UpdateDistinguishedNameTree();
             BuiltInSecurityDefaults.Apply(domain);
             BuiltInSecurityDefaults.ApplySampleHistory(domain, DateTime.Now);
+
+            // LAPS n'est déployé que sur le serveur d'applications ; GG-IT-Servers administre les serveurs, et un
+            // administrateur du domaine a laissé une session ouverte sur le serveur de fichiers
+            appServer.LapsPasswordExpiration = DateTime.Now.Date.AddDays(20);
+            foreach (var server in new[] { fileServer, appServer })
+                server.LocalAdmins?.Add("GG-IT-Servers");
+            fileServer.Sessions = new() { adminUser.Name };
             return domain;
         }
 

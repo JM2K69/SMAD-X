@@ -116,6 +116,11 @@ namespace SMADX.Helpers
         public string SecurityAdminCount => _localizationService["Security.AdminCount"];
         public string SecuritySpn => _localizationService["Security.Spn"];
         public string SecurityAllowedToDelegateTo => _localizationService["Security.AllowedToDelegateTo"];
+        public string SecurityComputer => _localizationService["Security.Computer"];
+        public string SecurityLaps => _localizationService["Security.Laps"];
+        public string SecurityLapsExpiration => _localizationService["Security.LapsExpiration"];
+        public string SecurityLocalAdmins => _localizationService["Security.LocalAdmins"];
+        public string SecuritySessions => _localizationService["Security.Sessions"];
         public string SecurityGroupScope => _localizationService["Security.GroupScope"];
         public string SecurityGroupCategory => _localizationService["Security.GroupCategory"];
         public string SecurityOwner => _localizationService["Security.Owner"];
@@ -462,6 +467,7 @@ namespace SMADX.Helpers
         public string DelegationCategoryAttributeWrite     => _localizationService["Delegation.Category.AttributeWrite"];
         public string DelegationCategoryFullControl        => _localizationService["Delegation.Category.FullControl"];
         public string DelegationCategoryOther              => _localizationService["Delegation.Category.Other"];
+        public string DelegationCardSensitive              => _localizationService["Delegation.Card.Sensitive"];
 
         // Évolution du domaine (comparaison de deux fichiers)
         public string TimelineWindowTitle       => _localizationService["Timeline.Window.Title"];

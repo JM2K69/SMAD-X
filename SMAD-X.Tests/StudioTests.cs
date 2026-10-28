@@ -33,7 +33,14 @@ public class StudioTests
 
         public Task<string?> OpenFileAsync(string title, string filterName, string pattern) => Task.FromResult(OpenPath);
         public Task<IReadOnlyList<string>> OpenFilesAsync(string title, string filterName, string pattern) => Task.FromResult<IReadOnlyList<string>>(OpenPaths);
-        public Task<string?> PickFolderAsync(string title) => Task.FromResult(Folder);
+        public Task<string?> PickFolderAsync(string title, string? startFolder = null)
+        {
+            StartFolders.Add(startFolder);
+            return Task.FromResult(Folder);
+        }
+        public List<string?> StartFolders { get; } = new();
+        public List<string> ShownFolders { get; } = new();
+        public Task ShowFolderAsync(string folder) { ShownFolders.Add(folder); return Task.CompletedTask; }
         public Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern) => Task.FromResult(SavePath);
         public Task<RecipeRequest?> ChooseRecipeAsync() => Task.FromResult(Recipe);
     }
@@ -969,5 +976,210 @@ public class StudioTests
 
         // Enregistrer de nouveau dans le même dossier : pas de sous-dossier en plus
         Assert.Equal(path, other.SaveToFolder(project.Root));
+    }
+
+    [Fact]
+    public async Task ANewLab_IsLaidOutByRoleAtOnce_AndEveryStepWritesInItsFolder()
+    {
+        var settings = StudioSettings.DefaultPath;
+        StudioSettings.DefaultPath = Path.Combine(TempDir(), "settings.json");
+        try
+        {
+            var parent = TempDir();
+            File.WriteAllText(Path.Combine(parent, "autres-cours.txt"), "un dossier d'exercices déjà occupé");
+            var (vm, dialogs) = NewStudio();
+            dialogs.Folder = parent;
+            dialogs.Recipe = new RecipeRequest([LabRecipes.All.Single(r => r.RuleId == "ACC-01")], "fr-FR", "studio.local");
+
+            // Créer : le dossier de l'exercice, ses quatre dossiers par rôle et tous ses fichiers, sans « Enregistrer »
+            await vm.NewFromRecipeCommand.ExecuteAsync(null);
+            var project = vm.Project!;
+            Assert.Equal(Path.Combine(parent, vm.LabId), project.Root);
+            Assert.Equal(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), dialogs.StartFolders[0]);
+            foreach (var folder in new[] { project.TrainerFolder, project.HandOutFolder, project.SubmissionsFolder, project.ResultsFolder })
+                Assert.True(Directory.Exists(folder), folder);
+            foreach (var file in new[] { vm.FilePath!, project.SolutionPath, project.SheetPath, project.SubjectPath(vm.FilePath!), project.ReadMePath })
+                Assert.True(File.Exists(file), file);
+            Assert.False(vm.HasUnsavedChanges);
+            Assert.Equal(string.Format(StudioText.Instance["Status.CreatedProject"], project.Root), vm.Status);
+
+            // Le sujet et la fiche vont à leur place, sans fenêtre d'enregistrement
+            vm.IsExam = true;
+            await vm.ExportSubjectCommand.ExecuteAsync(null);
+            Assert.False(new LabService().LoadFile(project.SubjectPath(vm.FilePath!)).IsTrainerCopy);
+            Assert.True(new LabService().LoadFile(vm.FilePath!).Exam); // l'exemplaire, enregistré avec
+            vm.Notes = "Désactiver Guest.";
+            await vm.ExportSheetCommand.ExecuteAsync(null);
+            Assert.Contains("Désactiver Guest.", File.ReadAllText(project.SheetPath));
+            Assert.False(vm.HasUnsavedChanges);
+
+            // Les copies reçues d'ailleurs sont rangées dans 3-copies-rendues, une seule fois ; les notes à la main à côté
+            var usb = TempDir();
+            var lou = Submission(project.SubjectPath(vm.FilePath!), "Lou", folder: usb);
+            dialogs.OpenPaths.Add(lou);
+            await vm.AddSubmissionsCommand.ExecuteAsync(null);
+            await vm.AddSubmissionsCommand.ExecuteAsync(null);
+            var filed = Path.Combine(project.SubmissionsFolder, Path.GetFileName(lou));
+            Assert.Equal(filed, Assert.Single(vm.Submissions).Graded.Path);
+            Assert.Single(project.SubmissionFiles());
+            vm.SelectedSubmission = vm.Submissions[0];
+            vm.Comment = "Bien.";
+            vm.SaveMarksCommand.Execute(null);
+            Assert.True(File.Exists(SubmissionMarksService.MarksPath(filed)));
+
+            // Un téléchargement Moodle : un dossier par apprenant, des copies du même nom
+            var moodle = TempDir();
+            foreach (var student in new[] { "Sam", "Noa" })
+            {
+                var copy = Submission(project.SubjectPath(vm.FilePath!), student, folder: Directory.CreateDirectory(Path.Combine(moodle, student)).FullName);
+                File.Move(copy, Path.Combine(Path.GetDirectoryName(copy)!, "copie" + LabSubmissionService.FileExtension));
+            }
+            dialogs.Folder = moodle;
+            await vm.AddSubmissionFolderCommand.ExecuteAsync(null);
+            Assert.Equal(3, project.SubmissionFiles().Count);
+            Assert.True(File.Exists(Path.Combine(project.SubmissionsFolder, "Noa", "copie" + LabSubmissionService.FileExtension)));
+            Assert.Equal(3, vm.Submissions.Count);
+
+            // Les résultats vont dans 4-resultats
+            await vm.ExportGradesCommand.ExecuteAsync(null);
+            Assert.True(File.Exists(project.GradesPath));
+
+            // Renommé, l'exercice change de nom de fichier et de dossier ; ses copies le suivent
+            vm.LabId = "revue-comptes";
+            await vm.SaveCommand.ExecuteAsync(null);
+            var renamed = vm.Project!;
+            Assert.Equal(Path.Combine(parent, "revue-comptes"), renamed.Root);
+            Assert.False(Directory.Exists(project.Root));
+            Assert.Equal(renamed.LabPath("revue-comptes"), vm.FilePath);
+            Assert.Single(Directory.GetFiles(renamed.TrainerFolder, "*" + LabService.FileExtension));
+            Assert.Single(Directory.GetFiles(renamed.HandOutFolder, "*" + LabService.FileExtension));
+            Assert.Equal(3, vm.Submissions.Count);
+            Assert.All(vm.Submissions, s => Assert.StartsWith(renamed.Root, s.Graded.Path));
+
+            // Le dossier de l'exercice s'ouvre dans l'explorateur
+            await vm.ShowProjectFolderCommand.ExecuteAsync(null);
+            Assert.Equal(renamed.Root, Assert.Single(dialogs.ShownFolders));
+
+            // L'exercice suivant est proposé au même endroit, sans écraser un exercice du même nom
+            dialogs.Folder = parent;
+            var (next, nextDialogs) = NewStudio();
+            nextDialogs.Folder = parent;
+            nextDialogs.Recipe = dialogs.Recipe;
+            await next.NewFromRecipeCommand.ExecuteAsync(null);
+            Assert.Equal(parent, nextDialogs.StartFolders[0]);
+            Assert.Equal(Path.Combine(parent, next.LabId), next.Project!.Root);
+            var (third, thirdDialogs) = NewStudio();
+            thirdDialogs.Folder = parent;
+            thirdDialogs.Recipe = dialogs.Recipe;
+            await third.NewFromRecipeCommand.ExecuteAsync(null);
+            Assert.Equal(Path.Combine(parent, third.LabId + "-2"), third.Project!.Root);
+
+            // Sans dossier choisi, l'exercice reste ouvert, à enregistrer plus tard : « Enregistrer » demande où
+            var (later, laterDialogs) = NewStudio();
+            laterDialogs.Recipe = dialogs.Recipe;
+            await later.NewFromRecipeCommand.ExecuteAsync(null);
+            Assert.Null(later.FilePath);
+            Assert.Equal(StudioText.Instance["Status.CreatedNotSaved"], later.Status);
+            laterDialogs.Folder = TempDir();
+            await later.SaveCommand.ExecuteAsync(null);
+            Assert.Equal(laterDialogs.Folder, later.Project!.Root);
+        }
+        finally
+        {
+            StudioSettings.DefaultPath = settings;
+        }
+    }
+
+    [Fact]
+    public async Task ALabFolder_OpensWithEverything_AndCopiesDroppedOnStudioAreFiledAndGraded()
+    {
+        var settings = StudioSettings.DefaultPath;
+        StudioSettings.DefaultPath = Path.Combine(TempDir(), "settings.json");
+        try
+        {
+            // Un exercice créé, rangé dans son dossier
+            var (author, authorDialogs) = NewStudio();
+            authorDialogs.Folder = TempDir();
+            authorDialogs.Recipe = new RecipeRequest([LabRecipes.All.Single(r => r.RuleId == "ACC-01")], "fr-FR", "studio.local");
+            await author.NewFromRecipeCommand.ExecuteAsync(null);
+            var project = author.Project!;
+            var subject = project.SubjectPath(author.FilePath!);
+
+            // Le rouvrir par son dossier, ou par l'un de ses dossiers par rôle : l'exemplaire, la solution, les copies
+            File.Copy(Submission(subject, "Lou"), Path.Combine(project.SubmissionsFolder, "lou" + LabSubmissionService.FileExtension));
+            var (vm, dialogs) = NewStudio();
+            dialogs.Folder = project.SubmissionsFolder;
+            await vm.OpenFolderCommand.ExecuteAsync(null);
+            Assert.Equal(author.FilePath, vm.FilePath);
+            Assert.False(LabProject.IsHandOut(vm.FilePath!)); // l'exemplaire, pas le sujet
+            Assert.True(vm.HasFixedDomain);
+            Assert.Single(vm.Submissions);
+
+            // Les copies déposées dans l'explorateur pendant que Studio est ouvert : corrigées au retour dans Studio
+            File.Copy(Submission(subject, "Sam"), Path.Combine(project.SubmissionsFolder, "sam" + LabSubmissionService.FileExtension));
+            vm.PickUpNewSubmissions();
+            Assert.Equal(2, vm.Submissions.Count);
+
+            // Des copies et un dossier de copies glissés sur la fenêtre : rangés dans 3-copies-rendues et corrigés
+            var usb = TempDir();
+            var noa = Submission(subject, "Noa", folder: usb);
+            var moodle = Directory.CreateDirectory(Path.Combine(TempDir(), "devoir")).FullName;
+            Submission(subject, "Eli", folder: Directory.CreateDirectory(Path.Combine(moodle, "Eli")).FullName);
+            await vm.DropAsync([noa, moodle]);
+            Assert.Equal(4, vm.Submissions.Count);
+            Assert.Equal(4, project.SubmissionFiles().Count);
+            Assert.True(File.Exists(Path.Combine(project.SubmissionsFolder, Path.GetFileName(noa))));
+
+            // Un dossier sans exercice ni copie : Studio le dit
+            var empty = TempDir();
+            await vm.DropAsync([empty]);
+            Assert.Equal(string.Format(StudioText.Instance["Status.NotALabFolder"], empty), vm.Status);
+            await vm.OpenFolderPathAsync(empty);
+            Assert.Equal(author.FilePath, vm.FilePath);
+
+            // L'exercice est dans les récents de l'écran d'accueil : un clic le rouvre
+            var (other, _) = NewStudio();
+            var recent = Assert.Single(other.RecentLabs);
+            Assert.Equal(project.Root, recent.Path);
+            Assert.Equal(author.LabTitle, recent.Title);
+            await other.OpenRecentCommand.ExecuteAsync(recent);
+            Assert.Equal(author.FilePath, other.FilePath);
+
+            // Le dossier glissé sur une fenêtre vide ouvre l'exercice ; avec un exercice modifié, Studio demande d'abord
+            var (dropped, droppedDialogs) = NewStudio();
+            await dropped.DropAsync([project.Root]);
+            Assert.Equal(author.FilePath, dropped.FilePath);
+            Assert.Equal(4, dropped.Submissions.Count);
+            dropped.LabTitle = "Modifié";
+            droppedDialogs.UnsavedAnswer = UnsavedChoice.Cancel;
+            await dropped.OpenFolderPathAsync(project.Root);
+            Assert.Equal("Modifié", dropped.LabTitle);
+            droppedDialogs.UnsavedAnswer = UnsavedChoice.Discard;
+            await dropped.OpenFolderPathAsync(project.Root);
+            Assert.NotEqual("Modifié", dropped.LabTitle);
+        }
+        finally
+        {
+            StudioSettings.DefaultPath = settings;
+        }
+    }
+
+    [Fact]
+    public void LabProject_ImportSubmission_FilesOnce_AndNumbersOtherFilesOfTheSameName()
+    {
+        var project = LabProject.Create(TempDir(), "fr-FR");
+        var a = Path.Combine(TempDir(), "copie" + LabSubmissionService.FileExtension);
+        var b = Path.Combine(TempDir(), "copie" + LabSubmissionService.FileExtension);
+        File.WriteAllText(a, "{\"a\":1}");
+        File.WriteAllText(b, "{\"b\":2}");
+        File.WriteAllText(SubmissionMarksService.MarksPath(b), "{}");
+
+        var first = project.ImportSubmission(a);
+        Assert.Equal(first, project.ImportSubmission(a));
+        var second = project.ImportSubmission(b);
+        Assert.Equal(Path.Combine(project.SubmissionsFolder, "copie (2)" + LabSubmissionService.FileExtension), second);
+        Assert.True(File.Exists(SubmissionMarksService.MarksPath(second)));
+        Assert.Equal(second, project.ImportSubmission(second)); // déjà rangée
+        Assert.Equal(first, project.ImportSubmission(a, Path.Combine("..", "..", "ailleurs.json"))); // jamais hors du dossier
     }
 }

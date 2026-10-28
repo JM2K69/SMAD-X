@@ -24,7 +24,8 @@ namespace SMADX.Services.Audit
                 {
                     Rule = rule,
                     Object = f.Object,
-                    Detail = rule.FormatDetail(f.DetailArgs)
+                    Detail = rule.FormatDetail(f.DetailArgs),
+                    Args = f.DetailArgs
                 }))
                 .OrderBy(f => f.Severity)
                 .ThenBy(f => f.Rule.Id)

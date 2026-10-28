@@ -9,7 +9,7 @@ SMAD-X ne se contente pas de dessiner un annuaire : il en modélise les **attrib
 | **Domaine** | racine, porte les délégations, les GPO liées et la politique de mot de passe par défaut | |
 | **OU** | unité d'organisation : délégations, GPO, classement en tier | sous le domaine ou une autre OU |
 | **Conteneur** | `CN=` comme Users, Computers, System | sous le domaine, une OU ou un conteneur ; ne contient jamais d'OU |
-| **Utilisateur**, **Ordinateur**, **gMSA** | comptes | options de compte, SPN, délégation Kerberos |
+| **Utilisateur**, **Ordinateur**, **gMSA** | comptes | options de compte, SPN, délégation Kerberos ; pour un ordinateur, LAPS, administrateurs locaux et sessions |
 | **Groupe** | portée (domaine local, global, universel) et type (sécurité, distribution) | imbrication selon la portée |
 | **Stratégie (GPO)** | créée dans `CN=Policies,CN=System`, nulle part ailleurs | liée aux OU, au domaine ou aux sites |
 | **PSO** | stratégie de mot de passe affinée, créée dans le Password Settings Container | appliquée à des utilisateurs ou des groupes |
@@ -45,6 +45,14 @@ Elle reprend les attributs réels d'Active Directory :
 | adminCount | `adminCount` | objet protégé par AdminSDHolder |
 | Propriétaire | propriétaire du descripteur de sécurité | un propriétaire peut réécrire les permissions |
 
+Pour un **ordinateur**, la partie **Ordinateur** ajoute :
+
+| Champ | D'où il vient | Ce qu'il permet de montrer |
+|---|---|---|
+| LAPS gère le mot de passe de l'administrateur local, expiration | `msLAPS-PasswordExpirationTime` (Windows LAPS) ou `ms-Mcs-AdmPwdExpirationTime` (ancien LAPS) | sans LAPS, le même mot de passe sur toutes les machines (LAPS-01) ; qui peut lire le mot de passe LAPS en devient administrateur |
+| Administrateurs locaux | groupe local Administrateurs, hors de l'annuaire | Domain Admins par défaut, Builtin Administrators sur un DC ; un groupe ajouté (par GPO) administre la machine |
+| Sessions ouvertes | hors de l'annuaire (BloodHound les collecte sur les machines) | un administrateur connecté laisse ses identifiants en mémoire : son compte est à portée de tout administrateur de la machine (TIER-04) |
+
 Les options utilisent les vrais bits de `userAccountControl` : l'import PowerShell les reprend tels quels.
 
 !!! tip "AdminSDHolder"
@@ -69,9 +77,27 @@ Les imbrications suivent les portées d'AD (modèle AGDLP) : un groupe **global*
 
 ![Fenêtre des délégations](assets/screens/delegations.png)
 
-**Analyse > Délégations...** (`Ctrl+D`) liste les délégations : mandataire, droit, catégorie, DN cible, héritage, tier. On filtre par mandataire, cible ou catégorie, on masque les délégations héritées, et on exporte en CSV.
+**Analyse > Délégations...** (`Ctrl+D`) liste les délégations : mandataire, droit, catégorie, DN cible, héritage, tier. On filtre par mandataire, cible ou catégorie, on masque les délégations héritées, et on exporte en CSV. Les compteurs regroupent les catégories ; **Droits sensibles** compte celles qui donnent un objet ou ses secrets sans en avoir l'air.
 
-Pour **déléguer**, sélectionnez une OU à gauche, choisissez le mandataire et la catégorie (réinitialisation de mot de passe, gestion des ordinateurs, déverrouillage, écriture d'attribut, contrôle total), puis **Ajouter**. **Retirer la délégation sélectionnée** la supprime.
+| Catégorie | Droit AD | Ce qu'il donne |
+|---|---|---|
+| Réinitialisation du mot de passe | `ResetPassword` | le compte, en changeant son mot de passe |
+| Gestion des ordinateurs | `CreateChild:computer` | joindre des machines au domaine |
+| Déverrouillage de compte | `WriteProperty:lockoutTime` | débloquer un compte |
+| Écriture d'attribut | `WriteProperty:<attribut>` | selon l'attribut |
+| Modification des membres | `WriteProperty:member` | les droits du groupe |
+| Contrôle total | `GenericAll` | tout |
+| Écriture de tous les attributs | `GenericWrite` | SPN, msDS-KeyCredentialLink, membres, délégation : le contrôle de l'objet |
+| Modification des permissions, changement de propriétaire | `WriteDacl`, `WriteOwner` | le contrôle total, en une étape |
+| Réplication des secrets (DCSync) | `DS-Replication-Get-Changes-All` | sur la racine du domaine, les secrets de tous les comptes |
+| Écriture de msDS-KeyCredentialLink | `WriteProperty:msDS-KeyCredentialLink` | s'authentifier comme le compte (Shadow Credentials) |
+| Écriture de la délégation basée sur la ressource | `WriteProperty:msDS-AllowedToActOnBehalfOfOtherIdentity` | un ticket vers la machine au nom de n'importe qui (RBCD) |
+| Écriture des SPN | `WriteProperty:servicePrincipalName` | Kerberoasting ciblé |
+| Lecture du mot de passe LAPS, gMSA | `ReadProperty:msLAPS-Password`, `msDS-ManagedPassword` | l'administrateur local de la machine, le compte de service |
+| Liaison de GPO | `WriteProperty:gPLink` | lier une GPO à l'OU ou au domaine |
+| Tous les droits étendus | `AllExtendedRights` | réinitialiser les mots de passe, lire LAPS et, sur le domaine, répliquer |
+
+Pour **déléguer**, sélectionnez une OU (ou le domaine) à gauche, choisissez le mandataire et la catégorie, puis **Ajouter**. **Retirer la délégation sélectionnée** la supprime, sur n'importe quel objet : une délégation posée sur un compte ou un ordinateur, lue par l'import, se retire aussi d'ici.
 
 ## Le modèle en tiers
 

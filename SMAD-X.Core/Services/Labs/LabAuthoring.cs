@@ -80,6 +80,19 @@ namespace SMADX.Services.Labs
             AttackEdgeKind.EmptyPassword => LocalizedText.Of("Une option de compte accepte un mot de passe vide.", "One account option accepts an empty password."),
             AttackEdgeKind.UnconstrainedDelegation => LocalizedText.Of("Regardez les options de délégation des serveurs.", "Look at the servers' delegation options."),
             AttackEdgeKind.ConstrainedDelegationToDc => LocalizedText.Of("Vers quels services ce compte peut-il déléguer ?", "To which services can this account delegate?"),
+            AttackEdgeKind.GenericWrite or AttackEdgeKind.WriteDacl or AttackEdgeKind.WriteOwner =>
+                LocalizedText.Of("Regardez quelles délégations ce groupe a reçues, et sur quels objets (fenêtre Délégations).", "Look at which delegations this group received, and on which objects (Delegations window)."),
+            AttackEdgeKind.DCSync => LocalizedText.Of("Qui a des droits de réplication sur la racine du domaine ?", "Who holds replication rights on the root of the domain?"),
+            AttackEdgeKind.ShadowCredentials => LocalizedText.Of("Qui peut écrire les clés d'authentification d'un compte ?", "Who can write an account's authentication keys?"),
+            AttackEdgeKind.Rbcd => LocalizedText.Of("Qui peut écrire la délégation basée sur la ressource d'un ordinateur ?", "Who can write a computer's resource-based delegation?"),
+            AttackEdgeKind.WriteSpn => LocalizedText.Of("Qui peut ajouter un SPN à un compte ?", "Who can add an SPN to an account?"),
+            AttackEdgeKind.ReadLapsPassword or AttackEdgeKind.AdminTo =>
+                LocalizedText.Of("Qui administre cette machine, directement ou par son mot de passe LAPS ?", "Who administers this machine, directly or through its LAPS password?"),
+            AttackEdgeKind.HasSession => LocalizedText.Of("Quels comptes ouvrent une session sur cette machine, et de quel tier sont-ils ?", "Which accounts log on to this machine, and which tier are they?"),
+            AttackEdgeKind.ReadGmsaPassword => LocalizedText.Of("Qui peut lire le mot de passe de ce compte de service géré ?", "Who can read this managed service account's password?"),
+            AttackEdgeKind.OuGpoLink or AttackEdgeKind.WriteGPLink or AttackEdgeKind.ContainerContent =>
+                LocalizedText.Of("Qui contrôle cette OU ou ce conteneur, et ce qu'il contient ?", "Who controls this OU or container, and what it contains?"),
+            AttackEdgeKind.AdminSdHolder => LocalizedText.Of("Regardez les permissions d'AdminSDHolder, sous System.", "Look at the permissions of AdminSDHolder, under System."),
             _ => LocalizedText.Of("Ouvrez Analyse > Chemins d'attaque.", "Open Analyse > Attack paths.")
         };
 

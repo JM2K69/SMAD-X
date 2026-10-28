@@ -7,7 +7,7 @@ Un exercice place l'apprenant dans une situation réaliste (une organisation, un
 | Comment | Contenu |
 |---|---|
 | **Exercices > Exercices fournis** | cinq exercices généraux, bilingues |
-| **Exercices > Chemins d'attaque** | douze exercices, chacun dans la langue de l'interface, avec son propre domaine |
+| **Exercices > Chemins d'attaque** | quinze exercices, chacun dans la langue de l'interface, avec son propre domaine |
 | **Exercices > Ouvrir un exercice...** | un fichier `.smadx-lab.json` reçu d'un formateur, ou une copie `.smadx-submission.json` à reprendre |
 | Double-clic sur le fichier, ou `SMAD-X.exe exercice.smadx-lab.json` | le même fichier, ouvert directement en mode exercice (voir plus bas) |
 

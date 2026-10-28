@@ -63,11 +63,16 @@ namespace SMADX.Services.Labs
             GroupScope = ADGroupScope.Global, GroupCategory = ADGroupCategory.Security
         });
 
+        /// <summary>Ordinateur joint au domaine : Domain Admins est administrateur local, LAPS gère le mot de passe de l'administrateur local.</summary>
         public ADObject Computer(ADObject parent, string name, string tier, string description) => Add(parent, new ADObject(name, ADObjectType.Computer)
         {
             Tier = tier, Owner = "Domain Admins", Description = description,
-            PwdLastSet = Reference.AddDays(-20), LastLogonTimestamp = Reference.AddDays(-1), CreatedDate = Reference.AddDays(-400)
+            PwdLastSet = Reference.AddDays(-20), LastLogonTimestamp = Reference.AddDays(-1), CreatedDate = Reference.AddDays(-400),
+            LocalAdmins = new() { "Domain Admins" }, LapsPasswordExpiration = Reference.AddDays(LapsRenewalDays - 10)
         });
+
+        /// <summary>Durée de vie d'un mot de passe LAPS (30 jours par défaut, comme Windows LAPS).</summary>
+        public const int LapsRenewalDays = 30;
 
         public static void Delegate(ADObject target, string trustee, TrusteeType type, string right, RightCategory category, string tier) =>
             target.Delegations.Add(new ADDelegation
@@ -113,6 +118,9 @@ namespace SMADX.Services.Labs
                 // Seuls les comptes délégués joignent des ordinateurs au domaine
                 d.MachineAccountQuota = 0;
                 Populate(d);
+                // LAPS déployé : chaque machine jointe a son mot de passe d'administrateur local, unique et renouvelé
+                foreach (var computer in Flatten(d).Where(o => o.Type == ADObjectType.Computer && o.Parent?.Name != "Domain Controllers"))
+                    computer.LapsPasswordExpiration ??= Reference.AddDays(LapsRenewalDays - 10);
                 var findings = new ADSecurityAuditService().Run(d, Reference).Findings;
                 if (findings.Count > 0)
                     throw new InvalidOperationException("Domaine de départ non propre : " + string.Join(", ", findings.Select(f => f.Rule.Id + " " + f.Object.Name)));
@@ -159,8 +167,16 @@ namespace SMADX.Services.Labs
                 }
             }
             var workstations = Ou(d, T("Postes de travail", "Workstations"), "Tier 2");
+            var workstationAdmins = Flatten(d).Any(o => o.Type == ADObjectType.Group && o.Name == "GG-IT-Workstations") ? "GG-IT-Workstations" : null;
             for (var i = 1; i <= 6; i++)
-                Computer(workstations, $"{T("PC", "WKS")}-{i:000}", "Tier 2", T("Poste de travail.", "Workstation."));
+            {
+                var pc = Computer(workstations, $"{T("PC", "WKS")}-{i:000}", "Tier 2", T("Poste de travail.", "Workstation."));
+                // Les techniciens des postes en sont administrateurs locaux (groupe restreint posé par GPO)
+                if (workstationAdmins != null) pc.LocalAdmins!.Add(workstationAdmins);
+            }
+            // ... et lisent leur mot de passe LAPS, pour dépanner une machine hors réseau
+            if (workstationAdmins != null)
+                Delegate(workstations, workstationAdmins, TrusteeType.Group, ADDelegation.DefaultRight(RightCategory.ReadLapsPassword), RightCategory.ReadLapsPassword, "Tier 2");
         }
 
         /// <summary>Document complet (domaine et topologie de sites), aux identifiants et dates reproductibles.</summary>

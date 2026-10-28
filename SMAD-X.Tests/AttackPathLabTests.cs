@@ -75,6 +75,15 @@ public class AttackPathLabTests
         {
             foreach (var g in Flatten(d).Where(o => o.Type == ADObjectType.Group && o.Name.StartsWith("GG-")))
                 g.MemberOf.Remove("DnsAdmins");
+        },
+        // Les droits de réplication de l'outil, pas ceux des contrôleurs de domaine
+        ["13-dcsync"] = d => RemoveWhere(d.Delegations, x => x.TrusteeName == "svc-sync"),
+        // Le droit du groupe du pilote, pas celui de Key Admins
+        ["14-shadow-credentials"] = d => RemoveWhere(d.Delegations, x => x.Effective == RightCategory.WriteKeyCredentialLink && x.TrusteeName.StartsWith("GG-")),
+        ["15-rbcd"] = d =>
+        {
+            foreach (var c in Flatten(d).Where(o => o.Type == ADObjectType.Computer))
+                RemoveWhere(c.Delegations, x => x.Effective == RightCategory.WriteAllowedToAct);
         }
     };
 
@@ -114,13 +123,13 @@ public class AttackPathLabTests
         string.Join("\n", result.Objectives.Where(o => !o.Passed).Select(o => $"{o.Objective.Id} : {o.Feedback}"));
 
     [Fact]
-    public void AttackPathLabs_AreTwelvePerLanguage_WithDistinctDomains()
+    public void AttackPathLabs_AreFifteenPerLanguage_WithDistinctDomains()
     {
         var labs = _service.BuiltInLabs().Where(l => l.Category == MainWindowViewModel.AttackPathCategory).ToList();
 
-        Assert.Equal(12, labs.Count(l => l.Language == "fr-FR"));
-        Assert.Equal(12, labs.Count(l => l.Language == "en-US"));
-        Assert.Equal(24, labs.Select(l => l.Start.Domain.Name).Distinct().Count());
+        Assert.Equal(15, labs.Count(l => l.Language == "fr-FR"));
+        Assert.Equal(15, labs.Count(l => l.Language == "en-US"));
+        Assert.Equal(30, labs.Select(l => l.Start.Domain.Name).Distinct().Count());
     }
 
     [Theory]
@@ -260,12 +269,12 @@ public class AttackPathLabTests
             var vm = new MainWindowViewModel(new FakeDialogService());
             loc.SetLanguage("fr-FR");
             Assert.All(vm.AttackPathLabs, l => Assert.StartsWith("chemin-", l.Lab.Id));
-            Assert.Equal(12, vm.AttackPathLabs.Count);
+            Assert.Equal(15, vm.AttackPathLabs.Count);
             Assert.DoesNotContain(vm.BuiltInLabs, l => l.Lab.Category != null);
 
             loc.SetLanguage("en-US");
             Assert.All(vm.AttackPathLabs, l => Assert.StartsWith("path-", l.Lab.Id));
-            Assert.Equal(12, vm.AttackPathLabs.Count);
+            Assert.Equal(15, vm.AttackPathLabs.Count);
         }
         finally
         {

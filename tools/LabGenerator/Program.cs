@@ -28,6 +28,9 @@ ADObject Fresh()
         o.ModifiedDate = reference.AddDays(-400);
         if (o.PwdLastSet != null) o.PwdLastSet = reference.AddDays(-30);
         if (o.LastLogonTimestamp != null) o.LastLogonTimestamp = reference.AddDays(-1);
+        // LAPS déployé sur les machines jointes (les contrôleurs de domaine n'ont pas de compte local)
+        if (o.Type == ADObjectType.Computer && o.Parent?.Name != "Domain Controllers")
+            o.LapsPasswordExpiration = reference.AddDays(LabDomainBuilder.LapsRenewalDays - 10);
     }
     return d;
 }

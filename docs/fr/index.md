@@ -29,7 +29,7 @@ Aucune infrastructure n'est nécessaire : tout se passe dans l'application, sur 
 
     ---
 
-    31 règles de sécurité, chacune reliée à ses sources : checklist AD de l'ANSSI, NIST SP 800-53 et 800-63B, CIS Controls, MITRE ATT&CK, Microsoft. Un score et un niveau ANSSI estimé.
+    35 règles de sécurité, chacune reliée à ses sources : checklist AD de l'ANSSI, NIST SP 800-53 et 800-63B, CIS Controls, MITRE ATT&CK, Microsoft. Un score et un niveau ANSSI estimé.
 
     [:octicons-arrow-right-24: Audit de sécurité](audit.md)
 

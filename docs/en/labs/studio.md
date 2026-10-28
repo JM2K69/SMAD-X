@@ -16,7 +16,9 @@ Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the 
 | **New lab from a domain (.smad-x.json)...** | a domain prepared and saved in SMAD-X | the statement template and the objectives suggested by the audit and the attack paths |
 | **Convert a scenario into a lab...** | a `.smad-x.json` scenario whose description follows the *Context / The path / Fix it* outline | the statement taken from the context; the path and the fix go into the trainer notes |
 
-**Open a lab...** resumes an existing `.smadx-lab.json` file, with its notes.
+**Open a lab (its folder)...** (`Ctrl+O`) reopens a lab by its folder, or by one of its role folders: Studio finds there everything the creation laid out (your copy, the subject, the fixed domain, the notes) and grades the submissions of `3-submissions` straight away. Dropping that folder on the Studio window does the same, and the start screen lists the **recent labs**, reopened in one click. **Open a lab file (.smadx-lab.json)...** resumes a lab saved on its own, with its notes.
+
+**As soon as it is created**, Studio asks where to keep the lab, suggesting the folder of the previous one, and creates its folder there, laid out by role (see [The files](#the-files)): your copy, the subject to hand out and the trainer sheet are already written. Each step then writes in its place, without asking: the subject in `2-to-hand-out`, the sheet in `1-trainer`, the submissions you add in `3-submissions`, the grades and reports in `4-results`. If you cancel the folder choice, the lab stays open without being saved: **Save** will ask where to keep it.
 
 ### From a recommendation
 
@@ -53,7 +55,7 @@ A lab is either **bilingual** or exists in **one language** only. The *Language 
 - **Allow "Check"**: the learner sees which objectives are met, with no score and no explanation;
 - **Tools closed during the exam**: security audit, the "How to fix" section of the sheets, attack paths, before / after comparison. All are open by default: they help analyse, but they also show what grading checks.
 
-**Your copy and the subject**: the file Studio saves in `1-trainer` is **your copy**, with the hints and the answer key of the questions; submissions are graded with it. It is not handed out: for an exam, SMAD-X refuses to open it. At every save, Studio also writes the **subject**, under the same name, in `2-to-hand-out`: without the answer key and, for an exam, without the hints. That is the file to hand out. **Export the subject for learners...** (**File** menu, or the button in the Lab tab) writes it elsewhere; Studio refuses to write it over your copy.
+**Your copy and the subject**: the file Studio saves in `1-trainer` is **your copy**, with the hints and the answer key of the questions; submissions are graded with it. It is not handed out: for an exam, SMAD-X refuses to open it. At every save, Studio also writes the **subject**, under the same name, in `2-to-hand-out`: without the answer key and, for an exam, without the hints. That is the file to hand out. **Export the subject for learners...** (**File** menu, or the button in the Lab tab) saves the lab and rewrites the subject in `2-to-hand-out`, without asking: the subject and the copy that will grade the submissions stay identical. For a lab saved on its own by an earlier version, it asks where to write the subject, and refuses to write it over your copy.
 
 Closing Studio with an unsaved lab or notes asks you to save.
 
@@ -128,7 +130,7 @@ In all three cases, the fixed domain is kept with the lab, in `1-trainer`, and t
 
 ### Trainer sheet
 
-The **trainer notes** (the solution, things to watch for) and the trainer sheet preview: objectives, guards, questions and their answer key, attack paths and audit of the starting domain, what the fixed domain changes, then the notes. **Export trainer sheet...** saves it as Markdown.
+The **trainer notes** (the solution, things to watch for) and the trainer sheet preview: objectives, guards, questions and their answer key, attack paths and audit of the starting domain, what the fixed domain changes, then the notes. **Export trainer sheet...** saves the lab and writes the sheet as Markdown in `1-trainer`.
 
 ---
 
@@ -136,10 +138,10 @@ The **trainer notes** (the solution, things to watch for) and the trainer sheet 
 
 ![Submissions tab](../assets/screens/studio-submissions.png)
 
-Each learner saves their work in SMAD-X with **Save my submission**: a `.smadx-submission.json` file holding the lab they received, their domain, their answers to the questions and the hints viewed. The simplest: drop the submissions in the lab folder's `3-submissions` folder, then open **your copy** (`1-trainer`, not the subject: it has no answer key). Studio grades every submission of the folder straight away, and **Regrade** picks up those dropped since. In the **Submissions** tab, you can also add submissions stored elsewhere:
+Each learner saves their work in SMAD-X with **Save my submission**: a `.smadx-submission.json` file holding the lab they received, their domain, their answers to the questions and the hints viewed. The simplest: with the lab open, **drop the submissions on the Studio window**, or a folder of submissions (a USB stick, an assignment downloaded from the school platform): Studio files them in `3-submissions`, with the grades by hand that come with them, and grades them straight away. A submission already filed is not copied again; another file of the same name gets a number. You can also put the submissions into `3-submissions` yourself, from the file explorer: they are graded when the lab opens, or as soon as you come back to Studio if it is already open. Opened by its folder, the lab is always **your copy** (`1-trainer`), not the subject, which has no answer key. In the **Submissions** tab, the same submissions can also be added with buttons:
 
 - **Add submissions...**: pick one or several submissions at once;
-- **Add a folder...**: every submission in the folder and its subfolders.
+- **Add a folder...**: every submission in the folder and its subfolders, filed with their subfolders (a Moodle download has one folder per learner, and the submissions may have the same name there).
 
 Studio grades each submission with **your** copy of the lab, as it is open: the starting domain is prepared again at the date the learner started, and the check runs at the date of the submission. The score the learner may have seen is never reused. After changing objectives or points, **Regrade** grades everything again.
 
@@ -181,7 +183,7 @@ The **Success per objective** tab shows what the class understood and what to go
 |---|---|
 | **Export grades (CSV)...** | a spreadsheet for Excel: name, ID, points, grade out of the scale, hints, time, answers to grade, points of each objective and each question, remarks. The grade column can be pasted into the school platform. |
 | **Export for Moodle (CSV)...** | the Moodle grade import file (*Grades > Import > CSV file*): the learner's ID, name and grade out of the scale. In Moodle, map the ID column to the students' email address or ID number, and the grade to the grade item, whose maximum grade must be the scale. |
-| **Individual reports (PDF)...** | one PDF per graded submission, in the chosen folder: the grade, each objective with its explanation, the answers to the questions and the comment. It holds neither the answer key nor the trainer-only remarks. |
+| **Individual reports (PDF)...** | one PDF per graded submission, in `4-results/reports`: the grade, each objective with its explanation, the answers to the questions and the comment. It holds neither the answer key nor the trainer-only remarks. |
 | **Export class results (Markdown)...** | the class results: average, median, everyone's grade, success per objective and per question. |
 
 In SMAD-X, the learner can enter an **ID** (their number or address) beside their name: the exports use it.
@@ -190,7 +192,7 @@ In SMAD-X, the learner can enter an **ID** (their number or address) beside thei
 
 ## The files
 
-**File > Save to a folder...** lays the lab out in a folder named after it (or in the chosen folder, if it is empty), with one subfolder per role. Folders and files have English or French names, depending on the interface language when the lab folder is created:
+Studio lays each new lab out in a folder named after it, created in the chosen folder (or in the chosen folder itself, if it is empty; a lab of the same name is never overwritten: the new folder gets a number), with one subfolder per role. **File > Save to a folder...** moves it elsewhere. Folders and files have English or French names, depending on the interface language when the lab folder is created:
 
 ```
 iam-review/
@@ -208,6 +210,8 @@ iam-review/
 ```
 
 At every **Save**, Studio rewrites your copy, the notes, the fixed domain, the sheet, the subject and the README. Your copy and the subject have the same name: the folder tells which one to hand out. The notes and the fixed domain are never written into the lab, and the subject has no answer key: handing out `2-to-hand-out` does not reveal the solution.
+
+Change the lab ID (**Lab** tab): at the next save, your copy and the subject take the new name, and so does the folder if it had the old one. Do it before handing out the subject: a submission carries the ID of the lab it was made from, and Studio refuses to grade it with another one. **File > Open the lab folder** (or the button beside its path) opens it in the file explorer.
 
 A lab saved on its own by an earlier version still opens, with its notes beside it (`<id>.smadx-lab.notes.md`); **Save to a folder...** lays it out by role.
 

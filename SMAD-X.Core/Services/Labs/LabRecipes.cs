@@ -75,6 +75,16 @@ namespace SMADX.Services.Labs
 
         private static ADObject Dc(ADObject d) => Flatten(d).First(o => o.Type == ADObjectType.Computer && o.Parent?.Name == "Domain Controllers");
 
+        private static ADObject Workstation(LabDomainBuilder b, ADObject d) =>
+            Flatten(d).First(o => o.Type == ADObjectType.Computer && o.Parent?.Name == b.T("Postes de travail", "Workstations"));
+
+        /// <summary>GPO liée à l'OU Domain Controllers.</summary>
+        private static ADObject DcPolicy(ADObject d)
+        {
+            var linked = Find(d, "Domain Controllers", ADObjectType.OrganizationalUnit).LinkedGPOs;
+            return Flatten(d).First(o => o.Type == ADObjectType.Policy && linked.Contains(o.Name));
+        }
+
         // ─── Catalogue ───────────────────────────────────────────────────────────
 
         public static IReadOnlyList<LabRecipe> All { get; } = new List<LabRecipe>
@@ -277,6 +287,40 @@ namespace SMADX.Services.Labs
                 Find(d, "Domain Controllers", ADObjectType.OrganizationalUnit).LinkedGPOs.Add(gpo.Name);
                 return [gpo];
             }),
+            new("TIER-04", L("Un administrateur dépanne les postes avec son compte d'administration du domaine.", "An administrator troubleshoots workstations with their domain admin account."), (b, d) =>
+            {
+                var admin = Admin(b, d, "adm-exploitation");
+                var pc = Workstation(b, d);
+                pc.Sessions = new() { admin.Name };
+                return [admin, pc];
+            }),
+            new("LAPS-01", L("Un serveur de fichiers a été installé à partir d'une ancienne image système.", "A file server was installed from an old system image."), (b, d) =>
+            {
+                var srv = Server(b, d, b.T("SRV-FICHIERS01", "SRV-FILES01"), "Serveur de fichiers.", "File server.");
+                srv.LapsPasswordExpiration = null;
+                return [srv];
+            }),
+            new("ACL-02", L("Un groupe de projet a reçu des droits sur les stratégies de groupe lors d'une migration, il y a deux ans.", "A project group was given rights on group policies during a migration, two years ago."), (b, d) =>
+            {
+                // Le groupe n'a jamais été classé dans un tier : le cloisonnement ne le voit pas
+                var project = Add(Technical(b, d), new ADObject(b.T("GG-Projet-Migration", "GG-Migration-Project"), ADObjectType.Group)
+                {
+                    Owner = "Domain Admins", CreatedDate = b.Reference.AddDays(-700), GroupScope = ADGroupScope.Global, GroupCategory = ADGroupCategory.Security,
+                    Description = b.T("Équipe du projet de migration.", "Migration project team.")
+                });
+                FirstStaff(d).MemberOf.Add(project.Name);
+                var gpo = DcPolicy(d);
+                Delegate(gpo, project.Name, TrusteeType.Group, "GenericWrite", RightCategory.GenericWrite, gpo.Tier ?? "Tier 0");
+                return [project, gpo];
+            }),
+            new("ACL-03", L("Un outil de synchronisation des mots de passe vers une application en ligne a été installé par un prestataire.", "A tool that synchronises passwords to an online application was installed by a contractor."), (b, d) =>
+            {
+                var svc = b.User(Services(b, d), "svc-sync", "Tier 1", b.T("Compte de l'outil de synchronisation.", "Synchronisation tool account."));
+                // DCSync : les deux droits de réplication sur la racine du domaine
+                Delegate(d, svc.Name, TrusteeType.User, "DS-Replication-Get-Changes", RightCategory.Other, "Tier 0");
+                Delegate(d, svc.Name, TrusteeType.User, "DS-Replication-Get-Changes-All", RightCategory.Replication, "Tier 0");
+                return [svc];
+            }),
             new("TIER-03", L("Le support a reçu des droits pour dépanner plus vite.", "The help desk was given rights to troubleshoot faster."), (b, d) =>
             {
                 var support = b.Group(Technical(b, d), b.T("GG-Support", "GG-HelpDesk-Team"), "Tier 2", b.T("Équipe du support.", "Help desk team."));
@@ -380,7 +424,19 @@ namespace SMADX.Services.Labs
                     admins.Delegations.Remove(delegation);
             },
             ["GRP-01"] = (b, d) => Find(d, b.T("GG-Equipe-B", "GG-Team-B"), ADObjectType.Group).MemberOf.Remove(b.T("GG-Equipe-A", "GG-Team-A")),
+            // La session se ferme ; l'administrateur dépannera avec un compte du Tier 2
+            ["TIER-04"] = (b, d) => Workstation(b, d).Sessions?.Remove("adm-exploitation"),
+            ["LAPS-01"] = (b, d) => Find(d, b.T("SRV-FICHIERS01", "SRV-FILES01"), ADObjectType.Computer).LapsPasswordExpiration = b.Reference.AddDays(LapsRenewalDays - 1),
+            // Le projet est fini : ses droits sur la GPO des contrôleurs de domaine sont retirés
+            ["ACL-02"] = (b, d) => RemoveDelegations(DcPolicy(d), b.T("GG-Projet-Migration", "GG-Migration-Project")),
+            ["ACL-03"] = (b, d) => RemoveDelegations(d, "svc-sync"),
         };
+
+        private static void RemoveDelegations(ADObject target, string trustee)
+        {
+            foreach (var delegation in target.Delegations.Where(x => x.TrusteeName == trustee).ToList())
+                target.Delegations.Remove(delegation);
+        }
 
         /// <summary>
         /// Migration vers un gMSA : le service et ses SPN passent à un compte de service géré, l'ancien compte est

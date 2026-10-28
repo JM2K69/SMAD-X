@@ -111,22 +111,45 @@ namespace SMADX.Studio.ViewModels
         private async Task AddSubmissionsAsync()
         {
             var paths = await _dialogs.OpenFilesAsync(Text["Submissions.Add"], Text["File.Submission"], "*" + LabSubmissionService.FileExtension);
-            if (paths.Count > 0) AddSubmissions(paths);
+            if (paths.Count > 0) await RunAsync(() => AddSubmissions(paths));
         }
 
         [RelayCommand(CanExecute = nameof(HasLab))]
         private async Task AddSubmissionFolderAsync()
         {
             if (await _dialogs.PickFolderAsync(Text["Submissions.AddFolder"]) is not { } folder) return;
-            AddSubmissions(Directory.GetFiles(folder, "*" + LabSubmissionService.FileExtension, SearchOption.AllDirectories));
+            await RunAsync(() => AddSubmissions(Directory.GetFiles(folder, "*" + LabSubmissionService.FileExtension, SearchOption.AllDirectories), folder));
         }
 
-        /// <summary>Ajoute des copies à la liste (sans doublon de fichier) et corrige tout.</summary>
-        public void AddSubmissions(IEnumerable<string> paths)
+        /// <summary>
+        /// Ajoute des copies à la liste (sans doublon de fichier) et corrige tout. Pour un exercice rangé dans son dossier,
+        /// les copies reçues d'ailleurs sont d'abord rangées dans 3-copies-rendues : les notes à la main s'enregistrent à côté,
+        /// et l'exercice les retrouve à sa prochaine ouverture.
+        /// </summary>
+        /// <param name="fromFolder">Dossier d'où viennent les copies : ses sous-dossiers sont gardés.</param>
+        public void AddSubmissions(IEnumerable<string> paths, string? fromFolder = null)
         {
-            foreach (var path in paths.Select(Path.GetFullPath))
+            var project = Project;
+            var filed = 0;
+            foreach (var original in paths.Select(Path.GetFullPath))
+            {
+                var path = project?.ImportSubmission(original, fromFolder != null ? Path.GetRelativePath(fromFolder, original) : null) ?? original;
+                if (path != original) filed++;
                 if (!_submissionPaths.Contains(path, StringComparer.OrdinalIgnoreCase))
                     _submissionPaths.Add(path);
+            }
+            RegradeSubmissions();
+            if (filed > 0)
+                Status = string.Format(Text["Submissions.Filed"], filed, Path.GetFileName(project!.SubmissionsFolder)) + " " + Status;
+        }
+
+        /// <summary>Le dossier de l'exercice a été renommé : les copies de la liste y sont toujours, sous le nouveau nom.</summary>
+        private void MoveSubmissions(string oldRoot, string newRoot)
+        {
+            if (_submissionPaths.Count == 0) return;
+            for (var i = 0; i < _submissionPaths.Count; i++)
+                if (_submissionPaths[i].StartsWith(oldRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    _submissionPaths[i] = newRoot + _submissionPaths[i][oldRoot.Length..];
             RegradeSubmissions();
         }
 

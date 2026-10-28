@@ -1,6 +1,6 @@
 # Security audit
 
-**Analysis > Security audit** (`Ctrl+Shift+A`) checks the domain against **31 rules**. Each one relies on recognised sources:
+**Analysis > Security audit** (`Ctrl+Shift+A`) checks the domain against **35 rules**. Each one relies on recognised sources:
 
 - the [ANSSI Active Directory checklist](https://cert.cyber.gouv.fr/uploads/ad_checklist.html), with each control point's official identifier and level;
 - **NIST**: SP 800-53 (security controls) and SP 800-63B (authentication);
@@ -33,9 +33,14 @@ The screenshot shows the sample domain with a weakness added for this documentat
 | `PWD` | passwords | expiry, password not required, unchanged passwords (privileged accounts, DCs, computers, managed service accounts) |
 | `ACC` | accounts | Guest enabled, dormant accounts |
 | `PRIV` | privileged groups | groups that should stay empty, DnsAdmins, missing or orphaned adminCount, protected group outside Tier 0 |
-| `ACL` | owners | non-administrative owner of a critical object |
-| `TIER` | tiering | membership, GPO or delegation across tiers |
+| `ACL` | owners and permissions | non-administrative owner of a critical object (DC GPOs included), dangerous permissions on the domain, AdminSDHolder or the DCs (DCSync, Shadow Credentials, RBCD), control path through permissions from an ordinary account |
+| `TIER` | tiering | membership, GPO, delegation or local administration across tiers, administrator session on a less sensitive machine |
+| `LAPS` | workstations and servers | computer whose local administrator password is not managed by LAPS |
 | `GRP` | groups | nesting loops |
+
+## A fresh domain, like a real one
+
+The SMAD-X fresh domain has the same default permissions as a freshly installed Active Directory: Enterprise Admins full control on the root, replication for the domain controllers, `msDS-KeyCredentialLink` write for Key Admins and Enterprise Key Admins, Enterprise Admins and Domain Admins rights on AdminSDHolder; every joined computer has Domain Admins as local administrator. These permissions all go to privileged groups: the audit does not report them, just as it would not on a real fresh domain. What it finds there (password policy too short, machine account quota, built-in administrator) is what it would find on an AD fresh out of setup.
 
 The full list, with each rule's severity, ANSSI level and references, is on the [Audit rules](reference/audit-rules.md) page, generated from the code.
 

@@ -193,6 +193,7 @@ namespace SMADX.Services.Labs
                 obj.ModifiedDate += shift;
                 obj.LastLogonTimestamp += shift;
                 obj.PwdLastSet += shift;
+                obj.LapsPasswordExpiration += shift;
             }
             return copy;
         }

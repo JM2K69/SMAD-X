@@ -90,12 +90,28 @@ namespace SMADX.Services.Labs
             return null;
         }
 
-        /// <summary>L'exemplaire rangé dans le dossier, s'il y en a un seul.</summary>
+        /// <summary>
+        /// Le dossier d'exercice qui contient ce dossier : le dossier de l'exercice lui-même, l'un de ses dossiers par rôle
+        /// ou l'un de leurs sous-dossiers (comptes-rendus, un dossier de copies). Null hors d'un dossier d'exercice.
+        /// </summary>
+        public static LabProject? Find(string folder)
+        {
+            var current = Path.GetFullPath(folder);
+            for (var level = 0; level < 4 && current != null; level++, current = Path.GetDirectoryName(current))
+                if (OfRoot(current) is { } project) return project;
+            return null;
+        }
+
+        /// <summary>
+        /// L'exemplaire rangé dans le dossier : le seul de 1-formateur ou, s'il y en a plusieurs (des copies faites à la
+        /// main), celui qui porte le nom du dossier de l'exercice. Null sinon.
+        /// </summary>
         public string? FindLab()
         {
             if (!Directory.Exists(TrainerFolder)) return null;
             var labs = Directory.GetFiles(TrainerFolder, "*" + LabService.FileExtension);
-            return labs.Length == 1 ? labs[0] : null;
+            return labs.Length == 1 ? labs[0]
+                : labs.FirstOrDefault(l => string.Equals(Path.GetFileName(l), Path.GetFileName(Root) + LabService.FileExtension, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -109,6 +125,19 @@ namespace SMADX.Services.Labs
             return Path.Combine(chosen, labId);
         }
 
+        /// <summary>
+        /// Dossier d'un nouvel exercice dans le dossier choisi : le dossier lui-même s'il est vide, sinon un sous-dossier au
+        /// nom de l'exercice, numéroté s'il existe déjà. Un exercice existant n'est jamais écrasé.
+        /// </summary>
+        public static string RootForNew(string chosen, string labId)
+        {
+            if (!Directory.Exists(chosen) || !Directory.EnumerateFileSystemEntries(chosen).Any()) return chosen;
+            var root = Path.Combine(chosen, labId);
+            for (var n = 2; Directory.Exists(root) && Directory.EnumerateFileSystemEntries(root).Any(); n++)
+                root = Path.Combine(chosen, $"{labId}-{n}");
+            return root;
+        }
+
         /// <summary>Le fichier est dans un dossier à distribuer (2-a-distribuer, 2-to-hand-out) : c'est un sujet.</summary>
         public static bool IsHandOut(string path) =>
             Path.GetFileName(Path.GetDirectoryName(Path.GetFullPath(path))) is { } folder
@@ -120,6 +149,38 @@ namespace SMADX.Services.Labs
                 ? Directory.GetFiles(SubmissionsFolder, "*" + LabSubmissionService.FileExtension, SearchOption.AllDirectories).Order(StringComparer.Ordinal).ToList()
                 : [];
 
+        /// <summary>
+        /// Range dans 3-copies-rendues une copie reçue d'ailleurs (clé USB, téléchargement de l'ENT), avec les notes à la
+        /// main qui l'accompagnent, et renvoie son chemin dans le dossier. Une copie déjà rangée reste où elle est, une
+        /// copie identique déjà présente n'est pas dupliquée, un autre fichier du même nom reçoit un numéro.
+        /// </summary>
+        /// <param name="relativePath">Chemin dans le dossier des copies (les sous-dossiers d'un téléchargement Moodle, où
+        /// chaque copie peut porter le même nom) ; par défaut, le nom du fichier.</param>
+        public string ImportSubmission(string path, string? relativePath = null)
+        {
+            var source = Path.GetFullPath(path);
+            var folder = Path.GetFullPath(SubmissionsFolder);
+            if (source.StartsWith(folder + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) return source;
+            var target = Path.GetFullPath(Path.Combine(folder, relativePath ?? Path.GetFileName(source)));
+            if (!target.StartsWith(folder + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                target = Path.Combine(folder, Path.GetFileName(source));
+            var stem = target.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase)
+                ? target[..^LabSubmissionService.FileExtension.Length] : Path.ChangeExtension(target, null);
+            var extension = target[stem.Length..];
+            var bytes = File.ReadAllBytes(source);
+            for (var n = 2; File.Exists(target); n++)
+            {
+                if (File.ReadAllBytes(target).AsSpan().SequenceEqual(bytes)) return target;
+                target = $"{stem} ({n}){extension}";
+            }
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(source, target);
+            var marks = SubmissionMarksService.MarksPath(source);
+            if (File.Exists(marks) && !File.Exists(SubmissionMarksService.MarksPath(target)))
+                File.Copy(marks, SubmissionMarksService.MarksPath(target));
+            return target;
+        }
+
         // ─── Écriture ────────────────────────────────────────────────────────────
 
         /// <summary>
@@ -127,8 +188,14 @@ namespace SMADX.Services.Labs
         /// connu), la fiche formateur, le sujet à distribuer et le LISEZMOI. Renvoie le chemin de l'exemplaire.
         /// </summary>
         /// <param name="solution">Domaine corrigé aux dates du départ (voir <see cref="LabService.PrepareSolution"/>).</param>
+        /// <remarks>
+        /// L'identifiant a changé depuis le dernier enregistrement : l'exemplaire et le sujet prennent le nouveau nom (les
+        /// anciens fichiers sont retirés), et le dossier aussi s'il portait l'ancien. Le chemin renvoyé est alors le nouveau.
+        /// </remarks>
         public string Save(LabDefinition lab, string labPath, string? notes, ADRootDocument? solution, DateTime now)
         {
+            if (Renamed(lab, labPath) is { } renamed)
+                return renamed.Save(lab, renamed.LabPath(lab.Id), notes, solution, now);
             foreach (var folder in new[] { TrainerFolder, HandOutFolder, SubmissionsFolder, ResultsFolder })
                 Directory.CreateDirectory(folder);
             var labs = new LabService();
@@ -145,6 +212,36 @@ namespace SMADX.Services.Labs
             labs.SaveSubject(lab, SubjectPath(labPath));
             File.WriteAllText(ReadMePath, ReadMe(lab, Path.GetFileName(labPath)));
             return labPath;
+        }
+
+        /// <summary>
+        /// Exercice renommé : retire l'exemplaire et le sujet à l'ancien nom, et renomme le dossier s'il portait l'ancien
+        /// identifiant (occupé par un autre programme, il garde son nom). Null si le nom n'a pas changé, ou si le nouveau
+        /// est déjà pris dans le dossier.
+        /// </summary>
+        private LabProject? Renamed(LabDefinition lab, string labPath)
+        {
+            var name = Path.GetFileName(labPath);
+            if (!name.EndsWith(LabService.FileExtension, StringComparison.OrdinalIgnoreCase)) return null;
+            var oldId = name[..^LabService.FileExtension.Length];
+            if (string.Equals(oldId, lab.Id, StringComparison.Ordinal) || string.IsNullOrWhiteSpace(lab.Id)
+                || lab.Id.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0
+                || !string.Equals(oldId, lab.Id, StringComparison.OrdinalIgnoreCase) && File.Exists(LabPath(lab.Id)))
+                return null;
+            foreach (var old in new[] { labPath, SubjectPath(labPath) })
+                if (File.Exists(old)) File.Delete(old);
+            var moved = Path.Combine(Path.GetDirectoryName(Root)!, lab.Id);
+            if (!string.Equals(Path.GetFileName(Root), oldId, StringComparison.OrdinalIgnoreCase) || Directory.Exists(moved)) return this;
+            try
+            {
+                Directory.Move(Root, moved);
+                return new LabProject(moved, French);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Un explorateur ou un éditeur ouvert dans le dossier : il garde son nom, les fichiers prennent le nouveau
+                return this;
+            }
         }
 
         /// <summary>Notes, import Moodle, bilan et un compte rendu PDF par copie corrigée, dans 4-resultats.</summary>

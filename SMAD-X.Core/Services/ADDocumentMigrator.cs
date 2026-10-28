@@ -27,7 +27,9 @@ namespace SMADX.Services
         internal static readonly IReadOnlyDictionary<int, Func<JsonObject, JsonObject>> Steps =
             new Dictionary<int, Func<JsonObject, JsonObject>>
             {
-                [1] = MigrateV1ToV2
+                [1] = MigrateV1ToV2,
+                // v2 → v3 : la structure ne change pas, seules de nouvelles valeurs et de nouveaux champs apparaissent
+                [2] = document => document
             };
 
         /// <summary>

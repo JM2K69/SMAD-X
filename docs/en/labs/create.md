@@ -40,7 +40,7 @@ Studio makes it the starting domain of a new lab, lays out the statement templat
 - **Objectives** tab: keep the useful objectives, add the others and the guards (see § 5);
 - **Questions** tab, optional: comprehension questions (single or multiple choice, yes / no, matching, written answer);
 - **Validation** tab: Studio checks the lab as the shipped labs' tests do;
-- **File > Save to a folder...**: Studio lays the lab out in a folder named after it, by role: your copy and its notes in `1-trainer`, the subject to hand out (without the answer key and, for an exam, without the hints) in `2-to-hand-out`; the submissions handed in will go to `3-submissions` (see [SMAD-X Studio](studio.md#the-files)).
+- as soon as the lab was created, Studio asked where to keep it and laid it out in a folder named after it, by role; **Save** (`Ctrl+S`) rewrites it: your copy and its notes in `1-trainer`, the subject to hand out (without the answer key and, for an exam, without the hints) in `2-to-hand-out`; the submissions handed in will go to `3-submissions` (see [SMAD-X Studio](studio.md#the-files)).
 
 The file is still readable JSON (see § 3). Do not edit `Start` by hand: rebuild the domain in SMAD-X and send it to Studio again.
 

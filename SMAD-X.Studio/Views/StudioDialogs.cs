@@ -39,10 +39,17 @@ namespace SMADX.Studio.Views
             return files.Select(f => f.Path.LocalPath).ToList();
         }
 
-        public async Task<string?> PickFolderAsync(string title)
+        public async Task<string?> PickFolderAsync(string title, string? startFolder = null)
         {
-            var folders = await owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = title, AllowMultiple = false });
+            var start = startFolder != null ? await owner.StorageProvider.TryGetFolderFromPathAsync(startFolder) : null;
+            var folders = await owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = title, AllowMultiple = false, SuggestedStartLocation = start });
             return folders.Count > 0 ? folders[0].Path.LocalPath : null;
+        }
+
+        public async Task ShowFolderAsync(string folder)
+        {
+            if (await owner.StorageProvider.TryGetFolderFromPathAsync(folder) is { } item)
+                await owner.Launcher.LaunchFileAsync(item);
         }
 
         public async Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern)

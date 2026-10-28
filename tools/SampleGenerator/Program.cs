@@ -1044,6 +1044,247 @@ Scenario("12-nested-groups", "cooperative-vignoble.local", "fourthcoffee.local",
         """));
 });
 
+// ─── 13. DCSync délégué à un outil de synchronisation ──────────────────────────
+Scenario("13-dcsync", "cabinet-delorme.local", "alpineskihouse.local", d =>
+{
+    var services = Ou(d, T("Comptes de service", "Service Accounts"), "Tier 1");
+    var svc = User(services, "svc-sync", "Tier 1", T(
+        "Outil de synchronisation des mots de passe vers la messagerie en ligne (prestataire, 2023).",
+        "Password synchronisation tool for the online mailbox service (contractor, 2023)."));
+    // La console web de l'outil tourne sous ce compte : il porte un SPN
+    svc.ServicePrincipalNames.Add($"HTTP/sync.{d.Name}");
+    Delegate(d, svc.Name, TrusteeType.User, "DS-Replication-Get-Changes", RightCategory.Other, "Tier 0");
+    Delegate(d, svc.Name, TrusteeType.User, "DS-Replication-Get-Changes-All", RightCategory.Replication, "Tier 0");
+
+    Lab(T("Cabinet Delorme : la synchronisation oubliée", "Alpine Ski House: the forgotten synchronisation"), LabLevel.Intermediate, 20,
+        T($"""
+        Le **Cabinet Delorme** est un cabinet d'expertise comptable de 60 personnes. En 2023, un prestataire a installé un outil qui synchronisait les mots de passe de l'annuaire vers une messagerie en ligne. Le cabinet est revenu l'an dernier à un serveur de messagerie interne, mais l'outil n'a jamais été désinstallé : le prestataire doit passer le mois prochain.
+
+        Un client, une banque, exige un état des comptes capables de lire les secrets de l'annuaire avant de renouveler son contrat.
+        """, $"""
+        **Alpine Ski House** is a ski resort operator with 60 permanent staff. In 2023, a contractor installed a tool that synchronised directory passwords to an online mailbox service. The company moved back to an on-premises mail server last year, but the tool was never uninstalled: the contractor is coming next month.
+
+        A key partner, a bank, requires a list of the accounts able to read directory secrets before renewing its contract.
+        """),
+        T($"""
+        - Montrez ce que n'importe quel salarié peut obtenir à partir de `{svc.Name}`, et coupez ce chemin.
+        - Le compte `{svc.Name}` reste en place : le prestataire en a besoin pour désinstaller l'outil.
+        """, $"""
+        - Show what any employee can get starting from `{svc.Name}`, and cut that path.
+        - The `{svc.Name}` account stays: the contractor needs it to uninstall the tool.
+        """),
+        CutPath(anyUser, AnyUserLabel(), T(
+            $"Le compte `{svc.Name}` a un SPN ; fenêtre **Délégations**, racine du domaine : quels droits a-t-il ?",
+            $"The `{svc.Name}` account has an SPN; **Delegations** window, domain root: which rights does it have?")),
+        NoPathLeft(T($"Retirer le SPN ne suffit pas : `{svc.Name}` lui-même mène encore au domaine.",
+            $"Removing the SPN is not enough: `{svc.Name}` itself still leads to the domain.")),
+        RuleClear("o3", 2, "ACL-03", T("La racine du domaine n'accorde plus la réplication à un compte ordinaire", "The domain root no longer grants replication to an ordinary account"),
+            T("Fiche ACL-03 : seuls les contrôleurs de domaine répliquent les secrets.", "Rule sheet ACL-03: only domain controllers replicate secrets."), d.Name),
+        Exists("o4", svc.Name, ADObjectType.User, T($"Le compte `{svc.Name}` existe toujours", $"Account `{svc.Name}` still exists"),
+            T("Le prestataire en a besoin pour désinstaller l'outil : retirez ses droits, pas le compte.", "The contractor needs it to uninstall the tool: remove its rights, not the account.")));
+
+    return (T("Chemin d'attaque : DCSync délégué", "Attack path: delegated DCSync"), T(
+        $"""
+        Pour lire les mots de passe, l'outil de synchronisation a reçu avec le compte `{svc.Name}` les deux droits de **réplication** sur la racine du domaine (`DS-Replication-Get-Changes` et `DS-Replication-Get-Changes-All`) : ceux d'un contrôleur de domaine. Comme le compte porte un SPN, n'importe quel utilisateur obtient un ticket chiffré avec son mot de passe, et le casse hors ligne.
+
+        ## Le chemin
+        1. N'importe quel utilisateur → `{svc.Name}` : Kerberoasting.
+        2. `{svc.Name}` → contrôle du domaine : DCSync, l'extraction des secrets de tous les comptes, krbtgt compris.
+
+        {See("N'importe quel utilisateur du domaine")}
+
+        ## Le corriger
+        - Retirez les deux droits de réplication de `{svc.Name}` sur la racine du domaine (fenêtre **Délégations**).
+        - Un outil qui en a vraiment besoin (Entra Connect, par exemple) se protège comme un contrôleur de domaine : compte du Tier 0, gMSA ou mot de passe long, pas de SPN inutile. C'est le point ANSSI `vuln_permissions_naming_context`.
+        """,
+        $"""
+        To read passwords, the synchronisation tool's `{svc.Name}` account was given both **replication** rights on the domain root (`DS-Replication-Get-Changes` and `DS-Replication-Get-Changes-All`): those of a domain controller. As the account has an SPN, any user gets a ticket encrypted with its password, and cracks it offline.
+
+        ## The path
+        1. Any domain user → `{svc.Name}`: Kerberoasting.
+        2. `{svc.Name}` → domain control: DCSync, extracting the secrets of every account, krbtgt included.
+
+        {See("Any domain user")}
+
+        ## Fix it
+        - Remove both replication rights of `{svc.Name}` on the domain root (**Delegations** window).
+        - A tool that really needs them (Entra Connect, for example) is protected like a domain controller: Tier 0 account, gMSA or long password, no needless SPN. This is ANSSI point `vuln_permissions_naming_context`.
+        """));
+});
+
+// ─── 14. Shadow Credentials sur le contrôleur de domaine ───────────────────────
+Scenario("14-shadow-credentials", "laboratoire-helios.local", "treyresearch.local", d =>
+{
+    var it = Ou(d, T("Informatique", "IT"), "Tier 1");
+    var pilot = Group(it, T("GG-Pilote-Hello", "GG-Hello-Pilot"), "Tier 1", T(
+        "Projet pilote Windows Hello Entreprise, mené par un prestataire.", "Windows Hello for Business pilot project, run by a contractor."));
+    var tech = User(it, T("t.garnier", "m.clarke"), "Tier 1", T("Technicien du prestataire, membre du projet pilote.", "Contractor technician, member of the pilot project."));
+    tech.MemberOf.Add(pilot.Name);
+    Delegate(d, pilot.Name, TrusteeType.Group, "WriteProperty:msDS-KeyCredentialLink", RightCategory.WriteKeyCredentialLink, "Tier 0");
+    // Le serveur d'administration : les administrateurs du domaine s'y connectent, à leur place dans le Tier 0
+    var tier0 = Ou(d, T("Serveurs Tier 0", "Tier 0 Servers"), "Tier 0");
+    var jump = Computer(tier0, "SRV-ADMIN01", "Tier 0", T("Serveur d'administration : les outils d'administration du domaine.", "Administration server: the domain administration tools."));
+    var admins = Ou(d, T("Administration", "Admin Accounts"), "Tier 0");
+    var admin = User(admins, T("adm-rlefort", "adm-mclark"), "Tier 0", T("Compte d'administration du domaine.", "Domain admin account."));
+    admin.MemberOf.Add("Domain Admins");
+    admin.AdminCount = true;
+    admin.AccountFlags = ADAccountFlags.NotDelegated;
+    jump.Sessions = new() { admin.Name };
+
+    Lab(T("Laboratoire Hélios : le pilote Windows Hello", "Trey Research: the Windows Hello pilot"), LabLevel.Advanced, 25,
+        T($"""
+        Le **Laboratoire Hélios** est un laboratoire d'analyses médicales de 120 personnes. Pour se connecter sans mot de passe, la direction a lancé un projet pilote **Windows Hello Entreprise**, confié à un prestataire. Pour « gagner du temps », son technicien `{tech.Name}` a donné un droit à son groupe sur tout le domaine.
+
+        Le pilote est terminé et sera généralisé. Avant cela, le responsable de la sécurité veut savoir ce que ce droit permet réellement.
+        """, $"""
+        **Trey Research** is a 120-person research lab. To log on without passwords, management started a **Windows Hello for Business** pilot, run by a contractor. To "save time", their technician `{tech.Name}` gave their group a right on the whole domain.
+
+        The pilot is over and will be rolled out. Before that, the security officer wants to know what this right really allows.
+        """),
+        T($"""
+        - Montrez ce que `{tech.Name}` peut faire avec le droit de son groupe, et coupez ce chemin.
+        - Windows Hello doit continuer de fonctionner : le droit prévu pour cela, celui de **Key Admins**, reste en place.
+        """, $"""
+        - Show what `{tech.Name}` can do with their group's right, and cut that path.
+        - Windows Hello must keep working: the right meant for it, that of **Key Admins**, stays in place.
+        """),
+        CutPath(tech.Name, tech.Name, T(
+            "Fenêtre **Délégations**, racine du domaine : qui peut écrire msDS-KeyCredentialLink ? Le droit est hérité par les comptes qui ne sont pas protégés par AdminSDHolder.",
+            "**Delegations** window, domain root: who can write msDS-KeyCredentialLink? The right is inherited by the accounts AdminSDHolder does not protect.")),
+        NoPathLeft(T("Actualisez **Chemins d'attaque** : la liste doit être vide.", "Refresh **Attack paths**: the list must be empty.")),
+        RuleClear("o3", 2, "ACL-03", T("La racine du domaine n'accorde msDS-KeyCredentialLink qu'aux groupes prévus", "The domain root grants msDS-KeyCredentialLink only to the intended groups"),
+            T("Fiche ACL-03 : sur un domaine neuf, seuls Key Admins et Enterprise Key Admins ont ce droit.", "Rule sheet ACL-03: on a fresh domain, only Key Admins and Enterprise Key Admins have this right."), d.Name),
+        Obj("o4", 1, T("Key Admins garde son droit sur msDS-KeyCredentialLink", "Key Admins keeps its right on msDS-KeyCredentialLink"),
+            T("C'est le droit par défaut qui fait fonctionner Windows Hello : ne le retirez pas.", "It is the default right that makes Windows Hello work: do not remove it."),
+            new LabCheck { Type = LabCheckType.DelegationExists, Trustee = "Key Admins", Target = d.Name, RightCategory = RightCategory.WriteKeyCredentialLink }),
+        Exists("o5", tech.Name, ADObjectType.User, T($"Le compte `{tech.Name}` existe toujours", $"Account `{tech.Name}` still exists"),
+            T("Le technicien généralisera le déploiement : retirez le droit de son groupe, pas son compte.", "The technician will roll out the deployment: remove their group's right, not their account.")),
+        Obj("o6", 1, T($"`{admin.Name}` reste administrateur du domaine", $"`{admin.Name}` stays a domain administrator"),
+            T("Le compte d'administration est à sa place sur le serveur d'administration : le problème est ailleurs.", "The admin account belongs on the administration server: the problem is elsewhere."),
+            new LabCheck { Type = LabCheckType.MemberOf, Object = admin.Name, Group = "Domain Admins" }));
+
+    return (T("Chemin d'attaque : Shadow Credentials", "Attack path: Shadow Credentials"), T(
+        $"""
+        Pour le pilote **Windows Hello Entreprise**, le prestataire a donné à son groupe `{pilot.Name}` le droit d'écrire `msDS-KeyCredentialLink` sur la racine du domaine, au lieu de passer par le groupe **Key Admins** prévu pour cela. Le droit est hérité par tous les comptes qu'AdminSDHolder ne protège pas : pas les contrôleurs de domaine ni les administrateurs, mais le compte d'ordinateur de **{jump.Name}**, le serveur d'administration. En y ajoutant sa propre clé, un membre du groupe s'authentifie comme ce serveur (Shadow Credentials), en devient administrateur, et y récupère les identifiants de `{admin.Name}`, qui y a une session.
+
+        ## Le chemin
+        1. `{tech.Name}` → `{pilot.Name}` : appartenance.
+        2. `{pilot.Name}` → `{jump.Name}` : écriture de msDS-KeyCredentialLink, héritée de la racine du domaine.
+        3. `{jump.Name}` → `{admin.Name}` : session ouverte, identifiants en mémoire.
+        4. `{admin.Name}` → Domain Admins → contrôle du domaine.
+
+        {See(tech.Name)}
+
+        ## Le corriger
+        - Retirez le droit de `{pilot.Name}` sur la racine du domaine ; laissez celui de **Key Admins**, présent sur tout domaine neuf.
+        - Windows Hello se déploie avec Key Admins (ou Enterprise Key Admins), dont l'appartenance se surveille comme celle de Domain Admins. C'est le point ANSSI `vuln_permissions_naming_context`.
+        """,
+        $"""
+        For the **Windows Hello for Business** pilot, the contractor gave their group `{pilot.Name}` the right to write `msDS-KeyCredentialLink` on the domain root, instead of using the **Key Admins** group meant for it. The right is inherited by every account AdminSDHolder does not protect: not the domain controllers nor the administrators, but the computer account of **{jump.Name}**, the administration server. By adding their own key there, a group member authenticates as that server (Shadow Credentials), becomes its administrator, and retrieves the credentials of `{admin.Name}`, who has a session there.
+
+        ## The path
+        1. `{tech.Name}` → `{pilot.Name}`: membership.
+        2. `{pilot.Name}` → `{jump.Name}`: write msDS-KeyCredentialLink, inherited from the domain root.
+        3. `{jump.Name}` → `{admin.Name}`: open session, credentials in memory.
+        4. `{admin.Name}` → Domain Admins → domain control.
+
+        {See(tech.Name)}
+
+        ## Fix it
+        - Remove the right of `{pilot.Name}` on the domain root; keep that of **Key Admins**, present on every fresh domain.
+        - Windows Hello is deployed with Key Admins (or Enterprise Key Admins), whose membership is monitored like that of Domain Admins. This is ANSSI point `vuln_permissions_naming_context`.
+        """));
+});
+
+// ─── 15. Délégation basée sur la ressource vers le serveur de sauvegarde ───────
+Scenario("15-rbcd", "lycee-jean-moulin.local", "wideworldimporters.local", d =>
+{
+    var servers = Ou(d, T("Serveurs", "Servers"), "Tier 1");
+    var techs = Group(servers, T("GG-Techniciens-Serveurs", "GG-Server-Technicians"), "Tier 1", T(
+        "Techniciens qui installent et dépannent les serveurs.", "Technicians who install and troubleshoot servers."));
+    var tech = User(servers, T("n.morel", "j.walker"), "Tier 1", T("Technicien serveurs.", "Server technician."));
+    tech.MemberOf.Add(techs.Name);
+    // Leur métier : joindre les nouveaux serveurs au domaine
+    Delegate(servers, techs.Name, TrusteeType.Group, "CreateChild:computer", RightCategory.ComputerManagement, "Tier 1");
+    var tier0 = Ou(d, T("Serveurs Tier 0", "Tier 0 Servers"), "Tier 0");
+    var backup = Computer(tier0, T("SRV-SAUV01", "SRV-BACKUP01"), "Tier 0", T(
+        "Serveur de sauvegarde des contrôleurs de domaine. Installé par les techniciens serveurs.",
+        "Domain controller backup server. Installed by the server technicians."));
+    var admins = Ou(d, T("Administration", "Admin Accounts"), "Tier 0");
+    var admin = User(admins, T("adm-sauvegarde", "adm-backup"), "Tier 0", T("Administrateur du domaine chargé des sauvegardes.", "Domain administrator in charge of backups."));
+    admin.MemberOf.Add("Domain Admins");
+    admin.AdminCount = true;
+    admin.AccountFlags = ADAccountFlags.NotDelegated;
+    // L'administrateur des sauvegardes travaille sur le serveur : à sa place, dans le Tier 0
+    backup.Sessions = new() { admin.Name };
+    // Le technicien qui a joint le serveur a gardé la main sur sa délégation basée sur la ressource
+    Delegate(backup, techs.Name, TrusteeType.Group, "WriteProperty:msDS-AllowedToActOnBehalfOfOtherIdentity", RightCategory.WriteAllowedToAct, "Tier 0");
+
+    Lab(T("Lycée Jean-Moulin : le serveur de sauvegarde", "Wide World Importers: the backup server"), LabLevel.Advanced, 30,
+        T($"""
+        Le **lycée Jean-Moulin** accueille 1 400 élèves ; son informatique est gérée par une petite équipe de techniciens. L'an dernier, les techniciens serveurs ont installé **{backup.Name}**, le serveur qui sauvegarde les contrôleurs de domaine. L'administrateur `{admin.Name}` s'y connecte chaque semaine pour vérifier les sauvegardes.
+
+        La région, qui finance le lycée, impose un audit des droits d'administration avant la rentrée.
+        """, $"""
+        **Wide World Importers** is an import company with 400 employees; its IT is run by a small team of technicians. Last year, the server technicians installed **{backup.Name}**, the server that backs up the domain controllers. The administrator `{admin.Name}` logs on to it every week to check the backups.
+
+        The group's insurer requires an audit of administration rights before renewing the cyber-insurance policy.
+        """),
+        T($"""
+        - Montrez comment `{tech.Name}` peut prendre la main sur **{backup.Name}**, et ce que cela lui donne ; coupez ce chemin.
+        - Les techniciens continuent de joindre des serveurs au domaine, et `{admin.Name}` reste administrateur du domaine.
+        """, $"""
+        - Show how `{tech.Name}` can take over **{backup.Name}**, and what this gives them; cut that path.
+        - The technicians keep joining servers to the domain, and `{admin.Name}` stays a domain administrator.
+        """),
+        CutPath(tech.Name, tech.Name, T(
+            $"Fenêtre **Délégations** : quels droits a `{techs.Name}` sur le compte d'ordinateur de {backup.Name} ? Puis, section **Sécurité** du serveur : qui y a une session ?",
+            $"**Delegations** window: which rights does `{techs.Name}` have on the {backup.Name} computer account? Then, the server's **Security** section: who has a session there?")),
+        NoPathLeft(T("Actualisez **Chemins d'attaque** : la liste doit être vide.", "Refresh **Attack paths**: the list must be empty.")),
+        RuleClear("o3", 2, "TIER-03", T($"Le Tier 1 n'a plus de droit de contrôle sur {backup.Name}", $"Tier 1 no longer has a control right on {backup.Name}"),
+            T("Fiche TIER-03 : un groupe du Tier 1 ne doit pas contrôler une machine du Tier 0.", "Rule sheet TIER-03: a Tier 1 group must not control a Tier 0 machine."), backup.Name),
+        Exists("o4", backup.Name, ADObjectType.Computer, T($"Le serveur {backup.Name} existe toujours", $"Server {backup.Name} still exists"),
+            T("Sans lui, plus de sauvegarde des contrôleurs de domaine.", "Without it, the domain controllers are no longer backed up.")),
+        Obj("o5", 1, T($"`{admin.Name}` reste administrateur du domaine", $"`{admin.Name}` stays a domain administrator"),
+            T("Le compte d'administration est à sa place sur un serveur du Tier 0 : le problème est ailleurs.", "The admin account belongs on a Tier 0 server: the problem is elsewhere."),
+            new LabCheck { Type = LabCheckType.MemberOf, Object = admin.Name, Group = "Domain Admins" }),
+        Obj("o6", 1, T("Les techniciens joignent toujours des serveurs au domaine", "Technicians can still join servers to the domain"),
+            T("La délégation de création des comptes d'ordinateur sur l'OU des serveurs reste en place.", "The computer creation delegation on the servers OU stays."),
+            new LabCheck { Type = LabCheckType.DelegationExists, Trustee = techs.Name, Target = servers.Name, RightCategory = RightCategory.ComputerManagement }));
+
+    return (T("Chemin d'attaque : délégation basée sur la ressource (RBCD)", "Attack path: resource-based constrained delegation (RBCD)"), T(
+        $"""
+        En joignant **{backup.Name}** au domaine, les techniciens serveurs ont gardé le droit d'écrire `msDS-AllowedToActOnBehalfOfOtherIdentity` sur son compte d'ordinateur. Avec un compte d'ordinateur qu'il contrôle, un membre de `{techs.Name}` y inscrit ce compte, puis obtient vers le serveur un ticket au nom de n'importe quel utilisateur, administrateur compris : il en devient administrateur local (RBCD). Or `{admin.Name}`, administrateur du domaine, y a une session ouverte.
+
+        ## Le chemin
+        1. `{tech.Name}` → `{techs.Name}` : appartenance.
+        2. `{techs.Name}` → `{backup.Name}` : écriture de la délégation basée sur la ressource.
+        3. `{backup.Name}` → `{admin.Name}` : session ouverte, identifiants en mémoire.
+        4. `{admin.Name}` → Domain Admins → contrôle du domaine.
+
+        {See(tech.Name)}
+
+        ## Le corriger
+        - Retirez le droit de `{techs.Name}` sur le compte d'ordinateur de {backup.Name} (fenêtre **Délégations**) : une machine du Tier 0 ne se délègue qu'au Tier 0.
+        - Gardez leur délégation de création de comptes d'ordinateur sur l'OU des serveurs : c'est leur métier. Fermer la session de `{admin.Name}` ne corrige rien : il reviendra la semaine prochaine.
+        """,
+        $"""
+        When joining **{backup.Name}** to the domain, the server technicians kept the right to write `msDS-AllowedToActOnBehalfOfOtherIdentity` on its computer account. With a computer account they control, a member of `{techs.Name}` adds that account there, then gets a ticket to the server in the name of any user, administrators included: they become its local administrator (RBCD). And `{admin.Name}`, a domain administrator, has a session open there.
+
+        ## The path
+        1. `{tech.Name}` → `{techs.Name}`: membership.
+        2. `{techs.Name}` → `{backup.Name}`: write the resource-based delegation.
+        3. `{backup.Name}` → `{admin.Name}`: open session, credentials in memory.
+        4. `{admin.Name}` → Domain Admins → domain control.
+
+        {See(tech.Name)}
+
+        ## Fix it
+        - Remove the right of `{techs.Name}` on the {backup.Name} computer account (**Delegations** window): a Tier 0 machine is delegated to Tier 0 only.
+        - Keep their computer account creation delegation on the servers OU: it is their job. Closing `{admin.Name}`'s session fixes nothing: they will be back next week.
+        """));
+});
+
 // ─── Sommaire ──────────────────────────────────────────────────────────────────
 string Table(string lang) => string.Join("\n", index.Where(i => i.Lang == lang)
     .Select(i => $"| [`{i.Id}`]({lang}/{i.Id}.smad-x.json) | `{i.Domain}` | {i.Title[(i.Title.IndexOf(':') + 1)..].Trim()} |"));

@@ -212,6 +212,36 @@ public class ObjectSecurityViewModelTests
     }
 
     [Fact]
+    public void Computer_LapsLocalAdminsAndSessions_AreEditedAndSeenByTheAudit()
+    {
+        var domain = BuildSmallDomain();
+        var pc = Add(Find(domain, "Corp"), new ADObject("PC-01", ADObjectType.Computer) { Tier = "Tier 2" });
+        var admin = Add(Find(domain, "Corp"), new ADObject("adm-x", ADObjectType.User) { Tier = "Tier 0" });
+        Add(domain, new ADObject("Domain Admins", ADObjectType.Group) { Tier = "Tier 0", AdminCount = true });
+        admin.MemberOf.Add("Domain Admins");
+        var vm = new ObjectSecurityViewModel(pc);
+        var audit = () => new SMADX.Services.Audit.ADSecurityAuditService().Run(domain).Findings.Select(f => f.Rule.Id).ToHashSet();
+        Assert.True(vm.IsComputer);
+        Assert.Contains("LAPS-01", audit());
+
+        vm.Laps = true;
+        Assert.NotNull(pc.LapsPasswordExpiration);
+        Assert.Equal(pc.LapsPasswordExpiration, vm.LapsPasswordExpiration);
+        Assert.DoesNotContain("LAPS-01", audit());
+
+        vm.LocalAdminsText = " Domain Admins \n\nHelpdesk\nhelpdesk";
+        Assert.Equal(["Domain Admins", "Helpdesk"], pc.LocalAdmins!);
+        vm.SessionsText = "adm-x";
+        Assert.Contains("TIER-04", audit());
+
+        vm.SessionsText = "";
+        Assert.Empty(pc.Sessions!);
+        Assert.DoesNotContain("TIER-04", audit());
+        vm.Laps = false;
+        Assert.Null(pc.LapsPasswordExpiration);
+    }
+
+    [Fact]
     public void SpnText_IsTrimmedAndDeduplicated()
     {
         var computer = new ADObject("SRV01", ADObjectType.Computer);
@@ -321,25 +351,39 @@ public class SecurityPowerShellTests
 
         const string None = "00000000-0000-0000-0000-000000000000";
         const string Computer = "bf967a86-0de6-11d0-a285-00aa003049e2";
+        const string Member = "bf9679c0-0de6-11d0-a285-00aa003049e2";
+        const string Spn = "f3a64788-5306-11d1-a9c5-0000f80367c1";
+        const string Laps = "11111111-2222-3333-4444-555555555555"; // GUID propre à la forêt, lu dans le schéma
         var cases = new (string Rights, string ObjectType, string Inherited, string Expected)[]
         {
             ("0x20094", None, None, "-"),                                        // GenericRead : lecture seule
             ("0xF01FF", None, None, "GenericAll|FullControl"),
             ("0xF01FF", None, Computer, "GenericAll:computer|ComputerManagement"),
-            ("0x40000", None, None, "WriteDacl|FullControl"),
-            ("0x80000", None, None, "WriteOwner|FullControl"),
+            ("0x40000", None, None, "WriteDacl|WriteDacl"),
+            ("0x80000", None, None, "WriteOwner|WriteOwner"),
             ("0x100", "00299570-246d-11d0-a768-00aa006e0529", None, "ResetPassword|PasswordReset"),
-            ("0x100", None, None, "AllExtendedRights|PasswordReset"),
-            ("0x100", "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2", None, "DS-Replication-Get-Changes-All|Other"),
-            ("0x20", "bf9679c0-0de6-11d0-a285-00aa003049e2", None, "WriteProperty:member|AttributeWrite"),
-            ("0x20028", None, None, "GenericWrite|AttributeWrite"),
+            ("0x100", None, None, "AllExtendedRights|AllExtendedRights"),
+            ("0x100", "1131f6ad-9c07-11d1-f79f-00c04fc2dcd2", None, "DS-Replication-Get-Changes-All|Replication"),
+            ("0x100", "1131f6aa-9c07-11d1-f79f-00c04fc2dcd2", None, "DS-Replication-Get-Changes|Other"),
+            ("0x20", Member, None, "WriteProperty:member|WriteMembers"),
+            ("0x8", Member, None, "Self:member|WriteMembers"),
+            ("0x20028", None, None, "GenericWrite|GenericWrite"),
+            ("0x20", "5b47d60f-6090-40b2-9f37-2a4de88f3063", None, "WriteProperty:msDS-KeyCredentialLink|WriteKeyCredentialLink"),
+            ("0x20", "3f78c3e5-f79a-46bd-a0b8-9d18116ddc79", None, "WriteProperty:msDS-AllowedToActOnBehalfOfOtherIdentity|WriteAllowedToAct"),
+            ("0x20", Spn, None, "WriteProperty:servicePrincipalName|WriteSpn"),
+            ("0x8", Spn, None, "Self:servicePrincipalName|WriteSpn"),
+            ("0x20", "f30e3bbe-9ff0-11d1-b603-0000f80367c1", None, "WriteProperty:gPLink|WriteGPLink"),
+            ("0x10", Laps, Computer, "ReadProperty:ms-Mcs-AdmPwd|ReadLapsPassword"),
+            ("0x110", Laps, Computer, "ReadProperty:ms-Mcs-AdmPwd|ReadLapsPassword"),
+            ("0x10", None, None, "-"),                                           // lire tous les attributs : pas le mot de passe LAPS, confidentiel
             ("0x3", Computer, None, "CreateChild:computer|ComputerManagement"),
         };
 
         var harness = new StringBuilder()
             .AppendLine("Set-StrictMode -Version 2.0")
             .AppendLine("$ErrorActionPreference = 'Stop'")
-            .AppendLine(helpers);
+            .AppendLine(helpers)
+            .AppendLine($"$lapsPasswordGuids[[guid]'{Laps}'] = 'ms-Mcs-AdmPwd'");
         foreach (var c in cases)
             harness.AppendLine($"$r = Get-DelegationRight {c.Rights} '{c.ObjectType}' '{c.Inherited}'; if ($r) {{ $r -join '|' }} else {{ '-' }}");
         var harnessPath = TempFile(".ps1");
@@ -387,7 +431,13 @@ public class SecurityPowerShellTests
             .AppendLine("}")
             .AppendLine("Build-NodeJson -dn 'CN=svc-sql,OU=Services,DC=contoso,DC=com' -name 'svc-sql' -simType 'User' -adObj $user")
             .AppendLine("$group = [pscustomobject]@{ Description = ''; WhenCreated = $null; WhenChanged = $null; MemberOf = @(); groupType = -2147483640 }")
-            .AppendLine("Build-NodeJson -dn 'CN=GU-Test,DC=contoso,DC=com' -name 'GU-Test' -simType 'Group' -adObj $group");
+            .AppendLine("Build-NodeJson -dn 'CN=GU-Test,DC=contoso,DC=com' -name 'GU-Test' -simType 'Group' -adObj $group")
+            // Windows LAPS déployé : l'expiration du mot de passe est lue ; un poste a Domain Admins pour administrateur local, un DC Administrators
+            .AppendLine("$lapsExpirationAttrs = @('msLAPS-PasswordExpirationTime')")
+            .AppendLine("$pc = [pscustomobject]@{ Description = ''; WhenCreated = $null; WhenChanged = $null; MemberOf = @(); userAccountControl = 0x1000; 'msLAPS-PasswordExpirationTime' = 134100000000000000 }")
+            .AppendLine("Build-NodeJson -dn 'CN=PC-001,OU=Postes,DC=contoso,DC=com' -name 'PC-001' -simType 'Computer' -adObj $pc")
+            .AppendLine("$dc = [pscustomobject]@{ Description = ''; WhenCreated = $null; WhenChanged = $null; MemberOf = @(); userAccountControl = 0x82000 }")
+            .AppendLine("Build-NodeJson -dn 'CN=DC01,OU=Domain Controllers,DC=contoso,DC=com' -name 'DC01' -simType 'Computer' -adObj $dc");
         var harnessPath = TempFile(".ps1");
         await File.WriteAllTextAsync(harnessPath, harness.ToString(), new UTF8Encoding(true));
 
@@ -396,6 +446,8 @@ public class SecurityPowerShellTests
         var options = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
         var user = JsonSerializer.Deserialize<ADObject>(lines[0], options)!;
         var group = JsonSerializer.Deserialize<ADObject>(lines[1], options)!;
+        var pc = JsonSerializer.Deserialize<ADObject>(lines[2], options)!;
+        var dc = JsonSerializer.Deserialize<ADObject>(lines[3], options)!;
 
         Assert.Equal(ADAccountFlags.PasswordNeverExpires | ADAccountFlags.DontRequirePreauth, user.AccountFlags);
         Assert.Equal(["MSSQLSvc/sql01.contoso.com:1433", "MSSQLSvc/sql01.contoso.com"], user.ServicePrincipalNames);
@@ -409,5 +461,11 @@ public class SecurityPowerShellTests
         Assert.Equal(ADGroupScope.Universal, group.GroupScope);
         Assert.Equal(ADGroupCategory.Security, group.GroupCategory);
         Assert.False(group.AdminCount);
+        Assert.Null(user.LapsPasswordExpiration);
+        Assert.Null(user.LocalAdmins);
+        Assert.Equal(DateTime.FromFileTimeUtc(134100000000000000), pc.LapsPasswordExpiration!.Value.ToUniversalTime());
+        Assert.Equal(["Domain Admins"], pc.LocalAdmins!);
+        Assert.Null(dc.LapsPasswordExpiration);
+        Assert.Equal(["Administrators"], dc.LocalAdmins!);
     }
 }

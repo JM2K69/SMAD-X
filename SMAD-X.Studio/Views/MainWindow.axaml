@@ -14,11 +14,13 @@
                 <MenuItem Header="{Binding [Menu.NewFromDomain], Source={StaticResource S}}" Command="{Binding NewFromDomainCommand}"/>
                 <MenuItem Header="{Binding [Menu.Convert], Source={StaticResource S}}" Command="{Binding ConvertScenarioCommand}"/>
                 <Separator/>
-                <MenuItem Header="{Binding [Menu.Open], Source={StaticResource S}}" Command="{Binding OpenCommand}" InputGesture="Ctrl+O" HotKey="Ctrl+O"/>
+                <MenuItem Header="{Binding [Menu.OpenFolder], Source={StaticResource S}}" Command="{Binding OpenFolderCommand}" InputGesture="Ctrl+O" HotKey="Ctrl+O"/>
+                <MenuItem Header="{Binding [Menu.Open], Source={StaticResource S}}" Command="{Binding OpenCommand}"/>
                 <MenuItem Header="{Binding [Menu.Save], Source={StaticResource S}}" Command="{Binding SaveCommand}" InputGesture="Ctrl+S" HotKey="Ctrl+S"/>
                 <MenuItem Header="{Binding [Menu.SaveAs], Source={StaticResource S}}" Command="{Binding SaveAsCommand}"/>
                 <MenuItem Header="{Binding [Menu.ExportSheet], Source={StaticResource S}}" Command="{Binding ExportSheetCommand}"/>
                 <MenuItem Header="{Binding [Menu.ExportSubject], Source={StaticResource S}}" Command="{Binding ExportSubjectCommand}"/>
+                <MenuItem Header="{Binding [Menu.ShowFolder], Source={StaticResource S}}" Command="{Binding ShowProjectFolderCommand}"/>
                 <Separator/>
                 <MenuItem Header="{Binding [Menu.Quit], Source={StaticResource S}}" Click="Quit"/>
             </MenuItem>
@@ -41,7 +43,24 @@
                     <Button Classes="accent" HorizontalAlignment="Stretch" Command="{Binding NewFromRecipeCommand}" Content="{Binding [Menu.NewFromRecipe], Source={StaticResource S}}"/>
                     <Button HorizontalAlignment="Stretch" Command="{Binding NewFromDomainCommand}" Content="{Binding [Menu.NewFromDomain], Source={StaticResource S}}"/>
                     <Button HorizontalAlignment="Stretch" Command="{Binding ConvertScenarioCommand}" Content="{Binding [Menu.Convert], Source={StaticResource S}}"/>
+                    <Button HorizontalAlignment="Stretch" Command="{Binding OpenFolderCommand}" Content="{Binding [Menu.OpenFolder], Source={StaticResource S}}"/>
                     <Button HorizontalAlignment="Stretch" Command="{Binding OpenCommand}" Content="{Binding [Menu.Open], Source={StaticResource S}}"/>
+                </StackPanel>
+                <StackPanel Spacing="4" Margin="0,12,0,0" IsVisible="{Binding HasRecentLabs}">
+                    <TextBlock FontWeight="SemiBold" Text="{Binding [Empty.Recent], Source={StaticResource S}}"/>
+                    <ItemsControl ItemsSource="{Binding RecentLabs}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,2" Background="Transparent"
+                                        Command="{Binding #Root.DataContext.OpenRecentCommand}" CommandParameter="{Binding}" ToolTip.Tip="{Binding Path}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Path}" FontSize="11" Opacity="0.7" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </StackPanel>
 
@@ -51,6 +70,7 @@
                     <TextBlock VerticalAlignment="Center" Text="{Binding [Lab.EditCulture], Source={StaticResource S}}"/>
                     <ComboBox Width="140" ItemsSource="{Binding EditCultures}" SelectedItem="{Binding EditCultureChoice}"/>
                     <TextBlock VerticalAlignment="Center" Margin="16,0,0,0" Opacity="0.75" Text="{Binding FilePath}"/>
+                    <Button VerticalAlignment="Center" Padding="8,2" IsVisible="{Binding HasProject}" Command="{Binding ShowProjectFolderCommand}" Content="{Binding [Menu.ShowFolder], Source={StaticResource S}}"/>
                 </StackPanel>
 
                 <TabControl Margin="4,0,4,0">

@@ -23,6 +23,9 @@ Ouvrez un fichier avec **Fichier > Ouvrir**, sélectionnez le domaine pour lire 
 | [`10-attack-chain`](fr/10-attack-chain.smad-x.json) | `mairie-saint-aubin.local` | une chaîne en trois rebonds |
 | [`11-empty-password`](fr/11-empty-password.smad-x.json) | `librairie-papyrus.lan` | mot de passe non obligatoire |
 | [`12-nested-groups`](fr/12-nested-groups.smad-x.json) | `cooperative-vignoble.local` | groupes imbriqués |
+| [`13-dcsync`](fr/13-dcsync.smad-x.json) | `cabinet-delorme.local` | DCSync délégué |
+| [`14-shadow-credentials`](fr/14-shadow-credentials.smad-x.json) | `laboratoire-helios.local` | Shadow Credentials |
+| [`15-rbcd`](fr/15-rbcd.smad-x.json) | `lycee-jean-moulin.local` | délégation basée sur la ressource (RBCD) |
 
 ## English
 
@@ -44,3 +47,6 @@ Open a file with **File > Open**, select the domain to read the scenario, then *
 | [`10-attack-chain`](en/10-attack-chain.smad-x.json) | `relecloud.local` | a three-hop chain |
 | [`11-empty-password`](en/11-empty-password.smad-x.json) | `humongousinsurance.lan` | password not required |
 | [`12-nested-groups`](en/12-nested-groups.smad-x.json) | `fourthcoffee.local` | nested groups |
+| [`13-dcsync`](en/13-dcsync.smad-x.json) | `alpineskihouse.local` | delegated DCSync |
+| [`14-shadow-credentials`](en/14-shadow-credentials.smad-x.json) | `treyresearch.local` | Shadow Credentials |
+| [`15-rbcd`](en/15-rbcd.smad-x.json) | `wideworldimporters.local` | resource-based constrained delegation (RBCD) |

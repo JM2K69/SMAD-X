@@ -14,6 +14,11 @@ internal static class TestHelpers
     internal static void IsolateRecoveryFolder() =>
         SMADX.ViewModels.MainWindowViewModel.DefaultRecoveryFolder = Path.Combine(Path.GetTempPath(), "smadx-tests", "recovery-" + Guid.NewGuid().ToString("N"));
 
+    /// <summary>Les tests ne touchent pas aux réglages de Studio de l'utilisateur (le dossier des exercices retenu).</summary>
+    [System.Runtime.CompilerServices.ModuleInitializer]
+    internal static void IsolateStudioSettings() =>
+        SMADX.Studio.StudioSettings.DefaultPath = Path.Combine(Path.GetTempPath(), "smadx-tests", "studio-" + Guid.NewGuid().ToString("N"), "settings.json");
+
     /// <summary>Crée un domaine minimal : contoso.com / OU=Corp / jdoe + Helpdesk.</summary>
     public static ADObject BuildSmallDomain()
     {

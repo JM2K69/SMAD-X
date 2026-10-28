@@ -29,7 +29,7 @@ No infrastructure needed: everything happens in the application, on Windows, Lin
 
     ---
 
-    28 security rules, each linked to its sources: the ANSSI AD checklist, NIST SP 800-53 and 800-63B, CIS Controls, MITRE ATT&CK, Microsoft. A score and an estimated ANSSI level.
+    35 security rules, each linked to its sources: the ANSSI AD checklist, NIST SP 800-53 and 800-63B, CIS Controls, MITRE ATT&CK, Microsoft. A score and an estimated ANSSI level.
 
     [:octicons-arrow-right-24: Security audit](audit.md)
 

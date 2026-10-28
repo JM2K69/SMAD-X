@@ -240,6 +240,198 @@ public class AttackPathServiceTests
         Assert.Equal(["GroupA", "GroupB", "Domain Admins", "contoso.com"], path.Steps.Select(s => s.To.Label));
     }
 
+    private static void Grant(ADObject holder, string trustee, string right, RightCategory category) =>
+        holder.Delegations.Add(new ADDelegation { TrusteeName = trustee, Right = right, RightCategory = category, TargetDN = holder.DistinguishedName });
+
+    private static IReadOnlyList<AttackEdgeKind> Kinds(AttackPath path) => path.Steps.Select(s => s.Kind).ToList();
+
+    [Fact]
+    public void ReplicationRights_OnTheDomain_AreDCSync_EvenFromAnOldImport()
+    {
+        var domain = Domain();
+        Find(domain, "jdoe").MemberOf.Add("Helpdesk");
+        Grant(domain, "Helpdesk", "DS-Replication-Get-Changes-All", RightCategory.Replication);
+        Assert.Equal([AttackEdgeKind.MemberOf, AttackEdgeKind.DCSync], Kinds(PathFrom(domain, "jdoe")!));
+
+        // Importé avant la 0.11 : la même ACE était rangée dans « Autre »
+        domain.Delegations.Clear();
+        Grant(domain, "Helpdesk", "DS-Replication-Get-Changes-All", RightCategory.Other);
+        Assert.Equal(AttackEdgeKind.DCSync, PathFrom(domain, "Helpdesk")!.Steps[0].Kind);
+
+        // Répliquer sans les secrets (DS-Replication-Get-Changes seul) ne donne rien, ni sur une OU
+        domain.Delegations.Clear();
+        Grant(domain, "Helpdesk", "DS-Replication-Get-Changes", RightCategory.Other);
+        Grant(Find(domain, "Corp"), "Helpdesk", "DS-Replication-Get-Changes-All", RightCategory.Replication);
+        Assert.Null(PathFrom(domain, "Helpdesk"));
+    }
+
+    [Fact]
+    public void ShadowCredentials_OnTheDomainControllersOu_ReachesTheDc()
+    {
+        var domain = Domain();
+        Grant(Find(domain, "Domain Controllers"), "Helpdesk", "WriteProperty:msDS-KeyCredentialLink", RightCategory.WriteKeyCredentialLink);
+
+        var path = PathFrom(domain, "Helpdesk")!;
+
+        Assert.Equal([AttackEdgeKind.ShadowCredentials, AttackEdgeKind.DomainController], Kinds(path));
+        Assert.Equal("DC01", path.Steps[0].To.Label);
+        Assert.Contains("msDS-KeyCredentialLink", path.Steps[0].Detail);
+    }
+
+    [Fact]
+    public void Rbcd_OnADomainController_ReachesTheDomain()
+    {
+        var domain = Domain();
+        Grant(Find(domain, "DC01"), "jdoe", "WriteProperty:msDS-AllowedToActOnBehalfOfOtherIdentity", RightCategory.WriteAllowedToAct);
+
+        Assert.Equal([AttackEdgeKind.Rbcd, AttackEdgeKind.DomainController], Kinds(PathFrom(domain, "jdoe")!));
+    }
+
+    [Fact]
+    public void WriteDaclAndWriteOwner_OnTheDomain_TakeItOver()
+    {
+        var domain = Domain();
+        Grant(domain, "Helpdesk", "WriteDacl", RightCategory.WriteDacl);
+        Assert.Equal([AttackEdgeKind.WriteDacl], Kinds(PathFrom(domain, "Helpdesk")!));
+
+        domain.Delegations.Clear();
+        Grant(domain, "Domain Users", "WriteOwner", RightCategory.WriteOwner);
+        Assert.Equal([AttackEdgeKind.WriteOwner], Kinds(AnyUserPath(domain)!));
+    }
+
+    [Fact]
+    public void GenericWrite_OnAPrivilegedGroup_ReachesTheDomain()
+    {
+        var domain = Domain();
+        Grant(Find(domain, "Domain Admins"), "Helpdesk", "GenericWrite", RightCategory.GenericWrite);
+
+        Assert.Equal([AttackEdgeKind.GenericWrite, AttackEdgeKind.PrivilegedGroup], Kinds(PathFrom(domain, "Helpdesk")!));
+    }
+
+    [Fact]
+    public void TargetedKerberoasting_WriteSpnOnAnAdminWithoutAdminCount()
+    {
+        var domain = Domain();
+        var admin = Add(Find(domain, "Corp"), new ADObject("adm-bob", ADObjectType.User));
+        admin.MemberOf.Add("Domain Admins");
+        Grant(Find(domain, "Corp"), "Helpdesk", "WriteProperty:servicePrincipalName", RightCategory.WriteSpn);
+
+        var path = PathFrom(domain, "Helpdesk")!;
+
+        Assert.Equal([AttackEdgeKind.WriteSpn, AttackEdgeKind.MemberOf, AttackEdgeKind.PrivilegedGroup], Kinds(path));
+        Assert.Same(admin, path.Steps[0].To.Object);
+    }
+
+    [Fact]
+    public void LocalAdmin_OfAMachineWhereAnAdminHasASession_ReachesTheDomain()
+    {
+        var domain = Domain();
+        var corp = Find(domain, "Corp");
+        var ws = Add(corp, new ADObject("WS01", ADObjectType.Computer) { LocalAdmins = ["Domain Admins", "jdoe"] });
+        var admin = Add(Find(domain, "Users"), new ADObject("adm-alice", ADObjectType.User) { AdminCount = true });
+        admin.MemberOf.Add("Domain Admins");
+
+        // Sans session d'administrateur sur la machine, être son administrateur local ne mène à rien
+        Assert.Null(PathFrom(domain, "jdoe"));
+
+        ws.Sessions = ["adm-alice"];
+        var path = PathFrom(domain, "jdoe")!;
+        Assert.Equal([AttackEdgeKind.AdminTo, AttackEdgeKind.HasSession, AttackEdgeKind.MemberOf, AttackEdgeKind.PrivilegedGroup], Kinds(path));
+        Assert.Equal(["WS01", "adm-alice", "Domain Admins", "contoso.com"], path.Steps.Select(s => s.To.Label));
+
+        // Domain Users administrateur local : n'importe quel utilisateur
+        ws.LocalAdmins!.Add("Domain Users");
+        Assert.Equal(AttackEdgeKind.AdminTo, AnyUserPath(domain)!.Steps[0].Kind);
+    }
+
+    [Fact]
+    public void ReadLapsPassword_NeedsLapsOnTheMachine()
+    {
+        var domain = Domain();
+        var servers = Add(domain, new ADObject("Servers", ADObjectType.OrganizationalUnit) { Tier = "Tier 1" });
+        var srv = Add(servers, new ADObject("SRV01", ADObjectType.Computer) { Sessions = ["adm-alice"] });
+        var admin = Add(Find(domain, "Users"), new ADObject("adm-alice", ADObjectType.User) { AdminCount = true });
+        admin.MemberOf.Add("Domain Admins");
+        Grant(servers, "Helpdesk", "ReadProperty:ms-Mcs-AdmPwd", RightCategory.ReadLapsPassword);
+
+        // Pas de LAPS : il n'y a pas de mot de passe géré à lire
+        Assert.Null(PathFrom(domain, "Helpdesk"));
+
+        srv.LapsPasswordExpiration = Now.AddDays(20);
+        Assert.Equal([AttackEdgeKind.ReadLapsPassword, AttackEdgeKind.HasSession, AttackEdgeKind.MemberOf, AttackEdgeKind.PrivilegedGroup],
+            Kinds(PathFrom(domain, "Helpdesk")!));
+
+        // Tous les droits étendus comprennent la lecture du mot de passe LAPS
+        servers.Delegations.Clear();
+        Grant(servers, "Helpdesk", "AllExtendedRights", RightCategory.AllExtendedRights);
+        Assert.Equal(AttackEdgeKind.ReadLapsPassword, PathFrom(domain, "Helpdesk")!.Steps[0].Kind);
+    }
+
+    [Fact]
+    public void ReadGmsaPassword_ReachesThePrivilegedServiceAccount()
+    {
+        var domain = Domain();
+        var gmsa = Add(Find(domain, "Corp"), new ADObject("gmsa-backup$", ADObjectType.GMSA));
+        gmsa.MemberOf.Add("Domain Admins");
+        Grant(gmsa, "Helpdesk", "ReadProperty:msDS-ManagedPassword", RightCategory.ReadGmsaPassword);
+
+        Assert.Equal([AttackEdgeKind.ReadGmsaPassword, AttackEdgeKind.MemberOf, AttackEdgeKind.PrivilegedGroup], Kinds(PathFrom(domain, "Helpdesk")!));
+    }
+
+    [Fact]
+    public void ControllingAnOu_ReachesItsProtectedAccountsThroughAGpo()
+    {
+        var domain = Domain();
+        var admins = Add(domain, new ADObject("Admins", ADObjectType.OrganizationalUnit) { Tier = "Tier 0" });
+        var admin = Add(admins, new ADObject("adm-alice", ADObjectType.User) { AdminCount = true });
+        admin.MemberOf.Add("Domain Admins");
+
+        // Contrôle total de l'OU : AdminSDHolder protège le compte de l'ACE héritée, pas d'une GPO liée à l'OU
+        Grant(admins, "Helpdesk", "GenericAll", RightCategory.FullControl);
+        var path = PathFrom(domain, "Helpdesk")!;
+        Assert.Equal([AttackEdgeKind.FullControl, AttackEdgeKind.OuGpoLink, AttackEdgeKind.MemberOf, AttackEdgeKind.PrivilegedGroup], Kinds(path));
+        Assert.Same(admins, path.Steps[0].To.Object);
+
+        // Lier une GPO suffit
+        admins.Delegations.Clear();
+        Grant(admins, "Helpdesk", "WriteProperty:gPLink", RightCategory.WriteGPLink);
+        Assert.Equal([AttackEdgeKind.WriteGPLink, AttackEdgeKind.OuGpoLink, AttackEdgeKind.MemberOf, AttackEdgeKind.PrivilegedGroup], Kinds(PathFrom(domain, "Helpdesk")!));
+
+        // L'OU n'est qu'une étape : elle n'apparaît jamais comme point de départ
+        Assert.DoesNotContain(Paths(domain), p => p.Start.Object == admins);
+    }
+
+    [Fact]
+    public void ControllingAdminSdHolder_ReachesEveryProtectedGroup()
+    {
+        var domain = Domain();
+        var system = Add(domain, new ADObject("System", ADObjectType.Container));
+        var holder = Add(system, new ADObject("AdminSDHolder", ADObjectType.Container));
+        Grant(holder, "jdoe", "GenericAll", RightCategory.FullControl);
+
+        var path = PathFrom(domain, "jdoe")!;
+
+        Assert.Equal([AttackEdgeKind.FullControl, AttackEdgeKind.AdminSdHolder, AttackEdgeKind.PrivilegedGroup], Kinds(path));
+        Assert.Equal("Domain Admins", path.Steps[1].To.Label);
+    }
+
+    [Fact]
+    public void FreshDomain_DefaultAces_LeaveNoPathOutsideTier0()
+    {
+        var fresh = new ADDataService().CreateFreshDomainStructure("corp.local");
+        var service = new AttackPathService(fresh, Now);
+
+        // Les ACE par défaut (réplication des DC, Key Admins, Enterprise Admins, AdminSDHolder) mènent au domaine...
+        Assert.Contains(service.Edges, e => e.Kind == AttackEdgeKind.DCSync && e.From.Label == "Domain Controllers");
+        Assert.Contains(service.Edges, e => e.Kind == AttackEdgeKind.ShadowCredentials && e.From.Label == "Key Admins");
+        // ... mais seulement depuis des groupes privilégiés : rien à corriger sur un AD neuf
+        Assert.Null(service.PathsToDomainControl().SingleOrDefault(p => p.Start.IsAnyUser));
+        var context = new SMADX.Services.Audit.AuditContext(fresh, Now);
+        Assert.All(service.PathsToDomainControl().Select(p => p.Start.Object!), o =>
+            Assert.True(o.AdminCount || context.IsPrivileged(o) || AttackPathService.DomainControlGroups.Contains(o.Name)
+                        || SMADX.Services.Audit.AuditContext.IsDomainController(o) || o.Type == ADObjectType.Policy, o.Name));
+    }
+
     [Fact]
     public void SampleDomain_HasPathsAndNoneCrash()
     {

@@ -9,7 +9,7 @@ SMAD-X does not just draw a directory: it models its **security attributes**, th
 | **Domain** | root, holds delegations, linked GPOs and the default password policy | |
 | **OU** | organizational unit: delegations, GPOs, tier classification | under the domain or another OU |
 | **Container** | `CN=` such as Users, Computers, System | under the domain, an OU or a container; never holds an OU |
-| **User**, **Computer**, **gMSA** | accounts | account options, SPNs, Kerberos delegation |
+| **User**, **Computer**, **gMSA** | accounts | account options, SPNs, Kerberos delegation; for a computer, LAPS, local administrators and sessions |
 | **Group** | scope (domain local, global, universal) and type (security, distribution) | nesting according to scope |
 | **Policy (GPO)** | created in `CN=Policies,CN=System`, nowhere else | linked to OUs, the domain or sites |
 | **PSO** | fine-grained password policy, created in the Password Settings Container | applied to users or groups |
@@ -45,6 +45,14 @@ It mirrors real Active Directory attributes:
 | adminCount | `adminCount` | object protected by AdminSDHolder |
 | Owner | security descriptor owner | an owner can rewrite permissions |
 
+For a **computer**, the **Computer** part adds:
+
+| Field | Where it comes from | What it lets you show |
+|---|---|---|
+| LAPS manages the local administrator password, expiration | `msLAPS-PasswordExpirationTime` (Windows LAPS) or `ms-Mcs-AdmPwdExpirationTime` (legacy LAPS) | without LAPS, the same password on every machine (LAPS-01); whoever can read the LAPS password becomes administrator |
+| Local administrators | local Administrators group, outside the directory | Domain Admins by default, Builtin Administrators on a DC; a group added (through a GPO) administers the machine |
+| Open sessions | outside the directory (BloodHound collects them on the machines) | a logged-on administrator leaves their credentials in memory: their account is within reach of any administrator of the machine (TIER-04) |
+
 Options use the real `userAccountControl` bits: the PowerShell import carries them as they are.
 
 !!! tip "AdminSDHolder"
@@ -69,9 +77,27 @@ Nesting follows AD scopes (AGDLP model): a **global** group only holds accounts 
 
 ![Delegations window](assets/screens/delegations.png)
 
-**Analysis > Delegations...** (`Ctrl+D`) lists delegations: trustee, right, category, target DN, inheritance, tier. Filter by trustee, target or category, hide inherited delegations, and export to CSV.
+**Analysis > Delegations...** (`Ctrl+D`) lists delegations: trustee, right, category, target DN, inheritance, tier. Filter by trustee, target or category, hide inherited delegations, and export to CSV. The counters group the categories; **Sensitive rights** counts those that give an object or its secrets without looking like it.
 
-To **delegate**, select an OU on the left, choose the trustee and the category (password reset, computer management, account unlock, attribute write, full control), then **Add**. **Remove the selected delegation** deletes it.
+| Category | AD right | What it gives |
+|---|---|---|
+| Password reset | `ResetPassword` | the account, by changing its password |
+| Computer management | `CreateChild:computer` | joining machines to the domain |
+| Account unlock | `WriteProperty:lockoutTime` | unlocking an account |
+| Attribute write | `WriteProperty:<attribute>` | depends on the attribute |
+| Modify members | `WriteProperty:member` | the group's rights |
+| Full control | `GenericAll` | everything |
+| Write all attributes | `GenericWrite` | SPN, msDS-KeyCredentialLink, members, delegation: control of the object |
+| Modify permissions, change owner | `WriteDacl`, `WriteOwner` | full control, in one step |
+| Replicate secrets (DCSync) | `DS-Replication-Get-Changes-All` | on the domain root, the secrets of every account |
+| Write msDS-KeyCredentialLink | `WriteProperty:msDS-KeyCredentialLink` | authenticating as the account (Shadow Credentials) |
+| Write resource-based delegation | `WriteProperty:msDS-AllowedToActOnBehalfOfOtherIdentity` | a ticket to the machine in anyone's name (RBCD) |
+| Write SPNs | `WriteProperty:servicePrincipalName` | targeted Kerberoasting |
+| Read the LAPS, gMSA password | `ReadProperty:msLAPS-Password`, `msDS-ManagedPassword` | the machine's local administrator, the service account |
+| Link GPOs | `WriteProperty:gPLink` | linking a GPO to the OU or the domain |
+| All extended rights | `AllExtendedRights` | resetting passwords, reading LAPS and, on the domain, replicating |
+
+To **delegate**, select an OU (or the domain) on the left, choose the trustee and the category, then **Add**. **Remove the selected delegation** deletes it, on any object: a delegation set on an account or a computer, read by the import, is removed from here too.
 
 ## The tier model
 

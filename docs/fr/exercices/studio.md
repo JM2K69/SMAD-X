@@ -16,7 +16,9 @@ Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X
 | **Nouvel exercice à partir d'un domaine (.smad-x.json)...** | un domaine préparé et enregistré dans SMAD-X | le modèle d'énoncé et les objectifs proposés par l'audit et les chemins d'attaque |
 | **Convertir un scénario en exercice...** | un scénario `.smad-x.json` dont la description suit le plan *Contexte / Le chemin / Le corriger* | l'énoncé tiré du contexte ; le chemin et la correction passent dans les notes du formateur |
 
-**Ouvrir un exercice...** reprend un fichier `.smadx-lab.json` existant, avec ses notes.
+**Ouvrir un exercice (son dossier)...** (`Ctrl+O`) rouvre un exercice par son dossier, ou par l'un de ses dossiers par rôle : Studio y retrouve tout ce que la création a rangé (l'exemplaire, le sujet, le domaine corrigé, les notes) et corrige aussitôt les copies de `3-copies-rendues`. Glisser ce dossier sur la fenêtre de Studio fait de même, et l'écran d'accueil liste les **exercices récents**, rouverts d'un clic. **Ouvrir un fichier d'exercice (.smadx-lab.json)...** reprend un exercice enregistré seul, avec ses notes.
+
+**Dès sa création**, Studio demande où ranger l'exercice, en proposant le dossier du précédent, et y crée son dossier, rangé par rôle (voir [Les fichiers](#les-fichiers)) : l'exemplaire, le sujet à distribuer et la fiche formateur sont déjà écrits. Chaque étape écrit ensuite à sa place, sans rien demander : le sujet dans `2-a-distribuer`, la fiche dans `1-formateur`, les copies ajoutées dans `3-copies-rendues`, les notes et les comptes rendus dans `4-resultats`. Si vous annulez le choix du dossier, l'exercice reste ouvert sans être enregistré : **Enregistrer** demandera où le ranger.
 
 ### À partir d'une recommandation
 
@@ -53,7 +55,7 @@ Un exercice est **bilingue** ou n'existe que dans **une langue**. La liste *Lang
 - **Autoriser « Vérifier »** : l'apprenant voit quels objectifs sont atteints, sans score ni explication ;
 - **Outils fermés pendant l'examen** : audit de sécurité, section « Comment corriger » des fiches, chemins d'attaque, comparaison avant / après. Tous sont ouverts par défaut : ils aident à analyser, mais ils montrent aussi ce que la correction vérifie.
 
-**Votre exemplaire et le sujet** : le fichier que Studio enregistre dans `1-formateur` est **votre exemplaire**, avec les indices et le corrigé des questions ; c'est avec lui que les copies se corrigent. On ne le distribue pas : pour un examen, SMAD-X refuse de l'ouvrir. À chaque enregistrement, Studio écrit aussi le **sujet**, sous le même nom, dans `2-a-distribuer` : sans le corrigé des questions et, pour un examen, sans les indices. C'est lui qu'on distribue. **Exporter le sujet pour les apprenants...** (menu **Fichier**, ou le bouton de l'onglet Exercice) l'écrit ailleurs ; Studio refuse de l'écrire par-dessus votre exemplaire.
+**Votre exemplaire et le sujet** : le fichier que Studio enregistre dans `1-formateur` est **votre exemplaire**, avec les indices et le corrigé des questions ; c'est avec lui que les copies se corrigent. On ne le distribue pas : pour un examen, SMAD-X refuse de l'ouvrir. À chaque enregistrement, Studio écrit aussi le **sujet**, sous le même nom, dans `2-a-distribuer` : sans le corrigé des questions et, pour un examen, sans les indices. C'est lui qu'on distribue. **Exporter le sujet pour les apprenants...** (menu **Fichier**, ou le bouton de l'onglet Exercice) enregistre l'exercice et réécrit le sujet dans `2-a-distribuer`, sans rien demander : le sujet et l'exemplaire qui corrigera les copies restent identiques. Pour un exercice enregistré seul par une version précédente, il demande où écrire le sujet, et refuse de l'écrire par-dessus votre exemplaire.
 
 Fermer Studio avec un exercice ou des notes non enregistrés demande d'enregistrer.
 
@@ -128,7 +130,7 @@ Dans les trois cas, le domaine corrigé est gardé avec l'exercice, dans `1-form
 
 ### Fiche formateur
 
-Les **notes du formateur** (la solution, les points de vigilance) et l'aperçu de la fiche formateur : objectifs, gardes, questions et leur corrigé, chemins d'attaque et audit du domaine de départ, ce que change le domaine corrigé, puis les notes. **Exporter la fiche formateur...** l'enregistre en Markdown.
+Les **notes du formateur** (la solution, les points de vigilance) et l'aperçu de la fiche formateur : objectifs, gardes, questions et leur corrigé, chemins d'attaque et audit du domaine de départ, ce que change le domaine corrigé, puis les notes. **Exporter la fiche formateur...** enregistre l'exercice et écrit la fiche en Markdown dans `1-formateur`.
 
 ---
 
@@ -136,10 +138,10 @@ Les **notes du formateur** (la solution, les points de vigilance) et l'aperçu d
 
 ![Onglet Copies](../assets/screens/studio-submissions.png)
 
-Chaque apprenant enregistre son travail dans SMAD-X avec **Enregistrer ma copie** : un fichier `.smadx-submission.json` qui contient l'exercice reçu, son domaine, ses réponses aux questions et les indices consultés. Le plus simple : déposez les copies dans le dossier `3-copies-rendues` de l'exercice, puis ouvrez **votre exemplaire** (`1-formateur`, pas le sujet : il n'a pas le corrigé). Studio corrige aussitôt toutes les copies du dossier, et **Recorriger** prend celles déposées depuis. Dans l'onglet **Copies**, vous pouvez aussi ajouter des copies rangées ailleurs :
+Chaque apprenant enregistre son travail dans SMAD-X avec **Enregistrer ma copie** : un fichier `.smadx-submission.json` qui contient l'exercice reçu, son domaine, ses réponses aux questions et les indices consultés. Le plus simple : l'exercice ouvert, **glissez les copies sur la fenêtre de Studio**, ou un dossier de copies (une clé USB, le téléchargement d'un devoir de l'ENT) : Studio les range dans `3-copies-rendues`, avec vos notes à la main qui les accompagnent, et les corrige aussitôt. Une copie déjà rangée n'est pas recopiée ; un autre fichier du même nom reçoit un numéro. Vous pouvez aussi déposer les copies vous-même dans `3-copies-rendues`, depuis l'explorateur : elles sont corrigées à l'ouverture de l'exercice, ou dès votre retour dans Studio s'il est déjà ouvert. Ouvert par son dossier, l'exercice est toujours **votre exemplaire** (`1-formateur`), pas le sujet, qui n'a pas le corrigé. Dans l'onglet **Copies**, les mêmes copies s'ajoutent aussi par des boutons :
 
 - **Ajouter des copies...** : choisissez une ou plusieurs copies à la fois ;
-- **Ajouter un dossier...** : toutes les copies du dossier et de ses sous-dossiers.
+- **Ajouter un dossier...** : toutes les copies du dossier et de ses sous-dossiers, rangées avec leurs sous-dossiers (un téléchargement Moodle a un dossier par apprenant, et les copies peuvent y porter le même nom).
 
 Studio corrige chaque copie avec **votre** exemplaire de l'exercice, tel qu'il est ouvert : le domaine de départ est repréparé à la date où l'apprenant a commencé, et la vérification se fait à la date de sa copie. Le score que l'apprenant a pu voir n'est jamais repris. Après avoir changé des objectifs ou des points, **Recorriger** refait toutes les notes.
 
@@ -181,7 +183,7 @@ L'onglet **Réussite par objectif** montre ce que la classe a compris et ce qu'i
 |---|---|
 | **Exporter les notes (CSV)...** | un tableau pour Excel : nom, identifiant, points, note sur le barème, indices, temps, réponses à noter, points de chaque objectif et de chaque question, remarques. La colonne de la note se copie dans l'ENT (Pronote, par exemple). |
 | **Exporter pour Moodle (CSV)...** | le fichier d'import des notes de Moodle (*Notes > Importer > Fichier CSV*) : l'identifiant de l'apprenant, son nom et sa note sur le barème. Dans Moodle, associez la colonne de l'identifiant à l'adresse ou au numéro d'identification des étudiants, et la note à l'élément d'évaluation, dont la note maximale doit être le barème. |
-| **Comptes rendus individuels (PDF)...** | un PDF par copie corrigée, dans le dossier choisi : la note, chaque objectif avec son explication, les réponses aux questions et l'appréciation. Il ne contient ni le corrigé des questions, ni les remarques réservées au formateur. |
+| **Comptes rendus individuels (PDF)...** | un PDF par copie corrigée, dans `4-resultats/comptes-rendus` : la note, chaque objectif avec son explication, les réponses aux questions et l'appréciation. Il ne contient ni le corrigé des questions, ni les remarques réservées au formateur. |
 | **Exporter le bilan (Markdown)...** | le bilan de la classe : moyenne, médiane, notes de chacun, réussite par objectif et par question. |
 
 Dans SMAD-X, l'apprenant peut indiquer un **identifiant** (son numéro ou son adresse) à côté de son nom : c'est lui que reprennent les exports.
@@ -190,7 +192,7 @@ Dans SMAD-X, l'apprenant peut indiquer un **identifiant** (son numéro ou son ad
 
 ## Les fichiers
 
-**Fichier > Enregistrer dans un dossier...** range l'exercice dans un dossier à son nom (ou dans le dossier choisi, s'il est vide), avec un sous-dossier par rôle. Les dossiers et les fichiers ont des noms français ou anglais, selon la langue de l'interface au moment de la création :
+Studio range chaque nouvel exercice dans un dossier à son nom, créé dans le dossier choisi (ou dans le dossier choisi lui-même, s'il est vide ; un exercice du même nom n'est jamais écrasé : le nouveau dossier est numéroté), avec un sous-dossier par rôle. **Fichier > Enregistrer dans un dossier...** le range ailleurs. Les dossiers et les fichiers ont des noms français ou anglais, selon la langue de l'interface au moment de la création :
 
 ```
 revue-ad/
@@ -208,6 +210,8 @@ revue-ad/
 ```
 
 À chaque **Enregistrer**, Studio réécrit l'exemplaire, les notes, le domaine corrigé, la fiche, le sujet et le LISEZMOI. L'exemplaire et le sujet portent le même nom : c'est le dossier qui dit lequel distribuer. Les notes et le domaine corrigé ne sont jamais écrits dans l'exercice, et le sujet n'a pas le corrigé des questions : distribuer `2-a-distribuer` ne révèle pas la solution.
+
+Changez l'identifiant de l'exercice (onglet **Exercice**) : à l'enregistrement suivant, l'exemplaire et le sujet prennent le nouveau nom, et le dossier aussi s'il portait l'ancien. Faites-le avant de distribuer le sujet : une copie porte l'identifiant de l'exercice reçu, et Studio refuse de la corriger avec un autre. **Fichier > Ouvrir le dossier de l'exercice** (ou le bouton à côté de son chemin) l'ouvre dans l'explorateur de fichiers.
 
 Un exercice enregistré par une version précédente, seul dans son dossier, s'ouvre toujours, avec ses notes à côté (`<id>.smadx-lab.notes.md`) ; **Enregistrer dans un dossier...** le range par rôle.
 

@@ -154,6 +154,26 @@ namespace SMADX.Models
         /// </summary>
         public int? MachineAccountQuota { get; set; }
 
+        // --- Ordinateurs : LAPS, administrateurs locaux, sessions ---
+
+        /// <summary>
+        /// Pour Computer : expiration du mot de passe de l'administrateur local géré par LAPS (Windows LAPS
+        /// msLAPS-PasswordExpirationTime, ou LAPS historique ms-Mcs-AdmPwdExpirationTime). Null = pas de LAPS.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public DateTime? LapsPasswordExpiration { get; set; }
+
+        /// <summary>Pour Computer : comptes et groupes du groupe local Administrateurs de la machine.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ObservableCollection<string>? LocalAdmins { get; set; }
+
+        /// <summary>
+        /// Pour Computer : comptes qui ont ouvert une session sur la machine. Leurs identifiants restent en mémoire,
+        /// et tout administrateur de la machine peut les y voler.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ObservableCollection<string>? Sessions { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public DateTime ModifiedDate { get; set; } = DateTime.Now;
@@ -259,6 +279,8 @@ namespace SMADX.Models
                 // ni adminCount (posé par SDProp), ni le propriétaire (le créateur de la copie)
                 AccountFlags = AccountFlags,
                 AllowedToDelegateTo = new ObservableCollection<string>(AllowedToDelegateTo),
+                // Les administrateurs locaux suivent la copie ; ni les sessions ni le mot de passe LAPS
+                LocalAdmins = LocalAdmins is { } admins ? new ObservableCollection<string>(admins) : null,
                 GroupScope = GroupScope,
                 GroupCategory = GroupCategory,
                 PSOPrecedence = PSOPrecedence,

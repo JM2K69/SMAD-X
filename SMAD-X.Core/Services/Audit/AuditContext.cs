@@ -51,6 +51,16 @@ namespace SMADX.Services.Audit
 
         public bool IsPrivileged(ADObject o) => PrivilegedAccounts.Contains(o);
 
+        /// <summary>
+        /// Mandataire qui contrôle déjà le domaine : un groupe protégé par AdminSDHolder ou qui le contrôle par sa fonction
+        /// (DnsAdmins, Key Admins…), un compte ou un groupe qui en est membre, un contrôleur de domaine. Une permission
+        /// dangereuse à son profit n'ouvre pas de nouveau chemin.
+        /// </summary>
+        public bool IsPrivilegedPrincipal(ADObject o) =>
+            o.Type == ADObjectType.Group && (ProtectedGroups.Contains(o) || AttackPaths.AttackPathService.DomainControlGroups.Contains(o.Name))
+            || (o.IsAccount || o.Type == ADObjectType.Group) && EffectiveGroups(o).Any(g => ProtectedGroups.Contains(g) || AttackPaths.AttackPathService.DomainControlGroups.Contains(g.Name))
+            || IsDomainController(o);
+
         public ADObject? Group(string name) => _groupsByName.GetValueOrDefault(name);
 
         /// <summary>Groupes dont l'objet est membre, directement ou par imbrication (sans boucle infinie).</summary>

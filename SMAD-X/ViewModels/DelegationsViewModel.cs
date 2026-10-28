@@ -38,8 +38,19 @@ namespace SMADX.ViewModels
         }
 
         // ── Filter category list ───────────────────────────────────────────────
-        public static List<string> CategoryItems { get; } =
-            new() { "", "PasswordReset", "ComputerManagement", "AccountUnlock", "AttributeWrite", "FullControl", "Other" };
+        /// <summary>Filtre par catégorie : « » (toutes), puis chaque catégorie de droit.</summary>
+        public static List<string> CategoryItems { get; } = new[] { "" }.Concat(System.Enum.GetNames<RightCategory>()).ToList();
+
+        /// <summary>
+        /// Droits « sensibles » du compteur : ceux qui donnent un objet ou ses secrets sans en avoir l'air (modifier les
+        /// permissions ou le propriétaire, répliquer, Shadow Credentials, RBCD, lire un mot de passe LAPS ou gMSA…).
+        /// </summary>
+        private static readonly HashSet<RightCategory> SensitiveCategories = new()
+        {
+            RightCategory.GenericWrite, RightCategory.WriteDacl, RightCategory.WriteOwner, RightCategory.Replication,
+            RightCategory.WriteKeyCredentialLink, RightCategory.WriteAllowedToAct, RightCategory.WriteSpn, RightCategory.ReadLapsPassword,
+            RightCategory.ReadGmsaPassword, RightCategory.WriteGPLink, RightCategory.AllExtendedRights
+        };
 
         // ── Filters ────────────────────────────────────────────────────────────
         [ObservableProperty]
@@ -60,6 +71,7 @@ namespace SMADX.ViewModels
         [ObservableProperty] private int _countAccountUnlock;
         [ObservableProperty] private int _countAttributeWrite;
         [ObservableProperty] private int _countFullControl;
+        [ObservableProperty] private int _countSensitive;
         [ObservableProperty] private int _countOther;
 
         // ── Status ─────────────────────────────────────────────────────────────
@@ -85,15 +97,7 @@ namespace SMADX.ViewModels
         private RightCategory _newCategory = RightCategory.PasswordReset;
 
         /// <summary>Droit AD enregistré pour chaque catégorie (mêmes libellés que le script d'import).</summary>
-        public static string DefaultRight(RightCategory category) => category switch
-        {
-            RightCategory.PasswordReset      => "ResetPassword",
-            RightCategory.AccountUnlock      => "WriteProperty:lockoutTime",
-            RightCategory.ComputerManagement => "CreateChild:computer",
-            RightCategory.AttributeWrite     => "WriteProperty:member",
-            RightCategory.FullControl        => "GenericAll",
-            _                                => "ReadProperty"
-        };
+        public static string DefaultRight(RightCategory category) => ADDelegation.DefaultRight(category);
 
         private bool CanAddDelegation() =>
             SelectedOUNode is { Type: ADObjectType.OrganizationalUnit or ADObjectType.Container or ADObjectType.Domain }
@@ -202,7 +206,7 @@ namespace SMADX.ViewModels
             }
 
             if (!string.IsNullOrWhiteSpace(FilterCategory))
-                query = query.Where(d => d.RightCategory.ToString() == FilterCategory);
+                query = query.Where(d => d.Effective.ToString() == FilterCategory);
 
             FilteredDelegations.Clear();
             foreach (var d in query)
@@ -240,12 +244,14 @@ namespace SMADX.ViewModels
 
         private void RefreshStats()
         {
-            CountPasswordReset      = AllDelegations.Count(d => d.RightCategory == RightCategory.PasswordReset);
-            CountComputerManagement = AllDelegations.Count(d => d.RightCategory == RightCategory.ComputerManagement);
-            CountAccountUnlock      = AllDelegations.Count(d => d.RightCategory == RightCategory.AccountUnlock);
-            CountAttributeWrite     = AllDelegations.Count(d => d.RightCategory == RightCategory.AttributeWrite);
-            CountFullControl        = AllDelegations.Count(d => d.RightCategory == RightCategory.FullControl);
-            CountOther              = AllDelegations.Count(d => d.RightCategory == RightCategory.Other);
+            // Catégorie effective : un fichier importé avant la 0.11 rangeait WriteDacl sous le contrôle total
+            CountPasswordReset      = AllDelegations.Count(d => d.Effective == RightCategory.PasswordReset);
+            CountComputerManagement = AllDelegations.Count(d => d.Effective == RightCategory.ComputerManagement);
+            CountAccountUnlock      = AllDelegations.Count(d => d.Effective == RightCategory.AccountUnlock);
+            CountAttributeWrite     = AllDelegations.Count(d => d.Effective is RightCategory.AttributeWrite or RightCategory.WriteMembers);
+            CountFullControl        = AllDelegations.Count(d => d.Effective == RightCategory.FullControl);
+            CountSensitive          = AllDelegations.Count(d => SensitiveCategories.Contains(d.Effective));
+            CountOther              = AllDelegations.Count(d => d.Effective == RightCategory.Other);
         }
 
         // Les mandataires viennent du domaine, parfois importé : pas de formule Excel

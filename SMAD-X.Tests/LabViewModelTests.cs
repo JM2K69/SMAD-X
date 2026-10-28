@@ -475,6 +475,44 @@ public class DelegationEditingTests
     }
 
     [Fact]
+    public void NewCategories_HaveTheirImportName_AndOldImportsAreCountedAndFilteredByTheirEffectiveCategory()
+    {
+        var domain = BuildSmallDomain();
+        var vm = new DelegationsViewModel();
+        vm.LoadFromTree(domain);
+        vm.SelectedOUNode = domain;
+        vm.NewTrustee = "Helpdesk";
+        vm.NewCategory = RightCategory.Replication;
+        vm.AddDelegationCommand.Execute(null);
+        Assert.Equal("DS-Replication-Get-Changes-All", Assert.Single(domain.Delegations).Right);
+
+        // Importé avant la 0.11 : WriteDacl rangé sous le contrôle total
+        Find(domain, "Corp").Delegations.Add(new ADDelegation { TrusteeName = "jdoe", Right = "WriteDacl", RightCategory = RightCategory.FullControl });
+        vm.LoadFromTree(domain);
+        Assert.Equal(2, vm.CountSensitive);
+        Assert.Equal(0, vm.CountFullControl);
+        vm.FilterCategory = nameof(RightCategory.WriteDacl);
+        vm.ApplyFiltersCommand.Execute(null);
+        Assert.Equal("jdoe", Assert.Single(vm.FilteredDelegations).TrusteeName);
+
+        // Chaque catégorie a son libellé, dans les deux langues
+        var loc = LocalizationService.Instance;
+        var previous = loc.CurrentCulture.Name;
+        try
+        {
+            foreach (var culture in new[] { "fr-FR", "en-US" })
+            {
+                loc.SetLanguage(culture);
+                Assert.All(Enum.GetNames<RightCategory>(), c => Assert.DoesNotContain("[Delegation", loc[$"Delegation.Category.{c}"]));
+            }
+        }
+        finally
+        {
+            loc.SetLanguage(previous);
+        }
+    }
+
+    [Fact]
     public void InheritedDelegation_IsNotRemovedHere()
     {
         var domain = BuildSmallDomain();

@@ -54,12 +54,24 @@ public class ADDocumentMigratorTests
     [Fact]
     public void MigrateCurrent_IsUnchanged()
     {
-        var root = Json("""{ "Version": 2, "Domain": { "Name": "x" } }""");
+        var root = Json($$"""{ "Version": {{ADRootDocument.CurrentVersion}}, "Domain": { "Name": "x" } }""");
 
         var migrated = ADDocumentMigrator.MigrateToCurrent(root, out var fileVersion);
 
         Assert.Equal(ADRootDocument.CurrentVersion, fileVersion);
         Assert.Same(root, migrated);
+    }
+
+    [Fact]
+    public void MigrateV2_ToV3_KeepsTheDocument_AndAnOlderSmadXRefusesV3()
+    {
+        var root = Json("""{ "Version": 2, "Domain": { "Name": "x" } }""");
+
+        var migrated = ADDocumentMigrator.MigrateToCurrent(root, out var fileVersion);
+
+        Assert.Equal(2, fileVersion);
+        Assert.Equal(3, (int)migrated["Version"]!);
+        Assert.Equal("x", (string?)migrated["Domain"]!["Name"]);
     }
 
     [Fact]

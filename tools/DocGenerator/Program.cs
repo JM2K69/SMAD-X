@@ -218,7 +218,7 @@ static void WriteRulesPage(string repo, string culture, string lang)
         ("KRB", "Kerberos", "Kerberos"), ("DLG", "Délégation", "Delegation"), ("PWD", "Mots de passe", "Passwords"),
         ("ACC", "Comptes", "Accounts"), ("PRIV", "Groupes privilégiés", "Privileged groups"),
         ("ACL", "Propriétaires et permissions", "Owners and permissions"), ("TIER", "Cloisonnement (tiering)", "Tiering"),
-        ("GRP", "Groupes", "Groups")
+        ("LAPS", "Postes et serveurs", "Workstations and servers"), ("GRP", "Groupes", "Groups")
     };
 
     var sb = new System.Text.StringBuilder();

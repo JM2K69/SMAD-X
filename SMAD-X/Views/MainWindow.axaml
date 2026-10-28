@@ -616,6 +616,27 @@
                                                              FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
                                                 </StackPanel>
 
+                                                <!-- Ordinateur : LAPS, administrateurs locaux, sessions -->
+                                                <StackPanel Spacing="4" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.IsComputer, FallbackValue=False}">
+                                                    <TextBlock Text="{Binding SecurityComputer}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                                                    <CheckBox Content="{Binding SecurityLaps}"
+                                                              IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.Laps, Mode=TwoWay}"/>
+                                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8"
+                                                          IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.Laps, FallbackValue=False}">
+                                                        <TextBlock Grid.Column="0" Text="{Binding SecurityLapsExpiration}" VerticalAlignment="Center"/>
+                                                        <CalendarDatePicker Grid.Column="1" Width="160"
+                                                                            SelectedDate="{Binding #MainWindowRoot.DataContext.SelectedSecurity.LapsPasswordExpiration, Mode=TwoWay}"/>
+                                                    </Grid>
+                                                    <TextBlock Text="{Binding SecurityLocalAdmins}" Margin="0,4,0,0"/>
+                                                    <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.LocalAdminsText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                             AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="40" MaxHeight="120"
+                                                             FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                                    <TextBlock Text="{Binding SecuritySessions}" Margin="0,4,0,0"/>
+                                                    <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.SessionsText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                             AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="40" MaxHeight="120"
+                                                             FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                                </StackPanel>
+
                                                 <!-- Groupes -->
                                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" RowSpacing="4" ColumnSpacing="8"
                                                       IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.IsGroup, FallbackValue=False}">

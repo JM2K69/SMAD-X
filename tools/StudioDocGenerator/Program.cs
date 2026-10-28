@@ -23,6 +23,10 @@ AppBuilder.Configure<App>()
     .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
     .SetupWithoutStarting();
 
+// Les captures ne montrent ni ne modifient les exercices récents du formateur qui les génère
+StudioSettings.DefaultPath = Path.Combine(Path.GetTempPath(), "smadx-studio-captures", "settings.json");
+if (File.Exists(StudioSettings.DefaultPath)) File.Delete(StudioSettings.DefaultPath);
+
 foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
 {
     StudioText.Instance.Culture = culture;
@@ -221,7 +225,8 @@ sealed class CaptureDialogs : IStudioDialogs
     public RecipeRequest? Recipe { get; set; }
     public Task<string?> OpenFileAsync(string title, string filterName, string pattern) => Task.FromResult<string?>(null);
     public Task<IReadOnlyList<string>> OpenFilesAsync(string title, string filterName, string pattern) => Task.FromResult<IReadOnlyList<string>>([]);
-    public Task<string?> PickFolderAsync(string title) => Task.FromResult<string?>(null);
+    public Task<string?> PickFolderAsync(string title, string? startFolder = null) => Task.FromResult<string?>(null);
+    public Task ShowFolderAsync(string folder) => Task.CompletedTask;
     public Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern) => Task.FromResult<string?>(null);
     public Task<RecipeRequest?> ChooseRecipeAsync() => Task.FromResult(Recipe);
 }

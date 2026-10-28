@@ -116,10 +116,10 @@
 ---
 
 ### 🛡️ Security Audit, Attack Paths and Labs
-- **Security audit**: 31 rules sourced from the ANSSI AD checklist, NIST, CIS, MITRE ATT&CK and Microsoft, with a score and an estimated ANSSI level
-- **Attack paths**: who can take control of the domain and through which steps (Kerberoasting, AS-REP roasting, delegations, owners, GPOs, Kerberos delegation…), highlighted in the graph
+- **Security audit**: 35 rules sourced from the ANSSI AD checklist, NIST, CIS, MITRE ATT&CK and Microsoft, with a score and an estimated ANSSI level; the fresh domain has the default permissions of a real freshly installed AD, so the audit finds the same defaults on both
+- **Attack paths**: who can take control of the domain and through which steps (Kerberoasting, AS-REP roasting, delegations, owners, GPOs, Kerberos delegation, DCSync, Shadow Credentials, RBCD, LAPS, local administrators and sessions, AdminSDHolder…), highlighted in the graph
 - **Before / after** comparison and **undo / redo**
-- **Labs** (`.smadx-lab.json`): realistic scenarios graded automatically, including 12 attack-path labs in French and English
+- **Labs** (`.smadx-lab.json`): realistic scenarios graded automatically, including 15 attack-path labs in French and English
 - **Lab mode and exam mode**: open a lab directly (`SMAD-X.exe lab.smadx-lab.json`) with the domain locked; an exam has no hints, no score and no start over, measures the time spent, and can close the audit, its "How to fix" sections, the attack paths or the comparison; learners save a **submission** (`.smadx-submission.json`) to resume or hand in, sealed (SHA-256) and tied to a random work session
 - Nothing is lost: closing with unsaved changes asks to save, and lab mode keeps a recovery copy every minute, offered at the next opening
 - **For trainers**: the sample domains in [`Samples/AttackPaths`](Samples/AttackPaths/README.md) describe each path and its fix, so they are the answer keys of the attack-path labs; write your own labs with the [lab creation guide](https://jm2k69.github.io/SMAD-X/en/labs/create/)
@@ -128,6 +128,7 @@
 A second executable, shipped in the same archive ([documentation](https://jm2k69.github.io/SMAD-X/en/labs/studio/)):
 - **New lab from a recommendation**: one recipe per audit rule / ANSSI control point, alone or **several combined** in the same domain; Studio builds a healthy, populated domain, injects only those misconfigurations, and produces the **fixed domain**, which gets all the points
 - **Convert** a `.smad-x.json` scenario into a lab: the context becomes the statement, the path and the fix go into the trainer notes
+- **One folder per lab**, laid out by role as soon as it is created (trainer copy, subject to hand out, submissions, results): every export goes to its place, and the lab reopens from its folder or the recent list; drop the learners' submissions on the window and they are filed and graded
 - Markdown statement editor with preview, objective editor with **suggestions** from the audit and attack paths, and **guards** against brute-force fixes: a broken guard cancels the objectives that concerned the protected object
 - **Comprehension questions** asked with the objectives: single or multiple choice, yes / no, matching, written answer; **partial credit** for objectives that can be counted and for questions with several answers
 - **Trainer's copy and subject**: your file keeps the hints and the answer key; the exported **subject** has neither, and SMAD-X refuses to open the trainer's copy of an exam

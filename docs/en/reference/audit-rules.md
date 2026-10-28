@@ -1,7 +1,7 @@
 # Audit rules
 
 !!! info "Generated page"
-    This page is produced from the SMAD-X code (`tools/DocGenerator`): it lists exactly the 31 rules the application evaluates.
+    This page is produced from the SMAD-X code (`tools/DocGenerator`): it lists exactly the 35 rules the application evaluates.
 
 Each failed rule takes points off the score, once whatever the number of objects involved: **12** for a critical rule, **6** high, **3** medium, **1** low. The estimated ANSSI level is the level of the most critical failed control point (5 if none); it is not the official computation of ANSSI's ADS tool.
 
@@ -61,6 +61,8 @@ Each failed rule takes points off the score, once whatever the number of objects
 | Rule | Severity | ANSSI level | References |
 |---|---|---|---|
 | **ACL-01** Critical object with an inappropriate owner | Medium | 3 | [ANSSI · vuln_owner](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1222.001](https://attack.mitre.org/techniques/T1222/001/)<br>[MITRE ATT&CK · T1098](https://attack.mitre.org/techniques/T1098/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **ACL-02** Control path to the domain through permissions | High | 2 | [ANSSI · vuln_privileged_members_perm](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · vuln_permissions_gpo_container_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[MITRE ATT&CK · T1222.001](https://attack.mitre.org/techniques/T1222/001/)<br>[MITRE ATT&CK · T1098](https://attack.mitre.org/techniques/T1098/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models) |
+| **ACL-03** Dangerous permissions on the domain, AdminSDHolder or the domain controllers | Critical | 1 | [ANSSI · vuln_permissions_naming_context](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · vuln_permissions_adminsdholder](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · vuln_permissions_dc](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1003.006](https://attack.mitre.org/techniques/T1003/006/)<br>[MITRE ATT&CK · T1222.001](https://attack.mitre.org/techniques/T1222/001/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory) |
 
 ## Tiering
 
@@ -69,6 +71,13 @@ Each failed rule takes points off the score, once whatever the number of objects
 | **TIER-01** Tiering violation: membership in a more sensitive group | High | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model)<br>[NIST · SP 800-53 Rev. 5 AC-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[CIS · CIS Controls v8 6.8](https://cas.docs.cisecurity.org/en/latest/source/Controls6/) |
 | **TIER-02** Tiering violation: GPO from a less sensitive tier | High | — | [ANSSI · vuln_permissions_gpo_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[MITRE ATT&CK · T1484.001](https://attack.mitre.org/techniques/T1484/001/)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model) |
 | **TIER-03** Tiering violation: delegation to a less sensitive tier | High | — | [ANSSI · vuln_privileged_members_perm](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[MITRE ATT&CK · T1098](https://attack.mitre.org/techniques/T1098/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models) |
+| **TIER-04** Privileged account logged on to a less sensitive machine | High | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[ANSSI · vuln_silo_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1003.001](https://attack.mitre.org/techniques/T1003/001/)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/authentication-policies-and-authentication-policy-silos)<br>[NIST · SP 800-53 Rev. 5 AC-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+
+## Workstations and servers
+
+| Rule | Severity | ANSSI level | References |
+|---|---|---|---|
+| **LAPS-01** Computer without LAPS | Medium | — | [Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-overview)<br>[MITRE ATT&CK · T1078.003](https://attack.mitre.org/techniques/T1078/003/)<br>[MITRE ATT&CK · T1550.002](https://attack.mitre.org/techniques/T1550/002/)<br>[CIS · CIS Controls v8 5.2](https://cas.docs.cisecurity.org/en/latest/source/Controls5/)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 
 ## Groups
 

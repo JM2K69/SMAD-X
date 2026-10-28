@@ -57,7 +57,16 @@ public class ADDataServiceTests
             Assert.DoesNotContain(added, names);
             Assert.Contains(added, lab); // la base des exercices les garde
         }
-        Assert.Empty(Flatten(_service.CreateFreshDomainStructure("corp.local")).SelectMany(o => o.Delegations));
+        // Seules les ACE par défaut d'un AD neuf, toutes au profit de groupes privilégiés
+        var fresh = _service.CreateFreshDomainStructure("corp.local");
+        Assert.Equal(
+            ["AdminSDHolder|Domain Admins|WriteDacl", "AdminSDHolder|Enterprise Admins|FullControl", "corp.local|Domain Controllers|Replication",
+             "corp.local|Enterprise Admins|FullControl", "corp.local|Enterprise Key Admins|WriteKeyCredentialLink",
+             "corp.local|Enterprise Read-only Domain Controllers|Other", "corp.local|Key Admins|WriteKeyCredentialLink"],
+            Flatten(fresh).SelectMany(o => o.Delegations.Select(d => $"{o.Name}|{d.TrusteeName}|{d.Effective}")).Order());
+        // Une machine jointe au domaine est administrée par Domain Admins, un DC par Builtin Administrators
+        Assert.All(Flatten(fresh).Where(o => o.Type == ADObjectType.Computer), c => Assert.Equal(["Administrators"], c.LocalAdmins!));
+        Assert.All(Flatten(fresh).Where(o => o.Type == ADObjectType.Computer), c => Assert.Null(c.LapsPasswordExpiration));
         Assert.Equal(7, _service.CreateFreshDomainStructure("corp.local").PSOMinPasswordLength); // valeur par défaut d'AD
     }
 

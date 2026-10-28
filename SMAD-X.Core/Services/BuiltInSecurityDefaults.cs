@@ -8,8 +8,9 @@ namespace SMADX.Services
     /// <summary>
     /// Attributs de sécurité qu'Active Directory pose lui-même sur un domaine fraîchement promu :
     /// options des comptes intégrés, SPN des ordinateurs, portée des groupes, adminCount des
-    /// objets protégés par AdminSDHolder. Appliqué aux structures générées par ADDataService,
-    /// pour que l'apprenant parte d'un état réaliste.
+    /// objets protégés par AdminSDHolder, ACE par défaut qui donnent un contrôle, administrateurs
+    /// locaux des ordinateurs joints. Appliqué aux structures générées par ADDataService, pour que
+    /// l'apprenant parte d'un état réaliste : l'audit y trouve ce qu'il trouverait sur un vrai AD neuf.
     /// </summary>
     public static class BuiltInSecurityDefaults
     {
@@ -99,6 +100,9 @@ namespace SMADX.Services
                     case ADObjectType.Computer:
                         var isDc = obj.Parent is { Type: ADObjectType.OrganizationalUnit, Name: "Domain Controllers" };
                         obj.ServicePrincipalNames = new(ComputerSpns(obj.Name, fqdn, isDc));
+                        // Joindre une machine au domaine ajoute Domain Admins à son groupe local Administrateurs ;
+                        // un DC n'a pas de groupe local : c'est le groupe Builtin Administrators qui l'administre
+                        obj.LocalAdmins = new() { isDc ? "Administrators" : "Domain Admins" };
                         if (isDc)
                         {
                             // Un DC est en délégation non contrainte : c'est normal pour lui, pas ailleurs
@@ -113,6 +117,45 @@ namespace SMADX.Services
                         obj.ServicePrincipalNames = new() { $"HTTP/{obj.Name}.{fqdn}" };
                         break;
                 }
+            }
+            ApplyDefaultAcl(domain);
+        }
+
+        /// <summary>
+        /// ACE par défaut d'un domaine neuf qui donnent un contrôle, telles que l'import les lit (il écarte, comme ici,
+        /// SYSTEM, Administrators, CREATOR OWNER, SELF et Enterprise Domain Controllers) :
+        /// <list type="bullet">
+        /// <item>racine du domaine : Enterprise Admins contrôle total ; Domain Controllers réplication complète, le DCSync
+        /// qui est leur rôle ; Enterprise Read-only Domain Controllers réplication sans les secrets ; Key Admins et
+        /// Enterprise Key Admins écriture de msDS-KeyCredentialLink (Windows Hello Entreprise) ;</item>
+        /// <item>AdminSDHolder, modèle des permissions des comptes protégés : Enterprise Admins contrôle total, Domain
+        /// Admins modification des permissions.</item>
+        /// </list>
+        /// Tous ces mandataires sont privilégiés : sur un domaine neuf, ni le graphe ni l'audit n'y voient de faiblesse.
+        /// </summary>
+        private static void ApplyDefaultAcl(ADObject domain)
+        {
+            var all = Flatten(domain).ToList();
+            var groups = all.Where(o => o.Type == ADObjectType.Group).Select(o => o.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            void Allow(ADObject target, string trustee, string right, RightCategory category)
+            {
+                if (!groups.Contains(trustee) || target.Delegations.Any(d => d.TrusteeName == trustee && d.Right == right)) return;
+                target.Delegations.Add(new ADDelegation
+                {
+                    TrusteeName = trustee, TrusteeType = TrusteeType.Group, TargetDN = target.DistinguishedName,
+                    Right = right, RightCategory = category, Tier = target.Tier
+                });
+            }
+
+            Allow(domain, "Enterprise Admins", "GenericAll", RightCategory.FullControl);
+            Allow(domain, "Domain Controllers", "DS-Replication-Get-Changes-All", RightCategory.Replication);
+            Allow(domain, "Enterprise Read-only Domain Controllers", "DS-Replication-Get-Changes", RightCategory.Other);
+            Allow(domain, "Key Admins", "WriteProperty:msDS-KeyCredentialLink", RightCategory.WriteKeyCredentialLink);
+            Allow(domain, "Enterprise Key Admins", "WriteProperty:msDS-KeyCredentialLink", RightCategory.WriteKeyCredentialLink);
+            if (all.FirstOrDefault(o => o.Type == ADObjectType.Container && o.Name == "AdminSDHolder") is { } holder)
+            {
+                Allow(holder, "Enterprise Admins", "GenericAll", RightCategory.FullControl);
+                Allow(holder, "Domain Admins", "WriteDacl", RightCategory.WriteDacl);
             }
         }
 

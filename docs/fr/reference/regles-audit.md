@@ -1,7 +1,7 @@
 # Règles d'audit
 
 !!! info "Page générée"
-    Cette page est produite à partir du code de SMAD-X (`tools/DocGenerator`) : elle liste exactement les 31 règles évaluées par l'application.
+    Cette page est produite à partir du code de SMAD-X (`tools/DocGenerator`) : elle liste exactement les 35 règles évaluées par l'application.
 
 Chaque règle en échec retire des points au score, une seule fois quel que soit le nombre d'objets concernés : **12** pour une règle critique, **6** élevée, **3** moyenne, **1** faible. Le niveau ANSSI estimé est celui du point de contrôle le plus critique en échec (5 si aucun) ; ce n'est pas le calcul officiel de l'outil ADS de l'ANSSI.
 
@@ -61,6 +61,8 @@ Chaque règle en échec retire des points au score, une seule fois quel que soit
 | Règle | Gravité | Niveau ANSSI | Références |
 |---|---|---|---|
 | **ACL-01** Objet critique avec un propriétaire inadapté | Moyenne | 3 | [ANSSI · vuln_owner](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1222.001](https://attack.mitre.org/techniques/T1222/001/)<br>[MITRE ATT&CK · T1098](https://attack.mitre.org/techniques/T1098/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **ACL-02** Chemin de contrôle vers le domaine par les permissions | Élevée | 2 | [ANSSI · vuln_privileged_members_perm](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · vuln_permissions_gpo_container_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[MITRE ATT&CK · T1222.001](https://attack.mitre.org/techniques/T1222/001/)<br>[MITRE ATT&CK · T1098](https://attack.mitre.org/techniques/T1098/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models) |
+| **ACL-03** Permissions dangereuses sur le domaine, AdminSDHolder ou les contrôleurs de domaine | Critique | 1 | [ANSSI · vuln_permissions_naming_context](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · vuln_permissions_adminsdholder](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · vuln_permissions_dc](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1003.006](https://attack.mitre.org/techniques/T1003/006/)<br>[MITRE ATT&CK · T1222.001](https://attack.mitre.org/techniques/T1222/001/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory) |
 
 ## Cloisonnement (tiering)
 
@@ -69,6 +71,13 @@ Chaque règle en échec retire des points au score, une seule fois quel que soit
 | **TIER-01** Violation du cloisonnement : appartenance à un groupe plus sensible | Élevée | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model)<br>[NIST · SP 800-53 Rev. 5 AC-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[CIS · CIS Controls v8 6.8](https://cas.docs.cisecurity.org/en/latest/source/Controls6/) |
 | **TIER-02** Violation du cloisonnement : GPO d'un tier moins sensible | Élevée | — | [ANSSI · vuln_permissions_gpo_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[MITRE ATT&CK · T1484.001](https://attack.mitre.org/techniques/T1484/001/)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model) |
 | **TIER-03** Violation du cloisonnement : délégation à un tier moins sensible | Élevée | — | [ANSSI · vuln_privileged_members_perm](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[MITRE ATT&CK · T1098](https://attack.mitre.org/techniques/T1098/)<br>[NIST · SP 800-53 Rev. 5 AC-6](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models) |
+| **TIER-04** Compte privilégié connecté sur une machine moins sensible | Élevée | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[ANSSI · vuln_silo_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[MITRE ATT&CK · T1003.001](https://attack.mitre.org/techniques/T1003/001/)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/authentication-policies-and-authentication-policy-silos)<br>[NIST · SP 800-53 Rev. 5 AC-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+
+## Postes et serveurs
+
+| Règle | Gravité | Niveau ANSSI | Références |
+|---|---|---|---|
+| **LAPS-01** Ordinateur sans LAPS | Moyenne | — | [Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-overview)<br>[MITRE ATT&CK · T1078.003](https://attack.mitre.org/techniques/T1078/003/)<br>[MITRE ATT&CK · T1550.002](https://attack.mitre.org/techniques/T1550/002/)<br>[CIS · CIS Controls v8 5.2](https://cas.docs.cisecurity.org/en/latest/source/Controls5/)<br>[NIST · SP 800-53 Rev. 5 IA-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 
 ## Groupes
 

@@ -1,6 +1,6 @@
 # Audit de sécurité
 
-**Analyse > Audit de sécurité** (`Ctrl+Shift+A`) passe le domaine au crible de **31 règles**. Chacune s'appuie sur des sources reconnues :
+**Analyse > Audit de sécurité** (`Ctrl+Shift+A`) passe le domaine au crible de **35 règles**. Chacune s'appuie sur des sources reconnues :
 
 - la [checklist Active Directory de l'ANSSI](https://cert.cyber.gouv.fr/uploads/ad_checklist.html), avec l'identifiant et le niveau officiels de chaque point de contrôle ;
 - le **NIST** : SP 800-53 (contrôles de sécurité) et SP 800-63B (authentification) ;
@@ -33,9 +33,14 @@ La capture montre le domaine d'exemple, avec une faiblesse ajoutée pour la docu
 | `PWD` | mots de passe | expiration, mot de passe non requis, mots de passe inchangés (comptes privilégiés, DC, ordinateurs, comptes de service managés) |
 | `ACC` | comptes | Guest activé, comptes dormants |
 | `PRIV` | groupes privilégiés | groupes qui devraient rester vides, DnsAdmins, adminCount manquant ou orphelin, groupe protégé hors Tier 0 |
-| `ACL` | propriétaires | propriétaire non administratif d'un objet critique |
-| `TIER` | cloisonnement | appartenance, GPO ou délégation entre tiers |
+| `ACL` | propriétaires et permissions | propriétaire non administratif d'un objet critique (GPO des DC comprises), permissions dangereuses sur le domaine, AdminSDHolder ou les DC (DCSync, Shadow Credentials, RBCD), chemin de contrôle par les permissions depuis un compte ordinaire |
+| `TIER` | cloisonnement | appartenance, GPO, délégation ou administration locale entre tiers, session d'un administrateur sur une machine moins sensible |
+| `LAPS` | postes et serveurs | ordinateur dont le mot de passe d'administrateur local n'est pas géré par LAPS |
 | `GRP` | groupes | boucles d'imbrication |
+
+## Un domaine neuf, comme un vrai
+
+Le domaine neuf de SMAD-X a les mêmes permissions par défaut qu'un Active Directory fraîchement installé : contrôle total d'Enterprise Admins sur la racine, réplication des contrôleurs de domaine, écriture de `msDS-KeyCredentialLink` par Key Admins et Enterprise Key Admins, droits d'Enterprise Admins et de Domain Admins sur AdminSDHolder ; chaque ordinateur joint a Domain Admins pour administrateur local. Ces permissions vont toutes à des groupes privilégiés : l'audit ne les signale pas, comme il ne les signalerait pas sur un vrai domaine neuf. Ce qu'il y trouve (politique de mot de passe trop courte, quota de jonction de machines, administrateur intégré) est ce qu'il trouverait sur un AD sorti d'installation.
 
 La liste complète, avec la gravité, le niveau ANSSI et les références de chaque règle, est sur la page [Règles d'audit](reference/regles-audit.md), générée à partir du code.
 

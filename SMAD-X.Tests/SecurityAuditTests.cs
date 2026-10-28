@@ -42,7 +42,12 @@ public class AuditCatalogueTests
         ["vuln_privileged_members_perm"] = [1, 2],
         ["vuln_group_loop"] = [4],
         ["vuln_privileged_members_password"] = [2],
-        ["vuln_user_accounts_machineaccountquota"] = [4]
+        ["vuln_user_accounts_machineaccountquota"] = [4],
+        ["vuln_permissions_naming_context"] = [1, 2],
+        ["vuln_permissions_adminsdholder"] = [1, 2],
+        ["vuln_permissions_dc"] = [1, 2],
+        ["vuln_permissions_gpo_container_priv"] = [2],
+        ["vuln_silo_priv"] = [4]
     };
 
     public static TheoryData<string> RuleIds()
@@ -294,7 +299,7 @@ public class AuditRuleBehaviourTests
         Admin(domain).PwdLastSet = Now.AddDays(-(3 * 365 + 1));
         Find(domain, "DC01").PwdLastSet = Now.AddDays(-46);
         Add(Find(domain, "Corp"), new ADObject("WKS-OLD", ADObjectType.Computer) { PwdLastSet = Now.AddDays(-91) });
-        Add(Find(domain, "Corp"), new ADObject("WKS-OK", ADObjectType.Computer) { PwdLastSet = Now.AddDays(-89) });
+        Add(Find(domain, "Corp"), new ADObject("WKS-OK", ADObjectType.Computer) { PwdLastSet = Now.AddDays(-89), LapsPasswordExpiration = Now.AddDays(10) });
         Add(Find(domain, "Corp"), new ADObject("gmsa-old", ADObjectType.GMSA) { PwdLastSet = Now.AddDays(-91) });
 
         AssertFires(domain, "PWD-04", "adm-alice");
@@ -389,6 +394,136 @@ public class AuditRuleBehaviourTests
         AssertFires(domain, "TIER-01", "jdoe");
         AssertFires(domain, "TIER-02", "GPO-Workstations");
         AssertFires(domain, "TIER-03", "Domain Controllers");
+    }
+
+    private static void Grant(ADObject holder, string trustee, string right, RightCategory category) =>
+        holder.Delegations.Add(new ADDelegation { TrusteeName = trustee, Right = right, RightCategory = category, TargetDN = holder.DistinguishedName });
+
+    [Fact]
+    public void DangerousRights_OnTheDomainAdminSdHolderAndDcs_AreCritical_UnlessHeldByPrivilegedGroups()
+    {
+        var domain = Domain();
+        var holder = Add(Add(domain, new ADObject("System", ADObjectType.Container)), new ADObject("AdminSDHolder", ADObjectType.Container));
+        Grant(domain, "jdoe", "DS-Replication-Get-Changes-All", RightCategory.Replication);
+        Grant(holder, "Everyone", "WriteDacl", RightCategory.WriteDacl);
+        Grant(Find(domain, "DC01"), "jdoe", "WriteProperty:msDS-KeyCredentialLink", RightCategory.WriteKeyCredentialLink);
+
+        var acl03 = Audit(domain).Where(f => f.Rule.Id == "ACL-03").ToList();
+        Assert.Equal(["AdminSDHolder", "contoso.com", "DC01"], acl03.Select(f => f.Object.Name).Order(StringComparer.OrdinalIgnoreCase));
+        Assert.All(acl03, f => Assert.Equal(AuditSeverity.Critical, f.Severity));
+        // Déjà signalé par ACL-03 : ACL-02 ne le répète pas
+        AssertSilent(domain, "ACL-02");
+
+        // Les mêmes droits pour des groupes privilégiés : ce sont ceux d'un AD neuf
+        foreach (var o in new[] { domain, holder, Find(domain, "DC01") }) o.Delegations.Clear();
+        Grant(domain, "Domain Admins", "DS-Replication-Get-Changes-All", RightCategory.Replication);
+        Grant(holder, "Domain Admins", "WriteDacl", RightCategory.WriteDacl);
+        AssertSilent(domain, "ACL-03");
+
+        // Répliquer sans les secrets, ou sur une OU, n'est pas un DCSync
+        Grant(domain, "jdoe", "DS-Replication-Get-Changes", RightCategory.Other);
+        Grant(Find(domain, "Corp"), "jdoe", "DS-Replication-Get-Changes-All", RightCategory.Replication);
+        AssertSilent(domain, "ACL-03");
+    }
+
+    [Fact]
+    public void PermissionPath_FromAnUntieredGroup_IsReportedOnTheObjectThatHoldsTheAce()
+    {
+        var domain = Domain();
+        Admin(domain);
+        var gpo = Add(domain, new ADObject("GPO-DC", ADObjectType.Policy) { Tier = "Tier 0", Owner = "Domain Admins" });
+        Find(domain, "Domain Controllers").LinkedGPOs.Add(gpo.Name);
+        Add(Find(domain, "Corp"), new ADObject("GG-Migration", ADObjectType.Group) { Owner = "Domain Admins" });
+        Find(domain, "jdoe").MemberOf.Add("GG-Migration");
+        Grant(gpo, "GG-Migration", "GenericWrite", RightCategory.GenericWrite);
+
+        var finding = Assert.Single(Audit(domain), f => f.Rule.Id == "ACL-02");
+
+        Assert.Same(gpo, finding.Object);
+        Assert.Contains("GG-Migration", finding.Detail);
+        Assert.Contains("2", finding.Detail); // le groupe et son membre
+        // Le groupe n'a pas de tier : le cloisonnement (TIER-03) ne voit rien
+        AssertSilent(domain, "TIER-03");
+
+        // Classé en Tier 2, c'est TIER-03 qui le signale, et ACL-02 se tait
+        Find(domain, "GG-Migration").Tier = "Tier 2";
+        AssertFires(domain, "TIER-03", "GPO-DC");
+        AssertSilent(domain, "ACL-02");
+    }
+
+    [Fact]
+    public void PermissionPath_ThroughAnUnprotectedAdmin_AndFromAnyUser()
+    {
+        var domain = Domain();
+        var admins = Add(domain, new ADObject("Admins", ADObjectType.OrganizationalUnit) { Owner = "Domain Admins" });
+        var admin = Add(admins, new ADObject("adm-bob", ADObjectType.User) { Tier = "Tier 0", AdminCount = true, AccountFlags = ADAccountFlags.NotDelegated,
+                                                                             PwdLastSet = Now.AddDays(-30), LastLogonTimestamp = Now, Owner = "Domain Admins" });
+        admin.MemberOf.Add("Domain Admins");
+        Grant(admins, "Domain Users", "GenericAll", RightCategory.FullControl);
+
+        // Un compte protégé : l'ACE héritée ne l'atteint pas, mais une GPO liée à l'OU, si
+        var finding = Assert.Single(Audit(domain), f => f.Rule.Id == "ACL-02");
+        Assert.Same(admins, finding.Object);
+        Assert.Contains(LocalizationService.Instance["AttackPath.AnyUser"], finding.Detail);
+    }
+
+    [Fact]
+    public void AdminSession_OnALessSensitiveMachine_IsExposed()
+    {
+        var domain = Domain();
+        var admin = Admin(domain);
+        var ws = Add(Find(domain, "Corp"), new ADObject("WS01", ADObjectType.Computer) { Tier = "Tier 2", LapsPasswordExpiration = Now.AddDays(10), Sessions = ["adm-alice", "jdoe"] });
+        var server = Add(domain, new ADObject("SRV-T0", ADObjectType.Computer) { Tier = "Tier 0", LapsPasswordExpiration = Now.AddDays(10), Sessions = ["adm-alice"] });
+        Find(domain, "DC01").Sessions = ["adm-alice"];
+
+        var tier04 = Audit(domain).Where(f => f.Rule.Id == "TIER-04").ToList();
+
+        // Sur le poste du Tier 2 seulement : un serveur du Tier 0 et un DC sont à leur place
+        Assert.Same(admin, Assert.Single(tier04).Object);
+        Assert.Contains("WS01", tier04[0].Detail);
+
+        // Un compte du Tier 1 sur un poste du Tier 2 aussi
+        var ops = Add(Find(domain, "Corp"), new ADObject("ops-srv", ADObjectType.User) { Tier = "Tier 1", PwdLastSet = Now.AddDays(-30), LastLogonTimestamp = Now });
+        ws.Sessions!.Add(ops.Name);
+        AssertFires(domain, "TIER-04", "ops-srv");
+        server.Sessions!.Clear();
+    }
+
+    [Fact]
+    public void ComputerWithoutLaps_IsReported_ButNotADcNorADisabledOne()
+    {
+        var domain = Domain();
+        Add(Find(domain, "Corp"), new ADObject("WS01", ADObjectType.Computer) { PwdLastSet = Now.AddDays(-10) });
+        Add(Find(domain, "Corp"), new ADObject("WS02", ADObjectType.Computer) { PwdLastSet = Now.AddDays(-10), LapsPasswordExpiration = Now.AddDays(5) });
+        Add(Find(domain, "Corp"), new ADObject("WS03", ADObjectType.Computer) { PwdLastSet = Now.AddDays(-10), AccountFlags = ADAccountFlags.AccountDisabled });
+
+        Assert.Equal(["WS01"], Audit(domain).Where(f => f.Rule.Id == "LAPS-01").Select(f => f.Object.Name));
+    }
+
+    [Fact]
+    public void Owner_OfAGpoLinkedToTheDcs_MustBePrivileged()
+    {
+        var domain = Domain();
+        Admin(domain);
+        var gpo = Add(domain, new ADObject("GPO-DC", ADObjectType.Policy) { Tier = "Tier 0", Owner = "jdoe" });
+        Find(domain, "Domain Controllers").LinkedGPOs.Add(gpo.Name);
+        AssertFires(domain, "ACL-01", "GPO-DC");
+
+        // Un compte d'administration du domaine est un propriétaire légitime
+        gpo.Owner = "adm-alice";
+        AssertSilent(domain, "ACL-01");
+    }
+
+    [Fact]
+    public void LocalAdmin_FromALessSensitiveTier_IsATieringViolation()
+    {
+        var domain = Domain();
+        Add(Find(domain, "Corp"), new ADObject("GG-Support", ADObjectType.Group) { Tier = "Tier 2" });
+        Add(domain, new ADObject("SRV-T0", ADObjectType.Computer) { Tier = "Tier 0", LapsPasswordExpiration = Now.AddDays(10), LocalAdmins = ["Domain Admins", "GG-Support"] });
+
+        var finding = Assert.Single(Audit(domain), f => f.Rule.Id == "TIER-03");
+        Assert.Equal("SRV-T0", finding.Object.Name);
+        Assert.Contains("GG-Support", finding.Detail);
     }
 
     [Fact]
@@ -511,6 +646,11 @@ public class AuditReportTests
         Assert.Contains("ACC-03", failed);   // quota de jonction de machines par défaut
         Assert.DoesNotContain("PWD-09", failed); // les administrateurs ont leur PSO
         Assert.DoesNotContain("PWD-05", failed); // les DC renouvellent leur mot de passe
+        // LAPS déployé sur le seul serveur d'applications ; adm-lmartin connecté au serveur de fichiers
+        Assert.Contains(report.Findings, f => f.Rule.Id == "LAPS-01" && f.Object.Name == "SRV-FILE-01");
+        Assert.DoesNotContain(report.Findings, f => f.Rule.Id == "LAPS-01" && f.Object.Name == "SRV-APP-01");
+        Assert.Contains(report.Findings, f => f.Rule.Id == "TIER-04" && f.Object.Name == "adm-lmartin");
+        Assert.DoesNotContain("ACL-03", failed);
     }
 
     [Fact]
