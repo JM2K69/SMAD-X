@@ -141,13 +141,16 @@ void Scenario(string id, string frDomain, string enDomain, Func<ADObject, (strin
         labStart.Domain.Description = $"# {lab.Title}\n\n{lab.Context.Trim()}\n".ReplaceLineEndings("\n");
 
         var labId = $"{T("chemin", "path")}-{id}";
-        new LabService().SaveFile(new LabDefinition
+        var labDefinition = new LabDefinition
         {
             Id = labId, Language = Culture(), Category = "attack-paths",
             Level = lab.Level, DurationMinutes = lab.Minutes, ReferenceDate = reference,
             Title = Text(lab.Title), Statement = Text(Statement(lab.Title, lab.Context.Trim(), lab.Mission.Trim())),
             Start = labStart, Objectives = lab.Objectives.ToList()
-        }, Path.Combine(labDir, labId + LabService.FileExtension));
+        };
+        // Les objectifs « l'objet existe », « reste membre »… sont des gardes : sans point, ils annulent ce qu'ils protègent
+        LabService.MarkGuards(labDefinition);
+        new LabService().SaveFile(labDefinition, Path.Combine(labDir, labId + LabService.FileExtension));
     }
 }
 

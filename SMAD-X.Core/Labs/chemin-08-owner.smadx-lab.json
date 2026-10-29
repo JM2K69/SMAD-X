@@ -4308,7 +4308,8 @@
       "Hint": {
         "fr-FR": "Supprimer un contr\u00F4leur de domaine n\u0027est pas une correction."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4334,7 +4335,8 @@
       "Hint": {
         "fr-FR": "Le chef de projet a besoin de son compte bureautique."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4354,5 +4356,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 9
+  "MaxPoints": 7
 }

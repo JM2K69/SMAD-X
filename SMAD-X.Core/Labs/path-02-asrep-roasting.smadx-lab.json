@@ -4271,7 +4271,8 @@
       "Hint": {
         "en-US": "A write permission on the scan share is enough, not an operators group."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4291,5 +4292,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 9
+  "MaxPoints": 8
 }

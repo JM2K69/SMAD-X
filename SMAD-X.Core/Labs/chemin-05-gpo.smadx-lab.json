@@ -4355,7 +4355,8 @@
       "Hint": {
         "fr-FR": "Supprimer la GPO priverait les utilisateurs du fond d\u0027\u00E9cran : retirez plut\u00F4t le lien en trop."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4381,7 +4382,8 @@
       "Hint": {
         "fr-FR": "Le compte d\u0027administration n\u0027est pas le probl\u00E8me."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "MemberOf",
         "RuleId": null,
@@ -4401,5 +4403,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 8
+  "MaxPoints": 6
 }

@@ -4289,7 +4289,8 @@
       "Hint": {
         "fr-FR": "Le prestataire en a besoin pour d\u00E9sinstaller l\u0027outil : retirez ses droits, pas le compte."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4309,5 +4310,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 9
+  "MaxPoints": 8
 }

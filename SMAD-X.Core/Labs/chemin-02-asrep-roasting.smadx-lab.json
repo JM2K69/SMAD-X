@@ -4271,7 +4271,8 @@
       "Hint": {
         "fr-FR": "Il suffit d\u0027un droit d\u0027\u00E9criture sur le partage des num\u00E9risations, pas d\u0027un groupe d\u0027op\u00E9rateurs."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4291,5 +4292,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 9
+  "MaxPoints": 8
 }

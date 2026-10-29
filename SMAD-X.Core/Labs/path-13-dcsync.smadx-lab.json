@@ -4289,7 +4289,8 @@
       "Hint": {
         "en-US": "The contractor needs it to uninstall the tool: remove its rights, not the account."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4309,5 +4310,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 9
+  "MaxPoints": 8
 }

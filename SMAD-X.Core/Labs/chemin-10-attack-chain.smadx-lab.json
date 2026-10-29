@@ -4354,7 +4354,8 @@
       "Hint": {
         "fr-FR": "Le service RH en a besoin chaque lundi."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4380,7 +4381,8 @@
       "Hint": {
         "fr-FR": "L\u0027administrateur r\u00E9seau a besoin de son compte."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4400,5 +4402,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 10
+  "MaxPoints": 8
 }

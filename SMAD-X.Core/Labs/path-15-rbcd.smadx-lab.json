@@ -4477,7 +4477,8 @@
       "Hint": {
         "en-US": "Without it, the domain controllers are no longer backed up."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4503,7 +4504,8 @@
       "Hint": {
         "en-US": "The admin account belongs on a Tier 0 server: the problem is elsewhere."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "MemberOf",
         "RuleId": null,
@@ -4529,7 +4531,8 @@
       "Hint": {
         "en-US": "The computer creation delegation on the servers OU stays."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "DelegationExists",
         "RuleId": null,
@@ -4549,5 +4552,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 11
+  "MaxPoints": 8
 }

@@ -4370,7 +4370,8 @@
       "Hint": {
         "fr-FR": "La d\u00E9l\u00E9gation sur l\u0027attribut member reste en place."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "DelegationExists",
         "RuleId": null,
@@ -4396,7 +4397,8 @@
       "Hint": {
         "fr-FR": "Retirer l\u0027assistante du groupe ne corrige pas la cause."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "MemberOf",
         "RuleId": null,
@@ -4416,5 +4418,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 8
+  "MaxPoints": 6
 }

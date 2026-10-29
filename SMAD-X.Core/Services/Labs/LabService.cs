@@ -61,10 +61,11 @@ namespace SMADX.Services.Labs
         }
 
         /// <summary>
-        /// Format v1 : les gardes n'étaient pas marquées. Une vérification de garde (l'objet existe, reste
-        /// membre, garde sa délégation…) déjà atteinte au départ en est une ; elle ne rapporte plus de point.
+        /// Marque les gardes : une vérification de garde (l'objet existe, reste membre, garde sa délégation…) déjà
+        /// atteinte au départ en est une ; elle ne rapporte plus de point. Appliqué aux exercices au format v1, qui ne
+        /// les marquaient pas, et par les générateurs des exercices fournis, qui décrivent leurs gardes comme des objectifs.
         /// </summary>
-        private static void MarkGuards(LabDefinition lab)
+        public static void MarkGuards(LabDefinition lab)
         {
             foreach (var o in lab.Objectives.Where(o => LabAuthoring.CanBeGuard(o.Check)))
                 if (LabGrader.IsMet(o.Check, lab.Start.Domain, lab.ReferenceDate))

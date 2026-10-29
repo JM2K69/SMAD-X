@@ -4355,7 +4355,8 @@
       "Hint": {
         "en-US": "Deleting the GPO would remove the users\u0027 wallpaper: remove the extra link instead."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4381,7 +4382,8 @@
       "Hint": {
         "en-US": "The admin account is not the problem."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "MemberOf",
         "RuleId": null,
@@ -4401,5 +4403,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 8
+  "MaxPoints": 6
 }

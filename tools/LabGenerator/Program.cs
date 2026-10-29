@@ -17,33 +17,45 @@ ADObject Add(ADObject parent, ADObject child) { child.Parent = parent; parent.Ch
 ADObject User(ADObject parent, string name, string tier) => Add(parent, new ADObject(name, ADObjectType.User)
 { Tier = tier, Owner = "Domain Admins", PwdLastSet = reference.AddDays(-30), LastLogonTimestamp = reference.AddDays(-1), CreatedDate = reference.AddDays(-400) });
 
-// Domaine neuf, dates figées à la date de référence
-ADObject Fresh()
+// Dates figées à la date de référence
+ADObject Frozen(ADObject d)
 {
-    TierConfigurationService.Instance.ResetToDefaults();
-    var d = data.CreateLabBaseStructure("contoso.local");
     foreach (var o in Flatten(d))
     {
         o.CreatedDate = reference.AddDays(-400);
         o.ModifiedDate = reference.AddDays(-400);
         if (o.PwdLastSet != null) o.PwdLastSet = reference.AddDays(-30);
         if (o.LastLogonTimestamp != null) o.LastLogonTimestamp = reference.AddDays(-1);
-        // LAPS déployé sur les machines jointes (les contrôleurs de domaine n'ont pas de compte local)
-        if (o.Type == ADObjectType.Computer && o.Parent?.Name != "Domain Controllers")
-            o.LapsPasswordExpiration = reference.AddDays(LabDomainBuilder.LapsRenewalDays - 10);
     }
     return d;
 }
 
-// Domaine durci : les constats d'un domaine neuf sont corrigés (c'est la solution de l'exercice 1)
+// Un AD tout juste installé, sans rien changer : l'état « sortie d'installation » de l'exercice 1
+ADObject FreshInstall()
+{
+    TierConfigurationService.Instance.ResetToDefaults();
+    return Frozen(data.CreateFreshDomainStructure("contoso.local"));
+}
+
+// Domaine durci, comme le domaine sain des recettes de Studio (LabDomainBuilder.Healthy) : les constats d'un domaine
+// neuf sont corrigés (c'est la solution de l'exercice 1), et LAPS est déployé sur les machines jointes
 ADObject Baseline()
 {
-    var d = Fresh();
+    TierConfigurationService.Instance.ResetToDefaults();
+    var d = Frozen(data.CreateLabBaseStructure("contoso.local"));
+    foreach (var computer in Flatten(d).Where(o => o.Type == ADObjectType.Computer && o.Parent?.Name != "Domain Controllers"))
+        computer.LapsPasswordExpiration = reference.AddDays(LabDomainBuilder.LapsRenewalDays - 10);
     var admin = Find(d, "Administrator", ADObjectType.User);
     admin.AccountFlags = ADAccountFlags.NotDelegated;
     admin.MemberOf.Remove("Enterprise Admins");
     admin.MemberOf.Remove("Schema Admins");
     d.Tier = "Tier 0";
+    // Politique durcie : 12 caractères, verrouillage après 10 échecs ; seuls les comptes délégués joignent des ordinateurs
+    d.PSOMinPasswordLength = 12;
+    d.PSOLockoutThreshold = 10;
+    d.PSOLockoutDurationMinutes = 15;
+    d.PSOLockoutObservationWindowMinutes = 15;
+    d.MachineAccountQuota = 0;
     var findings = new ADSecurityAuditService().Run(d, reference).Findings;
     if (findings.Count > 0) throw new Exception("Baseline non propre : " + string.Join(", ", findings.Select(f => f.Rule.Id + " " + f.Object.Name)));
     return d;
@@ -61,6 +73,8 @@ void Save(string id, LabLevel level, int minutes, string titleFr, string titleEn
         Start = new ADRootDocument { Domain = domain, SitesTopology = data.CreateFreshTopology(domain.Name) },
         Objectives = objectives.ToList()
     };
+    // Les objectifs « l'objet existe », « reste membre »… sont des gardes : sans point, ils annulent ce qu'ils protègent
+    LabService.MarkGuards(lab);
     labs.SaveFile(lab, Path.Combine(outDir, id + LabService.FileExtension));
     Console.WriteLine($"{id}: {objectives.Length} objectifs, {lab.MaxPoints} points");
 }
@@ -82,6 +96,7 @@ Save("01-premier-audit", LabLevel.Beginner, 20,
     ## Où agir
     - Options du compte : panneau de détails, section **Sécurité**.
     - Appartenance aux groupes : **Relations** (menu Affichage ou barre d'outils).
+    - Politique de mot de passe et quota de jonction de machines : sélectionnez le domaine, panneau de détails.
 
     > Un domaine neuf n'est pas conforme aux recommandations de l'ANSSI : c'est le premier réflexe à acquérir.
     """,
@@ -98,10 +113,11 @@ Save("01-premier-audit", LabLevel.Beginner, 20,
     ## Where to act
     - Account options: details panel, **Security** section.
     - Group membership: **Relations** (View menu or toolbar).
+    - Password policy and machine account quota: select the domain, details panel.
 
     > A brand-new domain does not meet ANSSI recommendations: checking it is the first habit to build.
     """,
-    Fresh(),
+    FreshInstall(),
     Obj("o1", 3, "Le mot de passe du compte Administrator doit pouvoir expirer", "The Administrator password must be able to expire",
         "Section Sécurité de Administrator : option « Le mot de passe n'expire jamais ».", "Administrator's Security section: \"Password never expires\" option.",
         new LabCheck { Type = LabCheckType.RuleClear, RuleId = "PWD-01" }),
@@ -116,7 +132,15 @@ Save("01-premier-audit", LabLevel.Beginner, 20,
         new LabCheck { Type = LabCheckType.MemberOf, Object = "Administrator", ObjectType = ADObjectType.User, Group = "Domain Admins" }),
     Obj("o5", 2, "L'audit ne remonte plus aucun constat (score 100)", "The audit reports no finding at all (score 100)",
         "Relancez l'audit : chaque règle levée fait remonter le score.", "Run the audit again: each cleared rule raises the score.",
-        new LabCheck { Type = LabCheckType.ScoreAtLeast, Score = 100 }));
+        new LabCheck { Type = LabCheckType.ScoreAtLeast, Score = 100 }),
+    Obj("o6", 2, "La politique de mot de passe du domaine impose une longueur suffisante", "The domain password policy requires a sufficient length",
+        "Sélectionnez le domaine : politique de mot de passe. AD propose 7 caractères ; l'ANSSI en recommande au moins 12.",
+        "Select the domain: password policy. AD defaults to 7 characters; ANSSI recommends at least 12.",
+        new LabCheck { Type = LabCheckType.RuleClear, RuleId = "PWD-08" }),
+    Obj("o7", 1, "Seuls les comptes délégués peuvent joindre des ordinateurs au domaine", "Only delegated accounts can join computers to the domain",
+        "Sélectionnez le domaine : quota de jonction de machines (ms-DS-MachineAccountQuota), 10 par défaut.",
+        "Select the domain: machine account quota (ms-DS-MachineAccountQuota), 10 by default.",
+        new LabCheck { Type = LabCheckType.RuleClear, RuleId = "ACC-03" }));
 
 // ─── 2. Kerberoasting et AS-REP roasting ─────────────────────────────────────
 {

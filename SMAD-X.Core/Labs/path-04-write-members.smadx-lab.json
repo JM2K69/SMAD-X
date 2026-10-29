@@ -4370,7 +4370,8 @@
       "Hint": {
         "en-US": "The delegation on the member attribute stays."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "DelegationExists",
         "RuleId": null,
@@ -4396,7 +4397,8 @@
       "Hint": {
         "en-US": "Removing the assistant from the group does not fix the cause."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "MemberOf",
         "RuleId": null,
@@ -4416,5 +4418,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 8
+  "MaxPoints": 6
 }

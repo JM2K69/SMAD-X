@@ -4477,7 +4477,8 @@
       "Hint": {
         "fr-FR": "Sans lui, plus de sauvegarde des contr\u00F4leurs de domaine."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4503,7 +4504,8 @@
       "Hint": {
         "fr-FR": "Le compte d\u0027administration est \u00E0 sa place sur un serveur du Tier 0 : le probl\u00E8me est ailleurs."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "MemberOf",
         "RuleId": null,
@@ -4529,7 +4531,8 @@
       "Hint": {
         "fr-FR": "La d\u00E9l\u00E9gation de cr\u00E9ation des comptes d\u0027ordinateur sur l\u0027OU des serveurs reste en place."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "DelegationExists",
         "RuleId": null,
@@ -4549,5 +4552,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 11
+  "MaxPoints": 8
 }

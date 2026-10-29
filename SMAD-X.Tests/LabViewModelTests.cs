@@ -75,7 +75,7 @@ public class LabViewModelTests
         var report = await File.ReadAllTextAsync(path);
         Assert.Contains("Camille Dupont", report);
         Assert.Contains("`01-premier-audit`", report);
-        Assert.Contains("0 / 9", report);             // la garde, acquise au départ, ne rapporte rien
+        Assert.Contains("0 / 12", report);            // la garde, acquise au départ, ne rapporte rien
         Assert.Contains("✘", report);
         Assert.Contains(_dialogs.Opened, o => o.StartsWith("Save:01-premier-audit_Camille Dupont_"));
     }

@@ -4354,7 +4354,8 @@
       "Hint": {
         "en-US": "HR needs it every Monday."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4380,7 +4381,8 @@
       "Hint": {
         "en-US": "The network administrator needs their account."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4400,5 +4402,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 10
+  "MaxPoints": 8
 }

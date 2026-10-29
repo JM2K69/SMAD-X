@@ -4381,7 +4381,8 @@
       "Hint": {
         "en-US": "The problem is not the network team, but what its group inherits."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "MemberOf",
         "RuleId": null,
@@ -4401,5 +4402,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 9
+  "MaxPoints": 8
 }

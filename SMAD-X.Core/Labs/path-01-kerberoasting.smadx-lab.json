@@ -4311,7 +4311,8 @@
       "Hint": {
         "en-US": "Deleting the account would stop the application: remove the rights it should not have instead."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4331,5 +4332,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 9
+  "MaxPoints": 8
 }

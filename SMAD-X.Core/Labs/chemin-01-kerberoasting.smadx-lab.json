@@ -4311,7 +4311,8 @@
       "Hint": {
         "fr-FR": "Supprimer le compte arr\u00EAterait l\u0027application : retirez-lui plut\u00F4t les droits qu\u0027il n\u0027a pas \u00E0 avoir."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4331,5 +4332,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 9
+  "MaxPoints": 8
 }

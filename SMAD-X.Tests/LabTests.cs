@@ -74,6 +74,23 @@ public class BuiltInLabTests
         Assert.Equal(lab.ReferenceDate.AddDays(-1), Flatten(lab.Start.Domain).Single(o => o.Name == "svc-sql").LastLogonTimestamp);
     }
 
+    /// <summary>
+    /// Une vérification de garde atteinte au départ est une garde : sans point, elle annule ce qu'elle protège. Les
+    /// fichiers au format v1 les devinaient au chargement ; les générateurs doivent les marquer.
+    /// </summary>
+    [Fact]
+    public void BuiltInLabs_MarkEveryGuard()
+    {
+        var labs = _service.BuiltInLabs();
+        Assert.NotEmpty(labs);
+        foreach (var lab in labs)
+            foreach (var o in lab.Objectives.Where(o => LabAuthoring.CanBeGuard(o.Check) && LabGrader.IsMet(o.Check, lab.Start.Domain, lab.ReferenceDate)))
+            {
+                Assert.True(o.Guard, $"{lab.Id} {o.Id} n'est pas marquée comme garde");
+                Assert.Equal(0, o.Points);
+            }
+    }
+
     [Fact]
     public void Lab01_FirstAudit()
     {
@@ -83,6 +100,9 @@ public class BuiltInLabTests
             admin.AccountFlags = ADAccountFlags.NotDelegated;
             admin.MemberOf.Remove("Enterprise Admins");
             admin.MemberOf.Remove("Schema Admins");
+            // Un vrai domaine neuf : 7 caractères et un quota de 10 machines par utilisateur
+            d.PSOMinPasswordLength = 12;
+            d.MachineAccountQuota = 0;
         });
 
         Assert.Equal(0, start.Points); // la garde « Administrator reste dans Domain Admins », atteinte au départ, ne rapporte rien

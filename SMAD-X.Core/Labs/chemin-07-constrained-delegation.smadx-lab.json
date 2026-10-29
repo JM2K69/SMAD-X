@@ -4394,7 +4394,8 @@
       "Hint": {
         "fr-FR": "Les \u00E9l\u00E8ves ont besoin de l\u0027intranet."
       },
-      "Points": 1,
+      "Points": 0,
+      "Guard": true,
       "Check": {
         "Type": "ObjectExists",
         "RuleId": null,
@@ -4414,5 +4415,5 @@
     }
   ],
   "Questions": [],
-  "MaxPoints": 9
+  "MaxPoints": 8
 }
