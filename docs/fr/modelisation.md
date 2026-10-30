@@ -18,7 +18,7 @@ Ces règles de placement sont celles du schéma d'AD : SMAD-X refuse une OU dans
 
 ## La politique de mot de passe
 
-Sélectionnez le **domaine** : la section **Politique de mot de passe** du panneau donne la politique par défaut (Default Domain Policy), qui s'applique à tous les comptes sans PSO. Un **PSO** a la même section, avec sa priorité. Comme dans AD, la politique effective d'un compte est le PSO de plus petite priorité appliqué au compte lui-même, sinon à l'un de ses groupes, sinon celle du domaine.
+Sélectionnez le **domaine** : la section **Politique de mot de passe** du panneau donne la politique par défaut (Default Domain Policy), qui s'applique à tous les comptes sans PSO. Un **PSO** a la même section, avec sa priorité. Comme dans AD, la politique effective d'un compte est le PSO de plus petite priorité appliqué au compte lui-même, sinon à l'un de ses groupes, sinon celle du domaine. Domain Users compte parmi les groupes de tout utilisateur : c'est son groupe principal, même si l'attribut `member` du groupe ne le cite pas.
 
 Le domaine porte aussi **ms-DS-MachineAccountQuota** : le nombre d'ordinateurs que tout utilisateur peut joindre au domaine (10 par défaut, à mettre à 0), et la version de Windows Server qui l'a promu, quand elle est connue.
 

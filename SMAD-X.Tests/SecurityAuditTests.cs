@@ -576,6 +576,40 @@ public class AuditReportTests
         Assert.Same(domain, new AuditContext(domain, Now).EffectivePasswordPolicy(admin)); // sinon la politique du domaine
     }
 
+    [Fact]
+    public void EffectivePasswordPolicy_ReachesUsersThroughTheirPrimaryGroup()
+    {
+        // Vérifié sur un vrai domaine 2022 (Get-ADUserResultantPasswordPolicy) : un PSO lié à Domain Users s'applique
+        // à Administrator et à un nouveau compte, membres de Domain Users par leur seul primaryGroupID
+        var domain = new ADDataService().CreateFreshDomainStructure("corp.local");
+        var users = Flatten(domain).First(o => o is { Name: "Users", Type: ADObjectType.Container });
+        Add(users, new ADObject("jdupont", ADObjectType.User));
+        var everyone = Pso(domain, "PSO-Utilisateurs", 50, 12, 365, "Domain Users");
+        var context = new AuditContext(domain, Now);
+        ADObject Account(string name) => context.Objects.Single(o => o.IsAccount && o.Name == name);
+
+        Assert.Same(everyone, context.EffectivePasswordPolicy(Account("Administrator")));
+        Assert.Same(everyone, context.EffectivePasswordPolicy(Account("jdupont")));
+        Assert.Same(domain, context.EffectivePasswordPolicy(Account("DC01"))); // un PSO ne s'applique qu'aux utilisateurs
+
+        var admins = Pso(domain, "PSO-Admins", 10, 16, 365, "Domain Admins");
+        Assert.Same(admins, new AuditContext(domain, Now).EffectivePasswordPolicy(Account("Administrator"))); // la plus petite priorité
+    }
+
+    [Theory]
+    [InlineData(12, 365, false)]
+    [InlineData(7, 365, true)]
+    public void PsoOnDomainUsers_CoversTheAdministrator_ButNotTheDomainPolicy(int length, int maxAge, bool weak)
+    {
+        var domain = new ADDataService().CreateFreshDomainStructure("corp.local");
+        Pso(domain, "PSO-Utilisateurs", 50, length, maxAge, "Domain Users");
+
+        var failed = new ADSecurityAuditService().Run(domain, Now).FailedRules.Select(r => r.Id).ToList();
+
+        Assert.Equal(weak, failed.Contains("PWD-09"));
+        Assert.Contains("PWD-08", failed); // la politique du domaine reste à 7 caractères
+    }
+
     [Theory]
     [InlineData(16, 365, false)]
     [InlineData(7, 365, true)]       // moins de 8 caractères

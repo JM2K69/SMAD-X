@@ -111,7 +111,6 @@ namespace SMADX.Services.Audit
         public ADObject? Principal(string name) =>
             Objects.FirstOrDefault(o => (o.IsAccount || o.Type == ADObjectType.Group) && string.Equals(o.Name, name, StringComparison.OrdinalIgnoreCase));
 
-        /// <summary>Âge en jours d'une date (null si inconnue).</summary>
         /// <summary>
         /// Politique de mot de passe effective d'un compte, comme AD la calcule (msDS-ResultantPSO) : le PSO de plus
         /// petite priorité appliqué au compte lui-même, sinon à l'un de ses groupes, sinon la politique du domaine.
@@ -120,11 +119,25 @@ namespace SMADX.Services.Audit
         {
             var psos = Objects.Where(o => o.Type == ADObjectType.PasswordSettingsObject).ToList();
             var direct = psos.Where(p => p.PSOAppliesTo.Contains(account.Name, StringComparer.OrdinalIgnoreCase)).ToList();
-            var groups = EffectiveGroups(account).Select(g => g.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var groups = PasswordPolicyGroups(account).Select(g => g.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
             var candidates = direct.Count > 0 ? direct : psos.Where(p => p.PSOAppliesTo.Any(groups.Contains)).ToList();
             return candidates.OrderBy(p => p.PSOPrecedence ?? int.MaxValue).FirstOrDefault() ?? Domain;
         }
 
+        /// <summary>
+        /// Groupes dont un compte reçoit un PSO : ses groupes effectifs et, pour un utilisateur, Domain Users, son groupe
+        /// principal (primaryGroupID 513), avec les groupes qui le contiennent. AD les compte, vérifié sur un domaine 2022 ;
+        /// SMAD-X n'inscrit pas le groupe principal dans MemberOf.
+        /// </summary>
+        private IEnumerable<ADObject> PasswordPolicyGroups(ADObject account)
+        {
+            var groups = EffectiveGroups(account);
+            return account.Type == ADObjectType.User && Group("Domain Users") is { } primaryGroup
+                ? groups.Append(primaryGroup).Concat(EffectiveGroups(primaryGroup))
+                : groups;
+        }
+
+        /// <summary>Âge en jours d'une date (null si inconnue).</summary>
         public int? AgeInDays(DateTime? date) => date is { } d ? (int)(Now - d).TotalDays : null;
 
         private static IEnumerable<ADObject> Flatten(ADObject root) =>

@@ -18,7 +18,7 @@ These placement rules are those of the AD schema: SMAD-X refuses an OU in a cont
 
 ## The password policy
 
-Select the **domain**: the **Password policy** section of the panel gives the default policy (Default Domain Policy), which applies to every account without a PSO. A **PSO** has the same section, with its precedence. As in AD, an account's effective policy is the PSO with the lowest precedence applied to the account itself, otherwise to one of its groups, otherwise the domain's.
+Select the **domain**: the **Password policy** section of the panel gives the default policy (Default Domain Policy), which applies to every account without a PSO. A **PSO** has the same section, with its precedence. As in AD, an account's effective policy is the PSO with the lowest precedence applied to the account itself, otherwise to one of its groups, otherwise the domain's. Domain Users counts among the groups of every user: it is their primary group, even though the group's `member` attribute does not list them.
 
 The domain also holds **ms-DS-MachineAccountQuota**: the number of computers any user can join to the domain (10 by default, to be set to 0).
 
