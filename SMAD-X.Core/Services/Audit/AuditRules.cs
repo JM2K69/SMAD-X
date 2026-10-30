@@ -440,7 +440,9 @@ namespace SMADX.Services.Audit
             {
                 Id = "PRIV-01", Severity = AuditSeverity.High, AnssiLevel = 2,
                 References = new[] { Anssi("vuln_privileged_members_no_admincount", "Comptes membres de groupes privilégiés ayant un attribut adminCount vide ou valant 0"), MsProtectedAccounts, NistPrivilegedAccounts },
-                Evaluate = c => c.PrivilegedAccounts.Where(o => !o.AdminCount).Select(o => Finding(o))
+                // SDProp ignore l'appartenance par le groupe principal : un DC, membre de Domain Controllers par ce seul
+                // biais, n'a jamais adminCount ; l'OU Domain Controllers le protège
+                Evaluate = c => c.PrivilegedAccounts.Where(o => !o.AdminCount && !IsDomainController(o)).Select(o => Finding(o))
             },
             new()
             {

@@ -180,6 +180,7 @@ namespace SMADX.Studio
                                 "Choose the misconfiguration: Studio builds a healthy, populated domain, injects only that misconfiguration, then suggests the statement and objectives."),
             ["Recipe.Domain"] = ("Nom du domaine", "Domain name"),
             ["Recipe.Language"] = ("Langue de l'exercice", "Lab language"),
+            ["Recipe.Server"] = ("Domaine promu par", "Domain promoted by"),
             ["Recipe.Create"] = ("Créer l'exercice", "Create the lab"),
             ["Recipe.Cancel"] = ("Annuler", "Cancel"),
             ["Recipe.Check"] = ("Cochez plusieurs recommandations pour les combiner dans le même exercice ; sans case cochée, la ligne surlignée est utilisée.",

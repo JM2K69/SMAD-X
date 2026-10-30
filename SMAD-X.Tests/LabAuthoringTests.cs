@@ -29,6 +29,27 @@ public class LabAuthoringTests
         Assert.Equal(AuditRules.All.Select(r => r.Id).Order(), LabRecipes.All.Select(r => r.RuleId).Order());
     }
 
+    /// <summary>Le domaine sain de chaque version de Windows Server est propre, et chaque recette y injecte son manque.</summary>
+    [Theory]
+    [InlineData(WindowsServerVersion.Server2019)]
+    [InlineData(WindowsServerVersion.Server2022)]
+    [InlineData(WindowsServerVersion.Server2025)]
+    public void EveryRecipe_WorksOnTheDomainOfEveryServerVersion(WindowsServerVersion version)
+    {
+        foreach (var recipe in LabRecipes.All)
+        {
+            var builder = new LabDomainBuilder("fr-FR", Reference);
+            var domain = builder.Healthy("version.local", version);
+            Assert.Equal(version, domain.ServerVersion);
+
+            recipe.Inject(builder, domain);
+
+            Assert.Contains(new ADSecurityAuditService().Run(domain, Reference).FailedRules, r => r.Id == recipe.RuleId);
+        }
+        var lab = LabRecipes.CreateLab(LabRecipes.All[0], "en-US", "version.local", Reference, version);
+        Assert.Equal(version, lab.Lab.Start.Domain.ServerVersion);
+    }
+
     [Theory]
     [MemberData(nameof(Recipes))]
     public void Recipe_InjectsExactlyTheTargetedMisconfiguration(string ruleId, string culture)

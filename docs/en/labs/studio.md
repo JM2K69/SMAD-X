@@ -24,7 +24,7 @@ Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the 
 
 ![Choosing the recommendation](../assets/screens/studio-recipe.png)
 
-Each audit rule has its recipe, with the matching ANSSI control point and its level (N1 to N4). The list can be filtered by rule id, ANSSI point or title word. Choose the lab language and the domain name: Studio builds a realistic directory (departments, users, workstations), checks that it is healthy, then injects **only** the chosen misconfiguration. This starting domain comes from a new AD that Studio hardens: built-in accounts fixed, a 12-character password policy with lockout, a join quota of 0, delegation groups for the service desk and IT.
+Each audit rule has its recipe, with the matching ANSSI control point and its level (N1 to N4). The list can be filtered by rule id, ANSSI point or title word. Choose the lab language, the Windows Server version that promoted the domain (2019, 2022 or 2025) and the domain name: Studio builds a realistic directory (departments, users, workstations), checks that it is healthy, then injects **only** the chosen misconfiguration. This starting domain comes from a new AD that Studio hardens: built-in accounts fixed, a 12-character password policy with lockout, a join quota of 0, delegation groups for the service desk and IT.
 
 #### Combining several recommendations
 
@@ -46,7 +46,7 @@ Studio also produces the **fixed domain**: the starting domain with the expected
 
 ![Lab tab](../assets/screens/studio-lab.png)
 
-Title, identifier (the file name), language, menu series (general labs or attack paths), level and duration. The starting domain summary gives the number of objects, the attack paths outside Tier 0 and the audit score.
+Title, identifier (the file name), language, menu series (general labs or attack paths), level and duration. The starting domain summary gives the Windows Server version that promoted it, the number of objects, the attack paths outside Tier 0 and the audit score.
 
 A lab is either **bilingual** or exists in **one language** only. The *Language of the texts being edited* list, at the top of the window, chooses which texts you edit.
 
@@ -267,6 +267,7 @@ SMAD-X.Studio grade labs/anssi-krb-01/1-trainer/anssi-krb-01.smadx-lab.json subm
 |---|---|
 | `--lang fr` or `--lang en` | language of the lab and of the messages |
 | `--domain <name>` | domain name created by a recipe (`corp.example.lab` by default) |
+| `--server 2019`, `2022` or `2025` | Windows Server version that promoted this domain (`2022` by default) |
 | `--out <folder>` | folder in which the lab folders are created (the current folder by default) |
 | `--date yyyy-mm-dd` | reference date: the same date gives the same file, byte for byte |
 | `--solution <file>` | fixed domain to grade during validation |

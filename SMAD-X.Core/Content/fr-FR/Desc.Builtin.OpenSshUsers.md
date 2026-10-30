@@ -1,0 +1,1 @@
+Les membres de ce groupe peuvent se connecter à cet ordinateur avec SSH. Créé par Windows Server 2025, où OpenSSH est installé d'office.

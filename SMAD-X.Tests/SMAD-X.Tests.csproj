@@ -27,6 +27,7 @@
   <!-- Domaines d'exemple des chemins d'attaque, vérifiés par AttackPathSampleTests -->
   <ItemGroup>
     <None Include="..\Samples\AttackPaths\**\*.smad-x.json" LinkBase="Samples\AttackPaths" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Fidelity\*.smad-x.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

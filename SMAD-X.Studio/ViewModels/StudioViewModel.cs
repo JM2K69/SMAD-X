@@ -15,7 +15,8 @@ using SMADX.Services.Labs;
 namespace SMADX.Studio.ViewModels
 {
     /// <summary>Recettes choisies dans la fenêtre « Nouvel exercice à partir d'une recommandation » : une seule, ou plusieurs à combiner.</summary>
-    public sealed record RecipeRequest(IReadOnlyList<LabRecipe> Recipes, string Culture, string DomainName);
+    public sealed record RecipeRequest(IReadOnlyList<LabRecipe> Recipes, string Culture, string DomainName,
+        WindowsServerVersion Version = WindowsServerProfile.DefaultVersion);
 
     /// <summary>Un exercice récent, sur l'écran d'accueil : son titre et son dossier (ou son fichier, s'il est enregistré seul).</summary>
     public sealed record RecentLabItem(string Title, string Path);
@@ -220,7 +221,8 @@ namespace SMADX.Studio.ViewModels
         public string DomainSummary => Lab == null ? "" : string.Format(Text.T(
             "{0} — {1} objets, {2} chemin(s) d'attaque hors Tier 0, score d'audit {3} / 100",
             "{0} — {1} objects, {2} attack path(s) outside Tier 0, audit score {3} / 100"),
-            Lab.Start.Domain.Name, LabAuthoring.AllObjects(Lab.Start.Domain).Count(),
+            WindowsServerProfile.NameOf(Lab.Start.Domain.ServerVersion) is { } server ? $"{Lab.Start.Domain.Name} ({server})" : Lab.Start.Domain.Name,
+            LabAuthoring.AllObjects(Lab.Start.Domain).Count(),
             new AttackPathService(Lab.Start.Domain, Clock()).PathsOutsideTier0().Count,
             new ADSecurityAuditService().Run(Lab.Start.Domain, Clock()).Score);
 
@@ -251,7 +253,7 @@ namespace SMADX.Studio.ViewModels
             if (await _dialogs.ChooseRecipeAsync() is not { } request) return;
             await CreateAsync(() =>
             {
-                var created = LabRecipes.CreateLab(request.Recipes, request.Culture, request.DomainName, Clock().Date);
+                var created = LabRecipes.CreateLab(request.Recipes, request.Culture, request.DomainName, Clock().Date, request.Version);
                 Load(created.Lab, null, created.TeacherNotes);
                 SetFixedDomain(created.Solution, Text["Validation.FixedDomain.Generated"]);
                 EditCulture = request.Culture;

@@ -21,12 +21,13 @@
 
 === "Créer un domaine"
 
-    **Fichier > Nouveau domaine...** (`Ctrl+N`), saisissez le nom DNS (par exemple `corp.local`) et choisissez d'appliquer ou non le classement en tiers. SMAD-X crée un AD DS tel qu'il sort de l'installation, sans aucune modification :
+    **Fichier > Nouveau domaine...** (`Ctrl+N`), saisissez le nom DNS (par exemple `corp.local`), choisissez la version de Windows Server du premier contrôleur de domaine (2019, 2022 ou 2025) et d'appliquer ou non le classement en tiers. SMAD-X crée l'AD DS que cette version installe, sans aucune modification :
 
     - les conteneurs Builtin (tous ses groupes : Administrators, Account Operators, Print Operators, Pre-Windows 2000 Compatible Access…), Users (comptes et groupes intégrés), Computers, ForeignSecurityPrincipals, Keys, LostAndFound, Managed Service Accounts, Program Data, Infrastructure, NTDS Quotas, TPM Devices ;
     - System, avec AdminSDHolder, Password Settings Container et Policies (Default Domain Policy et Default Domain Controllers Policy) ;
     - l'OU Domain Controllers et DC01 ;
     - la politique de mot de passe par défaut : 7 caractères, complexité, historique de 24, durée de vie de 42 jours, pas de verrouillage ;
+    - ce qui est propre à la version : le conteneur `System\SOA-Policies` sous 2022, les groupes OpenSSH Users, External Trust Accounts et Forest Trust Accounts sous 2025 ;
     - le quota de jonction : tout utilisateur peut joindre 10 ordinateurs au domaine (ms-DS-MachineAccountQuota).
 
     Rien n'est durci : l'audit d'un domaine neuf montre ce qu'une installation laisse à corriger.

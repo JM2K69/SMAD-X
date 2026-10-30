@@ -19,15 +19,15 @@
   "Start": {
     "Version": 3,
     "Domain": {
-      "Id": "bf1bc1a0-0624-4961-a909-2a0eb4b6cb95",
+      "Id": "d958c8a1-0bb2-4e1c-a10d-ce3b5ea1532e",
       "Type": "Domain",
       "Children": [
         {
-          "Id": "41a17b9d-6ac9-481c-9845-958a86a0f015",
+          "Id": "9762aa42-ad82-4c21-a45d-1214377d8114",
           "Type": "Container",
           "Children": [
             {
-              "Id": "1d35f996-3e92-4e16-95b5-18dde0158319",
+              "Id": "c5d521b8-5e34-4c55-a400-3dcba9acd697",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -41,7 +41,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -62,14 +62,42 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "bcf7ab23-d7b0-44e8-8f5d-51b176140bbc",
+              "Id": "ca72024c-3a71-4b2b-8b73-b1efa485736a",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Account Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Account Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Account Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -97,14 +125,42 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "db074e89-cc82-47b7-b537-fa5cd22c521c",
+              "Id": "827e4f86-ee7a-4b62-b211-7f9cba82dd10",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Administrators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Administrators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Administrators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -132,14 +188,42 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "55b77902-8119-45b3-89f2-0b553a894fcb",
+              "Id": "16bfe101-08fb-42c3-8251-0b06793c6938",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Backup Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Backup Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Backup Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -167,7 +251,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "06de3439-d71f-426d-b39c-b4426e50cd4e",
+              "Id": "4a1f02c6-581c-441c-b1e2-c0d34d67b139",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -181,7 +265,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -202,7 +286,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "8657d810-8236-413f-8b19-1587f169b9f8",
+              "Id": "9d395dad-a20b-4a99-9cbc-24bb8ba6cc3e",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -216,7 +300,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -237,7 +321,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "48cd5136-bff1-4a98-b7b7-466d3c3e0935",
+              "Id": "8f39b233-20e9-4575-960d-2f3420d207ba",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -251,7 +335,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -272,7 +356,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "c4afa7c2-14b4-4cfc-be5a-711883e5deee",
+              "Id": "e10b5841-b09c-4a0e-916f-716cf4f939e3",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -286,7 +370,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -307,7 +391,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "bbad7694-7de0-4e8f-8a1e-167b98be2df7",
+              "Id": "11ff30f0-5784-447c-bbd6-35d8c1f7c99b",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -321,7 +405,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -342,7 +426,7 @@
               "Tier": "Tier 2"
             },
             {
-              "Id": "471ced7b-1a8d-4025-953d-aa754cdac3bc",
+              "Id": "48b00bdd-816e-4451-84c9-02570e740a93",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -356,7 +440,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -377,7 +461,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "93296b87-4dd4-4d88-9388-3faef01c2f97",
+              "Id": "503351b7-33dc-4aa3-b7c7-26858fa4b403",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -391,7 +475,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -412,7 +496,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "5820f2ad-012d-441c-bc54-eb6fa4e505c3",
+              "Id": "99135e58-96b7-4e0d-a0ca-08d2a264f03c",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -447,7 +531,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "81312755-9ae4-482c-a870-36b98421d4a3",
+              "Id": "0e52bcf8-d14f-4e5d-80b8-6d7efcd07531",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -461,7 +545,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -482,7 +566,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "168d2f19-3223-4c92-b491-379c34fd7b7e",
+              "Id": "d816b001-c1b5-44fb-84d4-9dcee9a0e75a",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -496,7 +580,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -517,7 +601,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "b269d3a0-eb11-401f-bb47-826d2d353d63",
+              "Id": "d2672169-56cc-49bf-9a4c-a1a9fba1beaa",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -531,7 +615,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -552,7 +636,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "6dd0f231-ace4-40de-91a2-df64108dec72",
+              "Id": "32117a86-f224-4aac-9216-cfe909a46a1b",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -587,14 +671,42 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "09edcc16-1cac-4102-b634-a6ec41dcc796",
+              "Id": "b3b5593d-ad6d-40c4-b2d1-0850fc645c89",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Print Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Print Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Print Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -622,7 +734,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "cae6994c-14a1-459f-b334-203666ba9094",
+              "Id": "1e0f3a9d-3279-4083-ae6e-9daf024df5e8",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -636,7 +748,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -657,7 +769,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "c8036c59-a0c5-4661-a64b-e52dbb854a8d",
+              "Id": "9e5705d2-b3a5-4b08-8ba0-b3a92bd8be92",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -671,7 +783,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -692,7 +804,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "ac82b329-5dec-4642-976c-8f54ec44408e",
+              "Id": "aee9ec48-cb41-4e05-b5e4-54091ca3623f",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -706,7 +818,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -727,7 +839,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "c3ec9c4c-c2eb-4423-bf27-278bde0a4203",
+              "Id": "41df6d31-de3b-44e1-b984-1ff1af3eb411",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -741,7 +853,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -762,7 +874,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "7afb1a39-08d0-490f-9dd4-5b122a88dbb0",
+              "Id": "312c3269-2711-49b1-8fc5-3f3dd9ef210b",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -776,7 +888,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -797,14 +909,42 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "e616a048-d82d-4685-a14c-78083e5ddf22",
+              "Id": "5918f377-fee4-46a9-9e40-069a7816a7ab",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Replicator,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Replicator,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Replicator,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -832,14 +972,42 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "f7899905-60de-415a-8f62-518073818119",
+              "Id": "aec4143a-a072-40b0-bfab-2979e0bbc206",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Server Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Server Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Server Operators,CN=Builtin,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -867,7 +1035,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "24cf6b85-b1e7-4a0e-aa73-a0ddcc96a8a8",
+              "Id": "c223e708-98de-4f85-9944-2e29eb359bce",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -881,7 +1049,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -902,7 +1070,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "552657e5-846f-4424-bf67-d1e5b0eb4bbe",
+              "Id": "cc6f2cf2-5564-4de0-b6c0-aef299f291de",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -937,7 +1105,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "843b7875-2b93-4941-b97b-ae3b6c19e06c",
+              "Id": "6fa02479-5295-4fda-bb5c-e8bd34ea12cd",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -951,7 +1119,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -972,7 +1140,7 @@
               "Tier": "Tier 2"
             },
             {
-              "Id": "de434e14-e8ed-4101-a4b4-845e7627bb25",
+              "Id": "8843b75b-d374-4fa1-a3b7-0b920bb89416",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -1011,14 +1179,87 @@
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Enterprise Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Builtin,DC=contoso,DC=local",
+              "Right": "GenericAll",
+              "RightCategory": "FullControl",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Builtin,DC=contoso,DC=local",
+              "Right": "WriteDacl",
+              "RightCategory": "WriteDacl",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Domain Controllers",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Builtin,DC=contoso,DC=local",
+              "Right": "DS-Replication-Get-Changes-All",
+              "RightCategory": "Replication",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Enterprise Read-only Domain Controllers",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Builtin,DC=contoso,DC=local",
+              "Right": "DS-Replication-Get-Changes",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Authenticated Users",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Builtin,DC=contoso,DC=local",
+              "Right": "Update-Password-Not-Required-Bit",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Authenticated Users",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Builtin,DC=contoso,DC=local",
+              "Right": "Unexpire-Password",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Authenticated Users",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Builtin,DC=contoso,DC=local",
+              "Right": "Enable-Per-User-Reversibly-Encrypted-Password",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Incoming Forest Trust Builders",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Builtin,DC=contoso,DC=local",
+              "Right": "Create-Inbound-Forest-Trust",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": null
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
           "AdminCount": false,
           "GroupScope": null,
           "GroupCategory": null,
-          "Owner": "Domain Admins",
+          "Owner": "Administrators",
           "LastLogonTimestamp": null,
           "PwdLastSet": null,
           "PSOPrecedence": null,
@@ -1039,11 +1280,11 @@
           "Tier": null
         },
         {
-          "Id": "c8ef094d-7b2d-4f78-8bb7-a7a5a6965a85",
+          "Id": "79e30f23-9e21-48c1-93d6-e096e013571b",
           "Type": "Container",
           "Children": [
             {
-              "Id": "bd5dd4b1-ff72-4af2-8e09-1aee7c501a28",
+              "Id": "f3d57156-5b4f-4946-b63f-95a36f6a4cb8",
               "Type": "User",
               "Children": [],
               "MemberOf": [
@@ -1056,7 +1297,26 @@
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Administrator,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Administrator,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "PasswordNeverExpires",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -1084,7 +1344,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "39fdd8c9-e02f-4273-bd92-1ac28b6c6cd2",
+              "Id": "f19a65ff-98fb-4458-ab3e-162e0a896a68",
               "Type": "User",
               "Children": [],
               "MemberOf": [
@@ -1101,7 +1361,7 @@
               "AdminCount": false,
               "GroupScope": null,
               "GroupCategory": null,
-              "Owner": "Domain Admins",
+              "Owner": "Administrators",
               "LastLogonTimestamp": null,
               "PwdLastSet": "2026-09-22T00:00:00",
               "PSOPrecedence": null,
@@ -1122,14 +1382,35 @@
               "Tier": "Tier 2"
             },
             {
-              "Id": "5b9b79b0-b414-480a-bb3f-0a3a75ffdf54",
+              "Id": "0812f3c6-f58e-4134-8633-42f0a9f0f188",
               "Type": "User",
               "Children": [],
-              "MemberOf": [],
+              "MemberOf": [
+                "Denied RODC Password Replication Group"
+              ],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=krbtgt,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=krbtgt,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "AccountDisabled",
               "ServicePrincipalNames": [
                 "kadmin/changepw"
@@ -1159,16 +1440,45 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "bb61c964-fac5-4abc-957b-3bf084a3c831",
+              "Id": "0511d8e0-aa52-4385-8af9-38d8c20f0ed1",
               "Type": "Group",
               "Children": [],
               "MemberOf": [
-                "Administrators"
+                "Administrators",
+                "Denied RODC Password Replication Group"
               ],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Domain Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Domain Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Domain Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -1196,7 +1506,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "d4b0934e-ca22-4243-9007-d3b4e4568fd6",
+              "Id": "3e58c36d-d790-4b8d-9216-feff7dd032f4",
               "Type": "Group",
               "Children": [],
               "MemberOf": [
@@ -1233,7 +1543,7 @@
               "Tier": "Tier 2"
             },
             {
-              "Id": "5e9b0b8e-6812-4dba-9eac-ccf00f1e81fd",
+              "Id": "85b80714-3f1b-485c-8d79-ccb22a2f6ad5",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -1268,14 +1578,44 @@
               "Tier": "Tier 2"
             },
             {
-              "Id": "9e4e72f6-96bf-4648-a77c-b9b0d77d0e92",
+              "Id": "04f5956f-c270-47ab-a0b3-e7c344b27a5c",
               "Type": "Group",
               "Children": [],
-              "MemberOf": [],
+              "MemberOf": [
+                "Denied RODC Password Replication Group"
+              ],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Domain Controllers,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Domain Controllers,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Domain Controllers,CN=Users,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -1303,14 +1643,44 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "54858175-2e06-4114-aa6c-d31886babe2a",
+              "Id": "873b049d-1a99-4dd2-a2c1-a32d46007412",
               "Type": "Group",
               "Children": [],
-              "MemberOf": [],
+              "MemberOf": [
+                "Denied RODC Password Replication Group"
+              ],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Schema Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Schema Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Schema Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -1338,16 +1708,45 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "e5ffc5a9-4b47-4907-951c-bddbc70451a2",
+              "Id": "e8a93900-56a4-4f64-8d9d-b59c5df64dbf",
               "Type": "Group",
               "Children": [],
               "MemberOf": [
-                "Administrators"
+                "Administrators",
+                "Denied RODC Password Replication Group"
               ],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Enterprise Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Enterprise Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Enterprise Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -1375,10 +1774,12 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "e1877d5e-7368-452f-af6d-29974ce6abd6",
+              "Id": "c045bb38-d0ba-464c-bff5-6c9a9bfe7bec",
               "Type": "Group",
               "Children": [],
-              "MemberOf": [],
+              "MemberOf": [
+                "Denied RODC Password Replication Group"
+              ],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
@@ -1410,14 +1811,44 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "912c151d-d825-4f9a-b692-458758c1e49e",
+              "Id": "44eda735-9742-4ad5-8f4a-4b2d96fa9bf8",
               "Type": "Group",
               "Children": [],
-              "MemberOf": [],
+              "MemberOf": [
+                "Denied RODC Password Replication Group"
+              ],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Read-only Domain Controllers,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Read-only Domain Controllers,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Read-only Domain Controllers,CN=Users,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -1445,7 +1876,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "0d8abc14-9e30-4662-9ed7-b7a0b72abd2a",
+              "Id": "35cadddb-9e1f-4697-9360-0a13ccbb1199",
               "Type": "Group",
               "Children": [],
               "MemberOf": [
@@ -1482,7 +1913,7 @@
               "Tier": "Tier 2"
             },
             {
-              "Id": "a521d8ab-45a6-4315-9886-f3160e5382b7",
+              "Id": "f507e491-a407-49af-a7fc-13dcbcccf259",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -1517,7 +1948,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "a2d3ac20-71df-44ca-80c9-f2faa5f5df9e",
+              "Id": "6ad3e022-59c2-4449-961a-59b79c4d4ac2",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -1531,7 +1962,7 @@
               "AdminCount": false,
               "GroupScope": "DomainLocal",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "SYSTEM",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -1552,10 +1983,12 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "4e82d1da-2950-419a-8175-467889f67007",
+              "Id": "af668d54-65ca-470f-86a2-fc9de2626201",
               "Type": "Group",
               "Children": [],
-              "MemberOf": [],
+              "MemberOf": [
+                "Denied RODC Password Replication Group"
+              ],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
@@ -1587,7 +2020,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "9ac5ffc5-4efe-4d35-97a6-8dcd1176b6b8",
+              "Id": "9df4d4b1-df00-4d3d-b0a1-57157dd31a4a",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -1622,7 +2055,7 @@
               "Tier": "Tier 1"
             },
             {
-              "Id": "b1336bb0-7243-4a5a-a374-1512f70c4e20",
+              "Id": "f42d0495-dd4e-467d-b418-dc20f867a2a1",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -1657,7 +2090,7 @@
               "Tier": "Tier 1"
             },
             {
-              "Id": "86d605db-065c-4e46-88ee-86d36ab05dfd",
+              "Id": "5b7fce36-2f33-4876-82eb-37781045386e",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -1692,7 +2125,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "22af2920-209f-4ebd-a711-629a4a4cd7fc",
+              "Id": "80993e65-bbe4-4280-bc7a-162725825b6d",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -1727,7 +2160,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "197591f3-f37e-4514-abde-edbfbe32e6e6",
+              "Id": "44c34b6f-ed2b-4b0e-87ba-c51e1a502810",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -1762,14 +2195,42 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "c4328105-1aae-467b-839b-debed4a9fe5b",
+              "Id": "423256f8-2d19-4841-ab8a-be266ced624c",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Key Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Key Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Key Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -1797,14 +2258,42 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "8a2a2227-5f13-479c-bd27-f03fbadcc6a9",
+              "Id": "eef8cd4f-c655-42b4-b2c8-78c8b461da23",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Enterprise Key Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Enterprise Key Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Enterprise Key Admins,CN=Users,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -1832,7 +2321,7 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "92f27dff-7b99-4e9f-81b6-e5f3534fb28c",
+              "Id": "f820d8bf-7f64-4518-a548-79b31606a25c",
               "Type": "Group",
               "Children": [],
               "MemberOf": [],
@@ -1846,7 +2335,7 @@
               "AdminCount": false,
               "GroupScope": "Global",
               "GroupCategory": "Security",
-              "Owner": "Domain Admins",
+              "Owner": "SYSTEM",
               "LastLogonTimestamp": null,
               "PwdLastSet": null,
               "PSOPrecedence": null,
@@ -1865,83 +2354,59 @@
               "Description": "# \uD83D\uDC65 DnsUpdateProxy Group\n\n**Global** group created automatically when the domain is promoted.\n\n## Role\n- Members authorized to **register DNS records** on behalf of other clients\n- Typically used by **DHCP** servers for dynamic DNS updates\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE0 **Tier 1 \u2014 DNS squatting risk**\n\n- **Limit** members to authorized DHCP servers only\n- Records created by this group are initially ownerless \u2014 vector for **DNS hijacking**\n- Configure the DHCP server with a dedicated account rather than using this group if possible\n- If used, enable **DNS dynamic update credentials** on the DHCP server",
               "DistinguishedName": "CN=DnsUpdateProxy,CN=Users,DC=contoso,DC=local",
               "Tier": "Tier 1"
-            },
-            {
-              "Id": "419602be-b801-41a0-b9ed-1f80d13d6518",
-              "Type": "User",
-              "Children": [],
-              "MemberOf": [],
-              "LinkedGPOs": [],
-              "SiteName": null,
-              "PSOAppliesTo": [],
-              "Delegations": [],
-              "AccountFlags": "AccountDisabled, PasswordNotRequired, PasswordNeverExpires",
-              "ServicePrincipalNames": [],
-              "AllowedToDelegateTo": [],
-              "AdminCount": false,
-              "GroupScope": null,
-              "GroupCategory": null,
-              "Owner": "Domain Admins",
-              "LastLogonTimestamp": null,
-              "PwdLastSet": "2026-09-22T00:00:00",
-              "PSOPrecedence": null,
-              "PSOMinPasswordLength": null,
-              "PSOPasswordHistoryCount": null,
-              "PSOComplexityEnabled": null,
-              "PSOMaxPasswordAgeDays": null,
-              "PSOMinPasswordAgeDays": null,
-              "PSOLockoutThreshold": null,
-              "PSOLockoutDurationMinutes": null,
-              "PSOLockoutObservationWindowMinutes": null,
-              "MachineAccountQuota": null,
-              "CreatedDate": "2025-09-17T00:00:00",
-              "ModifiedDate": "2025-09-17T00:00:00",
-              "Name": "DefaultAccount",
-              "Description": "# \uD83D\uDC64 DefaultAccount\n\n**System-managed** account created automatically by Windows.\n\n## Role\n- Internal account used by Windows for certain processes\n- Disabled by default\n- Managed automatically by Windows \u2014 do not modify\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE1 **Keep disabled**\n\n- Never enable this account manually\n- Monitor any modification (activation, password change)",
-              "DistinguishedName": "CN=DefaultAccount,CN=Users,DC=contoso,DC=local",
-              "Tier": "Tier 2"
-            },
-            {
-              "Id": "c6bd5a85-135f-4a76-be99-683aa18e95e9",
-              "Type": "User",
-              "Children": [],
-              "MemberOf": [],
-              "LinkedGPOs": [],
-              "SiteName": null,
-              "PSOAppliesTo": [],
-              "Delegations": [],
-              "AccountFlags": "AccountDisabled, PasswordNeverExpires",
-              "ServicePrincipalNames": [],
-              "AllowedToDelegateTo": [],
-              "AdminCount": false,
-              "GroupScope": null,
-              "GroupCategory": null,
-              "Owner": "Domain Admins",
-              "LastLogonTimestamp": null,
-              "PwdLastSet": "2026-09-22T00:00:00",
-              "PSOPrecedence": null,
-              "PSOMinPasswordLength": null,
-              "PSOPasswordHistoryCount": null,
-              "PSOComplexityEnabled": null,
-              "PSOMaxPasswordAgeDays": null,
-              "PSOMinPasswordAgeDays": null,
-              "PSOLockoutThreshold": null,
-              "PSOLockoutDurationMinutes": null,
-              "PSOLockoutObservationWindowMinutes": null,
-              "MachineAccountQuota": null,
-              "CreatedDate": "2025-09-17T00:00:00",
-              "ModifiedDate": "2025-09-17T00:00:00",
-              "Name": "WDAGUtilityAccount",
-              "Description": "# \uD83D\uDC64 WDAGUtilityAccount\n\nSystem account for **Windows Defender Application Guard (WDAG)**.\n\n## Role\n- Used by the WDAG feature to isolate browsing sessions in a Hyper-V container\n- Managed automatically by Windows \u2014 do not modify\n- Disabled if WDAG is not in use\n\n## \u26A0\uFE0F Security\n\u003E \uD83D\uDFE1 **System account \u2014 do not modify**\n\n- Never enable or modify this account manually\n- Its presence is normal in Windows 10/11 and Windows Server 2016\u002B domains",
-              "DistinguishedName": "CN=WDAGUtilityAccount,CN=Users,DC=contoso,DC=local",
-              "Tier": "Tier 2"
             }
           ],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Users,DC=contoso,DC=local",
+              "Right": "WriteDacl",
+              "RightCategory": "WriteDacl",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            },
+            {
+              "TrusteeName": "Account Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Users,DC=contoso,DC=local",
+              "Right": "CreateChild:user",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            },
+            {
+              "TrusteeName": "Account Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Users,DC=contoso,DC=local",
+              "Right": "CreateChild:group",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            },
+            {
+              "TrusteeName": "Account Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Users,DC=contoso,DC=local",
+              "Right": "CreateChild:inetOrgPerson",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            },
+            {
+              "TrusteeName": "Print Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Users,DC=contoso,DC=local",
+              "Right": "CreateChild:printQueue",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -1969,14 +2434,69 @@
           "Tier": "Tier 2"
         },
         {
-          "Id": "0bfb11e6-5555-4804-98f7-0c9b1bbec04b",
+          "Id": "b6e85ec0-7d60-4e75-88f2-2dbd433e27e2",
           "Type": "Container",
           "Children": [],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Computers,DC=contoso,DC=local",
+              "Right": "WriteDacl",
+              "RightCategory": "WriteDacl",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            },
+            {
+              "TrusteeName": "Account Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Computers,DC=contoso,DC=local",
+              "Right": "CreateChild:user",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            },
+            {
+              "TrusteeName": "Account Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Computers,DC=contoso,DC=local",
+              "Right": "CreateChild:group",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            },
+            {
+              "TrusteeName": "Account Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Computers,DC=contoso,DC=local",
+              "Right": "CreateChild:inetOrgPerson",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            },
+            {
+              "TrusteeName": "Print Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Computers,DC=contoso,DC=local",
+              "Right": "CreateChild:printQueue",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            },
+            {
+              "TrusteeName": "Account Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Computers,DC=contoso,DC=local",
+              "Right": "CreateChild:computer",
+              "RightCategory": "ComputerManagement",
+              "IsInherited": false,
+              "Tier": "Tier 2"
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2004,11 +2524,11 @@
           "Tier": "Tier 2"
         },
         {
-          "Id": "f4e18078-4901-4a70-9595-7165dc305bd3",
+          "Id": "dfcbfb1b-d432-49c2-9df1-a65bcc45fbe0",
           "Type": "OrganizationalUnit",
           "Children": [
             {
-              "Id": "3a3af0c4-f46c-4248-ad8a-f0552550bdf4",
+              "Id": "1bf24a48-d283-426f-a2a7-6d7ae4534c6d",
               "Type": "Computer",
               "Children": [],
               "MemberOf": [
@@ -2024,13 +2544,27 @@
                 "HOST/DC01.contoso.local",
                 "RestrictedKrbHost/DC01",
                 "RestrictedKrbHost/DC01.contoso.local",
+                "HOST/DC01/CONTOSO",
+                "HOST/DC01.contoso.local/CONTOSO",
+                "HOST/DC01.contoso.local/contoso.local",
+                "ldap/DC01",
+                "ldap/DC01/CONTOSO",
                 "ldap/DC01.contoso.local",
+                "ldap/DC01.contoso.local/CONTOSO",
                 "ldap/DC01.contoso.local/contoso.local",
+                "ldap/DC01.contoso.local/ForestDnsZones.contoso.local",
+                "ldap/DC01.contoso.local/DomainDnsZones.contoso.local",
+                "ldap/8ac2fa3a-cc16-c8a6-e48e-0638c08d7168._msdcs.contoso.local",
                 "GC/DC01.contoso.local/contoso.local",
-                "DNS/DC01.contoso.local"
+                "DNS/DC01.contoso.local",
+                "E3514235-4B06-11D1-AB04-00C04FC2DCD2/8ac2fa3a-cc16-c8a6-e48e-0638c08d7168/contoso.local",
+                "RPC/8ac2fa3a-cc16-c8a6-e48e-0638c08d7168._msdcs.contoso.local",
+                "Dfsr-12F9A27C-BF97-4787-9364-D31B6C55EB04/DC01.contoso.local",
+                "TERMSRV/DC01",
+                "TERMSRV/DC01.contoso.local"
               ],
               "AllowedToDelegateTo": [],
-              "AdminCount": true,
+              "AdminCount": false,
               "GroupScope": null,
               "GroupCategory": null,
               "Owner": "Domain Admins",
@@ -2063,7 +2597,17 @@
           ],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "OU=Domain Controllers,DC=contoso,DC=local",
+              "Right": "WriteDacl",
+              "RightCategory": "WriteDacl",
+              "IsInherited": false,
+              "Tier": "Tier 0"
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2091,18 +2635,28 @@
           "Tier": "Tier 0"
         },
         {
-          "Id": "c0884b4d-a897-4972-80f2-3ed7b4df8a6f",
+          "Id": "638d6dcc-78f9-4129-b70d-817853cf4f12",
           "Type": "Container",
           "Children": [
             {
-              "Id": "2878eef7-9d46-4922-9b63-442b4062277f",
+              "Id": "aaf175d6-98d6-4477-85fa-008ba08bd7b1",
               "Type": "Container",
               "Children": [],
               "MemberOf": [],
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Password Settings Container,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -2130,7 +2684,7 @@
               "Tier": null
             },
             {
-              "Id": "30572658-e15f-4006-9fbb-c47ba1598e26",
+              "Id": "e7a8105c-1843-449c-9754-e70899cf3778",
               "Type": "Container",
               "Children": [],
               "MemberOf": [],
@@ -2139,20 +2693,56 @@
               "PSOAppliesTo": [],
               "Delegations": [
                 {
-                  "TrusteeName": "Enterprise Admins",
-                  "TrusteeType": "Group",
-                  "TargetDN": "CN=AdminSDHolder,CN=System,DC=contoso,DC=local",
-                  "Right": "GenericAll",
-                  "RightCategory": "FullControl",
-                  "IsInherited": false,
-                  "Tier": "Tier 0"
-                },
-                {
                   "TrusteeName": "Domain Admins",
                   "TrusteeType": "Group",
                   "TargetDN": "CN=AdminSDHolder,CN=System,DC=contoso,DC=local",
                   "Right": "WriteDacl",
                   "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=AdminSDHolder,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Everyone",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=AdminSDHolder,CN=System,DC=contoso,DC=local",
+                  "Right": "User-Change-Password",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Cert Publishers",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=AdminSDHolder,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteProperty:userCertificate",
+                  "RightCategory": "AttributeWrite",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Terminal Server License Servers",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=AdminSDHolder,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteProperty:terminalServer",
+                  "RightCategory": "AttributeWrite",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Terminal Server License Servers",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=AdminSDHolder,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteProperty:5805bc62-bdc9-4428-a5e2-856a0f4c185e",
+                  "RightCategory": "AttributeWrite",
                   "IsInherited": false,
                   "Tier": "Tier 0"
                 }
@@ -2184,18 +2774,876 @@
               "Tier": "Tier 0"
             },
             {
-              "Id": "006f57ee-0e54-42c0-929b-17702b9d201e",
+              "Id": "e0efdd1f-a7a4-44b6-a541-c588b7316e2a",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=ComPartitions,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "ComPartitions",
+              "Description": "",
+              "DistinguishedName": "CN=ComPartitions,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "5679d072-a990-4c85-b78c-7ea8dfd3805c",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=ComPartitionSets,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "ComPartitionSets",
+              "Description": "",
+              "DistinguishedName": "CN=ComPartitionSets,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "1b71bf56-0ad7-47f5-8312-539672911bb4",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=IP Security,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "IP Security",
+              "Description": "",
+              "DistinguishedName": "CN=IP Security,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "147650c8-e14d-47cc-a5ed-8e7053d2bfe2",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Meetings,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "Meetings",
+              "Description": "",
+              "DistinguishedName": "CN=Meetings,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "628ba499-9b63-41ca-9a93-9e77e8e2e769",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=MicrosoftDNS,CN=System,DC=contoso,DC=local",
+                  "Right": "GenericAll",
+                  "RightCategory": "FullControl",
+                  "IsInherited": false,
+                  "Tier": null
+                },
+                {
+                  "TrusteeName": "DnsAdmins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=MicrosoftDNS,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "SYSTEM",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "MicrosoftDNS",
+              "Description": "",
+              "DistinguishedName": "CN=MicrosoftDNS,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "66ae53f4-afcb-4f41-84b1-2c97f2c523b6",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=PSPs,CN=System,DC=contoso,DC=local",
+                  "Right": "GenericAll",
+                  "RightCategory": "FullControl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "PSPs",
+              "Description": "",
+              "DistinguishedName": "CN=PSPs,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "01da8f48-d487-43cf-8625-2d36e06a3eea",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "RAS and IAS Servers",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=RAS and IAS Servers Access Check,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "RAS and IAS Servers Access Check",
+              "Description": "",
+              "DistinguishedName": "CN=RAS and IAS Servers Access Check,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "7b62845a-4f61-41ca-a5a8-ad65fa763c59",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=RpcServices,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "RpcServices",
+              "Description": "",
+              "DistinguishedName": "CN=RpcServices,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "663f6c43-dbb5-4ef8-93ec-1d7daf7d42cc",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=WinsockServices,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "WinsockServices",
+              "Description": "",
+              "DistinguishedName": "CN=WinsockServices,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "cc12fd06-8d99-4f52-99be-2ce311abe2c4",
               "Type": "Container",
               "Children": [
                 {
-                  "Id": "4a52d205-9ec4-4aee-ad2f-9543c47bfbcc",
+                  "Id": "6cfe3a53-7c7f-434c-81bd-ba9fb3331adf",
+                  "Type": "Container",
+                  "Children": [],
+                  "MemberOf": [],
+                  "LinkedGPOs": [],
+                  "SiteName": null,
+                  "PSOAppliesTo": [],
+                  "Delegations": [
+                    {
+                      "TrusteeName": "Domain Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=ActiveDirectoryUpdate,CN=DomainUpdates,CN=System,DC=contoso,DC=local",
+                      "Right": "WriteDacl",
+                      "RightCategory": "WriteDacl",
+                      "IsInherited": false,
+                      "Tier": null
+                    }
+                  ],
+                  "AccountFlags": "None",
+                  "ServicePrincipalNames": [],
+                  "AllowedToDelegateTo": [],
+                  "AdminCount": false,
+                  "GroupScope": null,
+                  "GroupCategory": null,
+                  "Owner": "Domain Admins",
+                  "LastLogonTimestamp": null,
+                  "PwdLastSet": null,
+                  "PSOPrecedence": null,
+                  "PSOMinPasswordLength": null,
+                  "PSOPasswordHistoryCount": null,
+                  "PSOComplexityEnabled": null,
+                  "PSOMaxPasswordAgeDays": null,
+                  "PSOMinPasswordAgeDays": null,
+                  "PSOLockoutThreshold": null,
+                  "PSOLockoutDurationMinutes": null,
+                  "PSOLockoutObservationWindowMinutes": null,
+                  "MachineAccountQuota": null,
+                  "CreatedDate": "2025-09-17T00:00:00",
+                  "ModifiedDate": "2025-09-17T00:00:00",
+                  "Name": "ActiveDirectoryUpdate",
+                  "Description": "",
+                  "DistinguishedName": "CN=ActiveDirectoryUpdate,CN=DomainUpdates,CN=System,DC=contoso,DC=local",
+                  "Tier": null
+                },
+                {
+                  "Id": "771f857c-7564-4bd7-986b-a97608c122c4",
+                  "Type": "Container",
+                  "Children": [],
+                  "MemberOf": [],
+                  "LinkedGPOs": [],
+                  "SiteName": null,
+                  "PSOAppliesTo": [],
+                  "Delegations": [
+                    {
+                      "TrusteeName": "Domain Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=Windows2003Update,CN=DomainUpdates,CN=System,DC=contoso,DC=local",
+                      "Right": "WriteDacl",
+                      "RightCategory": "WriteDacl",
+                      "IsInherited": false,
+                      "Tier": null
+                    }
+                  ],
+                  "AccountFlags": "None",
+                  "ServicePrincipalNames": [],
+                  "AllowedToDelegateTo": [],
+                  "AdminCount": false,
+                  "GroupScope": null,
+                  "GroupCategory": null,
+                  "Owner": "Domain Admins",
+                  "LastLogonTimestamp": null,
+                  "PwdLastSet": null,
+                  "PSOPrecedence": null,
+                  "PSOMinPasswordLength": null,
+                  "PSOPasswordHistoryCount": null,
+                  "PSOComplexityEnabled": null,
+                  "PSOMaxPasswordAgeDays": null,
+                  "PSOMinPasswordAgeDays": null,
+                  "PSOLockoutThreshold": null,
+                  "PSOLockoutDurationMinutes": null,
+                  "PSOLockoutObservationWindowMinutes": null,
+                  "MachineAccountQuota": null,
+                  "CreatedDate": "2025-09-17T00:00:00",
+                  "ModifiedDate": "2025-09-17T00:00:00",
+                  "Name": "Windows2003Update",
+                  "Description": "",
+                  "DistinguishedName": "CN=Windows2003Update,CN=DomainUpdates,CN=System,DC=contoso,DC=local",
+                  "Tier": null
+                }
+              ],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=DomainUpdates,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "DomainUpdates",
+              "Description": "",
+              "DistinguishedName": "CN=DomainUpdates,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "ca1b88f8-4eae-46a0-8b8d-8349e1ecfa79",
+              "Type": "Container",
+              "Children": [
+                {
+                  "Id": "e0cdc137-69cf-45e6-9409-ccd5aa3a0818",
+                  "Type": "Container",
+                  "Children": [],
+                  "MemberOf": [],
+                  "LinkedGPOs": [],
+                  "SiteName": null,
+                  "PSOAppliesTo": [],
+                  "Delegations": [
+                    {
+                      "TrusteeName": "Domain Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=PolicyTemplate,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                      "Right": "WriteDacl",
+                      "RightCategory": "WriteDacl",
+                      "IsInherited": false,
+                      "Tier": null
+                    },
+                    {
+                      "TrusteeName": "Group Policy Creator Owners",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=PolicyTemplate,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                      "Right": "CreateChild",
+                      "RightCategory": "Other",
+                      "IsInherited": false,
+                      "Tier": null
+                    }
+                  ],
+                  "AccountFlags": "None",
+                  "ServicePrincipalNames": [],
+                  "AllowedToDelegateTo": [],
+                  "AdminCount": false,
+                  "GroupScope": null,
+                  "GroupCategory": null,
+                  "Owner": "Domain Admins",
+                  "LastLogonTimestamp": null,
+                  "PwdLastSet": null,
+                  "PSOPrecedence": null,
+                  "PSOMinPasswordLength": null,
+                  "PSOPasswordHistoryCount": null,
+                  "PSOComplexityEnabled": null,
+                  "PSOMaxPasswordAgeDays": null,
+                  "PSOMinPasswordAgeDays": null,
+                  "PSOLockoutThreshold": null,
+                  "PSOLockoutDurationMinutes": null,
+                  "PSOLockoutObservationWindowMinutes": null,
+                  "MachineAccountQuota": null,
+                  "CreatedDate": "2025-09-17T00:00:00",
+                  "ModifiedDate": "2025-09-17T00:00:00",
+                  "Name": "PolicyTemplate",
+                  "Description": "",
+                  "DistinguishedName": "CN=PolicyTemplate,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                  "Tier": null
+                },
+                {
+                  "Id": "45daee97-0bda-49e5-9055-51b18f052fa4",
+                  "Type": "Container",
+                  "Children": [],
+                  "MemberOf": [],
+                  "LinkedGPOs": [],
+                  "SiteName": null,
+                  "PSOAppliesTo": [],
+                  "Delegations": [
+                    {
+                      "TrusteeName": "Domain Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=PolicyType,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                      "Right": "WriteDacl",
+                      "RightCategory": "WriteDacl",
+                      "IsInherited": false,
+                      "Tier": null
+                    },
+                    {
+                      "TrusteeName": "Group Policy Creator Owners",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=PolicyType,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                      "Right": "CreateChild",
+                      "RightCategory": "Other",
+                      "IsInherited": false,
+                      "Tier": null
+                    }
+                  ],
+                  "AccountFlags": "None",
+                  "ServicePrincipalNames": [],
+                  "AllowedToDelegateTo": [],
+                  "AdminCount": false,
+                  "GroupScope": null,
+                  "GroupCategory": null,
+                  "Owner": "Domain Admins",
+                  "LastLogonTimestamp": null,
+                  "PwdLastSet": null,
+                  "PSOPrecedence": null,
+                  "PSOMinPasswordLength": null,
+                  "PSOPasswordHistoryCount": null,
+                  "PSOComplexityEnabled": null,
+                  "PSOMaxPasswordAgeDays": null,
+                  "PSOMinPasswordAgeDays": null,
+                  "PSOLockoutThreshold": null,
+                  "PSOLockoutDurationMinutes": null,
+                  "PSOLockoutObservationWindowMinutes": null,
+                  "MachineAccountQuota": null,
+                  "CreatedDate": "2025-09-17T00:00:00",
+                  "ModifiedDate": "2025-09-17T00:00:00",
+                  "Name": "PolicyType",
+                  "Description": "",
+                  "DistinguishedName": "CN=PolicyType,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                  "Tier": null
+                },
+                {
+                  "Id": "7a24e15c-72d9-42a9-8a41-d7142958361f",
+                  "Type": "Container",
+                  "Children": [],
+                  "MemberOf": [],
+                  "LinkedGPOs": [],
+                  "SiteName": null,
+                  "PSOAppliesTo": [],
+                  "Delegations": [
+                    {
+                      "TrusteeName": "Domain Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=SOM,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                      "Right": "GenericAll",
+                      "RightCategory": "FullControl",
+                      "IsInherited": false,
+                      "Tier": null
+                    },
+                    {
+                      "TrusteeName": "Enterprise Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=SOM,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                      "Right": "GenericAll",
+                      "RightCategory": "FullControl",
+                      "IsInherited": false,
+                      "Tier": null
+                    },
+                    {
+                      "TrusteeName": "Group Policy Creator Owners",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=SOM,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                      "Right": "GenericWrite",
+                      "RightCategory": "GenericWrite",
+                      "IsInherited": false,
+                      "Tier": null
+                    }
+                  ],
+                  "AccountFlags": "None",
+                  "ServicePrincipalNames": [],
+                  "AllowedToDelegateTo": [],
+                  "AdminCount": false,
+                  "GroupScope": null,
+                  "GroupCategory": null,
+                  "Owner": "Domain Admins",
+                  "LastLogonTimestamp": null,
+                  "PwdLastSet": null,
+                  "PSOPrecedence": null,
+                  "PSOMinPasswordLength": null,
+                  "PSOPasswordHistoryCount": null,
+                  "PSOComplexityEnabled": null,
+                  "PSOMaxPasswordAgeDays": null,
+                  "PSOMinPasswordAgeDays": null,
+                  "PSOLockoutThreshold": null,
+                  "PSOLockoutDurationMinutes": null,
+                  "PSOLockoutObservationWindowMinutes": null,
+                  "MachineAccountQuota": null,
+                  "CreatedDate": "2025-09-17T00:00:00",
+                  "ModifiedDate": "2025-09-17T00:00:00",
+                  "Name": "SOM",
+                  "Description": "",
+                  "DistinguishedName": "CN=SOM,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                  "Tier": null
+                },
+                {
+                  "Id": "c663f5ec-d731-4280-ad5b-0d81d16f57ff",
+                  "Type": "Container",
+                  "Children": [],
+                  "MemberOf": [],
+                  "LinkedGPOs": [],
+                  "SiteName": null,
+                  "PSOAppliesTo": [],
+                  "Delegations": [
+                    {
+                      "TrusteeName": "Domain Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=WMIGPO,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                      "Right": "WriteDacl",
+                      "RightCategory": "WriteDacl",
+                      "IsInherited": false,
+                      "Tier": null
+                    },
+                    {
+                      "TrusteeName": "Group Policy Creator Owners",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=WMIGPO,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                      "Right": "CreateChild",
+                      "RightCategory": "Other",
+                      "IsInherited": false,
+                      "Tier": null
+                    }
+                  ],
+                  "AccountFlags": "None",
+                  "ServicePrincipalNames": [],
+                  "AllowedToDelegateTo": [],
+                  "AdminCount": false,
+                  "GroupScope": null,
+                  "GroupCategory": null,
+                  "Owner": "Domain Admins",
+                  "LastLogonTimestamp": null,
+                  "PwdLastSet": null,
+                  "PSOPrecedence": null,
+                  "PSOMinPasswordLength": null,
+                  "PSOPasswordHistoryCount": null,
+                  "PSOComplexityEnabled": null,
+                  "PSOMaxPasswordAgeDays": null,
+                  "PSOMinPasswordAgeDays": null,
+                  "PSOLockoutThreshold": null,
+                  "PSOLockoutDurationMinutes": null,
+                  "PSOLockoutObservationWindowMinutes": null,
+                  "MachineAccountQuota": null,
+                  "CreatedDate": "2025-09-17T00:00:00",
+                  "ModifiedDate": "2025-09-17T00:00:00",
+                  "Name": "WMIGPO",
+                  "Description": "",
+                  "DistinguishedName": "CN=WMIGPO,CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                  "Tier": null
+                }
+              ],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                  "Right": "GenericAll",
+                  "RightCategory": "FullControl",
+                  "IsInherited": false,
+                  "Tier": null
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                  "Right": "GenericAll",
+                  "RightCategory": "FullControl",
+                  "IsInherited": false,
+                  "Tier": null
+                },
+                {
+                  "TrusteeName": "Group Policy Creator Owners",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+                  "Right": "GenericWrite",
+                  "RightCategory": "GenericWrite",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "WMIPolicy",
+              "Description": "",
+              "DistinguishedName": "CN=WMIPolicy,CN=System,DC=contoso,DC=local",
+              "Tier": null
+            },
+            {
+              "Id": "3215ed5d-6b47-4610-a03e-fe7d8d1d1271",
+              "Type": "Container",
+              "Children": [
+                {
+                  "Id": "211b8da6-7b9a-406d-b3dc-958e999414c4",
                   "Type": "Policy",
                   "Children": [],
                   "MemberOf": [],
                   "LinkedGPOs": [],
                   "SiteName": null,
                   "PSOAppliesTo": [],
-                  "Delegations": [],
+                  "Delegations": [
+                    {
+                      "TrusteeName": "Domain Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=Default Domain Policy,CN=Policies,CN=System,DC=contoso,DC=local",
+                      "Right": "WriteDacl",
+                      "RightCategory": "WriteDacl",
+                      "IsInherited": false,
+                      "Tier": "Tier 0"
+                    },
+                    {
+                      "TrusteeName": "Enterprise Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=Default Domain Policy,CN=Policies,CN=System,DC=contoso,DC=local",
+                      "Right": "WriteDacl",
+                      "RightCategory": "WriteDacl",
+                      "IsInherited": false,
+                      "Tier": "Tier 0"
+                    }
+                  ],
                   "AccountFlags": "None",
                   "ServicePrincipalNames": [],
                   "AllowedToDelegateTo": [],
@@ -2223,14 +3671,33 @@
                   "Tier": "Tier 0"
                 },
                 {
-                  "Id": "e6e803bf-6bf8-49da-a18b-a20e80334811",
+                  "Id": "caaefc8b-a575-4a44-9d42-e3ff34b98cbd",
                   "Type": "Policy",
                   "Children": [],
                   "MemberOf": [],
                   "LinkedGPOs": [],
                   "SiteName": null,
                   "PSOAppliesTo": [],
-                  "Delegations": [],
+                  "Delegations": [
+                    {
+                      "TrusteeName": "Domain Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=Default Domain Controllers Policy,CN=Policies,CN=System,DC=contoso,DC=local",
+                      "Right": "WriteDacl",
+                      "RightCategory": "WriteDacl",
+                      "IsInherited": false,
+                      "Tier": "Tier 0"
+                    },
+                    {
+                      "TrusteeName": "Enterprise Admins",
+                      "TrusteeType": "Group",
+                      "TargetDN": "CN=Default Domain Controllers Policy,CN=Policies,CN=System,DC=contoso,DC=local",
+                      "Right": "WriteDacl",
+                      "RightCategory": "WriteDacl",
+                      "IsInherited": false,
+                      "Tier": "Tier 0"
+                    }
+                  ],
                   "AccountFlags": "None",
                   "ServicePrincipalNames": [],
                   "AllowedToDelegateTo": [],
@@ -2262,7 +3729,26 @@
               "LinkedGPOs": [],
               "SiteName": null,
               "PSOAppliesTo": [],
-              "Delegations": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Policies,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                },
+                {
+                  "TrusteeName": "Group Policy Creator Owners",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Policies,CN=System,DC=contoso,DC=local",
+                  "Right": "CreateChild",
+                  "RightCategory": "Other",
+                  "IsInherited": false,
+                  "Tier": "Tier 0"
+                }
+              ],
               "AccountFlags": "None",
               "ServicePrincipalNames": [],
               "AllowedToDelegateTo": [],
@@ -2288,13 +3774,77 @@
               "Description": "# Policies Container (SYSVOL)\n\nThis container represents the \u0060SYSVOL\\Policies\u0060 folder on domain controllers.\n\nEach GPO has a subfolder identified by its **GUID** under:\n\u0060\u0060\u0060\n\\\\\u003Cdomain\u003E\\SYSVOL\\\u003Cdomain\u003E\\Policies\\{GUID}\n\u0060\u0060\u0060",
               "DistinguishedName": "CN=Policies,CN=System,DC=contoso,DC=local",
               "Tier": "Tier 0"
+            },
+            {
+              "Id": "da1ee799-e5de-45ad-9b31-f9d153c8f454",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=SOA-Policies,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                },
+                {
+                  "TrusteeName": "Enterprise Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=SOA-Policies,CN=System,DC=contoso,DC=local",
+                  "Right": "WriteDacl",
+                  "RightCategory": "WriteDacl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Enterprise Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "SOA-Policies",
+              "Description": "",
+              "DistinguishedName": "CN=SOA-Policies,CN=System,DC=contoso,DC=local",
+              "Tier": null
             }
           ],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=System,DC=contoso,DC=local",
+              "Right": "WriteDacl",
+              "RightCategory": "WriteDacl",
+              "IsInherited": false,
+              "Tier": null
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2322,14 +3872,24 @@
           "Tier": null
         },
         {
-          "Id": "9cd21b51-1236-4d7f-ba3b-9e5bf0d597c8",
+          "Id": "90e51dba-4e62-426b-9892-4015d6639414",
           "Type": "Container",
           "Children": [],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=ForeignSecurityPrincipals,DC=contoso,DC=local",
+              "Right": "GenericAll",
+              "RightCategory": "FullControl",
+              "IsInherited": false,
+              "Tier": null
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2357,14 +3917,24 @@
           "Tier": null
         },
         {
-          "Id": "a193739b-80d2-4f96-a495-c919a8d11f78",
+          "Id": "19efb5cf-0981-45d2-9992-0ee3ed231941",
           "Type": "Container",
           "Children": [],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Infrastructure,DC=contoso,DC=local",
+              "Right": "WriteDacl",
+              "RightCategory": "WriteDacl",
+              "IsInherited": false,
+              "Tier": null
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2392,14 +3962,60 @@
           "Tier": null
         },
         {
-          "Id": "ef668d97-10e6-48af-bbea-91f3c54fae8b",
+          "Id": "fd6b5262-19bc-4d7e-b42c-dad847ab97f2",
           "Type": "Container",
           "Children": [],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Keys,DC=contoso,DC=local",
+              "Right": "GenericAll",
+              "RightCategory": "FullControl",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Domain Controllers",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Keys,DC=contoso,DC=local",
+              "Right": "GenericAll",
+              "RightCategory": "FullControl",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Enterprise Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Keys,DC=contoso,DC=local",
+              "Right": "GenericAll",
+              "RightCategory": "FullControl",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Key Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Keys,DC=contoso,DC=local",
+              "Right": "GenericAll",
+              "RightCategory": "FullControl",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Enterprise Key Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Keys,DC=contoso,DC=local",
+              "Right": "GenericAll",
+              "RightCategory": "FullControl",
+              "IsInherited": false,
+              "Tier": null
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2427,14 +4043,24 @@
           "Tier": null
         },
         {
-          "Id": "f03322e4-89ec-47aa-9c9e-26bd0268328e",
+          "Id": "42a0f330-20f5-4f25-9940-2cb2a1c050e4",
           "Type": "Container",
           "Children": [],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=LostAndFound,DC=contoso,DC=local",
+              "Right": "WriteDacl",
+              "RightCategory": "WriteDacl",
+              "IsInherited": false,
+              "Tier": null
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2462,14 +4088,51 @@
           "Tier": null
         },
         {
-          "Id": "ca0529b4-8f02-4ac7-8513-27a1841a6b76",
+          "Id": "e677f280-96e6-48b6-8969-9e4fe52a96ed",
           "Type": "Container",
           "Children": [],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Managed Service Accounts,DC=contoso,DC=local",
+              "Right": "WriteDacl",
+              "RightCategory": "WriteDacl",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Account Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Managed Service Accounts,DC=contoso,DC=local",
+              "Right": "CreateChild:user",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Account Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Managed Service Accounts,DC=contoso,DC=local",
+              "Right": "CreateChild:group",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Account Operators",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Managed Service Accounts,DC=contoso,DC=local",
+              "Right": "CreateChild:msDS-ManagedServiceAccount",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": null
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2497,14 +4160,33 @@
           "Tier": null
         },
         {
-          "Id": "3baf2621-5b60-42cf-a63f-ffed8614f3c5",
+          "Id": "86bb94c6-5098-4ab6-abdf-125a3cd0e038",
           "Type": "Container",
           "Children": [],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=NTDS Quotas,DC=contoso,DC=local",
+              "Right": "GenericAll",
+              "RightCategory": "FullControl",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Everyone",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=NTDS Quotas,DC=contoso,DC=local",
+              "Right": "DS-Query-Self-Quota",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": null
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2532,14 +4214,70 @@
           "Tier": null
         },
         {
-          "Id": "b21abf16-be0e-4831-8497-1802848b75b0",
+          "Id": "45d2faa5-de8e-4a8c-9d62-abfa99cf2cf6",
           "Type": "Container",
-          "Children": [],
+          "Children": [
+            {
+              "Id": "cb1bc0ca-92a3-4982-92b4-937091c278ef",
+              "Type": "Container",
+              "Children": [],
+              "MemberOf": [],
+              "LinkedGPOs": [],
+              "SiteName": null,
+              "PSOAppliesTo": [],
+              "Delegations": [
+                {
+                  "TrusteeName": "Domain Admins",
+                  "TrusteeType": "Group",
+                  "TargetDN": "CN=Microsoft,CN=Program Data,DC=contoso,DC=local",
+                  "Right": "GenericAll",
+                  "RightCategory": "FullControl",
+                  "IsInherited": false,
+                  "Tier": null
+                }
+              ],
+              "AccountFlags": "None",
+              "ServicePrincipalNames": [],
+              "AllowedToDelegateTo": [],
+              "AdminCount": false,
+              "GroupScope": null,
+              "GroupCategory": null,
+              "Owner": "Domain Admins",
+              "LastLogonTimestamp": null,
+              "PwdLastSet": null,
+              "PSOPrecedence": null,
+              "PSOMinPasswordLength": null,
+              "PSOPasswordHistoryCount": null,
+              "PSOComplexityEnabled": null,
+              "PSOMaxPasswordAgeDays": null,
+              "PSOMinPasswordAgeDays": null,
+              "PSOLockoutThreshold": null,
+              "PSOLockoutDurationMinutes": null,
+              "PSOLockoutObservationWindowMinutes": null,
+              "MachineAccountQuota": null,
+              "CreatedDate": "2025-09-17T00:00:00",
+              "ModifiedDate": "2025-09-17T00:00:00",
+              "Name": "Microsoft",
+              "Description": "",
+              "DistinguishedName": "CN=Microsoft,CN=Program Data,DC=contoso,DC=local",
+              "Tier": null
+            }
+          ],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=Program Data,DC=contoso,DC=local",
+              "Right": "GenericAll",
+              "RightCategory": "FullControl",
+              "IsInherited": false,
+              "Tier": null
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2567,14 +4305,33 @@
           "Tier": null
         },
         {
-          "Id": "ace3b6c2-5162-48b3-b0b9-6d517f5d580c",
+          "Id": "8b8744a5-0c1c-4255-83c8-15d46b01d86a",
           "Type": "Container",
           "Children": [],
           "MemberOf": [],
           "LinkedGPOs": [],
           "SiteName": null,
           "PSOAppliesTo": [],
-          "Delegations": [],
+          "Delegations": [
+            {
+              "TrusteeName": "Domain Admins",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=TPM Devices,DC=contoso,DC=local",
+              "Right": "GenericAll",
+              "RightCategory": "FullControl",
+              "IsInherited": false,
+              "Tier": null
+            },
+            {
+              "TrusteeName": "Domain Computers",
+              "TrusteeType": "Group",
+              "TargetDN": "CN=TPM Devices,DC=contoso,DC=local",
+              "Right": "CreateChild:msTPM-InformationObject",
+              "RightCategory": "Other",
+              "IsInherited": false,
+              "Tier": null
+            }
+          ],
           "AccountFlags": "None",
           "ServicePrincipalNames": [],
           "AllowedToDelegateTo": [],
@@ -2619,6 +4376,15 @@
           "Tier": null
         },
         {
+          "TrusteeName": "Domain Admins",
+          "TrusteeType": "Group",
+          "TargetDN": "DC=contoso,DC=local",
+          "Right": "WriteDacl",
+          "RightCategory": "WriteDacl",
+          "IsInherited": false,
+          "Tier": null
+        },
+        {
           "TrusteeName": "Domain Controllers",
           "TrusteeType": "Group",
           "TargetDN": "DC=contoso,DC=local",
@@ -2632,6 +4398,51 @@
           "TrusteeType": "Group",
           "TargetDN": "DC=contoso,DC=local",
           "Right": "DS-Replication-Get-Changes",
+          "RightCategory": "Other",
+          "IsInherited": false,
+          "Tier": null
+        },
+        {
+          "TrusteeName": "Authenticated Users",
+          "TrusteeType": "Group",
+          "TargetDN": "DC=contoso,DC=local",
+          "Right": "Update-Password-Not-Required-Bit",
+          "RightCategory": "Other",
+          "IsInherited": false,
+          "Tier": null
+        },
+        {
+          "TrusteeName": "Authenticated Users",
+          "TrusteeType": "Group",
+          "TargetDN": "DC=contoso,DC=local",
+          "Right": "Unexpire-Password",
+          "RightCategory": "Other",
+          "IsInherited": false,
+          "Tier": null
+        },
+        {
+          "TrusteeName": "Authenticated Users",
+          "TrusteeType": "Group",
+          "TargetDN": "DC=contoso,DC=local",
+          "Right": "Enable-Per-User-Reversibly-Encrypted-Password",
+          "RightCategory": "Other",
+          "IsInherited": false,
+          "Tier": null
+        },
+        {
+          "TrusteeName": "Incoming Forest Trust Builders",
+          "TrusteeType": "Group",
+          "TargetDN": "DC=contoso,DC=local",
+          "Right": "Create-Inbound-Forest-Trust",
+          "RightCategory": "Other",
+          "IsInherited": false,
+          "Tier": null
+        },
+        {
+          "TrusteeName": "Cloneable Domain Controllers",
+          "TrusteeType": "Group",
+          "TargetDN": "DC=contoso,DC=local",
+          "Right": "DS-Clone-Domain-Controller",
           "RightCategory": "Other",
           "IsInherited": false,
           "Tier": null
@@ -2671,9 +4482,10 @@
       "PSOMaxPasswordAgeDays": 42,
       "PSOMinPasswordAgeDays": 1,
       "PSOLockoutThreshold": 0,
-      "PSOLockoutDurationMinutes": null,
-      "PSOLockoutObservationWindowMinutes": null,
+      "PSOLockoutDurationMinutes": 10,
+      "PSOLockoutObservationWindowMinutes": 10,
       "MachineAccountQuota": 10,
+      "ServerVersion": "Server2022",
       "CreatedDate": "2025-09-17T00:00:00",
       "ModifiedDate": "2025-09-17T00:00:00",
       "Name": "contoso.local",
@@ -2684,7 +4496,7 @@
     "SitesTopology": {
       "Sites": [
         {
-          "Id": "a63e7ed7-cddd-4b5e-b066-3e7dcbd3fbd7",
+          "Id": "5df146ec-5db8-444a-9b1d-a6eb9b691658",
           "Name": "Default-First-Site-Name",
           "Description": "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration.",
           "Location": "",
@@ -2694,8 +4506,8 @@
           ],
           "LinkedGPOs": [],
           "Tier": null,
-          "CreatedDate": "2026-10-29T13:41:57.8212297+01:00",
-          "ModifiedDate": "2026-10-29T13:41:57.8212308+01:00",
+          "CreatedDate": "2026-10-30T12:27:58.499388+01:00",
+          "ModifiedDate": "2026-10-30T12:27:58.499389+01:00",
           "ShortDescription": "Active Directory site created automatically during the first installation. Initially contains all domain controllers before manual site configuration."
         }
       ],

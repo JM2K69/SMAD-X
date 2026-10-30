@@ -1,0 +1,1 @@
+Members of this group may connect to this computer using SSH. Created by Windows Server 2025, where OpenSSH is installed by default.

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using SMADX.Models;
 using SMADX.Services;
 using static SMADX.Tests.TestHelpers;
@@ -57,17 +58,41 @@ public class ADDataServiceTests
             Assert.DoesNotContain(added, names);
             Assert.Contains(added, lab); // la base des exercices les garde
         }
-        // Seules les ACE par défaut d'un AD neuf, toutes au profit de groupes privilégiés
+        // Les ACE par défaut d'un AD neuf (FidelityTests les compare à un vrai domaine) : sur la racine et les conteneurs,
+        // les GPO par défaut, et les comptes et groupes protégés une fois SDProp passé
         var fresh = _service.CreateFreshDomainStructure("corp.local");
-        Assert.Equal(
-            ["AdminSDHolder|Domain Admins|WriteDacl", "AdminSDHolder|Enterprise Admins|FullControl", "corp.local|Domain Controllers|Replication",
-             "corp.local|Enterprise Admins|FullControl", "corp.local|Enterprise Key Admins|WriteKeyCredentialLink",
-             "corp.local|Enterprise Read-only Domain Controllers|Other", "corp.local|Key Admins|WriteKeyCredentialLink"],
-            Flatten(fresh).SelectMany(o => o.Delegations.Select(d => $"{o.Name}|{d.TrusteeName}|{d.Effective}")).Order());
+        var aces = Flatten(fresh).SelectMany(o => o.Delegations.Select(d => $"{o.Name}|{d.TrusteeName}|{d.Effective}")).ToList();
+        Assert.Contains("corp.local|Domain Controllers|Replication", aces);
+        Assert.Contains("corp.local|Key Admins|WriteKeyCredentialLink", aces);
+        Assert.Contains("AdminSDHolder|Enterprise Admins|WriteDacl", aces);
+        Assert.Contains("Computers|Account Operators|ComputerManagement", aces);
+        Assert.Contains("Domain Admins|Enterprise Admins|WriteDacl", aces);
+        Assert.Contains("Default Domain Policy|Domain Admins|WriteDacl", aces);
+        Assert.All(Flatten(fresh).Where(o => o.Delegations.Count > 0), o => Assert.True(
+            o.Type is ADObjectType.Domain or ADObjectType.Container or ADObjectType.OrganizationalUnit or ADObjectType.Policy || o.AdminCount, o.Name));
         // Une machine jointe au domaine est administrée par Domain Admins, un DC par Builtin Administrators
         Assert.All(Flatten(fresh).Where(o => o.Type == ADObjectType.Computer), c => Assert.Equal(["Administrators"], c.LocalAdmins!));
         Assert.All(Flatten(fresh).Where(o => o.Type == ADObjectType.Computer), c => Assert.Null(c.LapsPasswordExpiration));
         Assert.Equal(7, _service.CreateFreshDomainStructure("corp.local").PSOMinPasswordLength); // valeur par défaut d'AD
+    }
+
+    [Fact]
+    public async Task ServerVersion_IsSavedWithTheDomain_AndUnknownForAnOlderDocument()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"smadx-version-{Guid.NewGuid():N}.smad-x.json");
+        try
+        {
+            var domain = _service.CreateFreshDomainStructure("corp.local", version: WindowsServerVersion.Server2019);
+            Assert.True(await _service.SaveDocumentAsync(new ADRootDocument { Domain = domain }, path));
+            Assert.Equal(1, Regex.Count(await File.ReadAllTextAsync(path), "\"ServerVersion\""));
+            Assert.Equal(WindowsServerVersion.Server2019, (await _service.LoadDocumentAsync(path)).Document!.Domain.ServerVersion);
+
+            domain.ServerVersion = null;
+            Assert.True(await _service.SaveDocumentAsync(new ADRootDocument { Domain = domain }, path));
+            Assert.DoesNotContain("ServerVersion", await File.ReadAllTextAsync(path));
+            Assert.Null((await _service.LoadDocumentAsync(path)).Document!.Domain.ServerVersion);
+        }
+        finally { File.Delete(path); }
     }
 
     [Fact]

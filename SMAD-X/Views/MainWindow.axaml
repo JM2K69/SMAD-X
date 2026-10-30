@@ -812,6 +812,12 @@
                                                                    Value="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.MachineAccountQuota, Mode=TwoWay}"/>
                                                     <TextBlock Text="{Binding DomainMachineAccountQuota}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                                 </DockPanel>
+                                                <!-- Domaine seulement : version de Windows Server qui l'a promu -->
+                                                <DockPanel Margin="0,6,0,0" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.ServerVersionName, Converter={x:Static StringConverters.IsNotNullOrEmpty}, FallbackValue=False}">
+                                                    <TextBlock DockPanel.Dock="Right" Width="120" VerticalAlignment="Center" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                               Text="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.ServerVersionName}"/>
+                                                    <TextBlock Text="{Binding DomainServerVersion}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
                                             </StackPanel>
                                         </StackPanel>
                                     </Grid>

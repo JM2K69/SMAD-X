@@ -63,7 +63,7 @@ namespace SMADX.Views
             var dialog = new NewDomainDialog();
             var accepted = await dialog.ShowDialog<bool>(_owner);
             return accepted && !string.IsNullOrEmpty(dialog.DomainName)
-                ? new NewDomainRequest(dialog.DomainName, dialog.EnableTiering)
+                ? new NewDomainRequest(dialog.DomainName, dialog.EnableTiering, dialog.ServerVersion)
                 : null;
         }
 

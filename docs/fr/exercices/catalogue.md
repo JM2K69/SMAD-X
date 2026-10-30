@@ -34,6 +34,6 @@ Menu **Exercices > Chemins d'attaque**. Chaque exercice a son organisation et so
 | Librairie Papyrus : le compte du stagiaire | Débutant | 15 min | `librairie-papyrus.lan` | 4 (9 pts) |
 | Coopérative du Vignoble : qui est vraiment admin DNS ? | Débutant | 15 min | `cooperative-vignoble.local` | 4 (8 pts) |
 | Cabinet Delorme : la synchronisation oubliée | Intermédiaire | 20 min | `cabinet-delorme.local` | 4 (8 pts) |
-| Laboratoire Hélios : le pilote Windows Hello | Avancé | 25 min | `laboratoire-helios.local` | 6 (8 pts) |
+| Laboratoire Hélios : le pilote Windows Hello | Avancé | 25 min | `laboratoire-helios.local` | 5 (8 pts) |
 | Lycée Jean-Moulin : le serveur de sauvegarde | Avancé | 30 min | `lycee-jean-moulin.local` | 6 (8 pts) |
 

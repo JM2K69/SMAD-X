@@ -489,6 +489,11 @@ public class StudioTests
 
         picker.DomainName = "Lab.Example.local";
         Assert.Equal("lab.example.local", picker.Request()!.DomainName);
+
+        // Le domaine de l'exercice est celui d'une version de Windows Server, 2022 sauf choix contraire
+        Assert.Equal(WindowsServerProfile.DefaultVersion, picker.Request()!.Version);
+        picker.Version = picker.Versions.Single(v => v.Value == WindowsServerVersion.Server2019);
+        Assert.Equal(WindowsServerVersion.Server2019, picker.Request()!.Version);
     }
 
     [Fact]
@@ -619,7 +624,7 @@ public class StudioTests
     public void Cli_Recipe_WritesTheLabAndItsNotes_ThenValidateAcceptsIt()
     {
         var dir = TempDir();
-        var (code, output, error) = Run("recipe", "KRB-01", "DLG-02", "--lang", "en", "--domain", "cli.example.lab", "--out", dir, "--date", "2026-10-22");
+        var (code, output, error) = Run("recipe", "KRB-01", "DLG-02", "--lang", "en", "--domain", "cli.example.lab", "--server", "2025", "--out", dir, "--date", "2026-10-22");
         Assert.True(code == 0, output + error);
 
         var labs = TrainerCopies(dir);
@@ -638,6 +643,7 @@ public class StudioTests
         var loaded = new LabService().LoadFile(labs[0]);
         Assert.Equal("en-US", loaded.Language);
         Assert.Equal("cli.example.lab", loaded.Start.Domain.Name);
+        Assert.Equal(WindowsServerVersion.Server2025, loaded.Start.Domain.ServerVersion);
 
         // Le dossier : les domaines corrigés ne sont pas pris pour des exercices, mais servent à la validation
         var (validate, report, _) = Run("validate", dir, "--verbose", "--lang", "en");
@@ -703,6 +709,7 @@ public class StudioTests
     [InlineData("recipe", "NOPE-99")]
     [InlineData("recipe", "KRB-01", "--lang", "de")]
     [InlineData("recipe", "KRB-01", "--domain", "bad name")]
+    [InlineData("recipe", "KRB-01", "--server", "2016")]
     [InlineData("convert", "--unknown")]
     [InlineData("validate", "--date", "22/10/2026", "x.json")]
     public void Cli_RefusesAWrongCommand(params string[] args)

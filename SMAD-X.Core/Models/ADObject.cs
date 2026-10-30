@@ -154,6 +154,13 @@ namespace SMADX.Models
         /// </summary>
         public int? MachineAccountQuota { get; set; }
 
+        /// <summary>
+        /// Pour le domaine : version de Windows Server qui a promu son premier contrôleur, dont il garde les objets et les
+        /// permissions par défaut. Null = inconnue (domaine importé d'un AD qui ne la dit pas, document d'avant la 0.12).
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public WindowsServerVersion? ServerVersion { get; set; }
+
         // --- Ordinateurs : LAPS, administrateurs locaux, sessions ---
 
         /// <summary>

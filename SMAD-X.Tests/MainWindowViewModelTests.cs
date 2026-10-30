@@ -100,6 +100,21 @@ public class MainWindowViewModelTests
         Assert.Equal(["DC01.corp.local"], site.DomainControllers);
     }
 
+    [Theory]
+    [InlineData(WindowsServerVersion.Server2019, false)]
+    [InlineData(WindowsServerVersion.Server2025, true)]
+    public async Task CreateNewDomain_IsTheFreshDomainOfTheChosenVersion(WindowsServerVersion version, bool hasOpenSsh)
+    {
+        _dialogs.NewDomain = new NewDomainRequest("corp.local", EnableTiering: true, version);
+
+        await _vm.CreateNewDomainCommand.ExecuteAsync(null);
+
+        Assert.Equal(version, _vm.RootObject!.ServerVersion);
+        Assert.Equal(hasOpenSsh, TestHelpers.Flatten(_vm.RootObject).Any(o => o.Name == "OpenSSH Users"));
+        Assert.Contains(WindowsServerProfile.For(version).Name, _vm.StatusMessage);
+        Assert.Equal(WindowsServerProfile.For(version).Name, new PasswordPolicyViewModel(_vm.RootObject).ServerVersionName);
+    }
+
     [Fact]
     public async Task CreateNewDomain_Cancelled_KeepsCurrentDomain()
     {

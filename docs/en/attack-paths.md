@@ -51,7 +51,7 @@ SMAD-X builds an "*X can take control of Y*" graph, like a much simpler BloodHou
 Delegations granted to **Domain Users**, **Authenticated Users** or **Everyone** start from "any domain user". A disabled account is not an entry point.
 
 !!! info "What AdminSDHolder prevents"
-    A delegation set on an OU does not apply to protected objects (`adminCount = 1`): SDProp disabled their inheritance. A trustee who can reset passwords in an OU therefore cannot reset the password of a Domain Admins member stored in that OU. But whoever controls the OU can link a GPO to it, which also reaches protected accounts; and whoever controls AdminSDHolder controls every protected object. Not every sensitive group is protected, though: check the list of protected groups for your Windows Server version.
+    A delegation set on an OU does not apply to protected objects (`adminCount = 1`): SDProp disabled their inheritance. A trustee who can reset passwords in an OU therefore cannot reset the password of a Domain Admins member stored in that OU. But whoever controls the OU can link a GPO to it, which also reaches protected accounts; and whoever controls AdminSDHolder controls every protected object. Not every sensitive group is protected, though: check the list of protected groups for your Windows Server version. Domain controllers are not protected either: a delegation set on the domain root or on the Domain Controllers OU reaches them.
 
 Local administrators and sessions are not in the directory: a joined computer has Domain Admins as local administrator, and sessions are set by hand (the computer's **Security** section, see [Modeling](modeling.md)), to show where an administrator logs on.
 

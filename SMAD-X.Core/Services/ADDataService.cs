@@ -150,18 +150,19 @@ namespace SMADX.Services
         /// </summary>
         /// <param name="domainName">Nom du domaine (FQDN)</param>
         /// <param name="enableTiering">Si true, affecte automatiquement les tiers aux objets</param>
-        public ADObject CreateFreshDomainStructure(string domainName, bool enableTiering = true) =>
-            BuildDomainStructure(domainName, enableTiering, labBase: false);
+        /// <param name="version">Version de Windows Server qui promeut le contrôleur : voir <see cref="WindowsServerProfile"/>.</param>
+        public ADObject CreateFreshDomainStructure(string domainName, bool enableTiering = true, WindowsServerVersion version = WindowsServerProfile.DefaultVersion) =>
+            BuildDomainStructure(domainName, enableTiering, labBase: false, WindowsServerProfile.For(version));
 
         /// <summary>
         /// Base des exercices de SMAD-X Studio : le domaine neuf, plus un poste, trois GPO métier, les groupes de
         /// délégation GG-* et leurs délégations. Les recettes et les générateurs d'exercices partent de ce domaine.
         /// </summary>
-        public ADObject CreateLabBaseStructure(string domainName, bool enableTiering = true) =>
-            BuildDomainStructure(domainName, enableTiering, labBase: true);
+        public ADObject CreateLabBaseStructure(string domainName, bool enableTiering = true, WindowsServerVersion version = WindowsServerProfile.DefaultVersion) =>
+            BuildDomainStructure(domainName, enableTiering, labBase: true, WindowsServerProfile.For(version));
 
         /// <summary>Politique de mot de passe par défaut d'un domaine neuf (Default Domain Policy).</summary>
-        public static void ApplyDefaultPasswordPolicy(ADObject domain)
+        public static void ApplyDefaultPasswordPolicy(ADObject domain, WindowsServerVersion version = WindowsServerProfile.DefaultVersion)
         {
             domain.PSOMinPasswordLength = 7;
             domain.PSOPasswordHistoryCount = 24;
@@ -169,19 +170,23 @@ namespace SMADX.Services
             domain.PSOMaxPasswordAgeDays = 42;
             domain.PSOMinPasswordAgeDays = 1;
             domain.PSOLockoutThreshold = 0;
+            // Sans seuil, le verrouillage ne s'applique pas ; ses durées par défaut dépendent tout de même de la version
+            domain.PSOLockoutDurationMinutes = WindowsServerProfile.For(version).LockoutMinutes;
+            domain.PSOLockoutObservationWindowMinutes = WindowsServerProfile.For(version).LockoutMinutes;
             // Tout utilisateur authentifié peut joindre 10 ordinateurs au domaine
             domain.MachineAccountQuota = 10;
         }
 
-        private ADObject BuildDomainStructure(string domainName, bool enableTiering, bool labBase)
+        private ADObject BuildDomainStructure(string domainName, bool enableTiering, bool labBase, WindowsServerProfile profile)
         {
             var loc = LocalizationService.Instance;
 
             var domain = new ADObject(domainName, ADObjectType.Domain)
             {
-                Description = string.Format(loc["Desc.Domain"], domainName)
+                Description = string.Format(loc["Desc.Domain"], domainName),
+                ServerVersion = profile.Version
             };
-            ApplyDefaultPasswordPolicy(domain);
+            ApplyDefaultPasswordPolicy(domain, profile.Version);
 
             // Helper pour affecter un tier seulement si le tiering est activé
             string? GetTier(string tier) => enableTiering ? tier : null;
@@ -371,22 +376,6 @@ namespace SMADX.Services
             };
             usersContainer.Children.Add(dnsUpdateProxy);
 
-            var defaultAccount = new ADObject("DefaultAccount", ADObjectType.User)
-            {
-                Description = loc["Desc.Users.DefaultAccount"],
-                Tier = GetTier("Tier 2"),
-                Parent = usersContainer
-            };
-            usersContainer.Children.Add(defaultAccount);
-
-            var wdagUtility = new ADObject("WDAGUtilityAccount", ADObjectType.User)
-            {
-                Description = loc["Desc.Users.WDAGUtilityAccount"],
-                Tier = GetTier("Tier 2"),
-                Parent = usersContainer
-            };
-            usersContainer.Children.Add(wdagUtility);
-
             // 3. Container Computers (ordinateurs par défaut)
             var computersContainer = new ADObject("Computers", ADObjectType.Container)
             {
@@ -440,6 +429,7 @@ namespace SMADX.Services
             };
             systemContainer.Children.Add(psoContainer);
             AddAdminSdHolder(systemContainer, GetTier, loc);
+            AddSystemContainers(systemContainer);
 
             // Container Policies (SYSVOL) — contient les 2 GPOs présentes dans tout domaine neuf
             var policiesContainer = new ADObject("Policies", ADObjectType.Container)
@@ -486,12 +476,54 @@ namespace SMADX.Services
             domain.Children.Add(fspContainer);
 
             AddRootContainers(domain, loc);
+            ApplyVersion(domain, profile, GetTier, loc);
 
             // Mettre à jour les DN des conteneurs ajoutés après le premier calcul
             domain.UpdateDistinguishedNameTree();
 
             BuiltInSecurityDefaults.Apply(domain);
             return domain;
+        }
+
+        /// <summary>Ce que la version de Windows Server ajoute au tronc commun (voir <see cref="WindowsServerProfile"/>).</summary>
+        private static void ApplyVersion(ADObject domain, WindowsServerProfile profile, Func<string, string?> tier, LocalizationService loc)
+        {
+            foreach (var added in profile.Objects)
+            {
+                ADObject? container = domain;
+                foreach (var name in added.Container)
+                    container = container?.Children.FirstOrDefault(c => c.Type == ADObjectType.Container && c.Name == name);
+                if (container == null || container.Children.Any(o => o.Name == added.Name)) continue;
+                container.Children.Add(new ADObject(added.Name, added.Type)
+                {
+                    Description = added.DescriptionKey is { } key ? loc[key] : "",
+                    Tier = added.Tier is { } t ? tier(t) : null,
+                    Parent = container
+                });
+            }
+        }
+
+        /// <summary>
+        /// Conteneurs que l'installation crée sous System, en plus de Policies, AdminSDHolder et Password Settings Container
+        /// (le service DNS, les stratégies IPsec et WMI, les mises à jour du schéma du domaine…). Sans description, comme dans AD.
+        /// </summary>
+        private static void AddSystemContainers(ADObject systemContainer)
+        {
+            ADObject Add(ADObject parent, string name)
+            {
+                var container = new ADObject(name, ADObjectType.Container) { Parent = parent };
+                parent.Children.Add(container);
+                return container;
+            }
+            foreach (var name in new[] { "ComPartitions", "ComPartitionSets", "IP Security", "Meetings", "MicrosoftDNS", "PSPs",
+                                         "RAS and IAS Servers Access Check", "RpcServices", "WinsockServices" })
+                Add(systemContainer, name);
+            var updates = Add(systemContainer, "DomainUpdates");
+            Add(updates, "ActiveDirectoryUpdate");
+            Add(updates, "Windows2003Update");
+            var wmi = Add(systemContainer, "WMIPolicy");
+            foreach (var name in new[] { "PolicyTemplate", "PolicyType", "SOM", "WMIGPO" })
+                Add(wmi, name);
         }
 
         /// <summary>Objets de la base des exercices : GPO métier, groupes de délégation GG-* et leurs délégations.</summary>
@@ -677,6 +709,8 @@ namespace SMADX.Services
                 ("TPM Devices", "Desc.Container.TpmDevices")
             })
                 domain.Children.Add(new ADObject(name, ADObjectType.Container) { Description = loc[key], Parent = domain });
+            var programData = domain.Children.First(c => c.Name == "Program Data");
+            programData.Children.Add(new ADObject("Microsoft", ADObjectType.Container) { Parent = programData });
         }
 
         /// <summary>
@@ -741,22 +775,6 @@ namespace SMADX.Services
                 Parent = usersContainer
             };
             usersContainer.Children.Add(krbtgt);
-
-            var defaultAccount = new ADObject("DefaultAccount", ADObjectType.User)
-            {
-                Description = loc["Desc.Users.DefaultAccount"],
-                Tier = "Tier 2",
-                Parent = usersContainer
-            };
-            usersContainer.Children.Add(defaultAccount);
-
-            var wdagUtility = new ADObject("WDAGUtilityAccount", ADObjectType.User)
-            {
-                Description = loc["Desc.Users.WDAGUtilityAccount"],
-                Tier = "Tier 2",
-                Parent = usersContainer
-            };
-            usersContainer.Children.Add(wdagUtility);
 
             // Groupes de domaine par défaut
             var domainAdminsUsers = new ADObject("Domain Admins", ADObjectType.Group)
@@ -1260,6 +1278,7 @@ namespace SMADX.Services
 
             AddRootContainers(domain, loc);
             domain.UpdateDistinguishedNameTree();
+            domain.ServerVersion = WindowsServerProfile.DefaultVersion;
             BuiltInSecurityDefaults.Apply(domain);
             BuiltInSecurityDefaults.ApplySampleHistory(domain, DateTime.Now);
 

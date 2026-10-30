@@ -3,6 +3,8 @@
 ## Ce que l'audit a détecté
 Un compte est membre (directement ou par imbrication) d'un groupe protégé, mais son attribut adminCount n'est pas à 1.
 
+Les contrôleurs de domaine ne sont pas concernés : membres de Domain Controllers par leur seul groupe principal, que SDProp ignore, ils n'ont jamais adminCount.
+
 ## Pourquoi c'est dangereux
 Toutes les heures, le processus **SDProp** applique aux membres des groupes protégés les permissions de l'objet AdminSDHolder et pose adminCount = 1. Un membre sans adminCount n'a donc pas reçu cette protection : il garde les permissions héritées de son OU, et quelqu'un qui a des droits sur l'OU peut prendre le contrôle d'un administrateur.
 

@@ -24,7 +24,7 @@ Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X
 
 ![Choix de la recommandation](../assets/screens/studio-recipe.png)
 
-Chaque règle d'audit a sa recette, avec le point de contrôle ANSSI correspondant et son niveau (N1 à N4). La liste se filtre par identifiant de règle, par point ANSSI ou par mot du titre. Choisissez la langue de l'exercice et le nom du domaine : Studio construit un annuaire réaliste (services, utilisateurs, postes), vérifie qu'il est sain, puis y injecte **uniquement** le manque choisi. Ce domaine de départ part d'un AD neuf qu'il durcit : comptes intégrés corrigés, politique de mot de passe de 12 caractères avec verrouillage, quota de jonction à 0, groupes de délégation du support et de l'informatique.
+Chaque règle d'audit a sa recette, avec le point de contrôle ANSSI correspondant et son niveau (N1 à N4). La liste se filtre par identifiant de règle, par point ANSSI ou par mot du titre. Choisissez la langue de l'exercice, la version de Windows Server qui a promu le domaine (2019, 2022 ou 2025) et le nom du domaine : Studio construit un annuaire réaliste (services, utilisateurs, postes), vérifie qu'il est sain, puis y injecte **uniquement** le manque choisi. Ce domaine de départ part d'un AD neuf qu'il durcit : comptes intégrés corrigés, politique de mot de passe de 12 caractères avec verrouillage, quota de jonction à 0, groupes de délégation du support et de l'informatique.
 
 #### Combiner plusieurs recommandations
 
@@ -46,7 +46,7 @@ Studio produit aussi le **domaine corrigé** : le domaine de départ auquel il a
 
 ![Onglet Exercice](../assets/screens/studio-lab.png)
 
-Titre, identifiant (le nom du fichier), langue, série du menu (exercices généraux ou chemins d'attaque), niveau et durée. Le résumé du domaine de départ indique le nombre d'objets, les chemins d'attaque hors Tier 0 et le score d'audit.
+Titre, identifiant (le nom du fichier), langue, série du menu (exercices généraux ou chemins d'attaque), niveau et durée. Le résumé du domaine de départ indique la version de Windows Server qui l'a promu, le nombre d'objets, les chemins d'attaque hors Tier 0 et le score d'audit.
 
 Un exercice est **bilingue** ou n'existe que dans **une langue**. La liste *Langue des textes en cours d'édition*, en haut de la fenêtre, choisit les textes que vous modifiez.
 
@@ -267,6 +267,7 @@ SMAD-X.Studio grade exercices/anssi-krb-01/1-formateur/anssi-krb-01.smadx-lab.js
 |---|---|
 | `--lang fr` ou `--lang en` | langue de l'exercice et des messages |
 | `--domain <nom>` | nom du domaine créé par une recette (`corp.example.lab` par défaut) |
+| `--server 2019`, `2022` ou `2025` | version de Windows Server qui a promu ce domaine (`2022` par défaut) |
 | `--out <dossier>` | dossier où ranger les dossiers d'exercices (le dossier courant par défaut) |
 | `--date aaaa-mm-jj` | date de référence : la même date donne le même fichier, octet pour octet |
 | `--solution <fichier>` | domaine corrigé à noter pendant la validation |

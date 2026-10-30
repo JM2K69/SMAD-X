@@ -30,7 +30,7 @@ public class AttackPathSampleTests
         ["11-empty-password"] = (true, [EmptyPassword, MemberOf, PrivilegedGroup]),
         ["12-nested-groups"] = (false, [MemberOf, MemberOf, MemberOf, PrivilegedGroup]),
         ["13-dcsync"] = (true, [Kerberoasting, DCSync]),
-        ["14-shadow-credentials"] = (false, [MemberOf, ShadowCredentials, HasSession, MemberOf, PrivilegedGroup]),
+        ["14-shadow-credentials"] = (false, [MemberOf, ShadowCredentials, DomainController]),
         ["15-rbcd"] = (false, [MemberOf, Rbcd, HasSession, MemberOf, PrivilegedGroup])
     };
 

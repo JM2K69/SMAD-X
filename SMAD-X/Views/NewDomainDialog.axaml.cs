@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System.Linq;
+using SMADX.Models;
 using SMADX.Services;
 
 namespace SMADX.Views
@@ -9,6 +10,7 @@ namespace SMADX.Views
     {
         public string? DomainName { get; private set; }
         public bool EnableTiering { get; private set; }
+        public WindowsServerVersion ServerVersion { get; private set; } = WindowsServerProfile.DefaultVersion;
 
         public NewDomainDialog()
         {
@@ -16,6 +18,9 @@ namespace SMADX.Views
 
             // Nom proposé : le domaine d'exemple de Microsoft, identique dans toutes les langues
             DomainNameTextBox.Text = "contoso.com";
+
+            ServerVersionComboBox.ItemsSource = WindowsServerProfile.All.Select(p => p.Name).ToList();
+            ServerVersionComboBox.SelectedIndex = WindowsServerProfile.All.ToList().FindIndex(p => p.Version == WindowsServerProfile.DefaultVersion);
 
             // Focus sur le champ de texte au démarrage
             DomainNameTextBox.AttachedToVisualTree += (s, e) =>
@@ -55,6 +60,8 @@ namespace SMADX.Views
 
             DomainName = domainName;
             EnableTiering = EnableTieringCheckBox.IsChecked ?? true;
+            if (ServerVersionComboBox.SelectedIndex >= 0)
+                ServerVersion = WindowsServerProfile.All[ServerVersionComboBox.SelectedIndex].Version;
             Close(true);
         }
 

@@ -61,7 +61,7 @@ namespace SMADX.Studio
                 Without arguments, opens the window. / Sans argument, ouvre la fenêtre.
 
                   SMAD-X.Studio list-recipes [--lang fr|en]
-                  SMAD-X.Studio recipe <RULE-ID>...|all [--combine] [--exam [--exam-check] [--exam-close <tools>]] [--lang fr|en] [--domain corp.example.lab] [--out <folder>] [--date yyyy-MM-dd]
+                  SMAD-X.Studio recipe <RULE-ID>...|all [--combine] [--exam [--exam-check] [--exam-close <tools>]] [--lang fr|en] [--domain corp.example.lab] [--server 2019|2022|2025] [--out <folder>] [--date yyyy-MM-dd]
                   SMAD-X.Studio convert <scenario.smad-x.json>... [--exam [--exam-check] [--exam-close <tools>]] [--lang fr|en] [--out <folder>] [--date yyyy-MM-dd]
                   SMAD-X.Studio validate <lab.smadx-lab.json>... [--solution <fixed.smad-x.json>] [--lang fr|en]
                   SMAD-X.Studio export-subject <lab.smadx-lab.json>... [--out <folder>] [--lang fr|en]
@@ -130,13 +130,13 @@ namespace SMADX.Studio
                     error.WriteLine(reason);
                     return 1;
                 }
-                var combined = LabRecipes.CreateLab(recipes, options.Culture, options.Domain, options.Date);
+                var combined = LabRecipes.CreateLab(recipes, options.Culture, options.Domain, options.Date, options.Server);
                 return Write(combined.Lab, combined.TeacherNotes, options, output, error, combined.Solution);
             }
             var result = 0;
             foreach (var recipe in recipes)
             {
-                var created = LabRecipes.CreateLab(recipe, options.Culture, options.Domain, options.Date);
+                var created = LabRecipes.CreateLab(recipe, options.Culture, options.Domain, options.Date, options.Server);
                 result = Math.Max(result, Write(created.Lab, created.TeacherNotes, options, output, error, created.Solution));
             }
             return result;
@@ -357,6 +357,7 @@ namespace SMADX.Studio
             public List<string> Inputs { get; } = new();
             public string Culture { get; private set; } = StudioText.Instance.Culture;
             public string Domain { get; private set; } = "corp.example.lab";
+            public WindowsServerVersion Server { get; private set; } = WindowsServerProfile.DefaultVersion;
             public string Out { get; private set; } = Directory.GetCurrentDirectory();
             public bool OutGiven { get; private set; }
             public string? Solution { get; private set; }
@@ -388,6 +389,11 @@ namespace SMADX.Studio
                         case "--domain":
                             options.Domain = Value("--domain").Trim().ToLowerInvariant();
                             if (!ViewModels.RecipePickerViewModel.LooksLikeDomain(options.Domain)) throw new CliException($"--domain: « {options.Domain} » is not a domain name.");
+                            break;
+                        case "--server":
+                            var server = Value("--server").Trim();
+                            options.Server = WindowsServerProfile.All.FirstOrDefault(p => p.Version.ToString() == $"Server{server}")?.Version
+                                ?? throw new CliException($"--server: « {server} » is not {string.Join(", ", WindowsServerProfile.All.Select(p => p.Version.ToString()[^4..]))}.");
                             break;
                         case "--out": options.Out = Value("--out"); options.OutGiven = true; break;
                         case "--solution": options.Solution = Value("--solution"); break;

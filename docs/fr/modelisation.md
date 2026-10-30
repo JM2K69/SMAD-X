@@ -20,7 +20,7 @@ Ces règles de placement sont celles du schéma d'AD : SMAD-X refuse une OU dans
 
 Sélectionnez le **domaine** : la section **Politique de mot de passe** du panneau donne la politique par défaut (Default Domain Policy), qui s'applique à tous les comptes sans PSO. Un **PSO** a la même section, avec sa priorité. Comme dans AD, la politique effective d'un compte est le PSO de plus petite priorité appliqué au compte lui-même, sinon à l'un de ses groupes, sinon celle du domaine.
 
-Le domaine porte aussi **ms-DS-MachineAccountQuota** : le nombre d'ordinateurs que tout utilisateur peut joindre au domaine (10 par défaut, à mettre à 0).
+Le domaine porte aussi **ms-DS-MachineAccountQuota** : le nombre d'ordinateurs que tout utilisateur peut joindre au domaine (10 par défaut, à mettre à 0), et la version de Windows Server qui l'a promu, quand elle est connue.
 
 Un domaine neuf garde les valeurs d'une installation (7 caractères, quota de 10) : l'audit le signale (règles PWD-08, PWD-09 et ACC-03).
 
@@ -56,7 +56,7 @@ Pour un **ordinateur**, la partie **Ordinateur** ajoute :
 Les options utilisent les vrais bits de `userAccountControl` : l'import PowerShell les reprend tels quels.
 
 !!! tip "AdminSDHolder"
-    Les membres des groupes protégés (Domain Admins, Account Operators, Backup Operators…) ont `adminCount = 1` : le processus SDProp leur applique les permissions d'AdminSDHolder et **coupe l'héritage**. SMAD-X en tient compte : une délégation posée sur une OU ne s'applique pas à ces objets. C'est ce qui explique pourquoi certains chemins d'attaque n'existent pas.
+    Les membres des groupes protégés (Domain Admins, Account Operators, Backup Operators…) ont `adminCount = 1` : le processus SDProp leur applique les permissions d'AdminSDHolder et **coupe l'héritage**. SMAD-X en tient compte : une délégation posée sur une OU ne s'applique pas à ces objets. C'est ce qui explique pourquoi certains chemins d'attaque n'existent pas. Les contrôleurs de domaine, eux, ne sont pas protégés : ils ne sont membres de Domain Controllers que par leur groupe principal, que SDProp ignore.
 
 ## Appartenances et relations
 

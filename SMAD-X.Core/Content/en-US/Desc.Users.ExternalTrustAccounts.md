@@ -1,0 +1,1 @@
+All external trust accounts in the domain. Created by Windows Server 2025.

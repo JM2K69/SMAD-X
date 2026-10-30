@@ -34,6 +34,6 @@
 | Humongous Insurance: the intern's account | Beginner | 15 min | `humongousinsurance.lan` | 4 (9 pts) |
 | Fourth Coffee: who really is a DNS admin? | Beginner | 15 min | `fourthcoffee.local` | 4 (8 pts) |
 | Alpine Ski House: the forgotten synchronisation | Intermediate | 20 min | `alpineskihouse.local` | 4 (8 pts) |
-| Trey Research: the Windows Hello pilot | Advanced | 25 min | `treyresearch.local` | 6 (8 pts) |
+| Trey Research: the Windows Hello pilot | Advanced | 25 min | `treyresearch.local` | 5 (8 pts) |
 | Wide World Importers: the backup server | Advanced | 30 min | `wideworldimporters.local` | 6 (8 pts) |
 

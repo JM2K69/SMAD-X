@@ -61,7 +61,7 @@ public class BuiltInSecurityDefaultsTests
         Assert.Equal(ADAccountFlags.TrustedForDelegation, dc.AccountFlags);
         Assert.Contains("ldap/DC01.corp.local", dc.ServicePrincipalNames);
         Assert.Contains("GC/DC01.corp.local/corp.local", dc.ServicePrincipalNames);
-        Assert.True(dc.AdminCount);
+        Assert.False(dc.AdminCount); // SDProp ignore l'appartenance par le groupe principal
     }
 
     [Fact]
@@ -93,9 +93,20 @@ public class BuiltInSecurityDefaultsTests
     }
 
     [Fact]
-    public void Objects_AreOwnedByDomainAdmins()
+    public void Objects_HaveTheOwnersOfARealFreshDomain()
     {
-        Assert.All(Flatten(_domain).Where(o => o != _domain), o => Assert.Equal("Domain Admins", o.Owner));
+        string Owner(string name) => Flatten(_domain).First(o => o.Name == name).Owner!;
+        // Venus des comptes et groupes locaux du serveur promu : Administrators ; créés par le rôle DNS : SYSTEM
+        Assert.Equal("Administrators", Owner("Guest"));
+        Assert.Equal("Administrators", Owner("Remote Desktop Users"));
+        Assert.Equal("Administrators", Owner("Builtin"));
+        Assert.Equal("Domain Admins", Owner("Pre-Windows 2000 Compatible Access")); // propre aux contrôleurs de domaine
+        Assert.Equal("SYSTEM", Owner("DnsAdmins"));
+        // Protégés par AdminSDHolder : SDProp leur donne son propriétaire
+        Assert.Equal("Domain Admins", Owner("Administrator"));
+        Assert.Equal("Domain Admins", Owner("Backup Operators"));
+        Assert.Equal("Domain Admins", Owner("krbtgt"));
+        Assert.All(Flatten(_domain).Where(o => o != _domain), o => Assert.Contains(o.Owner, new[] { "Domain Admins", "Administrators", "SYSTEM", "Enterprise Admins" }));
     }
 
     [Fact]
@@ -382,6 +393,12 @@ public class SecurityPowerShellTests
             ("0x110", Laps, Computer, "ReadProperty:ms-Mcs-AdmPwd|ReadLapsPassword"),
             ("0x10", None, None, "-"),                                           // lire tous les attributs : pas le mot de passe LAPS, confidentiel
             ("0x3", Computer, None, "CreateChild:computer|ComputerManagement"),
+            ("0x3", "bf967aba-0de6-11d0-a285-00aa003049e2", None, "CreateChild:user|Other"),       // Account Operators sur Users
+            ("0x20", "28630ebf-41d5-11d1-a9c1-0000f80367c1", None, "WriteProperty:lockoutTime|AccountUnlock"),
+            // Droits étendus de tout domaine neuf : nommés, et pas des délégations de déverrouillage
+            ("0x100", "280f369c-67c7-438e-ae98-1d46f3c6f541", None, "Update-Password-Not-Required-Bit|Other"),
+            ("0x100", "3e0f7e18-2c7a-4c10-ba82-4d926db99a3e", None, "DS-Clone-Domain-Controller|Other"),
+            ("0x20", "bf967a7f-0de6-11d0-a285-00aa003049e2", None, "WriteProperty:userCertificate|AttributeWrite"),
         };
 
         var harness = new StringBuilder()
@@ -472,5 +489,93 @@ public class SecurityPowerShellTests
         Assert.Equal(["Domain Admins"], pc.LocalAdmins!);
         Assert.Null(dc.LapsPasswordExpiration);
         Assert.Equal(["Administrators"], dc.LocalAdmins!);
+    }
+
+    /// <summary>
+    /// Sur un compte, les ACE que sa classe donne partout (defaultSecurityDescriptor du schéma, CREATOR OWNER devenu le
+    /// propriétaire) ne sont pas des délégations : seule l'ACE ajoutée est importée. Le groupe principal, quand ce n'est
+    /// pas Domain Users, devient une appartenance. Il faut System.DirectoryServices : Windows seulement.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(PowerShellRunner.Shells), MemberType = typeof(PowerShellRunner))]
+    public async Task ImportScript_LeavesOutTheClassDefaults_AndReadsThePrimaryGroup(string shell)
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        var scriptPath = TempFile(".ps1");
+        Assert.True(await new ADImportPowerShellService().GenerateImportScriptAsync(scriptPath));
+        var script = await File.ReadAllTextAsync(scriptPath);
+        var helpers = script[script.IndexOf("function ConvertTo-JsonString", StringComparison.Ordinal)..script.IndexOf("# ── 4. Collect GPOs", StringComparison.Ordinal)];
+        var builder = script[script.IndexOf("function Build-NodeJson", StringComparison.Ordinal)..script.IndexOf("# ── 9. Domain root", StringComparison.Ordinal)];
+
+        const string owner = "S-1-5-21-1-2-3-512";
+        var harness = new StringBuilder()
+            .AppendLine("Set-StrictMode -Version 2.0")
+            .AppendLine("$ErrorActionPreference = 'Stop'")
+            .AppendLine("[Console]::OutputEncoding = [Text.Encoding]::UTF8")
+            .AppendLine("Add-Type -AssemblyName System.DirectoryServices")
+            // Le schéma ne connaît que la classe user ; aucun autre objet n'existe
+            .AppendLine("function Get-ADObject { param($Filter, $SearchBase, $SearchScope, $Properties, $LDAPFilter, $Identity, $ErrorAction)")
+            .AppendLine("    if ($LDAPFilter -eq '(lDAPDisplayName=user)') { [pscustomobject]@{ defaultSecurityDescriptor = 'D:(OA;;CR;ab721a53-1e2f-11d0-9819-00aa0040529b;;WD)(OA;;WP;4c164200-20c0-11d0-a768-00aa006e0529;;CO)' } } else { @() } }")
+            .AppendLine("function Get-ADGroup { param($Identity, $ErrorAction) if ($Identity -eq 'S-1-5-21-1-2-3-514') { [pscustomobject]@{ SamAccountName = 'Domain Guests' } } }")
+            .AppendLine("$gpoMap = @{}; $psoObjects = @()")
+            .AppendLine(helpers)
+            .AppendLine(builder)
+            .AppendLine("$schemaNC = 'CN=Schema,CN=Configuration,DC=contoso,DC=com'")
+            .AppendLine("$domainSid = 'S-1-5-21-1-2-3'")
+            .AppendLine("$sd = New-Object System.DirectoryServices.ActiveDirectorySecurity")
+            // Les deux ACE par défaut (CREATOR OWNER devenu le propriétaire), et une ACE ajoutée : Everyone écrit tous les attributs
+            .AppendLine($"$sd.SetSecurityDescriptorSddlForm('O:{owner}D:(OA;;CR;ab721a53-1e2f-11d0-9819-00aa0040529b;;WD)(OA;;WP;4c164200-20c0-11d0-a768-00aa006e0529;;{owner})(A;;RPWP;;;WD)')")
+            .AppendLine("$user = [pscustomobject]@{ Description = ''; WhenCreated = $null; WhenChanged = $null; MemberOf = @(); ObjectClass = 'user'; userAccountControl = 0x10222; primaryGroupID = 514; nTSecurityDescriptor = $sd }")
+            .AppendLine("Build-NodeJson -dn 'CN=Guest,CN=Users,DC=contoso,DC=com' -name 'Guest' -simType 'User' -adObj $user");
+        var harnessPath = TempFile(".ps1");
+        await File.WriteAllTextAsync(harnessPath, harness.ToString(), new UTF8Encoding(true));
+
+        var output = (await PowerShellRunner.RunAsync(shell, "-File", harnessPath)).Trim();
+        var guest = JsonSerializer.Deserialize<ADObject>(output, new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } })!;
+
+        var added = Assert.Single(guest.Delegations);
+        Assert.Equal("Everyone", added.TrusteeName); // quel que soit la langue de Windows
+        Assert.Equal(RightCategory.GenericWrite, added.RightCategory);
+        Assert.Equal(["Domain Guests"], guest.MemberOf);
+    }
+
+    /// <summary>
+    /// Le script note la version de Windows Server du plus ancien contrôleur, celui qui a promu le domaine : SMAD-X
+    /// reconnaît alors les objets et les permissions par défaut de cette version.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(PowerShellRunner.Shells), MemberType = typeof(PowerShellRunner))]
+    public async Task ImportScript_ReadsTheServerVersionOfTheFirstDomainController(string shell)
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        var scriptPath = TempFile(".ps1");
+        Assert.True(await new ADImportPowerShellService().GenerateImportScriptAsync(scriptPath));
+        var script = await File.ReadAllTextAsync(scriptPath);
+        var helpers = script[script.IndexOf("function ConvertTo-JsonString", StringComparison.Ordinal)..script.IndexOf("# ── 4. Collect GPOs", StringComparison.Ordinal)];
+        var builder = script[script.IndexOf("function Build-NodeJson", StringComparison.Ordinal)..script.IndexOf("# ── 9. Domain root", StringComparison.Ordinal)];
+
+        var harness = new StringBuilder()
+            .AppendLine("Set-StrictMode -Version 2.0")
+            .AppendLine("$ErrorActionPreference = 'Stop'")
+            .AppendLine("[Console]::OutputEncoding = [Text.Encoding]::UTF8")
+            .AppendLine("function Get-ADObject { param($Filter, $SearchBase, $SearchScope, $Properties, $LDAPFilter, $Identity, $ErrorAction) @() }")
+            // Le domaine a été promu par un Windows Server 2019, rejoint depuis par un 2022
+            .AppendLine("function Get-ADComputer { param($Filter, $SearchBase, $Properties, $ErrorAction)")
+            .AppendLine("    [pscustomobject]@{ operatingSystem = 'Windows Server 2022 Datacenter'; whenCreated = [datetime]'2024-03-01' }")
+            .AppendLine("    [pscustomobject]@{ operatingSystem = 'Windows Server 2019 Standard'; whenCreated = [datetime]'2020-01-15' } }")
+            .AppendLine("function Get-GPOLinksForDN { param($dn) @() }")
+            .AppendLine("$gpoMap = @{}; $psoObjects = @()")
+            .AppendLine(helpers)
+            .AppendLine(builder)
+            .AppendLine("$schemaNC = 'CN=Schema,CN=Configuration,DC=contoso,DC=com'")
+            .AppendLine("$domain = [pscustomobject]@{ Description = ''; WhenCreated = $null; WhenChanged = $null; ObjectClass = 'domainDNS' }")
+            .AppendLine("Build-NodeJson -dn 'DC=contoso,DC=com' -name 'contoso.com' -simType 'Domain' -adObj $domain");
+        var harnessPath = TempFile(".ps1");
+        await File.WriteAllTextAsync(harnessPath, harness.ToString(), new UTF8Encoding(true));
+
+        var output = (await PowerShellRunner.RunAsync(shell, "-File", harnessPath)).Trim();
+        var domain = JsonSerializer.Deserialize<ADObject>(output, new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } })!;
+
+        Assert.Equal(WindowsServerVersion.Server2019, domain.ServerVersion);
     }
 }

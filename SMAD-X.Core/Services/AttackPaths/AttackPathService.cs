@@ -125,7 +125,9 @@ namespace SMADX.Services.AttackPaths
             AnyUser = new AttackNode(AnyUserId, LocalizationService.Instance["AttackPath.AnyUser"], null);
             Target = Node(domain);
             Edges = BuildEdges().ToList();
-            foreach (var edge in Edges)
+            // À longueur égale, le chemin le plus parlant : un groupe privilégié ou un DC contrôle le domaine par son rôle,
+            // même s'il a aussi une permission sur la racine (Domain Admins modifie ses permissions sur un domaine neuf)
+            foreach (var edge in Edges.OrderBy(e => e.Kind is AttackEdgeKind.PrivilegedGroup or AttackEdgeKind.DomainController ? 0 : 1))
             {
                 if (!_incoming.TryGetValue(edge.To, out var list))
                     _incoming[edge.To] = list = new List<AttackEdge>();

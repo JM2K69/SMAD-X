@@ -22,7 +22,7 @@ Select the **domain**: the **Password policy** section of the panel gives the de
 
 The domain also holds **ms-DS-MachineAccountQuota**: the number of computers any user can join to the domain (10 by default, to be set to 0).
 
-A new domain keeps the values of an installation (7 characters, quota of 10): the audit reports it (rules PWD-08, PWD-09 and ACC-03).
+A new domain keeps the values of an installation (7 characters, quota of 10): the audit reports it (rules PWD-08, PWD-09 and ACC-03). The section also shows the Windows Server version that promoted the domain, when it is known.
 
 ## The Security section
 
@@ -56,7 +56,7 @@ For a **computer**, the **Computer** part adds:
 Options use the real `userAccountControl` bits: the PowerShell import carries them as they are.
 
 !!! tip "AdminSDHolder"
-    Members of protected groups (Domain Admins, Account Operators, Backup Operators…) have `adminCount = 1`: the SDProp process applies AdminSDHolder's permissions to them and **disables inheritance**. SMAD-X takes this into account: a delegation set on an OU does not apply to these objects. This is why some attack paths do not exist.
+    Members of protected groups (Domain Admins, Account Operators, Backup Operators…) have `adminCount = 1`: the SDProp process applies AdminSDHolder's permissions to them and **disables inheritance**. SMAD-X takes this into account: a delegation set on an OU does not apply to these objects. This is why some attack paths do not exist. Domain controllers, however, are not protected: they are members of Domain Controllers only through their primary group, which SDProp ignores.
 
 ## Memberships and relations
 

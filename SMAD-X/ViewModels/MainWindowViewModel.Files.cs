@@ -42,12 +42,12 @@ namespace SMADX.ViewModels
             ShowDomain(new ADRootDocument
             {
                 Version = ADRootDocument.CurrentVersion,
-                Domain = _dataService.CreateFreshDomainStructure(request.DomainName, request.EnableTiering),
+                Domain = _dataService.CreateFreshDomainStructure(request.DomainName, request.EnableTiering, request.Version),
                 SitesTopology = _dataService.CreateFreshTopology(request.DomainName)
             }, expandDefaultNodes: true);
 
             var tieringStatus = Loc[request.EnableTiering ? "Status.WithTiering" : "Status.WithoutTiering"];
-            StatusMessage = string.Format(Loc["Status.DomainCreated"], request.DomainName, tieringStatus);
+            StatusMessage = string.Format(Loc["Status.DomainCreated"], request.DomainName, tieringStatus, WindowsServerProfile.For(request.Version).Name);
         }
 
         [RelayCommand]

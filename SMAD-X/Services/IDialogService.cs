@@ -8,7 +8,8 @@ namespace SMADX.Services
     public sealed record FileFilter(string Name, params string[] Patterns);
 
     /// <summary>Résultat de la boîte « Nouveau domaine ».</summary>
-    public sealed record NewDomainRequest(string DomainName, bool EnableTiering);
+    public sealed record NewDomainRequest(string DomainName, bool EnableTiering,
+        WindowsServerVersion Version = WindowsServerProfile.DefaultVersion);
 
     /// <summary>
     /// Fenêtres et sélecteurs de fichiers demandés par les ViewModels.

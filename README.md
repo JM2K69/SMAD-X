@@ -29,9 +29,9 @@
 ## 🎯 Features
 
 ### 🏗️ Complete and Faithful Default AD Structure
-- Automatic generation of all containers and objects present in a freshly promoted AD domain:
+- Automatic generation of all containers and objects present in a freshly promoted AD domain, for Windows Server 2019, 2022 or 2025 (checked against real exports of each version):
   - **Builtin**: Administrators, Users, Guests, Server Operators, Account Operators, Backup Operators…
-  - **Users**: Administrator, Guest, krbtgt, DefaultAccount, WDAGUtilityAccount + 16 default domain groups (Domain Admins, Schema Admins, Enterprise Admins, Protected Users, Key Admins, Cloneable Domain Controllers, Denied/Allowed RODC Password Replication Group…)
+  - **Users**: Administrator, Guest, krbtgt + 16 default domain groups (Domain Admins, Schema Admins, Enterprise Admins, Protected Users, Key Admins, Cloneable Domain Controllers, Denied/Allowed RODC Password Replication Group…)
   - **Computers**: default container for domain-joined workstations
   - **Domain Controllers** (OU): DC01 with all FSMO roles
   - **System**: Password Settings Container, Policies (Default Domain Policy, Default Domain Controllers Policy)
@@ -242,8 +242,6 @@ Every default object includes an in-app Markdown description with role and secur
 | Object | Note |
 |---|---|
 | **Guest** | Disabled by default since Server 2008 — do not enable |
-| **DefaultAccount** | System account — do not modify |
-| **WDAGUtilityAccount** | Windows Defender Application Guard — do not modify |
 
 ---
 

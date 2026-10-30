@@ -23,6 +23,9 @@ namespace SMADX.ViewModels
 
         public decimal? MachineAccountQuota { get => _obj.MachineAccountQuota; set => Set(v => _obj.MachineAccountQuota = v, value); }
 
+        /// <summary>Pour le domaine : « Windows Server 2022 », la version qui l'a promu ; null si elle est inconnue.</summary>
+        public string? ServerVersionName => IsDomain ? SMADX.Services.WindowsServerProfile.NameOf(_obj.ServerVersion) : null;
+
         public decimal? Precedence { get => _obj.PSOPrecedence; set => Set(v => _obj.PSOPrecedence = v, value); }
         public decimal? MinPasswordLength { get => _obj.PSOMinPasswordLength; set => Set(v => _obj.PSOMinPasswordLength = v, value); }
         public decimal? PasswordHistoryCount { get => _obj.PSOPasswordHistoryCount; set => Set(v => _obj.PSOPasswordHistoryCount = v, value); }

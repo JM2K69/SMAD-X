@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
+using SMADX.Models;
 using SMADX.Services;
 using SMADX.Services.Audit;
 using SMADX.Services.Labs;
@@ -36,8 +37,8 @@ namespace SMADX.Studio.ViewModels
     }
 
     /// <summary>
-    /// Fenêtre « Nouvel exercice à partir d'une recommandation » : une ou plusieurs recettes (cochées), la langue
-    /// et le nom du domaine. Sans case cochée, la recette surlignée est utilisée.
+    /// Fenêtre « Nouvel exercice à partir d'une recommandation » : une ou plusieurs recettes (cochées), la langue, la
+    /// version de Windows Server et le nom du domaine. Sans case cochée, la recette surlignée est utilisée.
     /// </summary>
     public sealed partial class RecipePickerViewModel : ObservableObject
     {
@@ -60,6 +61,7 @@ namespace SMADX.Studio.ViewModels
             }
             _selected = Recipes.FirstOrDefault();
             _culture = Cultures.First(c => c.Value == culture);
+            _version = Versions.First(v => v.Value == WindowsServerProfile.DefaultVersion);
             Refresh();
         }
 
@@ -68,6 +70,12 @@ namespace SMADX.Studio.ViewModels
         public IReadOnlyList<Choice<string>> Cultures { get; } = [new("fr-FR", "Français"), new("en-US", "English")];
 
         [ObservableProperty] private Choice<string> _culture;
+
+        /// <summary>Versions de Windows Server dont SMAD-X reproduit le domaine neuf.</summary>
+        public IReadOnlyList<Choice<WindowsServerVersion>> Versions { get; } =
+            WindowsServerProfile.All.Select(p => new Choice<WindowsServerVersion>(p.Version, p.Name)).ToList();
+
+        [ObservableProperty] private Choice<WindowsServerVersion> _version;
         [ObservableProperty] private string _domainName = "corp.example.lab";
         [ObservableProperty] private string _filter = "";
 
@@ -130,7 +138,7 @@ namespace SMADX.Studio.ViewModels
         }
 
         public RecipeRequest? Request() =>
-            CanCreate ? new RecipeRequest(Chosen, Culture.Value, DomainName.Trim().ToLowerInvariant()) : null;
+            CanCreate ? new RecipeRequest(Chosen, Culture.Value, DomainName.Trim().ToLowerInvariant(), Version.Value) : null;
 
         /// <summary>Au moins deux étiquettes séparées par des points, lettres, chiffres et tirets.</summary>
         public static bool LooksLikeDomain(string? name) =>

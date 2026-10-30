@@ -7,7 +7,7 @@
         x:Class="SMADX.Views.NewDomainDialog"
         Title="{Binding Source={StaticResource Loc}, Path=DialogNewDomainTitle}"
         Icon="/Assets/icone.ico"
-        Width="500" Height="300"
+        Width="500" SizeToContent="Height" MaxHeight="760"
         WindowStartupLocation="CenterOwner"
         CanResize="False">
 
@@ -37,6 +37,11 @@
                        FontSize="12" 
                        IsVisible="False"/>
 
+            <!-- Version de Windows Server : les objets et permissions par défaut du domaine neuf -->
+            <TextBlock Text="{Binding DialogNewDomainServerVersion}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+            <ComboBox Name="ServerVersionComboBox" HorizontalAlignment="Stretch"
+                      ToolTip.Tip="{Binding DialogNewDomainServerVersionTooltip}"/>
+
             <!-- Option Tiering -->
             <CheckBox Name="EnableTieringCheckBox" 
                       Content="{Binding DialogNewDomainEnableTiering}" 
@@ -45,11 +50,11 @@
                       ToolTip.Tip="{Binding DialogNewDomainTieringTooltip}"/>
         </StackPanel>
 
-        <!-- Aperçu -->
+        <!-- Aperçu : couleurs du thème, lisibles en clair comme en sombre -->
         <Border Grid.Row="3" 
-                BorderBrush="#CCCCCC" 
+                BorderBrush="{DynamicResource AppSeparatorBrush}" 
                 BorderThickness="1" 
-                Background="#F9F9F9" 
+                Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" 
                 Padding="10"
                 Margin="0,0,0,20">
             <ScrollViewer MaxHeight="150">

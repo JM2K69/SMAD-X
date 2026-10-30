@@ -1,0 +1,1 @@
+Tous les comptes d'approbation externe du domaine. Créé par Windows Server 2025.

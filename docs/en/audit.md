@@ -40,7 +40,11 @@ The screenshot shows the sample domain with a weakness added for this documentat
 
 ## A fresh domain, like a real one
 
-The SMAD-X fresh domain has the same default permissions as a freshly installed Active Directory: Enterprise Admins full control on the root, replication for the domain controllers, `msDS-KeyCredentialLink` write for Key Admins and Enterprise Key Admins, Enterprise Admins and Domain Admins rights on AdminSDHolder; every joined computer has Domain Admins as local administrator. These permissions all go to privileged groups: the audit does not report them, just as it would not on a real fresh domain. What it finds there (password policy too short, machine account quota, built-in administrator) is what it would find on an AD fresh out of setup.
+The SMAD-X fresh domain is the one Windows Server installs: the same containers, built-in groups and accounts, owners, memberships, domain controller SPNs, password policy, and the same permissions on the root and the containers (Enterprise Admins, replication for the domain controllers, Key Admins on `msDS-KeyCredentialLink`, AdminSDHolder, Account Operators in Users and Computers…); every joined computer has Domain Admins as local administrator. What gives control goes to privileged groups: the audit does not report it, just as it would not on a real fresh domain. What it finds there (password policy too short, machine account quota, built-in administrator) is what it would find on an AD fresh out of setup.
+
+The fresh domain is the one of the Windows Server version chosen when it is created: **2019**, **2022** (the default) or **2025**. All three share the same accounts and permissions; 2019 locks an account out for 30 minutes instead of 10, 2022 adds the `System\SOA-Policies` container, 2025 the OpenSSH Users, External Trust Accounts and Forest Trust Accounts groups. The domain is seen as it is once SDProp has run, within an hour of promotion: SDProp has protected the sensitive accounts and groups: `adminCount`, Domain Admins as owner and the permissions of AdminSDHolder.
+
+The SMAD-X tests check it for each version: they compare the fresh domain with the export of a real, freshly promoted domain, object by object and permission by permission, and the audit of both.
 
 The full list, with each rule's severity, ANSSI level and references, is on the [Audit rules](reference/audit-rules.md) page, generated from the code.
 

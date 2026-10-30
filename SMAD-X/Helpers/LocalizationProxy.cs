@@ -106,6 +106,7 @@ namespace SMADX.Helpers
         public string PolicyLockoutDuration => _localizationService["Policy.LockoutDuration"];
         public string PolicyObservation => _localizationService["Policy.Observation"];
         public string DomainMachineAccountQuota => _localizationService["Domain.MachineAccountQuota"];
+        public string DomainServerVersion => _localizationService["Domain.ServerVersion"];
         public string SecurityAccountDisabled => _localizationService["Security.AccountDisabled"];
         public string SecurityPasswordNotRequired => _localizationService["Security.PasswordNotRequired"];
         public string SecurityPasswordNeverExpires => _localizationService["Security.PasswordNeverExpires"];
@@ -241,6 +242,8 @@ namespace SMADX.Helpers
         public string DialogNewDomainDomainPlaceholder => _localizationService["Dialog.NewDomain.DomainPlaceholder"];
         public string DialogNewDomainEnableTiering => _localizationService["Dialog.NewDomain.EnableTiering"];
         public string DialogNewDomainTieringTooltip => _localizationService["Dialog.NewDomain.TieringTooltip"];
+        public string DialogNewDomainServerVersion => _localizationService["Dialog.NewDomain.ServerVersion"];
+        public string DialogNewDomainServerVersionTooltip => _localizationService["Dialog.NewDomain.ServerVersionTooltip"];
         public string DialogNewDomainStructurePreview => _localizationService["Dialog.NewDomain.StructurePreview"];
         public string DialogNewDomainCreate => _localizationService["Dialog.NewDomain.Create"];
         public string DialogNewDomainCancel => _localizationService["Dialog.NewDomain.Cancel"];

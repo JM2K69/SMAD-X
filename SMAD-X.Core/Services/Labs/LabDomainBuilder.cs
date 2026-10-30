@@ -87,8 +87,9 @@ namespace SMADX.Services.Labs
         /// Domaine neuf, durci (les constats d'un AD sortie d'installation sont corrigés) et peuplé.
         /// Les descriptions des objets intégrés sont écrites dans la langue du constructeur.
         /// </summary>
+        /// <param name="version">Version de Windows Server qui a promu le domaine (ses objets et permissions par défaut).</param>
         /// <exception cref="InvalidOperationException">Le domaine remonte un constat d'audit : il ne peut pas servir de départ.</exception>
-        public ADObject Healthy(string domainName)
+        public ADObject Healthy(string domainName, WindowsServerVersion version = WindowsServerProfile.DefaultVersion)
         {
             var loc = LocalizationService.Instance;
             var previous = loc.CurrentCulture.Name;
@@ -97,7 +98,7 @@ namespace SMADX.Services.Labs
             try
             {
                 TierConfigurationService.Instance.ResetToDefaults();
-                var d = _data.CreateLabBaseStructure(domainName);
+                var d = _data.CreateLabBaseStructure(domainName, version: version);
                 foreach (var o in Flatten(d))
                 {
                     o.CreatedDate = Reference.AddDays(-400);

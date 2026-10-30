@@ -1124,15 +1124,8 @@ Scenario("14-shadow-credentials", "laboratoire-helios.local", "treyresearch.loca
     var tech = User(it, T("t.garnier", "m.clarke"), "Tier 1", T("Technicien du prestataire, membre du projet pilote.", "Contractor technician, member of the pilot project."));
     tech.MemberOf.Add(pilot.Name);
     Delegate(d, pilot.Name, TrusteeType.Group, "WriteProperty:msDS-KeyCredentialLink", RightCategory.WriteKeyCredentialLink, "Tier 0");
-    // Le serveur d'administration : les administrateurs du domaine s'y connectent, à leur place dans le Tier 0
-    var tier0 = Ou(d, T("Serveurs Tier 0", "Tier 0 Servers"), "Tier 0");
-    var jump = Computer(tier0, "SRV-ADMIN01", "Tier 0", T("Serveur d'administration : les outils d'administration du domaine.", "Administration server: the domain administration tools."));
-    var admins = Ou(d, T("Administration", "Admin Accounts"), "Tier 0");
-    var admin = User(admins, T("adm-rlefort", "adm-mclark"), "Tier 0", T("Compte d'administration du domaine.", "Domain admin account."));
-    admin.MemberOf.Add("Domain Admins");
-    admin.AdminCount = true;
-    admin.AccountFlags = ADAccountFlags.NotDelegated;
-    jump.Sessions = new() { admin.Name };
+    // Le contrôleur de domaine hérite du droit : AdminSDHolder ne le protège pas
+    var dc = Find(d, "DC01", ADObjectType.Computer);
 
     Lab(T("Laboratoire Hélios : le pilote Windows Hello", "Trey Research: the Windows Hello pilot"), LabLevel.Advanced, 25,
         T($"""
@@ -1161,20 +1154,16 @@ Scenario("14-shadow-credentials", "laboratoire-helios.local", "treyresearch.loca
             T("C'est le droit par défaut qui fait fonctionner Windows Hello : ne le retirez pas.", "It is the default right that makes Windows Hello work: do not remove it."),
             new LabCheck { Type = LabCheckType.DelegationExists, Trustee = "Key Admins", Target = d.Name, RightCategory = RightCategory.WriteKeyCredentialLink }),
         Exists("o5", tech.Name, ADObjectType.User, T($"Le compte `{tech.Name}` existe toujours", $"Account `{tech.Name}` still exists"),
-            T("Le technicien généralisera le déploiement : retirez le droit de son groupe, pas son compte.", "The technician will roll out the deployment: remove their group's right, not their account.")),
-        Obj("o6", 1, T($"`{admin.Name}` reste administrateur du domaine", $"`{admin.Name}` stays a domain administrator"),
-            T("Le compte d'administration est à sa place sur le serveur d'administration : le problème est ailleurs.", "The admin account belongs on the administration server: the problem is elsewhere."),
-            new LabCheck { Type = LabCheckType.MemberOf, Object = admin.Name, Group = "Domain Admins" }));
+            T("Le technicien généralisera le déploiement : retirez le droit de son groupe, pas son compte.", "The technician will roll out the deployment: remove their group's right, not their account.")));
 
     return (T("Chemin d'attaque : Shadow Credentials", "Attack path: Shadow Credentials"), T(
         $"""
-        Pour le pilote **Windows Hello Entreprise**, le prestataire a donné à son groupe `{pilot.Name}` le droit d'écrire `msDS-KeyCredentialLink` sur la racine du domaine, au lieu de passer par le groupe **Key Admins** prévu pour cela. Le droit est hérité par tous les comptes qu'AdminSDHolder ne protège pas : pas les contrôleurs de domaine ni les administrateurs, mais le compte d'ordinateur de **{jump.Name}**, le serveur d'administration. En y ajoutant sa propre clé, un membre du groupe s'authentifie comme ce serveur (Shadow Credentials), en devient administrateur, et y récupère les identifiants de `{admin.Name}`, qui y a une session.
+        Pour le pilote **Windows Hello Entreprise**, le prestataire a donné à son groupe `{pilot.Name}` le droit d'écrire `msDS-KeyCredentialLink` sur la racine du domaine, au lieu de passer par le groupe **Key Admins** prévu pour cela. Le droit est hérité par tous les objets qu'AdminSDHolder ne protège pas, dont le compte d'ordinateur de **{dc.Name}** : un contrôleur de domaine n'est membre de Domain Controllers que par son groupe principal, que SDProp ignore. En ajoutant sa propre clé à ce compte, un membre du groupe s'authentifie comme le contrôleur de domaine (Shadow Credentials) et en réplique tous les secrets (DCSync).
 
         ## Le chemin
         1. `{tech.Name}` → `{pilot.Name}` : appartenance.
-        2. `{pilot.Name}` → `{jump.Name}` : écriture de msDS-KeyCredentialLink, héritée de la racine du domaine.
-        3. `{jump.Name}` → `{admin.Name}` : session ouverte, identifiants en mémoire.
-        4. `{admin.Name}` → Domain Admins → contrôle du domaine.
+        2. `{pilot.Name}` → `{dc.Name}` : écriture de msDS-KeyCredentialLink, héritée de la racine du domaine.
+        3. `{dc.Name}` → contrôle du domaine.
 
         {See(tech.Name)}
 
@@ -1183,13 +1172,12 @@ Scenario("14-shadow-credentials", "laboratoire-helios.local", "treyresearch.loca
         - Windows Hello se déploie avec Key Admins (ou Enterprise Key Admins), dont l'appartenance se surveille comme celle de Domain Admins. C'est le point ANSSI `vuln_permissions_naming_context`.
         """,
         $"""
-        For the **Windows Hello for Business** pilot, the contractor gave their group `{pilot.Name}` the right to write `msDS-KeyCredentialLink` on the domain root, instead of using the **Key Admins** group meant for it. The right is inherited by every account AdminSDHolder does not protect: not the domain controllers nor the administrators, but the computer account of **{jump.Name}**, the administration server. By adding their own key there, a group member authenticates as that server (Shadow Credentials), becomes its administrator, and retrieves the credentials of `{admin.Name}`, who has a session there.
+        For the **Windows Hello for Business** pilot, the contractor gave their group `{pilot.Name}` the right to write `msDS-KeyCredentialLink` on the domain root, instead of using the **Key Admins** group meant for it. The right is inherited by every object AdminSDHolder does not protect, including the computer account of **{dc.Name}**: a domain controller is a member of Domain Controllers only through its primary group, which SDProp ignores. By adding their own key to that account, a group member authenticates as the domain controller (Shadow Credentials) and replicates all its secrets (DCSync).
 
         ## The path
         1. `{tech.Name}` → `{pilot.Name}`: membership.
-        2. `{pilot.Name}` → `{jump.Name}`: write msDS-KeyCredentialLink, inherited from the domain root.
-        3. `{jump.Name}` → `{admin.Name}`: open session, credentials in memory.
-        4. `{admin.Name}` → Domain Admins → domain control.
+        2. `{pilot.Name}` → `{dc.Name}`: write msDS-KeyCredentialLink, inherited from the domain root.
+        3. `{dc.Name}` → domain control.
 
         {See(tech.Name)}
 

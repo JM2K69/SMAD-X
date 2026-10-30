@@ -473,8 +473,9 @@ namespace SMADX.Services.Labs
         /// objectifs proposés (dont la règle visée) et gardes. Les notes du formateur citent le point de contrôle
         /// et la correction attendue, tirée de la fiche de la règle.
         /// </summary>
-        public static RecipeLab CreateLab(LabRecipe recipe, string culture, string domainName, DateTime reference) =>
-            CreateLab([recipe], culture, domainName, reference);
+        public static RecipeLab CreateLab(LabRecipe recipe, string culture, string domainName, DateTime reference,
+            WindowsServerVersion version = WindowsServerProfile.DefaultVersion) =>
+            CreateLab([recipe], culture, domainName, reference, version);
 
         /// <summary>
         /// Recettes qui ne peuvent pas être combinées dans un même domaine : deux recettes créent un objet du même nom,
@@ -487,12 +488,13 @@ namespace SMADX.Services.Labs
         }
 
         /// <summary>Domaine sain, puis chaque manque injecté ; vérifie que chaque règle visée est bien en échec.</summary>
-        private static (LabDomainBuilder Builder, ADObject Domain, List<ADObject> Keep) Inject(IReadOnlyList<LabRecipe> recipes, string culture, string domainName, DateTime reference)
+        private static (LabDomainBuilder Builder, ADObject Domain, List<ADObject> Keep) Inject(IReadOnlyList<LabRecipe> recipes, string culture, string domainName, DateTime reference,
+            WindowsServerVersion version = WindowsServerProfile.DefaultVersion)
         {
             if (recipes.Count == 0) throw new ArgumentException("Au moins une recette.", nameof(recipes));
             if (recipes.Select(r => r.RuleId).Distinct().Count() != recipes.Count) throw new ArgumentException("Recette en double.", nameof(recipes));
             var builder = new LabDomainBuilder(culture, reference);
-            var domain = builder.Healthy(domainName);
+            var domain = builder.Healthy(domainName, version);
             string T(string fr, string en) => builder.T(fr, en);
 
             var keep = new List<ADObject>();
@@ -525,9 +527,11 @@ namespace SMADX.Services.Labs
         /// les objectifs recommandés par l'audit et les chemins d'attaque, et les gardes de chaque recette.
         /// </summary>
         /// <exception cref="InvalidOperationException">Les recettes ne peuvent pas être combinées (voir <see cref="Incompatibility"/>).</exception>
-        public static RecipeLab CreateLab(IReadOnlyList<LabRecipe> recipes, string culture, string domainName, DateTime reference)
+        /// <param name="version">Version de Windows Server qui a promu le domaine de l'exercice.</param>
+        public static RecipeLab CreateLab(IReadOnlyList<LabRecipe> recipes, string culture, string domainName, DateTime reference,
+            WindowsServerVersion version = WindowsServerProfile.DefaultVersion)
         {
-            var (builder, domain, keep) = Inject(recipes, culture, domainName, reference);
+            var (builder, domain, keep) = Inject(recipes, culture, domainName, reference, version);
             var document = builder.Document(domain);
             var org = OrganisationName(domainName);
             string T(string fr, string en) => builder.T(fr, en);

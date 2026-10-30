@@ -593,7 +593,7 @@ namespace SMADX.Services
 
                 // Barre d'état
                 ["Status.Ready"] = "Prêt",
-                ["Status.DomainCreated"] = "Domaine {0} créé avec structure AD complète ({1})",
+                ["Status.DomainCreated"] = "Domaine {0} créé tel que {2} l'installe ({1})",
                 ["Status.WithTiering"] = "avec tiering activé",
                 ["Status.WithoutTiering"] = "sans tiering",
                 ["Status.SampleLoaded"] = "Structure d'exemple chargée",
@@ -636,13 +636,15 @@ namespace SMADX.Services
                 ["Dialog.NewDomain.DomainPlaceholder"] = "ex: contoso.com, enterprise.local",
                 ["Dialog.NewDomain.EnableTiering"] = "Activer le modèle de tiering (Tier 0/1/2)",
                 ["Dialog.NewDomain.TieringTooltip"] = "Si coché, les utilisateurs, groupes et objets seront automatiquement affectés à des tiers selon leur rôle (Tier 0 : Comptes privilégiés, Tier 1 : Serveurs, Tier 2 : Postes de travail)",
+                ["Dialog.NewDomain.ServerVersion"] = "Version de Windows Server du premier contrôleur de domaine :",
+                ["Dialog.NewDomain.ServerVersionTooltip"] = "Le domaine neuf a les objets et les permissions par défaut que cette version crée en promouvant le premier contrôleur.",
                 ["Dialog.NewDomain.StructurePreview"] = "Structure qui sera créée :",
                 ["Dialog.NewDomain.Create"] = "Créer",
                 ["Dialog.NewDomain.Cancel"] = "Annuler",
                 ["Dialog.NewDomain.ValidationEmpty"] = "Le nom de domaine ne peut pas être vide.",
                 ["Dialog.NewDomain.ValidationNoDot"] = "Le nom de domaine doit contenir au moins un point (ex: domaine.com)",
                 ["Dialog.NewDomain.ValidationInvalidChars"] = "Le nom de domaine ne peut contenir que des lettres, chiffres, points et tirets.",
-                ["Dialog.NewDomain.PreviewTree"] = "📦 Users (conteneur par défaut)\n   ├─ 👤 Administrator\n   ├─ 👤 Guest\n   ├─ 🔐 Krbtgt (Kerberos)\n   └─ 👥 Domain Admins, Enterprise Admins, etc.\n📦 Computers (conteneur par défaut)\n   └─ 💻 WORKSTATION-01 (exemple)\n📦 Builtin (groupes intégrés)\n   └─ 👥 Administrators, Users, Server Operators, etc.\n📁 Domain Controllers (OU)\n   └─ 💻 DC01 (contrôleur de domaine principal)\n📦 System (conteneur système)\n   └─ 📦 Password Settings Container\n📦 ForeignSecurityPrincipals",
+                ["Dialog.NewDomain.PreviewTree"] = "📦 Users (conteneur par défaut)\n   ├─ 👤 Administrator\n   ├─ 👤 Guest\n   ├─ 🔐 Krbtgt (Kerberos)\n   └─ 👥 Domain Admins, Enterprise Admins, etc.\n📦 Computers (conteneur par défaut)\n📦 Builtin (groupes intégrés)\n   └─ 👥 Administrators, Users, Server Operators, etc.\n📁 Domain Controllers (OU)\n   └─ 💻 DC01 (contrôleur de domaine principal)\n📦 System (conteneur système)\n   └─ 📦 Password Settings Container\n📦 ForeignSecurityPrincipals",
 
                 // Boîtes de dialogue fichiers
                 ["Dialog.Save.Title"] = "Sauvegarder la structure AD",
@@ -672,6 +674,7 @@ namespace SMADX.Services
                 ["Policy.LockoutDuration"] = "Durée du verrouillage (minutes)",
                 ["Policy.Observation"] = "Réinitialisation du compteur (minutes)",
                 ["Domain.MachineAccountQuota"] = "Ordinateurs que tout utilisateur peut joindre au domaine (ms-DS-MachineAccountQuota)",
+                ["Domain.ServerVersion"] = "Domaine promu par",
                 ["Validation.Member.Type"] = "Un objet de type « {0} » ne peut pas être membre d'un groupe.",
                 ["Validation.Member.Scope"] = "« {0} » ({1}) ne peut pas être membre de « {2} » ({3}) : un groupe global ne contient que des comptes et des groupes globaux, un groupe universel n'accepte pas de groupe de domaine local (modèle AGDLP).",
                 ["Status.Renamed"] = "Renommé en : {0}",
@@ -1492,7 +1495,7 @@ namespace SMADX.Services
 
                 // Status bar
                 ["Status.Ready"] = "Ready",
-                ["Status.DomainCreated"] = "Domain {0} created with complete AD structure ({1})",
+                ["Status.DomainCreated"] = "Domain {0} created as {2} installs it ({1})",
                 ["Status.WithTiering"] = "with tiering enabled",
                 ["Status.WithoutTiering"] = "without tiering",
                 ["Status.SampleLoaded"] = "Sample structure loaded",
@@ -1535,13 +1538,15 @@ namespace SMADX.Services
                 ["Dialog.NewDomain.DomainPlaceholder"] = "e.g.: contoso.com, enterprise.local",
                 ["Dialog.NewDomain.EnableTiering"] = "Enable tiering model (Tier 0/1/2)",
                 ["Dialog.NewDomain.TieringTooltip"] = "If checked, users, groups and objects will be automatically assigned to tiers according to their role (Tier 0: Privileged accounts, Tier 1: Servers, Tier 2: Workstations)",
+                ["Dialog.NewDomain.ServerVersion"] = "Windows Server version of the first domain controller:",
+                ["Dialog.NewDomain.ServerVersionTooltip"] = "The fresh domain has the default objects and permissions this version creates when it promotes the first domain controller.",
                 ["Dialog.NewDomain.StructurePreview"] = "Structure to be created:",
                 ["Dialog.NewDomain.Create"] = "Create",
                 ["Dialog.NewDomain.Cancel"] = "Cancel",
                 ["Dialog.NewDomain.ValidationEmpty"] = "Domain name cannot be empty.",
                 ["Dialog.NewDomain.ValidationNoDot"] = "Domain name must contain at least one dot (e.g.: domain.com)",
                 ["Dialog.NewDomain.ValidationInvalidChars"] = "Domain name can only contain letters, digits, dots and hyphens.",
-                ["Dialog.NewDomain.PreviewTree"] = "📦 Users (default container)\n   ├─ 👤 Administrator\n   ├─ 👤 Guest\n   ├─ 🔐 Krbtgt (Kerberos)\n   └─ 👥 Domain Admins, Enterprise Admins, etc.\n📦 Computers (default container)\n   └─ 💻 WORKSTATION-01 (sample)\n📦 Builtin (built-in groups)\n   └─ 👥 Administrators, Users, Server Operators, etc.\n📁 Domain Controllers (OU)\n   └─ 💻 DC01 (primary domain controller)\n📦 System (system container)\n   └─ 📦 Password Settings Container\n📦 ForeignSecurityPrincipals",
+                ["Dialog.NewDomain.PreviewTree"] = "📦 Users (default container)\n   ├─ 👤 Administrator\n   ├─ 👤 Guest\n   ├─ 🔐 Krbtgt (Kerberos)\n   └─ 👥 Domain Admins, Enterprise Admins, etc.\n📦 Computers (default container)\n📦 Builtin (built-in groups)\n   └─ 👥 Administrators, Users, Server Operators, etc.\n📁 Domain Controllers (OU)\n   └─ 💻 DC01 (primary domain controller)\n📦 System (system container)\n   └─ 📦 Password Settings Container\n📦 ForeignSecurityPrincipals",
 
                 // File dialogs
                 ["Dialog.Save.Title"] = "Save AD Structure",
@@ -1571,6 +1576,7 @@ namespace SMADX.Services
                 ["Policy.LockoutDuration"] = "Lockout duration (minutes)",
                 ["Policy.Observation"] = "Counter reset (minutes)",
                 ["Domain.MachineAccountQuota"] = "Computers any user can join to the domain (ms-DS-MachineAccountQuota)",
+                ["Domain.ServerVersion"] = "Domain promoted by",
                 ["Validation.Member.Type"] = "An object of type \"{0}\" cannot be a member of a group.",
                 ["Validation.Member.Scope"] = "\"{0}\" ({1}) cannot be a member of \"{2}\" ({3}): a global group only holds accounts and global groups, a universal group does not accept domain local groups (AGDLP model).",
                 ["Status.Renamed"] = "Renamed to: {0}",
