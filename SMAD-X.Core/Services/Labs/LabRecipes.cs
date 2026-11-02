@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using SMADX.Models;
 using SMADX.Services.Audit;
+using SMADX.Services.Tiering;
 using static SMADX.Services.Labs.LabDomainBuilder;
 
 namespace SMADX.Services.Labs
@@ -47,11 +48,26 @@ namespace SMADX.Services.Labs
         private static LocalizedText L(string fr, string en) => LocalizedText.Of(fr, en);
 
         /// <summary>
-        /// Règles sans recette : la conformité à un modèle de cloisonnement publié (TIER-05 à TIER-08). Leur manque
-        /// n'existe que dans un domaine déjà cloisonné selon le modèle, ce que le domaine sain des recettes n'est pas,
-        /// et leur correction déplace des objets.
+        /// Recettes de la conformité à un modèle de cloisonnement (TIER-05 à TIER-08) : elles partent du domaine sain migré
+        /// vers le modèle de Microsoft (sans constat, une fois migré), et ne se combinent qu'entre elles.
         /// </summary>
-        public static readonly IReadOnlySet<string> RulesWithoutRecipe = new HashSet<string> { "TIER-05", "TIER-06", "TIER-07", "TIER-08" };
+        public static readonly IReadOnlySet<string> TierModelRecipes = new HashSet<string> { "TIER-05", "TIER-06", "TIER-07", "TIER-08" };
+
+        /// <summary>Modèle des recettes TIER-05 à TIER-08.</summary>
+        public const string RecipeTierModel = "microsoft";
+
+        private const string WorkstationRestrictions = "Tier 2 EUD Account Restrictions";
+        private const string TierOneServers = "Tier 1 Member Servers";
+
+        /// <summary>Le domaine sain, migré vers le modèle de Microsoft s'il ne l'est pas déjà.</summary>
+        private static void Tiered(LabDomainBuilder b, ADObject d)
+        {
+            if (d.TierModel != RecipeTierModel)
+                TierMigrationService.Migrate(d, TierModelCatalog.Find(RecipeTierModel)!, b.Reference, registerTiers: false);
+        }
+
+        private static ADObject ModelOu(ADObject d, string path) =>
+            TierModelService.Ou(d, path) ?? throw new InvalidOperationException($"OU du modèle absente : {path}");
 
         // ─── Emplacements, créés au besoin ───────────────────────────────────────
 
@@ -301,6 +317,35 @@ namespace SMADX.Services.Labs
                 pc.Sessions = new() { admin.Name };
                 return [admin, pc];
             }),
+            new("TIER-05", L("Pour dépanner un poste, un administrateur a retiré Domain Admins des refus d'ouverture de session de la GPO des postes de travail, et ne l'y a jamais remis.",
+                             "To troubleshoot a workstation, an administrator removed Domain Admins from the logon denials of the workstation GPO, and never put it back."), (b, d) =>
+            {
+                Tiered(b, d);
+                var gpo = Find(d, WorkstationRestrictions, ADObjectType.Policy);
+                gpo.GpoDenyInteractiveLogon!.Remove("Domain Admins");
+                gpo.GpoDenyRemoteInteractiveLogon!.Remove("Domain Admins");
+                return [gpo];
+            }),
+            new("TIER-06", L("Un nouveau serveur de fichiers a été joint au domaine la semaine dernière.", "A new file server was joined to the domain last week."), (b, d) =>
+            {
+                Tiered(b, d);
+                return [b.Computer(Find(d, "Computers", ADObjectType.Container), b.T("SRV-FICHIERS02", "SRV-FILES02"), "Tier 1", b.T("Serveur de fichiers.", "File server."))];
+            }),
+            new("TIER-07", L("Un serveur d'impression a été préparé il y a trois mois, puis oublié.", "A print server was prepared three months ago, then forgotten."), (b, d) =>
+            {
+                Tiered(b, d);
+                var staging = ModelOu(d, $"{TierOneServers}/Tier 1 Server Staging");
+                return [b.Computer(staging, b.T("SRV-IMPRESSION01", "SRV-PRINT01"), "Tier 1", b.T("Serveur d'impression.", "Print server."))];
+            }),
+            new("TIER-08", L("Un administrateur du domaine a été créé avec les comptes de son service.", "A domain administrator was created alongside the accounts of their department."), (b, d) =>
+            {
+                Tiered(b, d);
+                var admin = b.User(ModelOu(d, "Tier 2 End-User Accounts"), "adm-compta", "Tier 0", b.T("Compte d'administration du domaine.", "Domain admin account."));
+                admin.MemberOf.Add("Domain Admins");
+                admin.AdminCount = true;
+                admin.AccountFlags = ADAccountFlags.NotDelegated;
+                return [admin];
+            }),
             new("LAPS-01", L("Un serveur de fichiers a été installé à partir d'une ancienne image système.", "A file server was installed from an old system image."), (b, d) =>
             {
                 var srv = Server(b, d, b.T("SRV-FICHIERS01", "SRV-FILES01"), "Serveur de fichiers.", "File server.");
@@ -433,6 +478,17 @@ namespace SMADX.Services.Labs
             ["GRP-01"] = (b, d) => Find(d, b.T("GG-Equipe-B", "GG-Team-B"), ADObjectType.Group).MemberOf.Remove(b.T("GG-Equipe-A", "GG-Team-A")),
             // La session se ferme ; l'administrateur dépannera avec un compte du Tier 2
             ["TIER-04"] = (b, d) => Workstation(b, d).Sessions?.Remove("adm-exploitation"),
+            // Le compte retiré des refus y est remis (dans SMAD-X : section Sécurité de la GPO, ou en réappliquant le modèle)
+            ["TIER-05"] = (b, d) =>
+            {
+                var gpo = Find(d, WorkstationRestrictions, ADObjectType.Policy);
+                gpo.GpoDenyInteractiveLogon!.Add("Domain Admins");
+                gpo.GpoDenyRemoteInteractiveLogon!.Add("Domain Admins");
+            },
+            // Chaque objet va dans l'OU de son rôle et de son tier
+            ["TIER-06"] = (b, d) => TierMigrationService.Move(Find(d, b.T("SRV-FICHIERS02", "SRV-FILES02"), ADObjectType.Computer), ModelOu(d, TierOneServers)),
+            ["TIER-07"] = (b, d) => TierMigrationService.Move(Find(d, b.T("SRV-IMPRESSION01", "SRV-PRINT01"), ADObjectType.Computer), ModelOu(d, TierOneServers)),
+            ["TIER-08"] = (b, d) => TierMigrationService.Move(Find(d, "adm-compta", ADObjectType.User), ModelOu(d, "Tier Model Administration/Tier 0/Tier 0 Accounts")),
             ["LAPS-01"] = (b, d) => Find(d, b.T("SRV-FICHIERS01", "SRV-FILES01"), ADObjectType.Computer).LapsPasswordExpiration = b.Reference.AddDays(LapsRenewalDays - 1),
             // Le projet est fini : ses droits sur la GPO des contrôleurs de domaine sont retirés
             ["ACL-02"] = (b, d) => RemoveDelegations(DcPolicy(d), b.T("GG-Projet-Migration", "GG-Migration-Project")),
@@ -501,8 +557,12 @@ namespace SMADX.Services.Labs
             if (recipes.Count == 0) throw new ArgumentException("Au moins une recette.", nameof(recipes));
             if (recipes.Select(r => r.RuleId).Distinct().Count() != recipes.Count) throw new ArgumentException("Recette en double.", nameof(recipes));
             var builder = new LabDomainBuilder(culture, reference);
-            var domain = builder.Healthy(domainName, version);
             string T(string fr, string en) => builder.T(fr, en);
+            var tiered = recipes.Count(r => TierModelRecipes.Contains(r.RuleId));
+            if (tiered > 0 && tiered < recipes.Count)
+                throw new InvalidOperationException(T("TIER-05 à TIER-08 partent d'un domaine migré vers le modèle de cloisonnement de Microsoft : elles ne se combinent qu'entre elles.",
+                                                      "TIER-05 to TIER-08 start from a domain migrated to Microsoft's tiering model: they only combine with each other."));
+            var domain = builder.Healthy(domainName, version);
 
             var keep = new List<ADObject>();
             var createdBy = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);

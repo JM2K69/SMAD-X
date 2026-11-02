@@ -37,6 +37,7 @@ namespace SMADX.Helpers
 
         // Menu Edit
         public string MenuEdit => _localizationService["Menu.Edit"];
+        public string MenuEditCut => _localizationService["Menu.Edit.Cut"];
         public string MenuEditCopy => _localizationService["Menu.Edit.Copy"];
         public string MenuEditPaste => _localizationService["Menu.Edit.Paste"];
         public string MenuEditRename => _localizationService["Menu.Edit.Rename"];
@@ -367,6 +368,7 @@ namespace SMADX.Helpers
         public string ContextMenuAddPolicy         => _localizationService["ContextMenu.AddPolicy"];
         public string ContextMenuAddPSO            => _localizationService["ContextMenu.AddPSO"];
         public string ContextMenuRename            => _localizationService["ContextMenu.Rename"];
+        public string ContextMenuCut               => _localizationService["ContextMenu.Cut"];
         public string ContextMenuCopy              => _localizationService["ContextMenu.Copy"];
         public string ContextMenuPaste             => _localizationService["ContextMenu.Paste"];
         public string ContextMenuDelete            => _localizationService["ContextMenu.Delete"];

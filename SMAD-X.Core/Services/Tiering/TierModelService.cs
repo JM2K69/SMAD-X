@@ -7,9 +7,11 @@ using SMADX.Services.Audit;
 namespace SMADX.Services.Tiering
 {
     /// <summary>Ce qu'une application de modèle a créé ; les objets déjà présents sont gardés tels quels.</summary>
-    public sealed record TierModelReport(int OrganizationalUnits, int Groups, int Accounts, int GroupPolicies, int Links, int Delegations, int Memberships)
+    /// <param name="Settings">Paramètres de GPO du modèle rétablis (un compte remis dans un refus, un administrateur local).</param>
+    public sealed record TierModelReport(int OrganizationalUnits, int Groups, int Accounts, int GroupPolicies, int Links, int Delegations, int Memberships,
+        int Settings = 0)
     {
-        public int Total => OrganizationalUnits + Groups + Accounts + GroupPolicies + Links + Delegations + Memberships;
+        public int Total => OrganizationalUnits + Groups + Accounts + GroupPolicies + Links + Delegations + Memberships + Settings;
     }
 
     /// <summary>
@@ -29,7 +31,7 @@ namespace SMADX.Services.Tiering
             var all = Flatten(domain).ToList();
             var principals = all.Where(o => o.IsAccount || o.Type == ADObjectType.Group)
                 .GroupBy(o => o.Name, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
-            int ous = 0, groups = 0, accounts = 0, gpos = 0, links = 0, delegations = 0, memberships = 0;
+            int ous = 0, groups = 0, accounts = 0, gpos = 0, links = 0, delegations = 0, memberships = 0, settings = 0;
 
             foreach (var tier in model.Tiers.Where(t => registerTiers && TierConfigurationService.Instance.Tiers.All(c => c.Name != t.Name)))
                 TierConfigurationService.Instance.AddTier(new TierConfiguration(tier.Name, tier.Color, tier.Description, tier.Level));
@@ -88,10 +90,18 @@ namespace SMADX.Services.Tiering
             }
 
             var policies = all.FirstOrDefault(ADValidationService.IsPoliciesContainer);
-            var existingGpos = all.Where(o => o.Type == ADObjectType.Policy).Select(o => o.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var existingGpos = all.Where(o => o.Type == ADObjectType.Policy)
+                .GroupBy(o => o.Name, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
             foreach (var gpo in model.GroupPolicies)
             {
-                if (policies != null && existingGpos.Add(gpo.Name))
+                if (existingGpos.TryGetValue(gpo.Name, out var existing))
+                {
+                    // La GPO existe : ses paramètres du modèle qui manquent sont rétablis
+                    settings += Merge(gpo.DenyInteractiveLogon, existing.GpoDenyInteractiveLogon, v => existing.GpoDenyInteractiveLogon = v)
+                              + Merge(gpo.DenyRemoteInteractiveLogon, existing.GpoDenyRemoteInteractiveLogon, v => existing.GpoDenyRemoteInteractiveLogon = v)
+                              + Merge(gpo.LocalAdmins, existing.GpoLocalAdmins, v => existing.GpoLocalAdmins = v);
+                }
+                else if (policies != null)
                 {
                     // Une GPO se modifie depuis le Tier 0 : ce sont ses administrateurs qui la contrôlent
                     Add(policies, new ADObject(gpo.Name, ADObjectType.Policy)
@@ -103,6 +113,7 @@ namespace SMADX.Services.Tiering
                         GpoReplaceLocalAdmins = gpo.ReplaceLocalAdmins,
                         GpoComputerFilter = gpo.ComputerFilter
                     });
+                    existingGpos[gpo.Name] = policies.Children[^1];
                     gpos++;
                 }
                 foreach (var link in gpo.Links.Where(l => l.Enabled))
@@ -130,7 +141,22 @@ namespace SMADX.Services.Tiering
             ApplySdProp(domain);
             domain.TierModel = model.Id;
             domain.TierModelVersion = model.Source.Version;
-            return new TierModelReport(ous, groups, accounts, gpos, links, delegations, memberships);
+            return new TierModelReport(ous, groups, accounts, gpos, links, delegations, memberships, settings);
+        }
+
+        /// <summary>Ajoute à un paramètre de GPO les comptes et groupes du modèle qui y manquent ; 1 s'il a changé.</summary>
+        private static int Merge(List<string>? expected, System.Collections.ObjectModel.ObservableCollection<string>? current,
+            Action<System.Collections.ObjectModel.ObservableCollection<string>> set)
+        {
+            if (expected == null) return 0;
+            if (current == null)
+            {
+                set(new(expected));
+                return 1;
+            }
+            var missing = expected.Where(p => !current.Contains(p, StringComparer.OrdinalIgnoreCase)).ToList();
+            foreach (var p in missing) current.Add(p);
+            return missing.Count > 0 ? 1 : 0;
         }
 
         /// <summary>OU au chemin donné depuis la racine (« Tier Model Administration/Tier 0 ») ; la casse est ignorée, comme dans AD.</summary>

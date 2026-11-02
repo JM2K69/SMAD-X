@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using SMADX.Models;
 using SMADX.Services.Audit;
+using SMADX.Services.Tiering;
 using static SMADX.Services.Audit.AuditContext;
 
 namespace SMADX.Services.Labs
@@ -252,6 +253,12 @@ namespace SMADX.Services.Labs
                     bool Lower(string name) => c.Principal(name) is { } trustee && TierLevel(trustee) > target;
                     var removedAdmins = RemoveAll(o.LocalAdmins, Lower);
                     return RemoveDelegations(o, d => AuditRules.ControlRights.Contains(d.Effective) && Lower(d.TrusteeName)) || removedAdmins > 0;
+                // Le modèle de cloisonnement du domaine : ce qui en manque est rétabli (comme en rejouant son déploiement),
+                // et chaque objet va dans l'OU de son rôle et de son tier (Tier 0 pour un objet privilégié)
+                case "TIER-05" when TierModelCatalog.Find(domain.TierModel) is { } model:
+                    return TierModelService.Apply(domain, model, now, registerTiers: false).Total > 0;
+                case "TIER-06" or "TIER-07" or "TIER-08" when TierModelCatalog.Find(domain.TierModel) is { } model:
+                    return TierMigrationService.Place(domain, model, o, now);
                 // Une boucle d'imbrication : on retire une appartenance de la boucle
                 case "GRP-01":
                     var back = o.MemberOf.FirstOrDefault(name => c.Group(name) is { } g && c.EffectiveGroups(g).Contains(o));

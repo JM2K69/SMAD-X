@@ -22,6 +22,7 @@ La liste est aussi dans l'application : **Aide > Raccourcis clavier...**
 | `Ctrl+Z` | Annuler |
 | `Ctrl+Y` ou `Ctrl+Shift+Z` | Rétablir |
 | `Ctrl+C` / `Ctrl+V` | Copier / coller un objet et ses enfants |
+| `Ctrl+X` / `Ctrl+V` | Couper / coller : déplacer un objet et ses enfants |
 | `F2` | Renommer |
 | `Suppr` | Supprimer |
 

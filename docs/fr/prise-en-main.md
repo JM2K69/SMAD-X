@@ -48,12 +48,13 @@
 |---|---|
 | Renommer | `F2` |
 | Copier / coller (avec les enfants) | `Ctrl+C` / `Ctrl+V` |
+| Déplacer : couper, puis coller dans le nouveau conteneur | `Ctrl+X` / `Ctrl+V` |
 | Supprimer | `Suppr` |
 | Annuler / rétablir | `Ctrl+Z` / `Ctrl+Y` |
 
 SMAD-X applique les règles d'AD : caractères interdits, longueur, unicité des noms, et types d'enfants autorisés (un conteneur ne peut pas contenir d'OU, par exemple).
 
-Un nouveau nom se valide par **Entrée** ou en quittant le champ, **Échap** l'annule. Comme dans l'annuaire, renommer un objet met à jour tout ce qui le désigne : appartenances aux groupes, PSO, GPO liées, propriétaires, délégations et contrôleurs des sites. Supprimer un objet retire ces références ; la barre d'état indique combien ont été touchées.
+Un nouveau nom se valide par **Entrée** ou en quittant le champ, **Échap** l'annule. Comme dans l'annuaire, renommer un objet met à jour tout ce qui le désigne : appartenances aux groupes, PSO, GPO liées, propriétaires, délégations et contrôleurs des sites. Supprimer un objet retire ces références ; la barre d'état indique combien ont été touchées. Déplacer une OU, un compte, un ordinateur ou un groupe (**Couper** puis **Coller**) garde l'objet tel quel, avec ses appartenances et ses délégations : seul son DN change, et un objet sans tier prend celui de son nouveau conteneur. Les conteneurs système, les GPO, les PSO et les contrôleurs de domaine ne se déplacent pas.
 
 ## La fiche de chaque objet
 

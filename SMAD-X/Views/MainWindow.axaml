@@ -52,6 +52,7 @@
                     <MenuItem Header="{Binding MenuEditUndo}" Command="{Binding #MainWindowRoot.DataContext.UndoCommand}" InputGesture="Ctrl+Z"/>
                     <MenuItem Header="{Binding MenuEditRedo}" Command="{Binding #MainWindowRoot.DataContext.RedoCommand}" InputGesture="Ctrl+Y"/>
                     <Separator/>
+                    <MenuItem Header="{Binding MenuEditCut}" Command="{Binding #MainWindowRoot.DataContext.CutObjectCommand}" InputGesture="Ctrl+X"/>
                     <MenuItem Header="{Binding MenuEditCopy}" Command="{Binding #MainWindowRoot.DataContext.CopyObjectCommand}" InputGesture="Ctrl+C"/>
                     <MenuItem Header="{Binding MenuEditPaste}" Command="{Binding #MainWindowRoot.DataContext.PasteObjectCommand}" InputGesture="Ctrl+V"/>
                     <Separator/>
@@ -342,6 +343,12 @@
                                           Command="{Binding #MainWindowRoot.DataContext.RenameObjectCommand}"
                                           IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}">
                                     <MenuItem.Icon><TextBlock Text="✏️" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
+                                </MenuItem>
+                                <!-- Couper (déplacer) -->
+                                <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuCut}"
+                                          Command="{Binding #MainWindowRoot.DataContext.CutObjectCommand}"
+                                          IsEnabled="{Binding #MainWindowRoot.DataContext.CanCutSelected}">
+                                    <MenuItem.Icon><TextBlock Text="✂️" FontSize="14" FontFamily="Segoe UI Emoji"/></MenuItem.Icon>
                                 </MenuItem>
                                 <!-- Copier -->
                                 <MenuItem Header="{Binding Source={StaticResource Loc}, Path=ContextMenuCopy}"

@@ -418,6 +418,70 @@ public class SecurityPowerShellTests
     }
 
     /// <summary>
+    /// Paramètres des GPO lus dans SYSVOL : refus d'ouverture de session et groupes restreints (GptTmpl.inf, en UTF-16
+    /// comme ceux que Windows écrit), administrateurs locaux par les préférences (Groups.xml), filtre WMI.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(PowerShellRunner.Shells), MemberType = typeof(PowerShellRunner))]
+    public async Task ImportScript_ReadsGpoSettingsFromSysvol(string shell)
+    {
+        var scriptPath = TempFile(".ps1");
+        Assert.True(await new ADImportPowerShellService().GenerateImportScriptAsync(scriptPath));
+        var script = await File.ReadAllTextAsync(scriptPath);
+        var helpers = script[script.IndexOf("function ConvertTo-JsonString", StringComparison.Ordinal)..script.IndexOf("# ── 4. Collect GPOs", StringComparison.Ordinal)];
+
+        var sysvol = Directory.CreateTempSubdirectory("smadx-sysvol").FullName;
+        var restrictions = Directory.CreateDirectory(Path.Combine(sysvol, "{11111111-1111-1111-1111-111111111111}", "Machine", "Microsoft", "Windows NT", "SecEdit"));
+        await File.WriteAllTextAsync(Path.Combine(restrictions.FullName, "GptTmpl.inf"), string.Join("\r\n",
+            "[Unicode]", "Unicode=yes", "[Version]", "signature=\"$CHICAGO$\"", "Revision=1",
+            "[Privilege Rights]",
+            "SeDenyInteractiveLogonRight = *S-1-1-0,CONTOSO\\Tier2Admins",
+            "SeDenyRemoteInteractiveLogonRight = Tier2Admins,*S-1-5-113",
+            "SeDenyNetworkLogonRight = *S-1-5-32-546",
+            "[Group Membership]", "*S-1-5-32-544__Memberof =", "*S-1-5-32-544__Members = Tier1ServerOperators", ""), Encoding.Unicode);
+        var preferences = Directory.CreateDirectory(Path.Combine(sysvol, "{22222222-2222-2222-2222-222222222222}", "Machine", "Preferences", "Groups"));
+        await File.WriteAllTextAsync(Path.Combine(preferences.FullName, "Groups.xml"), """
+            <?xml version="1.0" encoding="utf-8"?>
+            <Groups clsid="{3125E937-EB16-4b4c-9934-544FC6D24D26}">
+              <Group clsid="{6D4A79E4-529C-4481-ABD0-F5BD7EA93BA7}" name="Administrators (built-in)" uid="{1}">
+                <Properties action="U" groupSid="S-1-5-32-544" groupName="Administrators (built-in)" deleteAllUsers="0" deleteAllGroups="0">
+                  <Members>
+                    <Member name="CONTOSO\L-S-T1_LocalAdmins_Servers" action="ADD" sid=""/>
+                    <Member name="CONTOSO\L-S_LocalAdmins_%ComputerName%" action="ADD" sid=""/>
+                    <Member name="CONTOSO\Old-Admins" action="REMOVE" sid=""/>
+                  </Members>
+                </Properties>
+              </Group>
+            </Groups>
+            """);
+
+        var harness = new StringBuilder()
+            .AppendLine("Set-StrictMode -Version 2.0")
+            .AppendLine("$ErrorActionPreference = 'Stop'")
+            .AppendLine(helpers)
+            .AppendLine($"$r = Get-GpoSettingsJson '{Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(restrictions.FullName))))}' 'SELECT * FROM Win32_OperatingSystem WHERE ProductType = \"1\"'; if ($r) {{ $r }} else {{ '-' }}")
+            .AppendLine($"$r = Get-GpoSettingsJson '{Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(preferences.FullName)))}' 'SELECT * FROM Win32_OperatingSystem WHERE ProductType <> 1'; if ($r) {{ $r }} else {{ '-' }}")
+            .AppendLine($"$r = Get-GpoSettingsJson '{sysvol}' 'SELECT * FROM Win32_OperatingSystem WHERE Version LIKE \"10.%\"'; if ($r) {{ $r }} else {{ '-' }}");
+        var harnessPath = TempFile(".ps1");
+        await File.WriteAllTextAsync(harnessPath, harness.ToString(), new UTF8Encoding(true));
+
+        var lines = (await PowerShellRunner.RunAsync(shell, "-File", harnessPath))
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        Assert.Equal(
+        [
+            ",\"GpoDenyInteractiveLogon\":[\"Everyone\",\"Tier2Admins\"],\"GpoDenyRemoteInteractiveLogon\":[\"Tier2Admins\",\"Local account\"],"
+                + "\"GpoLocalAdmins\":[\"Tier1ServerOperators\"],\"GpoReplaceLocalAdmins\":true,\"GpoComputerFilter\":\"Workstations\"",
+            ",\"GpoLocalAdmins\":[\"L-S-T1_LocalAdmins_Servers\"],\"GpoComputerFilter\":\"Servers\"",
+            "-"
+        ], lines);
+        // Ce que le script écrit se relit dans SMAD-X
+        var gpo = System.Text.Json.JsonSerializer.Deserialize<ADObject>("{\"Name\":\"GPO\",\"Type\":\"Policy\"" + lines[0] + "}", ADDataService.SerializerOptions)!;
+        Assert.Equal(["Tier2Admins", "Local account"], gpo.GpoDenyRemoteInteractiveLogon!);
+        Assert.Equal(GpoComputerFilter.Workstations, gpo.GpoComputerFilter);
+    }
+
+    /// <summary>
     /// Exécute la vraie fonction Build-NodeJson du script d'import, avec les cmdlets AD remplacées par
     /// des bouchons, sur un compte AS-REP roastable avec SPN ; le JSON produit doit se relire en ADObject.
     /// </summary>

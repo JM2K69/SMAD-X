@@ -48,12 +48,13 @@
 |---|---|
 | Rename | `F2` |
 | Copy / paste (with children) | `Ctrl+C` / `Ctrl+V` |
+| Move: cut, then paste into the new container | `Ctrl+X` / `Ctrl+V` |
 | Delete | `Del` |
 | Undo / redo | `Ctrl+Z` / `Ctrl+Y` |
 
 SMAD-X enforces AD rules: forbidden characters, length, unique names, and allowed child types (a container cannot hold OUs, for example).
 
-A new name is confirmed with **Enter** or by leaving the field; **Esc** cancels it. As in the directory, renaming an object updates everything that refers to it: group memberships, PSOs, linked GPOs, owners, delegations and site domain controllers. Deleting an object removes these references; the status bar says how many were touched.
+A new name is confirmed with **Enter** or by leaving the field; **Esc** cancels it. As in the directory, renaming an object updates everything that refers to it: group memberships, PSOs, linked GPOs, owners, delegations and site domain controllers. Deleting an object removes these references; the status bar says how many were touched. Moving an OU, an account, a computer or a group (**Cut**, then **Paste**) keeps the object as it is, with its memberships and delegations: only its DN changes, and an object without a tier takes its new container's. System containers, GPOs, PSOs and domain controllers do not move.
 
 ## Each object's sheet
 

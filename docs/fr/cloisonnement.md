@@ -46,7 +46,7 @@ La migration se fait en trois temps :
 L'onglet **Plan de migration** donne chaque étape et sa raison ; **Chemins coupés** et **Chemins restants**, les chemins d'attaque avant et après. **Migrer le domaine vers ce modèle...** applique le plan du modèle choisi au domaine affiché, après confirmation ; la migration s'annule d'un seul coup (`Ctrl+Z`).
 
 !!! warning "Une simulation, pas un plan de production"
-    Le plan suit des règles simples : relisez-le. Un tier supposé peut être faux, un droit gardé peut être plus large que nécessaire, et un nouveau constat peut révéler un choix du modèle. Le modèle Microsoft délègue par exemple le contrôle total de l'OU **Tier Model Administration** à Tier0Admins : un membre de Domain Admins rangé dans cette OU est à la portée de ce groupe (ACL-02), qui doit donc être traité comme privilégié.
+    Le plan suit des règles simples : relisez-le. Un tier supposé peut être faux, un droit gardé peut être plus large que nécessaire, et un nouveau constat peut révéler un choix du modèle. HardenAD met par exemple le groupe G-S-T0_Managers dans Enterprise Admins, que l'ANSSI recommande de laisser vide (PRIV-03), et son compte d'administration T0M-AHARDEN suit la politique de mot de passe du domaine (PWD-09).
 
 ## Les effets des GPO
 

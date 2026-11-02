@@ -13,6 +13,9 @@ namespace SMADX.ViewModels
     {
         private ADTreeNode? _clipboardNode;
 
+        /// <summary>L'objet du presse-papiers a été coupé : le coller le déplace au lieu de le copier.</summary>
+        private bool _clipboardCut;
+
         // ─── Propriétés pour activer/griser le menu contextuel ───────────────────
 
         private bool CanAdd(ADObjectType childType) =>
@@ -30,6 +33,15 @@ namespace SMADX.ViewModels
         public bool CanAddPSO       => RootObject != null && FindSystemContainer(RootObject, ADValidationService.IsPasswordSettingsContainer) != null;
         public bool CanDeleteSelected  => SelectedNode != null && SelectedNode.Parent != null;
         public bool CanCopySelected    => SelectedNode != null;
+
+        /// <summary>
+        /// Objet qu'on peut déplacer : une OU, un compte, un ordinateur, un groupe. Ni les conteneurs système, ni les GPO
+        /// et PSO (rangées par AD dans System), ni l'OU Domain Controllers et ses contrôleurs.
+        /// </summary>
+        public bool CanCutSelected => SelectedNode is { Parent: not null, Data: var o }
+                                      && o.Type is ADObjectType.OrganizationalUnit or ADObjectType.User or ADObjectType.Computer or ADObjectType.Group or ADObjectType.GMSA
+                                      && !(o.Type == ADObjectType.OrganizationalUnit && o.Name == "Domain Controllers" && o.Parent?.Type == ADObjectType.Domain)
+                                      && !SMADX.Services.Audit.AuditContext.IsDomainController(o);
         public bool CanManageRelations => SelectedNode != null;
         /// <summary>Vrai si au moins un type enfant peut être ajouté (pour afficher le séparateur)</summary>
         public bool CanAddAnyChild  => CanAddOU || CanAddContainer || CanAddUser || CanAddGroup ||
@@ -234,8 +246,23 @@ namespace SMADX.ViewModels
             if (SelectedNode != null)
             {
                 _clipboardNode = SelectedNode;
+                _clipboardCut = false;
                 StatusMessage = string.Format(Loc["Status.Copied"], SelectedNode.Data.Name);
             }
+        }
+
+        /// <summary>Couper : l'objet sera déplacé là où on le colle (comme « Déplacer » dans Utilisateurs et ordinateurs AD).</summary>
+        [RelayCommand]
+        private void CutObject()
+        {
+            if (!CanCutSelected)
+            {
+                StatusMessage = Loc["Status.CannotCut"];
+                return;
+            }
+            _clipboardNode = SelectedNode;
+            _clipboardCut = true;
+            StatusMessage = string.Format(Loc["Status.Cut"], SelectedNode!.Data.Name);
         }
 
         [RelayCommand]
@@ -251,6 +278,12 @@ namespace SMADX.ViewModels
             if (!_validationService.ValidateContainerRule(SelectedNode.Data, _clipboardNode.Data.Type, out var errorMessage))
             {
                 StatusMessage = errorMessage ?? Loc["Status.CannotPasteHere"];
+                return;
+            }
+
+            if (_clipboardCut)
+            {
+                MoveObject(_clipboardNode, SelectedNode);
                 return;
             }
 
@@ -274,6 +307,57 @@ namespace SMADX.ViewModels
             UpdateObjectCounts();
             RecordHistory();
             StatusMessage = string.Format(Loc["Status.Pasted"], clone.Name);
+        }
+
+        /// <summary>
+        /// Déplace un objet et ses enfants sous un nouveau conteneur : même objet (identifiant, appartenances, délégations),
+        /// DN du sous-arbre recalculés. Un objet sans tier prend celui de son nouveau conteneur. Le nom doit y être libre.
+        /// </summary>
+        private void MoveObject(ADTreeNode node, ADTreeNode target)
+        {
+            // Après Annuler ou l'ouverture d'un autre document, l'objet coupé n'est plus dans l'arbre affiché
+            var root = node.Data;
+            while (root.Parent != null) root = root.Parent;
+            if (node.Parent == null || root != RootObject)
+            {
+                _clipboardNode = null;
+                StatusMessage = Loc["Status.NothingToPaste"];
+                return;
+            }
+            for (var p = target; p != null; p = p.Parent)
+                if (p == node)
+                {
+                    StatusMessage = Loc["Status.CannotMoveIntoItself"];
+                    return;
+                }
+            if (node.Parent == target)
+            {
+                StatusMessage = string.Format(Loc["Status.AlreadyHere"], node.Data.Name);
+                return;
+            }
+            if (ADDomainEditor.HasSiblingConflict(target.Data, node.Data.Type, node.Data.Name))
+            {
+                StatusMessage = string.Format(Loc["Status.MoveNameTaken"], node.Data.Name, target.Data.Name);
+                return;
+            }
+
+            var obj = node.Data;
+            obj.Parent?.Children.Remove(obj);
+            obj.Parent = target.Data;
+            target.Data.Children.Add(obj);
+            obj.Tier ??= target.Data.Tier;
+            obj.UpdateDistinguishedNameTree();
+
+            node.Parent.Children.Remove(node);
+            node.Parent = target;
+            target.Children.Add(node);
+            target.IsExpanded = true;
+            SelectedNode = node;
+            _clipboardNode = null;
+            _clipboardCut = false;
+
+            RecordHistory();
+            StatusMessage = string.Format(Loc["Status.Moved"], obj.Name, target.Data.Name);
         }
 
         [RelayCommand]

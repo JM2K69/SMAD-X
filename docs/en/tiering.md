@@ -46,7 +46,7 @@ The migration takes three steps:
 The **Migration plan** tab gives each step and its reason; **Paths cut** and **Remaining paths**, the attack paths before and after. **Migrate the domain to this model...** applies the chosen model's plan to the displayed domain, after confirmation; the migration is undone in one step (`Ctrl+Z`).
 
 !!! warning "A simulation, not a production plan"
-    The plan follows simple rules: review it. An assumed tier can be wrong, a kept right can be broader than needed, and a new finding can reveal a choice of the model. The Microsoft model, for example, delegates full control of the **Tier Model Administration** OU to Tier0Admins: a Domain Admins member placed in this OU is within reach of this group (ACL-02), which must therefore be treated as privileged.
+    The plan follows simple rules: review it. An assumed tier can be wrong, a kept right can be broader than needed, and a new finding can reveal a choice of the model. HardenAD, for example, puts the G-S-T0_Managers group in Enterprise Admins, which ANSSI recommends keeping empty (PRIV-03), and its administration account T0M-AHARDEN follows the domain password policy (PWD-09).
 
 ## GPO effects
 

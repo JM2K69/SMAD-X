@@ -22,6 +22,7 @@ The list is also in the application: **Help > Keyboard shortcuts...**
 | `Ctrl+Z` | Undo |
 | `Ctrl+Y` or `Ctrl+Shift+Z` | Redo |
 | `Ctrl+C` / `Ctrl+V` | Copy / paste an object and its children |
+| `Ctrl+X` / `Ctrl+V` | Cut / paste: move an object and its children |
 | `F2` | Rename |
 | `Del` | Delete |
 

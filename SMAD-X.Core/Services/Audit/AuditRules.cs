@@ -233,11 +233,14 @@ namespace SMADX.Services.Audit
             bool ThroughExposedSession(AttackPath p) =>
                 p.Steps.Any(s => s.Kind == AttackEdgeKind.HasSession && s.From.Object is { } machine && s.To.Object is { } account && IsExposedSession(c, account, machine));
 
+            // Un mandataire de Tier 0 fait partie de ce qu'il faut protéger : comme pour les chemins hors Tier 0, son chemin
+            // n'est pas une faiblesse (Tier0Admins du modèle de Microsoft contrôle l'OU des comptes du Tier 0, par conception)
+            bool Trusted(ADObject o) => c.IsPrivilegedPrincipal(o) || TierLevel(o) == 0;
             var loc = LocalizationService.Instance;
             return new AttackPathService(c.Domain, c.Now).PathsToDomainControl()
-                .Where(p => p.Start.IsAnyUser || p.Start.Object is { Type: not ADObjectType.Policy } start && !c.IsPrivilegedPrincipal(start))
+                .Where(p => p.Start.IsAnyUser || p.Start.Object is { Type: not ADObjectType.Policy } start && !Trusted(start))
                 .Where(p => !ThroughExposedSession(p))
-                .Select(p => p.Steps.FirstOrDefault(s => PermissionEdges.Contains(s.Kind) && !(s.From.Object is { } from && c.IsPrivilegedPrincipal(from))))
+                .Select(p => p.Steps.FirstOrDefault(s => PermissionEdges.Contains(s.Kind) && !(s.From.Object is { } from && Trusted(from))))
                 .OfType<AttackEdge>()
                 .Where(e => !ReportedElsewhere(e))
                 .GroupBy(e => (e.From.Id, holder: e.Holder ?? e.To.Object, e.Kind))

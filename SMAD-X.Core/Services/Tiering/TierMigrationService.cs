@@ -158,11 +158,39 @@ namespace SMADX.Services.Tiering
             return new TierMigrationResult(applied, steps, issues);
         }
 
-        /// <summary>Rôle et tier d'un objet à ranger, et d'où vient son tier (étiquette, privilège, supposé).</summary>
-        private static (TierModelOuRole Role, string? Tier, int Level, string Source) Classify(ADObject o, AuditContext c, IReadOnlySet<string> administrators)
+        /// <summary>
+        /// Range un seul objet dans l'OU du modèle de son rôle et de son tier, comme le fait la migration ; un compte ou un
+        /// groupe privilégié va dans le Tier 0, quelle que soit son étiquette (TIER-08). Faux si l'objet y est déjà, ou si le
+        /// modèle n'a pas d'OU pour lui. Les droits ne sont pas repris : seule la migration complète les garde.
+        /// </summary>
+        public static bool Place(ADObject domain, TierModelDefinition model, ADObject o, DateTime now)
         {
-            var (tier, level, source) = AuditContext.TierLevel(o) is { } labelled ? (o.Tier, labelled, "Label")
-                : c.IsPrivilegedPrincipal(o) ? (null, 0, "Privileged")
+            var c = new AuditContext(domain, now);
+            var administrators = c.Objects
+                .Where(h => h.Type is ADObjectType.OrganizationalUnit or ADObjectType.Container or ADObjectType.Domain)
+                .SelectMany(h => h.Delegations.Where(d => !d.IsInherited && d.Effective != RightCategory.Other).Select(d => d.TrusteeName))
+                .Concat(c.Objects.Where(x => x.Type == ADObjectType.Computer).SelectMany(x => c.Policies.LocalAdministrators(x).Select(a => a.Name)))
+                .Where(n => !AttackPathService.AnyUserTrustees.Contains(n) && !DomainOwners.Contains(n))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var (role, tier, level, _) = Classify(o, c, administrators, privilegedFirst: true);
+            if (Target(model, role, tier, level, AuditContext.IsEnabled(o) || !o.IsAccount) is not { } target
+                || TierModelService.Ou(domain, target.Path) is not { } ou || o.Parent == ou)
+                return false;
+            Move(o, ou);
+            o.Tier ??= target.Tier;
+            return true;
+        }
+
+        /// <summary>
+        /// Rôle et tier d'un objet à ranger, et d'où vient son tier (étiquette, privilège, supposé). Avec
+        /// <paramref name="privilegedFirst"/>, un objet privilégié est du Tier 0 même si son étiquette dit autre chose.
+        /// </summary>
+        private static (TierModelOuRole Role, string? Tier, int Level, string Source) Classify(ADObject o, AuditContext c, IReadOnlySet<string> administrators,
+            bool privilegedFirst = false)
+        {
+            var (tier, level, source) = privilegedFirst && c.IsPrivilegedPrincipal(o) && AuditContext.TierLevel(o) is not 0 ? (null, 0, "Privileged")
+                : AuditContext.TierLevel(o) is { } labelled ? (o.Tier, labelled, "Label")
+                : c.IsPrivilegedPrincipal(o) ? ((string?)null, 0, "Privileged")
                 : o.Type == ADObjectType.Computer && ServerHint(o) == true ? (null, 1, "Assumed")
                 : ((string?)null, 2, "Assumed");
             var administers = administrators.Contains(o.Name) || c.EffectiveGroups(o).Any(g => administrators.Contains(g.Name));
@@ -222,7 +250,8 @@ namespace SMADX.Services.Tiering
         private static string Rights(IEnumerable<RightCategory> categories) =>
             string.Join(", ", categories.Order().Select(c => Loc[$"Delegation.Category.{c}"]));
 
-        private static void Move(ADObject o, ADObject target)
+        /// <summary>Déplace un objet et ses enfants sous un autre conteneur ; les DN du sous-arbre sont recalculés.</summary>
+        public static void Move(ADObject o, ADObject target)
         {
             o.Parent?.Children.Remove(o);
             o.Parent = target;

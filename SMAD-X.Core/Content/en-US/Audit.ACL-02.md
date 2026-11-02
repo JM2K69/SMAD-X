@@ -1,7 +1,7 @@
 # Control path to the domain through permissions
 
 ## What the audit found
-From an account or group that is not privileged (or from any domain user), a chain of permissions leads to control of the domain. The finding is about the **first permission** of the path: the object it gives control of, and who holds it.
+From an account or group that is not privileged (or from any domain user), a chain of permissions leads to control of the domain. The finding is about the **first permission** of the path: the object it gives control of, and who holds it. An account or group classified in Tier 0 is not reported: it is part of what must be protected, and must be managed as a privileged account (TIER-01 checks that its members are also Tier 0).
 
 ## Why it is dangerous
 None of these permissions looks serious on its own: resetting a password, writing an attribute, changing the members of a group, owning an OU. Chained together, they give the domain away, and this is how attack tools (BloodHound, ANSSI's ADCP) look for them. The full path is shown in **Analysis > Attack paths**.

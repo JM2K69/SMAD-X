@@ -78,6 +78,7 @@ namespace SMADX.Views
                 (Key.I, true, false)      => vm.GenerateImportScriptCommand,
                 (Key.R, true, true)       => vm.ExportReportCommand,
                 (Key.M, true, true)       => vm.ImportDescriptionCommand,
+                (Key.X, true, false)      => vm.CutObjectCommand,
                 (Key.C, true, false)      => vm.CopyObjectCommand,
                 (Key.V, true, false)      => vm.PasteObjectCommand,
                 (Key.T, true, false)      => vm.ShowTimelineCommand,

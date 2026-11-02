@@ -26,9 +26,7 @@ public class LabAuthoringTests
     [Fact]
     public void Recipes_CoverEveryAuditRule()
     {
-        Assert.Equal(AuditRules.All.Select(r => r.Id).Where(id => !LabRecipes.RulesWithoutRecipe.Contains(id)).Order(),
-            LabRecipes.All.Select(r => r.RuleId).Order());
-        Assert.All(LabRecipes.RulesWithoutRecipe, id => Assert.Contains(AuditRules.All, r => r.Id == id));
+        Assert.Equal(AuditRules.All.Select(r => r.Id).Order(), LabRecipes.All.Select(r => r.RuleId).Order());
     }
 
     /// <summary>Le domaine sain de chaque version de Windows Server est propre, et chaque recette y injecte son manque.</summary>
@@ -110,9 +108,9 @@ public class LabAuthoringTests
         Assert.True(report.Solution!.ObjectivesCompleted, string.Join("\n", report.Issues.Where(i => i.Level == LabIssueLevel.Error).Select(i => $"{i.ObjectiveId} {i.Message}")));
         Assert.Empty(proposed.RemainingRules);
         Assert.True(proposed.Fixes > 0);
-        // Rien de supprimé : chaque objet du départ est encore là
-        var names = Flatten(proposed.Solution.Domain).Select(o => o.DistinguishedName).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        Assert.All(Flatten(lab.Start.Domain), o => Assert.Contains(o.DistinguishedName, names));
+        // Rien de supprimé : chaque objet du départ est encore là (un objet rangé ailleurs garde son identifiant)
+        var ids = Flatten(proposed.Solution.Domain).Select(o => o.Id).ToHashSet();
+        Assert.All(Flatten(lab.Start.Domain), o => Assert.Contains(o.Id, ids));
     }
 
     [Fact]

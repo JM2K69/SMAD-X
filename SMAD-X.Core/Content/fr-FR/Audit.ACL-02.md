@@ -1,7 +1,7 @@
 # Chemin de contrôle vers le domaine par les permissions
 
 ## Ce que l'audit a détecté
-Depuis un compte ou un groupe qui n'est pas privilégié (ou depuis n'importe quel utilisateur du domaine), une suite de permissions mène au contrôle du domaine. Le constat porte sur la **première permission** du chemin : l'objet qu'elle permet de contrôler, et qui la détient.
+Depuis un compte ou un groupe qui n'est pas privilégié (ou depuis n'importe quel utilisateur du domaine), une suite de permissions mène au contrôle du domaine. Le constat porte sur la **première permission** du chemin : l'objet qu'elle permet de contrôler, et qui la détient. Un compte ou un groupe classé dans le Tier 0 n'est pas signalé : il fait partie de ce qu'il faut protéger, et doit être géré comme un compte privilégié (TIER-01 vérifie que ses membres sont aussi du Tier 0).
 
 ## Pourquoi c'est dangereux
 Aucune de ces permissions n'a l'air grave seule : réinitialiser un mot de passe, écrire un attribut, modifier les membres d'un groupe, être propriétaire d'une OU. Enchaînées, elles donnent le domaine, et c'est ainsi que les outils d'attaque (BloodHound, ADCP de l'ANSSI) les recherchent. Le chemin complet s'affiche dans **Analyse > Chemins d'attaque**.

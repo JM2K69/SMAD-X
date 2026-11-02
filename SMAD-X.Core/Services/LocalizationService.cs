@@ -184,6 +184,7 @@ namespace SMADX.Services
 
                 // Menu Édition
                 ["Menu.Edit"] = "Édition",
+                ["Menu.Edit.Cut"] = "Couper",
                 ["Menu.Edit.Copy"] = "Copier",
                 ["Menu.Edit.Paste"] = "Coller",
                 ["Menu.Edit.Rename"] = "Renommer",
@@ -595,6 +596,7 @@ namespace SMADX.Services
                 ["ContextMenu.AddPolicy"] = "Ajouter une GPO",
                 ["ContextMenu.AddPSO"] = "Ajouter un PSO",
                 ["ContextMenu.Rename"] = "Renommer",
+                ["ContextMenu.Cut"] = "Couper (déplacer)",
                 ["ContextMenu.Copy"] = "Copier",
                 ["ContextMenu.Paste"] = "Coller",
                 ["ContextMenu.Delete"] = "Supprimer",
@@ -703,6 +705,12 @@ namespace SMADX.Services
                 ["Status.NothingToPaste"] = "Aucun objet à coller ou aucun conteneur sélectionné",
                 ["Status.CannotPasteHere"] = "Impossible de coller ici",
                 ["Status.Pasted"] = "Collé : {0}",
+                ["Status.Cut"] = "Coupé : {0}. Sélectionnez son nouveau conteneur, puis Coller (Ctrl+V) pour le déplacer.",
+                ["Status.CannotCut"] = "Seuls une OU, un compte, un ordinateur ou un groupe se déplacent (ni conteneur système, ni GPO, ni contrôleur de domaine)",
+                ["Status.CannotMoveIntoItself"] = "Impossible de déplacer un objet dans lui-même ou dans l'un de ses enfants",
+                ["Status.AlreadyHere"] = "{0} est déjà dans ce conteneur",
+                ["Status.MoveNameTaken"] = "Un objet nommé {0} existe déjà dans {1} : renommez l'un des deux avant de déplacer",
+                ["Status.Moved"] = "Déplacé : {0} dans {1}",
                 ["Status.RelationsUpdated"] = "Relations mises à jour.",
 
                 // Dialogues
@@ -1176,6 +1184,7 @@ namespace SMADX.Services
 
                 // Menu Edit
                 ["Menu.Edit"] = "Edit",
+                ["Menu.Edit.Cut"] = "Cut",
                 ["Menu.Edit.Copy"] = "Copy",
                 ["Menu.Edit.Paste"] = "Paste",
                 ["Menu.Edit.Rename"] = "Rename",
@@ -1587,6 +1596,7 @@ namespace SMADX.Services
                 ["ContextMenu.AddPolicy"] = "Add GPO",
                 ["ContextMenu.AddPSO"] = "Add PSO",
                 ["ContextMenu.Rename"] = "Rename",
+                ["ContextMenu.Cut"] = "Cut (move)",
                 ["ContextMenu.Copy"] = "Copy",
                 ["ContextMenu.Paste"] = "Paste",
                 ["ContextMenu.Delete"] = "Delete",
@@ -1693,6 +1703,12 @@ namespace SMADX.Services
                 ["Status.NothingToPaste"] = "Nothing to paste, or no container selected",
                 ["Status.CannotPasteHere"] = "Cannot paste here",
                 ["Status.Pasted"] = "Pasted: {0}",
+                ["Status.Cut"] = "Cut: {0}. Select its new container, then Paste (Ctrl+V) to move it.",
+                ["Status.CannotCut"] = "Only an OU, an account, a computer or a group can be moved (no system container, GPO or domain controller)",
+                ["Status.CannotMoveIntoItself"] = "Cannot move an object into itself or one of its children",
+                ["Status.AlreadyHere"] = "{0} is already in this container",
+                ["Status.MoveNameTaken"] = "An object named {0} already exists in {1}: rename one of them before moving",
+                ["Status.Moved"] = "Moved: {0} to {1}",
                 ["Status.RelationsUpdated"] = "Relations updated.",
 
                 // Dialogs

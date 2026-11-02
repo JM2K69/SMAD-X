@@ -155,6 +155,48 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
+    public void CutPaste_MovesTheObject_KeepingItsIdentity_InOneUndoableStep()
+    {
+        _vm.InitializeSampleDataCommand.Execute(null);
+        var server = Flatten(_vm.RootObject!).First(o => o.Name == "SRV-FILE-01");
+        var id = server.Id;
+        _vm.SelectObject(server);
+        _vm.CutObjectCommand.Execute(null);
+        _vm.SelectObject(Flatten(_vm.RootObject!).First(o => o.Name == "Workstations"));
+
+        _vm.PasteObjectCommand.Execute(null);
+
+        var moved = Flatten(_vm.RootObject!).Single(o => o.Name == "SRV-FILE-01");
+        Assert.Equal(id, moved.Id);
+        Assert.Equal("Workstations", moved.Parent!.Name);
+        Assert.StartsWith("CN=SRV-FILE-01,OU=Workstations,", moved.DistinguishedName);
+        Assert.Equal("Tier 1", moved.Tier); // le tier de l'objet reste le sien
+        Assert.Same(moved, _vm.SelectedNode!.Data);
+
+        _vm.PasteObjectCommand.Execute(null); // le presse-papiers est vidé : rien ne se passe
+        Assert.Single(Flatten(_vm.RootObject!), o => o.Name == "SRV-FILE-01");
+
+        _vm.UndoCommand.Execute(null);
+        Assert.Equal("Servers", Flatten(_vm.RootObject!).Single(o => o.Name == "SRV-FILE-01").Parent!.Name);
+    }
+
+    [Fact]
+    public void Cut_RefusesDomainControllers_AndAMoveIntoItself()
+    {
+        _vm.InitializeSampleDataCommand.Execute(null);
+        _vm.SelectObject(Flatten(_vm.RootObject!).First(o => o.Name == "DC01"));
+        Assert.False(_vm.CanCutSelected);
+
+        var servers = Flatten(_vm.RootObject!).First(o => o.Name == "Servers");
+        _vm.SelectObject(servers);
+        _vm.CutObjectCommand.Execute(null);
+        _vm.SelectObject(Flatten(_vm.RootObject!).First(o => o.Name == "SRV-FILE-01"));
+        _vm.PasteObjectCommand.Execute(null);
+
+        Assert.Same(_vm.RootObject, servers.Parent);
+    }
+
+    [Fact]
     public async Task SimulateTiering_OpensTheWindow_AndMigratesTheDomainInOneUndoableStep()
     {
         _vm.InitializeSampleDataCommand.Execute(null);

@@ -51,6 +51,7 @@ namespace SMADX.ViewModels
         [NotifyPropertyChangedFor(nameof(CanAddPSO))]
         [NotifyPropertyChangedFor(nameof(CanDeleteSelected))]
         [NotifyPropertyChangedFor(nameof(CanCopySelected))]
+        [NotifyPropertyChangedFor(nameof(CanCutSelected))]
         [NotifyPropertyChangedFor(nameof(CanManageRelations))]
         [NotifyPropertyChangedFor(nameof(CanAddToGroup))]
         [NotifyPropertyChangedFor(nameof(CanAddAnyChild))]
