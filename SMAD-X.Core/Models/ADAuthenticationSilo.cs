@@ -3,9 +3,9 @@ using System.Collections.ObjectModel;
 namespace SMADX.Models
 {
     /// <summary>
-    /// Silo de stratégies d'authentification (msDS-AuthNPolicySilo) et la stratégie qu'il applique à ses comptes
-    /// utilisateurs : un compte du silo ne s'authentifie que depuis les ordinateurs du silo, ou ceux que la stratégie
-    /// autorise en plus. En mode audit, rien n'est refusé : les refus sont seulement journalisés.
+    /// Silo de stratégies d'authentification (msDS-AuthNPolicySilo) et la stratégie qu'il applique à ses comptes : il
+    /// associe des identités (utilisateurs, groupes, comptes de service) aux ordinateurs depuis lesquels elles peuvent
+    /// s'authentifier. En mode audit, rien n'est refusé : les refus sont seulement journalisés.
     /// </summary>
     public sealed class ADAuthenticationSilo
     {
@@ -17,18 +17,21 @@ namespace SMADX.Models
         public bool Enforced { get; set; }
 
         /// <summary>
-        /// Comptes, ordinateurs et comptes de service du silo. Un groupe y met ses membres : AD veut chaque compte, comme
-        /// le fait le script de déploiement du modèle de Microsoft à partir de ses groupes d'ordinateurs.
+        /// Identités du silo : utilisateurs, comptes de service, ou groupes qui y mettent leurs membres (AD veut chaque compte,
+        /// comme le fait le script de déploiement du modèle de Microsoft à partir de ses groupes).
         /// </summary>
         public ObservableCollection<string> Members { get; set; } = new();
 
-        /// <summary>Ordinateurs, ou groupes d'ordinateurs, depuis lesquels les comptes du silo s'authentifient aussi.</summary>
-        public ObservableCollection<string> AllowedFrom { get; set; } = new();
+        /// <summary>
+        /// Ordinateurs, ou groupes d'ordinateurs, depuis lesquels les identités du silo s'authentifient : ceux du silo et ceux
+        /// que sa stratégie autorise. Everyone : la stratégie ne restreint pas l'origine de l'authentification.
+        /// </summary>
+        public ObservableCollection<string> Computers { get; set; } = new();
 
         public ADAuthenticationSilo Copy() => new()
         {
             Name = Name, Description = Description, Enforced = Enforced,
-            Members = new ObservableCollection<string>(Members), AllowedFrom = new ObservableCollection<string>(AllowedFrom)
+            Members = new ObservableCollection<string>(Members), Computers = new ObservableCollection<string>(Computers)
         };
     }
 }

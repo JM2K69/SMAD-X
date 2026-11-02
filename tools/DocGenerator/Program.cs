@@ -91,15 +91,17 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     main.Close();
 
     // ─── Silos d'authentification : un silo du Tier 0 pour le domaine d'exemple ──
+    (main, vm, dialogs) = OpenMain();
     var silos = new AuthenticationSilosViewModel(
     [
         new ADAuthenticationSilo
         {
             Name = "Tier0", Description = T(culture, "Comptes et ordinateurs du Tier 0.", "Tier 0 accounts and computers."), Enforced = true,
-            Members = ["adm-lmartin", "Administrator", "Domain Controllers"], AllowedFrom = ["PAW-T0-01"]
+            Members = ["GG-Tier0-Admins", "Administrator"], Computers = ["Domain Controllers"]
         }
-    ]);
-    Capture(new AuthenticationSilosWindow { DataContext = silos, Width = 900, Height = 600 }, Out("silos"));
+    ], vm.RootObject);
+    Capture(new AuthenticationSilosWindow { DataContext = silos, Width = 1000, Height = 620 }, Out("silos"));
+    main.Close();
 
     // ─── Exercice de démonstration, construit ici et jamais embarqué dans l'application ───
     (main, vm, dialogs) = OpenMain();

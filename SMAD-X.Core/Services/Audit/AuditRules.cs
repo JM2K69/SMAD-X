@@ -599,10 +599,13 @@ namespace SMADX.Services.Audit
                     ? c.PrivilegedAccounts
                         .Where(a => a.Type == ADObjectType.User && IsEnabled(a))
                         .Select(a => (account: a, silo: c.Silos.SiloOf(a)))
-                        .Where(x => x.silo is not { Enforced: true })
-                        .Select(x => Finding(x.account, x.silo is { } silo
-                            ? string.Format(LocalizationService.Instance["Audit.TIER-09.AuditMode"], silo.Name)
-                            : LocalizationService.Instance["Audit.TIER-09.NoSilo"]))
+                        .Where(x => x.silo is not { Enforced: true } || !c.Silos.KerberosOnly(x.account))
+                        .Select(x => Finding(x.account, x.silo switch
+                        {
+                            null => LocalizationService.Instance["Audit.TIER-09.NoSilo"],
+                            { Enforced: false } silo => string.Format(LocalizationService.Instance["Audit.TIER-09.AuditMode"], silo.Name),
+                            var silo => string.Format(LocalizationService.Instance["Audit.TIER-09.Ntlm"], silo.Name)
+                        }))
                     : []
             },
             new()

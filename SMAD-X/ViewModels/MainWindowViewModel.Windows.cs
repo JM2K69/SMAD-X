@@ -130,7 +130,7 @@ namespace SMADX.ViewModels
         private async Task ShowAuthenticationSilos()
         {
             if (RootObject == null) return;
-            var editor = new AuthenticationSilosViewModel(RootObject.AuthenticationSilos);
+            var editor = new AuthenticationSilosViewModel(RootObject.AuthenticationSilos, RootObject);
             if (!await _dialogs.ShowAuthenticationSilosAsync(editor) || editor.Error != null) return;
             var silos = editor.Result();
             RootObject.AuthenticationSilos = silos.Count > 0 ? new(silos) : null;

@@ -117,14 +117,18 @@ Every object is classified in a tier, following Microsoft's administration model
 
 ## Authentication silos
 
-An authentication policy silo restricts its accounts to its computers: a Tier 0 administrator placed in the Tier 0 silo only authenticates from the silo's domain controllers and administration workstations. Even stolen, their credentials do not work elsewhere, and they cannot open a session on a workstation. **Settings > Authentication silos...** manages them:
+An authentication policy silo ties identities to the computers they authenticate from: a Tier 0 administrator placed in the Tier 0 silo only authenticates from the silo's domain controllers and administration workstations. Even stolen, their credentials do not work elsewhere, and they cannot open a session on a workstation. **Settings > Authentication silos...** manages them:
 
 ![Authentication silos](assets/screens/silos.png)
 
 | Field | What it changes |
 |---|---|
 | **Enforced** | checked, the silo denies sessions outside its computers; unchecked, it is in audit mode and denies nothing |
-| **Members** | the silo's accounts, computers and service accounts; a group adds its members (in AD, each account is added one by one) |
-| **Also allow authentication from** | the computers, or computer groups, that the silo's policy allows in addition to the silo's own |
+| **Identities** | the silo's users, groups and service accounts; a group adds its members (in AD, each account is added one by one) |
+| **Computers** | the computers, or computer groups, the identities authenticate from: the silo's own, and those its policy also allows |
 
-An account is in one silo only: the first one in the list that names it. An account's **Security** section shows its silo and mode; a computer's, the sessions a silo denies there. In attack paths, a session denied by the account's silo opens no path, like a session a GPO denies. In a domain that has silos, rule TIER-09 reports a privileged account that is in no enforced silo.
+**Browse the directory...** opens the list of the domain objects that can join the list (users, groups and service accounts, or computers and groups): a search on name or location, a box per object.
+
+A silo's policy only restricts Kerberos. An identity that can still authenticate with NTLM bypasses it: SMAD-X only denies the session to a member of **Protected Users**, which uses Kerberos only, and the window reports the silo's identities that are not in it.
+
+An identity is in one silo only: the first one in the list that names it. An account's **Security** section shows its silo and mode; a computer's, the sessions a silo denies there. In attack paths, a session denied by the account's silo opens no path, like a session a GPO denies. In a domain that has silos, rule TIER-09 reports a privileged account that is in no enforced silo, or that is not a member of Protected Users.

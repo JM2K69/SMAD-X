@@ -259,12 +259,13 @@ namespace SMADX.Services.Labs
                     return TierModelService.Apply(domain, model, now, registerTiers: false).Total > 0;
                 case "TIER-06" or "TIER-07" or "TIER-08" when TierModelCatalog.Find(domain.TierModel) is { } model:
                     return TierMigrationService.Place(domain, model, o, now);
-                // Un compte privilégié hors d'un silo appliqué : il y entre (le sien, sinon le premier silo appliqué), et son
-                // silo passe en mode « appliquer »
+                // Un compte privilégié hors d'un silo appliqué : il y entre (le sien, sinon le premier silo appliqué), son silo
+                // passe en mode « appliquer », et il rejoint Protected Users pour que NTLM ne contourne pas la stratégie
                 case "TIER-09" when domain.AuthenticationSilos is { Count: > 0 } silos:
                     var silo = c.Silos.SiloOf(o) ?? silos.FirstOrDefault(s => s.Enforced) ?? silos[0];
                     if (c.Silos.SiloOf(o) == null) silo.Members.Add(o.Name);
                     silo.Enforced = true;
+                    if (!c.Silos.KerberosOnly(o) && c.Group("Protected Users") is { } protectedUsers) o.MemberOf.Add(protectedUsers.Name);
                     return true;
                 // Une boucle d'imbrication : on retire une appartenance de la boucle
                 case "GRP-01":

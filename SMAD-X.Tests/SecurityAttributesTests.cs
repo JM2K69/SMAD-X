@@ -511,7 +511,7 @@ public class SecurityPowerShellTests
             .AppendLine("$ErrorActionPreference = 'Stop'")
             .AppendLine(helpers)
             .AppendLine("(Get-SddlPrincipals 'O:SYG:SYD:(XA;OICI;CR;;;WD;(Member_of_any {SID(DD), SID(S-1-1-0), SID(DD)}))') -join '|'")
-            .AppendLine("ConvertTo-SiloJson 'Tier0' 'Comptes \"Tier 0\"' $true @('adm-x', 'DC01') @('Domain Controllers')");
+            .AppendLine("ConvertTo-SiloJson 'Tier0' 'Comptes \"Tier 0\"' $true @('adm-x') @('DC01', 'Domain Controllers', 'DC01')");
         var harnessPath = TempFile(".ps1");
         await File.WriteAllTextAsync(harnessPath, harness.ToString(), new UTF8Encoding(true));
 
@@ -521,8 +521,8 @@ public class SecurityPowerShellTests
         Assert.Equal("Domain Controllers|Everyone", lines[0]);
         var silo = System.Text.Json.JsonSerializer.Deserialize<ADAuthenticationSilo>(lines[1], ADDataService.SerializerOptions)!;
         Assert.Equal(("Tier0", "Comptes \"Tier 0\"", true), (silo.Name, silo.Description, silo.Enforced));
-        Assert.Equal(["adm-x", "DC01"], silo.Members);
-        Assert.Equal(["Domain Controllers"], silo.AllowedFrom);
+        Assert.Equal(["adm-x"], silo.Members);
+        Assert.Equal(["DC01", "Domain Controllers"], silo.Computers);
     }
 
     /// <summary>

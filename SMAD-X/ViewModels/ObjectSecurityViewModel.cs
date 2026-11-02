@@ -181,8 +181,8 @@ namespace SMADX.ViewModels
             : string.Empty;
 
         /// <summary>Silo d'authentification du compte et son mode ; vide s'il n'est dans aucun.</summary>
-        public string SiloEffect => IsAccount && Context?.Silos.SiloOf(_obj) is { } silo
-            ? string.Format(Loc[silo.Enforced ? "Security.SiloEnforced" : "Security.SiloAudit"], silo.Name)
+        public string SiloEffect => IsAccount && Context is { } c && c.Silos.SiloOf(_obj) is { } silo
+            ? string.Format(Loc[!silo.Enforced ? "Security.SiloAudit" : c.Silos.KerberosOnly(_obj) ? "Security.SiloEnforced" : "Security.SiloNtlm"], silo.Name)
             : string.Empty;
 
         public bool HasSiloEffect => SiloEffect.Length > 0;

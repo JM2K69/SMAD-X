@@ -198,8 +198,9 @@ public class MainWindowViewModelTests
         _dialogs.EditSilos = editor =>
         {
             editor.AddCommand.Execute(null);
-            editor.Selected!.MembersText = "adm-lmartin\nDomain Controllers";
-            editor.Selected.Enforced = true;
+            editor.AddMembers(["adm-lmartin"]);
+            editor.AddComputers(["Domain Controllers"]);
+            editor.Selected!.Enforced = true;
         };
         await _vm.ShowAuthenticationSilosCommand.ExecuteAsync(null);
 

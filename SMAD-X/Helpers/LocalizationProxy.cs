@@ -162,7 +162,11 @@ namespace SMADX.Helpers
         public string DialogSilosDescriptionField => _localizationService["Dialog.Silos.DescriptionField"];
         public string DialogSilosEnforced => _localizationService["Dialog.Silos.Enforced"];
         public string DialogSilosMembers => _localizationService["Dialog.Silos.Members"];
-        public string DialogSilosAllowedFrom => _localizationService["Dialog.Silos.AllowedFrom"];
+        public string DialogSilosComputers => _localizationService["Dialog.Silos.Computers"];
+        public string DialogSilosBrowse => _localizationService["Dialog.Silos.Browse"];
+        public string DialogSilosRemoveEntry => _localizationService["Dialog.Silos.RemoveEntry"];
+        public string DialogPickerFilter => _localizationService["Dialog.Picker.Filter"];
+        public string DialogPickerAdd => _localizationService["Dialog.Picker.Add"];
         public string DialogSilosOk => _localizationService["Dialog.Silos.Ok"];
         public string DialogSilosCancel => _localizationService["Dialog.Silos.Cancel"];
         public string TierImpactTitle => _localizationService["TierImpact.Title"];

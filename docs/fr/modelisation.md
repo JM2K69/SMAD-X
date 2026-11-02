@@ -117,14 +117,18 @@ Chaque objet est classé dans un tier, selon le modèle d'administration de Micr
 
 ## Les silos d'authentification
 
-Un silo de stratégies d'authentification réserve ses comptes à ses ordinateurs : un administrateur du Tier 0 placé dans le silo du Tier 0 ne s'authentifie que depuis les contrôleurs de domaine et les postes d'administration du silo. Même volés, ses identifiants ne servent pas ailleurs, et il ne peut pas ouvrir de session sur un poste de travail. **Configuration > Silos d'authentification...** les gère :
+Un silo de stratégies d'authentification associe des identités aux ordinateurs depuis lesquels elles s'authentifient : un administrateur du Tier 0 placé dans le silo du Tier 0 ne s'authentifie que depuis les contrôleurs de domaine et les postes d'administration du silo. Même volés, ses identifiants ne servent pas ailleurs, et il ne peut pas ouvrir de session sur un poste de travail. **Configuration > Silos d'authentification...** les gère :
 
 ![Silos d'authentification](assets/screens/silos.png)
 
 | Champ | Ce qu'il change |
 |---|---|
 | **Appliqué** | coché, le silo refuse les sessions hors de ses ordinateurs ; décoché, il est en mode audit et ne refuse rien |
-| **Membres** | les comptes, ordinateurs et comptes de service du silo ; un groupe y met ses membres (dans AD, chaque compte est ajouté un à un) |
-| **Autoriser aussi l'authentification depuis** | les ordinateurs, ou groupes d'ordinateurs, que la stratégie du silo autorise en plus de ceux du silo |
+| **Identités** | les utilisateurs, groupes et comptes de service du silo ; un groupe y met ses membres (dans AD, chaque compte est ajouté un à un) |
+| **Ordinateurs** | les ordinateurs, ou groupes d'ordinateurs, depuis lesquels les identités s'authentifient : ceux du silo, et ceux que sa stratégie autorise en plus |
 
-Un compte n'est que dans un silo : le premier de la liste qui le cite. La section **Sécurité** d'un compte indique son silo et son mode ; celle d'un ordinateur, les sessions qu'un silo y refuse. Dans les chemins d'attaque, une session refusée par le silo du compte n'ouvre aucun chemin, comme une session qu'une GPO interdit. Dans un domaine qui a des silos, la règle TIER-09 signale un compte privilégié qui n'est dans aucun silo appliqué.
+**Parcourir l'annuaire...** ouvre la liste des objets du domaine qui peuvent rejoindre la liste (utilisateurs, groupes et comptes de service, ou ordinateurs et groupes) : une recherche sur le nom ou l'emplacement, une case par objet.
+
+La stratégie d'un silo ne restreint que Kerberos. Une identité qui peut encore s'authentifier par NTLM la contourne : SMAD-X ne refuse la session que pour un membre de **Protected Users**, qui n'utilise que Kerberos, et la fenêtre signale les identités du silo qui n'y sont pas.
+
+Une identité n'est que dans un silo : le premier de la liste qui la cite. La section **Sécurité** d'un compte indique son silo et son mode ; celle d'un ordinateur, les sessions qu'un silo y refuse. Dans les chemins d'attaque, une session refusée par le silo du compte n'ouvre aucun chemin, comme une session qu'une GPO interdit. Dans un domaine qui a des silos, la règle TIER-09 signale un compte privilégié qui n'est dans aucun silo appliqué, ou qui n'est pas membre de Protected Users.

@@ -359,7 +359,7 @@ namespace SMADX.Services.Labs
                 d.AuthenticationSilos = [new ADAuthenticationSilo
                 {
                     Name = "Tier0", Description = b.T("Comptes et ordinateurs du Tier 0.", "Tier 0 accounts and computers."),
-                    Members = new(PrivilegedUsers(b, d).Select(u => u.Name).Append("Domain Controllers"))
+                    Members = new(PrivilegedUsers(b, d).Select(u => u.Name)), Computers = ["Domain Controllers"]
                 }];
                 return [admin, pc];
             }),
@@ -506,12 +506,16 @@ namespace SMADX.Services.Labs
             ["TIER-06"] = (b, d) => TierMigrationService.Move(Find(d, b.T("SRV-FICHIERS02", "SRV-FILES02"), ADObjectType.Computer), ModelOu(d, TierOneServers)),
             ["TIER-07"] = (b, d) => TierMigrationService.Move(Find(d, b.T("SRV-IMPRESSION01", "SRV-PRINT01"), ADObjectType.Computer), ModelOu(d, TierOneServers)),
             ["TIER-08"] = (b, d) => TierMigrationService.Move(Find(d, "adm-compta", ADObjectType.User), ModelOu(d, "Tier Model Administration/Tier 0/Tier 0 Accounts")),
-            // Le silo passe en mode « appliquer », avec tous les comptes privilégiés : la session sur le poste devient impossible
+            // Le silo passe en mode « appliquer », avec tous les comptes privilégiés, membres de Protected Users pour que NTLM ne
+            // contourne pas sa stratégie : la session sur le poste devient impossible
             ["TIER-09"] = (b, d) =>
             {
                 var silo = d.AuthenticationSilos!.Single(s => s.Name == "Tier0");
-                foreach (var user in PrivilegedUsers(b, d).Where(u => !silo.Members.Contains(u.Name)).ToList())
-                    silo.Members.Add(user.Name);
+                foreach (var user in PrivilegedUsers(b, d).ToList())
+                {
+                    if (!silo.Members.Contains(user.Name)) silo.Members.Add(user.Name);
+                    if (!user.MemberOf.Contains("Protected Users")) user.MemberOf.Add("Protected Users");
+                }
                 silo.Enforced = true;
             },
             ["LAPS-01"] = (b, d) => Find(d, b.T("SRV-FICHIERS01", "SRV-FILES01"), ADObjectType.Computer).LapsPasswordExpiration = b.Reference.AddDays(LapsRenewalDays - 1),
