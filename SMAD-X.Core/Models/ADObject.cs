@@ -171,6 +171,13 @@ namespace SMADX.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? TierModelVersion { get; set; }
 
+        /// <summary>
+        /// Pour le domaine : silos de stratégies d'authentification (rangés par AD dans la configuration de la forêt).
+        /// Null = aucun silo.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ObservableCollection<ADAuthenticationSilo>? AuthenticationSilos { get; set; }
+
         // --- GPO : paramètres qui changent les chemins d'attaque des ordinateurs où elle s'applique ---
 
         /// <summary>
@@ -201,6 +208,13 @@ namespace SMADX.Models
         /// <summary>Pour Policy : filtre WMI, ordinateurs auxquels la GPO s'applique. Null = tous.</summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public GpoComputerFilter? GpoComputerFilter { get; set; }
+
+        /// <summary>
+        /// Pour Policy : requêtes du filtre WMI d'une GPO importée (msWMI-Parm2). SMAD-X en tire
+        /// <see cref="GpoComputerFilter"/> à l'ouverture du document (voir <see cref="Services.WmiQueryFilter"/>).
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? GpoWmiQuery { get; set; }
 
         // --- Ordinateurs : LAPS, administrateurs locaux, sessions ---
 
@@ -345,6 +359,8 @@ namespace SMADX.Models
                 GpoLocalAdmins = GpoLocalAdmins is { } gpoAdmins ? new ObservableCollection<string>(gpoAdmins) : null,
                 GpoReplaceLocalAdmins = GpoReplaceLocalAdmins,
                 GpoComputerFilter = GpoComputerFilter,
+                GpoWmiQuery = GpoWmiQuery,
+                AuthenticationSilos = AuthenticationSilos is { } silos ? new ObservableCollection<ADAuthenticationSilo>(silos.Select(s => s.Copy())) : null,
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now
             };

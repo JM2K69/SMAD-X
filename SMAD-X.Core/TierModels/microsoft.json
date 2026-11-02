@@ -512,8 +512,8 @@
     {
       "Trustee": "Tier0Admins",
       "Target": "Tier 0 Member Servers",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll/CreateChild/DeleteChild Computer"
     },
     {
@@ -522,6 +522,13 @@
       "Right": "CreateChild:computer",
       "Category": "ComputerManagement",
       "SourceRights": "GenericAll/CreateChild/DeleteChild Computer"
+    },
+    {
+      "Trustee": "Tier0Admins",
+      "Target": "Tier 0 Member Servers",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll/CreateChild/DeleteChild OrganizationalUnit"
     },
     {
       "Trustee": "Tier0Admins",
@@ -585,6 +592,13 @@
       "Right": "GenericAll",
       "Category": "FullControl",
       "SourceRights": "GenericAll OrganizationalUnit"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier 1 Member Servers",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "GenericAll Computer"
     },
     {
       "Trustee": "Tier1ServerDomainJoin",
@@ -701,8 +715,8 @@
     {
       "Trustee": "Tier2DeviceOperators",
       "Target": "Tier 2 End-User Devices",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll Computer"
     },
     {
@@ -718,6 +732,13 @@
       "Right": "ReadProperty:msFVE-RecoveryPassword",
       "Category": "Other",
       "SourceRights": "ReadProperty BitLockerKeyPackage"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
     },
     {
       "Trustee": "Tier2HelpdeskOperators",
@@ -791,6 +812,13 @@
     },
     {
       "Trustee": "Tier2GroupOperators",
+      "Target": "Tier 2 End-User Groups/Contacts",
+      "Right": "GenericAll:Contact",
+      "Category": "Other",
+      "SourceRights": "GenericAll Contact"
+    },
+    {
+      "Trustee": "Tier2GroupOperators",
       "Target": "Tier 2 End-User Groups",
       "Right": "CreateChild:group",
       "Category": "Other",
@@ -827,8 +855,8 @@
     {
       "Trustee": "PAWDomainJoin",
       "Target": "Tier Model Administration/PAW Staging",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll Computer"
     },
     {
@@ -855,8 +883,8 @@
     {
       "Trustee": "Tier1Admins",
       "Target": "Tier Model Administration/PAW Staging",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll Computer"
     },
     {
@@ -883,8 +911,8 @@
     {
       "Trustee": "Tier2Admins",
       "Target": "Tier Model Administration/PAW Staging",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll Computer"
     },
     {
@@ -981,9 +1009,16 @@
     {
       "Trustee": "Tier1Admins",
       "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "GenericAll Computer"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
       "Right": "GenericAll",
       "Category": "FullControl",
-      "SourceRights": "GenericAll Computer"
+      "SourceRights": "GenericAll AllObjectClasses"
     },
     {
       "Trustee": "Tier1Admins",
@@ -1051,9 +1086,16 @@
     {
       "Trustee": "Tier2Admins",
       "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "GenericAll Computer"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
       "Right": "GenericAll",
       "Category": "FullControl",
-      "SourceRights": "GenericAll Computer"
+      "SourceRights": "GenericAll AllObjectClasses"
     },
     {
       "Trustee": "Tier2Admins",
@@ -1086,8 +1128,8 @@
     {
       "Trustee": "Tier2ComputerQuarantineOperators",
       "Target": "Tier Model Computer Quarantine",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll Computer"
     },
     {
@@ -1100,8 +1142,8 @@
     {
       "Trustee": "Tier2DeviceOperators",
       "Target": "Tier Model Computer Quarantine",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll Computer"
     },
     {
@@ -1117,6 +1159,13 @@
       "Right": "ReadProperty:msFVE-RecoveryPassword",
       "Category": "Other",
       "SourceRights": "ReadProperty BitLockerKeyPackage"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier Model Computer Quarantine",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
     }
   ],
   "GroupPolicies": [

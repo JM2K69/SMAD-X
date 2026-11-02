@@ -20,6 +20,7 @@ namespace SMADX.Services
         public void ShowLab(LabViewModel viewModel) { }
         public void ShowComparison(ComparisonViewModel viewModel) { }
         public void ShowTierImpact(TierImpactViewModel viewModel) { }
+        public Task<bool> ShowAuthenticationSilosAsync(AuthenticationSilosViewModel viewModel) => Task.FromResult(false);
         public void ShowAttackPaths(AttackPathsViewModel viewModel) { }
         public Task ShowTierConfigurationAsync() => Task.CompletedTask;
         public Task ShowTimelineAsync() => Task.CompletedTask;

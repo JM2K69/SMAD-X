@@ -3180,8 +3180,8 @@
     {
       "Trustee": "L-S-T1-DELEG_Computer - Create and Delete",
       "Target": "Harden_T12/Servers",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll  computer"
     },
     {
@@ -3194,8 +3194,8 @@
     {
       "Trustee": "L-S-T1-DELEG_Computer - Create and Delete",
       "Target": "Harden_TL/Servers",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll  computer"
     },
     {
@@ -3208,8 +3208,8 @@
     {
       "Trustee": "L-S-T1-DELEG_Computer - Create and Delete",
       "Target": "Provisioning/Computers",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll  computer"
     },
     {
@@ -3264,8 +3264,8 @@
     {
       "Trustee": "L-S-T2-DELEG_Computer - Create and Delete",
       "Target": "Harden_T12/Workstations",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll  computer"
     },
     {
@@ -3278,8 +3278,8 @@
     {
       "Trustee": "L-S-T2-DELEG_Computer - Create and Delete",
       "Target": "Harden_TL/Workstations",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll  computer"
     },
     {
@@ -3292,8 +3292,8 @@
     {
       "Trustee": "L-S-T2-DELEG_Computer - Create and Delete",
       "Target": "Provisioning/Computers",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:computer",
+      "Category": "ComputerManagement",
       "SourceRights": "GenericAll  computer"
     },
     {
@@ -3334,8 +3334,8 @@
     {
       "Trustee": "L-S-T2-DELEG_Contact - Create and Delete",
       "Target": "Harden_T12/Contacts",
-      "Right": "GenericAll",
-      "Category": "FullControl",
+      "Right": "GenericAll:contact",
+      "Category": "Other",
       "SourceRights": "GenericAll  contact"
     },
     {
@@ -3425,29 +3425,29 @@
     {
       "Trustee": "L-S-T1-DELEG_LAPS_PwdReset",
       "Target": "Harden_TL/Servers",
-      "Right": "ReadProperty:ms-Mcs-AdmPwd",
-      "Category": "ReadLapsPassword",
+      "Right": "WriteProperty:ms-Mcs-AdmPwdExpirationTime",
+      "Category": "AttributeWrite",
       "SourceRights": "AdmPwdPasswordReset"
     },
     {
       "Trustee": "L-S-T1-DELEG_LAPS_PwdReset",
       "Target": "Harden_T12/Servers",
-      "Right": "ReadProperty:ms-Mcs-AdmPwd",
-      "Category": "ReadLapsPassword",
+      "Right": "WriteProperty:ms-Mcs-AdmPwdExpirationTime",
+      "Category": "AttributeWrite",
       "SourceRights": "AdmPwdPasswordReset"
     },
     {
       "Trustee": "L-S-T2-DELEG_LAPS_PwdReset",
       "Target": "Harden_TL/Workstations",
-      "Right": "ReadProperty:ms-Mcs-AdmPwd",
-      "Category": "ReadLapsPassword",
+      "Right": "WriteProperty:ms-Mcs-AdmPwdExpirationTime",
+      "Category": "AttributeWrite",
       "SourceRights": "AdmPwdPasswordReset"
     },
     {
       "Trustee": "L-S-T2-DELEG_LAPS_PwdReset",
       "Target": "Harden_T12/Workstations",
-      "Right": "ReadProperty:ms-Mcs-AdmPwd",
-      "Category": "ReadLapsPassword",
+      "Right": "WriteProperty:ms-Mcs-AdmPwdExpirationTime",
+      "Category": "AttributeWrite",
       "SourceRights": "AdmPwdPasswordReset"
     }
   ],

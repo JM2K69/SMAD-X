@@ -1,7 +1,7 @@
 # Audit rules
 
 !!! info "Generated page"
-    This page is produced from the SMAD-X code (`tools/DocGenerator`): it lists exactly the 39 rules the application evaluates.
+    This page is produced from the SMAD-X code (`tools/DocGenerator`): it lists exactly the 40 rules the application evaluates.
 
 Each failed rule takes points off the score, once whatever the number of objects involved: **12** for a critical rule, **6** high, **3** medium, **1** low. The estimated ANSSI level is the level of the most critical failed control point (5 if none); it is not the official computation of ANSSI's ADS tool.
 
@@ -76,6 +76,7 @@ Each failed rule takes points off the score, once whatever the number of objects
 | **TIER-06** Object outside the tiering model's OUs | Medium | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model)<br>[CIS · CIS Controls v8 6.8](https://cas.docs.cisecurity.org/en/latest/source/Controls6/) |
 | **TIER-07** Object waiting in a transit OU | Low | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 | **TIER-08** Privileged account or group outside Tier 0 | High | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[NIST · SP 800-53 Rev. 5 AC-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **TIER-09** Privileged account outside an enforced authentication silo | Medium | — | [ANSSI · vuln_silo_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/authentication-policies-and-authentication-policy-silos)<br>[MITRE ATT&CK · T1003.001](https://attack.mitre.org/techniques/T1003/001/)<br>[NIST · SP 800-53 Rev. 5 AC-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 
 ## Workstations and servers
 

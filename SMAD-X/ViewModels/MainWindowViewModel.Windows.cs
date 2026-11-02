@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
@@ -119,6 +120,22 @@ namespace SMADX.ViewModels
             RecordHistory();
             StatusMessage = string.Format(Loc["Status.TierMigrated"], model.Name, result.Moves, result.Memberships, result.Issues.Count);
             return true;
+        }
+
+        /// <summary>
+        /// Configuration > Silos d'authentification : les silos du domaine, leur mode et leurs membres. Valider les pose sur
+        /// le domaine, en une étape annulable.
+        /// </summary>
+        [RelayCommand]
+        private async Task ShowAuthenticationSilos()
+        {
+            if (RootObject == null) return;
+            var editor = new AuthenticationSilosViewModel(RootObject.AuthenticationSilos);
+            if (!await _dialogs.ShowAuthenticationSilosAsync(editor) || editor.Error != null) return;
+            var silos = editor.Result();
+            RootObject.AuthenticationSilos = silos.Count > 0 ? new(silos) : null;
+            RecordHistory();
+            StatusMessage = string.Format(Loc["Status.SilosSaved"], silos.Count, silos.Count(s => s.Enforced));
         }
 
         [RelayCommand]

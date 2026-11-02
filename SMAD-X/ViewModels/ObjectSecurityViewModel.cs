@@ -170,14 +170,22 @@ namespace SMADX.ViewModels
                 .Select(a => string.Format(Loc["Security.ByGpo"], a.Name, a.Gpo!.Name)))
             : string.Empty;
 
-        /// <summary>Sessions saisies que les GPO interdisent sur la machine : elles n'exposent aucun identifiant.</summary>
+        /// <summary>Sessions saisies que les GPO ou les silos interdisent sur la machine : elles n'exposent aucun identifiant.</summary>
         public string BlockedSessionsEffect => IsComputer && Context is { } c
             ? string.Join(Environment.NewLine, (_obj.Sessions ?? []).Select(name => (name, account: c.Principal(name)))
                 .Where(x => x.account is { IsAccount: true })
-                .Select(x => (x.name, gpos: c.Policies.LogonDeniedBy(x.account!, _obj)))
-                .Where(x => x.gpos.Count > 0)
-                .Select(x => string.Format(Loc["Security.ByGpo"], x.name, string.Join(", ", x.gpos.Select(g => g.Name)))))
+                .Select(x => (x.name, causes: c.Policies.LogonDeniedBy(x.account!, _obj).Select(g => $"GPO {g.Name}")
+                    .Concat(c.Silos.LogonDeniedBy(x.account!, _obj) is { } silo ? [$"silo {silo.Name}"] : []).ToList()))
+                .Where(x => x.causes.Count > 0)
+                .Select(x => string.Format(Loc["Security.BlockedBy"], x.name, string.Join(", ", x.causes))))
             : string.Empty;
+
+        /// <summary>Silo d'authentification du compte et son mode ; vide s'il n'est dans aucun.</summary>
+        public string SiloEffect => IsAccount && Context?.Silos.SiloOf(_obj) is { } silo
+            ? string.Format(Loc[silo.Enforced ? "Security.SiloEnforced" : "Security.SiloAudit"], silo.Name)
+            : string.Empty;
+
+        public bool HasSiloEffect => SiloEffect.Length > 0;
 
         public bool HasGpoLocalAdminsEffect => GpoLocalAdminsEffect.Length > 0;
         public bool HasBlockedSessionsEffect => BlockedSessionsEffect.Length > 0;
@@ -215,6 +223,10 @@ namespace SMADX.ViewModels
                 Touch();
             }
         }
+
+        /// <summary>Requêtes du filtre WMI d'une GPO importée, d'où SMAD-X a tiré le filtre.</summary>
+        public string GpoWmiQuery => _obj.GpoWmiQuery ?? string.Empty;
+        public bool HasGpoWmiQuery => GpoWmiQuery.Length > 0;
 
         /// <summary>Choix du filtre WMI : vide (tous les ordinateurs), Servers ou Workstations.</summary>
         public static string[] GpoComputerFilters { get; } = [string.Empty, nameof(Models.GpoComputerFilter.Servers), nameof(Models.GpoComputerFilter.Workstations)];

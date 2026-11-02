@@ -1,7 +1,7 @@
 # Règles d'audit
 
 !!! info "Page générée"
-    Cette page est produite à partir du code de SMAD-X (`tools/DocGenerator`) : elle liste exactement les 39 règles évaluées par l'application.
+    Cette page est produite à partir du code de SMAD-X (`tools/DocGenerator`) : elle liste exactement les 40 règles évaluées par l'application.
 
 Chaque règle en échec retire des points au score, une seule fois quel que soit le nombre d'objets concernés : **12** pour une règle critique, **6** élevée, **3** moyenne, **1** faible. Le niveau ANSSI estimé est celui du point de contrôle le plus critique en échec (5 si aucun) ; ce n'est pas le calcul officiel de l'outil ADS de l'ANSSI.
 
@@ -76,6 +76,7 @@ Chaque règle en échec retire des points au score, une seule fois quel que soit
 | **TIER-06** Objet rangé hors des OU du modèle de cloisonnement | Moyenne | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model)<br>[CIS · CIS Controls v8 6.8](https://cas.docs.cisecurity.org/en/latest/source/Controls6/) |
 | **TIER-07** Objet en attente dans une OU de transit | Faible | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel)<br>[NIST · SP 800-53 Rev. 5 AC-2](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 | **TIER-08** Compte ou groupe privilégié rangé hors du Tier 0 | Élevée | — | [ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/security/privileged-access-workstations/privileged-access-access-model)<br>[NIST · SP 800-53 Rev. 5 AC-6(5)](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)<br>[NIST · SP 800-53 Rev. 5 AC-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
+| **TIER-09** Compte privilégié hors d'un silo d'authentification appliqué | Moyenne | — | [ANSSI · vuln_silo_priv](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)<br>[ANSSI · ANSSI-PA-099](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad)<br>[Microsoft · Microsoft Learn](https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/authentication-policies-and-authentication-policy-silos)<br>[MITRE ATT&CK · T1003.001](https://attack.mitre.org/techniques/T1003/001/)<br>[NIST · SP 800-53 Rev. 5 AC-5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
 
 ## Postes et serveurs
 

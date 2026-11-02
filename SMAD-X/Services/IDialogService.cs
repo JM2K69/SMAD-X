@@ -47,6 +47,9 @@ namespace SMADX.Services
         /// <summary>Fenêtre non modale « Simuler un cloisonnement ».</summary>
         void ShowTierImpact(TierImpactViewModel viewModel);
 
+        /// <summary>Silos d'authentification du domaine (modale) ; true si l'on valide les modifications.</summary>
+        Task<bool> ShowAuthenticationSilosAsync(AuthenticationSilosViewModel viewModel);
+
         /// <summary>Fenêtre non modale des chemins d'attaque vers le contrôle du domaine.</summary>
         void ShowAttackPaths(AttackPathsViewModel viewModel);
 

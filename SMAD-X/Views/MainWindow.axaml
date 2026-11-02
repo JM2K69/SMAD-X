@@ -87,6 +87,7 @@
                 <MenuItem Header="{Binding MenuSettings}">
                     <MenuItem Header="{Binding MenuSettingsManageTiers}" Command="{Binding #MainWindowRoot.DataContext.ShowTierConfigurationCommand}"/>
                     <MenuItem Header="{Binding MenuSettingsApplyTierModel}" Command="{Binding #MainWindowRoot.DataContext.ApplyTierModelCommand}"/>
+                    <MenuItem Header="{Binding MenuSettingsSilos}" Command="{Binding #MainWindowRoot.DataContext.ShowAuthenticationSilosCommand}"/>
                 </MenuItem>
                 <MenuItem Header="{Binding MenuAnalyse}">
                     <MenuItem Header="{Binding MenuAnalyseAudit}" Command="{Binding #MainWindowRoot.DataContext.ShowAuditCommand}" InputGesture="Ctrl+Shift+A"/>
@@ -604,6 +605,8 @@
                                                               IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.TrustedToAuthForDelegation, Mode=TwoWay}"/>
                                                     <CheckBox Content="{Binding SecurityNotDelegated}"
                                                               IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.NotDelegated, Mode=TwoWay}"/>
+                                                    <TextBlock Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.SiloEffect}" TextWrapping="Wrap" Margin="0,4,0,0"
+                                                               IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.HasSiloEffect, FallbackValue=False}"/>
 
                                                     <TextBlock Text="{Binding SecuritySpn}" Margin="0,6,0,0"/>
                                                     <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.ServicePrincipalNamesText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
@@ -695,6 +698,11 @@
                                                                 </DataTemplate>
                                                             </ComboBox.ItemTemplate>
                                                         </ComboBox>
+                                                    </StackPanel>
+                                                    <StackPanel Spacing="2" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.HasGpoWmiQuery, FallbackValue=False}">
+                                                        <TextBlock Text="{Binding SecurityGpoWmiQuery}" FontSize="11" Opacity="0.8"/>
+                                                        <TextBlock Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GpoWmiQuery}" TextWrapping="Wrap"
+                                                                   FontFamily="Consolas, Courier New, monospace" FontSize="11" Opacity="0.8"/>
                                                     </StackPanel>
                                                 </StackPanel>
 

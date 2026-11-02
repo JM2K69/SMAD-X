@@ -1,0 +1,68 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMADX.ViewModels"
+        x:Class="SMADX.Views.AuthenticationSilosWindow"
+        x:DataType="vm:AuthenticationSilosViewModel"
+        Title="{Binding Source={StaticResource Loc}, Path=DialogSilosTitle}"
+        Icon="/Assets/icone.ico"
+        Width="900" Height="640"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+
+        <TextBlock Grid.Row="0" Text="{Binding Source={StaticResource Loc}, Path=DialogSilosDescription}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+        <Grid Grid.Row="1" ColumnDefinitions="220,*" ColumnSpacing="12">
+
+            <!-- ═══ Les silos du domaine ═══ -->
+            <DockPanel Grid.Column="0">
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="6" Margin="0,6,0,0">
+                    <Button Content="{Binding Source={StaticResource Loc}, Path=DialogSilosAdd}" Command="{Binding AddCommand}" Padding="10,4"/>
+                    <Button Content="{Binding Source={StaticResource Loc}, Path=DialogSilosRemove}" Command="{Binding RemoveCommand}" Padding="10,4"/>
+                </StackPanel>
+                <ListBox ItemsSource="{Binding Silos}" SelectedItem="{Binding Selected}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SiloItem">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                <TextBlock FontSize="11" Opacity="0.8">
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource LocValue}" ConverterParameter="Dialog.Silos.Mode">
+                                            <Binding Path="Enforced"/>
+                                            <Binding Source="{StaticResource Loc}" Path="CurrentCulture"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <!-- ═══ Le silo sélectionné ═══ -->
+            <ScrollViewer Grid.Column="1" IsVisible="{Binding HasSelection}">
+                <StackPanel Spacing="4" DataContext="{Binding Selected}" x:DataType="vm:SiloItem">
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DialogSilosName}"/>
+                    <TextBox Text="{Binding Name}"/>
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DialogSilosDescriptionField}" Margin="0,4,0,0"/>
+                    <TextBox Text="{Binding Description}"/>
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=DialogSilosEnforced}" IsChecked="{Binding Enforced}" Margin="0,6,0,0"/>
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DialogSilosMembers}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                    <TextBox Text="{Binding MembersText}" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="120" MaxHeight="200"
+                             FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DialogSilosAllowedFrom}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                    <TextBox Text="{Binding AllowedFromText}" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="60" MaxHeight="140"
+                             FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <DockPanel Grid.Row="2" Margin="0,10,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                <Button Content="{Binding Source={StaticResource Loc}, Path=DialogSilosOk}" Click="OnOkClick" Padding="14,5"/>
+                <Button Content="{Binding Source={StaticResource Loc}, Path=DialogSilosCancel}" Click="OnCancelClick" Padding="14,5"/>
+            </StackPanel>
+            <TextBlock x:Name="ErrorTextBlock" Foreground="#C0392B" VerticalAlignment="Center" TextWrapping="Wrap"/>
+        </DockPanel>
+    </Grid>
+</Window>

@@ -82,11 +82,13 @@ On a domain where a model has just been applied, TIER-06 therefore lists everyth
 - **GPO settings**: apart from logon denials, local administrators and the WMI filter, they are not modelled (firewall, AppLocker, audit…). Neither are enforced links, inheritance blocking and GPO security filtering.
 - **The Microsoft model**: its optional components (MSA, gMSA and dMSA, Windows LAPS, authentication silos) are not included. The "*- " prefix of GPO names is removed. Links the model creates disabled stay disabled.
 - **HardenAD**: every task of its sequence is included, as if all were enabled (they are disabled by default). Administration accounts keep the names of the source (`T0M-AHARDEN`…). Redirecting the default containers to Provisioning is not modelled. PAWs shared by several tiers (`PawAccess`, `PawT12L`) and their logon groups have no tier. The local administration group specific to each computer (`L-S_LocalAdmins_%ComputerName%`) is not created.
-- **Authentication silos**: neither model enforces them. HardenAD creates none; Microsoft offers them as an option, created in audit mode and with no administration account in them.
+- **Authentication silos**: neither model enforces them. HardenAD creates none; Microsoft offers them as an option, created in audit mode and with no administration account in them. SMAD-X lets you create them and measure their effect (see [Modeling](modeling.md#authentication-silos)).
 
 ## Fidelity
 
-In the SMAD-X tests, the HardenAD model is compared with a real domain hardened by HardenAD and exported by the import script: the 76 OUs, the 292 groups (names, locations, descriptions) and the 119 GPOs are identical. The names of the GPO filtering groups follow HardenAD's rule, abbreviations included (`L-S-T0-GPO_HAD-LocAdmins-T1_APPLY`).
+In the SMAD-X tests, the HardenAD model is compared with a new Windows Server 2025 domain hardened by HardenAD 2.9.9 (all tasks enabled) and exported by the import script. Identical: the 76 OUs, the 292 groups (names, locations, descriptions, memberships), the 119 GPOs and their settings (logon denials, local administrators), the additions to existing groups and the delegations. The names of the GPO filtering groups follow HardenAD's rule, abbreviations included (`L-S-T0-GPO_HAD-LocAdmins-T1_APPLY`).
+
+This comparison corrected SMAD-X: WMI filters are now read in their queries (a name such as `Windows-x64-NoDC` does not say it targets both workstations and servers), full control limited to computers or to BitLocker recovery information is no longer read as control of the whole OU, and resetting the LAPS password does not give its reading.
 
 ## Sources and licenses
 

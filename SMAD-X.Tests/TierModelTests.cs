@@ -160,30 +160,53 @@ public class TierModelTests
     }
 
     /// <summary>
-    /// Fidélité : le modèle HardenAD appliqué à un domaine neuf a les OU, les groupes (noms, emplacements, descriptions)
-    /// et les GPO d'un vrai domaine durci par HardenAD, exporté par le script d'import de SMAD-X
-    /// (Fidelity/hardenad-harden.ad.smad-x.json). Les comptes et les délégations n'y figurent pas sous une forme
-    /// comparable : l'export vient d'un script d'import plus ancien.
+    /// Fidélité : HardenAD 2.9.9v2, toutes tâches activées, déployé sur un domaine Windows Server 2025 neuf (hardenad.lab)
+    /// et exporté par le script d'import de SMAD-X (Fidelity/hardenad-2025.smad-x.json). Le modèle appliqué à un domaine
+    /// neuf a les mêmes OU, groupes, GPO, paramètres de GPO (refus d'ouverture de session, administrateurs locaux),
+    /// appartenances et délégations. L'export a précédé trois corrections de l'import, vérifiées par ses propres tests
+    /// sur les requêtes et les ACE de HardenAD : les filtres WMI (lus depuis dans leurs requêtes), les droits limités à une
+    /// classe (BitLocker, contacts, expiration du mot de passe LAPS) et le nom des comptes (leur sAMAccountName, au lieu de
+    /// leur CN). Ces points ne sont pas comparés ici.
     /// </summary>
     [Fact]
-    public async Task HardenAd_MatchesARealHardenedDomain()
+    public async Task HardenAd_MatchesADomainHardenedOnWindowsServer2025()
     {
-        var result = await new ADDataService().LoadDocumentAsync(Path.Combine(AppContext.BaseDirectory, "Fidelity", "hardenad-harden.ad.smad-x.json"));
+        var result = await new ADDataService().LoadDocumentAsync(Path.Combine(AppContext.BaseDirectory, "Fidelity", "hardenad-2025.smad-x.json"));
         var real = result.Document!.Domain;
-        var simulated = new ADDataService().CreateFreshDomainStructure(real.Name);
-        TierModelService.Apply(simulated, Model("hardenad"), Now);
+        Assert.Equal(WindowsServerVersion.Server2025, real.ServerVersion);
+        var model = Model("hardenad");
+        var simulated = new ADDataService().CreateFreshDomainStructure(real.Name, true, WindowsServerVersion.Server2025);
+        TierModelService.Apply(simulated, model, Now);
 
         static string PathOf(ADObject o) =>
             o.Parent is { Type: not ADObjectType.Domain } parent ? $"{PathOf(parent)}/{o.Name}" : o.Name;
         static HashSet<string> Ous(ADObject d) => Flatten(d).Where(o => o.Type == ADObjectType.OrganizationalUnit).Select(PathOf).ToHashSet();
         static HashSet<string> Groups(ADObject d) => Flatten(d).Where(o => o.Type == ADObjectType.Group && (o.Name.StartsWith("L-S-") || o.Name.StartsWith("G-S-")))
-            .Select(o => $"{PathOf(o)} | {o.Description}").ToHashSet();
+            .Select(o => $"{PathOf(o)} | {o.Description} | {string.Join(",", o.MemberOf.Order())}").ToHashSet();
         static HashSet<string> Gpos(ADObject d) => Flatten(d).Where(o => o.Type == ADObjectType.Policy).Select(o => o.Name).ToHashSet();
+        static string Settings(ADObject gpo) =>
+            $"{string.Join(",", (gpo.GpoDenyInteractiveLogon ?? []).Order())} | {string.Join(",", (gpo.GpoDenyRemoteInteractiveLogon ?? []).Order())}"
+            + $" | {string.Join(",", (gpo.GpoLocalAdmins ?? []).Order())} | {gpo.GpoReplaceLocalAdmins}";
 
-        Assert.Equal(Ous(real).Order(), Ous(simulated).Order());
+        Assert.Equal(Ous(simulated).Order(), Ous(real).Order());
         Assert.Equal(292, Groups(real).Count);
-        Assert.Equal(Groups(real).Order(), Groups(simulated).Order());
-        Assert.Equal(Gpos(real).Order(), Gpos(simulated).Order());
+        Assert.Equal(Groups(simulated).Order(), Groups(real).Order());
+        Assert.Equal(Gpos(simulated).Order(), Gpos(real).Order());
+        var realGpos = Flatten(real).Where(o => o.Type == ADObjectType.Policy).ToDictionary(o => o.Name);
+        Assert.All(model.GroupPolicies, g => Assert.Equal(Settings(Find(simulated, g.Name)), Settings(realGpos[g.Name])));
+        Assert.All(model.DefaultMembers.SelectMany(m => m.Members.Select(member => (member, m.Group))),
+            x => Assert.Contains(x.Group, Find(real, x.member).MemberOf));
+
+        // Délégations des groupes du modèle sur ses OU, sans celles que l'export a lues avant la correction de l'import
+        bool ReadBeforeTheFix(string trustee) => trustee.Contains("Manage BitlockerKey") || trustee.Contains("LAPS_PwdReset") || trustee.Contains("Contact - Create and Delete");
+        var trustees = model.Delegations.Select(d => d.Trustee).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var expected = model.Delegations.Where(d => !ReadBeforeTheFix(d.Trustee)).Select(d => $"{d.Trustee} | {d.Target} | {d.Right}").ToHashSet();
+        var actual = model.OrganizationalUnits.Select(o => (o.Path, Ou: TierModelService.Ou(real, o.Path)!))
+            .SelectMany(x => x.Ou.Delegations.Where(d => !d.IsInherited && trustees.Contains(d.TrusteeName) && !ReadBeforeTheFix(d.TrusteeName))
+                .Select(d => $"{d.TrusteeName} | {x.Path} | {d.Right}"))
+            .ToHashSet();
+        Assert.Equal(50, expected.Count);
+        Assert.Equal(expected.Order(), actual.Order());
     }
 
     [Fact]

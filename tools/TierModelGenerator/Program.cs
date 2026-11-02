@@ -123,8 +123,15 @@ static class Rights
         foreach (var right in rights.Where(r => !Known.Contains(r)))
             unmapped.Add($"{right} ({type})");
 
+        // Contrôle total : limité à une classe d'objets quand seule elle en hérite, comme l'import le lit dans l'ACE
         if (Has("GenericAll"))
-            yield return bitLocker ? (RightCategory.Other, "GenericAll:msFVE-RecoveryInformation") : (RightCategory.FullControl, "GenericAll");
+            yield return bitLocker ? (RightCategory.Other, "GenericAll:msFVE-RecoveryInformation")
+                : objectClass == "computer" ? (RightCategory.ComputerManagement, "GenericAll:computer")
+                // Toutes les classes, les comptes et les groupes, ou les OU et conteneurs qui les contiennent
+                : objectClass is "" or "allobjectclasses" or "user" or "group" or "inetorgperson" or "msds-groupmanagedserviceaccount"
+                    or "msds-managedserviceaccount" or "organizationalunit" or "container"
+                    ? (RightCategory.FullControl, "GenericAll")
+                    : (RightCategory.Other, $"GenericAll:{(type.Length > 0 ? type : inherited)}");
         if (Has("GenericWrite")) yield return (RightCategory.GenericWrite, "GenericWrite");
         if (Has("WriteDacl")) yield return (RightCategory.FullControl, "WriteDacl");
         if (Has("WriteOwner")) yield return (RightCategory.FullControl, "WriteOwner");
@@ -517,17 +524,17 @@ static class HardenAdTierModel
                     SourceRights = $"{string.Join('/', rights)} {objectType} {inherited}".Trim()
                 });
         }
-        // LAPS : la lecture du mot de passe, et sa réinitialisation qui permet aussi de le lire
+        // LAPS : la lecture du mot de passe ; sa réinitialisation écrit seulement la date d'expiration, sans le lire
         foreach (var laps in xml.Element("LocalAdminPasswordSolution")?.Elements() ?? [])
         {
             var kind = laps.Name.LocalName;
-            if (!kind.Equals("AdmPwdPasswordReader", StringComparison.OrdinalIgnoreCase) && !kind.Equals("AdmPwdPasswordReset", StringComparison.OrdinalIgnoreCase)) continue;
+            var reader = kind.Equals("AdmPwdPasswordReader", StringComparison.OrdinalIgnoreCase);
+            if (!reader && !kind.Equals("AdmPwdPasswordReset", StringComparison.OrdinalIgnoreCase)) continue;
             if (Source.OuPath(T(laps.Attribute("Target")?.Value)) is not { } target) continue;
             var trustee = Regex.Replace(T(laps.Attribute("Id")?.Value), @"^[^\\]*\\", string.Empty);
-            delegations.Add(new TierModelDelegation
-            {
-                Trustee = trustee, Target = target, Right = "ReadProperty:ms-Mcs-AdmPwd", Category = RightCategory.ReadLapsPassword, SourceRights = kind
-            });
+            delegations.Add(reader
+                ? new TierModelDelegation { Trustee = trustee, Target = target, Right = "ReadProperty:ms-Mcs-AdmPwd", Category = RightCategory.ReadLapsPassword, SourceRights = kind }
+                : new TierModelDelegation { Trustee = trustee, Target = target, Right = "WriteProperty:ms-Mcs-AdmPwdExpirationTime", Category = RightCategory.AttributeWrite, SourceRights = kind });
         }
         model.Delegations = Rights.Dedupe(delegations);
 
@@ -575,7 +582,7 @@ static class HardenAdTierModel
                     Target = Source.OuPath(T(l.Attribute("Path")?.Value)) ?? string.Empty,
                     Enabled = !string.Equals(l.Attribute("Enabled")?.Value, "No", StringComparison.OrdinalIgnoreCase)
                 }).ToList(),
-                ComputerFilter = Filter(gpo.Element("GpoFilter")?.Attribute("WMI")?.Value)
+                ComputerFilter = await Filter(http, commit, tree, gpo.Element("GpoFilter")?.Attribute("WMI")?.Value)
             };
             if (gpo.Attribute("BackupID")?.Value is { Length: > 0 } backup)
                 await ReadSettings(http, commit, tree, backup, definition, T);
@@ -584,12 +591,30 @@ static class HardenAdTierModel
         return model;
     }
 
-    /// <summary>Filtre WMI de HardenAD (Windows-Supported-OS-Servers-NoDC, Windows-OS-Clients…) : serveurs, postes, ou tous.</summary>
-    private static GpoComputerFilter? Filter(string? wmi) =>
-        wmi == null ? null
-        : wmi.Contains("Servers", StringComparison.OrdinalIgnoreCase) ? GpoComputerFilter.Servers
-        : wmi.Contains("Clients", StringComparison.OrdinalIgnoreCase) ? GpoComputerFilter.Workstations
-        : null;
+    private static readonly Dictionary<string, GpoComputerFilter?> Filters = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Filtre WMI de HardenAD : ses requêtes (Inputs/GroupPolicies/WmiFilters/&lt;nom&gt;.mof) disent s'il vise les serveurs,
+    /// les postes ou tous les ordinateurs, lues comme l'import les lit dans msWMI-Parm2 (<see cref="WmiQueryFilter"/>).
+    /// Le nom ne suffit pas : Windows-x64-NoDC ou Windows-Laps-Supported visent postes et serveurs.
+    /// </summary>
+    private static async Task<GpoComputerFilter?> Filter(HttpClient http, string commit, List<string> tree, string? wmi)
+    {
+        if (string.IsNullOrEmpty(wmi)) return null;
+        if (Filters.TryGetValue(wmi, out var known)) return known;
+        var file = tree.FirstOrDefault(p => p.StartsWith("Inputs/GroupPolicies/WmiFilters/", StringComparison.OrdinalIgnoreCase)
+                                            && p.EndsWith($"/{wmi}.mof", StringComparison.OrdinalIgnoreCase));
+        GpoComputerFilter? filter = null;
+        if (file != null)
+        {
+            var mof = await Source.File(http, Repository, commit, file);
+            var queries = Regex.Matches(mof, @"Query\s*=\s*""((?:[^""\\]|\\.)*)""").Select(m => Regex.Unescape(m.Groups[1].Value));
+            filter = WmiQueryFilter.Classify(string.Join(";", queries));
+        }
+        else
+            Console.Error.WriteLine($"  Filtre WMI sans fichier MOF : {wmi}");
+        return Filters[wmi] = filter;
+    }
 
     /// <summary>
     /// Paramètres d'une GPO, lus dans le rapport de sa sauvegarde (gpreport.xml) : refus d'ouverture de session, groupes

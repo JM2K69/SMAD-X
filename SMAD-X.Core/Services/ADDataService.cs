@@ -73,6 +73,7 @@ namespace SMADX.Services
                     return DocumentLoadResult.Failed(DocumentLoadStatus.InvalidFormat, fileVersion, "Aucun domaine dans le fichier.");
 
                 RestoreParentReferences(document.Domain, null);
+                ApplyImportedWmiFilters(document.Domain);
                 return new DocumentLoadResult(DocumentLoadStatus.Loaded, document, fileVersion);
             }
             catch (DocumentTooNewException ex)
@@ -134,6 +135,17 @@ namespace SMADX.Services
         }
 
         /// <summary>Rétablit les liens Parent (non sérialisés) d'un arbre désérialisé.</summary>
+        /// <summary>
+        /// GPO importées : le filtre WMI se lit dans ses requêtes (serveurs, postes ou tous), sauf si le document le fixe déjà.
+        /// </summary>
+        public static void ApplyImportedWmiFilters(ADObject root)
+        {
+            if (root is { Type: ADObjectType.Policy, GpoWmiQuery: { } query, GpoComputerFilter: null })
+                root.GpoComputerFilter = WmiQueryFilter.Classify(query);
+            foreach (var child in root.Children)
+                ApplyImportedWmiFilters(child);
+        }
+
         public static void RestoreParentReferences(ADObject current, ADObject? parent)
         {
             current.Parent = parent;

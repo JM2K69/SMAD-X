@@ -101,6 +101,9 @@ namespace SMADX.Views
         public void ShowTierImpact(TierImpactViewModel viewModel) =>
             new TierImpactWindow { DataContext = viewModel }.Show(_owner);
 
+        public async Task<bool> ShowAuthenticationSilosAsync(AuthenticationSilosViewModel viewModel) =>
+            await new AuthenticationSilosWindow { DataContext = viewModel }.ShowDialog<bool?>(_owner) == true;
+
         public void ShowAttackPaths(AttackPathsViewModel viewModel) =>
             new AttackPathsWindow { DataContext = viewModel }.Show(_owner);
 

@@ -76,8 +76,15 @@ namespace SMADX.Services.AttackPaths
     /// <param name="Holder">Objet qui porte la permission (l'ACE, ou le propriétaire), là où elle se corrige ; null hors permission.</param>
     public sealed record AttackEdge(AttackNode From, AttackNode To, AttackEdgeKind Kind, string Detail, ADObject? Holder = null);
 
-    /// <summary>Session qu'une GPO rend impossible : le compte ne peut ouvrir de session sur l'ordinateur, ni en local ni par le Bureau à distance.</summary>
-    public sealed record BlockedSession(ADObject Account, ADObject Computer, IReadOnlyList<ADObject> Gpos);
+    /// <summary>
+    /// Session impossible : une GPO interdit au compte d'ouvrir une session sur l'ordinateur, ni en local ni par le Bureau
+    /// à distance, ou le silo appliqué du compte ne compte pas cet ordinateur.
+    /// </summary>
+    public sealed record BlockedSession(ADObject Account, ADObject Computer, IReadOnlyList<ADObject> Gpos, ADAuthenticationSilo? Silo = null)
+    {
+        /// <summary>Ce qui l'interdit : « GPO X », « silo Y ».</summary>
+        public IEnumerable<string> Causes => Gpos.Select(g => $"GPO {g.Name}").Concat(Silo is { } s ? [$"silo {s.Name}"] : []);
+    }
 
     /// <summary>Chemin d'une source jusqu'au contrôle du domaine.</summary>
     public sealed record AttackPath(AttackNode Start, IReadOnlyList<AttackEdge> Steps)
@@ -222,7 +229,8 @@ namespace SMADX.Services.AttackPaths
         /// <summary>
         /// Administration locale et sessions : un administrateur de la machine y vole les identifiants des comptes qui
         /// y ont une session (à la manière d'AdminTo et HasSession dans BloodHound). Les GPO qui s'appliquent à la machine
-        /// comptent : elles changent ses administrateurs locaux, et une session qu'elles interdisent n'a pas lieu.
+        /// comptent : elles changent ses administrateurs locaux ; et une session qu'elles interdisent, ou que le silo appliqué
+        /// du compte refuse, n'a pas lieu.
         /// </summary>
         private IEnumerable<AttackEdge> ComputerEdges(ADObject computer, AttackNode node)
         {
@@ -236,8 +244,10 @@ namespace SMADX.Services.AttackPaths
             foreach (var account in computer.Sessions ?? [])
             {
                 if (_context.Principal(account) is not { IsAccount: true } user || user == computer) continue;
-                if (_context.Policies.LogonDeniedBy(user, computer) is { Count: > 0 } gpos)
-                    _blocked.Add(new BlockedSession(user, computer, gpos));
+                var gpos = _context.Policies.LogonDeniedBy(user, computer);
+                var silo = _context.Silos.LogonDeniedBy(user, computer);
+                if (gpos.Count > 0 || silo != null)
+                    _blocked.Add(new BlockedSession(user, computer, gpos, silo));
                 else
                     yield return new AttackEdge(node, Node(user), AttackEdgeKind.HasSession, string.Format(loc["AttackPath.Edge.HasSession"], user.Name, computer.Name));
             }

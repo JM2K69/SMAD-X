@@ -32,6 +32,11 @@ namespace SMADX.Services.Audit
         /// <summary>Effets des GPO sur les ordinateurs : refus d'ouverture de session, administrateurs locaux.</summary>
         public GroupPolicyEffects Policies => _policies ??= new GroupPolicyEffects(this);
 
+        private AuthenticationSiloEffects? _silos;
+
+        /// <summary>Effets des silos d'authentification : où un compte d'un silo appliqué peut ouvrir une session.</summary>
+        public AuthenticationSiloEffects Silos => _silos ??= new AuthenticationSiloEffects(this);
+
         public AuditContext(ADObject domain, DateTime now)
         {
             Domain = domain;

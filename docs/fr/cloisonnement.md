@@ -82,11 +82,13 @@ Sur un domaine où l'on vient d'appliquer un modèle, TIER-06 liste donc tout ce
 - **Les paramètres des GPO** : en dehors des refus d'ouverture de session, des administrateurs locaux et du filtre WMI, ils ne sont pas modélisés (pare-feu, AppLocker, audit…). Les liens appliqués, le blocage de l'héritage et le filtrage de sécurité des GPO non plus.
 - **Le modèle Microsoft** : ses composants optionnels (MSA, gMSA et dMSA, Windows LAPS, silos d'authentification) ne sont pas repris. Le préfixe « *- » des noms de GPO est retiré. Les liens que le modèle crée désactivés restent désactivés.
 - **HardenAD** : toutes les tâches de sa séquence sont reprises, comme si elles étaient toutes activées (elles sont désactivées par défaut). Les comptes d'administration gardent les noms de la source (`T0M-AHARDEN`…). La redirection des conteneurs par défaut vers Provisioning n'est pas modélisée. Les PAW partagées par plusieurs tiers (`PawAccess`, `PawT12L`) et leurs groupes de connexion n'ont pas de tier. Le groupe d'administration locale propre à chaque ordinateur (`L-S_LocalAdmins_%ComputerName%`) n'est pas créé.
-- **Les silos d'authentification** : aucun des deux modèles ne les applique. HardenAD n'en crée pas ; Microsoft les propose en option, créés en mode audit et sans y placer de compte d'administration.
+- **Les silos d'authentification** : aucun des deux modèles ne les applique. HardenAD n'en crée pas ; Microsoft les propose en option, créés en mode audit et sans y placer de compte d'administration. SMAD-X permet d'en créer et d'en mesurer l'effet (voir [Modéliser](modelisation.md#les-silos-dauthentification)).
 
 ## Fidélité
 
-Le modèle HardenAD est comparé, dans les tests de SMAD-X, à un vrai domaine durci par HardenAD et exporté par le script d'import : les 76 OU, les 292 groupes (noms, emplacements, descriptions) et les 119 GPO sont identiques. Les noms des groupes de filtrage des GPO suivent la règle de HardenAD, abréviations comprises (`L-S-T0-GPO_HAD-LocAdmins-T1_APPLY`).
+Le modèle HardenAD est comparé, dans les tests de SMAD-X, à un domaine Windows Server 2025 neuf durci par HardenAD 2.9.9 (toutes tâches activées) et exporté par le script d'import. Sont identiques : les 76 OU, les 292 groupes (noms, emplacements, descriptions, appartenances), les 119 GPO et leurs paramètres (refus d'ouverture de session, administrateurs locaux), les ajouts aux groupes existants et les délégations. Les noms des groupes de filtrage des GPO suivent la règle de HardenAD, abréviations comprises (`L-S-T0-GPO_HAD-LocAdmins-T1_APPLY`).
+
+Cette comparaison a corrigé SMAD-X : les filtres WMI se lisent désormais dans leurs requêtes (un nom comme `Windows-x64-NoDC` ne dit pas qu'il vise postes et serveurs), un contrôle total limité aux ordinateurs ou aux informations de récupération BitLocker n'est plus lu comme le contrôle de toute l'OU, et la réinitialisation du mot de passe LAPS n'en donne pas la lecture.
 
 ## Sources et licences
 

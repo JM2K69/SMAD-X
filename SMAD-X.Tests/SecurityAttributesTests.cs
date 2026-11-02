@@ -370,6 +370,7 @@ public class SecurityPowerShellTests
         const string Member = "bf9679c0-0de6-11d0-a285-00aa003049e2";
         const string Spn = "f3a64788-5306-11d1-a9c5-0000f80367c1";
         const string Laps = "11111111-2222-3333-4444-555555555555"; // GUID propre à la forêt, lu dans le schéma
+        const string LapsExpiration = "66666666-7777-8888-9999-000000000000";
         var cases = new (string Rights, string ObjectType, string Inherited, string Expected)[]
         {
             ("0x20094", None, None, "-"),                                        // GenericRead : lecture seule
@@ -399,13 +400,22 @@ public class SecurityPowerShellTests
             ("0x100", "280f369c-67c7-438e-ae98-1d46f3c6f541", None, "Update-Password-Not-Required-Bit|Other"),
             ("0x100", "3e0f7e18-2c7a-4c10-ba82-4d926db99a3e", None, "DS-Clone-Domain-Controller|Other"),
             ("0x20", "bf967a7f-0de6-11d0-a285-00aa003049e2", None, "WriteProperty:userCertificate|AttributeWrite"),
+            // Contrôle total des seules informations de récupération BitLocker ou des contacts : aucun compte, aucun groupe
+            ("0xF01FF", None, "ea715d30-8f53-40d0-bd1e-6109186d782c", "GenericAll:msFVE-RecoveryInformation|Other"),
+            ("0xF01FF", None, "5cb41ed0-0e4c-11d0-a286-00aa003049e2", "GenericAll:contact|Other"),
+            ("0xF01FF", None, "bf967aba-0de6-11d0-a285-00aa003049e2", "GenericAll|FullControl"),       // les utilisateurs
+            ("0xF01FF", None, "bf967aa5-0de6-11d0-a285-00aa003049e2", "GenericAll|FullControl"),       // les OU filles, et ce qu'elles contiennent
+            ("0x3", "5cb41ed0-0e4c-11d0-a286-00aa003049e2", None, "CreateChild:contact|Other"),
+            // Réinitialiser le mot de passe LAPS : écrire sa date d'expiration (GUID propre à la forêt, lu dans le schéma)
+            ("0x20", LapsExpiration, Computer, "WriteProperty:ms-Mcs-AdmPwdExpirationTime|AttributeWrite"),
         };
 
         var harness = new StringBuilder()
             .AppendLine("Set-StrictMode -Version 2.0")
             .AppendLine("$ErrorActionPreference = 'Stop'")
             .AppendLine(helpers)
-            .AppendLine($"$lapsPasswordGuids[[guid]'{Laps}'] = 'ms-Mcs-AdmPwd'");
+            .AppendLine($"$lapsPasswordGuids[[guid]'{Laps}'] = 'ms-Mcs-AdmPwd'")
+            .AppendLine($"$attributeNames[[guid]'{LapsExpiration}'] = 'ms-Mcs-AdmPwdExpirationTime'");
         foreach (var c in cases)
             harness.AppendLine($"$r = Get-DelegationRight {c.Rights} '{c.ObjectType}' '{c.Inherited}'; if ($r) {{ $r -join '|' }} else {{ '-' }}");
         var harnessPath = TempFile(".ps1");
@@ -461,7 +471,8 @@ public class SecurityPowerShellTests
             .AppendLine(helpers)
             .AppendLine($"$r = Get-GpoSettingsJson '{Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(restrictions.FullName))))}' 'SELECT * FROM Win32_OperatingSystem WHERE ProductType = \"1\"'; if ($r) {{ $r }} else {{ '-' }}")
             .AppendLine($"$r = Get-GpoSettingsJson '{Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(preferences.FullName)))}' 'SELECT * FROM Win32_OperatingSystem WHERE ProductType <> 1'; if ($r) {{ $r }} else {{ '-' }}")
-            .AppendLine($"$r = Get-GpoSettingsJson '{sysvol}' 'SELECT * FROM Win32_OperatingSystem WHERE Version LIKE \"10.%\"'; if ($r) {{ $r }} else {{ '-' }}");
+            .AppendLine($"$r = Get-GpoSettingsJson '{sysvol}' 'SELECT * FROM Win32_OperatingSystem WHERE Version LIKE \"10.%\"'; if ($r) {{ $r }} else {{ '-' }}")
+            .AppendLine($"$r = Get-GpoSettingsJson '{sysvol}' ''; if ($r) {{ $r }} else {{ '-' }}");
         var harnessPath = TempFile(".ps1");
         await File.WriteAllTextAsync(harnessPath, harness.ToString(), new UTF8Encoding(true));
 
@@ -471,14 +482,47 @@ public class SecurityPowerShellTests
         Assert.Equal(
         [
             ",\"GpoDenyInteractiveLogon\":[\"Everyone\",\"Tier2Admins\"],\"GpoDenyRemoteInteractiveLogon\":[\"Tier2Admins\",\"Local account\"],"
-                + "\"GpoLocalAdmins\":[\"Tier1ServerOperators\"],\"GpoReplaceLocalAdmins\":true,\"GpoComputerFilter\":\"Workstations\"",
-            ",\"GpoLocalAdmins\":[\"L-S-T1_LocalAdmins_Servers\"],\"GpoComputerFilter\":\"Servers\"",
+                + "\"GpoLocalAdmins\":[\"Tier1ServerOperators\"],\"GpoReplaceLocalAdmins\":true,\"GpoWmiQuery\":\"SELECT * FROM Win32_OperatingSystem WHERE ProductType = \\\"1\\\"\"",
+            ",\"GpoLocalAdmins\":[\"L-S-T1_LocalAdmins_Servers\"],\"GpoWmiQuery\":\"SELECT * FROM Win32_OperatingSystem WHERE ProductType <> 1\"",
+            ",\"GpoWmiQuery\":\"SELECT * FROM Win32_OperatingSystem WHERE Version LIKE \\\"10.%\\\"\"",
             "-"
         ], lines);
-        // Ce que le script écrit se relit dans SMAD-X
+        // Ce que le script écrit se relit dans SMAD-X, qui tire le type d'ordinateurs des requêtes à l'ouverture
         var gpo = System.Text.Json.JsonSerializer.Deserialize<ADObject>("{\"Name\":\"GPO\",\"Type\":\"Policy\"" + lines[0] + "}", ADDataService.SerializerOptions)!;
         Assert.Equal(["Tier2Admins", "Local account"], gpo.GpoDenyRemoteInteractiveLogon!);
+        ADDataService.ApplyImportedWmiFilters(gpo);
         Assert.Equal(GpoComputerFilter.Workstations, gpo.GpoComputerFilter);
+    }
+
+    /// <summary>
+    /// Silos d'authentification : les ordinateurs depuis lesquels la stratégie du silo laisse ses comptes s'authentifier
+    /// (SID ou alias SDDL dans l'ACE conditionnelle), et le silo tel que le script l'écrit.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(PowerShellRunner.Shells), MemberType = typeof(PowerShellRunner))]
+    public async Task ImportScript_ReadsAuthenticationSilos(string shell)
+    {
+        var scriptPath = TempFile(".ps1");
+        Assert.True(await new ADImportPowerShellService().GenerateImportScriptAsync(scriptPath));
+        var script = await File.ReadAllTextAsync(scriptPath);
+        var helpers = script[script.IndexOf("function ConvertTo-JsonString", StringComparison.Ordinal)..script.IndexOf("# ── 4. Collect GPOs", StringComparison.Ordinal)];
+        var harness = new StringBuilder()
+            .AppendLine("Set-StrictMode -Version 2.0")
+            .AppendLine("$ErrorActionPreference = 'Stop'")
+            .AppendLine(helpers)
+            .AppendLine("(Get-SddlPrincipals 'O:SYG:SYD:(XA;OICI;CR;;;WD;(Member_of_any {SID(DD), SID(S-1-1-0), SID(DD)}))') -join '|'")
+            .AppendLine("ConvertTo-SiloJson 'Tier0' 'Comptes \"Tier 0\"' $true @('adm-x', 'DC01') @('Domain Controllers')");
+        var harnessPath = TempFile(".ps1");
+        await File.WriteAllTextAsync(harnessPath, harness.ToString(), new UTF8Encoding(true));
+
+        var lines = (await PowerShellRunner.RunAsync(shell, "-File", harnessPath))
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        Assert.Equal("Domain Controllers|Everyone", lines[0]);
+        var silo = System.Text.Json.JsonSerializer.Deserialize<ADAuthenticationSilo>(lines[1], ADDataService.SerializerOptions)!;
+        Assert.Equal(("Tier0", "Comptes \"Tier 0\"", true), (silo.Name, silo.Description, silo.Enforced));
+        Assert.Equal(["adm-x", "DC01"], silo.Members);
+        Assert.Equal(["Domain Controllers"], silo.AllowedFrom);
     }
 
     /// <summary>

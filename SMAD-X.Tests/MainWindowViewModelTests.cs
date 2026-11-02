@@ -59,6 +59,14 @@ internal sealed class FakeDialogService : IDialogService
     public void ShowComparison(ComparisonViewModel viewModel) { LastComparison = viewModel; Opened.Add("Comparison"); }
     public TierImpactViewModel? LastTierImpact { get; private set; }
     public void ShowTierImpact(TierImpactViewModel viewModel) { LastTierImpact = viewModel; Opened.Add("TierImpact"); }
+    /// <summary>Ce que fait l'utilisateur dans la fenêtre des silos ; null = il annule.</summary>
+    public Action<AuthenticationSilosViewModel>? EditSilos { get; set; }
+    public Task<bool> ShowAuthenticationSilosAsync(AuthenticationSilosViewModel viewModel)
+    {
+        Opened.Add("Silos");
+        EditSilos?.Invoke(viewModel);
+        return Task.FromResult(EditSilos != null);
+    }
     public Task ShowTierConfigurationAsync() { Opened.Add("Tiers"); return Task.CompletedTask; }
     public Task ShowTimelineAsync() { Opened.Add("Timeline"); return Task.CompletedTask; }
     public Task ShowDelegationsAsync(ADObject? root) { Opened.Add($"Delegations:{root?.Name}"); return Task.CompletedTask; }
@@ -178,6 +186,29 @@ public class MainWindowViewModelTests
 
         _vm.UndoCommand.Execute(null);
         Assert.Equal("Servers", Flatten(_vm.RootObject!).Single(o => o.Name == "SRV-FILE-01").Parent!.Name);
+    }
+
+    [Fact]
+    public async Task ShowAuthenticationSilos_SavesTheSilos_InOneUndoableStep()
+    {
+        _vm.InitializeSampleDataCommand.Execute(null);
+        await _vm.ShowAuthenticationSilosCommand.ExecuteAsync(null); // annulé : rien ne change
+        Assert.Null(_vm.RootObject!.AuthenticationSilos);
+
+        _dialogs.EditSilos = editor =>
+        {
+            editor.AddCommand.Execute(null);
+            editor.Selected!.MembersText = "adm-lmartin\nDomain Controllers";
+            editor.Selected.Enforced = true;
+        };
+        await _vm.ShowAuthenticationSilosCommand.ExecuteAsync(null);
+
+        var silo = Assert.Single(_vm.RootObject!.AuthenticationSilos!);
+        Assert.Equal(("Tier0", true), (silo.Name, silo.Enforced));
+        Assert.Contains("1", _vm.StatusMessage);
+
+        _vm.UndoCommand.Execute(null);
+        Assert.Null(_vm.RootObject!.AuthenticationSilos);
     }
 
     [Fact]

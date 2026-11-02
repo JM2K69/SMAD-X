@@ -114,3 +114,17 @@ Chaque objet est classé dans un tier, selon le modèle d'administration de Micr
 **Configuration > Gérer les tiers...** change les noms, les niveaux et les couleurs. L'audit vérifie le cloisonnement : un objet ne doit pas être membre d'un groupe plus sensible que lui (TIER-01), ni recevoir une délégation sur un objet plus sensible (TIER-03).
 
 **Configuration > Appliquer un modèle de cloisonnement...** applique au domaine le modèle de Microsoft ou celui de HardenAD : ses OU par tier, ses groupes et comptes d'administration, ses GPO et ses délégations. L'audit vérifie ensuite que le domaine le respecte (TIER-05 à TIER-08). Voir [Modèles de cloisonnement](cloisonnement.md).
+
+## Les silos d'authentification
+
+Un silo de stratégies d'authentification réserve ses comptes à ses ordinateurs : un administrateur du Tier 0 placé dans le silo du Tier 0 ne s'authentifie que depuis les contrôleurs de domaine et les postes d'administration du silo. Même volés, ses identifiants ne servent pas ailleurs, et il ne peut pas ouvrir de session sur un poste de travail. **Configuration > Silos d'authentification...** les gère :
+
+![Silos d'authentification](assets/screens/silos.png)
+
+| Champ | Ce qu'il change |
+|---|---|
+| **Appliqué** | coché, le silo refuse les sessions hors de ses ordinateurs ; décoché, il est en mode audit et ne refuse rien |
+| **Membres** | les comptes, ordinateurs et comptes de service du silo ; un groupe y met ses membres (dans AD, chaque compte est ajouté un à un) |
+| **Autoriser aussi l'authentification depuis** | les ordinateurs, ou groupes d'ordinateurs, que la stratégie du silo autorise en plus de ceux du silo |
+
+Un compte n'est que dans un silo : le premier de la liste qui le cite. La section **Sécurité** d'un compte indique son silo et son mode ; celle d'un ordinateur, les sessions qu'un silo y refuse. Dans les chemins d'attaque, une session refusée par le silo du compte n'ouvre aucun chemin, comme une session qu'une GPO interdit. Dans un domaine qui a des silos, la règle TIER-09 signale un compte privilégié qui n'est dans aucun silo appliqué.

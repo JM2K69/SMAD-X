@@ -560,7 +560,8 @@ namespace SMADX.Services.Audit
                 Evaluate = c => c.Objects
                     .Where(m => m.Type == ADObjectType.Computer && !IsDomainController(m))
                     .SelectMany(m => (m.Sessions ?? []).Select(name => (m, account: c.Principal(name))))
-                    .Where(x => x.account != null && IsExposedSession(c, x.account, x.m) && c.Policies.LogonDeniedBy(x.account, x.m).Count == 0)
+                    .Where(x => x.account != null && IsExposedSession(c, x.account, x.m)
+                                && c.Policies.LogonDeniedBy(x.account, x.m).Count == 0 && c.Silos.LogonDeniedBy(x.account, x.m) == null)
                     .Select(x => Finding(x.account!, x.m.Name, x.m.Tier ?? "—"))
             },
 
@@ -588,6 +589,21 @@ namespace SMADX.Services.Audit
                 Id = "TIER-08", Severity = AuditSeverity.High,
                 References = new[] { AnssiPa099, MsTierModel, MsAccessModel, NistPrivilegedAccounts, NistSeparationOfDuties },
                 Evaluate = TierModelCompliance.PrivilegedOutsideTier0
+            },
+            // Silos d'authentification : seulement dans un domaine qui en a, comme la conformité à un modèle de cloisonnement
+            new()
+            {
+                Id = "TIER-09", Severity = AuditSeverity.Medium,
+                References = new[] { Anssi("vuln_silo_priv", "Membres des groupes privilégiés hors silo d'authentification"), AnssiPa099, MsSilos, MitreLsass, NistSeparationOfDuties },
+                Evaluate = c => c.Silos.Any
+                    ? c.PrivilegedAccounts
+                        .Where(a => a.Type == ADObjectType.User && IsEnabled(a))
+                        .Select(a => (account: a, silo: c.Silos.SiloOf(a)))
+                        .Where(x => x.silo is not { Enforced: true })
+                        .Select(x => Finding(x.account, x.silo is { } silo
+                            ? string.Format(LocalizationService.Instance["Audit.TIER-09.AuditMode"], silo.Name)
+                            : LocalizationService.Instance["Audit.TIER-09.NoSilo"]))
+                    : []
             },
             new()
             {

@@ -134,6 +134,7 @@ namespace SMADX.Helpers
         public string SecurityGpoLocalAdmins => _localizationService["Security.GpoLocalAdmins"];
         public string SecurityGpoReplaceLocalAdmins => _localizationService["Security.GpoReplaceLocalAdmins"];
         public string SecurityGpoComputerFilter => _localizationService["Security.GpoComputerFilter"];
+        public string SecurityGpoWmiQuery => _localizationService["Security.GpoWmiQuery"];
         public string SecurityGroupScope => _localizationService["Security.GroupScope"];
         public string SecurityGroupCategory => _localizationService["Security.GroupCategory"];
         public string SecurityOwner => _localizationService["Security.Owner"];
@@ -152,6 +153,18 @@ namespace SMADX.Helpers
         public string MenuEditRedo => _localizationService["Menu.Edit.Redo"];
         public string MenuAnalyseComparison => _localizationService["Menu.Analyse.Comparison"];
         public string MenuAnalyseSimulateTiering => _localizationService["Menu.Analyse.SimulateTiering"];
+        public string MenuSettingsSilos => _localizationService["Menu.Settings.Silos"];
+        public string DialogSilosTitle => _localizationService["Dialog.Silos.Title"];
+        public string DialogSilosDescription => _localizationService["Dialog.Silos.Description"];
+        public string DialogSilosAdd => _localizationService["Dialog.Silos.Add"];
+        public string DialogSilosRemove => _localizationService["Dialog.Silos.Remove"];
+        public string DialogSilosName => _localizationService["Dialog.Silos.Name"];
+        public string DialogSilosDescriptionField => _localizationService["Dialog.Silos.DescriptionField"];
+        public string DialogSilosEnforced => _localizationService["Dialog.Silos.Enforced"];
+        public string DialogSilosMembers => _localizationService["Dialog.Silos.Members"];
+        public string DialogSilosAllowedFrom => _localizationService["Dialog.Silos.AllowedFrom"];
+        public string DialogSilosOk => _localizationService["Dialog.Silos.Ok"];
+        public string DialogSilosCancel => _localizationService["Dialog.Silos.Cancel"];
         public string TierImpactTitle => _localizationService["TierImpact.Title"];
         public string TierImpactDescription => _localizationService["TierImpact.Description"];
         public string TierImpactNote => _localizationService["TierImpact.Note"];

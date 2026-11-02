@@ -90,6 +90,17 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     Capture(new TierImpactWindow { DataContext = dialogs.TierImpact, Width = 1300, Height = 900 }, Out("tier-impact"));
     main.Close();
 
+    // ─── Silos d'authentification : un silo du Tier 0 pour le domaine d'exemple ──
+    var silos = new AuthenticationSilosViewModel(
+    [
+        new ADAuthenticationSilo
+        {
+            Name = "Tier0", Description = T(culture, "Comptes et ordinateurs du Tier 0.", "Tier 0 accounts and computers."), Enforced = true,
+            Members = ["adm-lmartin", "Administrator", "Domain Controllers"], AllowedFrom = ["PAW-T0-01"]
+        }
+    ]);
+    Capture(new AuthenticationSilosWindow { DataContext = silos, Width = 900, Height = 600 }, Out("silos"));
+
     // ─── Exercice de démonstration, construit ici et jamais embarqué dans l'application ───
     (main, vm, dialogs) = OpenMain();
     vm.OpenBuiltInLabCommand.Execute(new LabMenuItem(DemoLab(culture), ""));
@@ -386,6 +397,7 @@ sealed class CaptureDialogs : IDialogService
     public void ShowComparison(ComparisonViewModel viewModel) => Comparison = viewModel;
     public TierImpactViewModel? TierImpact { get; private set; }
     public void ShowTierImpact(TierImpactViewModel viewModel) => TierImpact = viewModel;
+    public Task<bool> ShowAuthenticationSilosAsync(AuthenticationSilosViewModel viewModel) => Task.FromResult(false);
     public void ShowAttackPaths(AttackPathsViewModel viewModel) => AttackPaths = viewModel;
     public Task ShowTierConfigurationAsync() => Task.CompletedTask;
     public Task<string?> ShowTierModelAsync(string? current) => Task.FromResult<string?>(null);

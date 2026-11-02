@@ -101,6 +101,10 @@ namespace SMADX.Services.Labs
         private static ADObject Workstation(LabDomainBuilder b, ADObject d) =>
             Flatten(d).First(o => o.Type == ADObjectType.Computer && o.Parent?.Name == b.T("Postes de travail", "Workstations"));
 
+        /// <summary>Comptes utilisateurs privilégiés actifs : ceux qu'un silo du Tier 0 doit contenir.</summary>
+        private static IEnumerable<ADObject> PrivilegedUsers(LabDomainBuilder b, ADObject d) =>
+            new AuditContext(d, b.Reference).PrivilegedAccounts.Where(a => a.Type == ADObjectType.User && AuditContext.IsEnabled(a));
+
         /// <summary>GPO liée à l'OU Domain Controllers.</summary>
         private static ADObject DcPolicy(ADObject d)
         {
@@ -346,6 +350,19 @@ namespace SMADX.Services.Labs
                 admin.AccountFlags = ADAccountFlags.NotDelegated;
                 return [admin];
             }),
+            new("TIER-09", L("Un silo d'authentification a été créé pour les administrateurs, en mode audit, le temps de vérifier qu'il ne bloquait rien. Un administrateur dépanne toujours les postes avec son compte du domaine.",
+                             "An authentication silo was created for administrators, in audit mode, while checking that it blocked nothing. An administrator still troubleshoots workstations with their domain account."), (b, d) =>
+            {
+                var admin = Admin(b, d, "adm-depannage");
+                var pc = Workstation(b, d);
+                (pc.Sessions ??= new()).Add(admin.Name);
+                d.AuthenticationSilos = [new ADAuthenticationSilo
+                {
+                    Name = "Tier0", Description = b.T("Comptes et ordinateurs du Tier 0.", "Tier 0 accounts and computers."),
+                    Members = new(PrivilegedUsers(b, d).Select(u => u.Name).Append("Domain Controllers"))
+                }];
+                return [admin, pc];
+            }),
             new("LAPS-01", L("Un serveur de fichiers a été installé à partir d'une ancienne image système.", "A file server was installed from an old system image."), (b, d) =>
             {
                 var srv = Server(b, d, b.T("SRV-FICHIERS01", "SRV-FILES01"), "Serveur de fichiers.", "File server.");
@@ -489,6 +506,14 @@ namespace SMADX.Services.Labs
             ["TIER-06"] = (b, d) => TierMigrationService.Move(Find(d, b.T("SRV-FICHIERS02", "SRV-FILES02"), ADObjectType.Computer), ModelOu(d, TierOneServers)),
             ["TIER-07"] = (b, d) => TierMigrationService.Move(Find(d, b.T("SRV-IMPRESSION01", "SRV-PRINT01"), ADObjectType.Computer), ModelOu(d, TierOneServers)),
             ["TIER-08"] = (b, d) => TierMigrationService.Move(Find(d, "adm-compta", ADObjectType.User), ModelOu(d, "Tier Model Administration/Tier 0/Tier 0 Accounts")),
+            // Le silo passe en mode « appliquer », avec tous les comptes privilégiés : la session sur le poste devient impossible
+            ["TIER-09"] = (b, d) =>
+            {
+                var silo = d.AuthenticationSilos!.Single(s => s.Name == "Tier0");
+                foreach (var user in PrivilegedUsers(b, d).Where(u => !silo.Members.Contains(u.Name)).ToList())
+                    silo.Members.Add(user.Name);
+                silo.Enforced = true;
+            },
             ["LAPS-01"] = (b, d) => Find(d, b.T("SRV-FICHIERS01", "SRV-FILES01"), ADObjectType.Computer).LapsPasswordExpiration = b.Reference.AddDays(LapsRenewalDays - 1),
             // Le projet est fini : ses droits sur la GPO des contrôleurs de domaine sont retirés
             ["ACL-02"] = (b, d) => RemoveDelegations(DcPolicy(d), b.T("GG-Projet-Migration", "GG-Migration-Project")),
