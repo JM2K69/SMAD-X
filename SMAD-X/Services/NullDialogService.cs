@@ -19,6 +19,7 @@ namespace SMADX.Services
         public void ShowAudit(AuditViewModel viewModel) { }
         public void ShowLab(LabViewModel viewModel) { }
         public void ShowComparison(ComparisonViewModel viewModel) { }
+        public void ShowTierImpact(TierImpactViewModel viewModel) { }
         public void ShowAttackPaths(AttackPathsViewModel viewModel) { }
         public Task ShowTierConfigurationAsync() => Task.CompletedTask;
         public Task ShowTimelineAsync() => Task.CompletedTask;

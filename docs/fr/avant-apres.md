@@ -24,6 +24,9 @@
 
 **Actualiser** relance la comparaison après de nouvelles modifications, sans fermer la fenêtre.
 
+!!! tip "Mesurer un cloisonnement avant de le déployer"
+    **Analyse > Simuler un cloisonnement...** compare de la même façon le domaine à sa migration vers le modèle de Microsoft et vers celui de HardenAD, faite sur une copie (voir [Modèles de cloisonnement](cloisonnement.md#simuler-sur-un-domaine-classique)).
+
 ## Annuler et rétablir
 
 | Action | Raccourci |

@@ -20,6 +20,34 @@ L'application **ajoute** ce qui manque et ne déplace ni ne modifie aucun objet 
 
 Le modèle appliqué et sa version s'affichent dans la section **Politique de mot de passe** du domaine.
 
+## Simuler sur un domaine classique
+
+Appliquer un modèle ne range rien : un domaine existant garde ses objets dans ses anciennes OU, où les GPO du modèle ne s'appliquent pas. **Analyse > Simuler un cloisonnement...** montre ce que changerait une vraie migration, sans toucher au domaine affiché : SMAD-X migre une copie du domaine vers chacun des deux modèles et compare la sécurité avant et après.
+
+![Simulation du cloisonnement sur le domaine d'exemple](assets/screens/tier-impact.png)
+
+*Capture : sur le domaine d'exemple, les deux modèles coupent les deux chemins d'attaque hors Tier 0 : rangé dans l'OU des serveurs du modèle, le serveur reçoit la GPO de restriction, qui refuse la session de l'administrateur du Tier 0.*
+
+| Indicateur | Ce qu'il mesure |
+|---|---|
+| **Score d'audit**, **niveau ANSSI estimé** | avant, puis après la migration vers chaque modèle |
+| **Chemins d'attaque hors Tier 0** | les chemins vers le contrôle du domaine qui partent d'une source hors Tier 0 |
+| **Sessions refusées par une GPO** | les sessions d'administrateurs que les GPO de restriction rendent impossibles |
+| **Constats corrigés / nouveaux** | la migration en corrige ; elle peut aussi en faire apparaître |
+| **Objets rangés**, **adhésions**, **points à revoir** | le plan de migration |
+| **Objets restés hors des OU du modèle** | ce que le plan n'a pas pu ranger (TIER-06) |
+
+La migration se fait en trois temps :
+
+1. **Le modèle est appliqué**, comme avec **Configuration > Appliquer un modèle de cloisonnement...**.
+2. **Chaque compte, ordinateur et groupe est rangé** dans l'OU du modèle qui correspond à son rôle (serveur, poste, compte d'administration, utilisateur, compte de service, groupe d'administration, groupe) et à son tier. Le tier est l'étiquette de l'objet ; sans étiquette, il est supposé : Tier 0 pour un compte ou un groupe privilégié, Tier 1 pour un serveur (reconnu à son nom ou à celui de son OU : SRV, Server, Serveur), Tier 2 pour le reste. Un compte ou un groupe qui administre d'autres objets (une délégation, l'administration locale d'une machine) va avec les comptes ou les groupes d'administration ; un compte désactivé, dans l'OU Disabled du modèle.
+3. **Les droits légitimes sont gardés.** Une délégation posée sur une ancienne OU n'atteint plus les objets rangés ailleurs, et les groupes restreints du modèle Microsoft remplacent les administrateurs locaux des machines : l'équipe qui avait ce droit rejoint le groupe du modèle qui le détient sur la nouvelle OU (le support rejoint par exemple le groupe du modèle chargé des mots de passe des utilisateurs). Un groupe ne rejoint jamais un groupe d'un tier plus sensible que le sien. Quand le modèle n'a pas d'équivalent, le droit perdu est signalé dans **À revoir**.
+
+L'onglet **Plan de migration** donne chaque étape et sa raison ; **Chemins coupés** et **Chemins restants**, les chemins d'attaque avant et après. **Migrer le domaine vers ce modèle...** applique le plan du modèle choisi au domaine affiché, après confirmation ; la migration s'annule d'un seul coup (`Ctrl+Z`).
+
+!!! warning "Une simulation, pas un plan de production"
+    Le plan suit des règles simples : relisez-le. Un tier supposé peut être faux, un droit gardé peut être plus large que nécessaire, et un nouveau constat peut révéler un choix du modèle. Le modèle Microsoft délègue par exemple le contrôle total de l'OU **Tier Model Administration** à Tier0Admins : un membre de Domain Admins rangé dans cette OU est à la portée de ce groupe (ACL-02), qui doit donc être traité comme privilégié.
+
 ## Les effets des GPO
 
 Les GPO du modèle sont reprises avec les paramètres qui changent les chemins d'attaque. On les lit et on les modifie dans la section **Sécurité** de la GPO, et toute GPO de SMAD-X peut en recevoir :

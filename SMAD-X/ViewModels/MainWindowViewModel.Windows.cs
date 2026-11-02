@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
+using SMADX.Models;
 using SMADX.Services;
 using SMADX.Services.Tiering;
 
@@ -88,6 +89,36 @@ namespace SMADX.ViewModels
                 ? string.Format(Loc["Status.TierModelUpToDate"], model.Name)
                 : string.Format(Loc["Status.TierModelApplied"], model.Name, report.OrganizationalUnits, report.Groups, report.Accounts,
                     report.GroupPolicies, report.Delegations);
+        }
+
+        /// <summary>
+        /// Analyse > Simuler un cloisonnement : migration d'une copie du domaine vers chaque modèle, bilan avant / après.
+        /// Le domaine affiché ne change que si l'on choisit de le migrer.
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(IsFreeMode))]
+        private void SimulateTiering()
+        {
+            if (RootObject == null) return;
+            RecordHistory();
+            _dialogs.ShowTierImpact(new TierImpactViewModel(() => RootObject, MigrateToTierModel));
+        }
+
+        /// <summary>
+        /// Migre le domaine affiché vers un modèle, après confirmation : application du modèle, rangement des objets et
+        /// adhésions du plan. L'arbre est reconstruit, la migration s'annule d'un seul coup.
+        /// </summary>
+        public async Task<bool> MigrateToTierModel(TierModelDefinition model)
+        {
+            if (RootObject == null || !IsFreeMode) return false;
+            if (!await _dialogs.ConfirmAsync(string.Format(Loc["Dialog.TierImpact.ConfirmTitle"], model.Name),
+                    string.Format(Loc["Dialog.TierImpact.Confirm"], model.Name), Loc["Dialog.TierImpact.Migrate"], Loc["Dialog.TierImpact.Cancel"]))
+                return false;
+
+            var result = TierMigrationService.Migrate(RootObject, model);
+            Restore(SerializeDocument());
+            RecordHistory();
+            StatusMessage = string.Format(Loc["Status.TierMigrated"], model.Name, result.Moves, result.Memberships, result.Issues.Count);
+            return true;
         }
 
         [RelayCommand]

@@ -1,5 +1,6 @@
 using SMADX.Models;
 using SMADX.Services;
+using SMADX.Services.Tiering;
 using SMADX.ViewModels;
 using static SMADX.Tests.TestHelpers;
 
@@ -56,6 +57,8 @@ internal sealed class FakeDialogService : IDialogService
     public void ShowLab(LabViewModel viewModel) { LastLab = viewModel; Opened.Add("Lab"); }
     public ComparisonViewModel? LastComparison { get; private set; }
     public void ShowComparison(ComparisonViewModel viewModel) { LastComparison = viewModel; Opened.Add("Comparison"); }
+    public TierImpactViewModel? LastTierImpact { get; private set; }
+    public void ShowTierImpact(TierImpactViewModel viewModel) { LastTierImpact = viewModel; Opened.Add("TierImpact"); }
     public Task ShowTierConfigurationAsync() { Opened.Add("Tiers"); return Task.CompletedTask; }
     public Task ShowTimelineAsync() { Opened.Add("Timeline"); return Task.CompletedTask; }
     public Task ShowDelegationsAsync(ADObject? root) { Opened.Add($"Delegations:{root?.Name}"); return Task.CompletedTask; }
@@ -149,6 +152,29 @@ public class MainWindowViewModelTests
         _vm.UndoCommand.Execute(null);
         Assert.Null(_vm.RootObject!.TierModel);
         Assert.DoesNotContain(_vm.RootObject.Children, o => o.Name == "Tier Model Administration");
+    }
+
+    [Fact]
+    public async Task SimulateTiering_OpensTheWindow_AndMigratesTheDomainInOneUndoableStep()
+    {
+        _vm.InitializeSampleDataCommand.Execute(null);
+        _vm.SimulateTieringCommand.Execute(null);
+        Assert.Contains("TierImpact", _dialogs.Opened);
+        await _dialogs.LastTierImpact!.Loading;
+
+        _dialogs.ConfirmAnswer = false;
+        Assert.False(await _vm.MigrateToTierModel(TierModelCatalog.Find("microsoft")!));
+        Assert.Null(_vm.RootObject!.TierModel);
+
+        _dialogs.ConfirmAnswer = true;
+        Assert.True(await _vm.MigrateToTierModel(TierModelCatalog.Find("microsoft")!));
+        Assert.Equal("microsoft", _vm.RootObject!.TierModel);
+        Assert.Contains("Tier 1 Member Servers", Flatten(_vm.RootObject).First(o => o.Name == "SRV-FILE-01").DistinguishedName);
+        Assert.Contains("Microsoft", _vm.StatusMessage);
+
+        _vm.UndoCommand.Execute(null);
+        Assert.Null(_vm.RootObject!.TierModel);
+        Assert.Contains("OU=Servers", Flatten(_vm.RootObject).First(o => o.Name == "SRV-FILE-01").DistinguishedName);
     }
 
     [Fact]

@@ -22,7 +22,8 @@ namespace SMADX.Services.Tiering
         /// <summary>Propriétaire des objets créés : le script de déploiement tourne sous un administrateur du domaine.</summary>
         private const string Owner = "Domain Admins";
 
-        public static TierModelReport Apply(ADObject domain, TierModelDefinition model, DateTime? now = null)
+        /// <param name="registerTiers">Ajouter les tiers propres au modèle à la configuration ; non pour une simulation.</param>
+        public static TierModelReport Apply(ADObject domain, TierModelDefinition model, DateTime? now = null, bool registerTiers = true)
         {
             var date = now ?? DateTime.Now;
             var all = Flatten(domain).ToList();
@@ -30,7 +31,7 @@ namespace SMADX.Services.Tiering
                 .GroupBy(o => o.Name, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
             int ous = 0, groups = 0, accounts = 0, gpos = 0, links = 0, delegations = 0, memberships = 0;
 
-            foreach (var tier in model.Tiers.Where(t => TierConfigurationService.Instance.Tiers.All(c => c.Name != t.Name)))
+            foreach (var tier in model.Tiers.Where(t => registerTiers && TierConfigurationService.Instance.Tiers.All(c => c.Name != t.Name)))
                 TierConfigurationService.Instance.AddTier(new TierConfiguration(tier.Name, tier.Color, tier.Description, tier.Level));
 
             // OU, du parent vers l'enfant
@@ -156,7 +157,7 @@ namespace SMADX.Services.Tiering
         /// SDProp passe dans l'heure : un compte ou un groupe devenu membre d'un groupe protégé (G-S-T0_Managers dans
         /// Enterprise Admins pour HardenAD) reçoit adminCount, Domain Admins pour propriétaire et les droits d'AdminSDHolder.
         /// </summary>
-        private static void ApplySdProp(ADObject domain)
+        internal static void ApplySdProp(ADObject domain)
         {
             var context = new AuditContext(domain, DateTime.Now);
             foreach (var o in context.Objects.Where(o => o.Type is ADObjectType.User or ADObjectType.Group && !o.AdminCount

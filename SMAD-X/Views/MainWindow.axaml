@@ -92,6 +92,7 @@
                     <MenuItem Header="{Binding MenuAnalyseAttackPaths}" Command="{Binding #MainWindowRoot.DataContext.ShowAttackPathsCommand}" InputGesture="Ctrl+Shift+K"/>
                     <MenuItem Header="{Binding MenuAnalyseComparison}" Command="{Binding #MainWindowRoot.DataContext.ShowComparisonCommand}" InputGesture="Ctrl+Shift+B"/>
                     <MenuItem Header="{Binding MenuAnalyseMarkBaseline}" Command="{Binding #MainWindowRoot.DataContext.MarkBaselineCommand}"/>
+                    <MenuItem Header="{Binding MenuAnalyseSimulateTiering}" Command="{Binding #MainWindowRoot.DataContext.SimulateTieringCommand}"/>
                     <Separator/>
                     <MenuItem Header="{Binding MenuAnalyseTimeline}" Command="{Binding #MainWindowRoot.DataContext.ShowTimelineCommand}" InputGesture="Ctrl+T"/>
                     <MenuItem Header="{Binding MenuAnalyseDelegations}" Command="{Binding #MainWindowRoot.DataContext.ShowDelegationsCommand}" InputGesture="Ctrl+D"/>

@@ -98,6 +98,9 @@ namespace SMADX.Views
         public void ShowComparison(ComparisonViewModel viewModel) =>
             new ComparisonWindow { DataContext = viewModel }.Show(_owner);
 
+        public void ShowTierImpact(TierImpactViewModel viewModel) =>
+            new TierImpactWindow { DataContext = viewModel }.Show(_owner);
+
         public void ShowAttackPaths(AttackPathsViewModel viewModel) =>
             new AttackPathsWindow { DataContext = viewModel }.Show(_owner);
 

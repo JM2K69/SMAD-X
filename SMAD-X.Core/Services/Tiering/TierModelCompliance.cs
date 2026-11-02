@@ -28,6 +28,9 @@ namespace SMADX.Services.Tiering
 
         public static TierModelDefinition? ModelOf(AuditContext c) => TierModelCatalog.Find(c.Domain.TierModel);
 
+        /// <summary>Compte ou groupe créé par AD à la promotion.</summary>
+        internal static bool IsDefaultPrincipal(string name) => DefaultPrincipals.Value.Contains(name);
+
         /// <summary>
         /// TIER-05 : OU, groupe, compte, GPO, lien de GPO, paramètre de GPO (refus d'ouverture de session, administrateurs
         /// locaux) ou délégation du modèle absent du domaine.
@@ -127,20 +130,20 @@ namespace SMADX.Services.Tiering
         private static bool IsTransit(TierModelOu ou) => ou.Role is TierModelOuRole.Staging or TierModelOuRole.Quarantine or TierModelOuRole.Provisioning;
 
         /// <summary>Comptes et groupes que le cloisonnement doit ranger : ni intégrés à AD, ni contrôleurs de domaine.</summary>
-        private static IEnumerable<ADObject> Movable(AuditContext c) =>
+        internal static IEnumerable<ADObject> Movable(AuditContext c) =>
             c.Objects.Where(o => (o.IsAccount || o.Type == ADObjectType.Group)
                                  && !AuditContext.IsDomainController(o)
                                  && !DefaultPrincipals.Value.Contains(o.Name));
 
         /// <summary>OU du modèle qui contient directement l'objet, ou null s'il est ailleurs.</summary>
-        private static TierModelOu? ModelOu(ADObject o, Dictionary<string, TierModelOu> ous)
+        internal static TierModelOu? ModelOu(ADObject o, Dictionary<string, TierModelOu> ous)
         {
             var path = OuPath(o.Parent);
             return path != null && ous.TryGetValue(path, out var ou) ? ou : null;
         }
 
         /// <summary>Chemin d'une OU depuis la racine (« Harden_T0/Servers ») ; null si un conteneur s'intercale.</summary>
-        private static string? OuPath(ADObject? container)
+        internal static string? OuPath(ADObject? container)
         {
             var parts = new List<string>();
             for (var p = container; p != null && p.Type != ADObjectType.Domain; p = p.Parent)
@@ -151,7 +154,7 @@ namespace SMADX.Services.Tiering
             return parts.Count == 0 ? null : string.Join('/', parts);
         }
 
-        private static string Location(ADObject o) =>
+        internal static string Location(ADObject o) =>
             o.Parent is { } parent && parent.Type != ADObjectType.Domain ? OuPath(parent) ?? parent.Name : o.Parent?.Name ?? string.Empty;
 
         private static int TierLevel(string tier) =>

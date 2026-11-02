@@ -82,6 +82,14 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     Capture(new ComparisonWindow { DataContext = dialogs.Comparison, Width = 1300, Height = 760 }, Out("comparison"));
     main.Close();
 
+    // ─── Simulation du cloisonnement sur le domaine d'exemple ──────────────────
+    (main, vm, dialogs) = OpenMain();
+    vm.SimulateTieringCommand.Execute(null);
+    while (!dialogs.TierImpact!.Loading.IsCompleted)
+        Pump(50);
+    Capture(new TierImpactWindow { DataContext = dialogs.TierImpact, Width = 1300, Height = 900 }, Out("tier-impact"));
+    main.Close();
+
     // ─── Exercice de démonstration, construit ici et jamais embarqué dans l'application ───
     (main, vm, dialogs) = OpenMain();
     vm.OpenBuiltInLabCommand.Execute(new LabMenuItem(DemoLab(culture), ""));
@@ -376,6 +384,8 @@ sealed class CaptureDialogs : IDialogService
     public void ShowAudit(AuditViewModel viewModel) => Audit = viewModel;
     public void ShowLab(LabViewModel viewModel) => Lab = viewModel;
     public void ShowComparison(ComparisonViewModel viewModel) => Comparison = viewModel;
+    public TierImpactViewModel? TierImpact { get; private set; }
+    public void ShowTierImpact(TierImpactViewModel viewModel) => TierImpact = viewModel;
     public void ShowAttackPaths(AttackPathsViewModel viewModel) => AttackPaths = viewModel;
     public Task ShowTierConfigurationAsync() => Task.CompletedTask;
     public Task<string?> ShowTierModelAsync(string? current) => Task.FromResult<string?>(null);

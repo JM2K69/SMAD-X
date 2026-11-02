@@ -24,6 +24,9 @@
 
 **Refresh** runs the comparison again after further changes, without closing the window.
 
+!!! tip "Measuring tiering before deploying it"
+    **Analysis > Simulate tiering...** compares the domain in the same way with its migration to Microsoft's model and to HardenAD's, made on a copy (see [Tiering models](tiering.md#simulating-on-a-classic-domain)).
+
 ## Undo and redo
 
 | Action | Shortcut |

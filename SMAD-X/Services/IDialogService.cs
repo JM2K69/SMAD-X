@@ -44,6 +44,9 @@ namespace SMADX.Services
         /// <summary>Fenêtre non modale « avant / après », actualisable pendant le travail.</summary>
         void ShowComparison(ComparisonViewModel viewModel);
 
+        /// <summary>Fenêtre non modale « Simuler un cloisonnement ».</summary>
+        void ShowTierImpact(TierImpactViewModel viewModel);
+
         /// <summary>Fenêtre non modale des chemins d'attaque vers le contrôle du domaine.</summary>
         void ShowAttackPaths(AttackPathsViewModel viewModel);
 

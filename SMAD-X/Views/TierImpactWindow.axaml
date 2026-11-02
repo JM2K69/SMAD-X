@@ -1,0 +1,153 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMADX.ViewModels"
+        x:Class="SMADX.Views.TierImpactWindow"
+        x:DataType="vm:TierImpactViewModel"
+        Title="{Binding Source={StaticResource Loc}, Path=TierImpactTitle}"
+        Icon="/Assets/icone.ico"
+        Width="1150" Height="800"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="12">
+
+        <!-- ═══ Ce que fait la simulation ═══ -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,8">
+            <Button DockPanel.Dock="Right" Content="{Binding Source={StaticResource Loc}, Path=ComparisonRefresh}"
+                    Command="{Binding RefreshCommand}" Padding="12,5" VerticalAlignment="Top" Margin="12,0,0,0"/>
+            <StackPanel Spacing="4">
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TierImpactDescription}" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TierImpactNote}" TextWrapping="Wrap" FontSize="11" Opacity="0.8"/>
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TierImpactBusy}" IsVisible="{Binding IsBusy}" FontStyle="Italic"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- ═══ Bilan : avant, puis après chaque modèle ═══ -->
+        <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+            <StackPanel Spacing="2">
+                <Grid ColumnDefinitions="360,150,*,*" Margin="0,0,0,4">
+                    <TextBlock Grid.Column="1" Text="{Binding Source={StaticResource Loc}, Path=TierImpactBefore}" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="2" Text="{Binding FirstModel}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <TextBlock Grid.Column="3" Text="{Binding SecondModel}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                </Grid>
+                <ItemsControl ItemsSource="{Binding Rows}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TierImpactRow">
+                            <Grid ColumnDefinitions="360,150,*,*" Margin="0,1">
+                                <TextBlock Grid.Column="0" Text="{Binding Label}" Opacity="0.85"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Before}"/>
+                                <TextBlock Grid.Column="2" Text="{Binding First}" FontWeight="SemiBold"/>
+                                <TextBlock Grid.Column="3" Text="{Binding Second}" FontWeight="SemiBold"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ Modèle détaillé, migration du domaine ═══ -->
+        <DockPanel Grid.Row="2" Margin="0,0,0,8">
+            <Button DockPanel.Dock="Right" Content="{Binding Source={StaticResource Loc}, Path=TierImpactMigrate}"
+                    Command="{Binding MigrateCommand}" Padding="12,5"/>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TierImpactDetails}" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding Impacts}" SelectedItem="{Binding SelectedImpact}" Width="300"/>
+                <TextBlock Text="{Binding DetailSummary}" VerticalAlignment="Center" Opacity="0.85" TextWrapping="Wrap"/>
+            </StackPanel>
+        </DockPanel>
+
+        <TabControl Grid.Row="3">
+            <TabItem Header="{Binding Source={StaticResource Loc}, Path=TierImpactPlan}">
+                <ListBox ItemsSource="{Binding Steps}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TierStepItem">
+                            <Grid ColumnDefinitions="24,200,*">
+                                <TextBlock Grid.Column="0" Text="{Binding Icon}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding ObjectName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock TextWrapping="Wrap">
+                                        <Run Text="{Binding From}" FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                        <Run Text=" → "/>
+                                        <Run Text="{Binding To}" FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding Reason}" FontSize="11" Opacity="0.8" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
+            <TabItem Header="{Binding Source={StaticResource Loc}, Path=TierImpactIssues}">
+                <ListBox ItemsSource="{Binding Issues}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
+            <TabItem Header="{Binding Source={StaticResource Loc}, Path=TierImpactCutPaths}">
+                <ListBox ItemsSource="{Binding CutPaths}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TierPathItem">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Source}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Steps}" FontSize="12" Opacity="0.85" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
+            <TabItem Header="{Binding Source={StaticResource Loc}, Path=TierImpactRemainingPaths}">
+                <ListBox ItemsSource="{Binding RemainingPaths}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:TierPathItem">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Source}" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding Steps}" FontSize="12" Opacity="0.85" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
+            <TabItem Header="{Binding Source={StaticResource Loc}, Path=ComparisonFixed}">
+                <ListBox ItemsSource="{Binding FixedFindings}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ComparedFinding">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="✔" Foreground="#27AE60" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <Border Background="{Binding SeverityColor}" CornerRadius="4" Padding="6,1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SeverityLabel}" Foreground="White" FontSize="11"/>
+                                </Border>
+                                <TextBlock VerticalAlignment="Center">
+                                    <Run Text="{Binding RuleId}" FontFamily="Consolas, Courier New, monospace"/>
+                                    <Run Text=" "/><Run Text="{Binding RuleTitle}" FontWeight="SemiBold"/>
+                                    <Run Text=" — "/><Run Text="{Binding ObjectName}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
+            <TabItem Header="{Binding Source={StaticResource Loc}, Path=ComparisonNew}">
+                <ListBox ItemsSource="{Binding NewFindings}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ComparedFinding">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="⚠" Foreground="#C0392B" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <Border Background="{Binding SeverityColor}" CornerRadius="4" Padding="6,1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SeverityLabel}" Foreground="White" FontSize="11"/>
+                                </Border>
+                                <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+                                    <Run Text="{Binding RuleId}" FontFamily="Consolas, Courier New, monospace"/>
+                                    <Run Text=" "/><Run Text="{Binding RuleTitle}" FontWeight="SemiBold"/>
+                                    <Run Text=" — "/><Run Text="{Binding ObjectName}"/>
+                                    <Run Text=" : "/><Run Text="{Binding Detail}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

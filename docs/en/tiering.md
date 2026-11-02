@@ -20,6 +20,34 @@ Applying a model **adds** what is missing and neither moves nor changes any exis
 
 The applied model and its version are shown in the domain's **Password policy** section.
 
+## Simulating on a classic domain
+
+Applying a model places nothing: an existing domain keeps its objects in its older OUs, where the model's GPOs do not apply. **Analysis > Simulate tiering...** shows what a real migration would change, without touching the displayed domain: SMAD-X migrates a copy of the domain to each of the two models and compares security before and after.
+
+![Tiering simulation on the sample domain](assets/screens/tier-impact.png)
+
+*Screenshot: on the sample domain, both models cut the two attack paths outside Tier 0: placed in the model's server OU, the server receives the restriction GPO, which denies the Tier 0 administrator's session.*
+
+| Indicator | What it measures |
+|---|---|
+| **Audit score**, **estimated ANSSI level** | before, then after migrating to each model |
+| **Attack paths outside Tier 0** | the paths to domain control that start from a source outside Tier 0 |
+| **Sessions denied by a GPO** | the administrator sessions that the restriction GPOs make impossible |
+| **Findings fixed / new** | the migration fixes some; it can also make some appear |
+| **Objects placed**, **memberships**, **points to review** | the migration plan |
+| **Objects left outside the model OUs** | what the plan could not place (TIER-06) |
+
+The migration takes three steps:
+
+1. **The model is applied**, as with **Settings > Apply a tiering model...**.
+2. **Each account, computer and group is placed** in the model OU that matches its role (server, workstation, administration account, user, service account, administration group, group) and its tier. The tier is the object's label; without a label, it is assumed: Tier 0 for a privileged account or group, Tier 1 for a server (recognised by its name or its OU's: SRV, Server, Serveur), Tier 2 for the rest. An account or group that administers other objects (a delegation, local administration of a machine) goes with the administration accounts or groups; a disabled account, into the model's Disabled OU.
+3. **Legitimate rights are kept.** A delegation set on an older OU no longer reaches the objects placed elsewhere, and the Microsoft model's restricted groups replace the machines' local administrators: the team that had this right joins the model group that holds it on the new OU (the service desk, for example, joins the model group in charge of user passwords). A group never joins a group of a more sensitive tier than its own. When the model has no equivalent, the lost right is reported under **To review**.
+
+The **Migration plan** tab gives each step and its reason; **Paths cut** and **Remaining paths**, the attack paths before and after. **Migrate the domain to this model...** applies the chosen model's plan to the displayed domain, after confirmation; the migration is undone in one step (`Ctrl+Z`).
+
+!!! warning "A simulation, not a production plan"
+    The plan follows simple rules: review it. An assumed tier can be wrong, a kept right can be broader than needed, and a new finding can reveal a choice of the model. The Microsoft model, for example, delegates full control of the **Tier Model Administration** OU to Tier0Admins: a Domain Admins member placed in this OU is within reach of this group (ACL-02), which must therefore be treated as privileged.
+
 ## GPO effects
 
 The model's GPOs come with the settings that change attack paths. You read and change them in the GPO's **Security** section, and any SMAD-X GPO can receive them:
