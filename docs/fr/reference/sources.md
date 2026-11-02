@@ -42,5 +42,12 @@ Les règles d'audit, les fiches et les chemins d'attaque s'appuient sur ces réf
 - [Modèles d'administration au moindre privilège](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models)
 - [Comptes de service gérés de groupe (gMSA)](https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview)
 
+## Modèles de cloisonnement
+
+Les deux modèles que SMAD-X applique (voir [Modèles de cloisonnement](../cloisonnement.md)), reproduits depuis une version publiée, sous licence MIT :
+
+- [Microsoft Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel) v2.1.0, Copyright (c) Microsoft Corporation : règles TIER-05 à TIER-08.
+- [HardenAD](https://github.com/LoicVeirman/HardenAD) 2.9.9, Copyright (c) 2021 HardenAD.
+
 !!! note
     SMAD-X **estime** un niveau à la manière de l'ANSSI : ce n'est ni l'outil ADS de l'ANSSI, ni un audit officiel.

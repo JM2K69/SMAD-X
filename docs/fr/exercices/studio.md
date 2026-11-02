@@ -24,7 +24,7 @@ Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X
 
 ![Choix de la recommandation](../assets/screens/studio-recipe.png)
 
-Chaque règle d'audit a sa recette, avec le point de contrôle ANSSI correspondant et son niveau (N1 à N4). La liste se filtre par identifiant de règle, par point ANSSI ou par mot du titre. Choisissez la langue de l'exercice, la version de Windows Server qui a promu le domaine (2019, 2022 ou 2025) et le nom du domaine : Studio construit un annuaire réaliste (services, utilisateurs, postes), vérifie qu'il est sain, puis y injecte **uniquement** le manque choisi. Ce domaine de départ part d'un AD neuf qu'il durcit : comptes intégrés corrigés, politique de mot de passe de 12 caractères avec verrouillage, quota de jonction à 0, groupes de délégation du support et de l'informatique.
+Chaque règle d'audit a sa recette (sauf TIER-05 à TIER-08, qui demandent un domaine déjà cloisonné par un modèle), avec le point de contrôle ANSSI correspondant et son niveau (N1 à N4). La liste se filtre par identifiant de règle, par point ANSSI ou par mot du titre. Choisissez la langue de l'exercice, la version de Windows Server qui a promu le domaine (2019, 2022 ou 2025) et le nom du domaine : Studio construit un annuaire réaliste (services, utilisateurs, postes), vérifie qu'il est sain, puis y injecte **uniquement** le manque choisi. Ce domaine de départ part d'un AD neuf qu'il durcit : comptes intégrés corrigés, politique de mot de passe de 12 caractères avec verrouillage, quota de jonction à 0, groupes de délégation du support et de l'informatique.
 
 #### Combiner plusieurs recommandations
 

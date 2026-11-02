@@ -110,3 +110,5 @@ Chaque objet est classé dans un tier, selon le modèle d'administration de Micr
 | **Tier 2** | postes de travail et utilisateurs |
 
 **Configuration > Gérer les tiers...** change les noms, les niveaux et les couleurs. L'audit vérifie le cloisonnement : un objet ne doit pas être membre d'un groupe plus sensible que lui (TIER-01), ni recevoir une délégation sur un objet plus sensible (TIER-03).
+
+**Configuration > Appliquer un modèle de cloisonnement...** applique au domaine le modèle de Microsoft ou celui de HardenAD : ses OU par tier, ses groupes et comptes d'administration, ses GPO et ses délégations. L'audit vérifie ensuite que le domaine le respecte (TIER-05 à TIER-08). Voir [Modèles de cloisonnement](cloisonnement.md).

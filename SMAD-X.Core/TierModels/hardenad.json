@@ -1,0 +1,4822 @@
+{
+  "Id": "hardenad",
+  "Name": "HardenAD",
+  "Source": {
+    "Repository": "https://github.com/LoicVeirman/HardenAD",
+    "Version": "HardenAD-2.9.9v2",
+    "Commit": "bbe9474fc396d642988c874a1d6b1442f718c5a7",
+    "License": "MIT",
+    "Copyright": "Copyright (c) 2021 HardenAD",
+    "Files": [
+      "Configs/TasksSequence_HardenAD.xml",
+      "LICENSE"
+    ],
+    "Notes": [
+      {
+        "Fr": "Toutes les t\u00E2ches de la s\u00E9quence sont reprises, comme si elles \u00E9taient toutes activ\u00E9es (elles sont d\u00E9sactiv\u00E9es par d\u00E9faut dans la source).",
+        "En": "Every task of the sequence is included, as if all were enabled (they are disabled by default in the source)."
+      },
+      {
+        "Fr": "Les comptes d\u0027administration gardent les noms de la source (T0M-AHARDEN\u2026).",
+        "En": "Administration accounts keep the names of the source (T0M-AHARDEN\u2026)."
+      },
+      {
+        "Fr": "Les GPO sont reprises par leur nom, leur r\u00F4le et leurs liens ; leurs param\u00E8tres ne sont pas mod\u00E9lis\u00E9s.",
+        "En": "GPOs are included by name, role and links; their settings are not modelled."
+      },
+      {
+        "Fr": "La redirection des conteneurs par d\u00E9faut vers Provisioning (redircmp, redirusr) n\u0027est pas mod\u00E9lis\u00E9e.",
+        "En": "Redirecting the default containers to Provisioning (redircmp, redirusr) is not modelled."
+      },
+      {
+        "Fr": "Les PAW partag\u00E9es (PawAccess, PawT12L) et leurs groupes de connexion n\u0027ont pas de tier : ils servent plusieurs tiers.",
+        "En": "Shared PAWs (PawAccess, PawT12L) and their logon groups have no tier: they serve several tiers."
+      }
+    ]
+  },
+  "Tiers": [
+    {
+      "Name": "Tier 0",
+      "Level": 0,
+      "Color": "#C0392B",
+      "Description": "Administration et contr\u00F4le de domaine"
+    },
+    {
+      "Name": "Tier 1",
+      "Level": 1,
+      "Color": "#E67E22",
+      "Description": "Serveurs et infrastructure"
+    },
+    {
+      "Name": "Tier 2",
+      "Level": 2,
+      "Color": "#27AE60",
+      "Description": "Postes de travail utilisateurs"
+    },
+    {
+      "Name": "Tier 1 Legacy",
+      "Level": 1,
+      "Color": "#D35400",
+      "Description": "Serveurs aux syst\u00E8mes anciens, isol\u00E9s"
+    },
+    {
+      "Name": "Tier 2 Legacy",
+      "Level": 2,
+      "Color": "#16A085",
+      "Description": "Postes aux syst\u00E8mes anciens, isol\u00E9s"
+    }
+  ],
+  "OrganizationalUnits": [
+    {
+      "Path": "_Administration",
+      "Tier": null,
+      "Role": "Container",
+      "Description": "Privileged accounts administrative OU"
+    },
+    {
+      "Path": "_Administration/GroupsT0",
+      "Tier": "Tier 0",
+      "Role": "AdminGroups",
+      "Description": "Groups to manage Tier 0 objects"
+    },
+    {
+      "Path": "_Administration/GroupsT0/Deleg",
+      "Tier": "Tier 0",
+      "Role": "AdminGroups",
+      "Description": "Groups used to delegate permissions on AD objects"
+    },
+    {
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Role": "AdminGroups",
+      "Description": "Groups used to allow or deny settings via Group Policies Objects"
+    },
+    {
+      "Path": "_Administration/GroupsT0/LocalAdmins",
+      "Tier": "Tier 0",
+      "Role": "AdminGroups",
+      "Description": "Groups used to grant a user being local administrator of a resource"
+    },
+    {
+      "Path": "_Administration/GroupsT0/LocalRDU",
+      "Tier": "Tier 0",
+      "Role": "AdminGroups",
+      "Description": "Groups used to grant a user being local Remote Desktop user of a resource"
+    },
+    {
+      "Path": "_Administration/GroupsT0/Logon",
+      "Tier": "Tier 0",
+      "Role": "AdminGroups",
+      "Description": "Groups used to login access to a resource"
+    },
+    {
+      "Path": "_Administration/GroupsT1",
+      "Tier": "Tier 1",
+      "Role": "AdminGroups",
+      "Description": "Groups to manage Tier 1 objects"
+    },
+    {
+      "Path": "_Administration/GroupsT1/Deleg",
+      "Tier": "Tier 1",
+      "Role": "AdminGroups",
+      "Description": "Groups used to delegate permissions on AD objects"
+    },
+    {
+      "Path": "_Administration/GroupsT1/GPO",
+      "Tier": "Tier 1",
+      "Role": "AdminGroups",
+      "Description": "Groups used to allow or deny settings via Group Policies Objects"
+    },
+    {
+      "Path": "_Administration/GroupsT1/LocalAdmins",
+      "Tier": "Tier 1",
+      "Role": "AdminGroups",
+      "Description": "Groups used to grant a user being local administrator of a resource"
+    },
+    {
+      "Path": "_Administration/GroupsT1/LocalRDU",
+      "Tier": "Tier 1",
+      "Role": "AdminGroups",
+      "Description": "Groups used to grant a user being local Remote Desktop user of a resource"
+    },
+    {
+      "Path": "_Administration/GroupsT1L",
+      "Tier": "Tier 1 Legacy",
+      "Role": "AdminGroups",
+      "Description": "Groups to manage Tier 1 Legacy objects"
+    },
+    {
+      "Path": "_Administration/GroupsT1L/Deleg",
+      "Tier": "Tier 1 Legacy",
+      "Role": "AdminGroups",
+      "Description": "Groups used to delegate permissions on AD objects"
+    },
+    {
+      "Path": "_Administration/GroupsT1L/GPO",
+      "Tier": "Tier 1 Legacy",
+      "Role": "AdminGroups",
+      "Description": "Groups used to allow or deny settings via Group Policies Objects"
+    },
+    {
+      "Path": "_Administration/GroupsT1L/LocalAdmins",
+      "Tier": "Tier 1 Legacy",
+      "Role": "AdminGroups",
+      "Description": "Groups used to grant a user being local administrator of a resource"
+    },
+    {
+      "Path": "_Administration/GroupsT1L/LocalRDU",
+      "Tier": "Tier 1 Legacy",
+      "Role": "AdminGroups",
+      "Description": "Groups used to grant a user being local Remote Desktop user of a resource"
+    },
+    {
+      "Path": "_Administration/GroupsT2",
+      "Tier": "Tier 2",
+      "Role": "AdminGroups",
+      "Description": "Groups to manage Tier 2 objects"
+    },
+    {
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Role": "AdminGroups",
+      "Description": "Groups used to delegate permissions on AD objects"
+    },
+    {
+      "Path": "_Administration/GroupsT2/GPO",
+      "Tier": "Tier 2",
+      "Role": "AdminGroups",
+      "Description": "Groups used to allow or deny settings via Group Policies Objects"
+    },
+    {
+      "Path": "_Administration/GroupsT2/LocalAdmins",
+      "Tier": "Tier 2",
+      "Role": "AdminGroups",
+      "Description": "Groups used to grant a user being local administrator of a resource"
+    },
+    {
+      "Path": "_Administration/GroupsT2/LocalRDU",
+      "Tier": "Tier 2",
+      "Role": "AdminGroups",
+      "Description": "Groups used to grant a user being local Remote Desktop user of a resource"
+    },
+    {
+      "Path": "_Administration/GroupsT2L",
+      "Tier": "Tier 2 Legacy",
+      "Role": "AdminGroups",
+      "Description": "Groups to manage Tier 1 Legacy objects"
+    },
+    {
+      "Path": "_Administration/GroupsT2L/Deleg",
+      "Tier": "Tier 2 Legacy",
+      "Role": "AdminGroups",
+      "Description": "Groups used to delegate permissions on AD objects"
+    },
+    {
+      "Path": "_Administration/GroupsT2L/GPO",
+      "Tier": "Tier 2 Legacy",
+      "Role": "AdminGroups",
+      "Description": "Groups used to allow or deny settings via Group Policies Objects"
+    },
+    {
+      "Path": "_Administration/GroupsT2L/LocalAdmins",
+      "Tier": "Tier 2 Legacy",
+      "Role": "AdminGroups",
+      "Description": "Groups used to grant a user being local administrator of a resource"
+    },
+    {
+      "Path": "_Administration/GroupsT2L/LocalRDU",
+      "Tier": "Tier 2 Legacy",
+      "Role": "AdminGroups",
+      "Description": "Groups used to grant a user being local Remote Desktop user of a resource"
+    },
+    {
+      "Path": "_Administration/PawAccess",
+      "Tier": null,
+      "Role": "AdminWorkstations",
+      "Description": "First Node Privilege Admin Worstations"
+    },
+    {
+      "Path": "_Administration/PawT0",
+      "Tier": "Tier 0",
+      "Role": "AdminWorkstations",
+      "Description": "Privilege Admin Worstations Tier 0 assets"
+    },
+    {
+      "Path": "_Administration/PawT12L",
+      "Tier": null,
+      "Role": "AdminWorkstations",
+      "Description": "Privilege Admin Worstations for Tier 1, Tier 2 and Tier Legacy assets"
+    },
+    {
+      "Path": "_Administration/UserAccess",
+      "Tier": null,
+      "Role": "AdminWorkstations",
+      "Description": "First User Node Privilege Admin Worstations"
+    },
+    {
+      "Path": "_Administration/UsersT0",
+      "Tier": "Tier 0",
+      "Role": "AdminAccounts",
+      "Description": "Users to manage Tier 0 objects"
+    },
+    {
+      "Path": "_Administration/UsersT1",
+      "Tier": "Tier 1",
+      "Role": "AdminAccounts",
+      "Description": "Users to manage Tier 1 objects"
+    },
+    {
+      "Path": "_Administration/UsersT1L",
+      "Tier": "Tier 1 Legacy",
+      "Role": "AdminAccounts",
+      "Description": "Users to manage Tier 1 Legacy objects"
+    },
+    {
+      "Path": "_Administration/UsersT2",
+      "Tier": "Tier 2",
+      "Role": "AdminAccounts",
+      "Description": "Users to manage Tier 2 objects"
+    },
+    {
+      "Path": "_Administration/UsersT2L",
+      "Tier": "Tier 2 Legacy",
+      "Role": "AdminAccounts",
+      "Description": "Users to manage Tier 1 Legacy objects"
+    },
+    {
+      "Path": "Harden_T0",
+      "Tier": "Tier 0",
+      "Role": "Container",
+      "Description": "Tier 0 resources"
+    },
+    {
+      "Path": "Harden_T0/Groups",
+      "Tier": "Tier 0",
+      "Role": "Groups",
+      "Description": "Groups objects belonging to this Tier"
+    },
+    {
+      "Path": "Harden_T0/Servers",
+      "Tier": "Tier 0",
+      "Role": "Servers",
+      "Description": "Computer objects belonging to this Tier and acting as servers"
+    },
+    {
+      "Path": "Harden_T0/Servers/Disabled",
+      "Tier": "Tier 0",
+      "Role": "Disabled",
+      "Description": "Disabled computer objects"
+    },
+    {
+      "Path": "Harden_T0/Services",
+      "Tier": "Tier 0",
+      "Role": "ServiceAccounts",
+      "Description": "Service accounts belonging to this Tier"
+    },
+    {
+      "Path": "Harden_T0/Services/Disabled",
+      "Tier": "Tier 0",
+      "Role": "Disabled",
+      "Description": "Disabled sevice accounts"
+    },
+    {
+      "Path": "Harden_T0/Users",
+      "Tier": "Tier 0",
+      "Role": "Users",
+      "Description": "User objects belonging to this Tier"
+    },
+    {
+      "Path": "Harden_T0/Users/Disabled",
+      "Tier": "Tier 0",
+      "Role": "Disabled",
+      "Description": "Disabled user objects"
+    },
+    {
+      "Path": "Harden_T0/Workstations",
+      "Tier": "Tier 0",
+      "Role": "Workstations",
+      "Description": "Computer Objects belonging to this Tier and acting as clients"
+    },
+    {
+      "Path": "Harden_T0/Workstations/Disabled",
+      "Tier": "Tier 0",
+      "Role": "Disabled",
+      "Description": "Disabled computer objects"
+    },
+    {
+      "Path": "Harden_T12",
+      "Tier": null,
+      "Role": "Container",
+      "Description": "Tier 1 and Tier 2 resources"
+    },
+    {
+      "Path": "Harden_T12/Contacts",
+      "Tier": "Tier 2",
+      "Role": "Contacts",
+      "Description": "Contacts objects belonging to this Tier"
+    },
+    {
+      "Path": "Harden_T12/Groups",
+      "Tier": "Tier 2",
+      "Role": "Groups",
+      "Description": "Groups objects belonging to this Tier"
+    },
+    {
+      "Path": "Harden_T12/Groups/AADSync",
+      "Tier": "Tier 2",
+      "Role": "Groups",
+      "Description": "Groups objects synced with Azure AD"
+    },
+    {
+      "Path": "Harden_T12/Servers",
+      "Tier": "Tier 1",
+      "Role": "Servers",
+      "Description": "Computer objects belonging to this Tier and acting as servers"
+    },
+    {
+      "Path": "Harden_T12/Servers/Disabled",
+      "Tier": "Tier 1",
+      "Role": "Disabled",
+      "Description": "Disabled computer objects"
+    },
+    {
+      "Path": "Harden_T12/Services",
+      "Tier": "Tier 1",
+      "Role": "ServiceAccounts",
+      "Description": "Service accounts belonging to this Tier"
+    },
+    {
+      "Path": "Harden_T12/Services/Disabled",
+      "Tier": "Tier 1",
+      "Role": "Disabled",
+      "Description": "Disabled sevice accounts"
+    },
+    {
+      "Path": "Harden_T12/Users",
+      "Tier": "Tier 2",
+      "Role": "Users",
+      "Description": "User objects belonging to this Tier"
+    },
+    {
+      "Path": "Harden_T12/Users/AADSync",
+      "Tier": "Tier 2",
+      "Role": "Users",
+      "Description": "User objects synced with Azure AD"
+    },
+    {
+      "Path": "Harden_T12/Users/Disabled",
+      "Tier": "Tier 2",
+      "Role": "Disabled",
+      "Description": "Disabled user objects"
+    },
+    {
+      "Path": "Harden_T12/Workstations",
+      "Tier": "Tier 2",
+      "Role": "Workstations",
+      "Description": "Computer Objects belonging to this Tier and acting as clients"
+    },
+    {
+      "Path": "Harden_T12/Workstations/AADSync",
+      "Tier": "Tier 2",
+      "Role": "Workstations",
+      "Description": "Computer objects synced with Azure AD"
+    },
+    {
+      "Path": "Harden_T12/Workstations/Disabled",
+      "Tier": "Tier 2",
+      "Role": "Disabled",
+      "Description": "Disabled computer objects"
+    },
+    {
+      "Path": "Harden_TL",
+      "Tier": null,
+      "Role": "Container",
+      "Description": "Legacy resources"
+    },
+    {
+      "Path": "Harden_TL/Groups",
+      "Tier": "Tier 2 Legacy",
+      "Role": "Groups",
+      "Description": "Groups objects belonging to this Tier"
+    },
+    {
+      "Path": "Harden_TL/Groups/AADSync",
+      "Tier": "Tier 2 Legacy",
+      "Role": "Groups",
+      "Description": "Groups objects synced with Azure AD"
+    },
+    {
+      "Path": "Harden_TL/Servers",
+      "Tier": "Tier 1 Legacy",
+      "Role": "Servers",
+      "Description": "Computer objects belonging to this Tier and acting as servers"
+    },
+    {
+      "Path": "Harden_TL/Servers/Disabled",
+      "Tier": "Tier 1 Legacy",
+      "Role": "Disabled",
+      "Description": "Disabled computer objects"
+    },
+    {
+      "Path": "Harden_TL/Services",
+      "Tier": "Tier 1 Legacy",
+      "Role": "ServiceAccounts",
+      "Description": "Service accounts belonging to this Tier"
+    },
+    {
+      "Path": "Harden_TL/Services/Disabled",
+      "Tier": "Tier 1 Legacy",
+      "Role": "Disabled",
+      "Description": "Disabled sevice accounts"
+    },
+    {
+      "Path": "Harden_TL/Users",
+      "Tier": "Tier 2 Legacy",
+      "Role": "Users",
+      "Description": "User objects belonging to this Tier"
+    },
+    {
+      "Path": "Harden_TL/Users/AADSync",
+      "Tier": "Tier 2 Legacy",
+      "Role": "Users",
+      "Description": "User objects synced with Azure AD"
+    },
+    {
+      "Path": "Harden_TL/Users/Disabled",
+      "Tier": "Tier 2 Legacy",
+      "Role": "Disabled",
+      "Description": "Disabled user objects"
+    },
+    {
+      "Path": "Harden_TL/Workstations",
+      "Tier": "Tier 2 Legacy",
+      "Role": "Workstations",
+      "Description": "Computer Objects belonging to this Tier and acting as clients"
+    },
+    {
+      "Path": "Harden_TL/Workstations/AADSync",
+      "Tier": "Tier 2 Legacy",
+      "Role": "Workstations",
+      "Description": "Computer objects synced with Azure AD"
+    },
+    {
+      "Path": "Harden_TL/Workstations/Disabled",
+      "Tier": "Tier 2 Legacy",
+      "Role": "Disabled",
+      "Description": "Disabled computer objects"
+    },
+    {
+      "Path": "Provisioning",
+      "Tier": null,
+      "Role": "Provisioning",
+      "Description": "New objects provisioning OU"
+    },
+    {
+      "Path": "Provisioning/Users",
+      "Tier": null,
+      "Role": "Provisioning",
+      "Description": "New user objects"
+    },
+    {
+      "Path": "Provisioning/Computers",
+      "Tier": null,
+      "Role": "Provisioning",
+      "Description": "New computer objects"
+    }
+  ],
+  "Groups": [
+    {
+      "Name": "G-S-T0_Managers",
+      "Path": "_Administration/GroupsT0",
+      "Tier": "Tier 0",
+      "Scope": "Global",
+      "Description": "Members of this group can see and manage all the Active Directory objects",
+      "MemberOf": [
+        "L-S-T0"
+      ]
+    },
+    {
+      "Name": "G-S-T0_Operators",
+      "Path": "_Administration/GroupsT0",
+      "Tier": "Tier 0",
+      "Scope": "Global",
+      "Description": "Members of this group can operate on Tier 0 resources",
+      "MemberOf": [
+        "L-S-T0",
+        "L-S-T0_LocalAdmins_Servers",
+        "L-S-T0-DELEG_Computer - Join Domain"
+      ]
+    },
+    {
+      "Name": "G-S-T1_Managers",
+      "Path": "_Administration/GroupsT1",
+      "Tier": "Tier 1",
+      "Scope": "Global",
+      "Description": "Members of this group can manage all Tier 1 ressources, including T1 admin users and groups",
+      "MemberOf": [
+        "L-S-T1",
+        "L-S-T1-DELEG_Group - Create and Delete (administration)",
+        "L-S-T1-DELEG_User - Create and Delete (administration)",
+        "L-S-T1-DELEG_Group - Manage BitlockerKey",
+        "L-S-T1-DELEG_Group - Create and Delete",
+        "L-S-T1-DELEG_User - Create and Delete",
+        "L-S-T1-DELEG_Computer - Create and Delete"
+      ]
+    },
+    {
+      "Name": "G-S-T1_Administrators",
+      "Path": "_Administration/GroupsT1",
+      "Tier": "Tier 1",
+      "Scope": "Global",
+      "Description": "Members of this group can manage all Tier 1 resources, excluding T1 admin users and groups",
+      "MemberOf": [
+        "L-S-T1",
+        "L-S-T1-DELEG_Group - Manage BitlockerKey",
+        "L-S-T1-DELEG_Group - Create and Delete",
+        "L-S-T1-DELEG_User - Create and Delete",
+        "L-S-T1-DELEG_Computer - Create and Delete"
+      ]
+    },
+    {
+      "Name": "G-S-T1_Operators",
+      "Path": "_Administration/GroupsT1",
+      "Tier": "Tier 1",
+      "Scope": "Global",
+      "Description": "Members of this group can operate on Tier 1 resources (login)",
+      "MemberOf": [
+        "L-S-T1",
+        "L-S-T1_LocalAdmins_Servers",
+        "L-S-T1-DELEG_LAPS_PwdRead",
+        "L-S-T1-DELEG_LAPS_PwdReset",
+        "L-S-T1-DELEG_Computer - Join Domain"
+      ]
+    },
+    {
+      "Name": "G-S-T2_Managers",
+      "Path": "_Administration/GroupsT2",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group can manage all Tier 2 ressources, including T1 admin users and groups",
+      "MemberOf": [
+        "L-S-T2",
+        "L-S-T2-DELEG_Group - Create and Delete (administration)",
+        "L-S-T2-DELEG_User - Create and Delete (administration)",
+        "L-S-T2-DELEG_Group - Manage BitlockerKey",
+        "L-S-T2-DELEG_Group - Manage Membership",
+        "L-S-T2-DELEG_User - Create and Delete",
+        "L-S-T2-DELEG_Computer - Create and Delete",
+        "L-S-T2-DELEG_Contact - Create and Delete",
+        "L-S-T2-DELEG_ExchContact - Create and Delete",
+        "L-S-T2-DELEG_ExchSharedMbx - Create and Delete",
+        "L-S-T2-DELEG_ExchDistributionGroup - Create and Delete",
+        "L-S-T2-DELEG_ExchResource - Create and Delete"
+      ]
+    },
+    {
+      "Name": "G-S-T2_Administrators",
+      "Path": "_Administration/GroupsT2",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group can manage all Tier 2 ressources, excluding T1 admin users and groups",
+      "MemberOf": [
+        "L-S-T2",
+        "L-S-T2-DELEG_Group - Manage BitlockerKey",
+        "L-S-T2-DELEG_Group - Manage Membership",
+        "L-S-T2-DELEG_User - Create and Delete",
+        "L-S-T2-DELEG_Computer - Create and Delete",
+        "L-S-T2-DELEG_Contact - Create and Delete",
+        "L-S-T2-DELEG_ExchContact - Create and Delete",
+        "L-S-T2-DELEG_ExchSharedMbx - Create and Delete",
+        "L-S-T2-DELEG_ExchDistributionGroup - Create and Delete",
+        "L-S-T2-DELEG_ExchResource - Create and Delete"
+      ]
+    },
+    {
+      "Name": "G-S-T2_Operators",
+      "Path": "_Administration/GroupsT2",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group can operate on Tier 2 resources (login)",
+      "MemberOf": [
+        "L-S-T2",
+        "L-S-T2_LocalAdmins_Workstations",
+        "L-S-T2-DELEG_LAPS_PwdRead",
+        "L-S-T2-DELEG_LAPS_PwdReset",
+        "L-S-T2-DELEG_Computer - Join Domain"
+      ]
+    },
+    {
+      "Name": "G-S-T1L_Operators",
+      "Path": "_Administration/GroupsT1L",
+      "Tier": "Tier 1 Legacy",
+      "Scope": "Global",
+      "Description": "Members of this group can operate on Tier Legacy server resources (login)",
+      "MemberOf": [
+        "L-S-T1L",
+        "L-S-T1L_LocalAdmins_Servers"
+      ]
+    },
+    {
+      "Name": "G-S-T2L_Operators",
+      "Path": "_Administration/GroupsT2L",
+      "Tier": "Tier 2 Legacy",
+      "Scope": "Global",
+      "Description": "Members of this group can operate on Tier Legacy resources (login)",
+      "MemberOf": [
+        "L-S-T2L",
+        "L-S-T2L_LocalAdmins_Workstations"
+      ]
+    },
+    {
+      "Name": "L-S-T0",
+      "Path": "_Administration/GroupsT0",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group are part of Tier 0 administrative assets",
+      "MemberOf": [
+        "L-S-T0_PawT0_Logon"
+      ]
+    },
+    {
+      "Name": "L-S-T1",
+      "Path": "_Administration/GroupsT1",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group are part of Tier 1 administrative assets",
+      "MemberOf": [
+        "L-S-T0_PawT12L_Logon"
+      ]
+    },
+    {
+      "Name": "L-S-T2",
+      "Path": "_Administration/GroupsT2",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group are part of Tier 2 administrative assets",
+      "MemberOf": [
+        "L-S-T0_PawT12L_Logon"
+      ]
+    },
+    {
+      "Name": "L-S-T1L",
+      "Path": "_Administration/GroupsT1L",
+      "Tier": "Tier 1 Legacy",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group are part of Legacy servers\u0027 administrative assets",
+      "MemberOf": [
+        "L-S-T0_PawT12L_Logon"
+      ]
+    },
+    {
+      "Name": "L-S-T2L",
+      "Path": "_Administration/GroupsT2L",
+      "Tier": "Tier 2 Legacy",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group are part of Legacy servers\u0027 administrative assets",
+      "MemberOf": [
+        "L-S-T0_PawT12L_Logon"
+      ]
+    },
+    {
+      "Name": "L-S-T0_PawAccess_Logon",
+      "Path": "_Administration/GroupsT0/Logon",
+      "Tier": null,
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will be able to connect to the first level administration stations",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0_PawT0_Logon",
+      "Path": "_Administration/GroupsT0/Logon",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will be able to connect to the T0 administration stations",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0_PawT12L_Logon",
+      "Path": "_Administration/GroupsT0/Logon",
+      "Tier": null,
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will be able to connect to the T1, T2 and TLegacy administration stations",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0_LocalAdmins_Servers",
+      "Path": "_Administration/GroupsT0/LocalAdmins",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\administrators group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1_LocalAdmins_Servers",
+      "Path": "_Administration/GroupsT1/LocalAdmins",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\administrators group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1L_LocalAdmins_Servers",
+      "Path": "_Administration/GroupsT1L/LocalAdmins",
+      "Tier": "Tier 1 Legacy",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\administrators group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0_LocalAdmins_Workstations",
+      "Path": "_Administration/GroupsT0/LocalAdmins",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\administrators group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2_LocalAdmins_Workstations",
+      "Path": "_Administration/GroupsT2/LocalAdmins",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\administrators group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2L_LocalAdmins_Workstations",
+      "Path": "_Administration/GroupsT2L/LocalAdmins",
+      "Tier": "Tier 2 Legacy",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\administrators group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0_LocalRDU_Servers",
+      "Path": "_Administration/GroupsT0/LocalRDU",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\RDU group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1_LocalRDU_Servers",
+      "Path": "_Administration/GroupsT1/LocalRDU",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\RDU group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1L_LocalRDU_Servers",
+      "Path": "_Administration/GroupsT1L/LocalRDU",
+      "Tier": "Tier 1 Legacy",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\RDU group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0_LocalRDU_Workstations",
+      "Path": "_Administration/GroupsT0/LocalRDU",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\RDU group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2_LocalRDU_Workstations",
+      "Path": "_Administration/GroupsT2/LocalRDU",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\RDU group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2L_LocalRDU_Workstations",
+      "Path": "_Administration/GroupsT2L/LocalRDU",
+      "Tier": "Tier 2 Legacy",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will become member of the builtin\\RDU group",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1-DELEG_Group - Create and Delete (administration)",
+      "Path": "_Administration/GroupsT1/Deleg",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete groups within Tier 1 _Administration OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_Group - Create and Delete (administration)",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete groups within Tier 1 _Administration OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1-DELEG_User - Create and Delete (administration)",
+      "Path": "_Administration/GroupsT1/Deleg",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete users within Tier 1 administration OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_User - Create and Delete (administration)",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete users within Tier 1 administration OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1-DELEG_Group - Manage BitlockerKey",
+      "Path": "_Administration/GroupsT1/Deleg",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete users within Tier 1 administration OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_Group - Manage BitlockerKey",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete users within Tier 1 administration OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1-DELEG_Group - Create and Delete",
+      "Path": "_Administration/GroupsT1/Deleg",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete groups within productions OUs (Tier 1 and 2)",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_Group - Manage Membership",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can add and remove members of tier 1 groups within productions OUs",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1-DELEG_User - Create and Delete",
+      "Path": "_Administration/GroupsT1/Deleg",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete users within productions OUs (Tier 1 and 2)",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_User - Create and Delete",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete users within productions OUs (Tier 1 and 2)",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1-DELEG_Computer - Create and Delete",
+      "Path": "_Administration/GroupsT1/Deleg",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete computers within productions OUs (Tier 1 and 2)",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_Computer - Create and Delete",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete computers within productions OUs (Tier 1 and 2)",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_Contact - Create and Delete",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete contact within productions OUs (Tier 1 and 2)",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1-DELEG_LAPS_PwdRead",
+      "Path": "_Administration/GroupsT1/Deleg",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will be able to read LAPS password for workstations",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_LAPS_PwdRead",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will be able to read LAPS password for workstations",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1-DELEG_LAPS_PwdReset",
+      "Path": "_Administration/GroupsT1/Deleg",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will be able to reset LAPS password for workstations",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_LAPS_PwdReset",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group will be able to reset LAPS password for workstations",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_ExchContact - Create and Delete",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete contact within Exchange OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_ExchSharedMbx - Create and Delete",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete User within Exchange OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_ExchDistributionGroup - Create and Delete",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete Group within Exchange OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_ExchResource - Create and Delete",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can create, update and delete User within Exchange OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-DELEG_Computer - Join Domain",
+      "Path": "_Administration/GroupsT0/Deleg",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can join a system to the Tier 0 OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T1-DELEG_Computer - Join Domain",
+      "Path": "_Administration/GroupsT1/Deleg",
+      "Tier": "Tier 1",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can join a system to the Tier 1 OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T2-DELEG_Computer - Join Domain",
+      "Path": "_Administration/GroupsT2/Deleg",
+      "Tier": "Tier 2",
+      "Scope": "DomainLocal",
+      "Description": "Members of this group can join a system to the Tier 2 OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S1-Thu-0h-Srv_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Auto-Update-S1-Thu-0h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S1-Thu-0h-Srv_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Auto-Update-S1-Thu-0h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S1-Thu-1h-Srv_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Auto-Update-S1-Thu-1h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S1-Thu-1h-Srv_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Auto-Update-S1-Thu-1h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S3-Thu-0h-Srv_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Auto-Update-S3-Thu-0h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S3-Thu-0h-Srv_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Auto-Update-S3-Thu-0h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S3-Thu-1h-Srv_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Auto-Update-S3-Thu-1h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S3-Thu-1h-Srv_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Auto-Update-S3-Thu-1h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S4-Thu-0h-Srv_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Auto-Update-S4-Thu-0h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S4-Thu-0h-Srv_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Auto-Update-S4-Thu-0h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S4-Thu-1h-Srv_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Auto-Update-S4-Thu-1h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-S4-Thu-1h-Srv_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Auto-Update-S4-Thu-1h-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-Win10-11_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Auto-Update-Win10-11",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-Win10-11_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Auto-Update-Win10-11",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-Win7-8_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Auto-Update-Win7-8",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Auto-Update-Win7-8_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Auto-Update-Win7-8",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-BitLocker-TPMOnly-Enabled-Win10-11_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-BitLocker-TPMOnly-Enabled-Win10-11",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-BitLocker-TPMOnly-Enabled-Win10-11_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-BitLocker-TPMOnly-Enabled-Win10-11",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-BitLocker-PIN-Enabled-Win10-11_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-BitLocker-PIN-Enabled-Win10-11",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-BitLocker-PIN-Enabled-Win10-11_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-BitLocker-PIN-Enabled-Win10-11",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-BitLocker-USB-Win10-11_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-BitLocker-USB-Win10-11",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-BitLocker-USB-Win10-11_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-BitLocker-USB-Win10-11",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-BitLocker-RecoveryKey-Required_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-BitLocker-RecoveryKey-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-BitLocker-RecoveryKey-Required_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-BitLocker-RecoveryKey-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-BloodHound-Mitigation_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-BloodHound-Mitigation",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-BloodHound-Mitigation_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-BloodHound-Mitigation",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Camera-on-lockon-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Camera-on-lockon-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Camera-on-lockon-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Camera-on-lockon-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-DCLoctor-Configuration_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-DCLocaltor-Configuration",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-DCLoctor-Configuration_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-DCLocaltor-Configuration",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-DistributedFileSystem-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-DistributedFileSystem-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-DistributedFileSystem-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-DistributedFileSystem-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Fwl-Audit-Only_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Firewall-Audit-Only",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Fwl-Audit-Only_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Firewall-Audit-Only",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Fwl-Block-Inbound_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Firewall-Block-Inbound",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Fwl-Block-Inbound_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Firewall-Block-Inbound",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-GPO-Refresh-Cycle_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-GPO-Refresh-Cycle",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-GPO-Refresh-Cycle_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-GPO-Refresh-Cycle",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-IPv6-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-IPv6-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-IPv6-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-IPv6-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Kerberos-AES-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Kerberos-AES-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Kerberos-AES-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Kerberos-AES-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LAPS-Configuration_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LAPS-Configuration",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LAPS-Configuration_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LAPS-Configuration",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LAPS-X64-Deployment_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LAPS-X64-Deployment",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LAPS-X64-Deployment_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LAPS-X64-Deployment",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LAPS-X86-Deployment_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LAPS-X86-Deployment",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LAPS-X86-Deployment_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LAPS-X86-Deployment",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-Audit-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LDAP-Audit-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-Audit-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LDAP-Audit-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-CBT-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LDAP-CBT-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-CBT-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LDAP-CBT-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-Client-Signing-Not-Required_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LDAP-Client-Signing-Not-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-Client-Signing-Not-Required_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LDAP-Client-Signing-Not-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-Client-Signing-Required_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LDAP-Client-Signing-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-Client-Signing-Required_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LDAP-Client-Signing-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-Srv-Signing-Required_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LDAP-Server-Signing-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-Srv-Signing-Required_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LDAP-Server-Signing-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-Audit-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LDAP-Audit-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LDAP-Audit-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LDAP-Audit-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LLMNR-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LLMNR-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LLMNR-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LLMNR-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LMHASH-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LMHASH-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LMHASH-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LMHASH-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-NTLM-Audit-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-NTLM-Audit-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-NTLM-Audit-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-NTLM-Audit-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-NTLM1-LMx-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-NTLM1-LMx-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-NTLM1-LMx-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-NTLM1-LMx-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-NTLMv2-128bits-Required_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-NTLMv2-128bits-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-NTLMv2-128bits-Required_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-NTLMv2-128bits-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-Paw_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalAdmins-Paw",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-Paw_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalAdmins-Paw",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-PawT0_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalAdmins-PawT0",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-PawT0_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalAdmins-PawT0",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-PawT12L_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalAdmins-PawT12L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-PawT12L_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalAdmins-PawT12L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T0-Srv_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalAdmins-T0-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T0-Srv_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalAdmins-T0-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T0-Wks_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalAdmins-T0-Wks",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T0-Wks_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalAdmins-T0-Wks",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T1_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalAdmins-T1",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T1_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalAdmins-T1",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T1L_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalAdmins-T1L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T1L_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalAdmins-T1L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T2_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalAdmins-T2",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T2_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalAdmins-T2",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T2L_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalAdmins-T2L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocAdmins-T2L_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalAdmins-T2L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-Paw_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalRDU-Paw",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-Paw_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalRDU-Paw",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-PawT0_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalRDU-PawT0",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-PawT0_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalRDU-PawT0",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-PawT12L_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalRDU-PawT12L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-PawT12L_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalRDU-PawT12L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T0-Srv_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalRDU-T0-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T0-Srv_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalRDU-T0-Srv",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T0-Wks_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalRDU-T0-Wks",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T0-Wks_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalRDU-T0-Wks",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T1_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalRDU-T1",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T1_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalRDU-T1",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T1L_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalRDU-T1L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T1L_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalRDU-T1L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T2_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalRDU-T2",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T2_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalRDU-T2",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T2L_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LocalRDU-T2L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LocRDU-T2L_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LocalRDU-T2L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Loc-Acct-Config_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Local-Accounts-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Loc-Acct-Config_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Local-Accounts-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-Paw_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LoginRestrictions-Paw",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-Paw_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LoginRestrictions-Paw",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-PawT0_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LoginRestrictions-PawT0",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-PawT0_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LoginRestrictions-PawT0",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-PawT12L_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LoginRestrictions-PawT12L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-PawT12L_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LoginRestrictions-PawT12L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-T0_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LoginRestrictions-T0",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-T0_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LoginRestrictions-T0",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-T1_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LoginRestrictions-T1",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-T1_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LoginRestrictions-T1",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-T1L_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LoginRestrictions-T1L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-T1L_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LoginRestrictions-T1L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-T2_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LoginRestrictions-T2",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-T2_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LoginRestrictions-T2",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-T2L_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LoginRestrictions-T2L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LoginRestrictions-T2L_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LoginRestrictions-T2L",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Logon-Cache-0_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Logon-Cache-0",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Logon-Cache-0_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Logon-Cache-0",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Logon-Cache-3_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Logon-Cache-3",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Logon-Cache-3_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Logon-Cache-3",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-MSLive-Acct-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-MSLive-Accounts-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-MSLive-Acct-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-MSLive-Accounts-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-NBT-NS-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-NBT-NS-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-NBT-NS-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-NBT-NS-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-PageFile-Shutdown-Cleared_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-PageFile-Shutdown-Cleared",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-PageFile-Shutdown-Cleared_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-PageFile-Shutdown-Cleared",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Print-Spooler-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Print-Spooler-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Print-Spooler-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Print-Spooler-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Remote-Assistance-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Remote-Assistance-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Remote-Assistance-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Remote-Assistance-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Screenlock-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Screenlock-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Screenlock-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Screenlock-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Secure-NetLogon_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Secure-NetLogon",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Secure-NetLogon_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Secure-NetLogon",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Svc-Browser-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Svc-Browser-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Svc-Browser-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Svc-Browser-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Svc-Srv-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Svc-Server-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Svc-Srv-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Svc-Server-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-UAC-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-UAC-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-UAC-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-UAC-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-WDigest-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-WDigest-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-WDigest-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-WDigest-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Windows-Defender-Config_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Windows-Defender-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Windows-Defender-Config_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Windows-Defender-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-WinRM-Basic-Digest-Auth-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-WinRM-Basic-Digest-Auth-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-WinRM-Basic-Digest-Auth-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-WinRM-Basic-Digest-Auth-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-WebProxyAutoDiscovery-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-WebProxyAutoDiscovery-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-WebProxyAutoDiscovery-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-WebProxyAutoDiscovery-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-PowerShell-Logs_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-PowerShell-Logs",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-PowerShell-Logs_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-PowerShell-Logs",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Secu-Logs_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Security-Logs",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Secu-Logs_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Security-Logs",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TS-Loc-admins-groups_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-TS-Local-admins-groups",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TS-Loc-admins-groups_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-TS-Local-admins-groups",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TS-PDC-Flush-admin-groups_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-TS-PDC-Flush-admin-groups",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TS-PDC-Flush-admin-groups_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-TS-PDC-Flush-admin-groups",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TS-Reset-Computer-Sddl_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-TS-Reset-Computer-Sddl",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TS-Reset-Computer-Sddl_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-TS-Reset-Computer-Sddl",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-RDP-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-RDP-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-RDP-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-RDP-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-RDP-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-RDP-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-RDP-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-RDP-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-RDP-NLA-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-RDP-NLA-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-RDP-NLA-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-RDP-NLA-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Smart-Card-Required_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Smart-Card-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Smart-Card-Required_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Smart-Card-Required",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB-Signing-Configuration_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-SMB-Signing-Configuration",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB-Signing-Configuration_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-SMB-Signing-Configuration",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB1-Audit-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-SMB1-Audit-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB1-Audit-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-SMB1-Audit-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB1-Client-Only-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-SMB1-Client-Only-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB1-Client-Only-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-SMB1-Client-Only-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB1-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-SMB1-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB1-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-SMB1-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB1-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-SMB1-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB1-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-SMB1-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB1-Srv-Only-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-SMB1-Server-Only-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB1-Srv-Only-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-SMB1-Server-Only-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-UNC-Hardened-Path_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-UNC-Hardened-Path",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-UNC-Hardened-Path_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-UNC-Hardened-Path",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SSL2-SSL3-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-SSL2-SSL3-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SSL2-SSL3-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-SSL2-SSL3-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SSL2-SSL3-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-SSL2-SSL3-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SSL2-SSL3-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-SSL2-SSL3-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TLS-1_0-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-TLS-1_0-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TLS-1_0-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-TLS-1_0-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TLS-1_0-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-TLS-1_0-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TLS-1_0-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-TLS-1_0-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TLS-1_1-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-TLS-1_1-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TLS-1_1-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-TLS-1_1-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TLS-1_1-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-TLS-1_1-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TLS-1_1-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-TLS-1_1-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TLS-1_2-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-TLS-1_2-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-TLS-1_2-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-TLS-1_2-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-DC-Allow-Computer-Acct-ReUse_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-DC-Allow-Computer-Account-ReUse",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-DC-Allow-Computer-Acct-ReUse_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-DC-Allow-Computer-Account-ReUse",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-QwantSearch_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-QwantSearch",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-QwantSearch_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-QwantSearch",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Applocker-Win10-11_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Applocker-Win10-11",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Applocker-Win10-11_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Applocker-Win10-11",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-CredentialMgr-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-CredentialManager-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-CredentialMgr-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-CredentialManager-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-DEP-Config_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-DEP-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-DEP-Config_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-DEP-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-DMA-Protection_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-DMA-Protection",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-DMA-Protection_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-DMA-Protection",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Drivers-Config_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Drivers-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Drivers-Config_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Drivers-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Inactivity-Config_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Inactivity-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Inactivity-Config_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Inactivity-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LSASS-Audit_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LSASS-Audit",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LSASS-Audit_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LSASS-Audit",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LSASS-Config_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-LSASS-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-LSASS-Config_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-LSASS-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-mDNS-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-mDNS-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-mDNS-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-mDNS-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-NTLM-Disabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-NTLM-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-NTLM-Disabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-NTLM-Disabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Smart-Card-Config_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Smart-Card-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Smart-Card-Config_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Smart-Card-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB-Config-24H2_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-SMB-Config-24H2",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-SMB-Config-24H2_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-SMB-Config-24H2",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-UAC-Advanced-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-UAC-Advanced-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-UAC-Advanced-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-UAC-Advanced-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-User-Config_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-User-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-User-Config_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-User-Config",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Virtualization-Based-Protection-Enabled_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Virtualization-Based-Protection-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Virtualization-Based-Protection-Enabled_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Virtualization-Based-Protection-Enabled",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Windows-LAPS_APPLY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "APPLY GPO: HAD-Windows-LAPS",
+      "MemberOf": []
+    },
+    {
+      "Name": "L-S-T0-GPO_HAD-Windows-LAPS_DENY",
+      "Path": "_Administration/GroupsT0/GPO",
+      "Tier": "Tier 0",
+      "Scope": "DomainLocal",
+      "Description": "DENY GPO: HAD-Windows-LAPS",
+      "MemberOf": []
+    }
+  ],
+  "Accounts": [
+    {
+      "Name": "T0M-AHARDEN",
+      "Path": "_Administration/UsersT0",
+      "Tier": "Tier 0",
+      "Enabled": true,
+      "Description": "Admin Harden (Tier 0 Manager)",
+      "MemberOf": [
+        "G-S-T0_Managers"
+      ]
+    },
+    {
+      "Name": "T0O-AHARDEN",
+      "Path": "_Administration/UsersT0",
+      "Tier": "Tier 0",
+      "Enabled": true,
+      "Description": "Admin Harden (Tier 0 Operators)",
+      "MemberOf": [
+        "G-S-T0_Operators"
+      ]
+    },
+    {
+      "Name": "T1M-AHARDEN",
+      "Path": "_Administration/UsersT1",
+      "Tier": "Tier 1",
+      "Enabled": true,
+      "Description": "Admin Harden (Tier 1 Manager)",
+      "MemberOf": [
+        "G-S-T1_Managers"
+      ]
+    },
+    {
+      "Name": "T1A-AHARDEN",
+      "Path": "_Administration/UsersT1",
+      "Tier": "Tier 1",
+      "Enabled": true,
+      "Description": "Admin HARDEN (Tier 1 Administrator)",
+      "MemberOf": [
+        "G-S-T1_Administrators"
+      ]
+    },
+    {
+      "Name": "T1O-AHARDEN",
+      "Path": "_Administration/UsersT1",
+      "Tier": "Tier 1",
+      "Enabled": true,
+      "Description": "Admin HARDEN (Tier 1 Operator)",
+      "MemberOf": [
+        "G-S-T1_Operators"
+      ]
+    },
+    {
+      "Name": "T2M-AHARDEN",
+      "Path": "_Administration/UsersT2",
+      "Tier": "Tier 2",
+      "Enabled": true,
+      "Description": "Admin HARDEN (Tier 2 Manager)",
+      "MemberOf": [
+        "G-S-T2_Managers"
+      ]
+    },
+    {
+      "Name": "T2A-AHARDEN",
+      "Path": "_Administration/UsersT2",
+      "Tier": "Tier 2",
+      "Enabled": true,
+      "Description": "Admin HARDEN (Tier 2 Adminstrator)",
+      "MemberOf": [
+        "G-S-T2_Administrators"
+      ]
+    },
+    {
+      "Name": "T2O-AHARDEN",
+      "Path": "_Administration/UsersT2",
+      "Tier": "Tier 2",
+      "Enabled": true,
+      "Description": "Admin HARDEN (Tier 2 Operator)",
+      "MemberOf": [
+        "G-S-T2_Operators"
+      ]
+    },
+    {
+      "Name": "T1LO-AHARDEN",
+      "Path": "_Administration/UsersT1L",
+      "Tier": "Tier 1 Legacy",
+      "Enabled": true,
+      "Description": "Admin HARDEN (Tier 1 Legacy Operator)",
+      "MemberOf": [
+        "G-S-T1L_Operators"
+      ]
+    },
+    {
+      "Name": "T2LO-AHARDEN",
+      "Path": "_Administration/UsersT2L",
+      "Tier": "Tier 2 Legacy",
+      "Enabled": true,
+      "Description": "Admin HARDEN (Tier 2 Legacy Operator)",
+      "MemberOf": [
+        "G-S-T2L_Operators"
+      ]
+    }
+  ],
+  "Delegations": [
+    {
+      "Trustee": "L-S-T1-DELEG_Group - Create and Delete (administration)",
+      "Target": "_Administration/GroupsT1",
+      "Right": "CreateChild:group",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild group"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Group - Create and Delete (administration)",
+      "Target": "_Administration/GroupsT1",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  Group"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Group - Create and Delete (administration)",
+      "Target": "_Administration/GroupsT1L",
+      "Right": "CreateChild:group",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild group"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Group - Create and Delete (administration)",
+      "Target": "_Administration/GroupsT1L",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  Group"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Group - Create and Delete (administration)",
+      "Target": "_Administration/GroupsT2",
+      "Right": "CreateChild:group",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild group"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Group - Create and Delete (administration)",
+      "Target": "_Administration/GroupsT2",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  Group"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Group - Create and Delete (administration)",
+      "Target": "_Administration/GroupsT2L",
+      "Right": "CreateChild:group",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild group"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Group - Create and Delete (administration)",
+      "Target": "_Administration/GroupsT2L",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  Group"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_User - Create and Delete (administration)",
+      "Target": "_Administration/UsersT1",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild user"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_User - Create and Delete (administration)",
+      "Target": "_Administration/UsersT1",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  user"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_User - Create and Delete (administration)",
+      "Target": "_Administration/UsersT1L",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild user"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_User - Create and Delete (administration)",
+      "Target": "_Administration/UsersT1L",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_User - Create and Delete (administration)",
+      "Target": "_Administration/UsersT2",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_User - Create and Delete (administration)",
+      "Target": "_Administration/UsersT2",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_User - Create and Delete (administration)",
+      "Target": "_Administration/UsersT2L",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_User - Create and Delete (administration)",
+      "Target": "_Administration/UsersT2L",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Group - Manage BitlockerKey",
+      "Target": "Harden_T12/Workstations",
+      "Right": "GenericAll:msFVE-RecoveryInformation",
+      "Category": "Other",
+      "SourceRights": "GenericAll  msFVE-RecoveryInformation"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Group - Manage BitlockerKey",
+      "Target": "Harden_T12/Servers",
+      "Right": "GenericAll:msFVE-RecoveryInformation",
+      "Category": "Other",
+      "SourceRights": "GenericAll  msFVE-RecoveryInformation"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Computer - Create and Delete",
+      "Target": "Harden_T12/Servers",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/DeleteChild computer"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Computer - Create and Delete",
+      "Target": "Harden_T12/Servers",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  computer"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Computer - Create and Delete",
+      "Target": "Harden_TL/Servers",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/DeleteChild computer"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Computer - Create and Delete",
+      "Target": "Harden_TL/Servers",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  computer"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Computer - Create and Delete",
+      "Target": "Provisioning/Computers",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/DeleteChild computer"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Computer - Create and Delete",
+      "Target": "Provisioning/Computers",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  computer"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_User - Create and Delete",
+      "Target": "Harden_T12/Services",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild user"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_User - Create and Delete",
+      "Target": "Harden_T12/Services",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  user"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_User - Create and Delete",
+      "Target": "Harden_TL/Services",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild user"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_User - Create and Delete",
+      "Target": "Harden_TL/Services",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  user"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_User - Create and Delete",
+      "Target": "Provisioning/Users",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild user"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_User - Create and Delete",
+      "Target": "Provisioning/Users",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Computer - Create and Delete",
+      "Target": "Harden_T12/Workstations",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/DeleteChild computer"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Computer - Create and Delete",
+      "Target": "Harden_T12/Workstations",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  computer"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Computer - Create and Delete",
+      "Target": "Harden_TL/Workstations",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/DeleteChild computer"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Computer - Create and Delete",
+      "Target": "Harden_TL/Workstations",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  computer"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Computer - Create and Delete",
+      "Target": "Provisioning/Computers",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/DeleteChild computer"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Computer - Create and Delete",
+      "Target": "Provisioning/Computers",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  computer"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Group - Create and Delete",
+      "Target": "Harden_T12/Groups",
+      "Right": "CreateChild:group",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild group"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Group - Create and Delete",
+      "Target": "Harden_T12/Groups",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  group"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Group - Create and Delete",
+      "Target": "Harden_TL/Groups",
+      "Right": "CreateChild:group",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild group"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_Group - Create and Delete",
+      "Target": "Harden_TL/Groups",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  group"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Contact - Create and Delete",
+      "Target": "Harden_T12/Contacts",
+      "Right": "CreateChild:contact",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild contact"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Contact - Create and Delete",
+      "Target": "Harden_T12/Contacts",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  contact"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_User - Create and Delete",
+      "Target": "Harden_T12/Users",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_User - Create and Delete",
+      "Target": "Harden_T12/Users",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_User - Create and Delete",
+      "Target": "Harden_TL/Users",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_User - Create and Delete",
+      "Target": "Harden_TL/Users",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_User - Create and Delete",
+      "Target": "Provisioning/Users",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_User - Create and Delete",
+      "Target": "Provisioning/Users",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll  user"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Group - Manage Membership",
+      "Target": "Harden_T12/Groups",
+      "Right": "WriteProperty:member",
+      "Category": "WriteMembers",
+      "SourceRights": "ReadProperty/WriteProperty member group"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_Group - Manage Membership",
+      "Target": "Harden_TL/Groups",
+      "Right": "WriteProperty:member",
+      "Category": "WriteMembers",
+      "SourceRights": "ReadProperty/WriteProperty member group"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_LAPS_PwdRead",
+      "Target": "Harden_TL/Servers",
+      "Right": "ReadProperty:ms-Mcs-AdmPwd",
+      "Category": "ReadLapsPassword",
+      "SourceRights": "AdmPwdPasswordReader"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_LAPS_PwdRead",
+      "Target": "Harden_T12/Servers",
+      "Right": "ReadProperty:ms-Mcs-AdmPwd",
+      "Category": "ReadLapsPassword",
+      "SourceRights": "AdmPwdPasswordReader"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_LAPS_PwdRead",
+      "Target": "Harden_TL/Workstations",
+      "Right": "ReadProperty:ms-Mcs-AdmPwd",
+      "Category": "ReadLapsPassword",
+      "SourceRights": "AdmPwdPasswordReader"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_LAPS_PwdRead",
+      "Target": "Harden_T12/Workstations",
+      "Right": "ReadProperty:ms-Mcs-AdmPwd",
+      "Category": "ReadLapsPassword",
+      "SourceRights": "AdmPwdPasswordReader"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_LAPS_PwdReset",
+      "Target": "Harden_TL/Servers",
+      "Right": "ReadProperty:ms-Mcs-AdmPwd",
+      "Category": "ReadLapsPassword",
+      "SourceRights": "AdmPwdPasswordReset"
+    },
+    {
+      "Trustee": "L-S-T1-DELEG_LAPS_PwdReset",
+      "Target": "Harden_T12/Servers",
+      "Right": "ReadProperty:ms-Mcs-AdmPwd",
+      "Category": "ReadLapsPassword",
+      "SourceRights": "AdmPwdPasswordReset"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_LAPS_PwdReset",
+      "Target": "Harden_TL/Workstations",
+      "Right": "ReadProperty:ms-Mcs-AdmPwd",
+      "Category": "ReadLapsPassword",
+      "SourceRights": "AdmPwdPasswordReset"
+    },
+    {
+      "Trustee": "L-S-T2-DELEG_LAPS_PwdReset",
+      "Target": "Harden_T12/Workstations",
+      "Right": "ReadProperty:ms-Mcs-AdmPwd",
+      "Category": "ReadLapsPassword",
+      "SourceRights": "AdmPwdPasswordReset"
+    }
+  ],
+  "GroupPolicies": [
+    {
+      "Name": "HAD-Auto-Update-S1-Thu-0h-Srv",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Auto-Update-S1-Thu-1h-Srv",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Auto-Update-S3-Thu-0h-Srv",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Auto-Update-S3-Thu-1h-Srv",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Auto-Update-S4-Thu-0h-Srv",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Auto-Update-S4-Thu-1h-Srv",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Auto-Update-Win10-11",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Auto-Update-Win7-8",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-BitLocker-TPMOnly-Enabled-Win10-11",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T0/Workstations",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_T12/Workstations",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-BitLocker-PIN-Enabled-Win10-11",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T0/Workstations",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_T12/Workstations",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-BitLocker-USB-Win10-11",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T0/Workstations",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_T12/Workstations",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-BitLocker-RecoveryKey-Required",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T0/Workstations",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_T12/Workstations",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-BloodHound-Mitigation",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Camera-on-lockon-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-DCLocaltor-Configuration",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-DistributedFileSystem-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Firewall-Audit-Only",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Firewall-Block-Inbound",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-GPO-Refresh-Cycle",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-IPv6-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Kerberos-AES-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LAPS-Configuration",
+      "Role": "Laps",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LAPS-X64-Deployment",
+      "Role": "Laps",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LAPS-X86-Deployment",
+      "Role": "Laps",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LDAP-Audit-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LDAP-CBT-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LDAP-Client-Signing-Not-Required",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LDAP-Client-Signing-Required",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LDAP-Server-Signing-Required",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LDAP-Audit-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-LLMNR-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LMHASH-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-NTLM-Audit-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-NTLM1-LMx-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-NTLMv2-128bits-Required",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalAdmins-Paw",
+      "Role": "LocalAdministrators",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "_Administration/PawAccess",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalAdmins-PawT0",
+      "Role": "LocalAdministrators",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "_Administration/PawT0",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalAdmins-PawT12L",
+      "Role": "LocalAdministrators",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "_Administration/PawT12L",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalAdmins-T0-Srv",
+      "Role": "LocalAdministrators",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Harden_T0",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalAdmins-T0-Wks",
+      "Role": "LocalAdministrators",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Harden_T0",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalAdmins-T1",
+      "Role": "LocalAdministrators",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "Provisioning/Computers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalAdmins-T1L",
+      "Role": "LocalAdministrators",
+      "Tier": "Tier 1 Legacy",
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalAdmins-T2",
+      "Role": "LocalAdministrators",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "Provisioning/Computers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalAdmins-T2L",
+      "Role": "LocalAdministrators",
+      "Tier": "Tier 2 Legacy",
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalRDU-Paw",
+      "Role": "RemoteDesktopUsers",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "_Administration/PawAccess",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalRDU-PawT0",
+      "Role": "RemoteDesktopUsers",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "_Administration/PawT0",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalRDU-PawT12L",
+      "Role": "RemoteDesktopUsers",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "_Administration/PawT12L",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalRDU-T0-Srv",
+      "Role": "RemoteDesktopUsers",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Harden_T0",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalRDU-T0-Wks",
+      "Role": "RemoteDesktopUsers",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Harden_T0",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalRDU-T1",
+      "Role": "RemoteDesktopUsers",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "Provisioning/Computers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalRDU-T1L",
+      "Role": "RemoteDesktopUsers",
+      "Tier": "Tier 1 Legacy",
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalRDU-T2",
+      "Role": "RemoteDesktopUsers",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "Provisioning/Computers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LocalRDU-T2L",
+      "Role": "RemoteDesktopUsers",
+      "Tier": "Tier 2 Legacy",
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Local-Accounts-Config",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "_Administration",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_T0",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        },
+        {
+          "Target": "Provisioning/Computers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LoginRestrictions-Paw",
+      "Role": "LogonRestrictions",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "_Administration/PawAccess",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LoginRestrictions-PawT0",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "_Administration/PawT0",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LoginRestrictions-PawT12L",
+      "Role": "LogonRestrictions",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "_Administration/PawT12L",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LoginRestrictions-T0",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Harden_T0",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LoginRestrictions-T1",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LoginRestrictions-T1L",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 1 Legacy",
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LoginRestrictions-T2",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LoginRestrictions-T2L",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 2 Legacy",
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Logon-Cache-0",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Logon-Cache-3",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-MSLive-Accounts-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-NBT-NS-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-PageFile-Shutdown-Cleared",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Print-Spooler-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Remote-Assistance-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Screenlock-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Secure-NetLogon",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Svc-Browser-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Svc-Server-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-UAC-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-WDigest-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Windows-Defender-Config",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-WinRM-Basic-Digest-Auth-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-WebProxyAutoDiscovery-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-PowerShell-Logs",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Security-Logs",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-TS-Local-admins-groups",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-TS-PDC-Flush-admin-groups",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-TS-Reset-Computer-Sddl",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-RDP-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_TL",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-RDP-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "_Administration",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_T0",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "Provisioning/Computers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-RDP-NLA-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "_Administration",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_T0",
+          "Enabled": true
+        },
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "Provisioning/Computers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Smart-Card-Required",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-SMB-Signing-Configuration",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-SMB1-Audit-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-SMB1-Client-Only-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-SMB1-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-SMB1-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-SMB1-Server-Only-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-UNC-Hardened-Path",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-SSL2-SSL3-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-SSL2-SSL3-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-TLS-1_0-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-TLS-1_0-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-TLS-1_1-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-TLS-1_1-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-TLS-1_2-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-DC-Allow-Computer-Account-ReUse",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-QwantSearch",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T12/Workstations",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Applocker-Win10-11",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-CredentialManager-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-DEP-Config",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-DMA-Protection",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Drivers-Config",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Inactivity-Config",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration/PawT0",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration/PawT12L",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration/PawAccess",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LSASS-Audit",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-LSASS-Config",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-mDNS-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-NTLM-Disabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Smart-Card-Config",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-SMB-Config-24H2",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": []
+    },
+    {
+      "Name": "HAD-UAC-Advanced-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-User-Config",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration/PawT0",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration/PawT12L",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration/PawAccess",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Virtualization-Based-Protection-Enabled",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Harden_T12",
+          "Enabled": true
+        },
+        {
+          "Target": "_Administration",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "HAD-Windows-LAPS",
+      "Role": "Laps",
+      "Tier": null,
+      "Links": []
+    }
+  ],
+  "DefaultMembers": [
+    {
+      "Group": "Enterprise Admins",
+      "Members": [
+        "G-S-T0_Managers"
+      ]
+    },
+    {
+      "Group": "Protected Users",
+      "Members": [
+        "G-S-T0_Managers"
+      ]
+    },
+    {
+      "Group": "Administrators",
+      "Members": [
+        "Administrator",
+        "Domain Admins",
+        "Enterprise Admins"
+      ]
+    },
+    {
+      "Group": "Domain Admins",
+      "Members": [
+        "Administrator"
+      ]
+    }
+  ]
+}

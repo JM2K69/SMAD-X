@@ -7,9 +7,9 @@ namespace SMADX.Services
     /// <summary>Filtre d'un sélecteur de fichiers, ex. ("Fichier SMAD-X", "*.smad-x.json").</summary>
     public sealed record FileFilter(string Name, params string[] Patterns);
 
-    /// <summary>Résultat de la boîte « Nouveau domaine ».</summary>
+    /// <summary>Résultat de la boîte « Nouveau domaine » ; TierModel désigne un modèle de cloisonnement à appliquer.</summary>
     public sealed record NewDomainRequest(string DomainName, bool EnableTiering,
-        WindowsServerVersion Version = WindowsServerProfile.DefaultVersion);
+        WindowsServerVersion Version = WindowsServerProfile.DefaultVersion, string? TierModel = null);
 
     /// <summary>
     /// Fenêtres et sélecteurs de fichiers demandés par les ViewModels.
@@ -26,6 +26,9 @@ namespace SMADX.Services
 
         /// <summary>Nom et options du domaine à créer, ou null si l'utilisateur annule.</summary>
         Task<NewDomainRequest?> ShowNewDomainAsync();
+
+        /// <summary>Modèle de cloisonnement à appliquer au domaine affiché (identifiant), ou null si l'utilisateur annule.</summary>
+        Task<string?> ShowTierModelAsync(string? current);
 
         Task ShowRelationsAsync(RelationsViewModel viewModel);
 

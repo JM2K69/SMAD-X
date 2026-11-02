@@ -81,7 +81,7 @@ namespace SMADX.ViewModels
         [NotifyPropertyChangedFor(nameof(IsFreeMode), nameof(WindowTitle), nameof(CanLeaveLabMode))]
         [NotifyCanExecuteChangedFor(nameof(CreateNewDomainCommand), nameof(InitializeSampleDataCommand), nameof(LoadFromFileCommand),
                                     nameof(OpenBuiltInLabCommand), nameof(OpenLabFileCommand),
-                                    nameof(LeaveLabModeCommand))]
+                                    nameof(LeaveLabModeCommand), nameof(ApplyTierModelCommand))]
         private bool _isLabMode;
 
         public bool IsFreeMode => !IsLabMode;

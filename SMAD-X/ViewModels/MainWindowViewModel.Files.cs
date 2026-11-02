@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
 using SMADX.Services;
+using SMADX.Services.Tiering;
 
 namespace SMADX.ViewModels
 {
@@ -39,14 +40,19 @@ namespace SMADX.ViewModels
 
             // Un nouveau domaine ne doit rien hériter du document précédent (sites, tiers personnalisés)
             TierConfigurationService.Instance.ResetToDefaults();
+            var domain = _dataService.CreateFreshDomainStructure(request.DomainName, request.EnableTiering, request.Version);
+            var model = TierModelCatalog.Find(request.TierModel);
+            if (model != null)
+                TierModelService.Apply(domain, model);
             ShowDomain(new ADRootDocument
             {
                 Version = ADRootDocument.CurrentVersion,
-                Domain = _dataService.CreateFreshDomainStructure(request.DomainName, request.EnableTiering, request.Version),
+                Domain = domain,
                 SitesTopology = _dataService.CreateFreshTopology(request.DomainName)
             }, expandDefaultNodes: true);
 
-            var tieringStatus = Loc[request.EnableTiering ? "Status.WithTiering" : "Status.WithoutTiering"];
+            var tieringStatus = model != null ? string.Format(Loc["Status.WithTierModel"], model.Name)
+                : Loc[request.EnableTiering ? "Status.WithTiering" : "Status.WithoutTiering"];
             StatusMessage = string.Format(Loc["Status.DomainCreated"], request.DomainName, tieringStatus, WindowsServerProfile.For(request.Version).Name);
         }
 

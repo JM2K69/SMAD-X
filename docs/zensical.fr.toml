@@ -21,6 +21,7 @@ nav = [
   ] },
   { "Modéliser" = [
     "modelisation.md",
+    "cloisonnement.md",
     "graphe.md",
   ] },
   { "Analyser" = [

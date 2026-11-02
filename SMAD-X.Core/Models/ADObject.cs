@@ -161,6 +161,16 @@ namespace SMADX.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public WindowsServerVersion? ServerVersion { get; set; }
 
+        /// <summary>
+        /// Pour le domaine : modèle de cloisonnement en tiers appliqué (identifiant d'un <see cref="TierModelDefinition"/> :
+        /// microsoft, hardenad), et sa version. Null = aucun modèle appliqué.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? TierModel { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? TierModelVersion { get; set; }
+
         // --- Ordinateurs : LAPS, administrateurs locaux, sessions ---
 
         /// <summary>

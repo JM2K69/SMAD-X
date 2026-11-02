@@ -57,6 +57,7 @@
 - **Tier 1** : Serveurs d'infrastructure et d'applications
 - **Tier 2** : Postes de travail et utilisateurs standard
 - Couleurs configurables par tier via l'interface
+- **Modèles de cloisonnement** : appliquer le [modèle en tiers de Microsoft](https://github.com/microsoft/ActiveDirectoryTierModel) ou [HardenAD](https://github.com/LoicVeirman/HardenAD) à un domaine neuf ou existant (OU par tier, groupes et comptes d'administration, GPO, délégations), puis auditer le respect du modèle (TIER-05 à TIER-08) ; les deux modèles sont générés depuis leur version officielle, avec la source et la licence MIT citées
 
 ### 📝 Documentation Markdown intégrée
 - Chaque objet dispose d'une description Markdown enrichie avec rôle et **notes de sécurité**
@@ -145,7 +146,7 @@ Un second exécutable, livré dans la même archive ([documentation](https://jm2
 Au lancement, SMAD-X charge automatiquement un domaine `contoso.com` avec une structure AD complète et fidèle à une installation fraîche de Windows Server.
 
 ### Créer un nouveau domaine
-`Fichier > Nouveau domaine` → saisissez le FQDN (ex : `corp.local`) et choisissez si le tiering doit être activé automatiquement.
+`Fichier > Nouveau domaine` → saisissez le FQDN (ex : `corp.local`) et choisissez le cloisonnement en tiers : aucun, étiquettes Tier 0/1/2, ou un modèle publié (Microsoft ou HardenAD).
 
 ### Ajouter des objets
 - Sélectionnez un nœud parent dans l'arborescence

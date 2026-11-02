@@ -26,7 +26,9 @@ public class LabAuthoringTests
     [Fact]
     public void Recipes_CoverEveryAuditRule()
     {
-        Assert.Equal(AuditRules.All.Select(r => r.Id).Order(), LabRecipes.All.Select(r => r.RuleId).Order());
+        Assert.Equal(AuditRules.All.Select(r => r.Id).Where(id => !LabRecipes.RulesWithoutRecipe.Contains(id)).Order(),
+            LabRecipes.All.Select(r => r.RuleId).Order());
+        Assert.All(LabRecipes.RulesWithoutRecipe, id => Assert.Contains(AuditRules.All, r => r.Id == id));
     }
 
     /// <summary>Le domaine sain de chaque version de Windows Server est propre, et chaque recette y injecte son manque.</summary>

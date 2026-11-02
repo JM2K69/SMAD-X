@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SMADX.Models;
 using SMADX.Services.AttackPaths;
+using SMADX.Services.Tiering;
 using static SMADX.Services.Audit.AuditContext;
 
 namespace SMADX.Services.Audit
@@ -55,6 +56,8 @@ namespace SMADX.Services.Audit
             "https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview");
         private static readonly AuditReference MsLaps = Microsoft("Windows LAPS overview",
             "https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-overview");
+        private static readonly AuditReference MsTierModel = new(AuditFramework.Microsoft, "Active Directory Tier Model",
+            "Active Directory Tier Model (GitHub)", "https://github.com/microsoft/ActiveDirectoryTierModel");
         private static readonly AuditReference MsSilos = Microsoft("Authentication policies and authentication policy silos",
             "https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/authentication-policies-and-authentication-policy-silos");
 
@@ -556,6 +559,32 @@ namespace SMADX.Services.Audit
                     .SelectMany(m => (m.Sessions ?? []).Select(name => (m, account: c.Principal(name))))
                     .Where(x => x.account != null && IsExposedSession(c, x.account, x.m))
                     .Select(x => Finding(x.account!, x.m.Name, x.m.Tier ?? "—"))
+            },
+
+            // Conformité au modèle de cloisonnement appliqué au domaine (Microsoft, HardenAD) : rien sans modèle
+            new()
+            {
+                Id = "TIER-05", Severity = AuditSeverity.Medium,
+                References = new[] { AnssiPa099, MsTierModel, MsAccessModel, NistSeparationOfDuties },
+                Evaluate = TierModelCompliance.Missing
+            },
+            new()
+            {
+                Id = "TIER-06", Severity = AuditSeverity.Medium,
+                References = new[] { AnssiPa099, MsTierModel, MsAccessModel, CisRbac },
+                Evaluate = TierModelCompliance.Outside
+            },
+            new()
+            {
+                Id = "TIER-07", Severity = AuditSeverity.Low,
+                References = new[] { AnssiPa099, MsTierModel, NistAccountManagement },
+                Evaluate = TierModelCompliance.Waiting
+            },
+            new()
+            {
+                Id = "TIER-08", Severity = AuditSeverity.High,
+                References = new[] { AnssiPa099, MsTierModel, MsAccessModel, NistPrivilegedAccounts, NistSeparationOfDuties },
+                Evaluate = TierModelCompliance.PrivilegedOutsideTier0
             },
             new()
             {

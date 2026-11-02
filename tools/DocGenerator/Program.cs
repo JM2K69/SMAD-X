@@ -378,6 +378,7 @@ sealed class CaptureDialogs : IDialogService
     public void ShowComparison(ComparisonViewModel viewModel) => Comparison = viewModel;
     public void ShowAttackPaths(AttackPathsViewModel viewModel) => AttackPaths = viewModel;
     public Task ShowTierConfigurationAsync() => Task.CompletedTask;
+    public Task<string?> ShowTierModelAsync(string? current) => Task.FromResult<string?>(null);
     public Task ShowTimelineAsync() => Task.CompletedTask;
     public Task ShowDelegationsAsync(ADObject? root) => Task.CompletedTask;
     public Task ShowSitesAsync(ADSitesTopology? topology) => Task.CompletedTask;

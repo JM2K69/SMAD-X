@@ -85,6 +85,7 @@
                     </MenuItem>
                 <MenuItem Header="{Binding MenuSettings}">
                     <MenuItem Header="{Binding MenuSettingsManageTiers}" Command="{Binding #MainWindowRoot.DataContext.ShowTierConfigurationCommand}"/>
+                    <MenuItem Header="{Binding MenuSettingsApplyTierModel}" Command="{Binding #MainWindowRoot.DataContext.ApplyTierModelCommand}"/>
                 </MenuItem>
                 <MenuItem Header="{Binding MenuAnalyse}">
                     <MenuItem Header="{Binding MenuAnalyseAudit}" Command="{Binding #MainWindowRoot.DataContext.ShowAuditCommand}" InputGesture="Ctrl+Shift+A"/>
@@ -817,6 +818,12 @@
                                                     <TextBlock DockPanel.Dock="Right" Width="120" VerticalAlignment="Center" FontWeight="SemiBold" TextWrapping="Wrap"
                                                                Text="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.ServerVersionName}"/>
                                                     <TextBlock Text="{Binding DomainServerVersion}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                                </DockPanel>
+                                                <!-- Domaine seulement : modèle de cloisonnement appliqué -->
+                                                <DockPanel Margin="0,6,0,0" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.TierModelName, Converter={x:Static StringConverters.IsNotNullOrEmpty}, FallbackValue=False}">
+                                                    <TextBlock DockPanel.Dock="Right" Width="120" VerticalAlignment="Center" FontWeight="SemiBold" TextWrapping="Wrap"
+                                                               Text="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.TierModelName}"/>
+                                                    <TextBlock Text="{Binding DomainTierModel}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                                 </DockPanel>
                                             </StackPanel>
                                         </StackPanel>

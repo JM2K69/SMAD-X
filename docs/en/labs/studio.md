@@ -24,7 +24,7 @@ Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the 
 
 ![Choosing the recommendation](../assets/screens/studio-recipe.png)
 
-Each audit rule has its recipe, with the matching ANSSI control point and its level (N1 to N4). The list can be filtered by rule id, ANSSI point or title word. Choose the lab language, the Windows Server version that promoted the domain (2019, 2022 or 2025) and the domain name: Studio builds a realistic directory (departments, users, workstations), checks that it is healthy, then injects **only** the chosen misconfiguration. This starting domain comes from a new AD that Studio hardens: built-in accounts fixed, a 12-character password policy with lockout, a join quota of 0, delegation groups for the service desk and IT.
+Each audit rule has its recipe (except TIER-05 to TIER-08, which need a domain already tiered by a model), with the matching ANSSI control point and its level (N1 to N4). The list can be filtered by rule id, ANSSI point or title word. Choose the lab language, the Windows Server version that promoted the domain (2019, 2022 or 2025) and the domain name: Studio builds a realistic directory (departments, users, workstations), checks that it is healthy, then injects **only** the chosen misconfiguration. This starting domain comes from a new AD that Studio hardens: built-in accounts fixed, a 12-character password policy with lockout, a join quota of 0, delegation groups for the service desk and IT.
 
 #### Combining several recommendations
 

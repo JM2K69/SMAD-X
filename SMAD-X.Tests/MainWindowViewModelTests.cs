@@ -27,6 +27,8 @@ internal sealed class FakeDialogService : IDialogService
     }
 
     public Task<NewDomainRequest?> ShowNewDomainAsync() => Task.FromResult(NewDomain);
+    public string? TierModel { get; set; }
+    public Task<string?> ShowTierModelAsync(string? current) => Task.FromResult(TierModel);
 
     public Task ShowRelationsAsync(RelationsViewModel viewModel)
     {
@@ -113,6 +115,40 @@ public class MainWindowViewModelTests
         Assert.Equal(hasOpenSsh, TestHelpers.Flatten(_vm.RootObject).Any(o => o.Name == "OpenSSH Users"));
         Assert.Contains(WindowsServerProfile.For(version).Name, _vm.StatusMessage);
         Assert.Equal(WindowsServerProfile.For(version).Name, new PasswordPolicyViewModel(_vm.RootObject).ServerVersionName);
+    }
+
+    [Fact]
+    public async Task CreateNewDomain_WithATierModel_AppliesIt()
+    {
+        _dialogs.NewDomain = new NewDomainRequest("corp.local", EnableTiering: true, TierModel: "hardenad");
+
+        await _vm.CreateNewDomainCommand.ExecuteAsync(null);
+
+        Assert.Equal("hardenad", _vm.RootObject!.TierModel);
+        Assert.Contains(_vm.RootObject.Children, o => o.Name == "Harden_T0");
+        Assert.Contains("HardenAD", _vm.StatusMessage);
+        Assert.StartsWith("HardenAD (", new PasswordPolicyViewModel(_vm.RootObject).TierModelName);
+    }
+
+    [Fact]
+    public async Task ApplyTierModel_AddsTheModelToTheDomain_InOneUndoableStep()
+    {
+        _dialogs.NewDomain = new NewDomainRequest("corp.local", EnableTiering: true);
+        await _vm.CreateNewDomainCommand.ExecuteAsync(null);
+        _dialogs.TierModel = "microsoft";
+
+        await _vm.ApplyTierModelCommand.ExecuteAsync(null);
+
+        Assert.Equal("microsoft", _vm.RootObject!.TierModel);
+        Assert.Contains(_vm.RootNodes[0].Children, n => n.Data.Name == "Tier Model Administration");
+        Assert.Contains("Microsoft", _vm.StatusMessage);
+
+        await _vm.ApplyTierModelCommand.ExecuteAsync(null);
+        Assert.Contains("Microsoft", _vm.StatusMessage); // déjà en place : rien à ajouter
+
+        _vm.UndoCommand.Execute(null);
+        Assert.Null(_vm.RootObject!.TierModel);
+        Assert.DoesNotContain(_vm.RootObject.Children, o => o.Name == "Tier Model Administration");
     }
 
     [Fact]

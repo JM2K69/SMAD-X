@@ -42,5 +42,12 @@ Audit rules, sheets and attack paths rely on these references. Each rule cites i
 - [Least-privilege administrative models](https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models)
 - [Group managed service accounts (gMSA)](https://learn.microsoft.com/en-us/windows-server/security/group-managed-service-accounts/group-managed-service-accounts-overview)
 
+## Tiering models
+
+The two models SMAD-X applies (see [Tiering models](../tiering.md)), reproduced from a published version, under the MIT license:
+
+- [Microsoft Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel) v2.1.0, Copyright (c) Microsoft Corporation: rules TIER-05 to TIER-08.
+- [HardenAD](https://github.com/LoicVeirman/HardenAD) 2.9.9, Copyright (c) 2021 HardenAD.
+
 !!! note
     SMAD-X **estimates** an ANSSI-style level: it is neither ANSSI's ADS tool nor an official audit.

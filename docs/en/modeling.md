@@ -110,3 +110,5 @@ Every object is classified in a tier, following Microsoft's administration model
 | **Tier 2** | workstations and users |
 
 **Settings > Manage Tiers...** changes names, levels and colors. The audit checks tiering: an object must not be a member of a more sensitive group (TIER-01), nor receive a delegation over a more sensitive object (TIER-03).
+
+**Settings > Apply a tiering model...** applies Microsoft's model or HardenAD's to the domain: its OUs per tier, its administration groups and accounts, its GPOs and its delegations. The audit then checks that the domain follows it (TIER-05 to TIER-08). See [Tiering models](tiering.md).

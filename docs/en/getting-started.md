@@ -21,7 +21,7 @@
 
 === "Create a domain"
 
-    **File > New Domain...** (`Ctrl+N`), enter the DNS name (for example `corp.local`), choose the Windows Server version of the first domain controller (2019, 2022 or 2025) and whether to apply tier classification. SMAD-X creates the AD DS that this version installs, without any change:
+    **File > New Domain...** (`Ctrl+N`), enter the DNS name (for example `corp.local`), choose the Windows Server version of the first domain controller (2019, 2022 or 2025) and the tiering. SMAD-X creates the AD DS that this version installs, without any change:
 
     - the Builtin container (all its groups: Administrators, Account Operators, Print Operators, Pre-Windows 2000 Compatible Access…), Users (built-in accounts and groups), Computers, ForeignSecurityPrincipals, Keys, LostAndFound, Managed Service Accounts, Program Data, Infrastructure, NTDS Quotas, TPM Devices;
     - System, with AdminSDHolder, Password Settings Container and Policies (Default Domain Policy and Default Domain Controllers Policy);
@@ -31,6 +31,8 @@
     - the join quota: any user can join 10 computers to the domain (ms-DS-MachineAccountQuota).
 
     Nothing is hardened: auditing a new domain shows what an installation leaves to fix.
+
+    Tiering classifies the built-in objects in tiers 0, 1 and 2 (**Tier 0, 1 and 2 labels**), or also creates the structure of a published model, Microsoft's or HardenAD's: see [Tiering models](tiering.md).
 
 === "Open a file"
 

@@ -57,6 +57,7 @@ namespace SMADX.Helpers
         // Menu Settings
         public string MenuSettings => _localizationService["Menu.Settings"];
         public string MenuSettingsManageTiers => _localizationService["Menu.Settings.ManageTiers"];
+        public string MenuSettingsApplyTierModel => _localizationService["Menu.Settings.ApplyTierModel"];
 
         // Toolbar
         public string ToolbarOU => _localizationService["Toolbar.OU"];
@@ -107,6 +108,7 @@ namespace SMADX.Helpers
         public string PolicyObservation => _localizationService["Policy.Observation"];
         public string DomainMachineAccountQuota => _localizationService["Domain.MachineAccountQuota"];
         public string DomainServerVersion => _localizationService["Domain.ServerVersion"];
+        public string DomainTierModel => _localizationService["Domain.TierModel"];
         public string SecurityAccountDisabled => _localizationService["Security.AccountDisabled"];
         public string SecurityPasswordNotRequired => _localizationService["Security.PasswordNotRequired"];
         public string SecurityPasswordNeverExpires => _localizationService["Security.PasswordNeverExpires"];
@@ -240,7 +242,13 @@ namespace SMADX.Helpers
         public string DialogNewDomainDescription => _localizationService["Dialog.NewDomain.Description"];
         public string DialogNewDomainDomainName => _localizationService["Dialog.NewDomain.DomainName"];
         public string DialogNewDomainDomainPlaceholder => _localizationService["Dialog.NewDomain.DomainPlaceholder"];
-        public string DialogNewDomainEnableTiering => _localizationService["Dialog.NewDomain.EnableTiering"];
+        public string DialogNewDomainTiering => _localizationService["Dialog.NewDomain.Tiering"];
+        public string DialogTierModelTitle => _localizationService["Dialog.TierModel.Title"];
+        public string DialogTierModelDescription => _localizationService["Dialog.TierModel.Description"];
+        public string DialogTierModelModel => _localizationService["Dialog.TierModel.Model"];
+        public string DialogTierModelSource => _localizationService["Dialog.TierModel.Source"];
+        public string DialogTierModelNotes => _localizationService["Dialog.TierModel.Notes"];
+        public string DialogTierModelApply => _localizationService["Dialog.TierModel.Apply"];
         public string DialogNewDomainTieringTooltip => _localizationService["Dialog.NewDomain.TieringTooltip"];
         public string DialogNewDomainServerVersion => _localizationService["Dialog.NewDomain.ServerVersion"];
         public string DialogNewDomainServerVersionTooltip => _localizationService["Dialog.NewDomain.ServerVersionTooltip"];

@@ -13,6 +13,7 @@ namespace SMADX.Services
         public Task<string?> PickSaveFileAsync(string title, string suggestedFileName, string defaultExtension, params FileFilter[] filters) => Task.FromResult<string?>(null);
         public Task<string?> PickOpenFileAsync(string title, params FileFilter[] filters) => Task.FromResult<string?>(null);
         public Task<NewDomainRequest?> ShowNewDomainAsync() => Task.FromResult<NewDomainRequest?>(null);
+        public Task<string?> ShowTierModelAsync(string? current) => Task.FromResult<string?>(null);
         public Task ShowRelationsAsync(RelationsViewModel viewModel) => Task.CompletedTask;
         public void ShowGraph(GraphViewModel viewModel) { }
         public void ShowAudit(AuditViewModel viewModel) { }

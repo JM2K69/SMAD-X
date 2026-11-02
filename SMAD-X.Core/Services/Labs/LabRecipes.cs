@@ -46,6 +46,13 @@ namespace SMADX.Services.Labs
     {
         private static LocalizedText L(string fr, string en) => LocalizedText.Of(fr, en);
 
+        /// <summary>
+        /// Règles sans recette : la conformité à un modèle de cloisonnement publié (TIER-05 à TIER-08). Leur manque
+        /// n'existe que dans un domaine déjà cloisonné selon le modèle, ce que le domaine sain des recettes n'est pas,
+        /// et leur correction déplace des objets.
+        /// </summary>
+        public static readonly IReadOnlySet<string> RulesWithoutRecipe = new HashSet<string> { "TIER-05", "TIER-06", "TIER-07", "TIER-08" };
+
         // ─── Emplacements, créés au besoin ───────────────────────────────────────
 
         private static ADObject OuNamed(LabDomainBuilder b, ADObject d, string fr, string en, string tier) =>

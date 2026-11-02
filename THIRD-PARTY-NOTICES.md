@@ -50,6 +50,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## Tier models / Modèles de cloisonnement
+
+SMAD-X includes the structure (names, locations, GPO links and delegated rights) of two published Active Directory tier models, generated from a pinned release by `tools/TierModelGenerator` (`SMAD-X.Core/TierModels/*.json`). Both are under the MIT License above.
+
+SMAD-X reprend la structure (noms, emplacements, liens de GPO et droits délégués) de deux modèles de cloisonnement d'Active Directory publiés, générée depuis une version figée par `tools/TierModelGenerator` (`SMAD-X.Core/TierModels/*.json`). Les deux sont sous la licence MIT ci-dessus.
+
+| Model | Version (commit) | License | Copyright | Project |
+|---|---|---|---|---|
+| Active Directory Tier Model | v2.1.0 (`6be6b820d824def06c951805f04816d14c6471ef`) | MIT | Copyright (c) Microsoft Corporation. | https://github.com/microsoft/ActiveDirectoryTierModel |
+| HardenAD | HardenAD-2.9.9v2 (`bbe9474fc396d642988c874a1d6b1442f718c5a7`) | MIT | Copyright (c) 2021 HardenAD | https://github.com/LoicVeirman/HardenAD |
+
 ## Fonts / Polices
 
 | Font | License | Copyright |

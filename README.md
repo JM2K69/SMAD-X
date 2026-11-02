@@ -61,6 +61,7 @@
 - **Tier 1**: Infrastructure and application servers
 - **Tier 2**: Workstations and standard users
 - Per-tier colors configurable through the UI
+- **Tiering models**: apply [Microsoft's Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel) or [HardenAD](https://github.com/LoicVeirman/HardenAD) to a new or existing domain (OUs per tier, administration groups and accounts, GPOs, delegations), then audit compliance with the model (TIER-05 to TIER-08); both models are generated from their official release, with source and MIT license cited
 
 ### 📝 Built-in Markdown Documentation
 - Every object has a rich Markdown description with role and **security notes**
@@ -150,7 +151,7 @@ A second executable, shipped in the same archive ([documentation](https://jm2k69
 On launch, SMAD-X automatically loads a `contoso.com` domain with a complete AD structure faithful to a fresh Windows Server installation.
 
 ### Create a New Domain
-`File > New Domain` → enter the FQDN (e.g. `corp.local`) and choose whether tiering should be assigned automatically.
+`File > New Domain` → enter the FQDN (e.g. `corp.local`) and choose the tiering: none, Tier 0/1/2 labels, or a published model (Microsoft or HardenAD).
 
 ### Add Objects
 - Select a parent node in the tree

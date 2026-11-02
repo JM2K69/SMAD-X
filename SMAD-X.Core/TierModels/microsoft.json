@@ -1,0 +1,2566 @@
+{
+  "Id": "microsoft",
+  "Name": "Microsoft Active Directory Tier Model",
+  "Source": {
+    "Repository": "https://github.com/microsoft/ActiveDirectoryTierModel",
+    "Version": "v2.1.0",
+    "Commit": "6be6b820d824def06c951805f04816d14c6471ef",
+    "License": "MIT",
+    "Copyright": "Copyright (c) Microsoft Corporation.",
+    "Files": [
+      "config/tiermodel-ous.json",
+      "config/tiermodel-groups.json",
+      "config/tiermodel-users.json",
+      "config/tiermodel-acls.json",
+      "config/tiermodel-gpos.json",
+      "LICENSE"
+    ],
+    "Notes": [
+      {
+        "Fr": "Composants optionnels non repris : MSA, gMSA et dMSA (-IncludeMsa\u2026), Windows LAPS (-IncludeWinLaps), silos d\u0027authentification (-IncludeAuthSilos).",
+        "En": "Optional components not included: MSA, gMSA and dMSA (-IncludeMsa\u2026), Windows LAPS (-IncludeWinLaps), authentication silos (-IncludeAuthSilos)."
+      },
+      {
+        "Fr": "Le pr\u00E9fixe \u00AB *- \u00BB des noms de GPO est retir\u00E9.",
+        "En": "The \u0022*- \u0022 prefix of GPO names is removed."
+      },
+      {
+        "Fr": "Les GPO sont reprises par leur nom, leur r\u00F4le et leurs liens ; leurs param\u00E8tres ne sont pas mod\u00E9lis\u00E9s.",
+        "En": "GPOs are included by name, role and links; their settings are not modelled."
+      },
+      {
+        "Fr": "Les liens de GPO que le mod\u00E8le cr\u00E9e d\u00E9sactiv\u00E9s restent d\u00E9sactiv\u00E9s.",
+        "En": "GPO links the model creates disabled stay disabled."
+      }
+    ]
+  },
+  "Tiers": [
+    {
+      "Name": "Tier 0",
+      "Level": 0,
+      "Color": "#C0392B",
+      "Description": "Administration et contr\u00F4le de domaine"
+    },
+    {
+      "Name": "Tier 1",
+      "Level": 1,
+      "Color": "#E67E22",
+      "Description": "Serveurs et infrastructure"
+    },
+    {
+      "Name": "Tier 2",
+      "Level": 2,
+      "Color": "#27AE60",
+      "Description": "Postes de travail utilisateurs"
+    }
+  ],
+  "OrganizationalUnits": [
+    {
+      "Path": "Tier 0 Member Servers",
+      "Tier": "Tier 0",
+      "Role": "Servers",
+      "Description": "Tier 0: Member server objects"
+    },
+    {
+      "Path": "Tier 0 Member Servers/Tier 0 Server Staging",
+      "Tier": "Tier 0",
+      "Role": "Staging",
+      "Description": "Tier 0: Staging server objects"
+    },
+    {
+      "Path": "Tier 1 Member Servers",
+      "Tier": "Tier 1",
+      "Role": "Servers",
+      "Description": "Tier 1: Member server objects"
+    },
+    {
+      "Path": "Tier 1 Member Servers/Tier 1 Server Staging",
+      "Tier": "Tier 1",
+      "Role": "Staging",
+      "Description": "Tier 1: Staging server objects"
+    },
+    {
+      "Path": "Tier 2 End-User Accounts",
+      "Tier": "Tier 2",
+      "Role": "Users",
+      "Description": "Tier 2: End-User Accounts"
+    },
+    {
+      "Path": "Tier 2 End-User Accounts/Disabled End-Users Accounts",
+      "Tier": "Tier 2",
+      "Role": "Disabled",
+      "Description": "Tier 2: Disabled End-User Accounts"
+    },
+    {
+      "Path": "Tier 2 End-User Devices",
+      "Tier": "Tier 2",
+      "Role": "Workstations",
+      "Description": "Tier 2: End-User Devices"
+    },
+    {
+      "Path": "Tier 2 End-User Devices/Disabled End-User Devices",
+      "Tier": "Tier 2",
+      "Role": "Disabled",
+      "Description": "Tier 2: Disabled End-User Devices"
+    },
+    {
+      "Path": "Tier 2 End-User Groups",
+      "Tier": "Tier 2",
+      "Role": "Groups",
+      "Description": "Tier 2: End-User Groups"
+    },
+    {
+      "Path": "Tier 2 End-User Groups/Contacts",
+      "Tier": "Tier 2",
+      "Role": "Contacts",
+      "Description": "Tier 2: End-User Contacts"
+    },
+    {
+      "Path": "Tier 2 End-User Groups/Distribution Groups",
+      "Tier": "Tier 2",
+      "Role": "Groups",
+      "Description": "Tier 2: End-User Distribution Groups"
+    },
+    {
+      "Path": "Tier 2 End-User Groups/Security Groups",
+      "Tier": "Tier 2",
+      "Role": "Groups",
+      "Description": "Tier 2: End-User Security Groups"
+    },
+    {
+      "Path": "Tier Model Administration",
+      "Tier": null,
+      "Role": "Container",
+      "Description": "Tier Model Objects"
+    },
+    {
+      "Path": "Tier Model Administration/PAW Staging",
+      "Tier": null,
+      "Role": "Staging",
+      "Description": "PAW Staging Objects"
+    },
+    {
+      "Path": "Tier Model Administration/PAW VPN Accounts",
+      "Tier": null,
+      "Role": "AdminAccounts",
+      "Description": "PAW VPN Accounts, OU can be synced to Cloud for MFA"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 0",
+      "Tier": "Tier 0",
+      "Role": "Container",
+      "Description": "Tier 0: Accounts, Groups, Devices, and Service Accounts"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Accounts",
+      "Tier": "Tier 0",
+      "Role": "AdminAccounts",
+      "Description": "Tier 0: Accounts"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Groups",
+      "Tier": "Tier 0",
+      "Role": "AdminGroups",
+      "Description": "Tier 0: Groups"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+      "Tier": "Tier 0",
+      "Role": "AdminWorkstations",
+      "Description": "Tier 0: PAW Devices"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Service Accounts",
+      "Tier": "Tier 0",
+      "Role": "ServiceAccounts",
+      "Description": "Tier 0: Service Accounts"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 1",
+      "Tier": "Tier 1",
+      "Role": "Container",
+      "Description": "Tier 1: Accounts, Groups, Devices, and Service Accounts"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Accounts",
+      "Tier": "Tier 1",
+      "Role": "AdminAccounts",
+      "Description": "Tier 1: Accounts"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Tier": "Tier 1",
+      "Role": "AdminGroups",
+      "Description": "Tier 1: Groups"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+      "Tier": "Tier 1",
+      "Role": "AdminWorkstations",
+      "Description": "Tier 1: PAW Devices"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Service Accounts",
+      "Tier": "Tier 1",
+      "Role": "ServiceAccounts",
+      "Description": "Tier 1: Service Accounts"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 2",
+      "Tier": "Tier 2",
+      "Role": "Container",
+      "Description": "Tier 2: Accounts, Groups, Devices, and Service Accounts"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Accounts",
+      "Tier": "Tier 2",
+      "Role": "AdminAccounts",
+      "Description": "Tier 2: Accounts"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Role": "AdminGroups",
+      "Description": "Tier 2: Groups"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+      "Tier": "Tier 2",
+      "Role": "AdminWorkstations",
+      "Description": "Tier 2: PAW Devices"
+    },
+    {
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Service Accounts",
+      "Tier": "Tier 2",
+      "Role": "ServiceAccounts",
+      "Description": "Tier 2: Service Accounts"
+    },
+    {
+      "Path": "Tier Model Computer Quarantine",
+      "Tier": null,
+      "Role": "Quarantine",
+      "Description": "Tier Model Computer Quarantine (Redirected ComputerOU)"
+    }
+  ],
+  "Groups": [
+    {
+      "Name": "PAWDomainJoin",
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Groups",
+      "Tier": "Tier 0",
+      "Scope": "Global",
+      "Description": "Members of this group are delegated rights to join machines to the domain in the Tier Model PAW Staging OU",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier0Admins",
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Groups",
+      "Tier": "Tier 0",
+      "Scope": "Global",
+      "Description": "Members of this group administer Tier 0, 1, and 2 resources",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier0MemberServers",
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Groups",
+      "Tier": "Tier 0",
+      "Scope": "Universal",
+      "Description": "Members of this group required to participate in Tier 0 AuthSilo Policies and IPSec Require RDP and WinRM between Tier 0 PAW Devices to Domain Controllers and Tier 0 Member Servers.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier0Operators",
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Groups",
+      "Tier": "Tier 0",
+      "Scope": "Global",
+      "Description": "Members of this group are delegated rights to log on to Tier 0 PAWs",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier0PAWDevices",
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Groups",
+      "Tier": "Tier 0",
+      "Scope": "Universal",
+      "Description": "Members of this group required to participate in Tier 0 AuthSilo Policies and IPSec Require RDP and WinRM between Tier 0 PAW Devices to Domain Controllers and Tier 0 Member Servers.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier0ServerOperators",
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Groups",
+      "Tier": "Tier 0",
+      "Scope": "Global",
+      "Description": "Members of this group are members of the local Administrators group on all Tier 0 Member Servers",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier0ServiceAccounts",
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Groups",
+      "Tier": "Tier 0",
+      "Scope": "Global",
+      "Description": "Members of this group are service accounts within Tier 0 that should be denied outside Tier 0.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier0VpnAccounts",
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Groups",
+      "Tier": "Tier 0",
+      "Scope": "Global",
+      "Description": "Members of this group are only allowed VPN connectivity from a Tier 0 PAW device.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier1Admins",
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Tier": "Tier 1",
+      "Scope": "Global",
+      "Description": "Members of this group can administer Tier 1 objects",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier1MemberServers",
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Tier": "Tier 1",
+      "Scope": "Universal",
+      "Description": "Members of this group required to participate in Tier 1 AuthSilo Policies IPSec Require RDP and WinRM between Tier 1 PAW Devices to Tier 1 Member Servers.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier1Operators",
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Tier": "Tier 1",
+      "Scope": "Global",
+      "Description": "Members of this group can log on to Tier 1 PAWs",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier1PAWDevices",
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Tier": "Tier 1",
+      "Scope": "Universal",
+      "Description": "Members of this group required to participate in Tier 1 AuthSilo Policies IPSec Require RDP and WinRM between Tier 1 PAW Devices to Tier 1 Member Servers.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier1ServerDomainJoin",
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Tier": "Tier 1",
+      "Scope": "Global",
+      "Description": "Members of this group are delegated rights to join machines to the domain in the Tier Model Tier 1 Servers Staging OU.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier1ServerOperators",
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Tier": "Tier 1",
+      "Scope": "Global",
+      "Description": "Members of this group are administrators of Tier 1 Servers",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier1ServiceAccounts",
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Tier": "Tier 1",
+      "Scope": "Global",
+      "Description": "Members of this group are service accounts within Tier 1 that should be denied outside Tier 1.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier1VpnAccounts",
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Tier": "Tier 1",
+      "Scope": "Global",
+      "Description": "Members of this group are only allowed VPN connectivity from a Tier 1 PAW device.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2AccountOperators",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group can create, modify and delete End-User user objects in the Tier 2 End-User Accounts OU.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2Admins",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group can administer Tier 2 Objects",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2ComputerQuarantineOperators",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group can log on to quarantine devices. This group must not be a member of Tier 2 Operators",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2DeviceOperators",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group can create, modify and delete End-User computer objects in the Tier 2 End-User device OU.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2EUDDevices",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Universal",
+      "Description": "Members of this group required to participate in Tier 2 AuthSilo Policies for Tier 2 End-User Devices.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2EUDDomainJoin",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group are delegated rights to join machines to the domain in the Tier Model Tier 2 End-User Devices OU.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2GroupOperators",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group can create, modify and delete Tier 2 Groups in the Tier 2 End-User Groups OU.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2HelpdeskOperators",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group are Help Desk Operators for Tier 2 and can reset passwords and unlock accounts for End-User accounts in Tier 2.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2LocalDeviceOperators",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group can log on to Tier Model End-User devices to perform local administrative tasks. This group must not be a member of Tier 2 Operators.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2Operators",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group can log on to Tier 2 PAWs",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2PAWDevices",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Universal",
+      "Description": "Members of this group required to participate in Tier 2 AuthSilo Policies for Tier 2 PAW Devices.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2ServiceAccounts",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group are service accounts within Tier 2 that should be denied outside Tier 2.",
+      "MemberOf": []
+    },
+    {
+      "Name": "Tier2VpnAccounts",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Tier": "Tier 2",
+      "Scope": "Global",
+      "Description": "Members of this group are only allowed VPN connectivity from a Tier 2 PAW device.",
+      "MemberOf": []
+    }
+  ],
+  "Accounts": [
+    {
+      "Name": "svc-pawdomainjoin",
+      "Path": "Tier Model Administration/Tier 0/Tier 0 Service Accounts",
+      "Tier": "Tier 0",
+      "Enabled": false,
+      "Description": "This account has the rights to domain join to the PAW Staging OU",
+      "MemberOf": [
+        "PAWDomainJoin"
+      ]
+    },
+    {
+      "Name": "svc-t1srvdomainjoin",
+      "Path": "Tier Model Administration/Tier 1/Tier 1 Service Accounts",
+      "Tier": "Tier 1",
+      "Enabled": false,
+      "Description": "This account has the rights to domain join to the Tier Model Tier 1 Servers Staging OU.",
+      "MemberOf": [
+        "Tier1ServerDomainJoin"
+      ]
+    },
+    {
+      "Name": "svc-t2euddomainjoin",
+      "Path": "Tier Model Administration/Tier 2/Tier 2 Service Accounts",
+      "Tier": "Tier 2",
+      "Enabled": false,
+      "Description": "This account has the rights to domain join to the Tier Model Tier 2 End-User Devices OU.",
+      "MemberOf": [
+        "Tier2EUDDomainJoin"
+      ]
+    }
+  ],
+  "Delegations": [
+    {
+      "Trustee": "Tier0Admins",
+      "Target": "Tier 0 Member Servers",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll/CreateChild/DeleteChild Computer"
+    },
+    {
+      "Trustee": "Tier0Admins",
+      "Target": "Tier 0 Member Servers",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "GenericAll/CreateChild/DeleteChild Computer"
+    },
+    {
+      "Trustee": "Tier0Admins",
+      "Target": "Tier 0 Member Servers",
+      "Right": "CreateChild:organizationalunit",
+      "Category": "Other",
+      "SourceRights": "GenericAll/CreateChild/DeleteChild OrganizationalUnit"
+    },
+    {
+      "Trustee": "Tier0ServerOperators",
+      "Target": "Tier 0 Member Servers/Tier 0 Server Staging",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/WriteProperty/ReadProperty Computer"
+    },
+    {
+      "Trustee": "Tier0ServerOperators",
+      "Target": "Tier 0 Member Servers/Tier 0 Server Staging",
+      "Right": "WriteProperty",
+      "Category": "GenericWrite",
+      "SourceRights": "CreateChild/WriteProperty/ReadProperty Computer"
+    },
+    {
+      "Trustee": "Tier0ServerOperators",
+      "Target": "Tier 0 Member Servers/Tier 0 Server Staging",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier0ServerOperators",
+      "Target": "Tier 0 Member Servers/Tier 0 Server Staging",
+      "Right": "Self:DnsHostname",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight DnsHostname"
+    },
+    {
+      "Trustee": "Tier0ServerOperators",
+      "Target": "Tier 0 Member Servers/Tier 0 Server Staging",
+      "Right": "Self:WriteSPN",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight WriteSPN"
+    },
+    {
+      "Trustee": "Tier0Admins",
+      "Target": "Tier 0 Member Servers",
+      "Right": "ReadProperty:msFVE-RecoveryPassword",
+      "Category": "Other",
+      "SourceRights": "ReadProperty BitLockerKeyPackage"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier 1 Member Servers",
+      "Right": "CreateChild:organizationalunit",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild OrganizationalUnit"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier 1 Member Servers",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll OrganizationalUnit"
+    },
+    {
+      "Trustee": "Tier1ServerDomainJoin",
+      "Target": "Tier 1 Member Servers/Tier 1 Server Staging",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/WriteProperty/ReadProperty Computer"
+    },
+    {
+      "Trustee": "Tier1ServerDomainJoin",
+      "Target": "Tier 1 Member Servers/Tier 1 Server Staging",
+      "Right": "WriteProperty",
+      "Category": "GenericWrite",
+      "SourceRights": "CreateChild/WriteProperty/ReadProperty Computer"
+    },
+    {
+      "Trustee": "Tier1ServerDomainJoin",
+      "Target": "Tier 1 Member Servers/Tier 1 Server Staging",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier1ServerDomainJoin",
+      "Target": "Tier 1 Member Servers/Tier 1 Server Staging",
+      "Right": "Self:DnsHostname",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight DnsHostname"
+    },
+    {
+      "Trustee": "Tier1ServerDomainJoin",
+      "Target": "Tier 1 Member Servers/Tier 1 Server Staging",
+      "Right": "Self:WriteSPN",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight WriteSPN"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier 1 Member Servers",
+      "Right": "ReadProperty:msFVE-RecoveryPassword",
+      "Category": "Other",
+      "SourceRights": "ReadProperty BitLockerKeyPackage"
+    },
+    {
+      "Trustee": "Tier2AccountOperators",
+      "Target": "Tier 2 End-User Accounts",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier2AccountOperators",
+      "Target": "Tier 2 End-User Accounts",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild User"
+    },
+    {
+      "Trustee": "Tier2AccountOperators",
+      "Target": "Tier 2 End-User Accounts",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll User"
+    },
+    {
+      "Trustee": "Tier2AccountOperators",
+      "Target": "Tier 2 End-User Accounts",
+      "Right": "CreateChild:organizationalunit",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild OrganizationalUnit"
+    },
+    {
+      "Trustee": "Tier2HelpdeskOperators",
+      "Target": "Tier 2 End-User Accounts",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier2HelpdeskOperators",
+      "Target": "Tier 2 End-User Accounts",
+      "Right": "WriteProperty:lockoutTime",
+      "Category": "AccountUnlock",
+      "SourceRights": "ReadProperty/WriteProperty LockoutTime"
+    },
+    {
+      "Trustee": "Tier2HelpdeskOperators",
+      "Target": "Tier 2 End-User Accounts",
+      "Right": "WriteProperty:userAccountControl",
+      "Category": "AttributeWrite",
+      "SourceRights": "ReadProperty/WriteProperty UserAccountOption"
+    },
+    {
+      "Trustee": "Tier2HelpdeskOperators",
+      "Target": "Tier 2 End-User Accounts",
+      "Right": "WriteProperty",
+      "Category": "GenericWrite",
+      "SourceRights": "WriteProperty User"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "CreateChild:organizationalunit",
+      "Category": "Other",
+      "SourceRights": "CreateChild OrganizationalUnit"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/DeleteChild Computer"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Computer"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "ReadProperty:msFVE-RecoveryPassword",
+      "Category": "Other",
+      "SourceRights": "ReadProperty BitLockerKeyPackage"
+    },
+    {
+      "Trustee": "Tier2HelpdeskOperators",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "ReadProperty:msFVE-RecoveryPassword",
+      "Category": "Other",
+      "SourceRights": "ReadProperty BitLockerKeyPackage"
+    },
+    {
+      "Trustee": "Tier2HelpdeskOperators",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
+    },
+    {
+      "Trustee": "Tier2EUDDomainJoin",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/WriteProperty/ReadProperty Computer"
+    },
+    {
+      "Trustee": "Tier2EUDDomainJoin",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "WriteProperty",
+      "Category": "GenericWrite",
+      "SourceRights": "CreateChild/WriteProperty/ReadProperty Computer"
+    },
+    {
+      "Trustee": "Tier2EUDDomainJoin",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier2EUDDomainJoin",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "Self:DnsHostname",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight DnsHostname"
+    },
+    {
+      "Trustee": "Tier2EUDDomainJoin",
+      "Target": "Tier 2 End-User Devices",
+      "Right": "Self:WriteSPN",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight WriteSPN"
+    },
+    {
+      "Trustee": "Tier2GroupOperators",
+      "Target": "Tier 2 End-User Groups/Contacts",
+      "Right": "CreateChild:contact",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild Contact"
+    },
+    {
+      "Trustee": "Tier2GroupOperators",
+      "Target": "Tier 2 End-User Groups/Contacts",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
+    },
+    {
+      "Trustee": "Tier2GroupOperators",
+      "Target": "Tier 2 End-User Groups",
+      "Right": "CreateChild:group",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild Group"
+    },
+    {
+      "Trustee": "Tier2GroupOperators",
+      "Target": "Tier 2 End-User Groups",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Group"
+    },
+    {
+      "Trustee": "Tier2GroupOperators",
+      "Target": "Tier 2 End-User Groups",
+      "Right": "CreateChild:organizationalunit",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild OrganizationalUnit"
+    },
+    {
+      "Trustee": "Tier0Admins",
+      "Target": "Tier Model Administration",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll/CreateChild/DeleteChild AllObjectClasses"
+    },
+    {
+      "Trustee": "Tier0Admins",
+      "Target": "Tier Model Administration",
+      "Right": "CreateChild:allobjectclasses",
+      "Category": "Other",
+      "SourceRights": "GenericAll/CreateChild/DeleteChild AllObjectClasses"
+    },
+    {
+      "Trustee": "PAWDomainJoin",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Computer"
+    },
+    {
+      "Trustee": "PAWDomainJoin",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "PAWDomainJoin",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "Self:DnsHostname",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight DnsHostname"
+    },
+    {
+      "Trustee": "PAWDomainJoin",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "Self:WriteSPN",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight WriteSPN"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Computer"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "Self:DnsHostname",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight DnsHostname"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "Self:WriteSPN",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight WriteSPN"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Computer"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "Self:DnsHostname",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight DnsHostname"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/PAW Staging",
+      "Right": "Self:WriteSPN",
+      "Category": "Other",
+      "SourceRights": "ExtendedRight WriteSPN"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/PAW VPN Accounts",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild User"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/PAW VPN Accounts",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/PAW VPN Accounts",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild User"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/PAW VPN Accounts",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 Accounts",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild User"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 Accounts",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 Accounts",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Right": "CreateChild:group",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild Group"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 Groups",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Group"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/DeleteChild Computer"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Computer"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 Service Accounts",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild User"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 Service Accounts",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
+    },
+    {
+      "Trustee": "Tier1Admins",
+      "Target": "Tier Model Administration/Tier 1/Tier 1 Service Accounts",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 Accounts",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild User"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 Accounts",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 Accounts",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Right": "CreateChild:group",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild Group"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 Groups",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Group"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/DeleteChild Computer"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Computer"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+      "Right": "ReadProperty:msFVE-RecoveryPassword",
+      "Category": "Other",
+      "SourceRights": "ReadProperty BitLockerKeyPackage"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 Service Accounts",
+      "Right": "CreateChild:user",
+      "Category": "Other",
+      "SourceRights": "CreateChild/DeleteChild User"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 Service Accounts",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll AllObjectClasses"
+    },
+    {
+      "Trustee": "Tier2Admins",
+      "Target": "Tier Model Administration/Tier 2/Tier 2 Service Accounts",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier2ComputerQuarantineOperators",
+      "Target": "Tier Model Computer Quarantine",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Computer"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier Model Computer Quarantine",
+      "Right": "CreateChild:computer",
+      "Category": "ComputerManagement",
+      "SourceRights": "CreateChild/DeleteChild Computer"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier Model Computer Quarantine",
+      "Right": "GenericAll",
+      "Category": "FullControl",
+      "SourceRights": "GenericAll Computer"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier Model Computer Quarantine",
+      "Right": "ResetPassword",
+      "Category": "PasswordReset",
+      "SourceRights": "ExtendedRight PasswordReset"
+    },
+    {
+      "Trustee": "Tier2DeviceOperators",
+      "Target": "Tier Model Computer Quarantine",
+      "Right": "ReadProperty:msFVE-RecoveryPassword",
+      "Category": "Other",
+      "SourceRights": "ReadProperty BitLockerKeyPackage"
+    }
+  ],
+  "GroupPolicies": [
+    {
+      "Name": "Tier Model Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs Authentication Silo - Computer",
+      "Role": "AuthenticationSilo",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs SOE - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs SHF [Provider] [Version] - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs Firewall Restrictions - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs MSFT Windows Server 2025 - Domain Controller",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs MSFT Windows Server 2025 - Defender Antivirus",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs BitLocker",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs MSFT Windows Server 2025 - Domain Controller Virtualization Based Security",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs Advanced Audit Policy - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs PowerShell Audit Policy - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs MSFT Edge Version v139 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs MSFT Internet Explorer 11 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs Windows LAPS - Computer",
+      "Role": "Laps",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 DCs MDE Tier 0 Group Tag - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Domain Controllers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers SOE - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers SHF [Provider] [Version] - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers MSFT Windows Server 2025 - Member Server",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers MSFT Windows Server 2025 - Defender Antivirus",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers BitLocker",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers PowerShell Auditing Policy - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers MSFT Edge Version 139 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers MSFT Internet Explorer 11 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers Windows LAPS - Computer",
+      "Role": "Laps",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers MDE Tier 0 Group Tag - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers MSFT Windows Server 2025 v2506 - Domain Security",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 Servers Staging Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier 0 Member Servers/Tier 0 Server Staging",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers SOE - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers SHF [Provider] [Version] - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers MSFT Windows Server 2025 - Member Server",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers MSFT Windows Server 2025 - Defender Antivirus",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers BitLocker",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers PowerShell Auditing Policy - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers MSFT Edge Version 139 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers MSFT Internet Explorer 11 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers Windows LAPS - Computer",
+      "Role": "Laps",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers MDE Tier 1 Group Tag - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers MSFT Windows Server 2025 v2506 - Domain Security",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 Servers Staging Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier 1 Member Servers/Tier 1 Server Staging",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUA SOE - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Accounts",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUA SHF [Provider] [Version] - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Accounts",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUA MSFT Windows 11 25H2 - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUA MSFT Internet Explorer 11 - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUA MSFT Microsoft 365 Apps v2412 - DDE Block - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUA MSFT Microsoft 365 Apps v2412 - Require Macro Signing - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Accounts",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUA MSFT Microsoft 365 Apps v2412 - Legacy File Block - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUA MSFT Microsoft 365 Apps v2412 - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD SOE - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD SHF [Provider] [Version] - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD MSFT Windows 11 25H2 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD MSFT Windows 11 25H2 - BitLocker",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD MSFT Windows 11 25H2 - Credential Guard",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD MSFT Windows 11 25H2 - Defender Antivirus",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD MSFT Edge Version 139 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD MSFT Internet Explorer 11 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD Windows LAPS - Computer",
+      "Role": "Laps",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD MSFT Microsoft 365 Apps v2412 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD MSFT Microsoft 365 Apps v2412 - Legacy JScript Block - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD MSFT Windows 11 25H2 - Domain Security",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 EUD Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier 2 End-User Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier Model PAW Staging BitLocker",
+      "Role": "Baseline",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Tier Model Administration/PAW Staging",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier Model PAW Staging Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Tier Model Administration/PAW Staging",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs SOE - User",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 Accounts",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs SHF [Provider] [Version] - User",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 Accounts",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs Internet Access Configuration - User",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs MSFT Windows 11 25H2 - User",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs MSFT Internet Explorer 11 - User",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs SOE - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs SHF [Provider] [Version] - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs Firewall Restrictions - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs MSFT Windows 11 25H2 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs MSFT Windows 11 25H2 - BitLocker",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs MSFT Windows 11 25H2 - Credential Guard",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs MSFT Windows 11 25H2 - Defender Antivirus",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs BitLocker",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs PowerShell Auditing Policy - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs MSFT Edge Version 139 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs MSFT Internet Explorer 11 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs Devices Base AppLocker - Enforcement",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs Devices Base AppLocker - Audit",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs Windows LAPS - Computer",
+      "Role": "Laps",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs MDE Tier 0 Group Tag - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs MSFT Windows Server 2025 v2506 - Domain Security",
+      "Role": "Baseline",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 0 PAWs Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 0",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 0/Tier 0 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs SOE - User",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 Accounts",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs SHF [Provider] [Version] - User",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 Accounts",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs Internet Access Configuration - User",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs MSFT Windows 11 25H2 - User",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs MSFT Internet Explorer 11 - User",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs SOE - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs SHF [Provider] [Version] - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs Firewall Restrictions - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs MSFT Windows 11 25H2 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs MSFT Windows 11 25H2 - BitLocker",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs MSFT Windows 11 25H2 - Credential Guard",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs MSFT Windows 11 25H2 - Defender Antivirus",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs BitLocker",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs PowerShell Auditing Policy - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs MSFT Edge Version 139 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs MSFT Internet Explorer 11 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs Devices Base AppLocker - Enforcement",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs Devices Base AppLocker - Audit",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs Windows LAPS - Computer",
+      "Role": "Laps",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs MDE Tier 1 Group Tag - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs MSFT Windows Server 2025 v2506 - Domain Security",
+      "Role": "Baseline",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 1 PAWs Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 1",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 1/Tier 1 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs SOE - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 Accounts",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs SHF [Provider] [Version] - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 Accounts",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs Internet Access Configuration - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs MSFT Windows 11 25H2 - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs MSFT Internet Explorer 11 - User",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 Accounts",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs SOE - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs SHF [Provider] [Version] - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs Firewall Restrictions - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs MSFT Windows 11 25H2 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs MSFT Windows 11 25H2 - BitLocker",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs MSFT Windows 11 25H2 - Credential Guard",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs MSFT Windows 11 25H2 - Defender Antivirus",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs BitLocker",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs PowerShell Auditing Policy - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs MSFT Edge Version 139 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs MSFT Internet Explorer 11 - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs Devices Base AppLocker - Enforcement",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs Devices Base AppLocker - Audit",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs Windows LAPS - Computer",
+      "Role": "Laps",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs MDE Tier 2 Group Tag - Computer",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": false
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs MSFT Windows Server 2025 v2506 - Domain Security",
+      "Role": "Baseline",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier 2 PAWs Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": "Tier 2",
+      "Links": [
+        {
+          "Target": "Tier Model Administration/Tier 2/Tier 2 PAW Devices",
+          "Enabled": true
+        }
+      ]
+    },
+    {
+      "Name": "Tier Model Computer Quarantine Account Restrictions",
+      "Role": "LogonRestrictions",
+      "Tier": null,
+      "Links": [
+        {
+          "Target": "Tier Model Computer Quarantine",
+          "Enabled": true
+        }
+      ]
+    }
+  ],
+  "DefaultMembers": []
+}

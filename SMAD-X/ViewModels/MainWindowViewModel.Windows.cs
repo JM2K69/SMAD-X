@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Services;
+using SMADX.Services.Tiering;
 
 namespace SMADX.ViewModels
 {
@@ -68,6 +69,26 @@ namespace SMADX.ViewModels
 
         [RelayCommand]
         private Task ShowTierConfiguration() => _dialogs.ShowTierConfigurationAsync();
+
+        /// <summary>
+        /// Applique un modèle de cloisonnement (Microsoft, HardenAD) au domaine affiché : ses OU, groupes, comptes, GPO et
+        /// délégations s'ajoutent, rien n'est déplacé. L'arbre est reconstruit, l'application s'annule d'un seul coup.
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(IsFreeMode))]
+        private async Task ApplyTierModel()
+        {
+            if (RootObject == null) return;
+            var model = TierModelCatalog.Find(await _dialogs.ShowTierModelAsync(RootObject.TierModel));
+            if (model == null) return;
+
+            var report = TierModelService.Apply(RootObject, model);
+            Restore(SerializeDocument());
+            RecordHistory();
+            StatusMessage = report.Total == 0
+                ? string.Format(Loc["Status.TierModelUpToDate"], model.Name)
+                : string.Format(Loc["Status.TierModelApplied"], model.Name, report.OrganizationalUnits, report.Groups, report.Accounts,
+                    report.GroupPolicies, report.Delegations);
+        }
 
         [RelayCommand]
         private Task ShowAbout() => _dialogs.ShowAboutAsync();

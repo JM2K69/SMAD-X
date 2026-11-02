@@ -63,9 +63,12 @@ namespace SMADX.Views
             var dialog = new NewDomainDialog();
             var accepted = await dialog.ShowDialog<bool>(_owner);
             return accepted && !string.IsNullOrEmpty(dialog.DomainName)
-                ? new NewDomainRequest(dialog.DomainName, dialog.EnableTiering, dialog.ServerVersion)
+                ? new NewDomainRequest(dialog.DomainName, dialog.EnableTiering, dialog.ServerVersion, dialog.TierModel)
                 : null;
         }
+
+        public Task<string?> ShowTierModelAsync(string? current) =>
+            new TierModelDialog(current).ShowDialog<string?>(_owner);
 
         public Task ShowRelationsAsync(RelationsViewModel viewModel) =>
             new RelationsWindow { DataContext = viewModel }.ShowDialog(_owner);

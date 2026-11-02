@@ -21,6 +21,7 @@
     <EmbeddedResource Include="Fonts\*.ttf" LogicalName="Fonts/%(Filename)%(Extension)" />
     <!-- Exercices fournis (.smadx-lab.json), générés par tools/LabGenerator et tools/SampleGenerator -->
     <EmbeddedResource Include="Labs\*.smadx-lab.json" LogicalName="Labs/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="TierModels\*.json" LogicalName="TierModels/%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -26,6 +26,10 @@ namespace SMADX.ViewModels
         /// <summary>Pour le domaine : « Windows Server 2022 », la version qui l'a promu ; null si elle est inconnue.</summary>
         public string? ServerVersionName => IsDomain ? SMADX.Services.WindowsServerProfile.NameOf(_obj.ServerVersion) : null;
 
+        /// <summary>Pour le domaine : modèle de cloisonnement appliqué et sa version ; null s'il n'y en a pas.</summary>
+        public string? TierModelName => IsDomain && SMADX.Services.Tiering.TierModelCatalog.Find(_obj.TierModel) is { } model
+            ? $"{model.Name} ({_obj.TierModelVersion})" : null;
+
         public decimal? Precedence { get => _obj.PSOPrecedence; set => Set(v => _obj.PSOPrecedence = v, value); }
         public decimal? MinPasswordLength { get => _obj.PSOMinPasswordLength; set => Set(v => _obj.PSOMinPasswordLength = v, value); }
         public decimal? PasswordHistoryCount { get => _obj.PSOPasswordHistoryCount; set => Set(v => _obj.PSOPasswordHistoryCount = v, value); }

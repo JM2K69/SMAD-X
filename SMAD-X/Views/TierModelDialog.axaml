@@ -1,0 +1,44 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="using:SMADX.Helpers"
+        x:Class="SMADX.Views.TierModelDialog"
+        Width="560" MaxHeight="700" SizeToContent="Height"
+        CanResize="True"
+        WindowStartupLocation="CenterOwner"
+        Title="{Binding Source={StaticResource Loc}, Path=DialogTierModelTitle}">
+
+    <Window.Resources>
+        <helpers:LocalizationProxy x:Key="Loc"/>
+    </Window.Resources>
+
+    <Grid RowDefinitions="*,Auto" Margin="20">
+        <ScrollViewer Grid.Row="0">
+            <StackPanel Spacing="10">
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DialogTierModelTitle}" FontSize="16" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DialogTierModelDescription}" TextWrapping="Wrap"/>
+
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DialogTierModelModel}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                <ComboBox Name="ModelComboBox" HorizontalAlignment="Stretch" SelectionChanged="OnModelChanged"/>
+                <TextBlock Name="ContentTextBlock" TextWrapping="Wrap"/>
+
+                <!-- Source et licence du modèle : à citer -->
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DialogTierModelSource}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                <SelectableTextBlock Name="SourceTextBlock" TextWrapping="Wrap" FontSize="12"/>
+
+                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DialogTierModelNotes}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                <ItemsControl Name="NotesList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <TextBlock Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" FontSize="12" Opacity="0.85" Margin="0,2"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,16,0,0">
+            <Button Name="ApplyButton" Content="{Binding Source={StaticResource Loc}, Path=DialogTierModelApply}" Click="OnApplyClick" IsDefault="True" Classes="accent"/>
+            <Button Content="{Binding Source={StaticResource Loc}, Path=DialogNewDomainCancel}" Click="OnCancelClick" IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>
