@@ -557,7 +557,7 @@ namespace SMADX.Services.Audit
                 Evaluate = c => c.Objects
                     .Where(m => m.Type == ADObjectType.Computer && !IsDomainController(m))
                     .SelectMany(m => (m.Sessions ?? []).Select(name => (m, account: c.Principal(name))))
-                    .Where(x => x.account != null && IsExposedSession(c, x.account, x.m))
+                    .Where(x => x.account != null && IsExposedSession(c, x.account, x.m) && c.Policies.LogonDeniedBy(x.account, x.m).Count == 0)
                     .Select(x => Finding(x.account!, x.m.Name, x.m.Tier ?? "—"))
             },
 

@@ -9,6 +9,9 @@
     "Copyright": "Copyright (c) 2021 HardenAD",
     "Files": [
       "Configs/TasksSequence_HardenAD.xml",
+      "Inputs/GroupPolicies/*/{BackupID}/gpreport.xml",
+      "Inputs/GroupPolicies/*/{BackupID}/*.migtable",
+      "Inputs/GroupPolicies/*/{BackupID}/translation.xml",
       "LICENSE"
     ],
     "Notes": [
@@ -21,8 +24,12 @@
         "En": "Administration accounts keep the names of the source (T0M-AHARDEN\u2026)."
       },
       {
-        "Fr": "Les GPO sont reprises par leur nom, leur r\u00F4le et leurs liens ; leurs param\u00E8tres ne sont pas mod\u00E9lis\u00E9s.",
-        "En": "GPOs are included by name, role and links; their settings are not modelled."
+        "Fr": "Des param\u00E8tres des GPO, SMAD-X reprend les refus d\u0027ouverture de session (session locale, Bureau \u00E0 distance), les membres ajout\u00E9s au groupe local Administrateurs et le filtre WMI (serveurs ou postes) ; les autres param\u00E8tres ne sont pas mod\u00E9lis\u00E9s.",
+        "En": "Of the GPO settings, SMAD-X includes the logon denials (local session, Remote Desktop), the members added to the local Administrators group and the WMI filter (servers or workstations); other settings are not modelled."
+      },
+      {
+        "Fr": "Le groupe d\u0027administration locale propre \u00E0 chaque ordinateur (L-S_LocalAdmins_%ComputerName%) n\u0027est pas cr\u00E9\u00E9.",
+        "En": "The local administration group specific to each computer (L-S_LocalAdmins_%ComputerName%) is not created."
       },
       {
         "Fr": "La redirection des conteneurs par d\u00E9faut vers Provisioning (redircmp, redirusr) n\u0027est pas mod\u00E9lis\u00E9e.",
@@ -3454,7 +3461,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-Auto-Update-S1-Thu-1h-Srv",
@@ -3465,7 +3473,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-Auto-Update-S3-Thu-0h-Srv",
@@ -3476,7 +3485,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-Auto-Update-S3-Thu-1h-Srv",
@@ -3487,7 +3497,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-Auto-Update-S4-Thu-0h-Srv",
@@ -3498,7 +3509,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-Auto-Update-S4-Thu-1h-Srv",
@@ -3509,7 +3521,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-Auto-Update-Win10-11",
@@ -3520,7 +3533,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-Auto-Update-Win7-8",
@@ -3531,7 +3545,8 @@
           "Target": "Harden_TL",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-BitLocker-TPMOnly-Enabled-Win10-11",
@@ -3546,7 +3561,8 @@
           "Target": "Harden_T12/Workstations",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-BitLocker-PIN-Enabled-Win10-11",
@@ -3561,7 +3577,8 @@
           "Target": "Harden_T12/Workstations",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-BitLocker-USB-Win10-11",
@@ -3576,7 +3593,8 @@
           "Target": "Harden_T12/Workstations",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-BitLocker-RecoveryKey-Required",
@@ -3591,7 +3609,8 @@
           "Target": "Harden_T12/Workstations",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-BloodHound-Mitigation",
@@ -3608,7 +3627,8 @@
       "Name": "HAD-Camera-on-lockon-Disabled",
       "Role": "Baseline",
       "Tier": null,
-      "Links": []
+      "Links": [],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-DCLocaltor-Configuration",
@@ -3625,7 +3645,8 @@
           "Target": "Harden_TL",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-Firewall-Audit-Only",
@@ -3840,7 +3861,9 @@
           "Target": "_Administration/PawAccess",
           "Enabled": true
         }
-      ]
+      ],
+      "LocalAdmins": [],
+      "ReplaceLocalAdmins": true
     },
     {
       "Name": "HAD-LocalAdmins-PawT0",
@@ -3851,7 +3874,9 @@
           "Target": "_Administration/PawT0",
           "Enabled": true
         }
-      ]
+      ],
+      "LocalAdmins": [],
+      "ReplaceLocalAdmins": true
     },
     {
       "Name": "HAD-LocalAdmins-PawT12L",
@@ -3862,7 +3887,9 @@
           "Target": "_Administration/PawT12L",
           "Enabled": true
         }
-      ]
+      ],
+      "LocalAdmins": [],
+      "ReplaceLocalAdmins": true
     },
     {
       "Name": "HAD-LocalAdmins-T0-Srv",
@@ -3873,7 +3900,11 @@
           "Target": "Harden_T0",
           "Enabled": true
         }
-      ]
+      ],
+      "LocalAdmins": [
+        "L-S-T0_LocalAdmins_Servers"
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-LocalAdmins-T0-Wks",
@@ -3884,7 +3915,11 @@
           "Target": "Harden_T0",
           "Enabled": true
         }
-      ]
+      ],
+      "LocalAdmins": [
+        "L-S-T0_LocalAdmins_Workstations"
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-LocalAdmins-T1",
@@ -3899,7 +3934,11 @@
           "Target": "Provisioning/Computers",
           "Enabled": true
         }
-      ]
+      ],
+      "LocalAdmins": [
+        "L-S-T1_LocalAdmins_Servers"
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-LocalAdmins-T1L",
@@ -3910,7 +3949,11 @@
           "Target": "Harden_TL",
           "Enabled": true
         }
-      ]
+      ],
+      "LocalAdmins": [
+        "L-S-T1L_LocalAdmins_Servers"
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-LocalAdmins-T2",
@@ -3925,7 +3968,11 @@
           "Target": "Provisioning/Computers",
           "Enabled": true
         }
-      ]
+      ],
+      "LocalAdmins": [
+        "L-S-T2_LocalAdmins_Workstations"
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-LocalAdmins-T2L",
@@ -3936,7 +3983,11 @@
           "Target": "Harden_TL",
           "Enabled": true
         }
-      ]
+      ],
+      "LocalAdmins": [
+        "L-S-T2L_LocalAdmins_Workstations"
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-LocalRDU-Paw",
@@ -3980,7 +4031,8 @@
           "Target": "Harden_T0",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-LocalRDU-T0-Wks",
@@ -3991,7 +4043,8 @@
           "Target": "Harden_T0",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-LocalRDU-T1",
@@ -4006,7 +4059,8 @@
           "Target": "Provisioning/Computers",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-LocalRDU-T1L",
@@ -4017,7 +4071,8 @@
           "Target": "Harden_TL",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-LocalRDU-T2",
@@ -4032,7 +4087,8 @@
           "Target": "Provisioning/Computers",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-LocalRDU-T2L",
@@ -4043,7 +4099,8 @@
           "Target": "Harden_TL",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-Local-Accounts-Config",
@@ -4114,6 +4171,18 @@
           "Target": "Harden_T0",
           "Enabled": true
         }
+      ],
+      "DenyInteractiveLogon": [
+        "L-S-T2L",
+        "L-S-T2",
+        "L-S-T1L",
+        "L-S-T1"
+      ],
+      "DenyRemoteInteractiveLogon": [
+        "L-S-T2L",
+        "L-S-T2",
+        "L-S-T1L",
+        "L-S-T1"
       ]
     },
     {
@@ -4125,7 +4194,28 @@
           "Target": "Harden_T12",
           "Enabled": true
         }
-      ]
+      ],
+      "DenyInteractiveLogon": [
+        "DnsAdmins",
+        "Domain Admins",
+        "Enterprise Admins",
+        "L-S-T0",
+        "L-S-T1L",
+        "L-S-T2",
+        "L-S-T2L",
+        "Schema Admins"
+      ],
+      "DenyRemoteInteractiveLogon": [
+        "DnsAdmins",
+        "Domain Admins",
+        "Enterprise Admins",
+        "L-S-T0",
+        "L-S-T1L",
+        "L-S-T2",
+        "L-S-T2L",
+        "Schema Admins"
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-LoginRestrictions-T1L",
@@ -4136,7 +4226,28 @@
           "Target": "Harden_TL",
           "Enabled": true
         }
-      ]
+      ],
+      "DenyInteractiveLogon": [
+        "DnsAdmins",
+        "Domain Admins",
+        "Enterprise Admins",
+        "L-S-T0",
+        "L-S-T1",
+        "L-S-T2",
+        "L-S-T2L",
+        "Schema Admins"
+      ],
+      "DenyRemoteInteractiveLogon": [
+        "DnsAdmins",
+        "Domain Admins",
+        "Enterprise Admins",
+        "L-S-T0",
+        "L-S-T1",
+        "L-S-T2",
+        "L-S-T2L",
+        "Schema Admins"
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-LoginRestrictions-T2",
@@ -4147,7 +4258,28 @@
           "Target": "Harden_T12",
           "Enabled": true
         }
-      ]
+      ],
+      "DenyInteractiveLogon": [
+        "DnsAdmins",
+        "Domain Admins",
+        "Enterprise Admins",
+        "L-S-T0",
+        "L-S-T1",
+        "L-S-T1L",
+        "L-S-T2L",
+        "Schema Admins"
+      ],
+      "DenyRemoteInteractiveLogon": [
+        "DnsAdmins",
+        "Domain Admins",
+        "Enterprise Admins",
+        "L-S-T0",
+        "L-S-T1",
+        "L-S-T1L",
+        "L-S-T2L",
+        "Schema Admins"
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-LoginRestrictions-T2L",
@@ -4158,7 +4290,28 @@
           "Target": "Harden_TL",
           "Enabled": true
         }
-      ]
+      ],
+      "DenyInteractiveLogon": [
+        "DnsAdmins",
+        "Domain Admins",
+        "Enterprise Admins",
+        "L-S-T0",
+        "L-S-T1",
+        "L-S-T1L",
+        "L-S-T2",
+        "Schema Admins"
+      ],
+      "DenyRemoteInteractiveLogon": [
+        "DnsAdmins",
+        "Domain Admins",
+        "Enterprise Admins",
+        "L-S-T0",
+        "L-S-T1",
+        "L-S-T1L",
+        "L-S-T2",
+        "Schema Admins"
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-Logon-Cache-0",
@@ -4169,7 +4322,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-Logon-Cache-3",
@@ -4180,7 +4334,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-MSLive-Accounts-Disabled",
@@ -4224,7 +4379,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-Remote-Assistance-Disabled",
@@ -4235,7 +4391,8 @@
           "Target": "",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-Screenlock-Enabled",
@@ -4423,7 +4580,8 @@
           "Target": "Provisioning/Computers",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-RDP-NLA-Enabled",
@@ -4446,7 +4604,8 @@
           "Target": "Provisioning/Computers",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Servers"
     },
     {
       "Name": "HAD-Smart-Card-Required",
@@ -4598,7 +4757,8 @@
           "Target": "_Administration",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-CredentialManager-Disabled",
@@ -4613,7 +4773,8 @@
           "Target": "_Administration",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-DEP-Config",
@@ -4677,7 +4838,8 @@
           "Target": "_Administration/PawAccess",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-LSASS-Audit",
@@ -4699,7 +4861,8 @@
           "Target": "Harden_T12",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-mDNS-Disabled",
@@ -4767,7 +4930,8 @@
           "Target": "_Administration/PawAccess",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-Virtualization-Based-Protection-Enabled",
@@ -4782,7 +4946,8 @@
           "Target": "_Administration",
           "Enabled": true
         }
-      ]
+      ],
+      "ComputerFilter": "Workstations"
     },
     {
       "Name": "HAD-Windows-LAPS",

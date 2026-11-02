@@ -1,7 +1,7 @@
 # Compte privilégié connecté sur une machine moins sensible
 
 ## Ce que l'audit a détecté
-Un compte privilégié (ou d'un tier plus sensible) a une session ouverte sur un poste ou un serveur d'un tier moins sensible.
+Un compte privilégié (ou d'un tier plus sensible) a une session ouverte sur un poste ou un serveur d'un tier moins sensible. Une session qu'une GPO interdit à ce compte sur cette machine (refus d'ouverture de session en local et par le Bureau à distance) n'est pas signalée : elle ne peut pas avoir lieu.
 
 ## Pourquoi c'est dangereux
 Une session laisse les identifiants du compte dans la mémoire de la machine (LSASS) : tout administrateur local de cette machine peut les y récupérer, puis les rejouer. Le chemin est direct, d'un compte de poste de travail jusqu'au domaine : **Analyse > Chemins d'attaque** le montre (administrateur local, puis session). Le cloisonnement en tiers de l'ANSSI interdit à un administrateur du Tier 0 de se connecter ailleurs que sur le Tier 0.

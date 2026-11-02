@@ -4,6 +4,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using SMADX.Models;
+using SMADX.Services;
+using SMADX.Services.Audit;
 
 namespace SMADX.ViewModels
 {
@@ -18,10 +20,14 @@ namespace SMADX.ViewModels
 
         public ObjectSecurityViewModel(ADObject obj) => _obj = obj;
 
+        private static LocalizationService Loc => LocalizationService.Instance;
+
         public bool IsAccount => _obj.IsAccount;
         public bool IsGroup => _obj.Type == ADObjectType.Group;
         public bool IsComputer => _obj.Type == ADObjectType.Computer;
-        public bool HasSecurityAttributes => IsAccount || IsGroup;
+        public bool IsPolicy => _obj.Type == ADObjectType.Policy;
+        public bool HasSecurityAttributes => IsAccount || IsGroup || IsPolicy;
+        public bool HasAdminCount => IsAccount || IsGroup;
 
         public static ADGroupScope[] GroupScopes { get; } = Enum.GetValues<ADGroupScope>();
         public static ADGroupCategory[] GroupCategories { get; } = Enum.GetValues<ADGroupCategory>();
@@ -149,6 +155,88 @@ namespace SMADX.ViewModels
         {
             get => string.Join(Environment.NewLine, _obj.Sessions ?? []);
             set => ReplaceLines(_obj.Sessions ??= new(), value);
+        }
+
+        /// <summary>Contexte du domaine de l'objet, pour les effets des GPO ; calculé à la sélection.</summary>
+        private AuditContext? Context =>
+            _context ??= Root(_obj) is { Type: ADObjectType.Domain } domain ? new AuditContext(domain, DateTime.Now) : null;
+        private AuditContext? _context;
+
+        private static ADObject Root(ADObject o) => o.Parent == null ? o : Root(o.Parent);
+
+        /// <summary>Administrateurs locaux que les GPO imposent à la machine, avec la GPO de chacun.</summary>
+        public string GpoLocalAdminsEffect => IsComputer && Context is { } c
+            ? string.Join(Environment.NewLine, c.Policies.LocalAdministrators(_obj).Where(a => a.Gpo != null)
+                .Select(a => string.Format(Loc["Security.ByGpo"], a.Name, a.Gpo!.Name)))
+            : string.Empty;
+
+        /// <summary>Sessions saisies que les GPO interdisent sur la machine : elles n'exposent aucun identifiant.</summary>
+        public string BlockedSessionsEffect => IsComputer && Context is { } c
+            ? string.Join(Environment.NewLine, (_obj.Sessions ?? []).Select(name => (name, account: c.Principal(name)))
+                .Where(x => x.account is { IsAccount: true })
+                .Select(x => (x.name, gpos: c.Policies.LogonDeniedBy(x.account!, _obj)))
+                .Where(x => x.gpos.Count > 0)
+                .Select(x => string.Format(Loc["Security.ByGpo"], x.name, string.Join(", ", x.gpos.Select(g => g.Name)))))
+            : string.Empty;
+
+        public bool HasGpoLocalAdminsEffect => GpoLocalAdminsEffect.Length > 0;
+        public bool HasBlockedSessionsEffect => BlockedSessionsEffect.Length > 0;
+
+        // ─── GPO : paramètres qui changent les chemins d'attaque ──────────────────
+
+        /// <summary>« Interdire l'ouverture d'une session locale » ; vide = paramètre non défini.</summary>
+        public string GpoDenyInteractiveLogonText
+        {
+            get => string.Join(Environment.NewLine, _obj.GpoDenyInteractiveLogon ?? []);
+            set => _obj.GpoDenyInteractiveLogon = SetOptionalLines(_obj.GpoDenyInteractiveLogon, value);
+        }
+
+        /// <summary>« Interdire l'ouverture de session par les services Bureau à distance » ; vide = paramètre non défini.</summary>
+        public string GpoDenyRemoteInteractiveLogonText
+        {
+            get => string.Join(Environment.NewLine, _obj.GpoDenyRemoteInteractiveLogon ?? []);
+            set => _obj.GpoDenyRemoteInteractiveLogon = SetOptionalLines(_obj.GpoDenyRemoteInteractiveLogon, value);
+        }
+
+        /// <summary>Membres que la GPO met dans le groupe local Administrateurs ; vide = paramètre non défini.</summary>
+        public string GpoLocalAdminsText
+        {
+            get => string.Join(Environment.NewLine, _obj.GpoLocalAdmins ?? []);
+            set => _obj.GpoLocalAdmins = SetOptionalLines(_obj.GpoLocalAdmins, value);
+        }
+
+        public bool GpoReplaceLocalAdmins
+        {
+            get => _obj.GpoReplaceLocalAdmins;
+            set
+            {
+                if (_obj.GpoReplaceLocalAdmins == value) return;
+                _obj.GpoReplaceLocalAdmins = value;
+                Touch();
+            }
+        }
+
+        /// <summary>Choix du filtre WMI : vide (tous les ordinateurs), Servers ou Workstations.</summary>
+        public static string[] GpoComputerFilters { get; } = [string.Empty, nameof(Models.GpoComputerFilter.Servers), nameof(Models.GpoComputerFilter.Workstations)];
+
+        public string GpoComputerFilterChoice
+        {
+            get => _obj.GpoComputerFilter?.ToString() ?? string.Empty;
+            set
+            {
+                Models.GpoComputerFilter? filter = Enum.TryParse<Models.GpoComputerFilter>(value, out var parsed) ? parsed : null;
+                if (_obj.GpoComputerFilter == filter) return;
+                _obj.GpoComputerFilter = filter;
+                Touch();
+            }
+        }
+
+        /// <summary>Liste d'un paramètre de GPO : null quand elle est vide, le paramètre n'étant alors pas défini.</summary>
+        private ObservableCollection<string>? SetOptionalLines(ObservableCollection<string>? current, string? text, [CallerMemberName] string? property = null)
+        {
+            var target = current ?? new ObservableCollection<string>();
+            ReplaceLines(target, text, property);
+            return target.Count == 0 ? null : target;
         }
 
         // ─── Dates (lastLogonTimestamp, pwdLastSet) ───────────────────────────────

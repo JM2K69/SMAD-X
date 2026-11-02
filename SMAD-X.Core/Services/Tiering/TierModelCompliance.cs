@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using SMADX.Models;
 using SMADX.Services.Audit;
 
@@ -27,13 +28,17 @@ namespace SMADX.Services.Tiering
 
         public static TierModelDefinition? ModelOf(AuditContext c) => TierModelCatalog.Find(c.Domain.TierModel);
 
-        /// <summary>TIER-05 : OU, groupe, compte, GPO, lien de GPO ou délégation du modèle absent du domaine.</summary>
+        /// <summary>
+        /// TIER-05 : OU, groupe, compte, GPO, lien de GPO, paramètre de GPO (refus d'ouverture de session, administrateurs
+        /// locaux) ou délégation du modèle absent du domaine.
+        /// </summary>
         public static IEnumerable<(ADObject, object[])> Missing(AuditContext c)
         {
             if (ModelOf(c) is not { } model) yield break;
             var domain = c.Domain;
             var principals = c.Objects.Where(o => o.IsAccount || o.Type == ADObjectType.Group).Select(o => o.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var gpos = c.Objects.Where(o => o.Type == ADObjectType.Policy).Select(o => o.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var gpos = c.Objects.Where(o => o.Type == ADObjectType.Policy)
+                .GroupBy(o => o.Name, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
             (ADObject, object[]) Absent(ADObject o, string kind, string what) => (o, [Loc[$"Tiering.Kind.{kind}"], model.Name, what]);
 
             foreach (var ou in model.OrganizationalUnits.Where(o => TierModelService.Ou(domain, o.Path) == null))
@@ -44,10 +49,21 @@ namespace SMADX.Services.Tiering
                 yield return Absent(domain, "Account", a.Name);
             foreach (var gpo in model.GroupPolicies)
             {
-                if (!gpos.Contains(gpo.Name))
+                if (!gpos.TryGetValue(gpo.Name, out var policy))
                 {
                     yield return Absent(domain, "GroupPolicy", gpo.Name);
                     continue;
+                }
+                foreach (var (setting, expected, actual) in new[]
+                         {
+                             ("DenyInteractiveLogon", gpo.DenyInteractiveLogon, policy.GpoDenyInteractiveLogon),
+                             ("DenyRemoteInteractiveLogon", gpo.DenyRemoteInteractiveLogon, policy.GpoDenyRemoteInteractiveLogon),
+                             ("LocalAdmins", gpo.LocalAdmins, policy.GpoLocalAdmins)
+                         })
+                {
+                    var missing = (expected ?? []).Where(p => !(actual ?? []).Contains(p, StringComparer.OrdinalIgnoreCase)).ToList();
+                    if (missing.Count > 0)
+                        yield return Absent(policy, "GroupPolicySetting", $"{gpo.Name}, {Loc[$"Gpo.{setting}"]} : {string.Join(", ", missing)}");
                 }
                 foreach (var link in gpo.Links.Where(l => l.Enabled))
                 {
@@ -99,8 +115,14 @@ namespace SMADX.Services.Tiering
                     yield return (o, [place.Path, tier]);
         }
 
+        private static readonly ConditionalWeakTable<TierModelDefinition, Dictionary<string, TierModelOu>> Ous = new();
+
         private static Dictionary<string, TierModelOu> OusOf(TierModelDefinition model) =>
-            model.OrganizationalUnits.ToDictionary(o => o.Path, StringComparer.OrdinalIgnoreCase);
+            Ous.GetValue(model, m => m.OrganizationalUnits.ToDictionary(o => o.Path, StringComparer.OrdinalIgnoreCase));
+
+        /// <summary>Rôle de l'OU dans le modèle (serveurs, postes…), ou null si elle n'en fait pas partie.</summary>
+        public static TierModelOuRole? RoleOf(TierModelDefinition model, ADObject ou) =>
+            OuPath(ou) is { } path && OusOf(model).TryGetValue(path, out var definition) ? definition.Role : null;
 
         private static bool IsTransit(TierModelOu ou) => ou.Role is TierModelOuRole.Staging or TierModelOuRole.Quarantine or TierModelOuRole.Provisioning;
 

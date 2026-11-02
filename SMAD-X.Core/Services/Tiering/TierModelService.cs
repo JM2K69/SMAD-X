@@ -93,7 +93,15 @@ namespace SMADX.Services.Tiering
                 if (policies != null && existingGpos.Add(gpo.Name))
                 {
                     // Une GPO se modifie depuis le Tier 0 : ce sont ses administrateurs qui la contrôlent
-                    Add(policies, new ADObject(gpo.Name, ADObjectType.Policy) { Tier = "Tier 0", Owner = Owner, CreatedDate = date, ModifiedDate = date });
+                    Add(policies, new ADObject(gpo.Name, ADObjectType.Policy)
+                    {
+                        Tier = "Tier 0", Owner = Owner, CreatedDate = date, ModifiedDate = date,
+                        GpoDenyInteractiveLogon = gpo.DenyInteractiveLogon is { } local ? new(local) : null,
+                        GpoDenyRemoteInteractiveLogon = gpo.DenyRemoteInteractiveLogon is { } remote ? new(remote) : null,
+                        GpoLocalAdmins = gpo.LocalAdmins is { } admins ? new(admins) : null,
+                        GpoReplaceLocalAdmins = gpo.ReplaceLocalAdmins,
+                        GpoComputerFilter = gpo.ComputerFilter
+                    });
                     gpos++;
                 }
                 foreach (var link in gpo.Links.Where(l => l.Enabled))

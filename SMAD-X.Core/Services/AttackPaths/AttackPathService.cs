@@ -76,6 +76,9 @@ namespace SMADX.Services.AttackPaths
     /// <param name="Holder">Objet qui porte la permission (l'ACE, ou le propriétaire), là où elle se corrige ; null hors permission.</param>
     public sealed record AttackEdge(AttackNode From, AttackNode To, AttackEdgeKind Kind, string Detail, ADObject? Holder = null);
 
+    /// <summary>Session qu'une GPO rend impossible : le compte ne peut ouvrir de session sur l'ordinateur, ni en local ni par le Bureau à distance.</summary>
+    public sealed record BlockedSession(ADObject Account, ADObject Computer, IReadOnlyList<ADObject> Gpos);
+
     /// <summary>Chemin d'une source jusqu'au contrôle du domaine.</summary>
     public sealed record AttackPath(AttackNode Start, IReadOnlyList<AttackEdge> Steps)
     {
@@ -113,11 +116,15 @@ namespace SMADX.Services.AttackPaths
 
         private readonly Dictionary<AttackNode, List<AttackEdge>> _incoming = new();
         private readonly Dictionary<ADObject, AttackNode> _nodes = new();
+        private readonly List<BlockedSession> _blocked = new();
         private readonly AuditContext _context;
 
         public AttackNode AnyUser { get; }
         public AttackNode Target { get; }
         public IReadOnlyList<AttackEdge> Edges { get; }
+
+        /// <summary>Sessions saisies sur un ordinateur, mais qu'une GPO y interdit : elles n'ouvrent aucun chemin.</summary>
+        public IReadOnlyList<BlockedSession> BlockedSessions => _blocked;
 
         public AttackPathService(ADObject domain, DateTime? now = null)
         {
@@ -214,18 +221,26 @@ namespace SMADX.Services.AttackPaths
 
         /// <summary>
         /// Administration locale et sessions : un administrateur de la machine y vole les identifiants des comptes qui
-        /// y ont une session (à la manière d'AdminTo et HasSession dans BloodHound).
+        /// y ont une session (à la manière d'AdminTo et HasSession dans BloodHound). Les GPO qui s'appliquent à la machine
+        /// comptent : elles changent ses administrateurs locaux, et une session qu'elles interdisent n'a pas lieu.
         /// </summary>
         private IEnumerable<AttackEdge> ComputerEdges(ADObject computer, AttackNode node)
         {
             if (computer.Type != ADObjectType.Computer) yield break;
             var loc = LocalizationService.Instance;
-            foreach (var admin in computer.LocalAdmins ?? [])
-                if (Principal(admin) is { } principal && principal != node)
-                    yield return new AttackEdge(principal, node, AttackEdgeKind.AdminTo, string.Format(loc["AttackPath.Edge.AdminTo"], admin, computer.Name));
+            foreach (var admin in _context.Policies.LocalAdministrators(computer))
+                if (Principal(admin.Name) is { } principal && principal != node)
+                    yield return new AttackEdge(principal, node, AttackEdgeKind.AdminTo, admin.Gpo is { } gpo
+                        ? string.Format(loc["AttackPath.Edge.AdminToByGpo"], admin.Name, computer.Name, gpo.Name)
+                        : string.Format(loc["AttackPath.Edge.AdminTo"], admin.Name, computer.Name));
             foreach (var account in computer.Sessions ?? [])
-                if (_context.Principal(account) is { IsAccount: true } user && user != computer)
+            {
+                if (_context.Principal(account) is not { IsAccount: true } user || user == computer) continue;
+                if (_context.Policies.LogonDeniedBy(user, computer) is { Count: > 0 } gpos)
+                    _blocked.Add(new BlockedSession(user, computer, gpos));
+                else
                     yield return new AttackEdge(node, Node(user), AttackEdgeKind.HasSession, string.Format(loc["AttackPath.Edge.HasSession"], user.Name, computer.Name));
+            }
         }
 
         /// <summary>

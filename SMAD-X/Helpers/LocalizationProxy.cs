@@ -124,6 +124,15 @@ namespace SMADX.Helpers
         public string SecurityLapsExpiration => _localizationService["Security.LapsExpiration"];
         public string SecurityLocalAdmins => _localizationService["Security.LocalAdmins"];
         public string SecuritySessions => _localizationService["Security.Sessions"];
+        public string SecurityGpoLocalAdminsEffect => _localizationService["Security.GpoLocalAdminsEffect"];
+        public string SecurityBlockedSessions => _localizationService["Security.BlockedSessions"];
+        public string SecurityGpo => _localizationService["Security.Gpo"];
+        public string SecurityGpoNote => _localizationService["Security.GpoNote"];
+        public string SecurityGpoDenyInteractiveLogon => _localizationService["Security.GpoDenyInteractiveLogon"];
+        public string SecurityGpoDenyRemoteInteractiveLogon => _localizationService["Security.GpoDenyRemoteInteractiveLogon"];
+        public string SecurityGpoLocalAdmins => _localizationService["Security.GpoLocalAdmins"];
+        public string SecurityGpoReplaceLocalAdmins => _localizationService["Security.GpoReplaceLocalAdmins"];
+        public string SecurityGpoComputerFilter => _localizationService["Security.GpoComputerFilter"];
         public string SecurityGroupScope => _localizationService["Security.GroupScope"];
         public string SecurityGroupCategory => _localizationService["Security.GroupCategory"];
         public string SecurityOwner => _localizationService["Security.Owner"];

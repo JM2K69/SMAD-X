@@ -61,7 +61,7 @@
 - **Tier 1**: Infrastructure and application servers
 - **Tier 2**: Workstations and standard users
 - Per-tier colors configurable through the UI
-- **Tiering models**: apply [Microsoft's Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel) or [HardenAD](https://github.com/LoicVeirman/HardenAD) to a new or existing domain (OUs per tier, administration groups and accounts, GPOs, delegations), then audit compliance with the model (TIER-05 to TIER-08); both models are generated from their official release, with source and MIT license cited
+- **Tiering models**: apply [Microsoft's Active Directory Tier Model](https://github.com/microsoft/ActiveDirectoryTierModel) or [HardenAD](https://github.com/LoicVeirman/HardenAD) to a new or existing domain (OUs per tier, administration groups and accounts, GPOs, delegations), then audit compliance with the model (TIER-05 to TIER-08); the model's GPOs act on attack paths (logon denials remove the admin sessions they forbid, restricted groups and preferences set the local administrators); both models are generated from their official release, with source and MIT license cited
 
 ### 📝 Built-in Markdown Documentation
 - Every object has a rich Markdown description with role and **security notes**

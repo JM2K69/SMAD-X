@@ -171,6 +171,37 @@ namespace SMADX.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? TierModelVersion { get; set; }
 
+        // --- GPO : paramètres qui changent les chemins d'attaque des ordinateurs où elle s'applique ---
+
+        /// <summary>
+        /// Pour Policy : « Interdire l'ouverture d'une session locale » (SeDenyInteractiveLogonRight), comptes et groupes
+        /// refusés. Null = paramètre non défini.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ObservableCollection<string>? GpoDenyInteractiveLogon { get; set; }
+
+        /// <summary>
+        /// Pour Policy : « Interdire l'ouverture de session par les services Bureau à distance »
+        /// (SeDenyRemoteInteractiveLogonRight). Null = paramètre non défini.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ObservableCollection<string>? GpoDenyRemoteInteractiveLogon { get; set; }
+
+        /// <summary>Pour Policy : membres que la GPO met dans le groupe local Administrateurs. Null = paramètre non défini.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ObservableCollection<string>? GpoLocalAdmins { get; set; }
+
+        /// <summary>
+        /// Pour Policy : <see cref="GpoLocalAdmins"/> remplace les membres du groupe (groupes restreints) au lieu de s'y
+        /// ajouter (préférences).
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool GpoReplaceLocalAdmins { get; set; }
+
+        /// <summary>Pour Policy : filtre WMI, ordinateurs auxquels la GPO s'applique. Null = tous.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public GpoComputerFilter? GpoComputerFilter { get; set; }
+
         // --- Ordinateurs : LAPS, administrateurs locaux, sessions ---
 
         /// <summary>
@@ -309,6 +340,11 @@ namespace SMADX.Models
                 PSOLockoutThreshold = PSOLockoutThreshold,
                 PSOLockoutDurationMinutes = PSOLockoutDurationMinutes,
                 PSOLockoutObservationWindowMinutes = PSOLockoutObservationWindowMinutes,
+                GpoDenyInteractiveLogon = GpoDenyInteractiveLogon is { } denyLocal ? new ObservableCollection<string>(denyLocal) : null,
+                GpoDenyRemoteInteractiveLogon = GpoDenyRemoteInteractiveLogon is { } denyRemote ? new ObservableCollection<string>(denyRemote) : null,
+                GpoLocalAdmins = GpoLocalAdmins is { } gpoAdmins ? new ObservableCollection<string>(gpoAdmins) : null,
+                GpoReplaceLocalAdmins = GpoReplaceLocalAdmins,
+                GpoComputerFilter = GpoComputerFilter,
                 CreatedDate = DateTime.Now,
                 ModifiedDate = DateTime.Now
             };

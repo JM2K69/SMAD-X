@@ -53,7 +53,7 @@ Les délégations accordées à **Domain Users**, **Authenticated Users** ou **E
 !!! info "Ce que AdminSDHolder empêche"
     Une délégation posée sur une OU ne s'applique pas aux objets protégés (`adminCount = 1`) : SDProp a désactivé leur héritage. Un mandataire qui peut réinitialiser les mots de passe d'une OU ne peut donc pas réinitialiser celui d'un membre de Domain Admins rangé dans cette OU. Mais qui contrôle l'OU peut y lier une GPO, qui atteint aussi les comptes protégés ; et qui contrôle AdminSDHolder contrôle tous les objets protégés. Tous les groupes sensibles ne sont pas protégés pour autant : vérifiez la liste des groupes protégés de votre version de Windows Server. Les contrôleurs de domaine ne le sont pas non plus : une délégation posée sur la racine du domaine ou sur l'OU Domain Controllers les atteint.
 
-Les administrateurs locaux et les sessions ne sont pas dans l'annuaire : un ordinateur joint a Domain Admins pour administrateur local, et les sessions se posent à la main (section **Sécurité** de l'ordinateur, voir [Modéliser](modelisation.md)), pour montrer où un administrateur se connecte.
+Les administrateurs locaux et les sessions ne sont pas dans l'annuaire : un ordinateur joint a Domain Admins pour administrateur local, et les sessions se posent à la main (section **Sécurité** de l'ordinateur, voir [Modéliser](modelisation.md)), pour montrer où un administrateur se connecte. Les GPO qui s'appliquent à l'ordinateur comptent : elles changent ses administrateurs locaux, et une session qu'elles interdisent (refus d'ouverture de session en local et par le Bureau à distance) n'ouvre aucun chemin ; la fenêtre les compte (voir [Modèles de cloisonnement](cloisonnement.md#les-effets-des-gpo)).
 
 ## S'entraîner
 

@@ -1,7 +1,7 @@
 # Privileged account logged on to a less sensitive machine
 
 ## What the audit found
-A privileged account (or one from a more sensitive tier) has a session open on a workstation or server from a less sensitive tier.
+A privileged account (or one from a more sensitive tier) has a session open on a workstation or server from a less sensitive tier. A session that a GPO denies this account on this machine (logon denied both locally and through Remote Desktop) is not reported: it cannot happen.
 
 ## Why it is dangerous
 A session leaves the account's credentials in the machine's memory (LSASS): any local administrator of that machine can retrieve them there, then replay them. The path is direct, from a workstation account up to the domain: **Analysis > Attack paths** shows it (local administrator, then session). ANSSI's tiering forbids a Tier 0 administrator from logging on anywhere but Tier 0.

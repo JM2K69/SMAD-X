@@ -27,6 +27,11 @@ namespace SMADX.Services.Audit
 
         public IReadOnlyList<ADObject> DomainControllers { get; }
 
+        private GroupPolicyEffects? _policies;
+
+        /// <summary>Effets des GPO sur les ordinateurs : refus d'ouverture de session, administrateurs locaux.</summary>
+        public GroupPolicyEffects Policies => _policies ??= new GroupPolicyEffects(this);
+
         public AuditContext(ADObject domain, DateTime now)
         {
             Domain = domain;

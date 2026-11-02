@@ -20,13 +20,27 @@ Applying a model **adds** what is missing and neither moves nor changes any exis
 
 The applied model and its version are shown in the domain's **Password policy** section.
 
+## GPO effects
+
+The model's GPOs come with the settings that change attack paths. You read and change them in the GPO's **Security** section, and any SMAD-X GPO can receive them:
+
+| Setting | What it changes |
+|---|---|
+| **Deny log on locally**, **Deny log on through Remote Desktop Services** | an account denied both ways opens no session on the computer: its credentials do not stay there, and the "Session" step disappears from attack paths |
+| **Members of the local Administrators group** | the computer's local administrators; restricted groups (Microsoft model) replace the machine's own, preferences (HardenAD) are added to them |
+| **WMI filter** | the GPO targets only servers or only workstations (this is how HardenAD links its server GPOs and its workstation GPOs to the same OU) |
+
+A GPO applies to the computers of the OUs it is linked to, and of the OUs they contain. For the same setting, the GPO linked closest to the computer wins; on a tie, the first one in the list of linked GPOs. SMAD-X does not keep the operating system: for the WMI filter, a computer is a server or a workstation according to the model OU that contains it (servers, workstations, PAWs), otherwise according to its tier (Tier 0 and Tier 1: servers, Tier 2: workstations). A computer whose type nothing tells passes no filter.
+
+In a computer's **Security** section, SMAD-X shows the local administrators the GPOs set on it and the sessions they deny it. The **Attack paths** window counts the denied sessions, and rule TIER-04 does not report them: they cannot happen.
+
 ## Compliance with the model
 
 Once a model is applied, the audit checks that the domain follows it:
 
 | Rule | What it reports |
 |---|---|
-| **TIER-05** | a model element missing: OU, group, account, GPO, GPO link or delegation |
+| **TIER-05** | a model element missing: OU, group, account, GPO, GPO link, GPO setting (an account no longer denied, a local administrator removed) or delegation |
 | **TIER-06** | an account, computer or group outside the model's classified OUs (in Users, Computers, an older OU) |
 | **TIER-07** | an object left in a transit OU (Staging, Quarantine, Provisioning) |
 | **TIER-08** | a privileged account or group placed in an OU of a tier less sensitive than Tier 0 |
@@ -37,9 +51,10 @@ On a domain where a model has just been applied, TIER-06 therefore lists everyth
 
 ## What SMAD-X does not reproduce
 
-- **GPO settings**: SMAD-X includes their name, role and links. The logon restriction GPOs do not yet prevent the "Session" step of attack paths.
+- **GPO settings**: apart from logon denials, local administrators and the WMI filter, they are not modelled (firewall, AppLocker, audit…). Neither are enforced links, inheritance blocking and GPO security filtering.
 - **The Microsoft model**: its optional components (MSA, gMSA and dMSA, Windows LAPS, authentication silos) are not included. The "*- " prefix of GPO names is removed. Links the model creates disabled stay disabled.
-- **HardenAD**: every task of its sequence is included, as if all were enabled (they are disabled by default). Administration accounts keep the names of the source (`T0M-AHARDEN`…). Redirecting the default containers to Provisioning is not modelled. PAWs shared by several tiers (`PawAccess`, `PawT12L`) and their logon groups have no tier.
+- **HardenAD**: every task of its sequence is included, as if all were enabled (they are disabled by default). Administration accounts keep the names of the source (`T0M-AHARDEN`…). Redirecting the default containers to Provisioning is not modelled. PAWs shared by several tiers (`PawAccess`, `PawT12L`) and their logon groups have no tier. The local administration group specific to each computer (`L-S_LocalAdmins_%ComputerName%`) is not created.
+- **Authentication silos**: neither model enforces them. HardenAD creates none; Microsoft offers them as an option, created in audit mode and with no administration account in them.
 
 ## Fidelity
 
@@ -65,4 +80,4 @@ dotnet run --project tools/TierModelGenerator -- microsoft v2.1.0 SMAD-X.Core/Ti
 dotnet run --project tools/TierModelGenerator -- hardenad HardenAD-2.9.9v2 SMAD-X.Core/TierModels
 ```
 
-The tool downloads the source files at the version's commit (JSON configuration for Microsoft, XML task sequence for HardenAD), translates the rights of each delegation into SMAD-X categories and reports those it does not recognise. When a model evolves: run the tool again with the new version, review the diff and this report, then run the tests (consistency of each model, no attack path outside Tier 0 on a fresh domain, fidelity to a real domain).
+The tool downloads the source files at the version's commit (JSON configuration for Microsoft; XML task sequence and GPO backup reports for HardenAD), translates the rights of each delegation into SMAD-X categories and reports those it does not recognise. When a model evolves: run the tool again with the new version, review the diff and this report, then run the tests (consistency of each model, no attack path outside Tier 0 on a fresh domain, fidelity to a real domain).

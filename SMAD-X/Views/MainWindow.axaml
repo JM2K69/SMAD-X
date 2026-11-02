@@ -574,7 +574,7 @@
                                                 </StackPanel>
                                             </StackPanel>
 
-                                            <!-- ===== SÉCURITÉ : comptes (User/Computer/GMSA) et groupes ===== -->
+                                            <!-- ===== SÉCURITÉ : comptes (User/Computer/GMSA), groupes et GPO ===== -->
                                             <StackPanel Spacing="5"
                                                         IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.HasSecurityAttributes, FallbackValue=False}">
                                                 <Separator/>
@@ -636,6 +636,58 @@
                                                     <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.SessionsText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                              AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="40" MaxHeight="120"
                                                              FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                                    <!-- Effets des GPO qui s'appliquent à la machine (calculés à la sélection) -->
+                                                    <StackPanel Spacing="2" Margin="0,4,0,0"
+                                                                IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.HasGpoLocalAdminsEffect, FallbackValue=False}">
+                                                        <TextBlock Text="{Binding SecurityGpoLocalAdminsEffect}"/>
+                                                        <TextBlock Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GpoLocalAdminsEffect}" TextWrapping="Wrap"
+                                                                   FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                                    </StackPanel>
+                                                    <StackPanel Spacing="2" Margin="0,4,0,0"
+                                                                IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.HasBlockedSessionsEffect, FallbackValue=False}">
+                                                        <TextBlock Text="{Binding SecurityBlockedSessions}"/>
+                                                        <TextBlock Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.BlockedSessionsEffect}" TextWrapping="Wrap"
+                                                                   FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <!-- GPO : refus d'ouverture de session, administrateurs locaux, filtre WMI -->
+                                                <StackPanel Spacing="4" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.IsPolicy, FallbackValue=False}">
+                                                    <TextBlock Text="{Binding SecurityGpo}" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                                                    <TextBlock Text="{Binding SecurityGpoNote}" TextWrapping="Wrap" FontSize="11" Opacity="0.8"/>
+                                                    <TextBlock Text="{Binding SecurityGpoDenyInteractiveLogon}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                                    <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GpoDenyInteractiveLogonText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                             AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="40" MaxHeight="140"
+                                                             FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                                    <TextBlock Text="{Binding SecurityGpoDenyRemoteInteractiveLogon}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                                    <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GpoDenyRemoteInteractiveLogonText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                             AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="40" MaxHeight="140"
+                                                             FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                                    <TextBlock Text="{Binding SecurityGpoLocalAdmins}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                                    <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GpoLocalAdminsText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                             AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="40" MaxHeight="120"
+                                                             FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
+                                                    <CheckBox Content="{Binding SecurityGpoReplaceLocalAdmins}"
+                                                              IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GpoReplaceLocalAdmins, Mode=TwoWay}"/>
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <TextBlock Text="{Binding SecurityGpoComputerFilter}" VerticalAlignment="Center"/>
+                                                        <ComboBox Width="180"
+                                                                  ItemsSource="{x:Static vm:ObjectSecurityViewModel.GpoComputerFilters}"
+                                                                  SelectedItem="{Binding #MainWindowRoot.DataContext.SelectedSecurity.GpoComputerFilterChoice, Mode=TwoWay}">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock>
+                                                                        <TextBlock.Text>
+                                                                            <MultiBinding Converter="{StaticResource LocValue}" ConverterParameter="GpoComputerFilter">
+                                                                                <Binding/>
+                                                                                <Binding Source="{StaticResource Loc}" Path="CurrentCulture"/>
+                                                                            </MultiBinding>
+                                                                        </TextBlock.Text>
+                                                                    </TextBlock>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+                                                    </StackPanel>
                                                 </StackPanel>
 
                                                 <!-- Groupes -->
@@ -679,6 +731,7 @@
                                                 </Grid>
 
                                                 <CheckBox Content="{Binding SecurityAdminCount}"
+                                                          IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.HasAdminCount, FallbackValue=False}"
                                                           IsChecked="{Binding #MainWindowRoot.DataContext.SelectedSecurity.AdminCount, Mode=TwoWay}"/>
 
                                                 <StackPanel Orientation="Horizontal" Spacing="8">

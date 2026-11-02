@@ -85,11 +85,14 @@ namespace SMADX.ViewModels
             var domain = _getDomain();
             if (domain == null) return;
 
-            _all = new AttackPathService(domain).PathsToDomainControl()
+            var service = new AttackPathService(domain);
+            _all = service.PathsToDomainControl()
                 .Where(p => p.Start.Object != domain)
                 .Select(p => new AttackPathItem(p))
                 .ToArray();
             Summary = string.Format(Loc["AttackPath.Summary"], _all.Length, _all.Count(p => !p.IsTier0));
+            if (service.BlockedSessions.Count > 0)
+                Summary += " " + string.Format(Loc["AttackPath.BlockedSessions"], service.BlockedSessions.Count);
             ApplyFilter();
         }
 

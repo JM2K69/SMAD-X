@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace SMADX.Models
 {
@@ -169,6 +170,26 @@ namespace SMADX.Models
         public string? Tier { get; set; }
 
         public List<TierModelGpoLink> Links { get; set; } = new();
+
+        /// <summary>« Interdire l'ouverture d'une session locale » : comptes et groupes refusés ; null si la GPO ne définit pas ce droit.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? DenyInteractiveLogon { get; set; }
+
+        /// <summary>« Interdire l'ouverture de session par les services Bureau à distance » ; null si la GPO ne le définit pas.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? DenyRemoteInteractiveLogon { get; set; }
+
+        /// <summary>Membres que la GPO met dans le groupe local Administrateurs ; null si elle n'y touche pas.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? LocalAdmins { get; set; }
+
+        /// <summary><see cref="LocalAdmins"/> remplace les membres du groupe au lieu de s'y ajouter.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool ReplaceLocalAdmins { get; set; }
+
+        /// <summary>Filtre WMI de la GPO ; null = tous les ordinateurs de l'OU liée.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public GpoComputerFilter? ComputerFilter { get; set; }
     }
 
     public sealed class TierModelGpoLink

@@ -69,8 +69,23 @@ static class Source
         return doc.RootElement.GetProperty("sha").GetString()!;
     }
 
-    public static Task<string> File(HttpClient http, string repository, string commit, string path) =>
-        http.GetStringAsync($"https://raw.githubusercontent.com/{repository}/{commit}/{string.Join('/', path.Split('/').Select(Uri.EscapeDataString))}");
+    /// <summary>Fichier de la source ; l'encodage suit sa marque d'ordre des octets (les rapports de GPO sont en UTF-16).</summary>
+    public static async Task<string> File(HttpClient http, string repository, string commit, string path)
+    {
+        var bytes = await http.GetByteArrayAsync($"https://raw.githubusercontent.com/{repository}/{commit}/{string.Join('/', path.Split('/').Select(Uri.EscapeDataString))}");
+        using var reader = new StreamReader(new MemoryStream(bytes), System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+        return await reader.ReadToEndAsync();
+    }
+
+    /// <summary>Chemins de tous les fichiers du dépôt au commit donné.</summary>
+    public static async Task<List<string>> Tree(HttpClient http, string repository, string commit)
+    {
+        using var doc = JsonDocument.Parse(await http.GetStringAsync($"https://api.github.com/repos/{repository}/git/trees/{commit}?recursive=1"));
+        if (doc.RootElement.GetProperty("truncated").GetBoolean())
+            throw new InvalidOperationException($"Arborescence de {repository} tronquée par l'API GitHub");
+        return doc.RootElement.GetProperty("tree").EnumerateArray()
+            .Where(e => e.GetProperty("type").GetString() == "blob").Select(e => e.GetProperty("path").GetString()!).ToList();
+    }
 
     /// <summary>« OU=B,OU=A,DC=x » ou « OU=B,OU=A,{{DOMAIN_DN}} » -> « A/B ». Null si le DN n'est pas une OU.</summary>
     public static string? OuPath(string dn)
@@ -198,8 +213,8 @@ static class MicrosoftTierModel
                     Text.Note("Composants optionnels non repris : MSA, gMSA et dMSA (-IncludeMsa…), Windows LAPS (-IncludeWinLaps), silos d'authentification (-IncludeAuthSilos).",
                          "Optional components not included: MSA, gMSA and dMSA (-IncludeMsa…), Windows LAPS (-IncludeWinLaps), authentication silos (-IncludeAuthSilos)."),
                     Text.Note("Le préfixe « *- » des noms de GPO est retiré.", "The \"*- \" prefix of GPO names is removed."),
-                    Text.Note("Les GPO sont reprises par leur nom, leur rôle et leurs liens ; leurs paramètres ne sont pas modélisés.",
-                         "GPOs are included by name, role and links; their settings are not modelled."),
+                    Text.Note("Des paramètres des GPO, SMAD-X reprend les refus d'ouverture de session (session locale, Bureau à distance) et les membres du groupe local Administrateurs (groupes restreints) ; les autres paramètres ne sont pas modélisés.",
+                         "Of the GPO settings, SMAD-X includes the logon denials (local session, Remote Desktop) and the members of the local Administrators group (restricted groups); other settings are not modelled."),
                     Text.Note("Les liens de GPO que le modèle crée désactivés restent désactivés.", "GPO links the model creates disabled stay disabled.")
                 ]
             },
@@ -278,10 +293,44 @@ static class MicrosoftTierModel
                 {
                     Target = link, Enabled = !entry.TryGetProperty("linkEnabled", out var le) || le.GetBoolean()
                 });
+                gpo.DenyInteractiveLogon ??= Right(entry, "SeDenyInteractiveLogonRight");
+                gpo.DenyRemoteInteractiveLogon ??= Right(entry, "SeDenyRemoteInteractiveLogonRight");
+                if (gpo.LocalAdmins == null && entry.TryGetProperty("restrictedGroups", out var restricted) && Administrators(restricted) is { } admins)
+                    (gpo.LocalAdmins, gpo.ReplaceLocalAdmins) = (admins, true);
             }
         }
         model.GroupPolicies = gpos.Values.ToList();
         return model;
+    }
+
+    /// <summary>Mandataires d'un droit utilisateur que la GPO définit ; null si elle ne le définit pas.</summary>
+    private static List<string>? Right(JsonElement entry, string right) =>
+        entry.TryGetProperty("userRightsAssignments", out var rights)
+            ? rights.EnumerateArray().Where(r => r.GetProperty("right").GetString() == right)
+                .Select(r => Names(r.GetProperty("principals")).ToList()).FirstOrDefault()
+            : null;
+
+    /// <summary>Noms des mandataires d'un droit : groupes du domaine, de la racine de la forêt, conditionnels, littéraux.</summary>
+    private static IEnumerable<string> Names(JsonElement principals)
+    {
+        foreach (var key in new[] { "resolvableGroups", "forestRootOnly", "literalStrings" })
+            if (principals.TryGetProperty(key, out var list))
+                foreach (var name in list.EnumerateArray()) yield return name.GetString()!;
+        if (principals.TryGetProperty("conditionalGroups", out var conditional))
+            foreach (var group in conditional.EnumerateArray())
+                foreach (var name in group.GetProperty("names").EnumerateArray()) yield return name.GetString()!;
+    }
+
+    /// <summary>Groupes restreints : membres du groupe local Administrateurs (S-1-5-32-544), qui remplacent ceux de la machine.</summary>
+    private static List<string>? Administrators(JsonElement restricted)
+    {
+        if (restricted.ValueKind != JsonValueKind.Object) return null;
+        if (restricted.TryGetProperty("membershipGroups", out var groups))
+            foreach (var group in groups.EnumerateArray())
+                if (group.GetProperty("groupSidOrName").GetString() == "*S-1-5-32-544__Members")
+                    return group.GetProperty("memberGroups").EnumerateArray().Select(m => m.GetString()!).ToList();
+        return restricted.TryGetProperty("emptyGroups", out var empty) && empty.EnumerateArray().Any(e => e.GetString() == "*S-1-5-32-544__Members")
+            ? [] : null;
     }
 
     /// <summary>Les entrées de GPO d'une cible : objets portant un nom et un mode de création.</summary>
@@ -362,14 +411,16 @@ static class HardenAdTierModel
                 Commit = commit,
                 License = "MIT",
                 Copyright = Regex.Match(license, @"Copyright \(c\)[^\r\n]*").Value.Trim(),
-                Files = [Sequence, "LICENSE"],
+                Files = [Sequence, "Inputs/GroupPolicies/*/{BackupID}/gpreport.xml", "Inputs/GroupPolicies/*/{BackupID}/*.migtable", "Inputs/GroupPolicies/*/{BackupID}/translation.xml", "LICENSE"],
                 Notes =
                 [
                     Text.Note("Toutes les tâches de la séquence sont reprises, comme si elles étaient toutes activées (elles sont désactivées par défaut dans la source).",
                          "Every task of the sequence is included, as if all were enabled (they are disabled by default in the source)."),
                     Text.Note("Les comptes d'administration gardent les noms de la source (T0M-AHARDEN…).", "Administration accounts keep the names of the source (T0M-AHARDEN…)."),
-                    Text.Note("Les GPO sont reprises par leur nom, leur rôle et leurs liens ; leurs paramètres ne sont pas modélisés.",
-                         "GPOs are included by name, role and links; their settings are not modelled."),
+                    Text.Note("Des paramètres des GPO, SMAD-X reprend les refus d'ouverture de session (session locale, Bureau à distance), les membres ajoutés au groupe local Administrateurs et le filtre WMI (serveurs ou postes) ; les autres paramètres ne sont pas modélisés.",
+                         "Of the GPO settings, SMAD-X includes the logon denials (local session, Remote Desktop), the members added to the local Administrators group and the WMI filter (servers or workstations); other settings are not modelled."),
+                    Text.Note("Le groupe d'administration locale propre à chaque ordinateur (L-S_LocalAdmins_%ComputerName%) n'est pas créé.",
+                         "The local administration group specific to each computer (L-S_LocalAdmins_%ComputerName%) is not created."),
                     Text.Note("La redirection des conteneurs par défaut vers Provisioning (redircmp, redirusr) n'est pas modélisée.",
                          "Redirecting the default containers to Provisioning (redircmp, redirusr) is not modelled."),
                     Text.Note("Les PAW partagées (PawAccess, PawT12L) et leurs groupes de connexion n'ont pas de tier : ils servent plusieurs tiers.",
@@ -480,6 +531,7 @@ static class HardenAdTierModel
         }
         model.Delegations = Rights.Dedupe(delegations);
 
+        var tree = await Source.Tree(http, Repository, commit);
         var settings = xml.Element("GroupPolicies")!.Element("GlobalGpoSettings")!;
         // groupPolicy.psm1 range les groupes de filtrage dans l'OU de GpoTier0, quel que soit le tier de la GPO
         var gpoGroupsPath = Source.OuPath(T(settings.Element("GpoTier0")!.Attribute("OU")!.Value))!;
@@ -513,7 +565,7 @@ static class HardenAdTierModel
                     Scope = ADGroupScope.DomainLocal, Description = $"{kind} GPO: {name}"
                 });
 
-            model.GroupPolicies.Add(new TierModelGpo
+            var definition = new TierModelGpo
             {
                 Name = name,
                 Role = Enum.Parse<TierModelGpoRole>(Rights.Gpo(name)),
@@ -522,10 +574,89 @@ static class HardenAdTierModel
                 {
                     Target = Source.OuPath(T(l.Attribute("Path")?.Value)) ?? string.Empty,
                     Enabled = !string.Equals(l.Attribute("Enabled")?.Value, "No", StringComparison.OrdinalIgnoreCase)
-                }).ToList()
-            });
+                }).ToList(),
+                ComputerFilter = Filter(gpo.Element("GpoFilter")?.Attribute("WMI")?.Value)
+            };
+            if (gpo.Attribute("BackupID")?.Value is { Length: > 0 } backup)
+                await ReadSettings(http, commit, tree, backup, definition, T);
+            model.GroupPolicies.Add(definition);
         }
         return model;
+    }
+
+    /// <summary>Filtre WMI de HardenAD (Windows-Supported-OS-Servers-NoDC, Windows-OS-Clients…) : serveurs, postes, ou tous.</summary>
+    private static GpoComputerFilter? Filter(string? wmi) =>
+        wmi == null ? null
+        : wmi.Contains("Servers", StringComparison.OrdinalIgnoreCase) ? GpoComputerFilter.Servers
+        : wmi.Contains("Clients", StringComparison.OrdinalIgnoreCase) ? GpoComputerFilter.Workstations
+        : null;
+
+    /// <summary>
+    /// Paramètres d'une GPO, lus dans le rapport de sa sauvegarde (gpreport.xml) : refus d'ouverture de session, groupes
+    /// restreints et préférences du groupe local Administrateurs. Les noms y sont ceux du domaine où la sauvegarde a été
+    /// faite ; la table de migration et translation.xml de la sauvegarde les ramènent aux variables de la séquence.
+    /// </summary>
+    private static async Task ReadSettings(HttpClient http, string commit, List<string> tree, string backup, TierModelGpo gpo, Func<string?, string> translate)
+    {
+        var folder = tree.Select(p => p[..(p.LastIndexOf('/') + 1)])
+            .FirstOrDefault(p => p.StartsWith("Inputs/GroupPolicies/", StringComparison.Ordinal) && p.EndsWith($"/{backup}/", StringComparison.OrdinalIgnoreCase));
+        if (folder == null || !tree.Contains(folder + "gpreport.xml")) return;
+        var report = XDocument.Parse(await Source.File(http, Repository, commit, folder + "gpreport.xml"));
+        static IEnumerable<XElement> Children(XElement e, string name) => e.Elements().Where(c => c.Name.LocalName == name);
+        static string? NameOf(XElement member) => Children(member, "Name").FirstOrDefault()?.Value;
+
+        List<string>? Right(string right) => report.Descendants().Where(e => e.Name.LocalName == "UserRightsAssignment")
+            .Where(e => Children(e, "Name").Any(n => n.Value == right))
+            .Select(e => Children(e, "Member").Select(NameOf).OfType<string>().ToList())
+            .FirstOrDefault();
+        var local = Right("SeDenyInteractiveLogonRight");
+        var remote = Right("SeDenyRemoteInteractiveLogonRight");
+
+        // Groupes restreints (remplacent les membres), puis préférences (ajoutent ; « supprimer tous les groupes membres » remplace)
+        List<string>? admins = null;
+        var replace = false;
+        foreach (var restricted in report.Descendants().Where(e => e.Name.LocalName == "RestrictedGroups"))
+            if (Children(restricted, "GroupName").Any(g => Children(g, "SID").Any(s => s.Value == "S-1-5-32-544")))
+                (admins, replace) = ([.. Children(restricted, "Member").Select(NameOf).OfType<string>()], true);
+        foreach (var properties in report.Descendants().Where(e => e.Name.LocalName == "Properties" && e.Attribute("groupSid")?.Value == "S-1-5-32-544"))
+        {
+            admins ??= [];
+            admins.AddRange(properties.Descendants()
+                .Where(m => m.Name.LocalName == "Member" && string.Equals(m.Attribute("action")?.Value, "ADD", StringComparison.OrdinalIgnoreCase))
+                .Select(m => m.Attribute("name")?.Value).OfType<string>());
+            replace |= properties.Attribute("deleteAllGroups")?.Value == "1";
+        }
+        if (local == null && remote == null && admins == null) return;
+
+        // sAMAccountName de la source -> nom de destination, dans la table de migration puis dans translation.xml
+        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var file in tree.Where(p => p.StartsWith(folder, StringComparison.Ordinal) && p.LastIndexOf('/') == folder.Length - 1
+                                             && (p.EndsWith(".migtable", StringComparison.OrdinalIgnoreCase) || p.EndsWith("/translation.xml", StringComparison.OrdinalIgnoreCase))))
+        {
+            var xml = XDocument.Parse(await Source.File(http, Repository, commit, file));
+            foreach (var mapping in xml.Descendants().Where(e => e.Name.LocalName == "Mapping"))
+                if (Children(mapping, "Source").FirstOrDefault()?.Value is { } from && Children(mapping, "Destination").FirstOrDefault()?.Value is { } to)
+                    map.TryAdd(Sam(from), to);
+            foreach (var replacement in xml.Descendants().Where(e => e.Name.LocalName == "replace"))
+                if (replacement.Attribute("find")?.Value is { } from && !from.StartsWith("S-1-", StringComparison.Ordinal)
+                    && replacement.Attribute("replaceBy")?.Value is { } to)
+                    map.TryAdd(Sam(from), to);
+        }
+        // Un nom resté variable (groupe propre à chaque ordinateur) n'existe pas dans l'annuaire : il est laissé
+        List<string> Resolve(IEnumerable<string> names) => names
+            .Select(n => translate(Sam(map.TryGetValue(Sam(n), out var to) ? to : n)))
+            .Where(n => n.Length > 0 && !n.Contains('%'))
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        if (local != null) gpo.DenyInteractiveLogon = Resolve(local);
+        if (remote != null) gpo.DenyRemoteInteractiveLogon = Resolve(remote);
+        if (admins != null) (gpo.LocalAdmins, gpo.ReplaceLocalAdmins) = (Resolve(admins), replace);
+    }
+
+    /// <summary>« DOMAINE\nom » ou « nom@domaine » -> « nom ».</summary>
+    private static string Sam(string name)
+    {
+        var sam = name[(name.LastIndexOf('\\') + 1)..];
+        return sam.Contains('@') ? sam[..sam.IndexOf('@')] : sam;
     }
 
     private static string Sid(string value)

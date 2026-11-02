@@ -304,7 +304,8 @@ namespace SMADX.Services
             L(s, "    try {");
             L(s, "        $obj = Get-ADObject -Identity $dn -Properties gpLink");
             L(s, "        if ($obj.gpLink) {");
-            L(s, "            $links = [regex]::Matches($obj.gpLink, '\\[LDAP://([^\\]]+);') | ForEach-Object { $_.Groups[1].Value }");
+            L(s, "            # Liens actifs seulement : l'option 1 de gPLink désactive le lien (2 : lien appliqué)");
+            L(s, "            $links = [regex]::Matches($obj.gpLink, '\\[LDAP://([^\\];]+);(\\d+)\\]') | Where-Object { ([int]$_.Groups[2].Value -band 1) -eq 0 } | ForEach-Object { $_.Groups[1].Value }");
             L(s, "            return @($links | ForEach-Object { $k = $_.ToLower(); if ($gpoMap.ContainsKey($k)) { $gpoMap[$k] } else { $_ } })");
             L(s, "        }");
             L(s, "    } catch {}");

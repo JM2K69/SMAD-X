@@ -56,4 +56,14 @@ namespace SMADX.Models
         Security,
         Distribution
     }
+
+    /// <summary>
+    /// Ordinateurs que vise le filtre WMI d'une GPO, d'après le type de système (HardenAD filtre ainsi ses GPO de
+    /// tier, liées à une même OU : celles des serveurs et celles des postes).
+    /// </summary>
+    public enum GpoComputerFilter
+    {
+        Servers,
+        Workstations
+    }
 }

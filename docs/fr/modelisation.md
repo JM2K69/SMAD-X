@@ -53,6 +53,8 @@ Pour un **ordinateur**, la partie **Ordinateur** ajoute :
 | Administrateurs locaux | groupe local Administrateurs, hors de l'annuaire | Domain Admins par défaut, Builtin Administrators sur un DC ; un groupe ajouté (par GPO) administre la machine |
 | Sessions ouvertes | hors de l'annuaire (BloodHound les collecte sur les machines) | un administrateur connecté laisse ses identifiants en mémoire : son compte est à portée de tout administrateur de la machine (TIER-04) |
 
+Pour une **GPO**, la partie **Effets sur les ordinateurs** reprend les paramètres qui changent les chemins d'attaque : les comptes et groupes à qui elle interdit d'ouvrir une session (en local, par le Bureau à distance), les membres qu'elle met dans le groupe local Administrateurs (en remplacement ou en ajout) et son filtre WMI (serveurs ou postes). Un compte refusé des deux façons n'ouvre pas de session sur les ordinateurs où la GPO s'applique. La section **Sécurité** d'un ordinateur montre ce que lui imposent les GPO (voir [Modèles de cloisonnement](cloisonnement.md#les-effets-des-gpo)).
+
 Les options utilisent les vrais bits de `userAccountControl` : l'import PowerShell les reprend tels quels.
 
 !!! tip "AdminSDHolder"

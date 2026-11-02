@@ -20,13 +20,27 @@ L'application **ajoute** ce qui manque et ne déplace ni ne modifie aucun objet 
 
 Le modèle appliqué et sa version s'affichent dans la section **Politique de mot de passe** du domaine.
 
+## Les effets des GPO
+
+Les GPO du modèle sont reprises avec les paramètres qui changent les chemins d'attaque. On les lit et on les modifie dans la section **Sécurité** de la GPO, et toute GPO de SMAD-X peut en recevoir :
+
+| Paramètre | Ce qu'il change |
+|---|---|
+| **Interdire l'ouverture d'une session locale**, **Interdire l'ouverture de session par les services Bureau à distance** | un compte refusé des deux façons n'ouvre pas de session sur l'ordinateur : ses identifiants n'y restent pas, et l'étape « Session ouverte » disparaît des chemins d'attaque |
+| **Membres du groupe local Administrateurs** | les administrateurs locaux de l'ordinateur ; les groupes restreints (modèle Microsoft) remplacent ceux de la machine, les préférences (HardenAD) s'y ajoutent |
+| **Filtre WMI** | la GPO ne vise que les serveurs ou que les postes de travail (HardenAD lie ainsi à la même OU les GPO de ses serveurs et celles de ses postes) |
+
+Une GPO s'applique aux ordinateurs des OU où elle est liée, et des OU qu'elles contiennent. Pour un même paramètre, la GPO liée au plus près de l'ordinateur l'emporte ; à égalité, la première de la liste des GPO liées. SMAD-X ne garde pas le système d'exploitation : pour le filtre WMI, un ordinateur est un serveur ou un poste d'après l'OU du modèle qui le contient (serveurs, postes, PAW), sinon d'après son tier (Tier 0 et Tier 1 : serveurs, Tier 2 : postes). Un ordinateur dont rien ne dit le type ne passe aucun filtre.
+
+Dans la section **Sécurité** d'un ordinateur, SMAD-X montre les administrateurs locaux que lui imposent les GPO et les sessions qu'elles lui interdisent. La fenêtre **Chemins d'attaque** compte les sessions refusées, et la règle TIER-04 ne les signale pas : elles ne peuvent pas avoir lieu.
+
 ## La conformité au modèle
 
 Une fois un modèle appliqué, l'audit vérifie que le domaine le respecte :
 
 | Règle | Ce qu'elle signale |
 |---|---|
-| **TIER-05** | un élément du modèle absent : OU, groupe, compte, GPO, lien de GPO ou délégation |
+| **TIER-05** | un élément du modèle absent : OU, groupe, compte, GPO, lien de GPO, paramètre de GPO (un compte qui n'est plus refusé, un administrateur local retiré) ou délégation |
 | **TIER-06** | un compte, un ordinateur ou un groupe rangé hors des OU classées du modèle (dans Users, Computers, une ancienne OU) |
 | **TIER-07** | un objet resté dans une OU de transit (Staging, Quarantine, Provisioning) |
 | **TIER-08** | un compte ou un groupe privilégié rangé dans une OU d'un tier moins sensible que le Tier 0 |
@@ -37,9 +51,10 @@ Sur un domaine où l'on vient d'appliquer un modèle, TIER-06 liste donc tout ce
 
 ## Ce que SMAD-X ne reproduit pas
 
-- **Les paramètres des GPO** : SMAD-X reprend leur nom, leur rôle et leurs liens. Les GPO de restriction de connexion n'empêchent pas encore, dans les chemins d'attaque, l'étape « Session ouverte ».
+- **Les paramètres des GPO** : en dehors des refus d'ouverture de session, des administrateurs locaux et du filtre WMI, ils ne sont pas modélisés (pare-feu, AppLocker, audit…). Les liens appliqués, le blocage de l'héritage et le filtrage de sécurité des GPO non plus.
 - **Le modèle Microsoft** : ses composants optionnels (MSA, gMSA et dMSA, Windows LAPS, silos d'authentification) ne sont pas repris. Le préfixe « *- » des noms de GPO est retiré. Les liens que le modèle crée désactivés restent désactivés.
-- **HardenAD** : toutes les tâches de sa séquence sont reprises, comme si elles étaient toutes activées (elles sont désactivées par défaut). Les comptes d'administration gardent les noms de la source (`T0M-AHARDEN`…). La redirection des conteneurs par défaut vers Provisioning n'est pas modélisée. Les PAW partagées par plusieurs tiers (`PawAccess`, `PawT12L`) et leurs groupes de connexion n'ont pas de tier.
+- **HardenAD** : toutes les tâches de sa séquence sont reprises, comme si elles étaient toutes activées (elles sont désactivées par défaut). Les comptes d'administration gardent les noms de la source (`T0M-AHARDEN`…). La redirection des conteneurs par défaut vers Provisioning n'est pas modélisée. Les PAW partagées par plusieurs tiers (`PawAccess`, `PawT12L`) et leurs groupes de connexion n'ont pas de tier. Le groupe d'administration locale propre à chaque ordinateur (`L-S_LocalAdmins_%ComputerName%`) n'est pas créé.
+- **Les silos d'authentification** : aucun des deux modèles ne les applique. HardenAD n'en crée pas ; Microsoft les propose en option, créés en mode audit et sans y placer de compte d'administration.
 
 ## Fidélité
 
@@ -65,4 +80,4 @@ dotnet run --project tools/TierModelGenerator -- microsoft v2.1.0 SMAD-X.Core/Ti
 dotnet run --project tools/TierModelGenerator -- hardenad HardenAD-2.9.9v2 SMAD-X.Core/TierModels
 ```
 
-L'outil télécharge les fichiers de la source au commit de la version (configuration JSON pour Microsoft, séquence de tâches XML pour HardenAD), traduit les droits de chaque délégation en catégories de SMAD-X et signale ceux qu'il ne reconnaît pas. Quand un modèle évolue : relancer l'outil avec la nouvelle version, relire le diff et ce rapport, puis lancer les tests (cohérence de chaque modèle, absence de chemin d'attaque hors du Tier 0 sur un domaine neuf, fidélité à un vrai domaine).
+L'outil télécharge les fichiers de la source au commit de la version (configuration JSON pour Microsoft ; séquence de tâches XML et rapports des sauvegardes de GPO pour HardenAD), traduit les droits de chaque délégation en catégories de SMAD-X et signale ceux qu'il ne reconnaît pas. Quand un modèle évolue : relancer l'outil avec la nouvelle version, relire le diff et ce rapport, puis lancer les tests (cohérence de chaque modèle, absence de chemin d'attaque hors du Tier 0 sur un domaine neuf, fidélité à un vrai domaine).

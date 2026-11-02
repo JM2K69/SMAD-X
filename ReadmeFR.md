@@ -57,7 +57,7 @@
 - **Tier 1** : Serveurs d'infrastructure et d'applications
 - **Tier 2** : Postes de travail et utilisateurs standard
 - Couleurs configurables par tier via l'interface
-- **Modèles de cloisonnement** : appliquer le [modèle en tiers de Microsoft](https://github.com/microsoft/ActiveDirectoryTierModel) ou [HardenAD](https://github.com/LoicVeirman/HardenAD) à un domaine neuf ou existant (OU par tier, groupes et comptes d'administration, GPO, délégations), puis auditer le respect du modèle (TIER-05 à TIER-08) ; les deux modèles sont générés depuis leur version officielle, avec la source et la licence MIT citées
+- **Modèles de cloisonnement** : appliquer le [modèle en tiers de Microsoft](https://github.com/microsoft/ActiveDirectoryTierModel) ou [HardenAD](https://github.com/LoicVeirman/HardenAD) à un domaine neuf ou existant (OU par tier, groupes et comptes d'administration, GPO, délégations), puis auditer le respect du modèle (TIER-05 à TIER-08) ; les GPO du modèle agissent sur les chemins d'attaque (les refus d'ouverture de session suppriment les sessions d'administrateurs qu'ils interdisent, les groupes restreints et les préférences fixent les administrateurs locaux) ; les deux modèles sont générés depuis leur version officielle, avec la source et la licence MIT citées
 
 ### 📝 Documentation Markdown intégrée
 - Chaque objet dispose d'une description Markdown enrichie avec rôle et **notes de sécurité**

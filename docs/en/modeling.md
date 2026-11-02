@@ -53,6 +53,8 @@ For a **computer**, the **Computer** part adds:
 | Local administrators | local Administrators group, outside the directory | Domain Admins by default, Builtin Administrators on a DC; a group added (through a GPO) administers the machine |
 | Open sessions | outside the directory (BloodHound collects them on the machines) | a logged-on administrator leaves their credentials in memory: their account is within reach of any administrator of the machine (TIER-04) |
 
+For a **GPO**, the **Effects on computers** part holds the settings that change attack paths: the accounts and groups it denies logon to (locally, through Remote Desktop), the members it puts in the local Administrators group (replacing or adding) and its WMI filter (servers or workstations). An account denied both ways opens no session on the computers the GPO applies to. A computer's **Security** section shows what the GPOs set on it (see [Tiering models](tiering.md#gpo-effects)).
+
 Options use the real `userAccountControl` bits: the PowerShell import carries them as they are.
 
 !!! tip "AdminSDHolder"
