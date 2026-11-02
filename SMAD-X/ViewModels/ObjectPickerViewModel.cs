@@ -28,31 +28,59 @@ namespace SMADX.ViewModels
         }
     }
 
+    /// <summary>Type d'objet proposé au choix (utilisateurs, groupes…), que l'on affiche ou masque d'une case.</summary>
+    public sealed partial class PickerKind : ObservableObject
+    {
+        private readonly Func<ADObject, bool> _matches;
+
+        public PickerKind(string label, Func<ADObject, bool> matches)
+        {
+            Label = label;
+            _matches = matches;
+        }
+
+        public string Label { get; }
+
+        [ObservableProperty] private bool _isChecked = true;
+
+        public bool Matches(ADObject o) => _matches(o);
+    }
+
     /// <summary>
-    /// Choix d'objets dans l'annuaire (comme « Sélectionner des utilisateurs, des ordinateurs ou des groupes ») : une
-    /// recherche sur le nom ou l'emplacement, une case par objet.
+    /// Choix d'objets dans l'annuaire (comme « Sélectionner des utilisateurs, des ordinateurs ou des groupes ») : les types
+    /// d'objets proposés, une recherche sur le nom ou l'emplacement, une case par objet.
     /// </summary>
     public sealed partial class ObjectPickerViewModel : ViewModelBase
     {
         private readonly IReadOnlyList<PickerEntry> _entries;
 
-        public ObjectPickerViewModel(IEnumerable<ADObject> candidates, string title)
+        /// <param name="kinds">Types d'objets proposés : un objet n'est proposé que si l'un d'eux le reconnaît.</param>
+        public ObjectPickerViewModel(IEnumerable<ADObject> candidates, string title, IReadOnlyList<PickerKind> kinds)
         {
             Title = title;
-            _entries = candidates.OrderBy(o => o.Name, StringComparer.CurrentCultureIgnoreCase).Select(o => new PickerEntry(o)).ToList();
+            Kinds = kinds;
+            _entries = candidates.Where(o => kinds.Any(k => k.Matches(o)))
+                .OrderBy(o => o.Name, StringComparer.CurrentCultureIgnoreCase).Select(o => new PickerEntry(o)).ToList();
+            foreach (var kind in kinds)
+                kind.PropertyChanged += (_, _) => OnPropertyChanged(nameof(Entries));
         }
 
         public string Title { get; }
+
+        public IReadOnlyList<PickerKind> Kinds { get; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Entries))]
         private string _filter = string.Empty;
 
-        /// <summary>Les objets dont le nom ou l'emplacement contient la recherche ; les cochés restent cochés quand elle change.</summary>
-        public IEnumerable<PickerEntry> Entries => string.IsNullOrWhiteSpace(Filter)
-            ? _entries
-            : _entries.Where(e => e.Name.Contains(Filter.Trim(), StringComparison.CurrentCultureIgnoreCase)
-                                  || e.Location.Contains(Filter.Trim(), StringComparison.CurrentCultureIgnoreCase));
+        /// <summary>
+        /// Les objets d'un type coché dont le nom ou l'emplacement contient la recherche ; les cochés restent cochés quand
+        /// l'une ou l'autre change.
+        /// </summary>
+        public IEnumerable<PickerEntry> Entries => _entries.Where(e => Kinds.Any(k => k.IsChecked && k.Matches(e.Object))
+            && (string.IsNullOrWhiteSpace(Filter)
+                || e.Name.Contains(Filter.Trim(), StringComparison.CurrentCultureIgnoreCase)
+                || e.Location.Contains(Filter.Trim(), StringComparison.CurrentCultureIgnoreCase)));
 
         public IReadOnlyList<string> SelectedNames => _entries.Where(e => e.IsSelected).Select(e => e.Name).ToList();
     }

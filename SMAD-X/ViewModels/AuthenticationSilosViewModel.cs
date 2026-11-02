@@ -89,11 +89,23 @@ namespace SMADX.ViewModels
 
         /// <summary>Utilisateurs, groupes et comptes de service qui ne sont pas encore dans le silo.</summary>
         public ObjectPickerViewModel PickMembers() =>
-            new(Candidates(o => o.Type is ADObjectType.User or ADObjectType.Group or ADObjectType.GMSA, Selected?.Members), Loc["Dialog.Silos.PickMembers"]);
+            new(Candidates(Selected?.Members), Loc["Dialog.Silos.PickMembers"],
+            [
+                new(Loc["Dialog.Picker.Users"], o => o.Type == ADObjectType.User),
+                new(Loc["Dialog.Picker.Groups"], o => o.Type == ADObjectType.Group),
+                new(Loc["Dialog.Picker.ServiceAccounts"], o => o.Type == ADObjectType.GMSA)
+            ]);
 
-        /// <summary>Ordinateurs et groupes (d'ordinateurs) qui ne sont pas encore dans le silo.</summary>
-        public ObjectPickerViewModel PickComputers() =>
-            new(Candidates(o => o.Type is ADObjectType.Computer or ADObjectType.Group, Selected?.Computers), Loc["Dialog.Silos.PickComputers"]);
+        /// <summary>Ordinateurs et groupes d'ordinateurs qui ne sont pas encore dans le silo.</summary>
+        public ObjectPickerViewModel PickComputers()
+        {
+            var computerGroups = ComputerGroups();
+            return new(Candidates(Selected?.Computers), Loc["Dialog.Silos.PickComputers"],
+            [
+                new(Loc["Dialog.Picker.Computers"], o => o.Type == ADObjectType.Computer),
+                new(Loc["Dialog.Picker.ComputerGroups"], computerGroups.Contains)
+            ]);
+        }
 
         public void AddMembers(IEnumerable<string> names) => AddTo(Selected?.Members, names);
 
@@ -112,8 +124,31 @@ namespace SMADX.ViewModels
             if (Selected?.SelectedComputer is { } computer) Selected.Computers.Remove(computer);
         }
 
-        private IEnumerable<ADObject> Candidates(Func<ADObject, bool> kind, ICollection<string>? present) =>
-            _context?.Objects.Where(o => kind(o) && !(present ?? []).Contains(o.Name, StringComparer.OrdinalIgnoreCase)) ?? [];
+        private IEnumerable<ADObject> Candidates(ICollection<string>? present) =>
+            _context?.Objects.Where(o => !(present ?? []).Contains(o.Name, StringComparer.OrdinalIgnoreCase)) ?? [];
+
+        /// <summary>Groupes prédéfinis des ordinateurs : leur groupe principal, que MemberOf ne cite pas toujours.</summary>
+        private static readonly string[] BuiltInComputerGroups =
+        [
+            "Domain Computers", "Domain Controllers", "Read-only Domain Controllers",
+            "Enterprise Read-only Domain Controllers", "Cloneable Domain Controllers"
+        ];
+
+        /// <summary>Groupes qui contiennent des ordinateurs, directement ou par imbrication, et les groupes prédéfinis des ordinateurs.</summary>
+        private HashSet<ADObject> ComputerGroups()
+        {
+            var groups = new HashSet<ADObject>();
+            if (_context == null) return groups;
+            var builtIn = BuiltInComputerGroups.Select(_context.Group).OfType<ADObject>();
+            foreach (var group in builtIn)
+            {
+                groups.Add(group);
+                groups.UnionWith(_context.EffectiveGroups(group));
+            }
+            foreach (var computer in _context.Objects.Where(o => o.Type == ADObjectType.Computer))
+                groups.UnionWith(_context.EffectiveGroups(computer));
+            return groups;
+        }
 
         private void AddTo(ObservableCollection<string>? list, IEnumerable<string> names)
         {

@@ -8,10 +8,26 @@
         Width="620" Height="560"
         WindowStartupLocation="CenterOwner">
 
-    <Grid RowDefinitions="Auto,*,Auto" Margin="12" RowSpacing="8">
-        <TextBox Grid.Row="0" Text="{Binding Filter}" Watermark="{Binding Source={StaticResource Loc}, Path=DialogPickerFilter}"/>
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="12" RowSpacing="8">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+            <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DialogPickerTypes}" VerticalAlignment="Center"/>
+            <ItemsControl ItemsSource="{Binding Kinds}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="12"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PickerKind">
+                        <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
 
-        <ListBox Grid.Row="1" ItemsSource="{Binding Entries}">
+        <TextBox Grid.Row="1" Text="{Binding Filter}" PlaceholderText="{Binding Source={StaticResource Loc}, Path=DialogPickerFilter}"/>
+
+        <ListBox Grid.Row="2" ItemsSource="{Binding Entries}">
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:PickerEntry">
                     <CheckBox IsChecked="{Binding IsSelected}">
@@ -25,7 +41,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
             <Button Content="{Binding Source={StaticResource Loc}, Path=DialogPickerAdd}" Click="OnAddClick" Padding="14,5"/>
             <Button Content="{Binding Source={StaticResource Loc}, Path=DialogSilosCancel}" Click="OnCancelClick" Padding="14,5"/>
         </StackPanel>

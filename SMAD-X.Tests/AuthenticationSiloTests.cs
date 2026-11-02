@@ -117,8 +117,12 @@ public class AuthenticationSiloTests
         editor.AddCommand.Execute(null);
 
         var identities = editor.PickMembers();
+        Assert.Equal(new[] { "Dialog.Picker.Users", "Dialog.Picker.Groups", "Dialog.Picker.ServiceAccounts" }.Select(k => LocalizationService.Instance[k]), identities.Kinds.Select(k => k.Label));
         Assert.Contains(identities.Entries, e => e.Name == "adm-lmartin" && e.Location == "Admin");
         Assert.DoesNotContain(identities.Entries, e => e.Object.Type == ADObjectType.Computer);
+        identities.Kinds[1].IsChecked = false;
+        Assert.DoesNotContain(identities.Entries, e => e.Object.Type == ADObjectType.Group);
+        identities.Kinds[1].IsChecked = true;
         identities.Filter = "lmartin";
         Assert.Equal(["adm-lmartin"], identities.Entries.Select(e => e.Name));
         identities.Entries.Single().IsSelected = true;
@@ -127,8 +131,14 @@ public class AuthenticationSiloTests
         editor.AddMembers(identities.SelectedNames);
 
         var computers = editor.PickComputers();
+        Assert.Equal(new[] { "Dialog.Picker.Computers", "Dialog.Picker.ComputerGroups" }.Select(k => LocalizationService.Instance[k]), computers.Kinds.Select(k => k.Label));
         Assert.DoesNotContain(computers.Entries, e => e.Object.Type == ADObjectType.User);
+        // Côté ordinateurs, seuls les groupes d'ordinateurs : pas Domain Admins
+        Assert.DoesNotContain(computers.Entries, e => e.Name == "Domain Admins");
         computers.Entries.First(e => e.Name == "Domain Controllers").IsSelected = true;
+        computers.Kinds[1].IsChecked = false;
+        Assert.All(computers.Entries, e => Assert.Equal(ADObjectType.Computer, e.Object.Type));
+        Assert.Contains(computers.Entries, e => e.Name == "DC01");
         editor.AddComputers(computers.SelectedNames);
 
         var silo = Assert.Single(editor.Result());

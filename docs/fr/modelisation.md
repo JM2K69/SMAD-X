@@ -127,7 +127,9 @@ Un silo de stratégies d'authentification associe des identités aux ordinateurs
 | **Identités** | les utilisateurs, groupes et comptes de service du silo ; un groupe y met ses membres (dans AD, chaque compte est ajouté un à un) |
 | **Ordinateurs** | les ordinateurs, ou groupes d'ordinateurs, depuis lesquels les identités s'authentifient : ceux du silo, et ceux que sa stratégie autorise en plus |
 
-**Parcourir l'annuaire...** ouvre la liste des objets du domaine qui peuvent rejoindre la liste (utilisateurs, groupes et comptes de service, ou ordinateurs et groupes) : une recherche sur le nom ou l'emplacement, une case par objet.
+**Parcourir l'annuaire...** ouvre la liste des objets du domaine qui peuvent rejoindre la liste : des cases pour n'afficher que certains types d'objets (utilisateurs, groupes et comptes de service, ou ordinateurs et groupes d'ordinateurs, ceux qui en contiennent), une recherche sur le nom ou l'emplacement, une case par objet.
+
+![Parcourir l'annuaire : les ordinateurs du silo](assets/screens/silo-picker.png)
 
 La stratégie d'un silo ne restreint que Kerberos. Une identité qui peut encore s'authentifier par NTLM la contourne : SMAD-X ne refuse la session que pour un membre de **Protected Users**, qui n'utilise que Kerberos, et la fenêtre signale les identités du silo qui n'y sont pas.
 

@@ -101,6 +101,7 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
         }
     ], vm.RootObject);
     Capture(new AuthenticationSilosWindow { DataContext = silos, Width = 1000, Height = 620 }, Out("silos"));
+    Capture(new ObjectPickerWindow { DataContext = silos.PickComputers(), Width = 620, Height = 420 }, Out("silo-picker"));
     main.Close();
 
     // ─── Exercice de démonstration, construit ici et jamais embarqué dans l'application ───

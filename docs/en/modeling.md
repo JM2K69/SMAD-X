@@ -127,7 +127,9 @@ An authentication policy silo ties identities to the computers they authenticate
 | **Identities** | the silo's users, groups and service accounts; a group adds its members (in AD, each account is added one by one) |
 | **Computers** | the computers, or computer groups, the identities authenticate from: the silo's own, and those its policy also allows |
 
-**Browse the directory...** opens the list of the domain objects that can join the list (users, groups and service accounts, or computers and groups): a search on name or location, a box per object.
+**Browse the directory...** opens the list of the domain objects that can join the list: boxes to show only some object types (users, groups and service accounts, or computers and computer groups, those that contain some), a search on name or location, a box per object.
+
+![Browse the directory: the silo's computers](assets/screens/silo-picker.png)
 
 A silo's policy only restricts Kerberos. An identity that can still authenticate with NTLM bypasses it: SMAD-X only denies the session to a member of **Protected Users**, which uses Kerberos only, and the window reports the silo's identities that are not in it.
 
