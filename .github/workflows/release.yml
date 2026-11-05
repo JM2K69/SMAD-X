@@ -60,14 +60,20 @@ jobs:
         with:
           dotnet-version: "10.0.x"
 
-      # SMAD-X et SMAD-X Studio : deux exécutables autonomes (un seul fichier chacun) dans la même archive
+      # Une application par dossier, donc par archive : SMAD-X, SMAD-X Studio et SMAR-X, chacune un exécutable
+      # autonome (un seul fichier). Le nom du dossier devient celui de l'archive : SMAD-X-Studio-win-x64.zip.
       - name: Publish
         shell: pwsh
         run: |
-          foreach ($project in 'SMAD-X/SMAD-X.csproj', 'SMAD-X.Studio/SMAD-X.Studio.csproj') {
-            dotnet publish $project -c Release -r ${{ matrix.rid }} --self-contained true `
+          $apps = [ordered]@{
+            'SMAD-X'        = 'SMAD-X/SMAD-X.csproj'
+            'SMAD-X-Studio' = 'SMAD-X.Studio/SMAD-X.Studio.csproj'
+            'SMAR-X'        = 'SMAR-X/SMAR-X.csproj'
+          }
+          foreach ($app in $apps.GetEnumerator()) {
+            dotnet publish $app.Value -c Release -r ${{ matrix.rid }} --self-contained true `
               -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
-              -p:DebugType=none -p:DebugSymbols=false -o publish/${{ matrix.rid }}
+              -p:DebugType=none -p:DebugSymbols=false -o publish/${{ matrix.rid }}/$($app.Key)
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
 
@@ -75,10 +81,13 @@ jobs:
         shell: pwsh
         run: Get-ChildItem -Path publish/${{ matrix.rid }} -Recurse -Filter *.pdb | Remove-Item -Force
 
-      # La licence Apache 2.0 et celles des composants tiers (polices OFL comprises) accompagnent chaque copie
+      # La licence Apache 2.0 et celles des composants tiers (polices OFL comprises) accompagnent chaque archive
       - name: Add license files
         shell: pwsh
-        run: Copy-Item LICENSE, NOTICE, THIRD-PARTY-NOTICES.md, SMAD-X.Core/Fonts/OFL.txt -Destination publish/${{ matrix.rid }}
+        run: |
+          foreach ($dir in Get-ChildItem publish/${{ matrix.rid }} -Directory) {
+            Copy-Item LICENSE, NOTICE, THIRD-PARTY-NOTICES.md, SMAD-X.Core/Fonts/OFL.txt -Destination $dir.FullName
+          }
 
       # Les exe publiés tels qu'ils seront livrés : extraction single-file, runtime, contenu embarqué.
       # osx-x64 est compilé sur un runner Apple Silicon et n'y est pas lancé.
@@ -86,10 +95,9 @@ jobs:
         if: matrix.rid != 'osx-x64'
         shell: pwsh
         run: |
-          $dir = "publish/${{ matrix.rid }}"
           $ext = if ($IsWindows) { '.exe' } else { '' }
-          function Invoke-Published([string]$exe, [string[]]$arguments) {
-            $path = Join-Path $dir "$exe$ext"
+          function Invoke-Published([string]$folder, [string]$exe, [string[]]$arguments) {
+            $path = Join-Path "publish/${{ matrix.rid }}/$folder" "$exe$ext"
             if (-not $IsWindows) { chmod +x $path }
             # Exe fenêtrés sous Windows : Start-Process attend la fin et rend le code de sortie
             $out = New-TemporaryFile
@@ -97,30 +105,42 @@ jobs:
             Get-Content $out
             if ($p.ExitCode -ne 0) { throw "$exe $($arguments -join ' ') : code $($p.ExitCode)" }
           }
-          Invoke-Published 'SMAD-X' @('--self-test')
-          Invoke-Published 'SMAD-X.Studio' @('list-recipes')
-          Invoke-Published 'SMAD-X.Studio' @('validate', 'SMAD-X.Core/Labs/01-premier-audit.smadx-lab.json')
+          Invoke-Published 'SMAD-X' 'SMAD-X' @('--self-test')
+          Invoke-Published 'SMAD-X-Studio' 'SMAD-X.Studio' @('list-recipes')
+          Invoke-Published 'SMAD-X-Studio' 'SMAD-X.Studio' @('validate', 'SMAD-X.Core/Labs/01-premier-audit.smadx-lab.json')
+          Invoke-Published 'SMAR-X' 'SMAR-X' @('--self-test')
 
       - name: Archive sizes
         shell: pwsh
         run: |
-          Get-ChildItem publish/${{ matrix.rid }} -File | ForEach-Object { "| ${{ matrix.rid }} | $($_.Name) | $([math]::Round($_.Length / 1MB, 1)) Mo |" } |
+          Get-ChildItem publish/${{ matrix.rid }} -File -Recurse | Where-Object { $_.Extension -notin '.md', '.txt' -and $_.Name -notin 'LICENSE', 'NOTICE' } |
+            ForEach-Object { "| ${{ matrix.rid }} | $($_.Directory.Name) | $($_.Name) | $([math]::Round($_.Length / 1MB, 1)) Mo |" } |
             Add-Content $env:GITHUB_STEP_SUMMARY
 
-      - name: Zip artifact (Windows)
+      # Une archive par application : SMAD-X-<rid>.zip, SMAD-X-Studio-<rid>.zip, SMAR-X-<rid>.zip
+      - name: Zip artifacts (Windows)
         if: matrix.rid == 'win-x64'
         shell: pwsh
-        run: Compress-Archive -Path publish/${{ matrix.rid }}/* -DestinationPath SMAD-X-${{ matrix.rid }}.zip
+        run: |
+          foreach ($dir in Get-ChildItem publish/${{ matrix.rid }} -Directory) {
+            Compress-Archive -Path "$($dir.FullName)/*" -DestinationPath "$($dir.Name)-${{ matrix.rid }}.zip"
+          }
 
-      - name: Zip artifact (Linux / macOS)
+      # zip garde le bit exécutable des fichiers
+      - name: Zip artifacts (Linux / macOS)
         if: matrix.rid != 'win-x64'
-        run: cd publish/${{ matrix.rid }} && zip -r ../../SMAD-X-${{ matrix.rid }}.zip .
+        run: |
+          for dir in publish/${{ matrix.rid }}/*/; do
+            name=$(basename "$dir")
+            (cd "$dir" && zip -r "../../../$name-${{ matrix.rid }}.zip" .)
+          done
 
-      - name: Upload artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: SMAD-X-${{ matrix.rid }}
-          path: SMAD-X-${{ matrix.rid }}.zip
+          name: release-${{ matrix.rid }}
+          path: "*-${{ matrix.rid }}.zip"
+          if-no-files-found: error
 
   release:
     name: GitHub Release
@@ -183,17 +203,17 @@ jobs:
 
             ### Téléchargements / Downloads
 
-            | Plateforme | Fichier |
-            |---|---|
-            | 🪟 Windows x64       | `SMAD-X-win-x64.zip` |
-            | 🐧 Linux x64         | `SMAD-X-linux-x64.zip` |
-            | 🍎 macOS x64 (Intel) | `SMAD-X-osx-x64.zip` |
-            | 🍎 macOS arm64 (M1–M5) | `SMAD-X-osx-arm64.zip` |
+            | Plateforme | SMAD-X | SMAD-X Studio | SMAR-X |
+            |---|---|---|---|
+            | 🪟 Windows x64       | `SMAD-X-win-x64.zip` | `SMAD-X-Studio-win-x64.zip` | `SMAR-X-win-x64.zip` |
+            | 🐧 Linux x64         | `SMAD-X-linux-x64.zip` | `SMAD-X-Studio-linux-x64.zip` | `SMAR-X-linux-x64.zip` |
+            | 🍎 macOS x64 (Intel) | `SMAD-X-osx-x64.zip` | `SMAD-X-Studio-osx-x64.zip` | `SMAR-X-osx-x64.zip` |
+            | 🍎 macOS arm64 (M1–M5) | `SMAD-X-osx-arm64.zip` | `SMAD-X-Studio-osx-arm64.zip` | `SMAR-X-osx-arm64.zip` |
 
-            Chaque archive contient **SMAD-X** (le simulateur) et **SMAD-X Studio** (la création d'exercices pour les formateurs).
-            Each archive contains **SMAD-X** (the simulator) and **SMAD-X Studio** (lab authoring for trainers).
+            Une archive par application, chacune avec un seul exécutable autonome : **SMAD-X** (le simulateur Active Directory), **SMAD-X Studio** (la création d'exercices pour les formateurs), **SMAR-X** (le simulateur des droits d'accès aux fichiers, Linux et Windows).
+            One archive per application, each with a single standalone executable: **SMAD-X** (the Active Directory simulator), **SMAD-X Studio** (lab authoring for trainers), **SMAR-X** (the file access rights simulator, Linux and Windows).
 
-            > **macOS** : si nécessaire, exécutez `chmod +x SMAD-X SMAD-X.Studio && xattr -d com.apple.quarantine SMAD-X SMAD-X.Studio`
+            > **macOS** : si nécessaire, dans le dossier décompressé, exécutez `chmod +x SMAD-X && xattr -d com.apple.quarantine SMAD-X` (de même pour `SMAD-X.Studio` et `SMAR-X`)
           files: artifacts/**/*.zip
           draft: false
           prerelease: false
