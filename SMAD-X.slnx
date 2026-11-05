@@ -5,4 +5,7 @@
   <Project Path="SMAD-X/SMAD-X.csproj" />
   <Project Path="SMAD-X.Studio/SMAD-X.Studio.csproj" />
   <Project Path="SMAD-X.Tests/SMAD-X.Tests.csproj" />
+  <Project Path="SMAR-X.Core/SMAR-X.Core.csproj" />
+  <Project Path="SMAR-X/SMAR-X.csproj" />
+  <Project Path="SMAR-X.Tests/SMAR-X.Tests.csproj" />
 </Solution>
