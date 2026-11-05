@@ -12,7 +12,8 @@ namespace SMARX
         {
             AvaloniaXamlLoader.Load(this);
             // Textes de l'interface : une ressource par clé ({DynamicResource Tester.Who}), réécrite à chaque changement
-            // de langue. Avalonia 12 ne rafraîchit plus les liaisons par indexeur sur une notification « Item ».
+            // de langue. Une liaison par indexeur ({Binding [Clé]}) ne se rafraîchirait pas : Avalonia 12 ignore la
+            // notification « Item » quand l'indexeur est hérité d'une classe de base, ici celui du Localizer du socle.
             ApplyTexts();
             SmarxText.Instance.PropertyChanged += (_, e) =>
             {

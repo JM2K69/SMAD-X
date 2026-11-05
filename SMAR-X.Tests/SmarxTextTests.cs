@@ -6,7 +6,8 @@ namespace SMARX.Tests;
 /// <summary>
 /// Textes de l'interface de SMAR-X : chaque texte des vues est une ressource dynamique ({DynamicResource Clé}),
 /// réécrite à chaque changement de langue, et chaque clé existe en français et en anglais. Une liaison par indexeur
-/// ({Binding [Clé], Source=…}) ne se rafraîchit plus sous Avalonia 12 : la fenêtre resterait à moitié traduite.
+/// ({Binding [Clé], Source=…}) ne se rafraîchirait pas : Avalonia 12 ignore la notification « Item » quand l'indexeur
+/// est hérité d'une classe de base (celui du Localizer), et la fenêtre resterait à moitié traduite.
 /// </summary>
 public partial class SmarxTextTests
 {
