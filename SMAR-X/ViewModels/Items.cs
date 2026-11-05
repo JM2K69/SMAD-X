@@ -131,10 +131,15 @@ namespace SMARX.ViewModels
 
     /// <summary>Une étape vérifiée, numérotée : accordée, refusée, ou neutre (information, ACE sans effet).</summary>
     /// <summary>Une route vers l'objet testé sous Linux : en local (pas de partage), ou par un partage Samba.</summary>
-    public sealed class SambaRouteItem(SambaShare? share, string label)
+    public sealed class SambaRouteItem(SambaShare? share, string label, string title, string detail)
     {
         public SambaShare? Share { get; } = share;
         public string Label { get; } = label;
+        /// <summary>« Sur le serveur » ou « Depuis le réseau » ; <see cref="Detail"/> : la session, ou le partage.</summary>
+        public string Title { get; } = title;
+        public string Detail { get; } = detail;
+        public bool IsLocal => Share == null;
+        public bool IsNetwork => Share != null;
         public override string ToString() => Label;
     }
 

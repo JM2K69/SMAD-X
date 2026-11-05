@@ -61,6 +61,7 @@ namespace SMARX
             ["Tester.Allowed"] = ("Autorisé", "Allowed"),
             ["Tester.Denied"] = ("Refusé", "Denied"),
             ["Tester.Path"] = ("Le chemin parcouru", "The path walked"),
+            ["Tester.From"] = ("D'où ?", "From where?"),
             ["Tester.Steps"] = ("Ce que vérifie le noyau, dans l'ordre", "What the kernel checks, in order"),
             ["Tester.Local"] = ("Accès local : session ouverte sur le serveur (console, SSH).", "Local access: session open on the server (console, SSH)."),
 

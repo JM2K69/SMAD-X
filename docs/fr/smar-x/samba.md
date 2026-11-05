@@ -4,7 +4,7 @@ Sous Linux, un poste du réseau accède aux fichiers par un **partage Samba** : 
 
 ## Tester un accès par Samba
 
-Sous **Sur quoi ?**, le testeur propose **en local, sur le serveur**, puis **par le partage \\\\srv-fic\\…** pour chaque partage qui contient l'objet. Par un partage, il propose ce que fait un client SMB :
+Sous **D'où ?**, le testeur propose **Sur le serveur** (icône de serveur), pour une session ouverte sur le serveur (console, SSH), puis **Depuis le réseau** (icône de poste) pour chaque partage qui contient l'objet ; la carte donne le partage (`\\srv-fic\partage`). Par un partage, il propose ce que fait un client SMB :
 - pour un fichier : lire, modifier le contenu, supprimer ;
 - pour un dossier : lister, créer dedans, supprimer.
 

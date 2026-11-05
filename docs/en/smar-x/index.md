@@ -20,7 +20,7 @@ A sample Linux server (`srv-fic`) and a sample Windows server (`SRV-FIC`) open a
 | **Commands** | `chmod`, `chown`, `setfacl` that recreate what is shown | `icacls` that recreates what is shown |
 | **Accounts** | accounts, groups, `usermod`, `useradd`, `groupadd` | local accounts and groups, `net localgroup` |
 
-The access tested can be **local** (a session open on the server) or come from the network, through a share: **SMB** on Windows (see [Access through a share](shares.md)), **Samba** on Linux (see [Samba share](samba.md)).
+Under **From where?**, the tester picks where the access comes from: **On the server** (a session open on the server), or **From the network**, through a share: **SMB** on Windows (see [Access through a share](shares.md)), **Samba** on Linux (see [Samba share](samba.md)).
 
 ## Faithful to real systems
 

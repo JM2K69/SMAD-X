@@ -4,7 +4,7 @@ From a network computer, you don't open `D:\Partages\Projets\planning.xlsx`: you
 
 ## Testing an access over the network
 
-Under **On what?**, the tester offers **locally, on the server**, then **through the share \\\\SRV-FIC\\…** for each share that contains the object, from the closest to the broadest. Through a share, the tester shows the network token, the share permissions, what access-based enumeration hides, then the usual NTFS steps; the verdict says which of the two denies. The access matrix follows the same route.
+Under **From where?**, the tester shows where the access comes from, as cards: **On the server** (server icon), for a session open on the server, then **From the network** (workstation icon) for each share that contains the object, from the closest to the broadest; the card gives the share (`\\SRV-FIC\Projets`). The chosen card is framed, and its tooltip gives the full path. Through a share, the tester shows the network token, the share permissions, what access-based enumeration hides, then the usual NTFS steps; the verdict says which of the two denies. The access matrix follows the same route.
 
 ![SMAR-X tests an access through the Projets share](../assets/screens/smarx-network.png)
 

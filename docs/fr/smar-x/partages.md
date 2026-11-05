@@ -4,7 +4,7 @@ Depuis un poste du réseau, on n'ouvre pas `D:\Partages\Projets\planning.xlsx` :
 
 ## Tester un accès par le réseau
 
-Sous **Sur quoi ?**, le testeur propose **en local, sur le serveur**, puis **par le partage \\\\SRV-FIC\\…** pour chaque partage qui contient l'objet, du plus proche au plus large. Par un partage, le testeur montre le jeton réseau, les autorisations du partage, ce que cache l'énumération basée sur l'accès, puis les étapes NTFS habituelles ; le verdict dit lequel des deux refuse. La matrice d'accès suit le même chemin.
+Sous **D'où ?**, le testeur montre d'où vient l'accès, en cartes : **Sur le serveur** (icône de serveur), pour une session ouverte sur le serveur, puis **Depuis le réseau** (icône de poste) pour chaque partage qui contient l'objet, du plus proche au plus large ; la carte donne le partage (`\\SRV-FIC\Projets`). La carte choisie est encadrée, et son infobulle donne le chemin complet. Par un partage, le testeur montre le jeton réseau, les autorisations du partage, ce que cache l'énumération basée sur l'accès, puis les étapes NTFS habituelles ; le verdict dit lequel des deux refuse. La matrice d'accès suit le même chemin.
 
 ![SMAR-X teste un accès par le partage Projets](../assets/screens/smarx-network.png)
 

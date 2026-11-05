@@ -11,10 +11,15 @@ namespace SMARX.ViewModels
 {
     /// <summary>Un choix d'une liste déroulante : une valeur et son libellé dans la langue de l'interface.</summary>
     /// <summary>Une route vers l'objet testé : en local (pas de partage), ou par un partage.</summary>
-    public sealed class RouteItem(SmbShare? share, string label)
+    public sealed class RouteItem(SmbShare? share, string label, string title, string detail)
     {
         public SmbShare? Share { get; } = share;
         public string Label { get; } = label;
+        /// <summary>« Sur le serveur » ou « Depuis le réseau » ; <see cref="Detail"/> : la session, ou le partage.</summary>
+        public string Title { get; } = title;
+        public string Detail { get; } = detail;
+        public bool IsLocal => Share == null;
+        public bool IsNetwork => Share != null;
         public override string ToString() => Label;
     }
 

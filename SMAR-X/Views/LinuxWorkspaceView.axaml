@@ -79,10 +79,34 @@
                                 <Border Classes="code" MinHeight="48" Padding="12,0">
                                     <TextBlock Classes="mono" Text="{Binding TargetText}" VerticalAlignment="Center" FontSize="14" TextTrimming="CharacterEllipsis"/>
                                 </Border>
-                                <!-- En local, ou par un partage Samba qui contient l'objet -->
-                                <ComboBox ItemsSource="{Binding Routes}" SelectedItem="{Binding SelectedRoute}" HorizontalAlignment="Stretch" FontSize="12"/>
                             </StackPanel>
                         </Grid>
+
+                        <!-- D'où vient l'accès : une session sur le serveur, ou un poste du réseau par un partage -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="label" Text="{DynamicResource Tester.From}"/>
+                            <ListBox Classes="routes" ItemsSource="{Binding Routes}" SelectedItem="{Binding SelectedRoute}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:SambaRouteItem">
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="14,9,18,9" ToolTip.Tip="{Binding Label}">
+                                            <Panel Width="26" Height="26" VerticalAlignment="Center">
+                                                <PathIcon Data="{StaticResource ServerIcon}" Width="24" Height="24" IsVisible="{Binding IsLocal}" Foreground="{DynamicResource Accent}"/>
+                                                <PathIcon Data="{StaticResource WorkstationIcon}" Width="24" Height="24" IsVisible="{Binding IsNetwork}" Foreground="{DynamicResource Accent}"/>
+                                            </Panel>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="13"/>
+                                                <TextBlock Classes="mono muted" Text="{Binding Detail}" FontSize="11"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
 
                         <!-- Verdict -->
                         <Border CornerRadius="12" Padding="16,14" BorderThickness="1" IsVisible="{Binding HasResult}"

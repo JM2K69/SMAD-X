@@ -34,6 +34,9 @@
             <StreamGeometry x:Key="FileIcon">M6.5,2 L14,2 L20,8 L20,19.5 C20,20.9 18.9,22 17.5,22 L6.5,22 C5.1,22 4,20.9 4,19.5 L4,4.5 C4,3.1 5.1,2 6.5,2 Z</StreamGeometry>
             <StreamGeometry x:Key="PersonIcon">M12,12 C14.2,12 16,10.2 16,8 C16,5.8 14.2,4 12,4 C9.8,4 8,5.8 8,8 C8,10.2 9.8,12 12,12 Z M4,21 C4,17.1 7.6,14 12,14 C16.4,14 20,17.1 20,21 Z</StreamGeometry>
             <StreamGeometry x:Key="GroupIcon">M8.5,11 C10.4,11 12,9.4 12,7.5 C12,5.6 10.4,4 8.5,4 C6.6,4 5,5.6 5,7.5 C5,9.4 6.6,11 8.5,11 Z M16.5,11 C18.2,11 19.5,9.7 19.5,8 C19.5,6.3 18.2,5 16.5,5 C14.8,5 13.5,6.3 13.5,8 C13.5,9.7 14.8,11 16.5,11 Z M1.5,20 C1.5,16.2 4.6,13 8.5,13 C12.4,13 15.5,16.2 15.5,20 Z M16.5,13 C15.9,13 15.4,13.1 14.9,13.2 C16.5,14.6 17.4,16.5 17.5,18.5 L22.5,18.5 C22.5,15.4 19.8,13 16.5,13 Z</StreamGeometry>
+            <!-- Un serveur en baie, deux unités et leurs voyants ; un poste, écran et pied (règle pair-impair : les voyants et l'écran sont des trous) -->
+            <StreamGeometry x:Key="ServerIcon">F0 M3,2.5 L21,2.5 L21,10.5 L3,10.5 Z M3,13.5 L21,13.5 L21,21.5 L3,21.5 Z M6,5.5 L8.5,5.5 L8.5,7.5 L6,7.5 Z M10.5,5.5 L13,5.5 L13,7.5 L10.5,7.5 Z M6,16.5 L8.5,16.5 L8.5,18.5 L6,18.5 Z M10.5,16.5 L13,16.5 L13,18.5 L10.5,18.5 Z</StreamGeometry>
+            <StreamGeometry x:Key="WorkstationIcon">F0 M2,3 L22,3 L22,16 L2,16 Z M4,5 L20,5 L20,14 L4,14 Z M10.5,16 L13.5,16 L13.5,19 L10.5,19 Z M7,19 L17,19 L17,21 L7,21 Z</StreamGeometry>
             <StreamGeometry x:Key="ShieldIcon">M12,2 L20,5 L20,11 C20,16 16.6,20.4 12,22 C7.4,20.4 4,16 4,11 L4,5 Z</StreamGeometry>
         </ResourceDictionary>
     </Application.Resources>
@@ -122,6 +125,42 @@
         <Style Selector="TextBlock.mark.gray">
             <Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
             <Setter Property="Opacity" Value="0.55"/>
+        </Style>
+        <!-- Le choix « D'où ? » du testeur : des cartes, celle choisie encadrée -->
+        <Style Selector="ListBox.routes">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+        <Style Selector="ListBox.routes ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,10,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="ListBox.routes ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ChipBg}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+        <Style Selector="ListBox.routes ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ChipBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}"/>
+        </Style>
+        <Style Selector="ListBox.routes ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+        </Style>
+        <Style Selector="ListBox.routes ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+        </Style>
+        <Style Selector="ListBox.routes ListBoxItem:selected:focus /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+        </Style>
+        <Style Selector="ListBox.routes ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter > TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
         </Style>
         <Style Selector="Border.allow">
             <Setter Property="CornerRadius" Value="6"/>

@@ -20,7 +20,7 @@ Un serveur Linux (`srv-fic`) et un serveur Windows (`SRV-FIC`) d'exemple s'ouvre
 | **Commandes** | `chmod`, `chown`, `setfacl` qui recréent l'état affiché | `icacls` qui recrée l'état affiché |
 | **Comptes** | comptes, groupes, `usermod`, `useradd`, `groupadd` | comptes et groupes locaux, `net localgroup` |
 
-L'accès testé peut être **local** (une session ouverte sur le serveur) ou venir du réseau, par un partage : **SMB** sous Windows (voir [Accès par un partage](partages.md)), **Samba** sous Linux (voir [Partage Samba](samba.md)).
+Sous **D'où ?**, le testeur choisit l'origine de l'accès : **Sur le serveur** (une session ouverte sur le serveur), ou **Depuis le réseau**, par un partage : **SMB** sous Windows (voir [Accès par un partage](partages.md)), **Samba** sous Linux (voir [Partage Samba](samba.md)).
 
 ## Fidèle aux vrais systèmes
 

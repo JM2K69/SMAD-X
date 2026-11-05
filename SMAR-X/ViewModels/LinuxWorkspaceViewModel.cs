@@ -140,14 +140,16 @@ namespace SMARX.ViewModels
         {
             var previous = SelectedRoute?.Share?.Name;
             Routes.Clear();
-            Routes.Add(new SambaRouteItem(null, Text.T("en local, sur le serveur", "locally, on the server")));
+            Routes.Add(new SambaRouteItem(null, Text.T("en local, sur le serveur", "locally, on the server"),
+                Text.T("Sur le serveur", "On the server"), Text.T("session locale (console, SSH)", "local session (console, SSH)")));
             ShareLines.Clear();
             if (SelectedNode is { } node)
             {
                 foreach (var share in SambaAccess.SharesOf(Host, node.Path))
                 {
                     var unc = share.Unc(Host.Name, node.Path);
-                    Routes.Add(new SambaRouteItem(share, Text.T($"par le partage {unc}", $"through the share {unc}")));
+                    Routes.Add(new SambaRouteItem(share, Text.T($"par le partage {unc}", $"through the share {unc}"),
+                        Text.T("Depuis le réseau", "From the network"), $@"\\{Host.Name}\{share.Name}"));
                     ShareLines.Add(share.Path == node.Path
                         ? Text.T($"Partagé : {unc}", $"Shared: {unc}") + (share.Browseable ? "" : Text.T(" (caché)", " (hidden)"))
                         : Text.T($"Accessible par {unc}", $"Reachable through {unc}"));
