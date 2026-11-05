@@ -34,18 +34,22 @@ if (docs)
         Security(culture, ThemeVariant.Dark, @"D:\Partages\Compta\Archives", "GL_Compta", "smarx-security");
         Dialog(culture, @"D:\Partages\Compta\Archives", "GL_Compta", false, "smarx-edit");
         Dialog(culture, @"D:\Partages\Compta\Archives", null, true, "smarx-advanced");
-        // Par le partage Projets (Lecture), dave n'écrit plus planning.xlsx, que NTFS lui laisse modifier
+        // Le même accès, sur le serveur puis depuis le réseau : NTFS laisse dave modifier planning.xlsx,
+        // mais par le partage Projets (Lecture), il ne l'écrit plus
+        Network(culture, "dave", @"D:\Partages\Projets\planning.xlsx", WindowsOperation.Write, null, "smarx-network-local");
         Network(culture, "dave", @"D:\Partages\Projets\planning.xlsx", WindowsOperation.Write, "Projets", "smarx-network");
         Sharing(culture, @"D:\Partages", "smarx-share");
-        // Par le partage partage (lecture seule), carol n'écrit plus doc.txt, que le noyau lui laisse écrire en local
+        // Le même accès, sur le serveur puis depuis le réseau : le noyau laisse carol écrire doc.txt,
+        // mais par le partage partage (lecture seule), elle ne l'écrit plus
+        LinuxNetwork(culture, "carol", "/srv/partage/doc.txt", LinuxOperation.Write, null, "smarx-samba-local");
         LinuxNetwork(culture, "carol", "/srv/partage/doc.txt", LinuxOperation.Write, "partage", "smarx-samba");
         SambaWindow(culture, "/srv/projets", "smarx-samba-share");
     }
     return;
 }
 
-// L'espace Linux, le testeur passant par un partage Samba
-void LinuxNetwork(string culture, string user, string path, LinuxOperation operation, string share, string name)
+// L'espace Linux, le testeur sur le serveur (share null) ou passant par un partage Samba
+void LinuxNetwork(string culture, string user, string path, LinuxOperation operation, string? share, string name)
 {
     var shell = Prepare(culture, ThemeVariant.Dark);
     var vm = shell.Linux;
@@ -72,8 +76,8 @@ void SambaWindow(string culture, string folder, string name)
     window.Close();
 }
 
-// L'espace Windows, le testeur passant par un partage
-void Network(string culture, string user, string path, WindowsOperation operation, string share, string name)
+// L'espace Windows, le testeur sur le serveur (share null) ou passant par un partage
+void Network(string culture, string user, string path, WindowsOperation operation, string? share, string name)
 {
     var shell = Prepare(culture, ThemeVariant.Dark);
     shell.ShowWindowsCommand.Execute(null);

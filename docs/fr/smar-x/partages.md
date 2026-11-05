@@ -6,9 +6,19 @@ Depuis un poste du réseau, on n'ouvre pas `D:\Partages\Projets\planning.xlsx` :
 
 Sous **D'où ?**, le testeur montre d'où vient l'accès, en cartes : **Sur le serveur** (icône de serveur), pour une session ouverte sur le serveur, puis **Depuis le réseau** (icône de poste) pour chaque partage qui contient l'objet, du plus proche au plus large ; la carte donne le partage (`\\SRV-FIC\Projets`). La carte choisie est encadrée, et son infobulle donne le chemin complet. Par un partage, le testeur montre le jeton réseau, les autorisations du partage, ce que cache l'énumération basée sur l'accès, puis les étapes NTFS habituelles ; le verdict dit lequel des deux refuse. La matrice d'accès suit le même chemin.
 
-![SMAR-X teste un accès par le partage Projets](../assets/screens/smarx-network.png)
+Le même accès, sur le serveur puis depuis le réseau :
 
-*Capture : NTFS laisse dave modifier `planning.xlsx`, mais le partage Projets ne donne que Lecture : par `\\SRV-FIC\Projets`, c'est refusé.*
+=== "Sur le serveur"
+
+    ![SMAR-X teste un accès sur le serveur](../assets/screens/smarx-network-local.png)
+
+    *Capture : en local, dave modifie `planning.xlsx` : l'ACE explicite Modification le lui accorde. Le jeton est celui d'une session ouverte (INTERACTIF).*
+
+=== "Depuis le réseau"
+
+    ![SMAR-X teste un accès par le partage Projets](../assets/screens/smarx-network.png)
+
+    *Capture : par `\\SRV-FIC\Projets`, le même accès est refusé. Le jeton est réseau (RÉSEAU), NTFS l'accorde toujours, mais le partage Projets ne donne que Lecture.*
 
 ## Le plus restrictif l'emporte
 

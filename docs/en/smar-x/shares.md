@@ -6,9 +6,19 @@ From a network computer, you don't open `D:\Partages\Projets\planning.xlsx`: you
 
 Under **From where?**, the tester shows where the access comes from, as cards: **On the server** (server icon), for a session open on the server, then **From the network** (workstation icon) for each share that contains the object, from the closest to the broadest; the card gives the share (`\\SRV-FIC\Projets`). The chosen card is framed, and its tooltip gives the full path. Through a share, the tester shows the network token, the share permissions, what access-based enumeration hides, then the usual NTFS steps; the verdict says which of the two denies. The access matrix follows the same route.
 
-![SMAR-X tests an access through the Projets share](../assets/screens/smarx-network.png)
+The same access, on the server then from the network:
 
-*Screenshot: NTFS lets dave modify `planning.xlsx`, but the Projets share only grants Read: through `\\SRV-FIC\Projets`, it is denied.*
+=== "On the server"
+
+    ![SMAR-X tests an access on the server](../assets/screens/smarx-network-local.png)
+
+    *Screenshot: locally, dave modifies `planning.xlsx`: the explicit Modify ACE grants it. The token is that of an open session (INTERACTIVE).*
+
+=== "From the network"
+
+    ![SMAR-X tests an access through the Projets share](../assets/screens/smarx-network.png)
+
+    *Screenshot: through `\\SRV-FIC\Projets`, the same access is denied. The token is a network one (NETWORK), NTFS still grants it, but the Projets share only grants Read.*
 
 ## The more restrictive wins
 

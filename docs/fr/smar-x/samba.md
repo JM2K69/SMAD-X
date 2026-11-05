@@ -10,9 +10,19 @@ Sous **D'où ?**, le testeur propose **Sur le serveur** (icône de serveur), pou
 
 Les étapes montrent ce que vérifie Samba, puis le noyau. Le verdict dit lequel refuse. La matrice d'accès suit le même chemin, et la carte **Ce que recevrait un nouvel élément** montre ce que Samba crée. Dans l'exemple, root n'a pas de mot de passe Samba (`smbpasswd -a`) : il ne se connecte à aucun partage.
 
-![SMAR-X teste un accès par le partage Samba partage](../assets/screens/smarx-samba.png)
+Le même accès, sur le serveur puis depuis le réseau :
 
-*Capture : carol écrit `doc.txt` en local (le groupe rh y a `-w-`), mais le partage partage est en lecture seule, et carol n'est pas dans sa write list : Samba refuse avant le noyau.*
+=== "Sur le serveur"
+
+    ![SMAR-X teste un accès sur le serveur Linux](../assets/screens/smarx-samba-local.png)
+
+    *Capture : en local, carol écrit `doc.txt` : l'ACL donne `-w-` au groupe rh, dont elle est membre, et le masque le laisse passer.*
+
+=== "Depuis le réseau"
+
+    ![SMAR-X teste un accès par le partage Samba partage](../assets/screens/smarx-samba.png)
+
+    *Capture : par `\\srv-fic\partage`, le même accès est refusé. Le partage est en lecture seule, et carol n'est pas dans sa write list : Samba refuse avant le noyau.*
 
 ## Samba décide d'abord
 

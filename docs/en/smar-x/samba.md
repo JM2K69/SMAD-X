@@ -10,9 +10,19 @@ Under **From where?**, the tester offers **On the server** (server icon), for a 
 
 The steps show what Samba checks, then the kernel. The verdict says which one denies. The access matrix follows the same route, and the **What a new item would get** card shows what Samba creates. In the sample, root has no Samba password (`smbpasswd -a`): it connects to no share.
 
-![SMAR-X tests an access through the partage Samba share](../assets/screens/smarx-samba.png)
+The same access, on the server then from the network:
 
-*Screenshot: carol writes `doc.txt` locally (the rh group has `-w-` on it), but the partage share is read-only, and carol is not in its write list: Samba denies before the kernel.*
+=== "On the server"
+
+    ![SMAR-X tests an access on the Linux server](../assets/screens/smarx-samba-local.png)
+
+    *Screenshot: locally, carol writes to `doc.txt`: the ACL gives `-w-` to the rh group, which she belongs to, and the mask lets it through.*
+
+=== "From the network"
+
+    ![SMAR-X tests an access through the partage Samba share](../assets/screens/smarx-samba.png)
+
+    *Screenshot: through `\\srv-fic\partage`, the same access is denied. The share is read-only, and carol is not in its write list: Samba denies before the kernel.*
 
 ## Samba decides first
 
