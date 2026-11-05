@@ -38,6 +38,9 @@ namespace SMARX.Services.Windows
 
     public sealed record WindowsAccessRow(WindowsUser User, IReadOnlyDictionary<WindowsOperation, WindowsAccessResult> Results);
 
+    /// <summary>Un droit spécial à l'ouverture : refusé, accordé par l'objet, ou accordé par son dossier parent.</summary>
+    public enum OpenGrant { Denied, Granted, ByParent }
+
     /// <summary>
     /// Accès local à un serveur Windows. Les dossiers du chemin ne sont pas vérifiés : tout le monde a le privilège
     /// « Contourner la vérification de parcours » (SeChangeNotifyPrivilege), activé par défaut. Seul l'objet visé
@@ -97,6 +100,28 @@ namespace SMARX.Services.Windows
             if (allowed && node.IsDirectory && node.Children.Count > 0)
                 return new(user.Name, path, operation, false, token, checks, NotEmpty: true);
             return new(user.Name, path, operation, allowed, token, checks);
+        }
+
+        /// <summary>
+        /// Un droit spécial demandé à l'ouverture de l'objet (CreateFile) : AccessCheck sur sa DACL, puis deux règles de
+        /// NTFS qui regardent le dossier parent, vérifiées sur un vrai serveur : Suppression est accordée si le parent
+        /// accorde Suppression de sous-dossier et fichier ; Attributs de lecture, s'il accorde Liste du dossier (lister un
+        /// dossier montre déjà les attributs de ce qu'il contient).
+        /// </summary>
+        public static OpenGrant Open(WindowsHost host, WindowsToken token, string path, NtfsRights right)
+        {
+            if (WindowsPermissions.Check(host, token, path, right).Granted)
+                return OpenGrant.Granted;
+            var fromParent = right switch
+            {
+                NtfsRights.Delete => NtfsRights.DeleteSubdirectoriesAndFiles,
+                NtfsRights.ReadAttributes => NtfsRights.ReadData,
+                _ => NtfsRights.None
+            };
+            return fromParent != NtfsRights.None && WindowsHost.Parent(path) is { } parent
+                   && WindowsPermissions.Check(host, token, parent, fromParent).Granted
+                ? OpenGrant.ByParent
+                : OpenGrant.Denied;
         }
 
         /// <summary>Matrice d'accès : chaque compte, les opérations courantes sur un fichier ou un dossier.</summary>

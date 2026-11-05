@@ -122,6 +122,46 @@ public class WindowsAccessTests
         Assert.False(Can2("v", @"D:\A\B", List));
     }
 
+    /// <summary>
+    /// Mesuré sur Windows Server 2025 : sous un dossier créé par un administrateur, CREATOR OWNER (F) donne Administrators (F),
+    /// qui double Administrators (OI)(CI)(F). Windows ne recopie pas le doublon, et c'est l'ACE lue en premier qui reste entière.
+    /// </summary>
+    [Fact]
+    public void InheritedDuplicates_AreNotCopied_AndTheFirstAceReadStaysWhole()
+    {
+        static IReadOnlyList<string> Inherited(string path, params NtfsAce[] rootAces)
+        {
+            var host = new WindowsHost { Name = "S" };
+            host.Root = NtfsNode.Directory("D:", WellKnown.Administrators, rootAces).With(
+                NtfsNode.Directory("Apps", WellKnown.Administrators).With(NtfsNode.File("outil.exe", WellKnown.Administrators)));
+            return NtfsInheritance.Dacl(host, path).Select(a => $"{a.Trustee}:{WindowsListing.Entry(a)}").ToList();
+        }
+        var admins = NtfsAce.Allow(WellKnown.Administrators, "F");
+        var creatorOwner = NtfsAce.Allow(WellKnown.CreatorOwner, "F", ThisFolderSubfoldersAndFiles | InheritOnly);
+
+        // Administrators d'abord : CREATOR OWNER n'ajoute rien à l'objet, il ne reste que sa copie à transmettre
+        Assert.Equal(["Administrators:(I)(OI)(CI)(F)", "CREATOR OWNER:(I)(OI)(CI)(IO)(F)"], Inherited(@"D:\Apps", admins, creatorOwner));
+        // CREATOR OWNER d'abord : Administrators ne garde que sa part transmise, en « héritage seulement »
+        Assert.Equal(["Administrators:(I)(F)", "CREATOR OWNER:(I)(OI)(CI)(IO)(F)", "Administrators:(I)(OI)(CI)(IO)(F)"],
+            Inherited(@"D:\Apps", creatorOwner, admins));
+        // Et le fichier en dessous n'a qu'une fois Administrators (F)
+        Assert.Equal(["Administrators:(I)(F)"], Inherited(@"D:\Apps\outil.exe", creatorOwner, admins));
+    }
+
+    [Fact]
+    public void Opening_GetsReadAttributesAndDelete_FromTheParentFolder()
+    {
+        var dave = WindowsToken.Local(_host.User("dave")!, elevated: false);
+        // Lister D:\Partages montre les attributs de Compta, où dave n'a aucun droit
+        Assert.Equal(OpenGrant.ByParent, WindowsAccess.Open(_host, dave, @"D:\Partages\Compta", NtfsRights.ReadAttributes));
+        Assert.Equal(OpenGrant.Denied, WindowsAccess.Open(_host, dave, @"D:\Partages\Compta\Archives", NtfsRights.ReadAttributes));
+        Assert.Equal(OpenGrant.Granted, WindowsAccess.Open(_host, WindowsToken.Local(_host.User("alice")!, false), @"D:\Partages\Compta\budget.xlsx", NtfsRights.ReadAttributes));
+
+        var host = new WindowsHost { Name = "S", Users = [new WindowsUser { Name = "u" }] };
+        host.Root = NtfsNode.Directory("D:", WellKnown.Administrators, NtfsAce.Allow("u", "(DC)", None)).With(NtfsNode.File("a.txt", WellKnown.Administrators));
+        Assert.Equal(OpenGrant.ByParent, WindowsAccess.Open(host, WindowsToken.Local(host.User("u")!, false), @"D:\a.txt", NtfsRights.Delete));
+    }
+
     [Fact]
     public void Icacls_ShowsInheritedAndDenyEntries_InCanonicalOrder()
     {

@@ -21,7 +21,9 @@ namespace SMARX.Services.Windows
     /// <item>puis, si l'héritage est activé, celles que le parent transmet : (CI) aux sous-dossiers, (OI) aux fichiers ;
     /// un sous-dossier garde une ACE (OI) seule en « héritage seulement » pour la passer à ses fichiers ; (NP) arrête
     /// la transmission aux enfants directs ; (IO) ne s'applique qu'à ce qui hérite ;</item>
-    /// <item>CREATOR OWNER devient le propriétaire de l'enfant, et reste transmis en « héritage seulement ».</item>
+    /// <item>CREATOR OWNER devient le propriétaire de l'enfant, et reste transmis en « héritage seulement » ;</item>
+    /// <item>pas de doublon parmi les ACE héritées : une ACE déjà héritée n'est pas recopiée, et une ACE qui accorderait à
+    /// l'objet ce qu'une ACE héritée avant elle accorde déjà ne garde que sa part transmise, en « héritage seulement ».</item>
     /// </list>
     /// Les ACE héritées du parent viennent avant celles du grand-parent : plus une ACE est proche, plus elle compte tôt.
     /// </summary>
@@ -47,8 +49,33 @@ namespace SMARX.Services.Windows
                     node.IsDirectory ? a.Inheritance : a.Inheritance & AceInheritance.InheritOnly, null))
                 .ToList();
 
-        /// <summary>Ce que le parent (DACL <paramref name="parent"/>) transmet à l'enfant.</summary>
+        /// <summary>
+        /// Ce que le parent (DACL <paramref name="parent"/>) transmet à l'enfant, sans doublon, comme Windows : sous un
+        /// dossier créé par un administrateur, CREATOR OWNER (F) lu avant Administrators (OI)(CI)(F) donne
+        /// Administrators (F), puis Administrators (OI)(CI)(IO)(F) ; lu après, il ne laisse que CREATOR OWNER (IO).
+        /// </summary>
         public static IEnumerable<EffectiveAce> Inherit(IReadOnlyList<EffectiveAce> parent, NtfsNode child, string parentPath)
+        {
+            var kept = new List<EffectiveAce>();
+            foreach (var transmitted in Transmitted(parent, child, parentPath))
+            {
+                var ace = transmitted;
+                if (!ace.InheritOnly && kept.Any(k => !k.InheritOnly && Same(k, ace)))
+                {
+                    // Ses droits sur l'objet sont déjà accordés : il ne reste que ce qu'elle transmet
+                    if ((ace.Inheritance & AceInheritance.ThisFolderSubfoldersAndFiles) == 0) continue;
+                    ace = ace with { Inheritance = ace.Inheritance | AceInheritance.InheritOnly };
+                }
+                if (!kept.Any(k => Same(k, ace) && k.Inheritance == ace.Inheritance))
+                    kept.Add(ace);
+            }
+            return kept;
+
+            static bool Same(EffectiveAce a, EffectiveAce b) =>
+                a.Type == b.Type && a.Mask == b.Mask && string.Equals(a.Trustee, b.Trustee, System.StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static IEnumerable<EffectiveAce> Transmitted(IReadOnlyList<EffectiveAce> parent, NtfsNode child, string parentPath)
         {
             foreach (var ace in parent)
             {
