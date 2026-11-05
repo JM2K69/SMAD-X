@@ -7,6 +7,8 @@
 // supprimé à la fin. La sortie est le fichier de fidélité SMAR-X.Tests/Fidelity/windows-file-server.txt.
 //
 //   dotnet run --project tools/SmarxWindowsCheck > smarx-windows.ps1   (puis : tâche SYSTEM sur le contrôleur de domaine)
+//   dotnet run --project tools/SmarxWindowsCheck -- --network ADDS.powershell.labo > smarx-net.ps1
+//     (accès par les partages : sur un poste du domaine, dans la session d'un administrateur du domaine ; voir NetworkCheck)
 using System.Text;
 using SMARX.Models;
 using SMARX.Samples;
@@ -15,6 +17,12 @@ using SMARX.Services.Windows;
 const string Prefix = "smx-";
 const string RealRoot = @"C:\SmarxCheck";
 var host = WindowsSamples.FileServer();
+if (args.Length >= 2 && args[0] == "--network")
+{
+    using var network = Console.OpenStandardOutput();
+    network.Write(new UTF8Encoding(true).GetPreamble().Concat(Encoding.UTF8.GetBytes(NetworkCheck.Script(host, args[1]))).ToArray());
+    return;
+}
 
 // Identités prédéfinies : par SID, pour ne dépendre ni de la langue du serveur ni de son nom
 var wellKnownSids = new Dictionary<string, string>

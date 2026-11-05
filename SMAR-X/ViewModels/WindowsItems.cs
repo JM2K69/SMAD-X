@@ -10,6 +10,14 @@ using SMARX.Services.Windows;
 namespace SMARX.ViewModels
 {
     /// <summary>Un choix d'une liste déroulante : une valeur et son libellé dans la langue de l'interface.</summary>
+    /// <summary>Une route vers l'objet testé : en local (pas de partage), ou par un partage.</summary>
+    public sealed class RouteItem(SmbShare? share, string label)
+    {
+        public SmbShare? Share { get; } = share;
+        public string Label { get; } = label;
+        public override string ToString() => Label;
+    }
+
     public sealed class Choice(object value, string label)
     {
         public object Value { get; } = value;

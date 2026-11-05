@@ -26,6 +26,14 @@ namespace SMARX.Views
             vm.AfterSecurityWindow();
         }
 
+        /// <summary>Partage avancé : les partages du dossier, leurs autorisations et l'énumération basée sur l'accès.</summary>
+        private async void OnAdvancedSharing(object? sender, RoutedEventArgs e)
+        {
+            if (Vm is not { SelectedNode: { IsDirectory: true } node } vm || Owner is not { } owner) return;
+            await new ShareWindow { DataContext = new ShareSettingsViewModel(vm.Host, node) }.ShowDialog(owner);
+            vm.AfterSecurityWindow();
+        }
+
         /// <summary>Bouton Avancé : « Paramètres de sécurité avancés », l'accès effectif ouvert sur le compte testé.</summary>
         private async void OnAdvancedSecurity(object? sender, RoutedEventArgs e)
         {

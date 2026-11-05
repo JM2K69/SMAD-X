@@ -41,6 +41,12 @@ namespace SMARX.ViewModels
         public SecurityTabViewModel Security { get; } = new();
         public IRelayCommand<MatrixCell> SelectCellCommand { get; }
 
+        /// <summary>D'où vient l'accès testé : une session sur le serveur, ou un partage qui contient l'objet.</summary>
+        public ObservableCollection<RouteItem> Routes { get; } = new();
+
+        /// <summary>Le partage de l'objet choisi, s'il est partagé, et les partages plus larges qui y mènent.</summary>
+        public ObservableCollection<string> ShareLines { get; } = new();
+
         [ObservableProperty] private NtfsItem? _selectedNode;
         [ObservableProperty] private WindowsUserItem? _selectedUser;
         [ObservableProperty] private OperationItem? _selectedOperation;
@@ -53,14 +59,25 @@ namespace SMARX.ViewModels
         [ObservableProperty] private string _newUserName = "";
         [ObservableProperty] private string _newGroupName = "";
         [ObservableProperty] private string _accountCommands = "";
+        [ObservableProperty] private RouteItem? _selectedRoute;
 
         public string Title => $"{Host.Name} · Windows";
         public string VerdictTitle => Allowed ? Text["Tester.Allowed"] : Text["Tester.Denied"];
         public string VerdictSymbol => Allowed ? "✓" : "✕";
         public Avalonia.Media.IBrush VerdictBrush => Allowed ? Palette.Allowed : Palette.Denied;
         public Avalonia.Media.IBrush VerdictBackground => Allowed ? Palette.AllowedBack : Palette.DeniedBack;
-        public bool CanElevate => SelectedUser is { IsAdministrator: true } u && !u.User.IsBuiltInAdministrator;
+        public bool CanElevate => SelectedUser is { IsAdministrator: true } u && !u.User.IsBuiltInAdministrator && !IsNetwork;
         public bool ShowCreation => SelectedNode?.IsDirectory == true && SelectedUser != null;
+        public bool IsNetwork => SelectedRoute?.Share != null;
+        public bool CanShare => SelectedNode?.IsDirectory == true;
+        public string SharingTitle => Text.T($"Partage de {SelectedNode?.Name}", $"Sharing of {SelectedNode?.Name}");
+
+        /// <summary>Le chemin de l'objet testé : sur le serveur, ou son chemin réseau par le partage choisi.</summary>
+        public string TargetText => SelectedNode == null ? "" : SelectedRoute?.Share is { } share ? share.Unc(Host.Name, SelectedNode.Path) : SelectedNode.Path;
+
+        public string AccessKind => IsNetwork
+            ? Text.T("Accès distant : par un partage SMB, depuis un poste du réseau.", "Remote access: through an SMB share, from a network computer.")
+            : Text["Tester.LocalWindows"];
 
         /// <summary>Charge un serveur : l'arborescence, les comptes, et un premier test (dave modifie planning.xlsx, s'il existe).</summary>
         public void Load(WindowsHost host)
@@ -99,7 +116,54 @@ namespace SMARX.ViewModels
             Editor.Load(Host, value);
             Security.Load(Host, value);
             OnPropertyChanged(nameof(ShowCreation));
+            RebuildRoutes();
             Recompute();
+        }
+
+        /// <summary>Les routes vers l'objet choisi : en local, puis par chaque partage qui le contient (le plus proche d'abord).</summary>
+        private void RebuildRoutes()
+        {
+            var previous = SelectedRoute?.Share?.Name;
+            Routes.Clear();
+            Routes.Add(new RouteItem(null, Text.T("en local, sur le serveur", "locally, on the server")));
+            ShareLines.Clear();
+            if (SelectedNode is { } node)
+            {
+                foreach (var share in SmbAccess.SharesOf(Host, node.Path))
+                {
+                    var unc = share.Unc(Host.Name, node.Path);
+                    Routes.Add(new RouteItem(share, Text.T($"par le partage {unc}", $"through the share {unc}")));
+                    ShareLines.Add(string.Equals(share.Path, node.Path, StringComparison.OrdinalIgnoreCase)
+                        ? Text.T($"Partagé : {unc}", $"Shared: {unc}") + (share.IsHidden ? Text.T(" (caché)", " (hidden)") : "")
+                        : Text.T($"Accessible par {unc}", $"Reachable through {unc}"));
+                }
+                if (ShareLines.Count == 0)
+                    ShareLines.Add(Text.T("Non partagé : accessible en local seulement.", "Not shared: local access only."));
+            }
+            _loadingRoute = true;
+            SelectedRoute = Routes.FirstOrDefault(r => previous != null && r.Share?.Name == previous) ?? Routes[0];
+            _loadingRoute = false;
+            OnPropertyChanged(nameof(CanShare));
+            OnPropertyChanged(nameof(SharingTitle));
+            RouteChanged();
+        }
+
+        private bool _loadingRoute;
+
+        partial void OnSelectedRouteChanged(RouteItem? value)
+        {
+            if (_loadingRoute) return;
+            RouteChanged();
+            Recompute();
+        }
+
+        private void RouteChanged()
+        {
+            if (IsNetwork) Elevated = false;
+            OnPropertyChanged(nameof(IsNetwork));
+            OnPropertyChanged(nameof(CanElevate));
+            OnPropertyChanged(nameof(TargetText));
+            OnPropertyChanged(nameof(AccessKind));
         }
 
         partial void OnSelectedUserChanged(WindowsUserItem? value)
@@ -120,12 +184,13 @@ namespace SMARX.ViewModels
             SelectedOperation = Operations.FirstOrDefault(o => Equals(o.Operation, cell.Operation)) ?? SelectedOperation;
         }
 
-        /// <summary>Après les fenêtres Modifier ou Avancé : l'objet a pu changer, tout ce qui en dépend se recalcule.</summary>
+        /// <summary>Après les fenêtres Modifier, Avancé ou Partage avancé : l'objet a pu changer, tout ce qui en dépend se recalcule.</summary>
         public void AfterSecurityWindow()
         {
             SelectedNode?.Refresh();
             Editor.Load(Host, SelectedNode);
             Security.Load(Host, SelectedNode);
+            RebuildRoutes();
             Recompute();
         }
 
@@ -139,12 +204,24 @@ namespace SMARX.ViewModels
                 return;
             }
 
-            var result = WindowsAccess.Check(Host, user.User, node.Path, operation, Elevated);
             HasResult = true;
-            Allowed = result.Allowed;
-            Verdict = WindowsExplainer.Verdict(result, Text.Culture);
+            IReadOnlyList<WindowsExplainedStep> explained;
+            if (SelectedRoute?.Share is { } share)
+            {
+                var remote = SmbAccess.Check(Host, user.User, share, node.Path, operation);
+                Allowed = remote.Allowed;
+                Verdict = WindowsExplainer.NetworkVerdict(remote, Text.Culture);
+                explained = WindowsExplainer.NetworkSteps(Host, remote, Text.Culture);
+            }
+            else
+            {
+                var result = WindowsAccess.Check(Host, user.User, node.Path, operation, Elevated);
+                Allowed = result.Allowed;
+                Verdict = WindowsExplainer.Verdict(result, Text.Culture);
+                explained = WindowsExplainer.Steps(Host, result, Text.Culture);
+            }
             var number = 1;
-            foreach (var step in WindowsExplainer.Steps(Host, result, Text.Culture))
+            foreach (var step in explained)
                 Steps.Add(new StepItem(number++, step.Passed, step.Title, step.Detail));
             OnPropertyChanged(nameof(VerdictTitle));
             OnPropertyChanged(nameof(VerdictSymbol));
@@ -163,10 +240,15 @@ namespace SMARX.ViewModels
             foreach (var op in operations)
                 MatrixColumns.Add(ShortLabel(op));
             MatrixRows.Clear();
-            foreach (var row in WindowsAccess.Matrix(Host, node.Path, Elevated))
+            var share = SelectedRoute?.Share;
+            var local = share == null ? WindowsAccess.Matrix(Host, node.Path, Elevated).ToDictionary(r => r.User) : null;
+            foreach (var user in Users)
             {
-                var user = Users.First(u => u.User == row.User);
-                var cells = new ObservableCollection<MatrixCell>(operations.Select(op => new MatrixCell(op, row.Results[op].Allowed, SelectCellCommand)
+                // Par un partage : chaque compte depuis le réseau ; en local : la matrice de la session (élevée ou non)
+                bool Granted(WindowsOperation op) => share != null
+                    ? SmbAccess.Check(Host, user.User, share, node.Path, op).Allowed
+                    : local![user.User].Results[op].Allowed;
+                var cells = new ObservableCollection<MatrixCell>(operations.Select(op => new MatrixCell(op, Granted(op), SelectCellCommand)
                 {
                     User = user,
                     IsSelected = user == SelectedUser && Equals(op, SelectedOperation?.Operation)
@@ -291,6 +373,7 @@ namespace SMARX.ViewModels
             foreach (var item in All(Tree)) item.Refresh();
             Editor.Load(Host, SelectedNode);
             Security.Load(Host, SelectedNode);
+            RebuildRoutes();
             Recompute();
             DescribeAccount();
         }

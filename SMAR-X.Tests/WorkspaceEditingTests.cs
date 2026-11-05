@@ -177,6 +177,42 @@ public class WorkspaceEditingTests
         Assert.False(vm.Allowed);
     }
 
+    /// <summary>
+    /// Par un partage : le testeur passe par Projets (Lecture), où dave ne peut plus écrire ; la fenêtre Partage avancé
+    /// donne Modifier aux Utilisateurs authentifiés, et dave écrit ; Annuler remet le partage en Lecture.
+    /// </summary>
+    [Fact]
+    public void Windows_ThroughAShare_TheMostRestrictiveWins_AndTheShareWindowChangesIt()
+    {
+        var vm = Shell().Windows;
+        vm.SelectedNode = FindWindows(vm.Tree[0], @"D:\Partages\Projets\planning.xlsx");
+        vm.SelectedUser = vm.Users.First(u => u.Name == "dave");
+        vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, WindowsOperation.Write));
+        Assert.True(vm.Allowed);
+        Assert.Equal(["en local, sur le serveur", @"par le partage \\SRV-FIC\Projets\planning.xlsx", @"par le partage \\SRV-FIC\Partages\Projets\planning.xlsx"],
+            vm.Routes.Select(r => r.Label));
+
+        vm.SelectedRoute = vm.Routes.First(r => r.Share?.Name == "Projets");
+        Assert.False(vm.Allowed);
+        Assert.Equal(@"\\SRV-FIC\Projets\planning.xlsx", vm.TargetText);
+        Assert.EndsWith("NTFS l'accorde, le partage non.", vm.Verdict);
+        Assert.Contains(vm.Steps, s => s.Title == "Jeton réseau de dave");
+        Assert.False(vm.MatrixRows.Single(r => r.User.Name == "dave").Cells.Single(c => Equals(c.Operation, WindowsOperation.Write)).Allowed);
+
+        var share = new ShareSettingsViewModel(vm.Host, FindWindows(vm.Tree[0], @"D:\Partages\Projets"));
+        Assert.True(share.IsShared);
+        share.Candidate = share.Candidates.First(c => c.Trustee == WellKnown.AuthenticatedUsers);
+        share.AddPrincipalCommand.Execute(null);
+        share.Rows.Single(r => r.Right == ShareRight.Change).AllowChecked = true;
+        Assert.Contains(@"-ChangeAccess ""NT AUTHORITY\Authenticated Users""", share.Commands);
+        vm.AfterSecurityWindow();
+        Assert.True(vm.Allowed);
+
+        share.Cancel();
+        vm.AfterSecurityWindow();
+        Assert.False(vm.Allowed);
+    }
+
     [Fact]
     public void Windows_DisablingInheritanceByCopying_KeepsTheSameAccess()
     {

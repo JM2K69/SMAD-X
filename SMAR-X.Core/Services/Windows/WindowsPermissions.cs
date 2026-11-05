@@ -16,7 +16,13 @@ namespace SMARX.Services.Windows
     /// </summary>
     public sealed record WindowsToken(WindowsUser User, IReadOnlyList<TokenSid> Sids, bool Elevated)
     {
-        /// <summary>Privilège « Prendre possession de fichiers ou d'autres objets » : administrateurs, en session élevée.</summary>
+        /// <summary>Session réseau, par un partage SMB : NETWORK au lieu d'INTERACTIVE.</summary>
+        public bool Network { get; init; }
+
+        /// <summary>
+        /// Privilège « Prendre possession de fichiers ou d'autres objets » : administrateurs, en session élevée ; par le
+        /// réseau, un administrateur que l'UAC ne filtre pas l'a aussi, et il vaut jusque dans le contrôle du partage.
+        /// </summary>
         public bool CanTakeOwnership => Elevated;
 
         public static WindowsToken Local(WindowsUser user, bool elevated)
@@ -33,6 +39,27 @@ namespace SMARX.Services.Windows
             if (admin)
                 sids.Add(new TokenSid(WellKnown.Administrators, DenyOnly: !effective));
             return new WindowsToken(user, sids, effective);
+        }
+
+        /// <summary>
+        /// Jeton d'une session réseau (un partage SMB) : le compte, ses groupes, Everyone, Authenticated Users, NETWORK et
+        /// Users. Les restrictions distantes de l'UAC laissent Administrators en « refus seulement » pour un compte local ;
+        /// le compte Administrator intégré et un compte du domaine ne sont pas filtrés, et gardent leurs privilèges.
+        /// </summary>
+        public static WindowsToken Remote(WindowsUser user)
+        {
+            var admin = user.IsAdministrator;
+            var effective = admin && (user.IsBuiltInAdministrator || user.Domain);
+            var sids = new List<TokenSid>
+            {
+                new(user.Name), new(WellKnown.Everyone), new(WellKnown.AuthenticatedUsers), new(WellKnown.Network), new(WellKnown.Users)
+            };
+            sids.AddRange(user.Groups.Where(g => !string.Equals(g, WellKnown.Administrators, StringComparison.OrdinalIgnoreCase)
+                                                 && !string.Equals(g, WellKnown.Users, StringComparison.OrdinalIgnoreCase))
+                .Select(g => new TokenSid(g)));
+            if (admin)
+                sids.Add(new TokenSid(WellKnown.Administrators, DenyOnly: !effective));
+            return new WindowsToken(user, sids, effective) { Network = true };
         }
 
         /// <summary>L'identité est dans le jeton ; pour une ACE Autoriser, elle doit y être active (pas « refus seulement »).</summary>
@@ -102,7 +129,29 @@ namespace SMARX.Services.Windows
             }
             if (granted == desired)
                 return Done(true);
+            return Done(Walk(dacl, token, desired, granted, steps, isOwner));
+        }
 
+        /// <summary>
+        /// AccessCheck sur une autre DACL que celle d'un fichier : celle d'un partage, qui n'a pas de propriétaire ; le
+        /// privilège Prendre possession y vaut comme pour un fichier.
+        /// </summary>
+        public static AccessCheckResult CheckDacl(string name, IReadOnlyList<EffectiveAce> dacl, WindowsToken token, NtfsRights desired)
+        {
+            var steps = new List<CheckStep>();
+            var granted = NtfsRights.None;
+            if (desired.HasFlag(NtfsRights.TakeOwnership) && token.CanTakeOwnership)
+            {
+                granted = NtfsRights.TakeOwnership;
+                steps.Add(new CheckStep(CheckStepKind.Privilege, NtfsRights.TakeOwnership));
+            }
+            var ok = granted == desired || Walk(dacl, token, desired, granted, steps, isOwner: false);
+            return new AccessCheckResult(name, desired, ok, steps, "");
+        }
+
+        /// <summary>Les ACE dans l'ordre : un refus bloque ce qui n'est pas encore accordé, une autorisation accorde.</summary>
+        private static bool Walk(IReadOnlyList<EffectiveAce> dacl, WindowsToken token, NtfsRights desired, NtfsRights granted, List<CheckStep> steps, bool isOwner)
+        {
             for (var i = 0; i < dacl.Count; i++)
             {
                 var ace = dacl[i];
@@ -115,7 +164,7 @@ namespace SMARX.Services.Windows
                     var blocked = ace.Mask & desired & ~granted;
                     steps.Add(new CheckStep(blocked != 0 ? CheckStepKind.DenyBlocks : CheckStepKind.DenyNoEffect, blocked, ace, i + 1));
                     if (blocked != 0)
-                        return Done(false);
+                        return false;
                 }
                 else
                 {
@@ -124,12 +173,12 @@ namespace SMARX.Services.Windows
                     granted |= added;
                     steps.Add(new CheckStep(CheckStepKind.Allow, added, ace, i + 1));
                     if (granted == desired)
-                        return Done(true);
+                        return true;
                 }
             }
 
             steps.Add(new CheckStep(CheckStepKind.Missing, desired & ~granted));
-            return Done(false);
+            return false;
         }
     }
 }

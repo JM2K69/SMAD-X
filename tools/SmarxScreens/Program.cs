@@ -34,8 +34,40 @@ if (docs)
         Security(culture, ThemeVariant.Dark, @"D:\Partages\Compta\Archives", "GL_Compta", "smarx-security");
         Dialog(culture, @"D:\Partages\Compta\Archives", "GL_Compta", false, "smarx-edit");
         Dialog(culture, @"D:\Partages\Compta\Archives", null, true, "smarx-advanced");
+        // Par le partage Projets (Lecture), dave n'écrit plus planning.xlsx, que NTFS lui laisse modifier
+        Network(culture, "dave", @"D:\Partages\Projets\planning.xlsx", WindowsOperation.Write, "Projets", "smarx-network");
+        Sharing(culture, @"D:\Partages", "smarx-share");
     }
     return;
+}
+
+// L'espace Windows, le testeur passant par un partage
+void Network(string culture, string user, string path, WindowsOperation operation, string share, string name)
+{
+    var shell = Prepare(culture, ThemeVariant.Dark);
+    shell.ShowWindowsCommand.Execute(null);
+    var vm = shell.Windows;
+    vm.SelectedNode = Find(vm.Tree[0], path, n => n.Path, n => n.Children);
+    vm.SelectedUser = vm.Users.First(u => u.Name == user);
+    vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, operation));
+    vm.SelectedRoute = vm.Routes.First(r => r.Share?.Name == share);
+    vm.SelectedAccount = vm.Users.First(u => u.Name == user);
+    Capture(shell, name, 1000);
+}
+
+// La fenêtre Partage avancé d'un dossier
+void Sharing(string culture, string folder, string name)
+{
+    var shell = Prepare(culture, ThemeVariant.Dark);
+    var vm = shell.Windows;
+    var window = new ShareWindow { DataContext = new ShareSettingsViewModel(vm.Host, Find(vm.Tree[0], folder, n => n.Path, n => n.Children)), Height = 900 };
+    window.Show();
+    Pump(700);
+    var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
+    var file = Path.Combine(outDir, name + ".png");
+    frame.Save(file);
+    Console.WriteLine(file);
+    window.Close();
 }
 
 Linux("fr-FR", ThemeVariant.Dark, "bob", "/srv/compta/budget.ods", LinuxOperation.Read, "01-linux-bob-lit-budget");

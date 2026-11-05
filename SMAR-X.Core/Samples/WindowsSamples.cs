@@ -11,6 +11,9 @@ namespace SMARX.Samples;
 /// qui garde la main sur les autorisations, fichier lisible dans un dossier fermé (pas de vérification de parcours),
 /// dossier d'administration fermé tant que la session n'est pas élevée (UAC). alice et bob sont à la comptabilité,
 /// bob aux ressources humaines, carol administratrice, dave stagiaire.
+/// Partages : Partages, large (Utilisateurs authentifiés : Modifier) avec l'énumération basée sur l'accès, NTFS fait le
+/// tri ; Projets, sous-dossier de Partages partagé aussi, mais en Lecture (le même fichier, deux résultats) ; Compta$,
+/// caché, au moindre privilège des deux côtés ; Apps, en Lecture comme le propose Windows.
 /// </summary>
 public static class WindowsSamples
 {
@@ -64,6 +67,27 @@ public static class WindowsSamples
                     File("outil.exe", Admins)),
                 Directory("Admin", Admins, Allow(Admins, "F"), Allow(WellKnown.System, "F")).Protected().With(
                     File("mots-de-passe.kdbx", Admins)));
+
+        host.Shares.Add(new SmbShare
+        {
+            Name = "Partages", Path = @"D:\Partages", Description = "Dossiers des services", AccessBasedEnumeration = true,
+            Permissions = [ShareAce.Allow(WellKnown.AuthenticatedUsers, ShareRight.Change), ShareAce.Allow(Admins, ShareRight.FullControl)]
+        });
+        host.Shares.Add(new SmbShare
+        {
+            Name = "Projets", Path = @"D:\Partages\Projets", Description = "Projets, en lecture",
+            Permissions = [ShareAce.Allow(WellKnown.Everyone, ShareRight.Read)]
+        });
+        host.Shares.Add(new SmbShare
+        {
+            Name = "Compta$", Path = @"D:\Partages\Compta", Description = "Comptabilité, partage caché",
+            Permissions = [ShareAce.Allow("GL_Compta", ShareRight.Change), ShareAce.Allow(Admins, ShareRight.FullControl)]
+        });
+        host.Shares.Add(new SmbShare
+        {
+            Name = "Apps", Path = @"D:\Apps", Description = "Applications",
+            Permissions = [ShareAce.Allow(WellKnown.Everyone, ShareRight.Read)]
+        });
         return host;
     }
 }

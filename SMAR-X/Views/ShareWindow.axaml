@@ -1,0 +1,103 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMARX.ViewModels"
+        xmlns:models="using:SMARX.Models"
+        x:Class="SMARX.Views.ShareWindow"
+        x:DataType="vm:ShareSettingsViewModel"
+        Title="{Binding Title}"
+        Icon="/Assets/icone.ico"
+        Width="560" Height="820" MinWidth="480" MinHeight="600"
+        WindowStartupLocation="CenterOwner">
+
+    <!-- Partage avancé : partager le dossier, ses noms de partage, ses autorisations de partage -->
+    <Grid RowDefinitions="*,Auto" Margin="18">
+        <ScrollViewer>
+            <StackPanel Spacing="10" Margin="0,0,6,0">
+                <TextBlock Classes="muted">
+                    <Run Text="{DynamicResource Sec.ObjectName}"/>
+                    <Run Text="{Binding ObjectName}" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+                </TextBlock>
+                <CheckBox IsChecked="{Binding IsShared}">
+                    <TextBlock Text="{DynamicResource Share.ShareThis}" FontWeight="SemiBold"/>
+                </CheckBox>
+
+                <StackPanel Spacing="10" IsVisible="{Binding HasShare}">
+                    <TextBlock Classes="label" Text="{DynamicResource Share.Names}"/>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <ComboBox ItemsSource="{Binding Shares}" SelectedItem="{Binding SelectedShare}" HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="models:SmbShare">
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Grid.Column="1" Content="{DynamicResource Sec.Remove}" Command="{Binding RemoveShareCommand}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <TextBox Text="{Binding NewName}" PlaceholderText="{DynamicResource Share.NewName}"/>
+                        <Button Grid.Column="1" Content="{DynamicResource Sec.Add}" Command="{Binding AddShareCommand}"/>
+                    </Grid>
+                    <TextBlock Classes="mono" Text="{Binding NetworkPath}" FontSize="13"/>
+                    <TextBlock Classes="label" Text="{DynamicResource Share.Comment}"/>
+                    <TextBox Text="{Binding Comment}"/>
+                    <CheckBox IsChecked="{Binding AccessBasedEnumeration}">
+                        <TextBlock Text="{DynamicResource Share.Abe}" TextWrapping="Wrap" FontSize="12"/>
+                    </CheckBox>
+
+                    <TextBlock Classes="label" Text="{DynamicResource Share.Permissions}" Margin="0,6,0,0"/>
+                    <Border Classes="code" Padding="4">
+                        <ListBox ItemsSource="{Binding Principals}" SelectedItem="{Binding SelectedPrincipal}" MaxHeight="150"
+                                 Background="Transparent" AutoScrollToSelectedItem="False">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PrincipalItem">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <PathIcon Data="{StaticResource GroupIcon}" Width="14" Height="14" IsVisible="{Binding IsGroup}" Foreground="{DynamicResource TextMuted}"/>
+                                        <PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14" IsVisible="{Binding IsUser}" Foreground="{DynamicResource Accent}"/>
+                                        <TextBlock Text="{Binding Display}" FontSize="13"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
+                        <ComboBox ItemsSource="{Binding Candidates}" SelectedItem="{Binding Candidate}" HorizontalAlignment="Stretch"/>
+                        <Button Grid.Column="1" Content="{DynamicResource Sec.Add}" Command="{Binding AddPrincipalCommand}"/>
+                        <Button Grid.Column="2" Content="{DynamicResource Sec.Remove}" Command="{Binding RemovePrincipalCommand}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,74,74" Margin="10,4,10,0">
+                        <TextBlock Classes="label" Text="{Binding SelectedPrincipal.Display}" TextWrapping="Wrap"/>
+                        <TextBlock Grid.Column="1" Classes="label" Text="{DynamicResource Sec.Allow}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                        <TextBlock Grid.Column="2" Classes="label" Text="{DynamicResource Sec.Deny}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    </Grid>
+                    <Border Classes="code" Padding="10,4">
+                        <ItemsControl ItemsSource="{Binding Rows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SharePermissionRow">
+                                    <Grid ColumnDefinitions="*,74,74">
+                                        <TextBlock Text="{Binding Label}" FontSize="13" VerticalAlignment="Center"/>
+                                        <CheckBox Grid.Column="1" IsChecked="{Binding AllowChecked}" HorizontalAlignment="Center"/>
+                                        <CheckBox Grid.Column="2" IsChecked="{Binding DenyChecked}" HorizontalAlignment="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                    <TextBlock Classes="muted" Text="{DynamicResource Share.Rule}"/>
+                    <TextBlock Classes="label" Text="{DynamicResource Share.PowerShell}" Margin="0,6,0,0"/>
+                    <Border Classes="code">
+                        <SelectableTextBlock Classes="mono" Text="{Binding Commands}" FontSize="11" TextWrapping="Wrap"/>
+                    </Border>
+                </StackPanel>
+
+                <Border Classes="chip" CornerRadius="8" Padding="12,8" IsVisible="{Binding HasMessage}">
+                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="12" Foreground="#E5534B"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,14,0,0">
+            <Button Content="{DynamicResource Sec.Ok}" Click="OnOk" MinWidth="96" HorizontalContentAlignment="Center"/>
+            <Button Content="{DynamicResource Sec.Cancel}" Click="OnCancel" MinWidth="96" HorizontalContentAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Window>

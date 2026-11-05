@@ -20,7 +20,7 @@ Un serveur Linux (`srv-fic`) et un serveur Windows (`SRV-FIC`) d'exemple s'ouvre
 | **Commandes** | `chmod`, `chown`, `setfacl` qui recréent l'état affiché | `icacls` qui recrée l'état affiché |
 | **Comptes** | comptes, groupes, `usermod`, `useradd`, `groupadd` | comptes et groupes locaux, `net localgroup` |
 
-L'accès étudié est **local** : une session ouverte sur le serveur. L'accès par un partage réseau viendra ensuite.
+Sous Windows, l'accès testé peut être **local** (une session ouverte sur le serveur) ou passer **par un partage SMB**, depuis un poste du réseau : voir [Accès par un partage](partages.md). Le partage Samba, sous Linux, viendra ensuite.
 
 ## Fidèle aux vrais systèmes
 
@@ -30,6 +30,7 @@ Les moteurs de SMAR-X ne sont pas écrits « de mémoire » : leurs résultats s
 |---|---|---|
 | Noyau Linux 6.19, Debian 13, `setfacl` 2.3.2 | 925 accès et 140 créations sur le serveur d'exemple | `tools/SmarxKernelCheck` |
 | Windows Server 2025 (contrôleur de domaine) | 1 512 ouvertures de fichiers et de dossiers sous le jeton de chaque compte, les propriétaires, les ACL dans leur ordre réel | `tools/SmarxWindowsCheck` |
+| Windows Server 2025, depuis un Windows 11 du domaine | 1 540 ouvertures par les partages et 50 dossiers listés, sous l'identité réseau de chaque compte | `tools/SmarxWindowsCheck --network` |
 | Windows 11 (Explorateur) | l'onglet Sécurité : 96 vues de comptes, 103 entrées de la fenêtre Avancé, 8 séquences de cases cochées | `tools/SmarxSecurityTabCheck` |
 
 Ce que ces comparaisons ont appris sur Windows est décrit dans [Règles de Windows vérifiées](regles-windows.md).

@@ -20,7 +20,7 @@ A sample Linux server (`srv-fic`) and a sample Windows server (`SRV-FIC`) open a
 | **Commands** | `chmod`, `chown`, `setfacl` that recreate what is shown | `icacls` that recreates what is shown |
 | **Accounts** | accounts, groups, `usermod`, `useradd`, `groupadd` | local accounts and groups, `net localgroup` |
 
-The access studied is **local**: a session open on the server. Access through a network share comes next.
+On Windows, the access tested can be **local** (a session open on the server) or go **through an SMB share**, from a network computer: see [Access through a share](shares.md). The Samba share, on Linux, comes next.
 
 ## Faithful to real systems
 
@@ -30,6 +30,7 @@ SMAR-X's engines are not written "from memory": their results are compared with 
 |---|---|---|
 | Linux kernel 6.19, Debian 13, `setfacl` 2.3.2 | 925 accesses and 140 creations on the sample server | `tools/SmarxKernelCheck` |
 | Windows Server 2025 (domain controller) | 1,512 file and folder opens under each account's token, the owners, the ACLs in their real order | `tools/SmarxWindowsCheck` |
+| Windows Server 2025, from a Windows 11 of the domain | 1,540 opens through the shares and 50 folders listed, under each account's network identity | `tools/SmarxWindowsCheck --network` |
 | Windows 11 (Explorer) | the Security tab: 96 account views, 103 Advanced window entries, 8 sequences of clicked boxes | `tools/SmarxSecurityTabCheck` |
 
 What these comparisons taught about Windows is described in [Verified Windows rules](windows-rules.md).

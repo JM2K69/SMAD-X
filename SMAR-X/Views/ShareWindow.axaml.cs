@@ -1,0 +1,32 @@
+using System;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using SMARX.ViewModels;
+
+namespace SMARX.Views
+{
+    /// <summary>« Partage avancé » : OK garde les changements ; Annuler, ou la croix, remet les partages comme avant.</summary>
+    public partial class ShareWindow : Window
+    {
+        private bool _confirmed;
+
+        public ShareWindow()
+        {
+            InitializeComponent();
+        }
+
+        private void OnOk(object? sender, RoutedEventArgs e)
+        {
+            _confirmed = true;
+            Close();
+        }
+
+        private void OnCancel(object? sender, RoutedEventArgs e) => Close();
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (!_confirmed) (DataContext as ShareSettingsViewModel)?.Cancel();
+            base.OnClosed(e);
+        }
+    }
+}

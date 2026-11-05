@@ -16,6 +16,11 @@ namespace SMARX.Models
         public List<WindowsGroup> Groups { get; set; } = new();
         public NtfsNode Root { get; set; } = NtfsNode.Directory("D:", "Administrators");
 
+        /// <summary>Les partages SMB du serveur : l'accès distant passe par eux.</summary>
+        public List<SmbShare> Shares { get; set; } = new();
+
+        public SmbShare? Share(string name) => Shares.FirstOrDefault(s => string.Equals(s.Name, name, StringComparison.OrdinalIgnoreCase));
+
         public WindowsUser? User(string name) => Users.FirstOrDefault(u => string.Equals(u.Name, name, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>Nœud d'un chemin « D:\Partages\Compta » (sans distinction de casse, comme NTFS sous Windows), ou null.</summary>
@@ -77,6 +82,13 @@ namespace SMARX.Models
         /// <summary>Le compte Administrator intégré : le contrôle de compte d'utilisateur ne filtre pas son jeton.</summary>
         [JsonIgnore]
         public bool IsBuiltInAdministrator => string.Equals(Name, "Administrator", StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Compte du domaine, et non compte local du serveur : à distance, le contrôle de compte d'utilisateur ne filtre que
+        /// les comptes locaux (restrictions distantes de l'UAC).
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Domain { get; set; }
     }
 
     public sealed class WindowsGroup

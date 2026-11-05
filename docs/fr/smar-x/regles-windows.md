@@ -45,6 +45,10 @@ L'onglet **Accès effectif** de SMAR-X (fenêtre Avancé) l'indique : « (par le
 
 Presque toute ouverture de fichier demande **Synchroniser**. L'onglet Sécurité l'omet donc d'un refus. Refuser l'Écriture y écrit `(WD,AD,WA,WEA)`, alors que `icacls … /deny compte:(W)` refuse aussi Synchroniser : le compte ne pourrait plus ouvrir le fichier, même pour le lire. Seul le refus de **Contrôle total** garde Synchroniser. Le reste du comportement des cases est décrit dans [L'onglet Sécurité](onglet-securite.md#la-fenetre-modifier).
 
+## Par un partage
+
+Par le réseau, s'ajoutent les autorisations du partage, le jeton réseau (les restrictions distantes de l'UAC) et l'énumération basée sur l'accès : voir [Accès par un partage](partages.md).
+
 ## Comparer avec un vrai serveur
 
 Pour comparer la sortie de SMAR-X avec celle d'un serveur :

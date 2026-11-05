@@ -42,7 +42,7 @@
                     <StackPanel Spacing="16">
                         <Grid ColumnDefinitions="*,Auto">
                             <TextBlock Classes="h" Text="{DynamicResource Tester.Title}" FontSize="18"/>
-                            <TextBlock Grid.Column="1" Classes="muted" Text="{DynamicResource Tester.LocalWindows}" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Classes="muted" Text="{Binding AccessKind}" VerticalAlignment="Center"/>
                         </Grid>
 
                         <Grid ColumnDefinitions="*,*,1.3*" ColumnSpacing="14">
@@ -80,8 +80,10 @@
                             <StackPanel Grid.Column="2" Spacing="6">
                                 <TextBlock Classes="label" Text="{DynamicResource Tester.On}"/>
                                 <Border Classes="code" MinHeight="48" Padding="12,0">
-                                    <TextBlock Classes="mono" Text="{Binding SelectedNode.Path}" VerticalAlignment="Center" FontSize="14" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Classes="mono" Text="{Binding TargetText}" VerticalAlignment="Center" FontSize="14" TextTrimming="CharacterEllipsis"/>
                                 </Border>
+                                <!-- En local, ou par un partage qui contient l'objet -->
+                                <ComboBox ItemsSource="{Binding Routes}" SelectedItem="{Binding SelectedRoute}" HorizontalAlignment="Stretch" FontSize="12"/>
                             </StackPanel>
                         </Grid>
 
@@ -240,6 +242,24 @@
                             <Button Grid.Column="1" Content="{DynamicResource Sec.Advanced}" Click="OnAdvancedSecurity" MinWidth="96" HorizontalContentAlignment="Center"/>
                         </Grid>
                         <TextBlock Classes="muted" Text="{DynamicResource Sec.Legend}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Partage, comme l'onglet Partage des Propriétés -->
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+                        <TextBlock Classes="h" Text="{Binding SharingTitle}" TextTrimming="CharacterEllipsis"/>
+                        <ItemsControl ItemsSource="{Binding ShareLines}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Classes="mono" Text="{Binding}" FontSize="12" TextWrapping="Wrap" Margin="0,1"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" IsVisible="{Binding CanShare}">
+                            <TextBlock Classes="muted" Text="{DynamicResource Share.Hint}" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="{DynamicResource Share.Advanced}" Click="OnAdvancedSharing" MinWidth="96" HorizontalContentAlignment="Center"/>
+                        </Grid>
                     </StackPanel>
                 </Border>
 

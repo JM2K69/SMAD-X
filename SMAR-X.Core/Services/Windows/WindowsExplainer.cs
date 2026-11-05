@@ -115,6 +115,70 @@ namespace SMARX.Services.Windows
             return steps;
         }
 
+        /// <summary>
+        /// Un accès par le réseau : le jeton réseau, la connexion et les autorisations du partage, l'énumération basée sur
+        /// l'accès, puis NTFS comme en local. Le plus restrictif l'emporte.
+        /// </summary>
+        public static IReadOnlyList<WindowsExplainedStep> NetworkSteps(WindowsHost host, ShareAccessResult result, string culture)
+        {
+            var french = !culture.StartsWith("en", StringComparison.OrdinalIgnoreCase);
+            var steps = new List<WindowsExplainedStep>();
+            var sids = string.Join(", ", result.Token.Sids.Select(s => WellKnown.Display(s.Name, french)
+                + (s.DenyOnly ? T(culture, " (refus seulement : l'UAC filtre à distance un compte local)", " (deny only: UAC filters a local account remotely)") : "")));
+            steps.Add(new(null, T(culture, $"Jeton réseau de {result.User}", $"{result.User}'s network token"),
+                T(culture, $"session réseau : {sids}.", $"network session: {sids}.")));
+
+            var unc = $@"\\{host.Name}\{result.Share.Name}";
+            if (!result.Connected)
+            {
+                steps.Add(new(false, T(culture, $"Connexion à {unc}", $"Connecting to {unc}"),
+                    T(culture, $"aucune autorisation du partage ne s'applique à {result.User} : la connexion est refusée.",
+                               $"no share permission applies to {result.User}: the connection is denied.")));
+                return steps;
+            }
+            var share = result.ShareCheck;
+            steps.Add(new(null, T(culture, $"Autorisations du partage {unc}", $"Share permissions of {unc}"),
+                T(culture, $"il faut « {Rights(share.Desired, culture)} ».", $"\"{Rights(share.Desired, culture)}\" is needed.")));
+            foreach (var step in share.Steps)
+                steps.Add(step.Kind == CheckStepKind.Privilege
+                    ? new(true, T(culture, "Privilège", "Privilege"),
+                        T(culture, "administrateur non filtré : le privilège « Prendre possession » vaut aussi pour le partage.",
+                                   "unfiltered administrator: the \"Take ownership\" privilege also applies to the share."))
+                    : Step(host, share, step, culture, french) with
+                    {
+                        Title = step.Ace != null ? T(culture, $"Partage, ACE {step.Index}", $"Share, ACE {step.Index}")
+                            : T(culture, "Fin des autorisations du partage", "End of the share permissions")
+                    });
+            if (result.Hidden)
+            {
+                steps.Add(new(false, T(culture, "Énumération basée sur l'accès", "Access-based enumeration"),
+                    T(culture, $"{result.User} ne peut pas lire {result.Path} et peut lister son dossier : le partage le lui cache, il est introuvable.",
+                               $"{result.User} cannot read {result.Path} and can list its folder: the share hides it, it is not found.")));
+                return steps;
+            }
+            steps.AddRange(Steps(host, result.Ntfs, culture).Skip(1));
+            if (result.InUse)
+                steps.Add(new(false, T(culture, "Dossier partagé", "Shared folder"),
+                    T(culture, $"le serveur garde {result.Path} ouvert tant qu'un client est connecté au partage : il ne peut pas être supprimé.",
+                               $"the server keeps {result.Path} open while a client is connected to the share: it cannot be deleted.")));
+            return steps;
+        }
+
+        /// <summary>Le résultat d'un accès par le réseau, sur le chemin réseau de l'objet.</summary>
+        public static string NetworkVerdict(ShareAccessResult result, string culture)
+        {
+            var action = $"{Lower(Operation(result.Operation, culture))} {result.Unc}";
+            var allowed = result.Allowed
+                ? T(culture, $"Résultat : {result.User} peut {action}.", $"Result: {result.User} can {action}.")
+                : T(culture, $"Résultat : {result.User} ne peut pas {action}.", $"Result: {result.User} cannot {action}.");
+            if (result.Allowed || !result.Connected || result.Hidden || result.InUse) return allowed;
+            // Le plus restrictif l'emporte : dire lequel des deux refuse
+            return allowed + (result.ShareCheck.Granted
+                ? T(culture, " Le partage l'accorde, NTFS non.", " The share grants it, NTFS does not.")
+                : result.Ntfs.Allowed ? T(culture, " NTFS l'accorde, le partage non.", " NTFS grants it, the share does not.")
+                : T(culture, " Ni le partage ni NTFS ne l'accordent.", " Neither the share nor NTFS grants it."));
+        }
+
         private static WindowsExplainedStep Step(WindowsHost host, AccessCheckResult check, CheckStep step, string culture, bool french)
         {
             var rights = Rights(step.Rights, culture);

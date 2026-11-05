@@ -45,6 +45,10 @@ SMAR-X's **Effective Access** tab (Advanced window) says so: "(from the parent f
 
 Almost every file open asks for **Synchronize**. The Security tab therefore leaves it out of a deny. Denying Write there writes `(WD,AD,WA,WEA)`, whereas `icacls … /deny account:(W)` also denies Synchronize: the account could no longer open the file, not even to read it. Only the **Full control** deny keeps Synchronize. The rest of the boxes' behavior is described in [The Security tab](security-tab.md#the-edit-window).
 
+## Through a share
+
+Over the network come the share permissions, the network token (UAC remote restrictions) and access-based enumeration: see [Access through a share](shares.md).
+
 ## Comparing with a real server
 
 To compare SMAR-X's output with a server's:
