@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using SMADX.Services;
@@ -10,10 +11,12 @@ namespace SMARX
     /// </summary>
     public sealed class SmarxText : Localizer
     {
-        private static SmarxText? _instance;
+        // Créé à la première demande, une seule fois même si deux fils le demandent ensemble : les textes (plus bas)
+        // sont alors initialisés. (« ??= » pouvait créer une seconde instance, à la langue du système, qui remplaçait la
+        // première.)
+        private static readonly Lazy<SmarxText> Shared = new(() => new SmarxText());
 
-        // Créé à la première demande : les textes (plus bas) sont alors initialisés
-        public static SmarxText Instance => _instance ??= new SmarxText();
+        public static SmarxText Instance => Shared.Value;
 
         private SmarxText()
         {
@@ -159,6 +162,16 @@ namespace SMARX
             ["Share.Rule"] = ("Par le réseau, il faut que le partage ET NTFS accordent : le plus restrictif des deux l'emporte. Microsoft conseille un partage large (Utilisateurs authentifiés : Modifier) et le tri par NTFS.",
                               "Over the network, the share AND NTFS must both grant: the more restrictive of the two wins. Microsoft advises a broad share (Authenticated Users: Change) and sorting with NTFS."),
             ["Share.PowerShell"] = ("La même chose en PowerShell", "The same in PowerShell"),
+
+            ["Samba.Hint"] = ("Partager le dossier avec Samba : une section de smb.conf.", "Share the directory with Samba: a section of smb.conf."),
+            ["Samba.Button"] = ("Partage Samba…", "Samba sharing…"),
+            ["Samba.ReadOnly"] = ("personne n'écrit, sauf la write list (le défaut de Samba)", "nobody writes, except the write list (Samba's default)"),
+            ["Samba.Users"] = ("alice @compta", "alice @compta"),
+            ["Samba.Hide"] = ("une liste ne montre pas ce que le compte ne peut pas lire", "a listing does not show what the account cannot read"),
+            ["Samba.Browseable"] = ("le partage apparaît dans la liste des partages du serveur", "the share appears in the server's list of shares"),
+            ["Samba.Rule"] = ("Samba décide d'abord (valid users, read only, write list), puis le noyau, sous l'identité Unix du compte (ou force user, force group) : write list ne donne aucun droit Unix. Un « @ » désigne un groupe.",
+                              "Samba decides first (valid users, read only, write list), then the kernel, under the account's Unix identity (or force user, force group): the write list gives no Unix right. An \"@\" names a group."),
+            ["Samba.Config"] = ("La section de smb.conf", "The smb.conf section"),
 
             ["Accounts.Title"] = ("Comptes", "Accounts"),
             ["Accounts.Hint"] = ("Choisissez un compte pour modifier ses groupes.", "Pick an account to change its groups."),

@@ -1,0 +1,102 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMARX.ViewModels"
+        xmlns:models="using:SMARX.Models"
+        x:Class="SMARX.Views.SambaShareWindow"
+        x:DataType="vm:SambaShareSettingsViewModel"
+        Title="{Binding Title}"
+        Icon="/Assets/icone.ico"
+        Width="620" Height="860" MinWidth="520" MinHeight="600"
+        WindowStartupLocation="CenterOwner">
+
+    <!-- Partage Samba : les réglages d'une section de smb.conf, et la section telle que Samba la lit -->
+    <Grid RowDefinitions="*,Auto" Margin="18">
+        <ScrollViewer>
+            <StackPanel Spacing="10" Margin="0,0,6,0">
+                <TextBlock Classes="muted">
+                    <Run Text="{DynamicResource Sec.ObjectName}"/>
+                    <Run Text="{Binding ObjectName}" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+                </TextBlock>
+                <CheckBox IsChecked="{Binding IsShared}">
+                    <TextBlock Text="{DynamicResource Share.ShareThis}" FontWeight="SemiBold"/>
+                </CheckBox>
+
+                <StackPanel Spacing="10" IsVisible="{Binding HasShare}">
+                    <TextBlock Classes="label" Text="{DynamicResource Share.Names}"/>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <ComboBox ItemsSource="{Binding Shares}" SelectedItem="{Binding SelectedShare}" HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="models:SambaShare">
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Grid.Column="1" Content="{DynamicResource Sec.Remove}" Command="{Binding RemoveShareCommand}"/>
+                    </Grid>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <TextBox Text="{Binding NewName}" PlaceholderText="{DynamicResource Share.NewName}"/>
+                        <Button Grid.Column="1" Content="{DynamicResource Sec.Add}" Command="{Binding AddShareCommand}"/>
+                    </Grid>
+                    <TextBlock Classes="mono" Text="{Binding NetworkPath}" FontSize="13"/>
+
+                    <!-- Les réglages, une ligne par paramètre de smb.conf -->
+                    <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="8">
+                        <TextBlock Classes="label" Text="comment" VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1" Text="{Binding Comment}"/>
+                        <TextBlock Grid.Row="1" Classes="label" Text="read only" VerticalAlignment="Center"/>
+                        <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding ReadOnly}">
+                            <TextBlock Text="{DynamicResource Samba.ReadOnly}" FontSize="12" TextWrapping="Wrap"/>
+                        </CheckBox>
+                        <TextBlock Grid.Row="2" Classes="label" Text="valid users" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ValidUsers}" PlaceholderText="{DynamicResource Samba.Users}"/>
+                        <TextBlock Grid.Row="3" Classes="label" Text="invalid users" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding InvalidUsers}" PlaceholderText="{DynamicResource Samba.Users}"/>
+                        <TextBlock Grid.Row="4" Classes="label" Text="read list" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ReadList}" PlaceholderText="{DynamicResource Samba.Users}"/>
+                        <TextBlock Grid.Row="5" Classes="label" Text="write list" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding WriteList}" PlaceholderText="{DynamicResource Samba.Users}"/>
+                        <TextBlock Grid.Row="6" Classes="label" Text="force user" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding ForceUser}"/>
+                        <TextBlock Grid.Row="7" Classes="label" Text="force group" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding ForceGroup}"/>
+                        <TextBlock Grid.Row="8" Classes="label" Text="create mask" VerticalAlignment="Center"/>
+                        <Grid Grid.Row="8" Grid.Column="1" ColumnDefinitions="*,Auto,*" ColumnSpacing="8">
+                            <TextBox Text="{Binding CreateMask}" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="force create mode" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="2" Text="{Binding ForceCreateMode}" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+                        </Grid>
+                        <TextBlock Grid.Row="9" Classes="label" Text="directory mask" VerticalAlignment="Center"/>
+                        <Grid Grid.Row="9" Grid.Column="1" ColumnDefinitions="*,Auto,*" ColumnSpacing="8">
+                            <TextBox Text="{Binding DirectoryMask}" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="force directory mode" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="2" Text="{Binding ForceDirectoryMode}" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+                        </Grid>
+                        <TextBlock Grid.Row="10" Classes="label" Text="hide unreadable" VerticalAlignment="Center"/>
+                        <CheckBox Grid.Row="10" Grid.Column="1" IsChecked="{Binding HideUnreadable}">
+                            <TextBlock Text="{DynamicResource Samba.Hide}" FontSize="12" TextWrapping="Wrap"/>
+                        </CheckBox>
+                        <TextBlock Grid.Row="11" Classes="label" Text="browseable" VerticalAlignment="Center"/>
+                        <CheckBox Grid.Row="11" Grid.Column="1" IsChecked="{Binding Browseable}">
+                            <TextBlock Text="{DynamicResource Samba.Browseable}" FontSize="12" TextWrapping="Wrap"/>
+                        </CheckBox>
+                    </Grid>
+
+                    <TextBlock Classes="muted" Text="{DynamicResource Samba.Rule}"/>
+                    <TextBlock Classes="label" Text="{DynamicResource Samba.Config}" Margin="0,6,0,0"/>
+                    <Border Classes="code">
+                        <SelectableTextBlock Classes="mono" Text="{Binding Config}" FontSize="12" TextWrapping="Wrap"/>
+                    </Border>
+                </StackPanel>
+
+                <Border Classes="chip" CornerRadius="8" Padding="12,8" IsVisible="{Binding HasMessage}">
+                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="12" Foreground="#E5534B"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,14,0,0">
+            <Button Content="{DynamicResource Sec.Ok}" Click="OnOk" MinWidth="96" HorizontalContentAlignment="Center"/>
+            <Button Content="{DynamicResource Sec.Cancel}" Click="OnCancel" MinWidth="96" HorizontalContentAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Window>

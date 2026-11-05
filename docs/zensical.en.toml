@@ -38,6 +38,7 @@ nav = [
     "smar-x/index.md",
     "smar-x/security-tab.md",
     "smar-x/shares.md",
+    "smar-x/samba.md",
     "smar-x/windows-rules.md",
   ] },
   { "Reference" = [

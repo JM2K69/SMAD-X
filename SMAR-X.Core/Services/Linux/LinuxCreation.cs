@@ -26,20 +26,27 @@ namespace SMARX.Services.Linux
         public const int FileMode = 0x1B6;      // 0666
         public const int DirectoryMode = 0x1FF; // 0777
 
-        public static CreationResult Create(LinuxHost host, LinuxUser user, string directoryPath, string name, LinuxNodeKind kind)
+        public static CreationResult Create(LinuxHost host, LinuxUser user, string directoryPath, string name, LinuxNodeKind kind) =>
+            Create(host, user, directoryPath, name, kind, kind == LinuxNodeKind.Directory ? DirectoryMode : FileMode,
+                Convert.ToInt32(user.Umask, 8), user.PrimaryGroup, LinuxAccess.Check(host, user, directoryPath, LinuxOperation.Create));
+
+        /// <summary>
+        /// Une création avec un mode demandé, une umask et un groupe donnés : ceux d'un programme, ou de Samba (qui
+        /// calcule le mode avec ses masques, n'applique pas d'umask, et peut imposer un groupe).
+        /// </summary>
+        public static CreationResult Create(LinuxHost host, LinuxUser user, string directoryPath, string name, LinuxNodeKind kind,
+                                            int requested, int umask, string group, AccessResult access)
         {
-            var access = LinuxAccess.Check(host, user, directoryPath, LinuxOperation.Create);
             if (!access.Allowed)
                 return new CreationResult(access, null, false, false, false);
 
             var directory = host.Find(directoryPath)!;
-            var requested = kind == LinuxNodeKind.Directory ? DirectoryMode : FileMode;
             var node = new LinuxNode
             {
                 Name = name,
                 Kind = kind,
                 Owner = user.Name,
-                Group = directory.SetGid ? directory.Group : user.PrimaryGroup
+                Group = directory.SetGid ? directory.Group : group
             };
 
             int mode;
@@ -51,7 +58,7 @@ namespace SMARX.Services.Linux
             }
             else
             {
-                mode = requested & ~Convert.ToInt32(user.Umask, 8);
+                mode = requested & ~umask;
             }
             if (directory.SetGid && kind == LinuxNodeKind.Directory)
                 mode |= 0x400;

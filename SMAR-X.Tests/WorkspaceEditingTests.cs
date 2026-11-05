@@ -213,6 +213,40 @@ public class WorkspaceEditingTests
         Assert.False(vm.Allowed);
     }
 
+    /// <summary>
+    /// Par un partage Samba : carol écrit doc.txt en local (rh : -w-), pas par partage (lecture seule) ; ajoutée à la
+    /// write list, Samba la laisse passer, mais le noyau refuse : le client ouvre en lecture-écriture.
+    /// </summary>
+    [Fact]
+    public void Linux_ThroughASambaShare_SambaDecidesThenTheKernel_AndTheShareWindowChangesIt()
+    {
+        var vm = Shell().Linux;
+        vm.SelectedNode = FindLinux(vm.Tree[0], "/srv/partage/doc.txt");
+        vm.SelectedUser = vm.Users.First(u => u.Name == "carol");
+        vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, LinuxOperation.Write));
+        Assert.True(vm.Allowed);
+        Assert.Equal(["en local, sur le serveur", @"par le partage \\srv-fic\partage\doc.txt", @"par le partage \\srv-fic\public\partage\doc.txt"],
+            vm.Routes.Select(r => r.Label));
+
+        vm.SelectedRoute = vm.Routes.First(r => r.Share?.Name == "partage");
+        Assert.Equal([LinuxOperation.Read, LinuxOperation.Write, LinuxOperation.Delete], vm.Operations.Select(o => (LinuxOperation)o.Operation));
+        Assert.False(vm.Allowed);
+        Assert.EndsWith("Samba refuse avant le noyau.", vm.Verdict);
+        Assert.Equal(@"\\srv-fic\partage\doc.txt", vm.TargetText);
+
+        var share = new SambaShareSettingsViewModel(vm.Host, FindLinux(vm.Tree[0], "/srv/partage"));
+        share.WriteList = "bob carol";
+        Assert.Contains("write list = bob carol", share.Config);
+        vm.AfterShareWindow();
+        Assert.False(vm.Allowed);
+        Assert.EndsWith("Samba laisse passer, le noyau refuse.", vm.Verdict);
+        Assert.Contains(vm.Steps, s => s.Title == "Ouvrir en lecture-écriture");
+
+        share.Cancel();
+        vm.AfterShareWindow();
+        Assert.EndsWith("Samba refuse avant le noyau.", vm.Verdict);
+    }
+
     [Fact]
     public void Windows_DisablingInheritanceByCopying_KeepsTheSameAccess()
     {

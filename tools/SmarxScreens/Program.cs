@@ -37,8 +37,39 @@ if (docs)
         // Par le partage Projets (Lecture), dave n'écrit plus planning.xlsx, que NTFS lui laisse modifier
         Network(culture, "dave", @"D:\Partages\Projets\planning.xlsx", WindowsOperation.Write, "Projets", "smarx-network");
         Sharing(culture, @"D:\Partages", "smarx-share");
+        // Par le partage partage (lecture seule), carol n'écrit plus doc.txt, que le noyau lui laisse écrire en local
+        LinuxNetwork(culture, "carol", "/srv/partage/doc.txt", LinuxOperation.Write, "partage", "smarx-samba");
+        SambaWindow(culture, "/srv/projets", "smarx-samba-share");
     }
     return;
+}
+
+// L'espace Linux, le testeur passant par un partage Samba
+void LinuxNetwork(string culture, string user, string path, LinuxOperation operation, string share, string name)
+{
+    var shell = Prepare(culture, ThemeVariant.Dark);
+    var vm = shell.Linux;
+    vm.SelectedNode = Find(vm.Tree[0], path, n => n.Path, n => n.Children);
+    vm.SelectedUser = vm.Users.First(u => u.Name == user);
+    vm.SelectedRoute = vm.Routes.First(r => r.Share?.Name == share);
+    vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, operation));
+    vm.SelectedAccount = vm.Users.First(u => u.Name == user);
+    Capture(shell, name, 1000);
+}
+
+// La fenêtre Partage Samba d'un dossier
+void SambaWindow(string culture, string folder, string name)
+{
+    var shell = Prepare(culture, ThemeVariant.Dark);
+    var vm = shell.Linux;
+    var window = new SambaShareWindow { DataContext = new SambaShareSettingsViewModel(vm.Host, Find(vm.Tree[0], folder, n => n.Path, n => n.Children)), Height = 960 };
+    window.Show();
+    Pump(700);
+    var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
+    var file = Path.Combine(outDir, name + ".png");
+    frame.Save(file);
+    Console.WriteLine(file);
+    window.Close();
 }
 
 // L'espace Windows, le testeur passant par un partage

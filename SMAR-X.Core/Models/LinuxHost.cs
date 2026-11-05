@@ -13,6 +13,11 @@ namespace SMARX.Models
         public List<LinuxGroup> Groups { get; set; } = new();
         public LinuxNode Root { get; set; } = LinuxNode.Directory("", "root", "root", "0755");
 
+        /// <summary>Les partages Samba du serveur : l'accès distant passe par eux.</summary>
+        public List<SambaShare> Shares { get; set; } = new();
+
+        public SambaShare? Share(string name) => Shares.FirstOrDefault(s => s.Name == name);
+
         public LinuxUser? User(string name) => Users.FirstOrDefault(u => u.Name == name);
 
         public LinuxGroup? Group(string name) => Groups.FirstOrDefault(g => g.Name == name);

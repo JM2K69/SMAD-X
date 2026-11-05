@@ -44,6 +44,79 @@ namespace SMARX.Services.Linux
         public static IReadOnlyList<ExplainedStep> Steps(AccessResult result, string culture) =>
             result.Steps.Select(s => Step(result, s, culture)).ToList();
 
+        /// <summary>
+        /// Un accès par un partage Samba : le compte Samba, l'identité Unix de smbd, l'entrée dans le dossier partagé,
+        /// l'écriture permise ou non par le partage, puis les étapes du noyau.
+        /// </summary>
+        public static IReadOnlyList<(bool? Passed, string Title, string Detail)> SambaSteps(LinuxHost host, SambaAccessResult result, string culture)
+        {
+            var share = result.Share;
+            var steps = new List<(bool?, string, string)>();
+            if (result.Refusal == SambaRefusal.NoSambaAccount)
+            {
+                steps.Add((false, Text(culture, "Compte Samba", "Samba account"),
+                    Text(culture, $"{result.User} n'a pas de mot de passe Samba (smbpasswd -a) : la connexion est refusée.",
+                                  $"{result.User} has no Samba password (smbpasswd -a): the connection is denied.")));
+                return steps;
+            }
+            var lists = share.ValidUsers.Count == 0 && share.InvalidUsers.Count == 0
+                ? Text(culture, "le partage n'a ni valid users ni invalid users : tout compte Samba est admis.", "the share has neither valid users nor invalid users: every Samba account is admitted.")
+                : Text(culture, $"valid users = {Or(share.ValidUsers, culture)} ; invalid users = {Or(share.InvalidUsers, culture)}.",
+                                $"valid users = {Or(share.ValidUsers, culture)}; invalid users = {Or(share.InvalidUsers, culture)}.");
+            var admitted = result.Refusal != SambaRefusal.NotValidUser;
+            steps.Add((admitted, Text(culture, $"Compte {result.User} admis ?", $"Is {result.User} admitted?"),
+                lists + (admitted ? "" : Text(culture, " La connexion est refusée.", " The connection is denied."))));
+            if (!admitted) return steps;
+
+            var unix = result.Unix;
+            var forced = share.ForceUser != null || share.ForceGroup != null;
+            steps.Add((null, Text(culture, "Identité Unix", "Unix identity"),
+                Text(culture, $"smbd agit sous {unix.Name}, groupe principal {unix.PrimaryGroup}", $"smbd acts as {unix.Name}, primary group {unix.PrimaryGroup}")
+                + (forced ? Text(culture, $" (force user = {share.ForceUser ?? "—"}, force group = {share.ForceGroup ?? "—"}).", $" (force user = {share.ForceUser ?? "—"}, force group = {share.ForceGroup ?? "—"}).") : ".")));
+
+            var entered = result.Refusal != SambaRefusal.CannotEnterShare;
+            steps.Add((entered, Text(culture, $"Entrer dans {share.Path}", $"Enter {share.Path}"),
+                entered ? Text(culture, $"smbd entre dans le dossier partagé sous {unix.Name}.", $"smbd enters the shared directory as {unix.Name}.")
+                        : Text(culture, $"{unix.Name} n'a pas x sur {share.Path} ou un dossier qui y mène : smbd n'y entre pas, la connexion est refusée.",
+                                        $"{unix.Name} lacks x on {share.Path} or a directory leading to it: smbd cannot enter, the connection is denied.")));
+            if (!entered) return steps;
+
+            if (result.Operation is LinuxOperation.Write or LinuxOperation.Create or LinuxOperation.Delete or LinuxOperation.ChangePermissions)
+            {
+                var account = host.User(result.User) ?? result.Unix;
+                var why = SambaShare.Matches(share.ReadList, account)
+                    ? Text(culture, "le compte est dans read list", "the account is in the read list")
+                    : result.Writable && share.ReadOnly ? Text(culture, "read only = yes, mais le compte est dans write list", "read only = yes, but the account is in the write list")
+                    : share.ReadOnly ? "read only = yes" : "read only = no";
+                steps.Add((result.Writable, Text(culture, "Le partage permet-il d'écrire ?", "Does the share allow writing?"),
+                    why + (result.Writable ? Text(culture, " : Samba laisse passer, le noyau décide.", ": Samba lets it through, the kernel decides.")
+                                           : Text(culture, " : Samba refuse avant le noyau.", ": Samba denies before the kernel."))));
+                if (!result.Writable) return steps;
+            }
+            if (result.Operation == LinuxOperation.Write)
+                steps.Add((null, Text(culture, "Ouvrir en lecture-écriture", "Open read-write"),
+                    Text(culture, "le client ouvre le fichier en lecture et en écriture : il faut r et w, donnés par une même entrée.",
+                                  "the client opens the file for reading and writing: r and w are needed, from one entry.")));
+            if (result.Kernel is { } kernel)
+                steps.AddRange(Steps(kernel, culture).Select(s => ((bool?)s.Step.Passed, s.Title, s.Detail)));
+            return steps;
+        }
+
+        /// <summary>Le résultat d'un accès par un partage, sur son chemin réseau, et qui refuse : Samba ou le noyau.</summary>
+        public static string SambaVerdict(SambaAccessResult result, string culture)
+        {
+            var action = $"{Lower(Operation(result.Operation, culture))} {result.Unc}";
+            var verdict = result.Allowed
+                ? Text(culture, $"Résultat : {result.User} peut {action}.", $"Result: {result.User} can {action}.")
+                : Text(culture, $"Résultat : {result.User} ne peut pas {action}.", $"Result: {result.User} cannot {action}.");
+            if (result.Allowed) return verdict;
+            return verdict + (result.Refusal == SambaRefusal.None
+                ? Text(culture, " Samba laisse passer, le noyau refuse.", " Samba lets it through, the kernel denies.")
+                : Text(culture, " Samba refuse avant le noyau.", " Samba denies before the kernel."));
+        }
+
+        private static string Or(List<string> list, string culture) => list.Count == 0 ? Text(culture, "(vide)", "(empty)") : string.Join(' ', list);
+
         public static string Operation(LinuxOperation operation, string culture) => operation switch
         {
             LinuxOperation.Read => Text(culture, "Lire", "Read"),

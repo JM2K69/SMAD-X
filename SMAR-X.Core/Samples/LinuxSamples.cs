@@ -8,6 +8,10 @@ namespace SMARX.Samples;
 /// le sticky bit, le bit setgid, une ACL et son masque, une ACL par défaut. Chaque compte a son groupe personnel
 /// (comme Debian) ; alice et bob sont à la comptabilité, bob et carol aux ressources humaines, dave dans aucun
 /// groupe de service. Le noyau Linux donne les mêmes résultats (SMAR-X.Tests/Fidelity).
+/// Partages Samba : compta, réservé au groupe, en écriture, avec des masques de groupe ; partage, en lecture seule
+/// sauf pour bob (write list), que l'ACL du dossier bride pourtant ; projets, où tout est créé au groupe projet
+/// (force group) ; public, /srv en lecture qui cache ce qu'on ne peut pas lire ; depot, /tmp en écriture avec les
+/// masques par défaut de Samba.
 /// </summary>
 public static class LinuxSamples
 {
@@ -56,6 +60,20 @@ public static class LinuxSamples
                     File("outil", "root", "root", "0755"))),
             Directory("opt", "root", "root", "0755",
                 File("noexec.sh", "root", "root", "0644")));
+
+        host.Shares.Add(new SambaShare
+        {
+            Name = "compta", Path = "/srv/compta", Comment = "Comptabilité", ReadOnly = false, ValidUsers = ["@compta"],
+            CreateMask = "0660", DirectoryMask = "2770"
+        });
+        host.Shares.Add(new SambaShare { Name = "partage", Path = "/srv/partage", Comment = "Documents partagés", WriteList = ["bob"] });
+        host.Shares.Add(new SambaShare
+        {
+            Name = "projets", Path = "/srv/projets", Comment = "Projets", ReadOnly = false, ValidUsers = ["@projet"], ForceGroup = "projet",
+            CreateMask = "0660", DirectoryMask = "0770"
+        });
+        host.Shares.Add(new SambaShare { Name = "public", Path = "/srv", Comment = "Vue d'ensemble, en lecture", HideUnreadable = true });
+        host.Shares.Add(new SambaShare { Name = "depot", Path = "/tmp", Comment = "Dépôt", ReadOnly = false });
         return host;
     }
 }
