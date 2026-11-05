@@ -1,0 +1,362 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SMARX.ViewModels"
+             x:Class="SMARX.Views.WindowsWorkspaceView"
+             x:DataType="vm:WindowsWorkspaceViewModel">
+
+    <Grid ColumnDefinitions="330,*,470" ColumnSpacing="16" Margin="16">
+
+        <!-- ═══ Arborescence NTFS ═══ -->
+        <Border Classes="card" Padding="10">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Margin="8,4,8,10" Spacing="2">
+                    <TextBlock Classes="h" Text="{DynamicResource Tree.Title}"/>
+                    <TextBlock Classes="muted" Text="{DynamicResource Tree.Hint}"/>
+                </StackPanel>
+                <TreeView ItemsSource="{Binding Tree}" SelectedItem="{Binding SelectedNode}">
+                    <TreeView.ItemTemplate>
+                        <TreeDataTemplate x:DataType="vm:NtfsItem" ItemsSource="{Binding Children}">
+                            <Grid ColumnDefinitions="Auto,*" Margin="0,3">
+                                <Panel Width="18" Height="18" VerticalAlignment="Top" Margin="0,2,8,0">
+                                    <PathIcon Data="{StaticResource FolderIcon}" Width="16" Height="16" Foreground="#E3B341" IsVisible="{Binding IsDirectory}"/>
+                                    <PathIcon Data="{StaticResource FileIcon}" Width="14" Height="16" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding !IsDirectory}"/>
+                                </Panel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Medium"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding Owner}" FontSize="11" Foreground="{DynamicResource TextMuted}"/>
+                                        <TextBlock Text="{Binding ProtectedLabel}" FontSize="11" Foreground="{DynamicResource Accent}" IsVisible="{Binding IsProtected}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </TreeDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </DockPanel>
+        </Border>
+
+        <!-- ═══ Testeur et matrice ═══ -->
+        <ScrollViewer Grid.Column="1">
+            <StackPanel Spacing="16">
+                <Border Classes="card">
+                    <StackPanel Spacing="16">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Classes="h" Text="{DynamicResource Tester.Title}" FontSize="18"/>
+                            <TextBlock Grid.Column="1" Classes="muted" Text="{DynamicResource Tester.LocalWindows}" VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*,1.3*" ColumnSpacing="14">
+                            <StackPanel Spacing="6">
+                                <TextBlock Classes="label" Text="{DynamicResource Tester.Who}"/>
+                                <ComboBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" HorizontalAlignment="Stretch" MinHeight="48">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:WindowsUserItem">
+                                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                                <Border Width="28" Height="28" CornerRadius="14" Background="{Binding Brush}">
+                                                    <TextBlock Text="{Binding Initial}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                                    <TextBlock Classes="muted" Text="{Binding Groups}" FontSize="11"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <CheckBox IsChecked="{Binding Elevated}" IsVisible="{Binding CanElevate}">
+                                    <TextBlock Text="{DynamicResource Tester.Elevated}" TextWrapping="Wrap" FontSize="12"/>
+                                </CheckBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="6">
+                                <TextBlock Classes="label" Text="{DynamicResource Tester.What}"/>
+                                <ComboBox ItemsSource="{Binding Operations}" SelectedItem="{Binding SelectedOperation}" HorizontalAlignment="Stretch" MinHeight="48" VerticalContentAlignment="Center">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:OperationItem">
+                                            <TextBlock Text="{Binding Label}" FontWeight="SemiBold"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="6">
+                                <TextBlock Classes="label" Text="{DynamicResource Tester.On}"/>
+                                <Border Classes="code" MinHeight="48" Padding="12,0">
+                                    <TextBlock Classes="mono" Text="{Binding SelectedNode.Path}" VerticalAlignment="Center" FontSize="14" TextTrimming="CharacterEllipsis"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Verdict -->
+                        <Border CornerRadius="12" Padding="16,14" BorderThickness="1" IsVisible="{Binding HasResult}"
+                                Background="{Binding VerdictBackground}" BorderBrush="{Binding VerdictBrush}">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <Border Width="48" Height="48" CornerRadius="24" Background="{Binding VerdictBrush}" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding VerdictSymbol}" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Text="{Binding VerdictTitle}" FontSize="22" FontWeight="Bold" Foreground="{Binding VerdictBrush}"/>
+                                    <TextBlock Text="{Binding Verdict}" TextWrapping="Wrap" FontSize="14"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Étapes -->
+                        <StackPanel Spacing="10" IsVisible="{Binding HasResult}">
+                            <TextBlock Classes="label" Text="{DynamicResource Tester.StepsWindows}"/>
+                            <ItemsControl ItemsSource="{Binding Steps}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:StepItem">
+                                        <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,10">
+                                            <Border Width="28" Height="28" CornerRadius="14" Background="{Binding Brush}" VerticalAlignment="Top">
+                                                <TextBlock Text="{Binding Number}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" Margin="12,2,0,0" Spacing="2">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"/>
+                                                    <TextBlock Text="{Binding Symbol}" Foreground="{Binding Brush}" FontWeight="Bold" FontSize="14"/>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ Matrice d'accès ═══ -->
+                <Border Classes="card">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="h" Text="{DynamicResource Matrix.Title}"/>
+                            <TextBlock Classes="muted" Text="{DynamicResource Matrix.Hint}"/>
+                        </StackPanel>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                            <StackPanel Spacing="6">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Classes="label" Width="128" Text="{DynamicResource Matrix.Account}" VerticalAlignment="Bottom"/>
+                                    <ItemsControl ItemsSource="{Binding MatrixColumns}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" Spacing="6"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="x:String">
+                                                <TextBlock Classes="label" Width="92" Text="{Binding}" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Bottom"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                                <ItemsControl ItemsSource="{Binding MatrixRows}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:MatrixRow">
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                                <StackPanel Orientation="Horizontal" Width="128" Spacing="10" VerticalAlignment="Center">
+                                                    <Border Width="26" Height="26" CornerRadius="13" Background="{Binding User.Brush}">
+                                                        <TextBlock Text="{Binding User.Initial}" Foreground="White" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding User.Name}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <ItemsControl ItemsSource="{Binding Cells}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal" Spacing="6"/>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="vm:MatrixCell">
+                                                            <Button Classes="cell" Classes.selected="{Binding IsSelected}" Width="92" Height="36"
+                                                                    Background="{Binding Background}" Command="{Binding Select}" CommandParameter="{Binding}">
+                                                                <TextBlock Text="{Binding Symbol}" Foreground="{Binding Brush}" FontWeight="Bold" FontSize="16"/>
+                                                            </Button>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ═══ Autorisations ═══ -->
+        <ScrollViewer Grid.Column="2">
+            <StackPanel Spacing="16">
+                <Border Classes="card">
+                    <StackPanel Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Classes="h" Text="{DynamicResource Ntfs.Title}"/>
+                            <Button Grid.Column="1" Classes="link" Content="{DynamicResource Glossary.LinkWindows}" Click="OnGlossary"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <TextBlock Classes="label" Text="{DynamicResource Rights.Owner}" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding Editor.Owners}" SelectedItem="{Binding Editor.Owner}" HorizontalAlignment="Stretch"/>
+                        </Grid>
+
+                        <!-- Héritage -->
+                        <Border Classes="chip" CornerRadius="8" Padding="12,8">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="{DynamicResource Ntfs.InheritanceOn}" TextWrapping="Wrap" FontSize="12" IsVisible="{Binding Editor.InheritanceEnabled}"/>
+                                <TextBlock Text="{DynamicResource Ntfs.InheritanceOff}" TextWrapping="Wrap" FontSize="12" IsVisible="{Binding Editor.IsProtected}"/>
+                                <WrapPanel IsVisible="{Binding Editor.InheritanceEnabled}">
+                                    <Button Content="{DynamicResource Ntfs.DisableCopy}" Command="{Binding Editor.DisableInheritanceCopyCommand}" Margin="0,0,6,6"/>
+                                    <Button Content="{DynamicResource Ntfs.DisableRemove}" Command="{Binding Editor.DisableInheritanceRemoveCommand}" Margin="0,0,6,6"/>
+                                </WrapPanel>
+                                <Button Content="{DynamicResource Ntfs.Enable}" Command="{Binding Editor.EnableInheritanceCommand}" IsVisible="{Binding Editor.IsProtected}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- La DACL, dans l'ordre -->
+                        <TextBlock Classes="label" Text="{DynamicResource Ntfs.Dacl}"/>
+                        <ItemsControl ItemsSource="{Binding Editor.Aces}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:AceItem">
+                                    <Border Classes="code" Padding="10,8" Margin="0,0,0,6">
+                                        <StackPanel Spacing="6">
+                                            <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="8">
+                                                <TextBlock Classes="mono muted" Text="{Binding Index}" VerticalAlignment="Center"/>
+                                                <Border Grid.Column="1" Classes="allow" Background="{Binding TypeBackground}">
+                                                    <TextBlock Text="{Binding TypeLabel}" Foreground="{Binding TypeBrush}" FontWeight="Bold" FontSize="12"/>
+                                                </Border>
+                                                <TextBlock Grid.Column="2" Text="{Binding Trustee}" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                <Button Grid.Column="3" Content="✕" Command="{Binding Remove}" Padding="8,2" IsVisible="{Binding IsExplicit}"
+                                                        ToolTip.Tip="{DynamicResource Rights.Remove}"/>
+                                            </Grid>
+                                            <!-- Explicite : modifiable -->
+                                            <Grid ColumnDefinitions="Auto,*,*" ColumnSpacing="6" IsVisible="{Binding IsExplicit}">
+                                                <CheckBox IsChecked="{Binding IsDeny}" Content="{DynamicResource Ntfs.Deny}"/>
+                                                <ComboBox Grid.Column="1" ItemsSource="{Binding RightsChoices}" SelectedItem="{Binding Rights}" HorizontalAlignment="Stretch" FontSize="12"/>
+                                                <ComboBox Grid.Column="2" ItemsSource="{Binding AppliesChoices}" SelectedItem="{Binding Applies}" HorizontalAlignment="Stretch" FontSize="12"/>
+                                            </Grid>
+                                            <!-- Héritée : en lecture -->
+                                            <TextBlock Classes="muted" IsVisible="{Binding IsInherited}">
+                                                <Run Text="{Binding RightsLabel}" FontWeight="SemiBold"/>
+                                                <Run Text=" · "/>
+                                                <Run Text="{Binding AppliesTo}"/>
+                                            </TextBlock>
+                                            <TextBlock Classes="muted" Text="{Binding Origin}" FontStyle="Italic"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Ajouter une ACE -->
+                        <TextBlock Classes="label" Text="{DynamicResource Ntfs.Add}"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="6">
+                            <ComboBox ItemsSource="{Binding Editor.Principals}" SelectedItem="{Binding Editor.NewTrustee}" HorizontalAlignment="Stretch"/>
+                            <CheckBox Grid.Column="1" IsChecked="{Binding Editor.NewIsDeny}" Content="{DynamicResource Ntfs.Deny}"/>
+                            <ComboBox Grid.Row="1" ItemsSource="{Binding Editor.NewRightsChoices}" SelectedItem="{Binding Editor.NewRights}" HorizontalAlignment="Stretch"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Editor.NewAppliesChoices}" SelectedItem="{Binding Editor.NewApplies}" HorizontalAlignment="Stretch"/>
+                            <Button Grid.Row="2" Grid.ColumnSpan="2" Content="{DynamicResource Ntfs.AddButton}" Command="{Binding Editor.AddAceCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Accès effectif -->
+                <Border Classes="card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Classes="h" Text="{Binding EffectiveTitle}"/>
+                        <ItemsControl ItemsSource="{Binding EffectiveRights}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:EffectiveRightItem">
+                                    <Grid ColumnDefinitions="22,*" Margin="0,1">
+                                        <TextBlock Text="{Binding Symbol}" Foreground="{Binding Brush}" FontWeight="Bold"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Label}" FontSize="12"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- icacls -->
+                <Border Classes="card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Classes="h" Text="icacls"/>
+                        <Border Classes="code">
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <SelectableTextBlock Classes="mono" Text="{Binding Editor.Icacls}" FontSize="11" Margin="0,0,0,8"/>
+                            </ScrollViewer>
+                        </Border>
+                        <TextBlock Classes="label" Text="{DynamicResource Rights.Commands}"/>
+                        <Border Classes="code">
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <SelectableTextBlock Classes="mono" Text="{Binding Editor.Commands}" FontSize="11" Margin="0,0,0,8"/>
+                            </ScrollViewer>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Création -->
+                <Border Classes="card" IsVisible="{Binding ShowCreation}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Classes="h" Text="{DynamicResource Create.TitleWindows}"/>
+                        <Border Classes="code">
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <SelectableTextBlock Classes="mono" Text="{Binding NewItem}" FontSize="11" Margin="0,0,0,8"/>
+                            </ScrollViewer>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- Comptes locaux -->
+                <Border Classes="card">
+                    <StackPanel Spacing="10">
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="h" Text="{DynamicResource Accounts.Title}"/>
+                            <TextBlock Classes="muted" Text="{DynamicResource Accounts.Hint}"/>
+                        </StackPanel>
+                        <ListBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedAccount}" Background="Transparent" AutoScrollToSelectedItem="False">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:WindowsUserItem">
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <Border Width="28" Height="28" CornerRadius="14" Background="{Binding Brush}" VerticalAlignment="Top">
+                                            <TextBlock Text="{Binding Initial}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                            <TextBlock Classes="muted mono" Text="{Binding IdLine}" FontSize="11"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Border Classes="code" Padding="12">
+                            <StackPanel Spacing="8">
+                                <TextBlock Classes="label" Text="{DynamicResource Accounts.Groups}"/>
+                                <ItemsControl ItemsSource="{Binding Memberships}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:MembershipItem">
+                                            <CheckBox IsChecked="{Binding IsMember}" Margin="0,0,12,0">
+                                                <!-- Un TextBlock : en Content, « _ » serait pris pour un raccourci clavier (GL_Compta → GLCompta) -->
+                                                <TextBlock Text="{Binding Display}"/>
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <SelectableTextBlock Classes="mono" Text="{Binding AccountCommands}" FontSize="12" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="6">
+                            <TextBox Text="{Binding NewUserName}" PlaceholderText="{DynamicResource Accounts.NewUser}"/>
+                            <Button Grid.Column="1" Content="{DynamicResource Accounts.AddUser}" Command="{Binding AddUserCommand}" MinWidth="130"/>
+                            <TextBox Grid.Row="1" Text="{Binding NewGroupName}" PlaceholderText="{DynamicResource Accounts.NewGroup}"/>
+                            <Button Grid.Row="1" Grid.Column="1" Content="{DynamicResource Accounts.AddGroup}" Command="{Binding AddGroupCommand}" MinWidth="130"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

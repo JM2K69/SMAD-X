@@ -42,7 +42,7 @@ namespace SMARX.Views
             var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
                 FileTypeChoices = [SmarxFiles],
-                SuggestedFileName = ViewModel.Host.Name + SmarxDocument.FileExtension
+                SuggestedFileName = ViewModel.SuggestedFileName
             });
             if (file == null) return;
             await using var stream = await file.OpenWriteAsync();
@@ -51,5 +51,7 @@ namespace SMARX.Views
         }
 
         private void OnToggleTheme(object? sender, RoutedEventArgs e) => ThemeService.Instance.ToggleTheme();
+
+        private void OnGlossary(object? sender, RoutedEventArgs e) => GlossaryWindow.Show(this, ViewModel?.IsWindows == true ? 0 : 1);
     }
 }

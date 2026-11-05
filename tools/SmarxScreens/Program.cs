@@ -1,5 +1,5 @@
-// Captures d'écran de SMAR-X : la fenêtre est rendue hors écran (Avalonia Headless avec le moteur Skia), sur le
-// serveur d'exemple, pour quelques accès qui montrent chacun une règle.
+// Captures d'écran de SMAR-X : la fenêtre est rendue hors écran (Avalonia Headless avec le moteur Skia), sur les
+// serveurs d'exemple, pour quelques accès qui montrent chacun une règle.
 // Usage : dotnet run --project tools/SmarxScreens -- <dossier de sortie>
 using Avalonia;
 using Avalonia.Headless;
@@ -7,6 +7,7 @@ using Avalonia.Styling;
 using Avalonia.Threading;
 using SMARX;
 using SMARX.Services.Linux;
+using SMARX.Services.Windows;
 using SMARX.ViewModels;
 using SMARX.Views;
 
@@ -19,32 +20,25 @@ AppBuilder.Configure<App>()
     .WithInterFont()
     .SetupWithoutStarting();
 
-Capture("fr-FR", ThemeVariant.Dark, "bob", "/srv/compta/budget.ods", LinuxOperation.Read, "01-bob-lit-budget");
-Capture("fr-FR", ThemeVariant.Dark, "carol", "/srv/compta/budget.ods", LinuxOperation.Read, "02-carol-bloquee-au-dossier");
-Capture("fr-FR", ThemeVariant.Dark, "alice", "/srv/compta/notes.txt", LinuxOperation.Write, "03-proprietaire-limitee");
-Capture("fr-FR", ThemeVariant.Dark, "bob", "/srv/partage", LinuxOperation.Create, "04-acl-et-masque");
-Capture("fr-FR", ThemeVariant.Light, "bob", "/tmp/alice.txt", LinuxOperation.Delete, "05-sticky-bit-clair");
-Capture("en-US", ThemeVariant.Dark, "alice", "/srv/projets", LinuxOperation.Create, "06-default-acl-english");
-Capture("fr-FR", ThemeVariant.Dark, "alice", "/srv/projets", LinuxOperation.Create, "07-colonne-droite-complete", 1900);
-Capture("fr-FR", ThemeVariant.Dark, "bob", "/srv/compta/budget.ods", LinuxOperation.Read, "08-bascule-en-anglais", switchTo: "en-US");
+Linux("fr-FR", ThemeVariant.Dark, "bob", "/srv/compta/budget.ods", LinuxOperation.Read, "01-linux-bob-lit-budget");
+Linux("fr-FR", ThemeVariant.Dark, "carol", "/srv/compta/budget.ods", LinuxOperation.Read, "02-linux-carol-bloquee");
+Linux("fr-FR", ThemeVariant.Dark, "bob", "/srv/partage", LinuxOperation.Create, "03-linux-acl-et-masque");
+Linux("fr-FR", ThemeVariant.Dark, "dave", "/srv/compta", LinuxOperation.List, "04-linux-comptes", 1900);
+Windows("fr-FR", ThemeVariant.Dark, "dave", @"D:\Partages\Projets\planning.xlsx", WindowsOperation.Write, false, "05-windows-explicite-avant-herite");
+Windows("fr-FR", ThemeVariant.Dark, "dave", @"D:\Partages\Projets\notes.txt", WindowsOperation.Write, false, "06-windows-refus-herite");
+Windows("fr-FR", ThemeVariant.Dark, "carol", @"D:\Admin", WindowsOperation.List, false, "07-windows-uac-non-eleve");
+Windows("fr-FR", ThemeVariant.Light, "bob", @"D:\Partages\Commun", WindowsOperation.CreateFile, false, "08-windows-creator-owner-clair", 2100);
+Windows("en-US", ThemeVariant.Dark, "alice", @"D:\Partages\RH\annonce-rh.txt", WindowsOperation.Read, false, "09-windows-traverse-english");
+Glossary("fr-FR", 0, "10-aide-memoire-windows");
+Glossary("fr-FR", 1, "11-aide-memoire-linux");
 
-void Capture(string culture, ThemeVariant theme, string user, string path, LinuxOperation operation, string name, int height = 1000, string? switchTo = null)
+void Glossary(string culture, int tab, string name)
 {
     SmarxText.Instance.SetLanguage(culture);
-    Application.Current!.RequestedThemeVariant = theme;
-    var vm = new MainWindowViewModel();
-    vm.SelectedNode = Find(vm.Tree[0], path);
-    vm.SelectedUser = vm.Users.First(u => u.Name == user);
-    vm.SelectedOperation = vm.Operations.First(o => o.Operation == operation);
-    var window = new MainWindow { DataContext = vm, Width = 1520, Height = height };
+    Application.Current!.RequestedThemeVariant = ThemeVariant.Dark;
+    var window = new GlossaryWindow { DataContext = new GlossaryViewModel(tab), Width = 1100, Height = 1500 };
     window.Show();
-    Pump(600);
-    if (switchTo != null)
-    {
-        // Changement de langue fenêtre ouverte, comme le bouton de l'en-tête
-        SmarxText.Instance.SetLanguage(switchTo);
-        Pump(600);
-    }
+    Pump(700);
     var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
     var file = Path.Combine(outDir, name + ".png");
     frame.Save(file);
@@ -52,11 +46,55 @@ void Capture(string culture, ThemeVariant theme, string user, string path, Linux
     window.Close();
 }
 
-static NodeItem Find(NodeItem item, string path) =>
-    item.Path == path ? item : item.Children.Select(c => FindOrNull(c, path)).First(f => f != null)!;
+void Linux(string culture, ThemeVariant theme, string user, string path, LinuxOperation operation, string name, int height = 1000)
+{
+    var shell = Prepare(culture, theme);
+    var vm = shell.Linux;
+    vm.SelectedNode = Find(vm.Tree[0], path, n => n.Path, n => n.Children);
+    vm.SelectedUser = vm.Users.First(u => u.Name == user);
+    vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, operation));
+    vm.SelectedAccount = vm.Users.First(u => u.Name == user);
+    Capture(shell, name, height);
+}
 
-static NodeItem? FindOrNull(NodeItem item, string path) =>
-    item.Path == path ? item : item.Children.Select(c => FindOrNull(c, path)).FirstOrDefault(f => f != null);
+void Windows(string culture, ThemeVariant theme, string user, string path, WindowsOperation operation, bool elevated, string name, int height = 1000)
+{
+    var shell = Prepare(culture, theme);
+    shell.ShowWindowsCommand.Execute(null);
+    var vm = shell.Windows;
+    vm.SelectedNode = Find(vm.Tree[0], path, n => n.Path, n => n.Children);
+    vm.SelectedUser = vm.Users.First(u => u.Name == user);
+    vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, operation));
+    vm.Elevated = elevated;
+    vm.SelectedAccount = vm.Users.First(u => u.Name == user);
+    Capture(shell, name, height);
+}
+
+MainWindowViewModel Prepare(string culture, ThemeVariant theme)
+{
+    SmarxText.Instance.SetLanguage(culture);
+    Application.Current!.RequestedThemeVariant = theme;
+    return new MainWindowViewModel();
+}
+
+void Capture(MainWindowViewModel shell, string name, int height)
+{
+    var window = new MainWindow { DataContext = shell, Width = 1600, Height = height };
+    window.Show();
+    Pump(700);
+    var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
+    var file = Path.Combine(outDir, name + ".png");
+    frame.Save(file);
+    Console.WriteLine(file);
+    window.Close();
+}
+
+static T Find<T>(T item, string path, Func<T, string> pathOf, Func<T, IEnumerable<T>> children) where T : class =>
+    FindOrNull(item, path, pathOf, children) ?? throw new ArgumentException(path);
+
+static T? FindOrNull<T>(T item, string path, Func<T, string> pathOf, Func<T, IEnumerable<T>> children) where T : class =>
+    string.Equals(pathOf(item), path, StringComparison.OrdinalIgnoreCase) ? item
+    : children(item).Select(c => FindOrNull(c, path, pathOf, children)).FirstOrDefault(f => f != null);
 
 static void Pump(int milliseconds)
 {

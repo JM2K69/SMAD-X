@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SMARX.ViewModels"
+        xmlns:views="using:SMARX.Views"
         x:Class="SMARX.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="{DynamicResource App.Title}"
@@ -8,11 +9,14 @@
         Width="1520" Height="960" MinWidth="1200" MinHeight="700"
         WindowStartupLocation="CenterScreen">
 
-    <Window.Styles>
-        <Style Selector="Button.cell.selected">
-            <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
-        </Style>
-    </Window.Styles>
+    <Window.DataTemplates>
+        <DataTemplate DataType="vm:LinuxWorkspaceViewModel">
+            <views:LinuxWorkspaceView/>
+        </DataTemplate>
+        <DataTemplate DataType="vm:WindowsWorkspaceViewModel">
+            <views:WindowsWorkspaceView/>
+        </DataTemplate>
+    </Window.DataTemplates>
 
     <DockPanel>
         <!-- ═══ En-tête ═══ -->
@@ -32,14 +36,29 @@
                         <TextBlock Text="SMAR-X" FontSize="19" FontWeight="Bold"/>
                         <TextBlock Classes="muted" Text="{DynamicResource App.Subtitle}"/>
                     </StackPanel>
-                    <Border Classes="chip" VerticalAlignment="Center" Margin="8,0,0,0">
-                        <TextBlock Classes="mono" Text="{Binding HostTitle}" FontSize="12"/>
+                    <!-- Choix du serveur : Linux ou Windows -->
+                    <Border Background="{DynamicResource ChipBg}" CornerRadius="10" Padding="4" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <ToggleButton Classes="os" IsChecked="{Binding IsLinux}">
+                                <StackPanel>
+                                    <TextBlock Text="Linux" FontWeight="Bold"/>
+                                    <TextBlock Classes="mono" Text="{Binding Linux.Host.Name}" FontSize="11" Opacity="0.8"/>
+                                </StackPanel>
+                            </ToggleButton>
+                            <ToggleButton Classes="os" IsChecked="{Binding IsWindows}">
+                                <StackPanel>
+                                    <TextBlock Text="Windows" FontWeight="Bold"/>
+                                    <TextBlock Classes="mono" Text="{Binding Windows.Host.Name}" FontSize="11" Opacity="0.8"/>
+                                </StackPanel>
+                            </ToggleButton>
+                        </StackPanel>
                     </Border>
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                     <Button Classes="header" Content="{DynamicResource Button.Sample}" Command="{Binding LoadSampleCommand}"/>
                     <Button Classes="header" Content="{DynamicResource Button.Open}" Click="OnOpen"/>
                     <Button Classes="header" Content="{DynamicResource Button.Save}" Click="OnSave"/>
+                    <Button Classes="header" Content="{DynamicResource Button.Glossary}" Click="OnGlossary"/>
                     <Button Classes="header" Content="{DynamicResource Button.Language}" Command="{Binding ToggleLanguageCommand}"/>
                     <Button Classes="header" Content="{DynamicResource Button.Theme}" Click="OnToggleTheme"/>
                 </StackPanel>
@@ -48,382 +67,9 @@
 
         <!-- ═══ Légende ═══ -->
         <Border DockPanel.Dock="Bottom" Background="{DynamicResource HeaderBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,1,0,0" Padding="20,8">
-            <TextBlock Classes="muted mono" Text="{DynamicResource Legend}"/>
+            <TextBlock Classes="muted mono" Text="{Binding Legend}"/>
         </Border>
 
-        <Grid ColumnDefinitions="330,*,410" ColumnSpacing="16" Margin="16">
-
-            <!-- ═══ Arborescence ═══ -->
-            <Border Classes="card" Padding="10">
-                <DockPanel>
-                    <StackPanel DockPanel.Dock="Top" Margin="8,4,8,10" Spacing="2">
-                        <TextBlock Classes="h" Text="{DynamicResource Tree.Title}"/>
-                        <TextBlock Classes="muted" Text="{DynamicResource Tree.Hint}"/>
-                    </StackPanel>
-                    <TreeView ItemsSource="{Binding Tree}" SelectedItem="{Binding SelectedNode}">
-                        <TreeView.ItemTemplate>
-                            <TreeDataTemplate x:DataType="vm:NodeItem" ItemsSource="{Binding Children}">
-                                <Grid ColumnDefinitions="Auto,*" Margin="0,3">
-                                    <Panel Width="18" Height="18" VerticalAlignment="Top" Margin="0,2,8,0">
-                                        <PathIcon Data="{StaticResource FolderIcon}" Width="16" Height="16" Foreground="#E3B341" IsVisible="{Binding IsDirectory}"/>
-                                        <PathIcon Data="{StaticResource FileIcon}" Width="14" Height="16" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding !IsDirectory}"/>
-                                    </Panel>
-                                    <StackPanel Grid.Column="1">
-                                        <TextBlock Text="{Binding Name}" FontWeight="Medium"/>
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <TextBlock Classes="mono" Text="{Binding Mode}" FontSize="11" Foreground="{DynamicResource Accent}"/>
-                                            <TextBlock Classes="mono" Text="{Binding Ownership}" FontSize="11" Foreground="{DynamicResource TextMuted}"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Grid>
-                            </TreeDataTemplate>
-                        </TreeView.ItemTemplate>
-                    </TreeView>
-                </DockPanel>
-            </Border>
-
-            <!-- ═══ Testeur et matrice ═══ -->
-            <ScrollViewer Grid.Column="1">
-                <StackPanel Spacing="16">
-                    <Border Classes="card">
-                        <StackPanel Spacing="16">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Classes="h" Text="{DynamicResource Tester.Title}" FontSize="18"/>
-                                <TextBlock Grid.Column="1" Classes="muted" Text="{DynamicResource Tester.Local}" VerticalAlignment="Center"/>
-                            </Grid>
-
-                            <Grid ColumnDefinitions="*,*,1.3*" ColumnSpacing="14">
-                                <StackPanel Spacing="6">
-                                    <TextBlock Classes="label" Text="{DynamicResource Tester.Who}"/>
-                                    <ComboBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" HorizontalAlignment="Stretch" MinHeight="48">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:UserItem">
-                                                <StackPanel Orientation="Horizontal" Spacing="10">
-                                                    <Border Width="28" Height="28" CornerRadius="14" Background="{Binding Brush}">
-                                                        <TextBlock Text="{Binding Initial}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <StackPanel VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                                                        <TextBlock Classes="muted" Text="{Binding Groups}" FontSize="11"/>
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Spacing="6">
-                                    <TextBlock Classes="label" Text="{DynamicResource Tester.What}"/>
-                                    <ComboBox ItemsSource="{Binding Operations}" SelectedItem="{Binding SelectedOperation}" HorizontalAlignment="Stretch" MinHeight="48" VerticalContentAlignment="Center">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:OperationItem">
-                                                <TextBlock Text="{Binding Label}" FontWeight="SemiBold"/>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2" Spacing="6">
-                                    <TextBlock Classes="label" Text="{DynamicResource Tester.On}"/>
-                                    <Border Classes="code" MinHeight="48" Padding="12,0">
-                                        <TextBlock Classes="mono" Text="{Binding SelectedNode.Path}" VerticalAlignment="Center" FontSize="14" TextTrimming="CharacterEllipsis"/>
-                                    </Border>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- Verdict -->
-                            <Border CornerRadius="12" Padding="16,14" BorderThickness="1" IsVisible="{Binding HasResult}"
-                                    Background="{Binding VerdictBackground}" BorderBrush="{Binding VerdictBrush}">
-                                <Grid ColumnDefinitions="Auto,*">
-                                    <Border Width="48" Height="48" CornerRadius="24" Background="{Binding VerdictBrush}" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding VerdictSymbol}" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="{Binding VerdictTitle}" FontSize="22" FontWeight="Bold" Foreground="{Binding VerdictBrush}"/>
-                                        <TextBlock Text="{Binding Verdict}" TextWrapping="Wrap" FontSize="14"/>
-                                        <TextBlock Text="{Binding Problem}" TextWrapping="Wrap" IsVisible="{Binding Problem, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-
-                            <!-- Chemin parcouru -->
-                            <StackPanel Spacing="8" IsVisible="{Binding HasResult}">
-                                <TextBlock Classes="label" Text="{DynamicResource Tester.Path}"/>
-                                <ItemsControl ItemsSource="{Binding PathSegments}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel Orientation="Horizontal"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:PathSegment">
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                                <Border CornerRadius="8" Padding="12,6" Background="{Binding Background}" BorderBrush="{Binding Brush}" BorderThickness="1">
-                                                    <TextBlock Classes="mono" Text="{Binding Name}" Foreground="{Binding Brush}" FontWeight="SemiBold"/>
-                                                </Border>
-                                                <TextBlock Text="›" FontSize="20" Margin="8,0" VerticalAlignment="Center" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding ShowSeparator}"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-
-                            <!-- Étapes -->
-                            <StackPanel Spacing="10" IsVisible="{Binding HasResult}">
-                                <TextBlock Classes="label" Text="{DynamicResource Tester.Steps}"/>
-                                <ItemsControl ItemsSource="{Binding Steps}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:StepItem">
-                                            <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,10">
-                                                <Border Width="28" Height="28" CornerRadius="14" Background="{Binding Brush}" VerticalAlignment="Top">
-                                                    <TextBlock Text="{Binding Number}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </Border>
-                                                <StackPanel Grid.Column="1" Margin="12,2,0,0" Spacing="2">
-                                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="14"/>
-                                                        <TextBlock Text="{Binding Symbol}" Foreground="{Binding Brush}" FontWeight="Bold" FontSize="14"/>
-                                                    </StackPanel>
-                                                    <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" Foreground="{DynamicResource TextMuted}"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- ═══ Matrice d'accès ═══ -->
-                    <Border Classes="card">
-                        <StackPanel Spacing="12">
-                            <StackPanel Spacing="2">
-                                <TextBlock Classes="h" Text="{DynamicResource Matrix.Title}"/>
-                                <TextBlock Classes="muted" Text="{DynamicResource Matrix.Hint}"/>
-                            </StackPanel>
-                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                                <StackPanel Spacing="6">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Classes="label" Width="128" Text="{DynamicResource Matrix.Account}" VerticalAlignment="Bottom"/>
-                                        <ItemsControl ItemsSource="{Binding MatrixColumns}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <StackPanel Orientation="Horizontal" Spacing="6"/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="x:String">
-                                                    <TextBlock Classes="label" Width="98" Text="{Binding}" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Bottom"/>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                    <ItemsControl ItemsSource="{Binding MatrixRows}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:MatrixRow">
-                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                                    <StackPanel Orientation="Horizontal" Width="128" Spacing="10" VerticalAlignment="Center">
-                                                        <Border Width="26" Height="26" CornerRadius="13" Background="{Binding User.Brush}">
-                                                            <TextBlock Text="{Binding User.Initial}" Foreground="White" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                        </Border>
-                                                        <TextBlock Text="{Binding User.Name}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                                    </StackPanel>
-                                                    <ItemsControl ItemsSource="{Binding Cells}">
-                                                        <ItemsControl.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <StackPanel Orientation="Horizontal" Spacing="6"/>
-                                                            </ItemsPanelTemplate>
-                                                        </ItemsControl.ItemsPanel>
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate x:DataType="vm:MatrixCell">
-                                                                <Button Classes="cell" Classes.selected="{Binding IsSelected}" Width="98" Height="36"
-                                                                        Background="{Binding Background}" Command="{Binding Select}" CommandParameter="{Binding}">
-                                                                    <TextBlock Text="{Binding Symbol}" Foreground="{Binding Brush}" FontWeight="Bold" FontSize="16"/>
-                                                                </Button>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </ScrollViewer>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </ScrollViewer>
-
-            <!-- ═══ Droits ═══ -->
-            <ScrollViewer Grid.Column="2">
-                <StackPanel Spacing="16">
-                    <Border Classes="card">
-                        <StackPanel Spacing="14">
-                            <TextBlock Classes="h" Text="{DynamicResource Rights.Title}"/>
-                            <Border Classes="code">
-                                <SelectableTextBlock Classes="mono" Text="{Binding Editor.LsLine}" FontSize="13"/>
-                            </Border>
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                                <StackPanel Spacing="4">
-                                    <TextBlock Classes="label" Text="{DynamicResource Rights.Owner}"/>
-                                    <ComboBox ItemsSource="{Binding Editor.Users}" SelectedItem="{Binding Editor.Owner}" HorizontalAlignment="Stretch"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Spacing="4">
-                                    <TextBlock Classes="label" Text="{DynamicResource Rights.Group}"/>
-                                    <ComboBox ItemsSource="{Binding Editor.Groups}" SelectedItem="{Binding Editor.Group}" HorizontalAlignment="Stretch"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- Grille des droits : qui × r w x -->
-                            <Border Classes="code" Padding="12,8">
-                                <Grid ColumnDefinitions="*,52,52,52" RowDefinitions="Auto,Auto,Auto,Auto">
-                                    <TextBlock Classes="label" Text="{DynamicResource Rights.Class}"/>
-                                    <TextBlock Grid.Column="1" Classes="label mono" Text="r" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="2" Classes="label mono" Text="w" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="3" Classes="label mono" Text="x" HorizontalAlignment="Center"/>
-
-                                    <TextBlock Grid.Row="1" Text="{DynamicResource Rights.Owner}" VerticalAlignment="Center"/>
-                                    <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding Editor.OwnerBits.R}" HorizontalAlignment="Center"/>
-                                    <CheckBox Grid.Row="1" Grid.Column="2" IsChecked="{Binding Editor.OwnerBits.W}" HorizontalAlignment="Center"/>
-                                    <CheckBox Grid.Row="1" Grid.Column="3" IsChecked="{Binding Editor.OwnerBits.X}" HorizontalAlignment="Center"/>
-
-                                    <TextBlock Grid.Row="2" Text="{Binding Editor.GroupRowLabel}" VerticalAlignment="Center"/>
-                                    <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding Editor.GroupBits.R}" HorizontalAlignment="Center"/>
-                                    <CheckBox Grid.Row="2" Grid.Column="2" IsChecked="{Binding Editor.GroupBits.W}" HorizontalAlignment="Center"/>
-                                    <CheckBox Grid.Row="2" Grid.Column="3" IsChecked="{Binding Editor.GroupBits.X}" HorizontalAlignment="Center"/>
-
-                                    <TextBlock Grid.Row="3" Text="{DynamicResource Rights.Other}" VerticalAlignment="Center"/>
-                                    <CheckBox Grid.Row="3" Grid.Column="1" IsChecked="{Binding Editor.OtherBits.R}" HorizontalAlignment="Center"/>
-                                    <CheckBox Grid.Row="3" Grid.Column="2" IsChecked="{Binding Editor.OtherBits.W}" HorizontalAlignment="Center"/>
-                                    <CheckBox Grid.Row="3" Grid.Column="3" IsChecked="{Binding Editor.OtherBits.X}" HorizontalAlignment="Center"/>
-                                </Grid>
-                            </Border>
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Classes="label" Text="chmod" VerticalAlignment="Center"/>
-                                <Border Classes="chip">
-                                    <TextBlock Classes="mono" Text="{Binding Editor.Octal}" FontWeight="Bold" Foreground="{DynamicResource Accent}"/>
-                                </Border>
-                            </StackPanel>
-
-                            <StackPanel Spacing="4">
-                                <TextBlock Classes="label" Text="{DynamicResource Rights.Special}"/>
-                                <CheckBox IsChecked="{Binding Editor.SetUid}">
-                                    <TextBlock Text="{DynamicResource Rights.SetUid}" TextWrapping="Wrap"/>
-                                </CheckBox>
-                                <CheckBox IsChecked="{Binding Editor.SetGid}">
-                                    <TextBlock Text="{DynamicResource Rights.SetGid}" TextWrapping="Wrap"/>
-                                </CheckBox>
-                                <CheckBox IsChecked="{Binding Editor.Sticky}">
-                                    <TextBlock Text="{DynamicResource Rights.Sticky}" TextWrapping="Wrap"/>
-                                </CheckBox>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- ACL -->
-                    <Border Classes="card">
-                        <StackPanel Spacing="12">
-                            <StackPanel Spacing="2">
-                                <TextBlock Classes="h" Text="{DynamicResource Rights.Acl}"/>
-                                <TextBlock Classes="muted" Text="{DynamicResource Rights.AclHint}"/>
-                            </StackPanel>
-                            <Border Classes="chip" CornerRadius="8" Padding="12,8" IsVisible="{Binding !Editor.HasAcl}">
-                                <TextBlock Text="{DynamicResource Rights.NoAcl}" TextWrapping="Wrap" FontSize="12"/>
-                            </Border>
-                            <Grid ColumnDefinitions="*,44,44,44" IsVisible="{Binding Editor.HasAcl}">
-                                <TextBlock Classes="mono" Text="group::" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource Rights.OwningGroup}"/>
-                                <CheckBox Grid.Column="1" IsChecked="{Binding Editor.GroupObjBits.R}" HorizontalAlignment="Center"/>
-                                <CheckBox Grid.Column="2" IsChecked="{Binding Editor.GroupObjBits.W}" HorizontalAlignment="Center"/>
-                                <CheckBox Grid.Column="3" IsChecked="{Binding Editor.GroupObjBits.X}" HorizontalAlignment="Center"/>
-                            </Grid>
-                            <ItemsControl ItemsSource="{Binding Editor.AclEntries}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:AclEntryItem">
-                                        <Grid ColumnDefinitions="*,44,44,44,Auto" Margin="0,0,0,4">
-                                            <StackPanel VerticalAlignment="Center">
-                                                <TextBlock Classes="mono" Text="{Binding Tag}"/>
-                                                <TextBlock Classes="muted mono" Text="{Binding Effective}" Foreground="#E5534B" IsVisible="{Binding Effective, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                                            </StackPanel>
-                                            <CheckBox Grid.Column="1" IsChecked="{Binding Bits.R}" HorizontalAlignment="Center"/>
-                                            <CheckBox Grid.Column="2" IsChecked="{Binding Bits.W}" HorizontalAlignment="Center"/>
-                                            <CheckBox Grid.Column="3" IsChecked="{Binding Bits.X}" HorizontalAlignment="Center"/>
-                                            <Button Grid.Column="4" Content="✕" Command="{Binding Remove}" Padding="8,2" ToolTip.Tip="{DynamicResource Rights.Remove}"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" RowDefinitions="Auto,Auto" RowSpacing="6">
-                                <ComboBox ItemsSource="{Binding Editor.Users}" SelectedItem="{Binding Editor.UserToAdd}" HorizontalAlignment="Stretch"/>
-                                <Button Grid.Column="1" Content="{DynamicResource Rights.AddUser}" Command="{Binding Editor.AddUserCommand}" MinWidth="120"/>
-                                <ComboBox Grid.Row="1" ItemsSource="{Binding Editor.Groups}" SelectedItem="{Binding Editor.GroupToAdd}" HorizontalAlignment="Stretch"/>
-                                <Button Grid.Row="1" Grid.Column="1" Content="{DynamicResource Rights.AddGroup}" Command="{Binding Editor.AddGroupCommand}" MinWidth="120"/>
-                            </Grid>
-                            <Button Content="{DynamicResource Rights.RemoveAcl}" Command="{Binding Editor.RemoveAclCommand}" IsVisible="{Binding Editor.HasAcl}"/>
-                            <Border Classes="code">
-                                <SelectableTextBlock Classes="mono" Text="{Binding Editor.Getfacl}" FontSize="12"/>
-                            </Border>
-                            <StackPanel Spacing="6" IsVisible="{Binding Editor.DefaultAcl, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                <TextBlock Classes="label" Text="{DynamicResource Rights.DefaultAcl}"/>
-                                <Border Classes="code">
-                                    <SelectableTextBlock Classes="mono" Text="{Binding Editor.DefaultAcl}" FontSize="12"/>
-                                </Border>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Création -->
-                    <Border Classes="card" IsVisible="{Binding ShowCreation}">
-                        <StackPanel Spacing="10">
-                            <TextBlock Classes="h" Text="{DynamicResource Create.Title}"/>
-                            <Border Classes="code">
-                                <StackPanel Spacing="2">
-                                    <SelectableTextBlock Classes="mono" Text="{Binding NewFile}" FontSize="12" TextWrapping="Wrap"/>
-                                    <SelectableTextBlock Classes="mono" Text="{Binding NewDirectory}" FontSize="12" IsVisible="{Binding NewDirectory, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                                </StackPanel>
-                            </Border>
-                            <ItemsControl ItemsSource="{Binding CreationReasons}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="x:String">
-                                        <TextBlock Classes="muted" Text="{Binding StringFormat='• {0}'}" Margin="0,0,0,4"/>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Commandes -->
-                    <Border Classes="card">
-                        <StackPanel Spacing="10">
-                            <TextBlock Classes="h" Text="{DynamicResource Rights.Commands}"/>
-                            <Border Classes="code">
-                                <SelectableTextBlock Classes="mono" Text="{Binding Editor.Commands}" FontSize="12" TextWrapping="Wrap"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Comptes -->
-                    <Border Classes="card">
-                        <StackPanel Spacing="10">
-                            <TextBlock Classes="h" Text="{DynamicResource Accounts.Title}"/>
-                            <ItemsControl ItemsSource="{Binding Users}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:UserItem">
-                                        <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,10">
-                                            <Border Width="28" Height="28" CornerRadius="14" Background="{Binding Brush}" VerticalAlignment="Top">
-                                                <TextBlock Text="{Binding Initial}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                            <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                                                    <TextBlock Classes="muted mono" Text="{Binding Umask}"/>
-                                                </StackPanel>
-                                                <TextBlock Classes="muted mono" Text="{Binding IdLine}" FontSize="11"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </ScrollViewer>
-        </Grid>
+        <ContentControl Content="{Binding Current}"/>
     </DockPanel>
 </Window>

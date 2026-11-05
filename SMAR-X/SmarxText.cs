@@ -37,11 +37,15 @@ namespace SMARX
         private static readonly Dictionary<string, (string Fr, string En)> Texts = new()
         {
             ["App.Title"] = ("SMAR-X — qui peut faire quoi ?", "SMAR-X — who can do what?"),
-            ["App.Subtitle"] = ("Simulateur des droits Linux", "Linux permissions simulator"),
+            ["App.Subtitle"] = ("Simulateur des droits Linux et Windows", "Linux and Windows permissions simulator"),
             ["Button.Open"] = ("Ouvrir…", "Open…"),
             ["Button.Save"] = ("Enregistrer…", "Save…"),
             ["Button.Sample"] = ("Serveur d'exemple", "Sample server"),
             ["Button.Language"] = ("English", "Français"),
+            ["Button.Glossary"] = ("Aide-mémoire", "Cheat sheet"),
+            ["Glossary.Title"] = ("SMAR-X — aide-mémoire des abréviations", "SMAR-X — abbreviations cheat sheet"),
+            ["Glossary.LinkLinux"] = ("rwx, s, t, +, mask… ?", "rwx, s, t, +, mask…?"),
+            ["Glossary.LinkWindows"] = ("F, M, RD, WD, (OI), (CI)… ?", "F, M, RD, WD, (OI), (CI)…?"),
             ["Button.Theme"] = ("Clair / sombre", "Light / dark"),
 
             ["Tree.Title"] = ("Fichiers du serveur", "Server files"),
@@ -56,6 +60,11 @@ namespace SMARX
             ["Tester.Path"] = ("Le chemin parcouru", "The path walked"),
             ["Tester.Steps"] = ("Ce que vérifie le noyau, dans l'ordre", "What the kernel checks, in order"),
             ["Tester.Local"] = ("Accès local : session ouverte sur le serveur (console, SSH).", "Local access: session open on the server (console, SSH)."),
+
+            ["Tester.LocalWindows"] = ("Accès local : session ouverte sur le serveur (console, RDP).", "Local access: session open on the server (console, RDP)."),
+            ["Tester.Elevated"] = ("Session élevée (« Exécuter en tant qu'administrateur ») : sinon, l'UAC laisse Administrateurs en refus seulement",
+                                   "Elevated session (\"Run as administrator\"): otherwise UAC keeps Administrators deny-only"),
+            ["Tester.StepsWindows"] = ("Ce que vérifie Windows (AccessCheck), dans l'ordre", "What Windows checks (AccessCheck), in order"),
 
             ["Matrix.Title"] = ("Matrice d'accès", "Access matrix"),
             ["Matrix.Hint"] = ("Chaque compte, chaque opération. Cliquez une case pour voir pourquoi.", "Every account, every operation. Click a cell to see why."),
@@ -85,8 +94,30 @@ namespace SMARX
             ["Rights.Commands"] = ("Commandes équivalentes", "Equivalent commands"),
 
             ["Create.Title"] = ("Ce que recevrait un nouvel élément", "What a new item would get"),
+            ["Create.TitleWindows"] = ("Ce que recevrait un nouveau fichier créé ici", "What a new file created here would get"),
+
+            ["Ntfs.Title"] = ("Autorisations NTFS", "NTFS permissions"),
+            ["Ntfs.InheritanceOn"] = ("Héritage activé : les ACE du dossier parent s'ajoutent après les ACE explicites.",
+                                      "Inheritance enabled: the parent folder's ACEs come after the explicit ACEs."),
+            ["Ntfs.InheritanceOff"] = ("Héritage désactivé : seules les ACE explicites comptent.", "Inheritance disabled: only the explicit ACEs count."),
+            ["Ntfs.DisableCopy"] = ("Désactiver, en copiant les héritées", "Disable, copying the inherited ones"),
+            ["Ntfs.DisableRemove"] = ("Désactiver, en retirant les héritées", "Disable, removing the inherited ones"),
+            ["Ntfs.Enable"] = ("Réactiver l'héritage", "Enable inheritance"),
+            ["Ntfs.Dacl"] = ("Liste des ACE, dans l'ordre où Windows les lit", "ACE list, in the order Windows reads them"),
+            ["Ntfs.Deny"] = ("Refuser", "Deny"),
+            ["Ntfs.Add"] = ("Ajouter une ACE", "Add an ACE"),
+            ["Ntfs.AddButton"] = ("Ajouter", "Add"),
 
             ["Accounts.Title"] = ("Comptes", "Accounts"),
+            ["Accounts.Hint"] = ("Choisissez un compte pour modifier ses groupes.", "Pick an account to change its groups."),
+            ["Accounts.Primary"] = ("Groupe principal", "Primary group"),
+            ["Accounts.Groups"] = ("Membre de", "Member of"),
+            ["Accounts.NewUser"] = ("nouveau compte", "new account"),
+            ["Accounts.AddUser"] = ("+ compte", "+ account"),
+            ["Accounts.NewGroup"] = ("nouveau groupe", "new group"),
+            ["Accounts.AddGroup"] = ("+ groupe", "+ group"),
+            ["Legend.Windows"] = ("(I) héritée   ·   (OI) les fichiers en héritent   ·   (CI) les sous-dossiers en héritent   ·   (IO) héritage seulement   ·   un refus ne retire pas un droit déjà accordé",
+                                  "(I) inherited   ·   (OI) files inherit   ·   (CI) subfolders inherit   ·   (IO) inherit only   ·   a deny does not take back a right already granted"),
             ["Legend"] = ("r : lire (un dossier : lister)   ·   w : modifier (un dossier : créer, renommer, supprimer dedans)   ·   x : exécuter (un dossier : le traverser)",
                           "r: read (a directory: list)   ·   w: write (a directory: create, rename, delete inside)   ·   x: execute (a directory: traverse it)"),
         };

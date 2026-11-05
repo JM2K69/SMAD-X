@@ -9,7 +9,7 @@ using SMARX.Services.Linux;
 
 namespace SMARX.ViewModels
 {
-    /// <summary>Couleurs de l'interface : accordé, refusé, non atteint, et une couleur par compte.</summary>
+    /// <summary>Couleurs de l'interface : accordé, refusé, non atteint ou neutre, et une couleur par compte.</summary>
     public static class Palette
     {
         public static readonly IBrush Allowed = new SolidColorBrush(Color.Parse("#2EA043"));
@@ -23,6 +23,14 @@ namespace SMARX.ViewModels
             new[] { "#D29922", "#539BF5", "#B083F0", "#57AB5A", "#E0823D", "#DB61A2", "#39C5CF" }.Select(c => (IBrush)new SolidColorBrush(Color.Parse(c))).ToArray();
 
         public static IBrush Account(int index) => Accounts[index % Accounts.Length];
+    }
+
+    /// <summary>Un compte tel que l'affichent le testeur, la matrice et la carte des comptes.</summary>
+    public interface IAccountItem
+    {
+        string Name { get; }
+        string Initial { get; }
+        IBrush Brush { get; }
     }
 
     /// <summary>Lecture, écriture, exécution sous forme de trois cases ; prévient quand l'utilisateur en coche une.</summary>
@@ -63,7 +71,7 @@ namespace SMARX.ViewModels
         }
     }
 
-    /// <summary>Un fichier ou un dossier de l'arborescence, avec ses droits tels que les montre ls -l.</summary>
+    /// <summary>Un fichier ou un dossier Linux de l'arborescence, avec ses droits tels que les montre ls -l.</summary>
     public sealed partial class NodeItem : ObservableObject
     {
         public NodeItem(LinuxNode node, string path)
@@ -91,8 +99,8 @@ namespace SMARX.ViewModels
         }
     }
 
-    /// <summary>Un compte, avec sa pastille et sa ligne « id ».</summary>
-    public sealed class UserItem
+    /// <summary>Un compte Linux, avec sa pastille et sa ligne « id ».</summary>
+    public sealed class UserItem : IAccountItem
     {
         public UserItem(LinuxHost host, LinuxUser user, int index)
         {
@@ -113,22 +121,23 @@ namespace SMARX.ViewModels
         public override string ToString() => Name;
     }
 
-    public sealed class OperationItem(LinuxOperation operation, string label)
+    /// <summary>Une opération proposée au testeur (Linux ou Windows), avec son libellé dans la langue de l'interface.</summary>
+    public sealed class OperationItem(object operation, string label)
     {
-        public LinuxOperation Operation { get; } = operation;
+        public object Operation { get; } = operation;
         public string Label { get; } = label;
         public override string ToString() => Label;
     }
 
-    /// <summary>Une étape vérifiée par le noyau, numérotée.</summary>
-    public sealed class StepItem(int number, ExplainedStep step)
+    /// <summary>Une étape vérifiée, numérotée : accordée, refusée, ou neutre (information, ACE sans effet).</summary>
+    public sealed class StepItem(int number, bool? passed, string title, string detail)
     {
         public int Number { get; } = number;
-        public bool Passed { get; } = step.Step.Passed;
-        public string Title { get; } = step.Title;
-        public string Detail { get; } = step.Detail;
-        public IBrush Brush => Passed ? Palette.Allowed : Palette.Denied;
-        public string Symbol => Passed ? "✓" : "✕";
+        public bool? Passed { get; } = passed;
+        public string Title { get; } = title;
+        public string Detail { get; } = detail;
+        public IBrush Brush => Passed switch { true => Palette.Allowed, false => Palette.Denied, null => Palette.NotReached };
+        public string Symbol => Passed switch { true => "✓", false => "✕", null => "" };
     }
 
     /// <summary>Un dossier du chemin parcouru, coloré selon qu'il a été traversé, qu'il a bloqué ou qu'il n'a pas été atteint.</summary>
@@ -140,26 +149,26 @@ namespace SMARX.ViewModels
         public bool ShowSeparator { get; } = !last;
     }
 
-    public sealed partial class MatrixCell(LinuxOperation operation, bool allowed, IRelayCommand<MatrixCell> select) : ObservableObject
+    public sealed partial class MatrixCell(object operation, bool allowed, IRelayCommand<MatrixCell> select) : ObservableObject
     {
-        public LinuxOperation Operation { get; } = operation;
+        public object Operation { get; } = operation;
         public bool Allowed { get; } = allowed;
         public string Symbol => Allowed ? "✓" : "✕";
         public IBrush Brush => Allowed ? Palette.Allowed : Palette.Denied;
         public IBrush Background => Allowed ? Palette.AllowedBack : Palette.DeniedBack;
         public IRelayCommand<MatrixCell> Select { get; } = select;
-        public UserItem? User { get; set; }
+        public IAccountItem? User { get; set; }
 
         [ObservableProperty] private bool _isSelected;
     }
 
-    public sealed class MatrixRow(UserItem user, ObservableCollection<MatrixCell> cells)
+    public sealed class MatrixRow(IAccountItem user, ObservableCollection<MatrixCell> cells)
     {
-        public UserItem User { get; } = user;
+        public IAccountItem User { get; } = user;
         public ObservableCollection<MatrixCell> Cells { get; } = cells;
     }
 
-    /// <summary>Une entrée nommée de l'ACL : utilisateur ou groupe, ses droits et ce qu'il en reste après le masque.</summary>
+    /// <summary>Une entrée nommée de l'ACL POSIX : utilisateur ou groupe, ses droits et ce qu'il en reste après le masque.</summary>
     public sealed partial class AclEntryItem : ObservableObject
     {
         public AclEntryItem(bool isUser, string name, Perm perm, Action<AclEntryItem> remove)
@@ -178,5 +187,25 @@ namespace SMARX.ViewModels
 
         /// <summary>« effectif : r-x » quand le masque retire des droits.</summary>
         [ObservableProperty] private string? _effective;
+    }
+
+    /// <summary>Un groupe proposé à un compte, coché s'il en est membre.</summary>
+    public sealed partial class MembershipItem : ObservableObject
+    {
+        private readonly Action<MembershipItem> _changed;
+
+        public MembershipItem(string group, bool member, Action<MembershipItem> changed)
+        {
+            Group = group;
+            _isMember = member;
+            _changed = changed;
+        }
+
+        public string Group { get; }
+        public string Display { get; init; } = "";
+
+        [ObservableProperty] private bool _isMember;
+
+        partial void OnIsMemberChanged(bool value) => _changed(this);
     }
 }

@@ -14,6 +14,7 @@ namespace SMARX.Models
         public string Format { get; set; } = "smar-x";
         public int FormatVersion { get; set; } = CurrentFormatVersion;
         public List<LinuxHost> Linux { get; set; } = new();
+        public List<WindowsHost> Windows { get; set; } = new();
 
         public static JsonSerializerOptions SerializerOptions { get; } = new()
         {

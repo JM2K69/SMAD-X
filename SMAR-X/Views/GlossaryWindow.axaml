@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMARX.ViewModels"
+        xmlns:services="using:SMARX.Services"
+        x:Class="SMARX.Views.GlossaryWindow"
+        x:DataType="vm:GlossaryViewModel"
+        Title="{DynamicResource Glossary.Title}"
+        Icon="/Assets/icone.ico"
+        Width="1050" Height="820" MinWidth="700" MinHeight="500"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.DataTemplates>
+        <!-- Une section : titre, introduction, puis une ligne par abréviation -->
+        <DataTemplate DataType="services:GlossarySection">
+            <Border Classes="card" Margin="0,0,0,16">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="h" Text="{Binding Title}"/>
+                    <TextBlock Classes="muted" Text="{Binding Intro}" IsVisible="{Binding Intro, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                    <ItemsControl ItemsSource="{Binding Rows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="services:GlossaryRow">
+                                <Grid ColumnDefinitions="180,240,*,90" ColumnSpacing="12" Margin="0,0,0,8">
+                                    <Border Classes="chip" CornerRadius="6" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                        <TextBlock Classes="mono" Text="{Binding Code}" FontWeight="Bold" Foreground="{DynamicResource Accent}"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding Meaning}" TextWrapping="Wrap"/>
+                                    <TextBlock Grid.Column="3" Classes="mono muted" Text="{Binding Value}" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </Window.DataTemplates>
+
+    <TabControl SelectedIndex="{Binding Tab}" Margin="16,8">
+        <TabItem Header="Windows">
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding Windows}" Margin="0,8,8,0"/>
+            </ScrollViewer>
+        </TabItem>
+        <TabItem Header="Linux">
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding Linux}" Margin="0,8,8,0"/>
+            </ScrollViewer>
+        </TabItem>
+    </TabControl>
+</Window>

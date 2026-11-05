@@ -5,15 +5,16 @@ using SMARX.ViewModels;
 namespace SMARX.Tests;
 
 /// <summary>La fenêtre de SMAR-X : chaque choix et chaque modification des droits recalcule le testeur et la matrice.</summary>
+[Collection(InterfaceTests.Name)]
 public class MainWindowViewModelTests
 {
-    private static MainWindowViewModel Open(string path, string user, LinuxOperation operation)
+    private static LinuxWorkspaceViewModel Open(string path, string user, LinuxOperation operation)
     {
         SmarxText.Instance.SetLanguage("fr-FR");
-        var vm = new MainWindowViewModel();
+        var vm = new MainWindowViewModel().Linux;
         vm.SelectedNode = Find(vm.Tree[0], path);
         vm.SelectedUser = vm.Users.First(u => u.Name == user);
-        vm.SelectedOperation = vm.Operations.First(o => o.Operation == operation);
+        vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, operation));
         return vm;
     }
 
@@ -27,9 +28,11 @@ public class MainWindowViewModelTests
     public void Opening_TestsBobReadingTheBudget_StepByStep()
     {
         SmarxText.Instance.SetLanguage("fr-FR");
-        var vm = new MainWindowViewModel();
+        var shell = new MainWindowViewModel();
+        var vm = shell.Linux;
 
-        Assert.Equal(("/srv/compta/budget.ods", "bob", LinuxOperation.Read), (vm.SelectedNode!.Path, vm.SelectedUser!.Name, vm.SelectedOperation!.Operation));
+        Assert.True(shell.IsLinux);
+        Assert.Equal(("/srv/compta/budget.ods", "bob", (object)LinuxOperation.Read), (vm.SelectedNode!.Path, vm.SelectedUser!.Name, vm.SelectedOperation!.Operation));
         Assert.True(vm.Allowed);
         Assert.Equal(["Traverser /", "Traverser /srv", "Traverser /srv/compta", "Lire /srv/compta/budget.ods"], vm.Steps.Select(s => s.Title));
         Assert.Equal(["/", "srv", "compta", "budget.ods"], vm.PathSegments.Select(s => s.Name));
@@ -45,7 +48,7 @@ public class MainWindowViewModelTests
 
         Assert.Equal("0600", vm.SelectedNode!.Node.Mode);
         Assert.False(vm.Allowed);
-        Assert.False(vm.MatrixRows.Single(r => r.User.Name == "bob").Cells.First(c => c.Operation == LinuxOperation.Read).Allowed);
+        Assert.False(vm.MatrixRows.Single(r => r.User.Name == "bob").Cells.First(c => Equals(c.Operation, LinuxOperation.Read)).Allowed);
         Assert.Contains("chmod 0600 /srv/compta/budget.ods", vm.Editor.Commands);
         Assert.Equal("-rw-------", vm.SelectedNode.Mode);
     }
@@ -79,13 +82,13 @@ public class MainWindowViewModelTests
     {
         var vm = Open("/tmp/alice.txt", "bob", LinuxOperation.Read);
 
-        var cell = vm.MatrixRows.Single(r => r.User.Name == "carol").Cells.Single(c => c.Operation == LinuxOperation.Delete);
+        var cell = vm.MatrixRows.Single(r => r.User.Name == "carol").Cells.Single(c => Equals(c.Operation, LinuxOperation.Delete));
         vm.SelectCellCommand.Execute(cell);
 
-        Assert.Equal(("carol", LinuxOperation.Delete), (vm.SelectedUser!.Name, vm.SelectedOperation!.Operation));
+        Assert.Equal(("carol", (object)LinuxOperation.Delete), (vm.SelectedUser!.Name, vm.SelectedOperation!.Operation));
         Assert.False(vm.Allowed);
         Assert.Equal("Sticky bit sur /tmp", vm.Steps[^1].Title);
-        Assert.True(vm.MatrixRows.Single(r => r.User.Name == "carol").Cells.Single(c => c.Operation == LinuxOperation.Delete).IsSelected);
+        Assert.True(vm.MatrixRows.Single(r => r.User.Name == "carol").Cells.Single(c => Equals(c.Operation, LinuxOperation.Delete)).IsSelected);
     }
 
     [Fact]
@@ -102,10 +105,12 @@ public class MainWindowViewModelTests
     [Fact]
     public void SwitchingToEnglish_TranslatesOperationsAndExplanations()
     {
-        var vm = Open("/srv/compta/budget.ods", "bob", LinuxOperation.Read);
+        SmarxText.Instance.SetLanguage("fr-FR");
+        var shell = new MainWindowViewModel();
+        var vm = shell.Linux;
         try
         {
-            vm.ToggleLanguageCommand.Execute(null);
+            shell.ToggleLanguageCommand.Execute(null);
 
             Assert.Equal("Read", vm.SelectedOperation!.Label);
             Assert.Equal("Result: bob can read /srv/compta/budget.ods.", vm.Verdict);
@@ -121,11 +126,12 @@ public class MainWindowViewModelTests
     [Fact]
     public void TheDocument_RoundTrips()
     {
-        var vm = Open("/srv/partage", "bob", LinuxOperation.List);
-        var json = vm.ToDocument().Serialize();
+        var json = new MainWindowViewModel().ToDocument().Serialize();
 
         var copy = SmarxDocument.Parse(json);
         Assert.Equal("srv-fic", copy.Linux.Single().Name);
+        Assert.Equal("SRV-FIC", copy.Windows.Single().Name);
+        Assert.Equal("dave", copy.Windows[0].Find(@"D:\Partages\Projets\planning.xlsx")!.Aces.Single().Trustee);
         Assert.Equal("bob", copy.Linux[0].Find("/srv/partage")!.Acl!.Users.Single().Name);
         Assert.Throws<InvalidDataException>(() => SmarxDocument.Parse("{\"Format\":\"autre\"}"));
     }
