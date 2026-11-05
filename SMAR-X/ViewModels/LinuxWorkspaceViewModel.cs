@@ -112,11 +112,31 @@ namespace SMARX.ViewModels
 
         partial void OnSelectedNodeChanged(NodeItem? value)
         {
-            Editor.Load(Host, value);
-            OnPropertyChanged(nameof(ShowCreation));
-            RebuildRoutes();
-            RebuildOperations();
+            // La route d'abord, puis les opérations qu'elle permet ; rien ne se calcule avant que l'objet, la route et
+            // l'opération correspondent (l'ancienne route peut passer par un partage qui ne contient pas le nouvel objet).
+            using (Rebuilding())
+            {
+                RebuildRoutes();
+                RebuildOperations();
+                Editor.Load(Host, value);
+                OnPropertyChanged(nameof(ShowCreation));
+            }
             Recompute();
+        }
+
+        // Pendant une reconstruction, les liaisons de l'interface (vider une liste remet sa sélection à null) ne
+        // déclenchent aucun calcul : un seul a lieu à la fin, sur un état cohérent.
+        private int _rebuilding;
+
+        private sealed class RebuildScope(LinuxWorkspaceViewModel owner) : IDisposable
+        {
+            public void Dispose() => owner._rebuilding--;
+        }
+
+        private RebuildScope Rebuilding()
+        {
+            _rebuilding++;
+            return new RebuildScope(this);
         }
 
         /// <summary>Les opérations du testeur : toutes en local ; par un partage, celles qu'un client SMB fait.</summary>
@@ -138,6 +158,7 @@ namespace SMARX.ViewModels
         /// <summary>Les routes vers l'objet choisi : en local, puis par chaque partage Samba qui le contient (le plus proche d'abord).</summary>
         private void RebuildRoutes()
         {
+            using var rebuilding = Rebuilding();
             var previous = SelectedRoute?.Share?.Name;
             Routes.Clear();
             Routes.Add(new SambaRouteItem(null, Text.T("en local, sur le serveur", "locally, on the server"),
@@ -172,7 +193,7 @@ namespace SMARX.ViewModels
 
         partial void OnSelectedRouteChanged(SambaRouteItem? value)
         {
-            if (_loadingRoute) return;
+            if (_loadingRoute || _rebuilding > 0) return;
             OnPropertyChanged(nameof(IsNetwork));
             OnPropertyChanged(nameof(TargetText));
             OnPropertyChanged(nameof(AccessKind));
@@ -210,9 +231,11 @@ namespace SMARX.ViewModels
         /// <summary>Le testeur, le chemin parcouru, la matrice et ce que recevrait un nouvel élément.</summary>
         public void Recompute()
         {
+            if (_rebuilding > 0) return;
             Steps.Clear();
             PathSegments.Clear();
-            if (SelectedNode is not { } node || SelectedUser is not { } user || SelectedOperation is not { Operation: LinuxOperation operation })
+            if (SelectedNode is not { } node || SelectedUser is not { } user || SelectedOperation is not { Operation: LinuxOperation operation }
+                || SelectedRoute?.Share is { } outside && !outside.Contains(node.Path))
             {
                 HasResult = false;
                 return;

@@ -4,7 +4,7 @@ On Linux, a network computer reaches the files through a **Samba share**: `\\srv
 
 ## Testing an access through Samba
 
-Under **From where?**, the tester offers **On the server** (server icon), for a session open on the server (console, SSH), then **From the network** (workstation icon) for each share that contains the object; the card gives the share (`\\srv-fic\partage`). Through a share, it offers what an SMB client does:
+Under **From where?**, the tester offers **On the server** (server icon), for a session open on the server (console, SSH), then **From the network** (workstation icon) for each share that contains the object; the card gives the share (`\\srv-fic\partage`). When you pick another object, the tester keeps the chosen share if it contains the new object; otherwise, it goes back to **On the server**. Through a share, it offers what an SMB client does:
 - for a file: read, write to, delete;
 - for a directory: list, create in, delete.
 

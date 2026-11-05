@@ -214,6 +214,47 @@ public class WorkspaceEditingTests
     }
 
     /// <summary>
+    /// En passant par un partage, choisir un objet hors de ce partage : la route revient en local, sans que le testeur
+    /// calcule l'accès du nouvel objet par l'ancien partage (SmbAccess levait « … n'est pas dans le partage Projets »).
+    /// Un objet du même partage garde la route.
+    /// </summary>
+    [Fact]
+    public void Windows_ThroughAShare_PickingAnObjectOutsideIt_FallsBackToLocal()
+    {
+        var vm = Shell().Windows;
+        vm.SelectedNode = FindWindows(vm.Tree[0], @"D:\Partages\Projets\planning.xlsx");
+        vm.SelectedUser = vm.Users.First(u => u.Name == "dave");
+        vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, WindowsOperation.Write));
+        vm.SelectedRoute = vm.Routes.First(r => r.Share?.Name == "Projets");
+
+        vm.SelectedNode = FindWindows(vm.Tree[0], @"D:\Partages\Projets\notes.txt");
+        Assert.Equal("Projets", vm.SelectedRoute?.Share?.Name);
+        Assert.Equal(@"\\SRV-FIC\Projets\notes.txt", vm.TargetText);
+
+        // Écrire ne s'applique pas à un dossier : l'opération change en même temps que l'objet
+        vm.SelectedNode = FindWindows(vm.Tree[0], @"D:\Partages\Compta\Archives");
+        Assert.True(vm.SelectedRoute?.IsLocal);
+        Assert.True(vm.HasResult);
+        Assert.Equal(@"D:\Partages\Compta\Archives", vm.TargetText);
+        Assert.Contains(vm.Steps, s => s.Title == "Jeton de dave");
+    }
+
+    [Fact]
+    public void Linux_ThroughASambaShare_PickingAnObjectOutsideIt_FallsBackToLocal()
+    {
+        var vm = Shell().Linux;
+        vm.SelectedNode = FindLinux(vm.Tree[0], "/srv/partage/doc.txt");
+        vm.SelectedUser = vm.Users.First(u => u.Name == "carol");
+        vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, LinuxOperation.Write));
+        vm.SelectedRoute = vm.Routes.First(r => r.Share?.Name == "partage");
+
+        vm.SelectedNode = FindLinux(vm.Tree[0], "/home/alice");
+        Assert.True(vm.SelectedRoute?.IsLocal);
+        Assert.True(vm.HasResult);
+        Assert.Equal("/home/alice", vm.TargetText);
+    }
+
+    /// <summary>
     /// Par un partage Samba : carol écrit doc.txt en local (rh : -w-), pas par partage (lecture seule) ; ajoutée à la
     /// write list, Samba la laisse passer, mais le noyau refuse : le client ouvre en lecture-écriture.
     /// </summary>

@@ -4,7 +4,7 @@ From a network computer, you don't open `D:\Partages\Projets\planning.xlsx`: you
 
 ## Testing an access over the network
 
-Under **From where?**, the tester shows where the access comes from, as cards: **On the server** (server icon), for a session open on the server, then **From the network** (workstation icon) for each share that contains the object, from the closest to the broadest; the card gives the share (`\\SRV-FIC\Projets`). The chosen card is framed, and its tooltip gives the full path. Through a share, the tester shows the network token, the share permissions, what access-based enumeration hides, then the usual NTFS steps; the verdict says which of the two denies. The access matrix follows the same route.
+Under **From where?**, the tester shows where the access comes from, as cards: **On the server** (server icon), for a session open on the server, then **From the network** (workstation icon) for each share that contains the object, from the closest to the broadest; the card gives the share (`\\SRV-FIC\Projets`). The chosen card is framed, and its tooltip gives the full path. When you pick another object, the tester keeps the chosen share if it contains the new object; otherwise, it goes back to **On the server**. Through a share, the tester shows the network token, the share permissions, what access-based enumeration hides, then the usual NTFS steps; the verdict says which of the two denies. The access matrix follows the same route.
 
 The same access, on the server then from the network:
 

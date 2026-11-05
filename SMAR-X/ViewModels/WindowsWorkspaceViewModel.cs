@@ -107,22 +107,43 @@ namespace SMARX.ViewModels
 
         partial void OnSelectedNodeChanged(NtfsItem? value)
         {
-            var previous = SelectedOperation?.Operation;
-            Operations.Clear();
-            if (value != null)
-                foreach (var op in Enum.GetValues<WindowsOperation>().Where(o => WindowsAccess.Applies(o, value.Node, value.Path)))
-                    Operations.Add(new OperationItem(op, WindowsExplainer.Operation(op, Text.Culture)));
-            SelectedOperation = Operations.FirstOrDefault(o => Equals(o.Operation, previous)) ?? Operations.FirstOrDefault();
-            Editor.Load(Host, value);
-            Security.Load(Host, value);
-            OnPropertyChanged(nameof(ShowCreation));
-            RebuildRoutes();
+            // La route d'abord : changer l'opération recalcule, et l'ancienne route peut passer par un partage qui ne
+            // contient pas le nouvel objet. Rien ne se calcule avant que l'objet, la route et l'opération correspondent.
+            using (Rebuilding())
+            {
+                RebuildRoutes();
+                var previous = SelectedOperation?.Operation;
+                Operations.Clear();
+                if (value != null)
+                    foreach (var op in Enum.GetValues<WindowsOperation>().Where(o => WindowsAccess.Applies(o, value.Node, value.Path)))
+                        Operations.Add(new OperationItem(op, WindowsExplainer.Operation(op, Text.Culture)));
+                SelectedOperation = Operations.FirstOrDefault(o => Equals(o.Operation, previous)) ?? Operations.FirstOrDefault();
+                Editor.Load(Host, value);
+                Security.Load(Host, value);
+                OnPropertyChanged(nameof(ShowCreation));
+            }
             Recompute();
+        }
+
+        // Pendant une reconstruction, les liaisons de l'interface (vider une liste remet sa sélection à null) ne
+        // déclenchent aucun calcul : un seul a lieu à la fin, sur un état cohérent.
+        private int _rebuilding;
+
+        private sealed class RebuildScope(WindowsWorkspaceViewModel owner) : IDisposable
+        {
+            public void Dispose() => owner._rebuilding--;
+        }
+
+        private RebuildScope Rebuilding()
+        {
+            _rebuilding++;
+            return new RebuildScope(this);
         }
 
         /// <summary>Les routes vers l'objet choisi : en local, puis par chaque partage qui le contient (le plus proche d'abord).</summary>
         private void RebuildRoutes()
         {
+            using var rebuilding = Rebuilding();
             var previous = SelectedRoute?.Share?.Name;
             Routes.Clear();
             Routes.Add(new RouteItem(null, Text.T("en local, sur le serveur", "locally, on the server"),
@@ -154,7 +175,7 @@ namespace SMARX.ViewModels
 
         partial void OnSelectedRouteChanged(RouteItem? value)
         {
-            if (_loadingRoute) return;
+            if (_loadingRoute || _rebuilding > 0) return;
             RouteChanged();
             Recompute();
         }
@@ -199,8 +220,10 @@ namespace SMARX.ViewModels
         /// <summary>Le testeur, la matrice, l'accès effectif et ce que recevrait un nouvel élément.</summary>
         public void Recompute()
         {
+            if (_rebuilding > 0) return;
             Steps.Clear();
-            if (SelectedNode is not { } node || SelectedUser is not { } user || SelectedOperation is not { Operation: WindowsOperation operation })
+            if (SelectedNode is not { } node || SelectedUser is not { } user || SelectedOperation is not { Operation: WindowsOperation operation }
+                || SelectedRoute?.Share is { } outside && !outside.Contains(node.Path))
             {
                 HasResult = false;
                 return;
