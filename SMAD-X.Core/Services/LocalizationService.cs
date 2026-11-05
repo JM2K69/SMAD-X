@@ -1,171 +1,27 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.IO;
-using System.Reflection;
 
 namespace SMADX.Services
 {
     /// <summary>
-    /// Service de gestion de la localisation de l'application
+    /// Traductions de SMAD-X : celles du socle commun (<see cref="Localizer"/>), les siennes et ses fiches
+    /// pédagogiques Markdown (Content/ du projet).
     /// </summary>
-    public class LocalizationService : INotifyPropertyChanged
+    public class LocalizationService : Localizer
     {
         private static LocalizationService? _instance;
-        private CultureInfo _currentCulture;
-        private Dictionary<string, Dictionary<string, string>> _translations;
 
         public static LocalizationService Instance => _instance ??= new LocalizationService();
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        public CultureInfo CurrentCulture
-        {
-            get => _currentCulture;
-            set
-            {
-                if (_currentCulture != value)
-                {
-                    _currentCulture = value;
-                    CultureInfo.CurrentUICulture = value;
-
-                    // Notifier TOUTES les propriétés individuellement pour forcer le rafraîchissement
-                    OnPropertyChanged(nameof(CurrentCulture));
-
-                    // Notifier toutes les clés de traduction
-                    foreach (var key in _translations["fr-FR"].Keys)
-                    {
-                        OnPropertyChanged($"[{key}]");
-                    }
-                }
-            }
-        }
-
-        public string this[string key] => Translate(key, _currentCulture.Name);
-
-        /// <summary>Traduction dans une culture donnée (repli sur le français), sans changer la langue courante.</summary>
-        public string Translate(string key, string cultureName)
-        {
-            if (_translations.TryGetValue(cultureName, out var cultureDictionary))
-            {
-                if (cultureDictionary.TryGetValue(key, out var translation))
-                {
-                    return translation;
-                }
-            }
-
-            // Fallback sur français si la clé n'existe pas
-            if (_translations.TryGetValue("fr-FR", out var frenchDictionary))
-            {
-                if (frenchDictionary.TryGetValue(key, out var translation))
-                {
-                    return translation;
-                }
-            }
-
-            return $"[{key}]"; // Clé manquante
-        }
-
-        /// <summary>Langues disponibles (fr-FR, en-US).</summary>
-        public IEnumerable<string> Cultures => _translations.Keys;
-
-        /// <summary>Clés traduites dans une culture (vide si elle n'existe pas) : sert à vérifier que fr-FR et en-US ont les mêmes.</summary>
-        public IReadOnlyCollection<string> KeysOf(string cultureName) =>
-            _translations.TryGetValue(cultureName, out var dictionary) ? dictionary.Keys : Array.Empty<string>();
-
-        private Dictionary<string, string>? _descriptionKeys;
-
-        /// <summary>
-        /// Clé « Desc.* » dont le texte, dans l'une des langues, est <paramref name="text"/> : null pour une
-        /// description écrite à la main, qui ne doit pas être remplacée au changement de langue.
-        /// </summary>
-        public string? FindDescriptionKey(string? text)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return null;
-            if (_descriptionKeys == null)
-            {
-                _descriptionKeys = new Dictionary<string, string>();
-                foreach (var dictionary in _translations.Values)
-                    foreach (var (key, value) in dictionary)
-                        if (key.StartsWith("Desc.", StringComparison.Ordinal) && !string.IsNullOrWhiteSpace(value))
-                            _descriptionKeys.TryAdd(Normalize(value), key);
-            }
-            return _descriptionKeys.GetValueOrDefault(Normalize(text));
-        }
-
-        /// <summary>Même texte aux fins de ligne et aux blancs d'extrémité près.</summary>
-        public static bool SameText(string? a, string? b) => Normalize(a ?? string.Empty) == Normalize(b ?? string.Empty);
-
-        private static string Normalize(string text) => text.ReplaceLineEndings("\n").Trim();
-
         private LocalizationService()
         {
-            _currentCulture = CultureInfo.CurrentUICulture;
-            _translations = new Dictionary<string, Dictionary<string, string>>();
             LoadTranslations();
-            LoadMarkdownContent();
-        }
-
-        /// <summary>Préfixe des descriptions Markdown embarquées (voir Content/ et SMAD-X.csproj).</summary>
-        private const string ContentPrefix = "Content/";
-
-        /// <summary>
-        /// Charge les descriptions pédagogiques (clés Desc.*) depuis les fichiers Content/{culture}/{clé}.md.
-        /// Ils sont embarqués dans l'exécutable ; un dossier Content/ placé à côté de l'exécutable
-        /// les remplace fichier par fichier, ce qui permet à un enseignant d'adapter le contenu sans recompiler.
-        /// </summary>
-        private void LoadMarkdownContent()
-        {
-            var assembly = typeof(LocalizationService).Assembly;
-            foreach (var resource in assembly.GetManifestResourceNames())
-            {
-                var path = resource.Replace('\\', '/');
-                if (!path.StartsWith(ContentPrefix, StringComparison.Ordinal) || !path.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                using var stream = assembly.GetManifestResourceStream(resource)!;
-                using var reader = new StreamReader(stream);
-                AddMarkdown(path[ContentPrefix.Length..], reader.ReadToEnd());
-            }
-
-            var overrideDir = Path.Combine(AppContext.BaseDirectory, "Content");
-            if (!Directory.Exists(overrideDir))
-                return;
-
-            foreach (var file in Directory.EnumerateFiles(overrideDir, "*.md", SearchOption.AllDirectories))
-            {
-                try
-                {
-                    AddMarkdown(Path.GetRelativePath(overrideDir, file).Replace('\\', '/'), File.ReadAllText(file));
-                }
-                catch (IOException)
-                {
-                    // Fichier illisible : on garde la version embarquée
-                }
-            }
-        }
-
-        /// <summary>Enregistre "fr-FR/Desc.Users.md" sous la clé Desc.Users de la culture fr-FR.</summary>
-        private void AddMarkdown(string relativePath, string content)
-        {
-            var slash = relativePath.IndexOf('/');
-            if (slash <= 0)
-                return;
-
-            var culture = relativePath[..slash];
-            var key = Path.GetFileNameWithoutExtension(relativePath[(slash + 1)..]);
-            if (!_translations.TryGetValue(culture, out var dictionary))
-                _translations[culture] = dictionary = new Dictionary<string, string>();
-
-            // Les fichiers peuvent avoir été extraits en CRLF par git : le rendu attend des \n
-            dictionary[key] = content.Replace("\r\n", "\n");
+            LoadMarkdownContent(typeof(LocalizationService).Assembly);
         }
 
         private void LoadTranslations()
         {
             // Français
-            _translations["fr-FR"] = new Dictionary<string, string>
+            AddTranslations("fr-FR", new Dictionary<string, string>
             {
                 // Menu Fichier
                 ["Menu.File"] = "Fichier",
@@ -816,13 +672,6 @@ namespace SMADX.Services
                 ["Status.ObjectGone"] = "« {0} » n'existe plus dans le domaine : relancez l'analyse.",
                 ["Lab.Feedback.GuardBroken"] = "Annulé : la garde « {0} » n'est plus respectée ({1}).",
                 ["Lab.Feedback.Partial"] = "{0} Crédit partiel : {1} % des points.",
-                ["Lab.Feedback.NoAnswer"] = "Pas de réponse.",
-                ["Lab.Feedback.AnswerSaved"] = "Réponse enregistrée : le formateur la corrigera.",
-                ["Lab.Feedback.RightAnswer"] = "Bonne réponse.",
-                ["Lab.Feedback.WrongAnswer"] = "Réponse inexacte.",
-                ["Lab.Feedback.PartialAnswer"] = "Réponse incomplète : une partie des points.",
-                ["Lab.Feedback.TextNotRecognised"] = "Réponse différente des réponses attendues : le formateur la relira.",
-                ["Lab.Feedback.Marked"] = "Noté par le formateur.",
                 ["Lab.Questions"] = "Questions",
                 ["Lab.Answer.Watermark"] = "Votre réponse",
                 ["Lab.StudentId"] = "Identifiant :",
@@ -1201,10 +1050,10 @@ namespace SMADX.Services
                 // Exports CSV (délégations, évolution du domaine)
                 ["Csv.FileType"] = "Fichier CSV",
                 ["Csv.Exported"] = "{0} ligne(s) exportée(s) vers {1}",
-            };
+            });
 
             // Anglais
-            _translations["en-US"] = new Dictionary<string, string>
+            AddTranslations("en-US", new Dictionary<string, string>
             {
                 // Menu File
                 ["Menu.File"] = "File",
@@ -1853,13 +1702,6 @@ namespace SMADX.Services
                 ["Status.ObjectGone"] = "\"{0}\" no longer exists in the domain: run the analysis again.",
                 ["Lab.Feedback.GuardBroken"] = "Cancelled: the guard \"{0}\" is no longer met ({1}).",
                 ["Lab.Feedback.Partial"] = "{0} Partial credit: {1} % of the points.",
-                ["Lab.Feedback.NoAnswer"] = "No answer.",
-                ["Lab.Feedback.AnswerSaved"] = "Answer saved: the trainer will grade it.",
-                ["Lab.Feedback.RightAnswer"] = "Right answer.",
-                ["Lab.Feedback.WrongAnswer"] = "Wrong answer.",
-                ["Lab.Feedback.PartialAnswer"] = "Incomplete answer: part of the points.",
-                ["Lab.Feedback.TextNotRecognised"] = "Answer different from the expected ones: the trainer will read it.",
-                ["Lab.Feedback.Marked"] = "Graded by the trainer.",
                 ["Lab.Questions"] = "Questions",
                 ["Lab.Answer.Watermark"] = "Your answer",
                 ["Lab.StudentId"] = "ID:",
@@ -2238,17 +2080,7 @@ namespace SMADX.Services
                 // CSV exports (delegations, domain timeline)
                 ["Csv.FileType"] = "CSV file",
                 ["Csv.Exported"] = "Exported {0} row(s) to {1}",
-            };
-        }
-
-        public void SetLanguage(string cultureName)
-        {
-            CurrentCulture = new CultureInfo(cultureName);
-        }
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            });
         }
     }
 }

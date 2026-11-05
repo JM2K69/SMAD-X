@@ -8,14 +8,6 @@ using SMADX.Models;
 
 namespace SMADX.Services.Labs
 {
-    /// <summary>Fichier d'exercice illisible, d'un autre format ou d'une version plus récente.</summary>
-    public sealed class LabFormatException : Exception
-    {
-        public LabFormatException(string message, Exception? inner = null) : base(message, inner)
-        {
-        }
-    }
-
     /// <summary>
     /// Lecture, écriture et préparation des exercices .smadx-lab.json. Les exercices fournis avec
     /// l'application sont embarqués dans l'exécutable (dossier Labs/ du projet).

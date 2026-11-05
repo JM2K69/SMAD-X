@@ -253,7 +253,7 @@ public class LabSubmissionTests
     private static void Forge(string path, Action<JsonObject> change) => Rewrite(path, node =>
     {
         change(node);
-        node["Seal"] = LabSubmissionService.ComputeSeal(node);
+        node["Seal"] = SubmissionSealer.Compute(node);
     });
 
     private LabDefinition Exam(Action<LabDefinition>? settings = null)

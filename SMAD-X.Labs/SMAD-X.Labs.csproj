@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Socle commun des simulateurs SMAD-X, sans interface ni Active Directory : traductions FR/EN et
+       fiches Markdown, questions de compréhension et leur correction, sceau et session des copies,
+       notes du formateur, journal, texte sûr. Partagé par SMAD-X.Core et les autres simulateurs. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>SMAD-X.Labs</AssemblyName>
+    <RootNamespace>SMADX</RootNamespace>
+  </PropertyGroup>
+</Project>

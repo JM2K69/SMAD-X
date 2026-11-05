@@ -9,10 +9,8 @@ using SMADX.Models;
 namespace SMADX.Services.Labs
 {
     /// <summary>
-    /// Lecture et écriture des copies .smadx-submission.json. Chaque enregistrement scelle la copie :
-    /// le sceau est le SHA-256 de son contenu sans le sceau, sous forme compacte. Il ne dépend pas de la
-    /// mise en page (indentation, fins de ligne) mais du moindre changement de contenu : nom, dates,
-    /// indices ou domaine modifiés à la main se voient à la correction.
+    /// Lecture et écriture des copies .smadx-submission.json. Chaque enregistrement scelle la copie
+    /// (<see cref="SubmissionSealer"/>) : nom, dates, indices ou domaine modifiés à la main se voient à la correction.
     /// </summary>
     public sealed class LabSubmissionService
     {
@@ -28,18 +26,10 @@ namespace SMADX.Services.Labs
         {
             submission.Seal = null;
             var node = JsonNode.Parse(JsonSerializer.Serialize(submission, Options))!.AsObject();
-            submission.Seal = ComputeSeal(node);
+            submission.Seal = SubmissionSealer.Compute(node);
             submission.SealCheck = SubmissionSeal.Valid;
             node["Seal"] = submission.Seal;
             return node.ToJsonString(Options);
-        }
-
-        /// <summary>SHA-256 de la copie sans son sceau, sous forme compacte.</summary>
-        public static string ComputeSeal(JsonObject submission)
-        {
-            var content = (JsonObject)submission.DeepClone();
-            content.Remove("Seal");
-            return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content.ToJsonString())));
         }
 
         public void SaveFile(LabSubmission submission, string path) => File.WriteAllText(path, Serialize(submission));
@@ -67,10 +57,7 @@ namespace SMADX.Services.Labs
                     throw new LabFormatException(T("La copie ne contient pas le domaine de l'apprenant (clé \"Work\").", "The submission does not contain the learner's domain (key \"Work\")."));
 
                 // Le sceau se vérifie sur le fichier tel qu'il a été lu, avant toute migration
-                var seal = root["Seal"]?.GetValue<string>();
-                var sealCheck = seal == null ? SubmissionSeal.Missing
-                    : string.Equals(seal, ComputeSeal(root), StringComparison.OrdinalIgnoreCase) ? SubmissionSeal.Valid
-                    : SubmissionSeal.Broken;
+                var sealCheck = SubmissionSealer.Check(root);
 
                 var lab = new LabService().Parse(labNode.ToJsonString());
                 root.Remove("Lab");

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using SMADX.Models;
 
 namespace SMADX.Services.Labs
@@ -62,17 +61,8 @@ namespace SMADX.Services.Labs
             var working = Labs.PrepareStart(Lab, StartedOn);
             if (SessionId != Guid.Empty)
                 foreach (var obj in Flatten(working.Domain))
-                    obj.Id = SessionObjectId(SessionId, obj.Id);
+                    obj.Id = WorkSession.ObjectId(SessionId, obj.Id);
             return working;
-        }
-
-        /// <summary>Identifiant d'un objet du domaine de départ dans la copie de travail d'une session.</summary>
-        public static Guid SessionObjectId(Guid sessionId, Guid startId)
-        {
-            var bytes = SHA256.HashData([.. sessionId.ToByteArray(), .. startId.ToByteArray()])[..16];
-            bytes[7] = (byte)((bytes[7] & 0x0F) | 0x50); // version 5 (identifiant dérivé)
-            bytes[8] = (byte)((bytes[8] & 0x3F) | 0x80); // variante RFC 4122
-            return new Guid(bytes);
         }
 
         public LabSubmission ToSubmission(string student, ADRootDocument work, IEnumerable<string> hintsUsed, DateTime now,

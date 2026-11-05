@@ -28,7 +28,7 @@ namespace SMADX.Services.Labs
     /// </summary>
     public static class LabQuestionGrader
     {
-        private static LocalizationService Loc => LocalizationService.Instance;
+        private static Localizer Loc => Localizer.Current;
 
         public static LabQuestionResult Grade(LabQuestion question, LabAnswer? answer)
         {

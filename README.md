@@ -260,6 +260,17 @@ Colors are configurable via `Settings > Tier Configuration`.
 
 ## 🏗️ Architecture
 
+| Project | Role |
+|---|---|
+| **SMAD-X.Labs** | Shared foundation, with neither Active Directory nor UI: FR/EN translations and Markdown sheets, comprehension questions and their grading, submission seal and work session, trainer marks, log, safe text |
+| **SMAD-X.Core** | Active Directory engine: models, files, audit, attack paths, tiering, labs, exports |
+| **SMAD-X.UI** | Shared Avalonia elements: Markdown rendering, light / dark theme |
+| **SMAD-X** | The application |
+| **SMAD-X.Studio** | The trainer's tool: creates labs and grades submissions |
+| **SMAD-X.Tests** | xUnit tests |
+
+The application:
+
 ```
 SMAD-X/
 ├── Models/

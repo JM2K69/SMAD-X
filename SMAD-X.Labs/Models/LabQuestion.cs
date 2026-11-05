@@ -25,7 +25,7 @@ namespace SMADX.Models
     /// <summary>
     /// Question de compréhension, posée avec les objectifs et notée avec eux. Son corrigé (les bons choix, les
     /// associations, les réponses acceptées) reste dans l'exemplaire du formateur : le sujet distribué est écrit
-    /// sans lui (voir <see cref="Services.Labs.LabService.SerializeSubject"/>), et la copie est corrigée dans Studio.
+    /// sans lui, et la copie est corrigée dans Studio.
     /// </summary>
     public sealed class LabQuestion
     {

@@ -8,15 +8,6 @@ using static SMADX.Services.Labs.LabAuthoring;
 
 namespace SMADX.Services.Labs
 {
-    public enum LabIssueLevel
-    {
-        Ok,
-        Warning,
-        Error
-    }
-
-    public sealed record LabIssue(LabIssueLevel Level, string Message, string? ObjectiveId = null);
-
     public sealed record LabValidationReport(IReadOnlyList<LabIssue> Issues, LabResult? Solution)
     {
         public bool HasErrors => Issues.Any(i => i.Level == LabIssueLevel.Error);

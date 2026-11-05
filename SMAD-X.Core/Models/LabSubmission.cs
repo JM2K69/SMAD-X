@@ -68,13 +68,4 @@ namespace SMADX.Models
         [JsonIgnore]
         public SubmissionSeal SealCheck { get; set; }
     }
-
-    public enum SubmissionSeal
-    {
-        /// <summary>Pas de sceau : la copie n'a pas été enregistrée par SMAD-X.</summary>
-        Missing,
-        Valid,
-        /// <summary>Le contenu a changé depuis l'enregistrement par SMAD-X.</summary>
-        Broken
-    }
 }

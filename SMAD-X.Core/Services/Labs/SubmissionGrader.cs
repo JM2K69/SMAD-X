@@ -183,7 +183,7 @@ namespace SMADX.Services.Labs
         {
             var candidates = Flatten(work).Where(o => startIds.ContainsKey(o.DistinguishedName)).ToList();
             if (candidates.Count == 0) return null;
-            return candidates.Count(o => o.Id == LabSession.SessionObjectId(sessionId, startIds[o.DistinguishedName])) / (double)candidates.Count;
+            return candidates.Count(o => o.Id == WorkSession.ObjectId(sessionId, startIds[o.DistinguishedName])) / (double)candidates.Count;
         }
 
         /// <summary>

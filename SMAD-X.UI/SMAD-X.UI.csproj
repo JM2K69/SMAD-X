@@ -16,6 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SMAD-X.Core\SMAD-X.Core.csproj" />
+    <ProjectReference Include="..\SMAD-X.Labs\SMAD-X.Labs.csproj" />
   </ItemGroup>
 </Project>

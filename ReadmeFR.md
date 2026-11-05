@@ -255,6 +255,17 @@ Les couleurs sont configurables via `Paramètres > Configuration des tiers`.
 
 ## 🏗️ Architecture
 
+| Projet | Rôle |
+|---|---|
+| **SMAD-X.Labs** | Socle commun, sans Active Directory ni interface : traductions FR/EN et fiches Markdown, questions de compréhension et leur correction, sceau et session des copies, notes du formateur, journal, texte sûr |
+| **SMAD-X.Core** | Moteur Active Directory : modèles, fichiers, audit, chemins d'attaque, cloisonnement, exercices, exports |
+| **SMAD-X.UI** | Éléments Avalonia partagés : rendu Markdown, thème clair / sombre |
+| **SMAD-X** | L'application |
+| **SMAD-X.Studio** | L'outil du formateur : crée les exercices et corrige les copies |
+| **SMAD-X.Tests** | Tests xUnit |
+
+L'application :
+
 ```
 SMAD-X/
 ├── Models/
