@@ -1,7 +1,9 @@
 // Captures d'écran de SMAR-X : la fenêtre est rendue hors écran (Avalonia Headless avec le moteur Skia), sur les
 // serveurs d'exemple, pour quelques accès qui montrent chacun une règle.
 // Usage : dotnet run --project tools/SmarxScreens -- <dossier de sortie>
+//         dotnet run --project tools/SmarxScreens -- --docs <racine du dépôt>   (captures de la documentation, en français et en anglais)
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Styling;
 using Avalonia.Threading;
@@ -11,7 +13,8 @@ using SMARX.Services.Windows;
 using SMARX.ViewModels;
 using SMARX.Views;
 
-var outDir = Path.GetFullPath(args.Length > 0 ? args[0] : "smarx-screens");
+var docs = args.Length > 1 && args[0] == "--docs";
+var outDir = Path.GetFullPath(docs ? args[1] : args.Length > 0 ? args[0] : "smarx-screens");
 Directory.CreateDirectory(outDir);
 
 AppBuilder.Configure<App>()
@@ -19,6 +22,21 @@ AppBuilder.Configure<App>()
     .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
     .WithInterFont()
     .SetupWithoutStarting();
+
+if (docs)
+{
+    // Archives : Modification héritée de Compta (coches grises), Écriture refusée sur Archives même (coche noire)
+    var root = outDir;
+    foreach (var (culture, language) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
+    {
+        outDir = Path.Combine(root, "docs", language, "assets", "screens");
+        Linux(culture, ThemeVariant.Dark, "bob", "/srv/partage", LinuxOperation.Create, "smarx-linux");
+        Security(culture, ThemeVariant.Dark, @"D:\Partages\Compta\Archives", "GL_Compta", "smarx-security");
+        Dialog(culture, @"D:\Partages\Compta\Archives", "GL_Compta", false, "smarx-edit");
+        Dialog(culture, @"D:\Partages\Compta\Archives", null, true, "smarx-advanced");
+    }
+    return;
+}
 
 Linux("fr-FR", ThemeVariant.Dark, "bob", "/srv/compta/budget.ods", LinuxOperation.Read, "01-linux-bob-lit-budget");
 Linux("fr-FR", ThemeVariant.Dark, "carol", "/srv/compta/budget.ods", LinuxOperation.Read, "02-linux-carol-bloquee");
@@ -30,7 +48,46 @@ Windows("fr-FR", ThemeVariant.Dark, "carol", @"D:\Admin", WindowsOperation.List,
 Windows("fr-FR", ThemeVariant.Light, "bob", @"D:\Partages\Commun", WindowsOperation.CreateFile, false, "08-windows-creator-owner-clair", 2100);
 Windows("en-US", ThemeVariant.Dark, "alice", @"D:\Partages\RH\annonce-rh.txt", WindowsOperation.Read, false, "09-windows-traverse-english");
 Glossary("fr-FR", 0, "10-aide-memoire-windows");
+Security("fr-FR", ThemeVariant.Dark, @"D:\Partages\Projets", "GL_Stagiaires", "12-onglet-securite");
+Security("en-US", ThemeVariant.Light, @"D:\Partages\Projets\planning.xlsx", "dave", "13-security-tab-english");
+Dialog("fr-FR", @"D:\Partages\Compta\Archives", "GL_Compta", false, "14-fenetre-modifier");
+Dialog("fr-FR", @"D:\Partages\Compta\Archives", null, true, "15-fenetre-avance");
 Glossary("fr-FR", 1, "11-aide-memoire-linux");
+
+// La colonne de droite de l'espace Windows, ouverte sur l'onglet Sécurité d'un objet et un compte
+void Security(string culture, ThemeVariant theme, string path, string principal, string name)
+{
+    var shell = Prepare(culture, theme);
+    shell.ShowWindowsCommand.Execute(null);
+    var vm = shell.Windows;
+    vm.SelectedNode = Find(vm.Tree[0], path, n => n.Path, n => n.Children);
+    vm.Security.SelectedPrincipal = vm.Security.Principals.First(p => p.Trustee == principal);
+    Capture(shell, name, 1000);
+}
+
+// Les fenêtres Modifier et Avancé, sur le serveur d'exemple
+void Dialog(string culture, string path, string? principal, bool advanced, string name)
+{
+    var shell = Prepare(culture, ThemeVariant.Dark);
+    var vm = shell.Windows;
+    var node = Find(vm.Tree[0], path, n => n.Path, n => n.Children);
+    Window window;
+    if (advanced)
+        window = new AdvancedSecurityWindow { DataContext = new AdvancedSecurityViewModel(vm.Host, node, "bob"), Width = 1100 };
+    else
+    {
+        var edit = new PermissionsEditViewModel(vm.Host, node);
+        edit.SelectedPrincipal = edit.Principals.First(p => p.Trustee == principal);
+        window = new PermissionsWindow { DataContext = edit };
+    }
+    window.Show();
+    Pump(700);
+    var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
+    var file = Path.Combine(outDir, name + ".png");
+    frame.Save(file);
+    Console.WriteLine(file);
+    window.Close();
+}
 
 void Glossary(string culture, int tab, string name)
 {

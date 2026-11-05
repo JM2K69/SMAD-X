@@ -187,6 +187,62 @@
         <!-- ═══ Autorisations ═══ -->
         <ScrollViewer Grid.Column="2">
             <StackPanel Spacing="16">
+                <!-- Onglet Sécurité, comme les Propriétés de l'Explorateur -->
+                <Border Classes="card">
+                    <StackPanel Spacing="10">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <PathIcon Data="{StaticResource ShieldIcon}" Width="16" Height="16" Foreground="{DynamicResource Accent}" Margin="0,0,8,0"/>
+                            <TextBlock Grid.Column="1" Classes="h" Text="{Binding Security.Title}" TextTrimming="CharacterEllipsis"/>
+                        </Grid>
+                        <TextBlock Classes="muted">
+                            <Run Text="{DynamicResource Sec.ObjectName}"/>
+                            <Run Text="{Binding Security.ObjectName}" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+                        </TextBlock>
+                        <TextBlock Classes="label" Text="{DynamicResource Sec.Names}"/>
+                        <Border Classes="code" Padding="4">
+                            <ListBox ItemsSource="{Binding Security.Principals}" SelectedItem="{Binding Security.SelectedPrincipal}"
+                                     MaxHeight="152" Background="Transparent" AutoScrollToSelectedItem="False">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:PrincipalItem">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <PathIcon Data="{StaticResource GroupIcon}" Width="14" Height="14" IsVisible="{Binding IsGroup}" Foreground="{DynamicResource TextMuted}"/>
+                                            <PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14" IsVisible="{Binding IsUser}" Foreground="{DynamicResource Accent}"/>
+                                            <TextBlock Text="{Binding Display}" FontSize="13"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <TextBlock Classes="muted" Text="{DynamicResource Sec.ToChange}" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="{DynamicResource Sec.Edit}" Click="OnEditPermissions" MinWidth="96" HorizontalContentAlignment="Center"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,74,74" Margin="10,4,10,0">
+                            <TextBlock Classes="label" Text="{Binding Security.PermissionsFor}" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="1" Classes="label" Text="{DynamicResource Sec.Allow}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                            <TextBlock Grid.Column="2" Classes="label" Text="{DynamicResource Sec.Deny}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                        </Grid>
+                        <Border Classes="code" Padding="10,6">
+                            <ItemsControl ItemsSource="{Binding Security.Rows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:SecurityRowItem">
+                                        <Grid ColumnDefinitions="*,74,74" Margin="0,2">
+                                            <TextBlock Text="{Binding Label}" FontSize="13" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Classes="mark" Classes.gray="{Binding AllowGray}" Text="{Binding AllowMark}"/>
+                                            <TextBlock Grid.Column="2" Classes="mark" Classes.gray="{Binding DenyGray}" Text="{Binding DenyMark}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Border>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <TextBlock Classes="muted" Text="{DynamicResource Sec.ForAdvanced}" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="{DynamicResource Sec.Advanced}" Click="OnAdvancedSecurity" MinWidth="96" HorizontalContentAlignment="Center"/>
+                        </Grid>
+                        <TextBlock Classes="muted" Text="{DynamicResource Sec.Legend}"/>
+                    </StackPanel>
+                </Border>
+
                 <Border Classes="card">
                     <StackPanel Spacing="12">
                         <Grid ColumnDefinitions="*,Auto">
@@ -255,23 +311,6 @@
                             <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Editor.NewAppliesChoices}" SelectedItem="{Binding Editor.NewApplies}" HorizontalAlignment="Stretch"/>
                             <Button Grid.Row="2" Grid.ColumnSpan="2" Content="{DynamicResource Ntfs.AddButton}" Command="{Binding Editor.AddAceCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
                         </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- Accès effectif -->
-                <Border Classes="card">
-                    <StackPanel Spacing="10">
-                        <TextBlock Classes="h" Text="{Binding EffectiveTitle}"/>
-                        <ItemsControl ItemsSource="{Binding EffectiveRights}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="vm:EffectiveRightItem">
-                                    <Grid ColumnDefinitions="22,*" Margin="0,1">
-                                        <TextBlock Text="{Binding Symbol}" Foreground="{Binding Brush}" FontWeight="Bold"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding Label}" FontSize="12"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
                     </StackPanel>
                 </Border>
 

@@ -1,0 +1,111 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMARX.ViewModels"
+        x:Class="SMARX.Views.AdvancedSecurityWindow"
+        x:DataType="vm:AdvancedSecurityViewModel"
+        Title="{Binding Title}"
+        Icon="/Assets/icone.ico"
+        Width="1100" Height="680" MinWidth="820" MinHeight="520"
+        WindowStartupLocation="CenterOwner">
+
+    <!-- « Paramètres de sécurité avancés » : propriétaire, entrées, héritage, accès effectif -->
+    <Grid RowDefinitions="Auto,*,Auto" Margin="18">
+        <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto" RowSpacing="8">
+            <TextBlock Classes="label" Text="{DynamicResource Sec.Name}" VerticalAlignment="Center"/>
+            <SelectableTextBlock Grid.Column="1" Classes="mono" Text="{Binding ObjectName}" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="1" Classes="label" Text="{DynamicResource Sec.Owner}" VerticalAlignment="Center"/>
+            <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Owners}" SelectedItem="{Binding Owner}" MinWidth="260"/>
+        </Grid>
+
+        <TabControl Grid.Row="1" Margin="0,12,0,0">
+            <TabControl.Styles>
+                <Style Selector="TabItem">
+                    <Setter Property="FontSize" Value="15"/>
+                    <Setter Property="MinHeight" Value="36"/>
+                </Style>
+            </TabControl.Styles>
+            <TabItem Header="{DynamicResource Sec.Permissions}">
+                <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto" RowSpacing="8" Margin="0,8,0,0">
+                    <TextBlock Classes="muted" Text="{DynamicResource Sec.AdvancedHint}"/>
+                    <TextBlock Grid.Row="1" Classes="label" Text="{DynamicResource Sec.Entries}"/>
+                    <Border Grid.Row="2" Classes="code" Padding="0">
+                        <Grid RowDefinitions="Auto,*">
+                            <Grid ColumnDefinitions="90,2*,1.2*,1.4*,2.5*" Margin="12,8">
+                                <TextBlock Classes="label" Text="{DynamicResource Sec.Type}"/>
+                                <TextBlock Grid.Column="1" Classes="label" Text="{DynamicResource Sec.Principal}"/>
+                                <TextBlock Grid.Column="2" Classes="label" Text="{DynamicResource Sec.Access}"/>
+                                <TextBlock Grid.Column="3" Classes="label" Text="{DynamicResource Sec.InheritedFrom}"/>
+                                <TextBlock Grid.Column="4" Classes="label" Text="{DynamicResource Sec.AppliesTo}" IsVisible="{Binding IsFolder}"/>
+                            </Grid>
+                            <ScrollViewer Grid.Row="1">
+                                <ItemsControl ItemsSource="{Binding Entries}" Margin="12,0,12,8">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:AdvancedEntryItem">
+                                            <Grid ColumnDefinitions="90,2*,1.2*,1.4*,2.5*" Margin="0,3">
+                                                <TextBlock Text="{Binding Type}" FontSize="13" FontWeight="SemiBold" Foreground="#E5534B" IsVisible="{Binding IsDeny}"/>
+                                                <TextBlock Text="{Binding Type}" FontSize="13" IsVisible="{Binding !IsDeny}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Principal}" FontSize="13" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding Access}" FontSize="13" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding InheritedFrom}" FontSize="13" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding AppliesTo}" FontSize="13" TextTrimming="CharacterEllipsis"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
+                        <Button Content="{DynamicResource Sec.Disable}" Command="{Binding DisableCommand}" IsVisible="{Binding CanDisable}"/>
+                        <Button Content="{DynamicResource Sec.Enable}" Command="{Binding EnableCommand}" IsVisible="{Binding CanEnable}"/>
+                    </StackPanel>
+                    <!-- La question de Windows quand on désactive l'héritage -->
+                    <Border Grid.Row="4" Classes="chip" CornerRadius="10" Padding="14,10" IsVisible="{Binding Asking}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{DynamicResource Sec.Question}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                            <Button Content="{DynamicResource Sec.Convert}" Command="{Binding ConvertCommand}" HorizontalAlignment="Stretch"/>
+                            <Button Content="{DynamicResource Sec.RemoveAll}" Command="{Binding RemoveInheritedCommand}" HorizontalAlignment="Stretch"/>
+                            <Button Content="{DynamicResource Sec.Cancel}" Command="{Binding KeepInheritanceCommand}" HorizontalAlignment="Right"/>
+                        </StackPanel>
+                    </Border>
+                    <StackPanel Grid.Row="5" Spacing="6" IsVisible="{Binding Commands, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        <TextBlock Classes="label" Text="{DynamicResource Sec.Equivalent}"/>
+                        <Border Classes="code">
+                            <SelectableTextBlock Classes="mono" Text="{Binding Commands}" FontSize="11" TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="{DynamicResource Sec.Effective}">
+                <StackPanel Spacing="10" Margin="0,8,0,0">
+                    <TextBlock Classes="muted" Text="{DynamicResource Sec.EffectiveHint}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Classes="label" Text="{DynamicResource Sec.EffectiveUser}" VerticalAlignment="Center"/>
+                        <ComboBox ItemsSource="{Binding EffectiveUsers}" SelectedItem="{Binding EffectiveUser}" MinWidth="200"/>
+                        <CheckBox IsChecked="{Binding Elevated}" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Sec.Elevated}"/>
+                        </CheckBox>
+                    </StackPanel>
+                    <Border Classes="code">
+                        <ItemsControl ItemsSource="{Binding EffectiveRights}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:EffectiveRightItem">
+                                    <Grid ColumnDefinitions="24,*" Margin="0,2">
+                                        <TextBlock Text="{Binding Symbol}" Foreground="{Binding Brush}" FontWeight="Bold"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Label}" FontSize="13"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,14,0,0">
+            <Button Content="{DynamicResource Sec.Ok}" Click="OnOk" MinWidth="96" HorizontalContentAlignment="Center"/>
+            <Button Content="{DynamicResource Sec.Cancel}" Click="OnCancel" MinWidth="96" HorizontalContentAlignment="Center"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -34,6 +34,11 @@ nav = [
     "labs/create.md",
     "labs/studio.md",
   ] },
+  { "SMAR-X" = [
+    "smar-x/index.md",
+    "smar-x/security-tab.md",
+    "smar-x/windows-rules.md",
+  ] },
   { "Reference" = [
     "export.md",
     "file-format.md",

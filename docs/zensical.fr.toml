@@ -35,6 +35,11 @@ nav = [
     "exercices/creer.md",
     "exercices/studio.md",
   ] },
+  { "SMAR-X" = [
+    "smar-x/index.md",
+    "smar-x/onglet-securite.md",
+    "smar-x/regles-windows.md",
+  ] },
   { "Référence" = [
     "export.md",
     "format.md",

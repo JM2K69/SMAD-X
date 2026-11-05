@@ -7,7 +7,7 @@
         Title="{DynamicResource App.Title}"
         Icon="/Assets/icone.ico"
         Width="1520" Height="960" MinWidth="1200" MinHeight="700"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
 
     <Window.DataTemplates>
         <DataTemplate DataType="vm:LinuxWorkspaceViewModel">

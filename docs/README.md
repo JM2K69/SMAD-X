@@ -34,7 +34,13 @@ Les captures de SMAD-X Studio viennent de `tools/StudioDocGenerator` (un process
 dotnet run --project tools/StudioDocGenerator -- .
 ```
 
-Les deux outils rendent les fenêtres **hors écran** (Avalonia Headless avec le moteur Skia), en français et en anglais : rien ne s'affiche à l'écran et aucune touche n'est simulée.
+Les captures de SMAR-X viennent de `tools/SmarxScreens`, en mode documentation :
+
+```bash
+dotnet run --project tools/SmarxScreens -- --docs .
+```
+
+Les outils rendent les fenêtres **hors écran** (Avalonia Headless avec le moteur Skia), en français et en anglais : rien ne s'affiche à l'écran et aucune touche n'est simulée.
 
 ## Règle : pas de solution
 

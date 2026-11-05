@@ -21,7 +21,11 @@ namespace SMARX.ViewModels
         public WindowsWorkspaceViewModel(WindowsHost host)
         {
             SelectCellCommand = new RelayCommand<MatrixCell>(SelectCell);
-            Editor.Changed += Recompute;
+            Editor.Changed += () =>
+            {
+                Security.Load(Host, SelectedNode);
+                Recompute();
+            };
             Load(host);
         }
 
@@ -32,9 +36,9 @@ namespace SMARX.ViewModels
         public ObservableCollection<StepItem> Steps { get; } = new();
         public ObservableCollection<string> MatrixColumns { get; } = new();
         public ObservableCollection<MatrixRow> MatrixRows { get; } = new();
-        public ObservableCollection<EffectiveRightItem> EffectiveRights { get; } = new();
         public ObservableCollection<MembershipItem> Memberships { get; } = new();
         public WindowsRightsEditorViewModel Editor { get; } = new();
+        public SecurityTabViewModel Security { get; } = new();
         public IRelayCommand<MatrixCell> SelectCellCommand { get; }
 
         [ObservableProperty] private NtfsItem? _selectedNode;
@@ -57,7 +61,6 @@ namespace SMARX.ViewModels
         public Avalonia.Media.IBrush VerdictBackground => Allowed ? Palette.AllowedBack : Palette.DeniedBack;
         public bool CanElevate => SelectedUser is { IsAdministrator: true } u && !u.User.IsBuiltInAdministrator;
         public bool ShowCreation => SelectedNode?.IsDirectory == true && SelectedUser != null;
-        public string EffectiveTitle => Text.T($"Accès effectif de {SelectedUser?.Name}", $"Effective access of {SelectedUser?.Name}");
 
         /// <summary>Charge un serveur : l'arborescence, les comptes, et un premier test (dave modifie planning.xlsx, s'il existe).</summary>
         public void Load(WindowsHost host)
@@ -94,6 +97,7 @@ namespace SMARX.ViewModels
                     Operations.Add(new OperationItem(op, WindowsExplainer.Operation(op, Text.Culture)));
             SelectedOperation = Operations.FirstOrDefault(o => Equals(o.Operation, previous)) ?? Operations.FirstOrDefault();
             Editor.Load(Host, value);
+            Security.Load(Host, value);
             OnPropertyChanged(nameof(ShowCreation));
             Recompute();
         }
@@ -103,7 +107,6 @@ namespace SMARX.ViewModels
             if (!CanElevate) Elevated = false;
             OnPropertyChanged(nameof(CanElevate));
             OnPropertyChanged(nameof(ShowCreation));
-            OnPropertyChanged(nameof(EffectiveTitle));
             Recompute();
         }
 
@@ -115,6 +118,15 @@ namespace SMARX.ViewModels
             if (cell?.User is not WindowsUserItem user) return;
             SelectedUser = user;
             SelectedOperation = Operations.FirstOrDefault(o => Equals(o.Operation, cell.Operation)) ?? SelectedOperation;
+        }
+
+        /// <summary>Après les fenêtres Modifier ou Avancé : l'objet a pu changer, tout ce qui en dépend se recalcule.</summary>
+        public void AfterSecurityWindow()
+        {
+            SelectedNode?.Refresh();
+            Editor.Load(Host, SelectedNode);
+            Security.Load(Host, SelectedNode);
+            Recompute();
         }
 
         /// <summary>Le testeur, la matrice, l'accès effectif et ce que recevrait un nouvel élément.</summary>
@@ -140,7 +152,6 @@ namespace SMARX.ViewModels
             OnPropertyChanged(nameof(VerdictBackground));
 
             BuildMatrix(node);
-            BuildEffectiveRights(node, user);
             BuildCreation(node, user);
         }
 
@@ -176,19 +187,6 @@ namespace SMARX.ViewModels
             WindowsOperation.ChangePermissions => Text.T("Changer les autorisations", "Change permissions"),
             _ => WindowsExplainer.Operation(operation, Text.Culture)
         };
-
-        /// <summary>Chaque droit spécial, accordé ou non au compte testé, comme l'onglet « Accès effectif ».</summary>
-        private void BuildEffectiveRights(NtfsItem node, WindowsUserItem user)
-        {
-            EffectiveRights.Clear();
-            var token = WindowsToken.Local(user.User, Elevated);
-            foreach (var (_, right) in Ntfs.Special)
-            {
-                var granted = WindowsPermissions.Check(Host, token, node.Path, right).Granted;
-                EffectiveRights.Add(new EffectiveRightItem(WindowsExplainer.Rights(right, Text.Culture), granted));
-            }
-            OnPropertyChanged(nameof(EffectiveTitle));
-        }
 
         /// <summary>Ce que recevrait un fichier créé par le compte testé dans le dossier choisi : son propriétaire et ses ACE.</summary>
         private void BuildCreation(NtfsItem node, WindowsUserItem user)
@@ -292,6 +290,7 @@ namespace SMARX.ViewModels
             RebuildUsers();
             foreach (var item in All(Tree)) item.Refresh();
             Editor.Load(Host, SelectedNode);
+            Security.Load(Host, SelectedNode);
             Recompute();
             DescribeAccount();
         }

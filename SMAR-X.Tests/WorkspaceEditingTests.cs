@@ -75,7 +75,8 @@ public class WorkspaceEditingTests
         Assert.Equal((@"D:\Partages\Projets\planning.xlsx", "dave", (object)WindowsOperation.Write), (vm.SelectedNode!.Path, vm.SelectedUser!.Name, vm.SelectedOperation!.Operation));
         Assert.True(vm.Allowed);
         Assert.Contains(vm.Steps, s => s.Title == "ACE 1, explicite" && s.Passed == true);
-        Assert.Contains(vm.EffectiveRights, r => r.Label == "Suppression" && r.Granted);
+        // L'accès effectif est dans la fenêtre Avancé, ouverte sur le compte testé
+        Assert.Contains(new AdvancedSecurityViewModel(vm.Host, vm.SelectedNode, vm.SelectedUser.Name).EffectiveRights, r => r.Label == "Suppression" && r.Granted);
     }
 
     [Fact]
@@ -125,6 +126,55 @@ public class WorkspaceEditingTests
         Assert.True(vm.SelectedNode.IsProtected);
         vm.Editor.EnableInheritanceCommand.Execute(null);
         Assert.True(vm.Allowed);
+    }
+
+    /// <summary>
+    /// L'onglet Sécurité : coches noires et grises ; la fenêtre Modifier change le serveur, Annuler le remet ; un compte
+    /// hérité ne se supprime pas ; la fenêtre Avancé convertit l'héritage en ACE explicites.
+    /// </summary>
+    [Fact]
+    public void Windows_SecurityTab_EditAndAdvancedWindows_ChangeTheServerLikeWindows()
+    {
+        var vm = Shell().Windows;
+        vm.SelectedNode = FindWindows(vm.Tree[0], @"D:\Partages\Compta\Archives");
+        vm.SelectedUser = vm.Users.First(u => u.Name == "alice");
+        vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, WindowsOperation.CreateFile));
+        Assert.False(vm.Allowed);
+
+        vm.Security.SelectedPrincipal = vm.Security.Principals.First(p => p.Trustee == "GL_Compta");
+        var write = vm.Security.Rows.Single(r => r.Label == "Écriture");
+        Assert.Equal(("✓", true), (write.AllowMark, write.AllowGray));   // héritée de Compta
+        Assert.Equal(("✓", false), (write.DenyMark, write.DenyGray));    // posée sur Archives
+
+        var edit = new PermissionsEditViewModel(vm.Host, vm.SelectedNode!);
+        edit.SelectedPrincipal = edit.Principals.First(p => p.Trustee == "GL_Compta");
+        var row = edit.Rows.Single(r => r.Permission == BasicPermission.Write);
+        Assert.False(row.AllowEnabled);
+        Assert.True(row.DenyEnabled);
+        row.DenyChecked = false;
+        vm.AfterSecurityWindow();
+        Assert.True(vm.Allowed);
+        Assert.DoesNotContain("/deny", edit.Commands);
+        edit.Cancel();
+        vm.AfterSecurityWindow();
+        Assert.False(vm.Allowed);
+
+        edit = new PermissionsEditViewModel(vm.Host, vm.SelectedNode!);
+        edit.SelectedPrincipal = edit.Principals.First(p => p.Trustee == "GL_Compta");
+        edit.RemoveCommand.Execute(null);
+        Assert.True(edit.HasMessage);
+
+        var advanced = new AdvancedSecurityViewModel(vm.Host, vm.SelectedNode!, "alice");
+        Assert.Equal(3, advanced.Entries.Count);
+        Assert.Equal(14, advanced.EffectiveRights.Count);
+        advanced.DisableCommand.Execute(null);
+        Assert.True(advanced.Asking);
+        advanced.ConvertCommand.Execute(null);
+        Assert.Equal(@"icacls ""D:\Partages\Compta\Archives"" /inheritance:d", advanced.Commands);
+        Assert.All(advanced.Entries, e => Assert.Equal("Aucun", e.InheritedFrom));
+        vm.AfterSecurityWindow();
+        Assert.True(vm.SelectedNode!.IsProtected);
+        Assert.False(vm.Allowed);
     }
 
     [Fact]

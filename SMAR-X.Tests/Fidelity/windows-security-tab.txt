@@ -1,0 +1,221 @@
+# Windows 11 Enterprise 10.0.26300 (en-US) : Explorateur > Propriétés > Sécurité, puis Avancé, lus par UI Automation et MSAA
+# (tools/SmarxSecurityTabCheck). C:\SmarxUi\F1 devient D:\F1 ; les comptes perdent leur « (CLI\…) ».
+# TAB|compte|colonne:ligne=Explicit (coche noire) ou Inherited (coche grise) ; ADV|compte|type|accès|hérité de|s'applique à
+OBJ|D:\F1
+ROWS|Full control ; Modify ; Read & execute ; List folder contents ; Read ; Write ; Special permissions
+TAB|Everyone|Allow:List folder contents=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit
+TAB|CREATOR OWNER|Allow:Special permissions=Inherited
+TAB|OWNER RIGHTS|Allow:Special permissions=Inherited
+TAB|Authenticated Users|Allow:List folder contents=Explicit;Allow:Modify=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit;Allow:Write=Explicit
+TAB|SYSTEM|Allow:Full control=Explicit;Allow:List folder contents=Explicit;Allow:Modify=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit;Allow:Write=Explicit
+TAB|NETWORK|Deny:Write=Explicit
+TAB|BATCH|Deny:Write=Explicit
+TAB|Administrators|Allow:Full control=Explicit;Allow:List folder contents=Explicit;Allow:Modify=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit;Allow:Write=Explicit
+TAB|Users|Allow:Full control=Explicit;Allow:List folder contents=Explicit;Allow:Modify=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit;Allow:Write=Explicit
+TAB|Guests|Allow:List folder contents=Explicit
+TAB|Power Users|Allow:List folder contents=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit;Allow:Special permissions=Inherited;Deny:Write=Explicit
+TAB|Backup Operators|Allow:Special permissions=Inherited
+TAB|Replicator|Allow:List folder contents=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit
+TAB|Remote Desktop Users|Allow:Special permissions=Inherited
+TAB|Network Configuration Operators|Allow:Read=Explicit
+TAB|Performance Monitor Users|Allow:Write=Explicit
+TAB|Performance Log Users|Allow:Full control=Explicit;Allow:List folder contents=Explicit;Allow:Modify=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit;Allow:Write=Explicit
+TAB|Distributed COM Users|Allow:List folder contents=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit;Allow:Special permissions=Inherited
+TAB|IIS_IUSRS|Allow:Special permissions=Inherited
+TAB|Cryptographic Operators|Allow:List folder contents=Explicit;Allow:Modify=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit;Allow:Write=Explicit
+TAB|Event Log Readers|Allow:Special permissions=Inherited
+TAB|Hyper-V Administrators|Deny:List folder contents=Explicit;Deny:Read=Explicit;Deny:Read & execute=Explicit
+TAB|Access Control Assistance Operators|Allow:List folder contents=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit;Allow:Write=Explicit
+TAB|Remote Management Users|Deny:Full control=Explicit;Deny:List folder contents=Explicit;Deny:Modify=Explicit;Deny:Read=Explicit;Deny:Read & execute=Explicit;Deny:Write=Explicit
+TAB|Device Owners|Allow:List folder contents=Explicit;Allow:Special permissions=Inherited
+TAB|INTERACTIVE|Allow:List folder contents=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit
+TAB|SERVICE|Allow:Special permissions=Inherited
+ADV|Hyper-V Administrators|Deny|Read & execute|None|This folder, subfolders and files
+ADV|Remote Management Users|Deny|Full control|None|This folder, subfolders and files
+ADV|Power Users|Deny|Write|None|This folder, subfolders and files
+ADV|BATCH|Deny|Write|None|This folder, subfolders and files
+ADV|NETWORK|Deny|Write|None|This folder, subfolders and files
+ADV|Cryptographic Operators|Allow|Modify|None|This folder, subfolders and files
+ADV|Replicator|Allow|Read & execute|None|This folder, subfolders and files
+ADV|Guests|Allow|List folder contents|None|This folder and subfolders
+ADV|Performance Log Users|Allow|Full control|None|This folder, subfolders and files
+ADV|Access Control Assistance Operators|Allow|Read, write & execute|None|This folder, subfolders and files
+ADV|IIS_IUSRS|Allow|List folder / read data|None|This folder, subfolders and files
+ADV|Distributed COM Users|Allow|Special|None|This folder, subfolders and files
+ADV|Power Users|Allow|Special|None|This folder, subfolders and files
+ADV|CREATOR OWNER|Allow|Full control|None|Subfolders and files only
+ADV|INTERACTIVE|Allow|Read & execute|None|This folder, subfolders and files
+ADV|Event Log Readers|Allow|Read & execute|None|Subfolders and files only
+ADV|Performance Monitor Users|Allow|Write|None|This folder, subfolders and files
+ADV|Network Configuration Operators|Allow|Read|None|This folder, subfolders and files
+ADV|Everyone|Allow|Read & execute|None|This folder, subfolders and files
+ADV|Authenticated Users|Allow|Modify|None|This folder, subfolders and files
+ADV|Users|Allow|Full control|None|This folder, subfolders and files
+ADV|SYSTEM|Allow|Full control|None|This folder, subfolders and files
+ADV|Administrators|Allow|Full control|None|This folder, subfolders and files
+ADV|OWNER RIGHTS|Allow|Read permissions|None|This folder, subfolders and files
+ADV|Backup Operators|Allow|Read & execute|None|This folder and files
+ADV|Device Owners|Allow|Modify|None|This folder and subfolders
+ADV|SERVICE|Allow|Special|None|This folder only
+ADV|Remote Desktop Users|Allow|Read & execute|None|This folder only
+OBJ|D:\F1\Sub
+ROWS|Full control ; Modify ; Read & execute ; List folder contents ; Read ; Write ; Special permissions
+TAB|Everyone|Allow:List folder contents=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|CREATOR OWNER|Allow:Special permissions=Inherited
+TAB|OWNER RIGHTS|Allow:Special permissions=Inherited
+TAB|Authenticated Users|Allow:List folder contents=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|SYSTEM|Allow:Full control=Inherited;Allow:List folder contents=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|NETWORK|Deny:Write=Inherited
+TAB|BATCH|Deny:Write=Inherited
+TAB|Administrators|Allow:Full control=Inherited;Allow:List folder contents=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Users|Allow:Full control=Inherited;Allow:List folder contents=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Guests|Allow:List folder contents=Inherited;Allow:Modify=Explicit;Allow:Read=Explicit;Allow:Read & execute=Explicit;Allow:Write=Explicit
+TAB|Power Users|Allow:List folder contents=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Special permissions=Inherited;Deny:Write=Inherited
+TAB|Backup Operators|Allow:Special permissions=Inherited
+TAB|Replicator|Allow:List folder contents=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|Network Configuration Operators|Allow:Read=Inherited
+TAB|Performance Monitor Users|Allow:Write=Inherited
+TAB|Performance Log Users|Allow:Full control=Inherited;Allow:List folder contents=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Distributed COM Users|Allow:List folder contents=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Special permissions=Inherited
+TAB|IIS_IUSRS|Allow:Special permissions=Inherited
+TAB|Cryptographic Operators|Allow:List folder contents=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Event Log Readers|Allow:List folder contents=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|Hyper-V Administrators|Deny:List folder contents=Inherited;Deny:Read=Inherited;Deny:Read & execute=Inherited
+TAB|Access Control Assistance Operators|Allow:List folder contents=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Remote Management Users|Deny:Full control=Inherited;Deny:List folder contents=Inherited;Deny:Modify=Inherited;Deny:Read=Inherited;Deny:Read & execute=Inherited;Deny:Write=Inherited
+TAB|Device Owners|Allow:List folder contents=Inherited;Allow:Special permissions=Inherited
+TAB|INTERACTIVE|Allow:Special permissions=Inherited
+ADV|Guests|Allow|Modify|None|This folder, subfolders and files
+ADV|Hyper-V Administrators|Deny|Read & execute|D:\F1\|This folder, subfolders and files
+ADV|Remote Management Users|Deny|Full control|D:\F1\|This folder, subfolders and files
+ADV|Power Users|Deny|Write|D:\F1\|This folder, subfolders and files
+ADV|BATCH|Deny|Write|D:\F1\|This folder, subfolders and files
+ADV|NETWORK|Deny|Write|D:\F1\|This folder, subfolders and files
+ADV|Cryptographic Operators|Allow|Modify|D:\F1\|This folder, subfolders and files
+ADV|Replicator|Allow|Read & execute|D:\F1\|This folder, subfolders and files
+ADV|Guests|Allow|List folder contents|D:\F1\|This folder and subfolders
+ADV|OWNER RIGHTS|Allow|Read permissions|D:\F1\|This folder, subfolders and files
+ADV|Performance Log Users|Allow|Full control|D:\F1\|This folder, subfolders and files
+ADV|Access Control Assistance Operators|Allow|Read, write & execute|D:\F1\|This folder, subfolders and files
+ADV|IIS_IUSRS|Allow|List folder / read data|D:\F1\|This folder, subfolders and files
+ADV|Distributed COM Users|Allow|Special|D:\F1\|This folder, subfolders and files
+ADV|Power Users|Allow|Special|D:\F1\|This folder, subfolders and files
+ADV|Administrators|Allow|Full control|D:\F1\|This folder, subfolders and files
+ADV|CREATOR OWNER|Allow|Full control|D:\F1\|Subfolders and files only
+ADV|INTERACTIVE|Allow|Read & execute|D:\F1\|This folder only
+ADV|Event Log Readers|Allow|Read & execute|D:\F1\|This folder, subfolders and files
+ADV|Performance Monitor Users|Allow|Write|D:\F1\|This folder, subfolders and files
+ADV|Network Configuration Operators|Allow|Read|D:\F1\|This folder, subfolders and files
+ADV|Everyone|Allow|Read & execute|D:\F1\|This folder, subfolders and files
+ADV|Authenticated Users|Allow|Modify|D:\F1\|This folder, subfolders and files
+ADV|Users|Allow|Full control|D:\F1\|This folder, subfolders and files
+ADV|SYSTEM|Allow|Full control|D:\F1\|This folder, subfolders and files
+ADV|Backup Operators|Allow|Read & execute|D:\F1\|Files only
+ADV|Device Owners|Allow|Modify|D:\F1\|This folder and subfolders
+OBJ|D:\F1\f.txt
+ROWS|Full control ; Modify ; Read & execute ; Read ; Write ; Special permissions
+TAB|Everyone|Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|OWNER RIGHTS|Allow:Special permissions=Inherited
+TAB|Authenticated Users|Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited;Deny:Write=Explicit
+TAB|SYSTEM|Allow:Full control=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|NETWORK|Deny:Write=Inherited
+TAB|BATCH|Deny:Write=Inherited
+TAB|Administrators|Allow:Full control=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Users|Allow:Full control=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Power Users|Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Special permissions=Inherited;Deny:Write=Inherited
+TAB|Backup Operators|Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|Replicator|Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|Network Configuration Operators|Allow:Read=Inherited
+TAB|Performance Monitor Users|Allow:Write=Inherited
+TAB|Performance Log Users|Allow:Full control=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Distributed COM Users|Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Special permissions=Inherited
+TAB|IIS_IUSRS|Allow:Special permissions=Inherited
+TAB|Cryptographic Operators|Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Event Log Readers|Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|Hyper-V Administrators|Deny:Read=Inherited;Deny:Read & execute=Inherited
+TAB|Access Control Assistance Operators|Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Remote Management Users|Deny:Full control=Inherited;Deny:Modify=Inherited;Deny:Read=Inherited;Deny:Read & execute=Inherited;Deny:Write=Inherited
+TAB|INTERACTIVE|Allow:Read=Inherited;Allow:Read & execute=Inherited
+ADV|Authenticated Users|Deny|Write|None|
+ADV|Everyone|Allow|Read|None|
+ADV|Hyper-V Administrators|Deny|Read & execute|D:\F1\|
+ADV|Remote Management Users|Deny|Full control|D:\F1\|
+ADV|Power Users|Deny|Write|D:\F1\|
+ADV|BATCH|Deny|Write|D:\F1\|
+ADV|NETWORK|Deny|Write|D:\F1\|
+ADV|Cryptographic Operators|Allow|Modify|D:\F1\|
+ADV|Replicator|Allow|Read & execute|D:\F1\|
+ADV|Backup Operators|Allow|Read & execute|D:\F1\|
+ADV|OWNER RIGHTS|Allow|Read permissions|D:\F1\|
+ADV|Performance Log Users|Allow|Full control|D:\F1\|
+ADV|Access Control Assistance Operators|Allow|Read, write & execute|D:\F1\|
+ADV|IIS_IUSRS|Allow|List folder / read data|D:\F1\|
+ADV|Distributed COM Users|Allow|Special|D:\F1\|
+ADV|Power Users|Allow|Special|D:\F1\|
+ADV|Administrators|Allow|Full control|D:\F1\|
+ADV|INTERACTIVE|Allow|Read & execute|D:\F1\|
+ADV|Event Log Readers|Allow|Read & execute|D:\F1\|
+ADV|Performance Monitor Users|Allow|Write|D:\F1\|
+ADV|Network Configuration Operators|Allow|Read|D:\F1\|
+ADV|Everyone|Allow|Read & execute|D:\F1\|
+ADV|Authenticated Users|Allow|Modify|D:\F1\|
+ADV|Users|Allow|Full control|D:\F1\|
+ADV|SYSTEM|Allow|Full control|D:\F1\|
+OBJ|D:\F1\Sub\g.txt
+ROWS|Full control ; Modify ; Read & execute ; Read ; Write ; Special permissions
+TAB|Everyone|Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|OWNER RIGHTS|Allow:Special permissions=Inherited
+TAB|Authenticated Users|Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|SYSTEM|Allow:Full control=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|NETWORK|Deny:Write=Inherited
+TAB|BATCH|Deny:Write=Inherited
+TAB|Administrators|Allow:Full control=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Users|Allow:Full control=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Guests|Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Power Users|Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Special permissions=Inherited;Deny:Write=Inherited
+TAB|Backup Operators|Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|Replicator|Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|Network Configuration Operators|Allow:Read=Inherited
+TAB|Performance Monitor Users|Allow:Write=Inherited
+TAB|Performance Log Users|Allow:Full control=Inherited;Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Distributed COM Users|Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Special permissions=Inherited
+TAB|IIS_IUSRS|Allow:Special permissions=Inherited
+TAB|Cryptographic Operators|Allow:Modify=Inherited;Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Event Log Readers|Allow:Read=Inherited;Allow:Read & execute=Inherited
+TAB|Hyper-V Administrators|Deny:Read=Inherited;Deny:Read & execute=Inherited
+TAB|Access Control Assistance Operators|Allow:Read=Inherited;Allow:Read & execute=Inherited;Allow:Write=Inherited
+TAB|Remote Management Users|Deny:Full control=Inherited;Deny:Modify=Inherited;Deny:Read=Inherited;Deny:Read & execute=Inherited;Deny:Write=Inherited
+ADV|Guests|Allow|Modify|D:\F1\Sub\|
+ADV|Hyper-V Administrators|Deny|Read & execute|D:\F1\|
+ADV|Remote Management Users|Deny|Full control|D:\F1\|
+ADV|Power Users|Deny|Write|D:\F1\|
+ADV|BATCH|Deny|Write|D:\F1\|
+ADV|NETWORK|Deny|Write|D:\F1\|
+ADV|Cryptographic Operators|Allow|Modify|D:\F1\|
+ADV|Replicator|Allow|Read & execute|D:\F1\|
+ADV|Backup Operators|Allow|Read & execute|D:\F1\|
+ADV|OWNER RIGHTS|Allow|Read permissions|D:\F1\|
+ADV|Performance Log Users|Allow|Full control|D:\F1\|
+ADV|Access Control Assistance Operators|Allow|Read, write & execute|D:\F1\|
+ADV|IIS_IUSRS|Allow|List folder / read data|D:\F1\|
+ADV|Distributed COM Users|Allow|Special|D:\F1\|
+ADV|Power Users|Allow|Special|D:\F1\|
+ADV|Administrators|Allow|Full control|D:\F1\|
+ADV|Event Log Readers|Allow|Read & execute|D:\F1\|
+ADV|Performance Monitor Users|Allow|Write|D:\F1\|
+ADV|Network Configuration Operators|Allow|Read|D:\F1\|
+ADV|Everyone|Allow|Read & execute|D:\F1\|
+ADV|Authenticated Users|Allow|Modify|D:\F1\|
+ADV|Users|Allow|Full control|D:\F1\|
+ADV|SYSTEM|Allow|Full control|D:\F1\|
+# Fenêtre « Permissions for » : un dossier protégé où Users a Modification explicite (puis SYSTEM et Administrators,
+# Contrôle total) ; on clique des cases, OK (et Oui à l'avertissement d'un refus), puis on relit la DACL.
+# EDIT|cas|cases cliquées|DACL écrite : type,compte,portée,masque
+EDIT|denywrite|Deny:Write|Deny,Users,OICI,00000116;Allow,SYSTEM,OICI,001F01FF;Allow,Administrators,OICI,001F01FF;Allow,Users,OICI,001200A9
+EDIT|denyread|Deny:Read|Deny,Users,OICI,00020089;Allow,SYSTEM,OICI,001F01FF;Allow,Administrators,OICI,001F01FF;Allow,Users,OICI,00100116
+EDIT|denyfull|Deny:Full control|Deny,Users,OICI,001F01FF;Allow,SYSTEM,OICI,001F01FF;Allow,Administrators,OICI,001F01FF
+EDIT|denylist|Deny:List folder contents|Deny,Users,CI,000200A9;Allow,SYSTEM,OICI,001F01FF;Allow,Administrators,OICI,001F01FF;Allow,Users,OICI,00100116
+EDIT|unwrite|Allow:Write|Allow,SYSTEM,OICI,001F01FF;Allow,Administrators,OICI,001F01FF;Allow,Users,OICI,001200A9
+EDIT|fullcontrol|Allow:Full control|Allow,SYSTEM,OICI,001F01FF;Allow,Administrators,OICI,001F01FF;Allow,Users,OICI,001F01FF
+EDIT|unread|Allow:Read|Allow,SYSTEM,OICI,001F01FF;Allow,Administrators,OICI,001F01FF;Allow,Users,CI,001200A9;Allow,Users,OICI,00100116
+EDIT|addlist|Allow:Modify,Allow:List folder contents|Allow,SYSTEM,OICI,001F01FF;Allow,Administrators,OICI,001F01FF;Allow,Users,OICI,0012019F

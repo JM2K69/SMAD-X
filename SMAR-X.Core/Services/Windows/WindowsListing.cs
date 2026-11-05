@@ -52,14 +52,38 @@ namespace SMARX.Services.Windows
                 $"icacls {quoted} /inheritance:{(node.InheritanceEnabled ? "e" : "r")}"
             };
             foreach (var ace in NtfsInheritance.Explicit(node))
-            {
-                var flags = (ace.Inheritance.HasFlag(AceInheritance.ObjectInherit) ? "(OI)" : "")
-                            + (ace.Inheritance.HasFlag(AceInheritance.ContainerInherit) ? "(CI)" : "")
-                            + (ace.Inheritance.HasFlag(AceInheritance.InheritOnly) ? "(IO)" : "")
-                            + (ace.Inheritance.HasFlag(AceInheritance.NoPropagate) ? "(NP)" : "");
-                var rights = Ntfs.Format(ace.Mask);
-                lines.Add($"icacls {quoted} {(ace.Type == AceType.Deny ? "/deny" : "/grant:r")} \"{Account(host, ace.Trustee)}:{flags}{(rights.StartsWith('(') ? rights : $"({rights})")}\"");
-            }
+                lines.Add($"icacls {quoted} {(ace.Type == AceType.Deny ? "/deny" : "/grant:r")} {Grant(host, ace)}");
+            return lines;
+        }
+
+        /// <summary>« "SRV-FIC\dave:(OI)(CI)(M)" » : le compte et ce qu'une ACE explicite lui donne, pour /grant ou /deny.</summary>
+        private static string Grant(WindowsHost host, EffectiveAce ace)
+        {
+            var flags = (ace.Inheritance.HasFlag(AceInheritance.ObjectInherit) ? "(OI)" : "")
+                        + (ace.Inheritance.HasFlag(AceInheritance.ContainerInherit) ? "(CI)" : "")
+                        + (ace.Inheritance.HasFlag(AceInheritance.InheritOnly) ? "(IO)" : "")
+                        + (ace.Inheritance.HasFlag(AceInheritance.NoPropagate) ? "(NP)" : "");
+            var rights = Ntfs.Format(ace.Mask);
+            return $"\"{Account(host, ace.Trustee)}:{flags}{(rights.StartsWith('(') ? rights : $"({rights})")}\"";
+        }
+
+        /// <summary>
+        /// Ce que fait la fenêtre Modifier de l'onglet Sécurité pour un compte, en commandes : ses autorisations explicites
+        /// remplacées (/grant:r, ou /remove:g s'il n'en a plus), ses refus retirés (/remove:d) puis reposés (/deny).
+        /// </summary>
+        public static IReadOnlyList<string> TrusteeCommands(WindowsHost host, NtfsNode node, string path, string trustee)
+        {
+            var quoted = $"\"{path}\"";
+            var account = $"\"{Account(host, trustee)}\"";
+            var own = NtfsInheritance.Explicit(node).Where(a => string.Equals(a.Trustee, trustee, System.StringComparison.OrdinalIgnoreCase)).ToList();
+            var allows = own.Where(a => a.Type == AceType.Allow).ToList();
+            var lines = new List<string>();
+            if (allows.Count == 0) lines.Add($"icacls {quoted} /remove:g {account}");
+            for (var i = 0; i < allows.Count; i++)
+                lines.Add($"icacls {quoted} {(i == 0 ? "/grant:r" : "/grant")} {Grant(host, allows[i])}");
+            lines.Add($"icacls {quoted} /remove:d {account}");
+            foreach (var deny in own.Where(a => a.Type == AceType.Deny))
+                lines.Add($"icacls {quoted} /deny {Grant(host, deny)}");
             return lines;
         }
     }
