@@ -79,7 +79,7 @@ Nesting follows AD scopes (AGDLP model): a **global** group only holds accounts 
 
 ![Delegations window](assets/screens/delegations.png)
 
-**Analysis > Delegations...** (`Ctrl+D`) lists delegations: trustee, right, category, target DN, inheritance, tier. Filter by trustee, target or category, hide inherited delegations, and export to CSV. The counters group the categories; **Sensitive rights** counts those that give an object or its secrets without looking like it.
+**Analysis > Delegations...** (`Ctrl+D`) lists delegations: trustee, right, category, target DN, inheritance, tier. Filter by trustee, target or category, hide inherited delegations, and export to CSV. A column widens or narrows by dragging the right edge of its header. The counters group the categories; **Sensitive rights** counts those that give an object or its secrets without looking like it.
 
 | Category | AD right | What it gives |
 |---|---|---|

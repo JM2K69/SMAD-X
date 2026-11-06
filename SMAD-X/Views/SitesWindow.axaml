@@ -54,7 +54,7 @@
 				<Grid RowDefinitions="*,6,*,6,Auto">
 
 					<!-- Sites DataGrid -->
-					<DataGrid Grid.Row="0"
+					<DataGrid Grid.Row="0" CanUserResizeColumns="True"
 							  ItemsSource="{Binding Sites}"
 							  SelectedItem="{Binding SelectedSite}"
 							  IsReadOnly="True"
@@ -74,7 +74,7 @@
 								  HorizontalAlignment="Stretch" Background="Transparent"/>
 
 					<!-- Site Links DataGrid -->
-					<DataGrid Grid.Row="2"
+					<DataGrid Grid.Row="2" CanUserResizeColumns="True"
 							  ItemsSource="{Binding SiteLinks}"
 							  SelectedItem="{Binding SelectedSiteLink}"
 							  IsReadOnly="True"

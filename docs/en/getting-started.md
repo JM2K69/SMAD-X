@@ -66,7 +66,7 @@ In a sheet, an audit explanation or a lab statement, each code block (a PowerShe
 
 ![Sites window](assets/screens/sites.png)
 
-**Analysis > View sites...** (`Ctrl+Shift+S`) manages the topology: sites, subnets, domain controllers, replication links, with a table and a graph view.
+**Analysis > View sites...** (`Ctrl+Shift+S`) manages the topology: sites, subnets, domain controllers, replication links, with a table and a graph view. In the tables, a column widens or narrows by dragging the right edge of its header.
 
 ## Language and theme
 

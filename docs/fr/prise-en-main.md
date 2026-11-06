@@ -66,7 +66,7 @@ Dans une fiche, une explication de l'audit ou l'énoncé d'un exercice, chaque b
 
 ![Fenêtre des sites](assets/screens/sites.png)
 
-**Analyse > Voir les sites...** (`Ctrl+Shift+S`) gère la topologie : sites, sous-réseaux, contrôleurs de domaine, liens de réplication, avec un tableau et une vue graphique.
+**Analyse > Voir les sites...** (`Ctrl+Shift+S`) gère la topologie : sites, sous-réseaux, contrôleurs de domaine, liens de réplication, avec un tableau et une vue graphique. Dans les tableaux, une colonne s'élargit ou se rétrécit en faisant glisser le bord droit de son en-tête.
 
 ## Langue et thème
 

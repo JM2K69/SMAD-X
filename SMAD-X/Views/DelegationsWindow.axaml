@@ -152,7 +152,7 @@
 				</StackPanel>
 
 				<!-- DataGrid -->
-				<DataGrid Grid.Row="2"
+				<DataGrid Grid.Row="2" CanUserResizeColumns="True"
 						  ItemsSource="{Binding FilteredDelegations}"
 						  SelectedItem="{Binding SelectedDelegation}"
 						  IsReadOnly="True"

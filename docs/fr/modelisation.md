@@ -79,7 +79,7 @@ Les imbrications suivent les portées d'AD (modèle AGDLP) : un groupe **global*
 
 ![Fenêtre des délégations](assets/screens/delegations.png)
 
-**Analyse > Délégations...** (`Ctrl+D`) liste les délégations : mandataire, droit, catégorie, DN cible, héritage, tier. On filtre par mandataire, cible ou catégorie, on masque les délégations héritées, et on exporte en CSV. Les compteurs regroupent les catégories ; **Droits sensibles** compte celles qui donnent un objet ou ses secrets sans en avoir l'air.
+**Analyse > Délégations...** (`Ctrl+D`) liste les délégations : mandataire, droit, catégorie, DN cible, héritage, tier. On filtre par mandataire, cible ou catégorie, on masque les délégations héritées, et on exporte en CSV. Une colonne s'élargit ou se rétrécit en faisant glisser le bord droit de son en-tête. Les compteurs regroupent les catégories ; **Droits sensibles** compte celles qui donnent un objet ou ses secrets sans en avoir l'air.
 
 | Catégorie | Droit AD | Ce qu'il donne |
 |---|---|---|
