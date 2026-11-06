@@ -2,7 +2,7 @@
   <!-- Seule source du numéro de version, commune à SMAD-X, SMAD-X Studio et au noyau :
        « À propos », propriétés des exe ; le tag vX.Y.Z de la release doit correspondre (vérifié par release.yml). -->
   <PropertyGroup>
-    <Version>0.14.1</Version>
+    <Version>0.14.2</Version>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 </Project>
