@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="using:SMADX.Controls"
         xmlns:vm="using:SMARX.ViewModels"
         x:Class="SMARX.Views.AdvancedSecurityWindow"
         x:DataType="vm:AdvancedSecurityViewModel"
@@ -71,7 +72,10 @@
                     <StackPanel Grid.Row="5" Spacing="6" IsVisible="{Binding Commands, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                         <TextBlock Classes="label" Text="{DynamicResource Sec.Equivalent}"/>
                         <Border Classes="code">
-                            <SelectableTextBlock Classes="mono" Text="{Binding Commands}" FontSize="11" TextWrapping="Wrap"/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <SelectableTextBlock Classes="mono" Text="{Binding Commands}" FontSize="11" TextWrapping="Wrap"/>
+                                <ui:CopyButton Grid.Column="1" Text="{Binding Commands}"/>
+                            </Grid>
                         </Border>
                     </StackPanel>
                 </Grid>

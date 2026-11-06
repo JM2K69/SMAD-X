@@ -15,6 +15,8 @@ namespace SMADX.Studio
             // Textes de l'interface, liés par {Binding [clé], Source={StaticResource S}}
             Resources["S"] = StudioText.Instance;
             AvaloniaXamlLoader.Load(this);
+            // Le bouton qui copie une commande parle la langue de l'interface
+            SMADX.Controls.CopyButton.French = () => StudioText.Instance.French;
         }
 
         public override void OnFrameworkInitializationCompleted()

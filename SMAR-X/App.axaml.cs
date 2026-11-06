@@ -11,6 +11,8 @@ namespace SMARX
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
+            // Le bouton qui copie une commande parle la langue de l'interface
+            SMADX.Controls.CopyButton.French = () => SmarxText.Instance.Culture == "fr-FR";
             // Textes de l'interface : une ressource par clé ({DynamicResource Tester.Who}), réécrite à chaque changement
             // de langue. Une liaison par indexeur ({Binding [Clé]}) ne se rafraîchirait pas : Avalonia 12 ignore la
             // notification « Item » quand l'indexeur est hérité d'une classe de base, ici celui du Localizer du socle.

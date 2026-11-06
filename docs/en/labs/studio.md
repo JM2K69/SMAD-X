@@ -134,7 +134,7 @@ In all three cases, the fixed domain is kept with the lab, in `1-trainer`, and t
 
 ### Trainer sheet
 
-The **trainer notes** (the solution, things to watch for) and the trainer sheet preview: objectives, guards, questions and their answer key, attack paths and audit of the starting domain, what the fixed domain changes, then the notes. **Export trainer sheet...** saves the lab and writes the sheet as Markdown in `1-trainer`.
+The **trainer notes** (the solution, things to watch for) and the trainer sheet preview: objectives, guards, questions and their answer key, attack paths and audit of the starting domain, what the fixed domain changes, then the notes. **Export trainer sheet...** saves the lab and writes the sheet as Markdown in `1-trainer`. In the previews, each code block has a button that copies it to the clipboard.
 
 ---
 
@@ -293,8 +293,6 @@ Each copy has its grade (followed by `*` when answers remain to be graded), its 
 
 ![Copies of a SMAR-X lab](../assets/screens/studio-smarx-submissions.png)
 
-The exports are those of a SMAD-X lab (see [Exporting the grades](#exporting-the-grades)), on the **Grade out of** scale (20 by default). For a lab laid out by role, they are written without asking into `4-results`, and the copies of `3-submissions` are graded as soon as the lab opens; otherwise, Studio asks where to save them:
-
 *Screenshot: Camille Martin's copy is selected; on the right, the answers, the points to give by hand and the comment.*
 
 As for a SMAD-X lab (see [Grading by hand and commenting](#grading-by-hand-and-commenting)):
@@ -302,13 +300,15 @@ As for a SMAD-X lab (see [Grading by hand and commenting](#grading-by-hand-and-c
 - **Selected submission** shows each answer, its automatic grading and a **Points given** field; the **comment** goes into the learner's report. **Save the grade** writes it all beside the copy, in `<copy>.smarx-marks.json`: the copy, sealed, is never changed. If the learner hands in another answer, the grade given by hand no longer applies;
 - **Success per objective** shows, objective by objective (guards included) then question by question, how many graded copies meet it.
 
+The exports are those of a SMAD-X lab (see [Exporting the grades](#exporting-the-grades)), on the **Grade out of** scale (20 by default). For a lab laid out by role, they are written without asking into `4-results`, and the copies of `3-submissions` are graded as soon as the lab opens; otherwise, Studio asks where to save them:
+
 | Button | Produces |
 |---|---|
 | **Export grades (CSV)...** | one line per copy, with the same columns as a SMAD-X lab |
 | **Export for Moodle (CSV)...** | the Moodle grade import file: ID, name, grade out of the scale |
+| **Individual reports (PDF)...** | one PDF per graded copy, in `4-results/reports`: the grade, each objective with its explanation, the answers to the questions and the comment. It holds neither the answer key nor the trainer-only remarks. |
 | **Export class results (Markdown)...** | average, median, everyone's grade, success per objective and per question |
 
-| **Individual reports (PDF)...** | one PDF per graded copy, in `4-results/reports`: the grade, each objective with its explanation, the answers to the questions and the comment. It holds neither the answer key nor the trainer-only remarks. |
 In SMAR-X too, the learner can enter an **ID** beside their name: the exports use it. The [command line](#command-line) also grades the copies of a SMAR-X lab.
 
 ---

@@ -60,6 +60,8 @@ Un nouveau nom se valide par **Entrée** ou en quittant le champ, **Échap** l'a
 
 Chaque objet porte une **description en Markdown**. Celles des objets intégrés sont déjà rédigées, en français et en anglais : rôle, points de sécurité, recommandations. Changer de langue traduit ces descriptions d'origine, jamais celles que vous avez écrites ou modifiées. Le bouton **Éditer** passe en édition, et **Fichier > Importer une description (.md)...** remplace la fiche par un fichier.
 
+Dans une fiche, une explication de l'audit ou l'énoncé d'un exercice, chaque bloc de code (une commande PowerShell, par exemple) a, à sa droite, un bouton qui le **copie dans le presse-papiers** ; une coche confirme la copie.
+
 ## Les sites AD
 
 ![Fenêtre des sites](assets/screens/sites.png)

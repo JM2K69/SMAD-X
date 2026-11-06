@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="using:SMADX.Controls"
         xmlns:vm="using:SMARX.ViewModels"
         xmlns:models="using:SMARX.Models"
         x:Class="SMARX.Views.SambaShareWindow"
@@ -93,7 +94,10 @@
                     <StackPanel Grid.Column="2" Spacing="10">
                         <TextBlock Classes="label" Text="{DynamicResource Samba.Config}"/>
                         <Border Classes="code">
-                            <SelectableTextBlock Classes="mono" Text="{Binding Config}" FontSize="12" TextWrapping="Wrap"/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <SelectableTextBlock Classes="mono" Text="{Binding Config}" FontSize="12" TextWrapping="Wrap"/>
+                                <ui:CopyButton Grid.Column="1" Text="{Binding Config}"/>
+                            </Grid>
                         </Border>
                     </StackPanel>
                 </Grid>

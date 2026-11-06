@@ -175,18 +175,7 @@ namespace SMADX.Converters
                         BorderThickness = new Avalonia.Thickness(1),
                         CornerRadius = new Avalonia.CornerRadius(4),
                         Padding = new Avalonia.Thickness(12),
-                        Child = new ScrollViewer
-                        {
-                            HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
-                            Content = new TextBlock
-                            {
-                                Text = string.Join(Environment.NewLine, codeLines),
-                                FontFamily = new FontFamily("Consolas, Courier New, monospace"),
-                                FontSize = 13,
-                                TextWrapping = TextWrapping.NoWrap,
-                                Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#D4D4D4" : "#1E1E1E"))
-                            }
-                        }
+                        Child = CodeWithCopy(string.Join(Environment.NewLine, codeLines))
                     });
 
                     stackPanel.Children.Add(new Border
@@ -459,6 +448,28 @@ namespace SMADX.Converters
             }
 
             return textBlock;
+        }
+
+        /// <summary>Un bloc de code, et à sa droite le bouton qui le copie dans le presse-papiers.</summary>
+        private static Control CodeWithCopy(string code)
+        {
+            var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+            grid.Children.Add(new ScrollViewer
+            {
+                HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+                Content = new TextBlock
+                {
+                    Text = code,
+                    FontFamily = new FontFamily("Consolas, Courier New, monospace"),
+                    FontSize = 13,
+                    TextWrapping = TextWrapping.NoWrap,
+                    Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#D4D4D4" : "#1E1E1E"))
+                }
+            });
+            var copy = new SMADX.Controls.CopyButton { Text = code };
+            Grid.SetColumn(copy, 1);
+            grid.Children.Add(copy);
+            return grid;
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

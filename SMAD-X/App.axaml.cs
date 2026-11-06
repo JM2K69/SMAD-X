@@ -18,6 +18,8 @@ namespace SMADX
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
+            // Le bouton qui copie une commande parle la langue de l'interface
+            SMADX.Controls.CopyButton.French = () => LocalizationService.Instance.CurrentCulture.TwoLetterISOLanguageName == "fr";
         }
 
         public override void OnFrameworkInitializationCompleted()

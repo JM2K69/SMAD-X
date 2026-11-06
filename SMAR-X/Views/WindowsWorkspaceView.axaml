@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:SMADX.Controls"
              xmlns:vm="using:SMARX.ViewModels"
              x:Class="SMARX.Views.WindowsWorkspaceView"
              x:DataType="vm:WindowsWorkspaceViewModel">
@@ -384,7 +385,10 @@
                         <TextBlock Classes="label" Text="{DynamicResource Rights.Commands}"/>
                         <Border Classes="code">
                             <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                                <SelectableTextBlock Classes="mono" Text="{Binding Editor.Commands}" FontSize="11" Margin="0,0,0,8"/>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <SelectableTextBlock Classes="mono" Text="{Binding Editor.Commands}" FontSize="11" Margin="0,0,0,8"/>
+                                    <ui:CopyButton Grid.Column="1" Text="{Binding Editor.Commands}"/>
+                                </Grid>
                             </ScrollViewer>
                         </Border>
                     </StackPanel>
@@ -435,7 +439,10 @@
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                 </ItemsControl>
-                                <SelectableTextBlock Classes="mono" Text="{Binding AccountCommands}" FontSize="12" TextWrapping="Wrap"/>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <SelectableTextBlock Classes="mono" Text="{Binding AccountCommands}" FontSize="12" TextWrapping="Wrap"/>
+                                    <ui:CopyButton Grid.Column="1" Text="{Binding AccountCommands}"/>
+                                </Grid>
                                 <Button Classes="tool" Content="{DynamicResource Whoami.Open}" Click="OnWhoamiAccount" HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Border>
@@ -491,7 +498,10 @@
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                 </ItemsControl>
-                                <SelectableTextBlock Classes="mono" Text="{Binding GroupCommands}" FontSize="12" TextWrapping="Wrap"/>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <SelectableTextBlock Classes="mono" Text="{Binding GroupCommands}" FontSize="12" TextWrapping="Wrap"/>
+                                    <ui:CopyButton Grid.Column="1" Text="{Binding GroupCommands}"/>
+                                </Grid>
                             </StackPanel>
                         </Border>
                         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">

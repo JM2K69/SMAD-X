@@ -20,6 +20,8 @@ A sample Linux server (`srv-fic`) and a sample Windows server (`SRV-FIC`) open a
 | **Commands** | `chmod`, `chown`, `setfacl` that recreate what is shown | `icacls` that recreates what is shown |
 | **Accounts** | accounts, groups, `usermod`, `useradd`, `groupadd` | server and domain accounts, global, domain local and local groups, nested following AGDLP (see [Groups: AGDLP](windows-rules.md#groups-agdlp)); `Add-ADGroupMember`, `net localgroup`; each account's [whoami](windows-rules.md#whoami-an-accounts-token) |
 
+Each block of commands (`chmod`, `setfacl`, `icacls`, PowerShell, `smb.conf` section…) has, on its right, a button that **copies it to the clipboard**: a check mark confirms the copy. You then paste it into a terminal of the lab.
+
 Under **From where?**, the tester picks where the access comes from: **On the server** (a session open on the server), or **From the network**, through a share: **SMB** on Windows (see [Access through a share](shares.md)), **Samba** on Linux (see [Samba share](samba.md)).
 
 The **Labs** button opens a lab: a need to meet with only the permissions required, graded by **Check** (see [Labs](labs.md)).

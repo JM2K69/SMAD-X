@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:SMADX.Controls"
              xmlns:vm="using:SMARX.ViewModels"
              x:Class="SMARX.Views.LinuxWorkspaceView"
              x:DataType="vm:LinuxWorkspaceViewModel">
@@ -461,7 +462,10 @@
                     <StackPanel Spacing="10">
                         <TextBlock Classes="h" Text="{DynamicResource Rights.Commands}"/>
                         <Border Classes="code">
-                            <SelectableTextBlock Classes="mono" Text="{Binding Editor.Commands}" FontSize="12" TextWrapping="Wrap"/>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <SelectableTextBlock Classes="mono" Text="{Binding Editor.Commands}" FontSize="12" TextWrapping="Wrap"/>
+                                <ui:CopyButton Grid.Column="1" Text="{Binding Editor.Commands}"/>
+                            </Grid>
                         </Border>
                     </StackPanel>
                 </Border>
@@ -519,7 +523,10 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <SelectableTextBlock Classes="mono" Text="{Binding AccountCommands}" FontSize="12" TextWrapping="Wrap"/>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <SelectableTextBlock Classes="mono" Text="{Binding AccountCommands}" FontSize="12" TextWrapping="Wrap"/>
+                                    <ui:CopyButton Grid.Column="1" Text="{Binding AccountCommands}"/>
+                                </Grid>
                             </StackPanel>
                         </Border>
                         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="6">

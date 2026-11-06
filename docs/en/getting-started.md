@@ -60,6 +60,8 @@ A new name is confirmed with **Enter** or by leaving the field; **Esc** cancels 
 
 Every object has a **Markdown description**. Built-in objects come with sheets written in English and French: role, security notes, recommendations. Switching language translates these original sheets, never the ones you wrote or changed. **Edit** switches to editing, and **File > Import Description (.md)...** replaces the sheet with a file.
 
+In a sheet, an audit explanation or a lab statement, each code block (a PowerShell command, for example) has, on its right, a button that **copies it to the clipboard**; a check mark confirms the copy.
+
 ## AD sites
 
 ![Sites window](assets/screens/sites.png)

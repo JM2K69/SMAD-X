@@ -134,7 +134,7 @@ Dans les trois cas, le domaine corrigé est gardé avec l'exercice, dans `1-form
 
 ### Fiche formateur
 
-Les **notes du formateur** (la solution, les points de vigilance) et l'aperçu de la fiche formateur : objectifs, gardes, questions et leur corrigé, chemins d'attaque et audit du domaine de départ, ce que change le domaine corrigé, puis les notes. **Exporter la fiche formateur...** enregistre l'exercice et écrit la fiche en Markdown dans `1-formateur`.
+Les **notes du formateur** (la solution, les points de vigilance) et l'aperçu de la fiche formateur : objectifs, gardes, questions et leur corrigé, chemins d'attaque et audit du domaine de départ, ce que change le domaine corrigé, puis les notes. **Exporter la fiche formateur...** enregistre l'exercice et écrit la fiche en Markdown dans `1-formateur`. Dans les aperçus, chaque bloc de code a un bouton qui le copie dans le presse-papiers.
 
 ---
 
@@ -293,8 +293,6 @@ Chaque copie a sa note (suivie de `*` quand des réponses restent à noter), ses
 
 ![Copies d'un exercice SMAR-X](../assets/screens/studio-smarx-submissions.png)
 
-Les exports sont ceux d'un exercice SMAD-X (voir [Exporter les notes](#exporter-les-notes)), sur le barème **Note sur** (20 par défaut). Pour un exercice rangé par rôle, ils s'écrivent sans rien demander dans `4-resultats`, et les copies de `3-copies-rendues` sont corrigées dès l'ouverture ; sinon, Studio demande où les enregistrer :
-
 *Capture : la copie de Camille Martin est sélectionnée ; à droite, ses réponses, les points à donner à la main et l'appréciation.*
 
 Comme pour un exercice SMAD-X (voir [Noter à la main et apprécier](#noter-a-la-main-et-apprecier)) :
@@ -302,13 +300,15 @@ Comme pour un exercice SMAD-X (voir [Noter à la main et apprécier](#noter-a-la
 - **Copie sélectionnée** montre chaque réponse, sa correction automatique et un champ **Points donnés** ; l'**appréciation** passe dans le compte rendu de l'apprenant. **Enregistrer la note** écrit le tout à côté de la copie, dans `<copie>.smarx-marks.json` : la copie, scellée, n'est jamais modifiée. Si l'apprenant rend une autre réponse, la note donnée à la main ne s'applique plus ;
 - **Réussite par objectif** montre, objectif par objectif (gardes comprises) puis question par question, combien de copies corrigées l'atteignent.
 
+Les exports sont ceux d'un exercice SMAD-X (voir [Exporter les notes](#exporter-les-notes)), sur le barème **Note sur** (20 par défaut). Pour un exercice rangé par rôle, ils s'écrivent sans rien demander dans `4-resultats`, et les copies de `3-copies-rendues` sont corrigées dès l'ouverture ; sinon, Studio demande où les enregistrer :
+
 | Bouton | Produit |
 |---|---|
 | **Exporter les notes (CSV)...** | une ligne par copie, avec les mêmes colonnes qu'un exercice SMAD-X |
 | **Exporter pour Moodle (CSV)...** | le fichier d'import des notes de Moodle : identifiant, nom, note sur le barème |
+| **Comptes rendus individuels (PDF)...** | un PDF par copie corrigée, dans `4-resultats/comptes-rendus` : la note, chaque objectif avec son explication, les réponses aux questions et l'appréciation. Il ne contient ni le corrigé des questions, ni les remarques réservées au formateur. |
 | **Exporter le bilan (Markdown)...** | moyenne, médiane, notes de chacun, réussite par objectif et par question |
 
-| **Comptes rendus individuels (PDF)...** | un PDF par copie corrigée, dans `4-resultats/comptes-rendus` : la note, chaque objectif avec son explication, les réponses aux questions et l'appréciation. Il ne contient ni le corrigé des questions, ni les remarques réservées au formateur. |
 Dans SMAR-X aussi, l'apprenant peut indiquer un **identifiant** à côté de son nom : c'est lui que reprennent les exports. La [ligne de commande](#en-ligne-de-commande) corrige aussi les copies d'un exercice SMAR-X.
 
 ---
