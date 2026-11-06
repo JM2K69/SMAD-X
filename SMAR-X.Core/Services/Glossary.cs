@@ -16,6 +16,12 @@ namespace SMARX.Services
     public sealed record GlossaryCommand(string Command, string Meaning, string? Icacls = null)
     {
         public bool HasIcacls => Icacls != null;
+
+        /// <summary>
+        /// La commande sur une ligne (et son équivalent icacls devant) : la clé de son relevé sur un vrai système
+        /// (SMAR-X.Tests/Fidelity/glossary-*.txt, écrit par tools/SmarxGlossaryCheck).
+        /// </summary>
+        public string Key => (Icacls is { } icacls ? icacls + " <=> " + Command : Command).Replace("\n", " ;; ");
     }
 
     /// <summary>Une section de l'aide-mémoire : des abréviations expliquées, ou des commandes d'exemple, ou les deux.</summary>

@@ -20,8 +20,8 @@ namespace SMARX.Services
         {
             string T(string fr, string en) => Text(culture, fr, en);
             yield return new(T("Exemples : icacls", "Examples: icacls"),
-                T("Sur le serveur d'exemple, dans une invite de commandes ou PowerShell, en administrateur. Un nom qui contient un espace se met entre guillemets.",
-                  "On the sample server, in a command prompt or PowerShell, as an administrator. A name with a space goes in quotes."),
+                T("Sur le serveur d'exemple, dans une invite de commandes ou PowerShell, en administrateur. Un nom qui contient un espace se met entre guillemets. Chaque commande de cet onglet a été rejouée sur un Windows 11 du labo.",
+                  "On the sample server, in a command prompt or PowerShell, as an administrator. A name with a space goes in quotes. Each command of this tab was replayed on a lab Windows 11."),
                 [],
                 [
                     new(@"icacls D:\Partages\RH",
@@ -34,8 +34,8 @@ namespace SMARX.Services
                         T("Avec :r, les droits donnés remplacent les droits explicites que ce groupe avait, au lieu de s'y ajouter.",
                           "With :r, the rights given replace the explicit rights the group had, instead of being added to them.")),
                     new(@"icacls D:\Partages\Projets /deny ""CORP\DL_Projets_Refuser:(OI)(CI)(WD,AD,WA,WEA)""",
-                        T("Refuser l'écriture comme le fait l'onglet Sécurité. Refuser W refuserait aussi S (Synchroniser), donc presque toute ouverture, lecture comprise.",
-                          "Deny writing the way the Security tab does. Denying W would also deny S (Synchronize), so almost every open, reading included.")),
+                        T("Refuser l'écriture comme le fait l'onglet Sécurité ; icacls l'affiche ensuite (DENY)(WD,AD,WEA,WA). Refuser W refuserait aussi S (Synchroniser), donc presque toute ouverture, lecture comprise.",
+                          "Deny writing the way the Security tab does; icacls then shows it as (DENY)(WD,AD,WEA,WA). Denying W would also deny S (Synchronize), so almost every open, reading included.")),
                     new(@"icacls D:\Partages\RH /remove:g ""CORP\G_RH""",
                         T("Retirer les autorisations accordées à ce compte (:g) ; /remove:d retire ses refus, /remove les deux.",
                           "Remove the permissions granted to this account (:g); /remove:d removes its denies, /remove both.")),
@@ -108,6 +108,10 @@ namespace SMARX.Services
                     new(@"Add-NTFSAccess -Path D:\Partages -Account 'NT AUTHORITY\Authenticated Users' -AccessRights ReadAndExecute -AppliesTo ThisFolderOnly",
                         T("Une ACE sur le dossier seul, sans héritage.", "An ACE on the folder only, without inheritance."),
                         @"icacls D:\Partages /grant ""NT AUTHORITY\Authenticated Users:RX"""),
+                    new(@"Add-NTFSAccess -Path D:\Partages\Projets -Account 'CORP\DL_Projets_Refuser' -AccessRights Write -AccessType Deny",
+                        T("Refuser l'écriture sur le dossier et son contenu. Comme l'onglet Sécurité, le module ne refuse pas S (Synchroniser) : la même ACE que (WD,AD,WA,WEA) avec icacls.",
+                          "Deny writing on the folder and its content. Like the Security tab, the module does not deny S (Synchronize): the same ACE as (WD,AD,WA,WEA) with icacls."),
+                        @"icacls D:\Partages\Projets /deny ""CORP\DL_Projets_Refuser:(OI)(CI)(WD,AD,WA,WEA)"""),
                     new(@"Get-NTFSAccess -Path D:\Partages\RH -Account 'CORP\G_RH' -ExcludeInherited | Remove-NTFSAccess",
                         T("Retirer les ACE explicites d'un compte, autorisations et refus.", "Remove an account's explicit ACEs, permissions and denies."),
                         @"icacls D:\Partages\RH /remove ""CORP\G_RH"""),
@@ -116,8 +120,8 @@ namespace SMARX.Services
                           "Disable inheritance, copying the inherited ACEs; -RemoveInheritedAccessRules removes them (/inheritance:r)."),
                         @"icacls D:\Partages\RH /inheritance:d"),
                     new(@"Enable-NTFSAccessInheritance -Path D:\Partages\RH",
-                        T("Réactiver l'héritage en gardant les ACE explicites ; -RemoveExplicitAccessRules les retire.",
-                          "Enable inheritance again, keeping the explicit ACEs; -RemoveExplicitAccessRules removes them."),
+                        T("Réactiver l'héritage en gardant les ACE explicites ; -RemoveExplicitAccessRules les retire. Le module réécrit les ACE explicites dans un autre ordre qu'icacls : les mêmes ACE, rangées autrement.",
+                          "Enable inheritance again, keeping the explicit ACEs; -RemoveExplicitAccessRules removes them. The module rewrites the explicit ACEs in another order than icacls: the same ACEs, ordered differently."),
                         @"icacls D:\Partages\RH /inheritance:e"),
                     new(@"Set-NTFSOwner -Path D:\Partages\RH -Account 'BUILTIN\Administrators'",
                         T("Changer le propriétaire.", "Change the owner."),
@@ -199,7 +203,8 @@ namespace SMARX.Services
         {
             string T(string fr, string en) => Text(culture, fr, en);
             yield return new(T("Exemples : droits et ACL", "Examples: permissions and ACLs"),
-                T("Sur le serveur d'exemple, en root (ou avec sudo).", "On the sample server, as root (or with sudo)."),
+                T("Sur le serveur d'exemple, en root (ou avec sudo). Chaque commande de cet onglet a été rejouée sur un Debian 13.",
+                  "On the sample server, as root (or with sudo). Each command of this tab was replayed on a Debian 13."),
                 [],
                 [
                     new("ls -ld /srv/compta",

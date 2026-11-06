@@ -1,0 +1,34 @@
+# Microsoft Windows 11 Enterprise 10.0.26300, Windows PowerShell 5.1.26100.9711
+# Install-Module runs with -Force -Scope AllUsers, without prompts
+OK icacls D:\Partages\RH
+OK icacls D:\Partages\RH /grant "CORP\DL_RH_LM:(OI)(CI)M"
+OK icacls D:\Partages\RH /grant:r "CORP\DL_RH_L:(OI)(CI)RX"
+OK icacls D:\Partages\Projets /deny "CORP\DL_Projets_Refuser:(OI)(CI)(WD,AD,WA,WEA)"
+OK icacls D:\Partages\RH /remove:g "CORP\G_RH"
+OK icacls D:\Partages\RH /inheritance:d
+OK icacls D:\Partages\RH /setowner "BUILTIN\Administrators" /T /C
+OK icacls D:\Partages\RH\* /reset /T
+OK icacls D:\Partages /findsid "CORP\G_Stagiaires" /T
+OK icacls D:\Partages\RH\* /save rh.acl /T ;; icacls D:\Partages\RH\ /restore rh.acl
+OK Get-Acl D:\Partages\RH | Format-List Owner, AccessToString
+OK $acl = Get-Acl D:\Partages\RH ;; $ace = [System.Security.AccessControl.FileSystemAccessRule]::new('CORP\DL_RH_LM', 'Modify', 'ContainerInherit, ObjectInherit', 'None', 'Allow') ;; $acl.AddAccessRule($ace) ;; Set-Acl -Path D:\Partages\RH -AclObject $acl
+OK $acl = Get-Acl D:\Partages\RH ;; $acl.SetAccessRuleProtection($true, $true) ;; Set-Acl -Path D:\Partages\RH -AclObject $acl
+OK New-SmbShare -Name RH -Path D:\Partages\RH -FullAccess 'BUILTIN\Administrators' -ChangeAccess 'NT AUTHORITY\Authenticated Users' -FolderEnumerationMode AccessBased
+OK Get-SmbShareAccess -Name RH
+OK Grant-SmbShareAccess -Name RH -AccountName 'CORP\G_RH' -AccessRight Change -Force
+SYNTAX Add-ADGroupMember -Identity DL_RH_LM -Members G_RH
+OK whoami /groups
+OK Install-Module -Name NTFSSecurity
+OK icacls D:\Partages\RH <=> Get-NTFSAccess -Path D:\Partages\RH
+OK icacls D:\Partages\RH /grant "CORP\DL_RH_LM:(OI)(CI)M" <=> Add-NTFSAccess -Path D:\Partages\RH -Account 'CORP\DL_RH_LM' -AccessRights Modify
+OK icacls D:\Partages /grant "NT AUTHORITY\Authenticated Users:RX" <=> Add-NTFSAccess -Path D:\Partages -Account 'NT AUTHORITY\Authenticated Users' -AccessRights ReadAndExecute -AppliesTo ThisFolderOnly
+OK icacls D:\Partages\Projets /deny "CORP\DL_Projets_Refuser:(OI)(CI)(WD,AD,WA,WEA)" <=> Add-NTFSAccess -Path D:\Partages\Projets -Account 'CORP\DL_Projets_Refuser' -AccessRights Write -AccessType Deny
+OK icacls D:\Partages\RH /remove "CORP\G_RH" <=> Get-NTFSAccess -Path D:\Partages\RH -Account 'CORP\G_RH' -ExcludeInherited | Remove-NTFSAccess
+OK icacls D:\Partages\RH /inheritance:d <=> Disable-NTFSAccessInheritance -Path D:\Partages\RH
+# same ACEs, in another order
+OK icacls D:\Partages\RH /inheritance:e <=> Enable-NTFSAccessInheritance -Path D:\Partages\RH
+OK icacls D:\Partages\RH /setowner "BUILTIN\Administrators" <=> Set-NTFSOwner -Path D:\Partages\RH -Account 'BUILTIN\Administrators'
+OK icacls D:\Partages /findsid "CORP\G_Stagiaires" /T <=> Get-ChildItem2 -Path D:\Partages -Recurse | Get-NTFSAccess -Account 'CORP\G_Stagiaires'
+OK icacls D:\Partages\RH\* /save rh.acl /T ;; icacls D:\Partages\RH\ /restore rh.acl <=> Get-ChildItem2 -Path D:\Partages\RH -Recurse | Get-NTFSAccess -ExcludeInherited | Export-Csv rh-acl.csv -NoTypeInformation ;; Import-Csv rh-acl.csv | Add-NTFSAccess
+OK Get-NTFSEffectiveAccess -Path D:\Partages\RH -Account 'CORP\bob'
+# NTFSSecurity 4.2.6

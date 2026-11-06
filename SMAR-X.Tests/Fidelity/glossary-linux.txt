@@ -1,0 +1,22 @@
+# Linux 6.19.12-200.fc43.x86_64, Debian GNU/Linux 13 (trixie), setfacl 2.3.2, Samba 4.22.11-Debian-4.22.11+dfsg-0+deb13u1
+# smbpasswd -a runs with -s, the password on standard input
+OK ls -ld /srv/compta
+OK stat -c '%A %a %U:%G %n' /srv/compta/*
+OK chown alice:compta /srv/compta/budget.ods
+OK chmod 2770 /srv/compta
+OK chmod u=rw,g=r,o= /srv/compta/budget.ods
+OK chmod -R g+rX /srv/projets
+OK chmod 1777 /srv/depot
+OK getfacl /srv/partage/doc.txt
+OK setfacl -m u:bob:rw /srv/partage/doc.txt
+OK setfacl -m g:projet:rwx /srv/projets
+OK setfacl -d -m g:compta:rwX /srv/compta
+OK setfacl -R -m g:projet:rX /srv/projets
+OK setfacl -x u:bob /srv/partage/doc.txt
+OK getfacl -R /srv/compta > /root/compta.acl ;; cd / && setfacl --restore=/root/compta.acl
+OK id bob
+OK usermod -aG compta bob
+OK umask 027
+OK testparm -s
+OK smbpasswd -a bob
+OK smbcontrol all reload-config
