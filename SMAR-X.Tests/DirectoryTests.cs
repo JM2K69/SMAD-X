@@ -6,8 +6,10 @@ namespace SMARX.Tests;
 /// <summary>
 /// « Comptes et groupes », la fenêtre façon console Active Directory de l'espace Windows : l'arbre du domaine et du
 /// serveur, les onglets Membre de, Membres et Imbrication, le sélecteur d'Ajouter…, et la création des comptes et des
-/// groupes. Chaque changement passe aussitôt dans l'espace : comptes, testeur, whoami.
+/// groupes. Chaque changement passe aussitôt dans l'espace : comptes, testeur, whoami. Les textes de SMAR-X sont
+/// partagés : ces tests changent la langue, ils passent avec les autres tests de l'interface, pas en même temps.
 /// </summary>
+[Collection(InterfaceTests.Name)]
 public class DirectoryTests
 {
     private static WindowsWorkspaceViewModel Workspace()
