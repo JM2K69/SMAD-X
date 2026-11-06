@@ -29,9 +29,9 @@ Le serveur d'exemple est membre du domaine **CORP** et suit **AGDLP**, la métho
 
 carol et Administrator sont des comptes locaux du serveur. Un compte du domaine s'écrit `CORP\alice`, un compte du serveur `SRV-FIC\carol`, comme dans `icacls`.
 
-Le jeton contient les groupes du compte **et les groupes de ces groupes** : alice, membre de `G_Compta`, reçoit `DL_Compta_LM`, car `G_Compta` en est membre. Le testeur le montre dès la première étape ; la carte **Comptes** l'écrit sous chaque compte (« par imbrication : … »).
+Le jeton contient les groupes du compte **et les groupes de ces groupes** : alice, membre de `G_Compta`, reçoit `DL_Compta_LM`, car `G_Compta` en est membre. Le testeur le montre dès la première étape ; la carte **Comptes** l'écrit sous chaque compte (« par imbrication : … ») ; l'onglet **Imbrication** de la fenêtre **Comptes et groupes** le dessine (voir plus bas).
 
-Les imbrications suivent les règles d'Active Directory. Une case impossible est grisée, et son info-bulle dit pourquoi :
+Les imbrications suivent les règles d'Active Directory. Dans **Sélectionner des utilisateurs ou des groupes**, un choix impossible est grisé, et sa raison est écrite dessous :
 
 | Groupe | Peut contenir |
 |---|---|
@@ -41,11 +41,32 @@ Les imbrications suivent les règles d'Active Directory. Une case impossible est
 
 Un compte local du serveur n'entre que dans un groupe local. Une imbrication qui tournerait en rond est refusée.
 
-![La carte Comptes de l'espace Windows](../assets/screens/smarx-groups.png)
+### La fenêtre Comptes et groupes
 
-*Capture : bob, avec ses groupes globaux, et les groupes de domaine local qu'il reçoit par imbrication. Un groupe de domaine local est choisi : dans ses membres, les comptes locaux du serveur sont grisés ; il n'entre pas dans un groupe global, ces cases sont grisées aussi.*
+Dans l'espace Windows, la carte **Comptes** liste les comptes ; son bouton **Comptes et groupes…** ouvre une fenêtre qui les gère comme la console *Utilisateurs et ordinateurs Active Directory*. Elle reste ouverte à côté de l'espace : chaque changement passe aussitôt dans le testeur, la matrice et la fenêtre whoami.
 
-Dans la carte **Comptes**, la partie **Groupes** liste chaque groupe, avec sa portée et ses membres. Choisir un groupe permet de changer ses **Membres**, comptes et groupes, comme l'onglet Membres de la console Active Directory, et de l'imbriquer dans un autre (**Membre de**). Les commandes équivalentes sont celles du domaine, `New-ADGroup -GroupScope Global` ou `DomainLocal` et `Add-ADGroupMember`, ou celles du serveur, `net localgroup`. Un nouveau compte est un compte du domaine, sauf si l'on décoche **du domaine** ; un nouveau groupe est global, de domaine local ou local au serveur.
+- **À gauche, l'arbre** : le domaine (`CORP`) avec ses **Utilisateurs**, ses **Groupes globaux (G_)** et ses **Groupes de domaine local (DL_)**, puis le serveur avec ses **Utilisateurs locaux** et ses **Groupes locaux** (Administrateurs, Utilisateurs…). Un serveur hors domaine n'a que cette seconde partie.
+- **À droite, l'objet choisi** : son nom, ce qu'il est et son nom qualifié (`CORP\bob`, `SRV-FIC\carol`, `BUILTIN\Administrators`), puis trois onglets :
+    - **Membre de** : les groupes dont il est membre directement ;
+    - **Membres** : pour un groupe, ses membres directs, comptes et groupes ;
+    - **Imbrication** : l'arbre du compte, de ses groupes et des groupes de ces groupes, chaque chemin écrit sur une ligne (`bob → G_Compta → DL_Compta_LM`), et la liste des groupes reçus par imbrication. C'est ce que `whoami` aplatit en une liste.
+- **Ajouter…** ouvre **Sélectionner des utilisateurs ou des groupes** : on coche un ou plusieurs comptes ou groupes, un filtre réduit la liste. Ce qu'Active Directory refuserait est grisé, avec sa raison : déjà membre, compte local du serveur dans un groupe du domaine, groupe de domaine local dans un groupe global, imbrication qui tournerait en rond. **Supprimer** retire le lien choisi.
+- **Nouveau** crée un compte ou un groupe : utilisateur du domaine, groupe global, groupe de domaine local, utilisateur ou groupe local du serveur. Il est aussitôt choisi dans l'arbre.
+- Le groupe **Utilisateurs** contient tous les comptes du serveur et du domaine, sans qu'on les ajoute : on ne change pas ses membres.
+
+Sous les onglets, les commandes qui feraient la même chose sur un vrai serveur : celles du domaine, `New-ADGroup -GroupScope Global` ou `DomainLocal` et `Add-ADGroupMember`, ou celles du serveur, `net localgroup`.
+
+![La fenêtre Comptes et groupes de SMAR-X](../assets/screens/smarx-directory.png)
+
+*Capture : le groupe de domaine local DL_Compta_LM, dans l'onglet Membres : le groupe global G_Compta en est membre.*
+
+![L'onglet Imbrication de la fenêtre Comptes et groupes](../assets/screens/smarx-nesting.png)
+
+*Capture : l'imbrication de bob. Il est membre de trois groupes globaux, qui le font entrer dans quatre groupes de domaine local.*
+
+![Sélectionner des utilisateurs ou des groupes](../assets/screens/smarx-picker.png)
+
+*Capture : Ajouter… dans l'onglet Membres de G_RH. bob est déjà membre ; carol et Administrator, comptes locaux du serveur, n'entrent pas dans un groupe du domaine ; un groupe de domaine local n'entre pas dans un groupe global.*
 
 La mesure sur le contrôleur de domaine crée ces groupes globaux et de domaine local et leurs imbrications. Toutes les ouvertures qui passent par un groupe imbriqué sont identiques au simulateur.
 

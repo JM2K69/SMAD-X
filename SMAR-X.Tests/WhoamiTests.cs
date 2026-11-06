@@ -62,7 +62,7 @@ public class WhoamiTests
     }
 
     /// <summary>
-    /// dave, mis dans G_RH depuis la carte du groupe : le testeur le voit aussitôt ; la fenêtre whoami montre le jeton de
+    /// dave, mis dans G_RH depuis l'onglet Membres de « Comptes et groupes » : le testeur le voit aussitôt ; la fenêtre whoami montre le jeton de
     /// la prochaine session (+ G_RH, + DL_RH_LM par G_RH), et whoami, dans la session ouverte, l'ancien, jusqu'à ce que
     /// dave ferme et rouvre sa session.
     /// </summary>
@@ -74,11 +74,11 @@ public class WhoamiTests
         var whoami = new WhoamiViewModel(vm, "dave", network: false, elevated: false);
         Assert.False(whoami.HasChanges);
 
-        vm.SelectedGroup = vm.GroupItems.First(g => g.Name == "G_RH");
-        vm.GroupMembers.First(m => m.Group == "dave").IsMember = true;
+        using var directory = new DirectoryViewModel(vm, "G_RH");
+        directory.AddMembers(["dave"]);
 
         Assert.Contains("G_RH", vm.Host.User("dave")!.Groups);
-        Assert.Contains("Add-ADGroupMember -Identity G_RH -Members dave", vm.GroupCommands);
+        Assert.Contains("Add-ADGroupMember -Identity G_RH -Members dave", directory.Commands);
         Assert.True(whoami.HasChanges);
         Assert.Equal(new[] { @"CORP\G_RH", @"CORP\DL_RH_LM" }, whoami.Rows.Where(r => r.Change == "+").Select(r => r.Name));
         Assert.Equal("par G_RH", whoami.Rows.Single(r => r.Name == @"CORP\DL_RH_LM").Meaning);

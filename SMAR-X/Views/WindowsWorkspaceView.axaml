@@ -5,19 +5,6 @@
              x:Class="SMARX.Views.WindowsWorkspaceView"
              x:DataType="vm:WindowsWorkspaceViewModel">
 
-    <UserControl.Resources>
-        <!-- Une case « membre de » : la portée du groupe à côté, grisée avec sa raison si Active Directory la refuserait -->
-        <DataTemplate x:Key="MembershipTemplate" x:DataType="vm:MembershipItem">
-            <CheckBox IsChecked="{Binding IsMember}" IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Reason}" Margin="0,0,12,0">
-                <!-- Un TextBlock : en Content, « _ » serait pris pour un raccourci clavier (G_Compta → GCompta) -->
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <TextBlock Text="{Binding Display}"/>
-                    <TextBlock Classes="muted" Text="{Binding ScopeTag}" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding HasScopeTag}"/>
-                </StackPanel>
-            </CheckBox>
-        </DataTemplate>
-    </UserControl.Resources>
-
     <Grid ColumnDefinitions="330,*,470" ColumnSpacing="16" Margin="16">
 
         <!-- ═══ Arborescence NTFS ═══ -->
@@ -406,12 +393,12 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Comptes locaux -->
+                <!-- Comptes : la liste ; « Comptes et groupes… » les gère comme la console Active Directory -->
                 <Border Classes="card">
                     <StackPanel Spacing="10">
                         <StackPanel Spacing="2">
                             <TextBlock Classes="h" Text="{DynamicResource Accounts.Title}"/>
-                            <TextBlock Classes="muted" Text="{DynamicResource Accounts.Hint}"/>
+                            <TextBlock Classes="muted" Text="{DynamicResource Accounts.HintWindows}" TextWrapping="Wrap"/>
                         </StackPanel>
                         <ListBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedAccount}" Background="Transparent" AutoScrollToSelectedItem="False">
                             <ListBox.ItemTemplate>
@@ -429,86 +416,10 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <Border Classes="code" Padding="12">
-                            <StackPanel Spacing="8">
-                                <TextBlock Classes="label" Text="{DynamicResource Accounts.Groups}"/>
-                                <ItemsControl ItemsSource="{Binding Memberships}" ItemTemplate="{StaticResource MembershipTemplate}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel Orientation="Horizontal"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <SelectableTextBlock Classes="mono" Text="{Binding AccountCommands}" FontSize="12" TextWrapping="Wrap"/>
-                                    <ui:CopyButton Grid.Column="1" Text="{Binding AccountCommands}"/>
-                                </Grid>
-                                <Button Classes="tool" Content="{DynamicResource Whoami.Open}" Click="OnWhoamiAccount" HorizontalAlignment="Left"/>
-                            </StackPanel>
-                        </Border>
-                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-                            <TextBox Text="{Binding NewUserName}" PlaceholderText="{DynamicResource Accounts.NewUser}"/>
-                            <CheckBox Grid.Column="1" IsChecked="{Binding NewUserDomain}" IsVisible="{Binding HasDomain}" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Accounts.DomainAccount}"/>
-                            </CheckBox>
-                            <Button Grid.Column="2" Content="{DynamicResource Accounts.AddUser}" Command="{Binding AddUserCommand}" MinWidth="130"/>
-                        </Grid>
-
-                        <!-- Les groupes : leur portée, leurs membres, et l'imbrication (AGDLP : un groupe global dans un groupe de domaine local) -->
-                        <StackPanel Spacing="2" Margin="0,8,0,0">
-                            <TextBlock Classes="h" Text="{DynamicResource Accounts.GroupsTitle}"/>
-                            <TextBlock Classes="muted" Text="{DynamicResource Accounts.GroupsHint}" TextWrapping="Wrap"/>
-                        </StackPanel>
-                        <ListBox ItemsSource="{Binding GroupItems}" SelectedItem="{Binding SelectedGroup}" Background="Transparent" AutoScrollToSelectedItem="False">
-                            <!-- Tous les groupes, sans virtualisation : la liste est dans la colonne qui défile -->
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel/>
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate x:DataType="vm:WindowsGroupItem">
-                                    <StackPanel Spacing="2">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <TextBlock Text="{Binding Display}" FontWeight="SemiBold"/>
-                                            <Border Classes="chip" Padding="6,1" CornerRadius="6" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding ScopeTag}" FontSize="11"/>
-                                            </Border>
-                                        </StackPanel>
-                                        <TextBlock Classes="muted" Text="{Binding Detail}" FontSize="11" TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                        <Border Classes="code" Padding="12">
-                            <StackPanel Spacing="8">
-                                <TextBlock Classes="label" Text="{DynamicResource Accounts.Members}"/>
-                                <ItemsControl ItemsSource="{Binding GroupMembers}" ItemTemplate="{StaticResource MembershipTemplate}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel Orientation="Horizontal"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
-                                <TextBlock Classes="label" Text="{DynamicResource Accounts.Groups}" Margin="0,6,0,0"/>
-                                <ItemsControl ItemsSource="{Binding GroupMemberships}" ItemTemplate="{StaticResource MembershipTemplate}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel Orientation="Horizontal"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <SelectableTextBlock Classes="mono" Text="{Binding GroupCommands}" FontSize="12" TextWrapping="Wrap"/>
-                                    <ui:CopyButton Grid.Column="1" Text="{Binding GroupCommands}"/>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-                            <TextBox Text="{Binding NewGroupName}" PlaceholderText="{DynamicResource Accounts.NewGroup}"/>
-                            <ComboBox Grid.Column="1" ItemsSource="{Binding GroupScopes}" SelectedItem="{Binding NewGroupScope}" MinWidth="150"/>
-                            <Button Grid.Column="2" Content="{DynamicResource Accounts.AddGroup}" Command="{Binding AddGroupCommand}" MinWidth="130"/>
-                        </Grid>
+                        <WrapPanel ItemSpacing="8" LineSpacing="8">
+                            <Button Classes="accent" Click="OnDirectory" Content="{DynamicResource Accounts.Directory}"/>
+                            <Button Classes="tool" Click="OnWhoamiAccount" Content="{DynamicResource Whoami.Open}"/>
+                        </WrapPanel>
                     </StackPanel>
                 </Border>
             </StackPanel>

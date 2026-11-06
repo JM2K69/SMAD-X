@@ -18,7 +18,7 @@ Un serveur Linux (`srv-fic`) et un serveur Windows (`SRV-FIC`) d'exemple s'ouvre
 | **Autorisations** | propriétaire, groupe, `chmod`, bits spéciaux, ACL POSIX et masque, ACL par défaut (voir [Droits Linux](droits-linux.md)) | l'[onglet Sécurité](onglet-securite.md) de l'Explorateur, et la liste des ACE comme `icacls` |
 | **Création** | ce que recevrait un nouveau fichier : umask, setgid, ACL par défaut | ce que recevrait un nouveau fichier : héritage, CREATOR OWNER |
 | **Commandes** | `chmod`, `chown`, `setfacl` qui recréent l'état affiché | `icacls` qui recrée l'état affiché |
-| **Comptes** | comptes, groupes, `usermod`, `useradd`, `groupadd` | comptes du serveur et du domaine, groupes globaux, de domaine local et locaux, imbriqués selon AGDLP (voir [Les groupes : AGDLP](regles-windows.md#les-groupes-agdlp)) ; `Add-ADGroupMember`, `net localgroup` ; le [whoami](regles-windows.md#whoami-le-jeton-dun-compte) de chaque compte |
+| **Comptes** | comptes, groupes, `usermod`, `useradd`, `groupadd` | comptes du serveur et du domaine, groupes globaux, de domaine local et locaux, imbriqués selon AGDLP, dans la fenêtre [Comptes et groupes](regles-windows.md#la-fenetre-comptes-et-groupes), comme la console Active Directory ; `Add-ADGroupMember`, `net localgroup` ; le [whoami](regles-windows.md#whoami-le-jeton-dun-compte) de chaque compte |
 
 Chaque bloc de commandes (`chmod`, `setfacl`, `icacls`, PowerShell, section de `smb.conf`…) a, à sa droite, un bouton qui le **copie dans le presse-papiers** : une coche confirme la copie. On le colle ensuite dans un terminal du labo.
 

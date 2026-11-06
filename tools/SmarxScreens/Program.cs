@@ -47,8 +47,11 @@ if (docs)
         LinuxNetwork(culture, "carol", "/srv/partage/doc.txt", LinuxOperation.Write, null, "smarx-samba-local");
         LinuxNetwork(culture, "carol", "/srv/partage/doc.txt", LinuxOperation.Write, "partage", "smarx-samba");
         SambaWindow(culture, "/srv/projets", "smarx-samba-share");
-        // AGDLP : bob et ses groupes imbriqués ; un groupe de domaine local, qui n'entre pas dans un groupe global
-        WindowsAccounts(culture, "bob", "DL_Compta_LM", "smarx-groups");
+        // « Comptes et groupes » : les membres d'un groupe de domaine local, l'imbrication de bob, et le sélecteur
+        // d'Ajouter… qui grise ce qu'Active Directory refuserait
+        DirectoryWindowCapture(culture, "DL_Compta_LM", 1, "smarx-directory");
+        DirectoryWindowCapture(culture, "bob", 2, "smarx-nesting");
+        PickerCapture(culture, "G_RH", "smarx-picker");
         // whoami de dave, juste après l'avoir mis dans G_RH : la session ouverte garde l'ancien jeton
         Whoami(culture, "dave", "G_RH", "smarx-whoami");
         // L'ACL par défaut de /srv/projets : ce que recevra ce qui y sera créé
@@ -94,8 +97,7 @@ void Whoami(string culture, string account, string group, string name)
     var shell = Prepare(culture, ThemeVariant.Dark);
     var vm = shell.Windows;
     var whoami = new WhoamiViewModel(vm, account, network: false, elevated: false);
-    vm.SelectedGroup = vm.GroupItems.First(g => g.Name == group);
-    vm.GroupMembers.First(m => m.Group == account).IsMember = true;
+    using (var directory = new DirectoryViewModel(vm, group)) directory.AddMembers([account]);
     var window = new WhoamiWindow { DataContext = whoami, Width = 1240, Height = 900 };
     window.Show();
     Pump(700);
@@ -106,24 +108,33 @@ void Whoami(string culture, string account, string group, string name)
     window.Close();
 }
 
-// La carte des comptes de l'espace Windows, seule : un compte et ses groupes imbriqués, un groupe et ses imbrications
-void WindowsAccounts(string culture, string account, string group, string name)
+// « Comptes et groupes », ouverte sur un compte ou un groupe, à l'onglet donné (0 Membre de, 1 Membres, 2 Imbrication)
+void DirectoryWindowCapture(string culture, string select, int tab, string name)
 {
     var shell = Prepare(culture, ThemeVariant.Dark);
-    shell.ShowWindowsCommand.Execute(null);
-    var vm = shell.Windows;
-    vm.SelectedAccount = vm.Users.First(u => u.Name == account);
-    vm.SelectedGroup = vm.GroupItems.First(g => g.Name == group);
-    var window = new MainWindow { DataContext = shell, Width = 1600, Height = 3200 };
+    var window = new DirectoryWindow { DataContext = new DirectoryViewModel(shell.Windows, select), Width = 1240, Height = 760 };
+    window.Show();
+    Pump(300);
+    window.GetVisualDescendants().OfType<TabControl>().First().SelectedIndex = tab;
+    Pump(700);
+    var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
+    var file = Path.Combine(outDir, name + ".png");
+    frame.Save(file);
+    Console.WriteLine(file);
+    window.Close();
+}
+
+// « Sélectionner des utilisateurs ou des groupes », ouvert par Ajouter… de l'onglet Membres d'un groupe
+void PickerCapture(string culture, string group, string name)
+{
+    var shell = Prepare(culture, ThemeVariant.Dark);
+    using var directory = new DirectoryViewModel(shell.Windows, group);
+    var window = new DirectoryPickerWindow { DataContext = directory.MembersPicker(), Width = 680, Height = 620 };
     window.Show();
     Pump(700);
-    var title = SmarxText.Instance["Accounts.Title"];
-    var card = window.GetVisualDescendants().OfType<TextBlock>().First(t => t.Text == title && t.IsEffectivelyVisible)
-        .GetVisualAncestors().OfType<Border>().First(b => b.Classes.Contains("card"));
-    using var bitmap = new RenderTargetBitmap(new PixelSize((int)card.Bounds.Width, (int)card.Bounds.Height));
-    bitmap.Render(card);
+    var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
     var file = Path.Combine(outDir, name + ".png");
-    bitmap.Save(file);
+    frame.Save(file);
     Console.WriteLine(file);
     window.Close();
 }

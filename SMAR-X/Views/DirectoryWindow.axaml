@@ -1,0 +1,218 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="using:SMADX.Controls"
+        xmlns:vm="using:SMARX.ViewModels"
+        x:Class="SMARX.Views.DirectoryWindow"
+        x:DataType="vm:DirectoryViewModel"
+        Title="{Binding WindowTitle}"
+        Icon="/Assets/icone.ico"
+        Width="1240" Height="760" MinWidth="960" MinHeight="560"
+        WindowStartupLocation="CenterOwner">
+
+    <!-- « Comptes et groupes », comme la console Utilisateurs et ordinateurs Active Directory : à gauche le domaine et le
+         serveur, leurs comptes et leurs groupes ; à droite l'objet choisi, ses groupes, ses membres et son imbrication.
+         La fenêtre reste ouverte à côté : chaque changement passe aussitôt dans le testeur, la matrice et whoami. -->
+    <Grid ColumnDefinitions="340,*" ColumnSpacing="16" Margin="16">
+
+        <!-- ═══ L'arbre ═══ -->
+        <Border Classes="card" Padding="10">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Margin="8,4,8,10" Spacing="2">
+                    <TextBlock Classes="h" Text="{DynamicResource Directory.TreeTitle}"/>
+                    <TextBlock Classes="muted" Text="{DynamicResource Directory.TreeHint}" TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <!-- Nouveau compte, nouveau groupe -->
+                <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="6,10,6,4">
+                    <TextBlock Classes="label" Text="{DynamicResource Directory.New}"/>
+                    <TextBox Text="{Binding NewName}" PlaceholderText="{DynamicResource Directory.NewName}"/>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <ComboBox ItemsSource="{Binding Kinds}" SelectedItem="{Binding NewKind}" HorizontalAlignment="Stretch"/>
+                        <Button Grid.Column="1" Classes="accent" Content="{DynamicResource Directory.Create}" Command="{Binding CreateCommand}"/>
+                    </Grid>
+                    <TextBlock Text="{Binding Message}" IsVisible="{Binding HasMessage}" TextWrapping="Wrap" FontSize="12" Foreground="#E5534B"/>
+                </StackPanel>
+
+                <TreeView ItemsSource="{Binding Tree}" SelectedItem="{Binding SelectedNode}">
+                    <TreeView.Styles>
+                        <Style Selector="TreeViewItem" x:DataType="vm:DirectoryNode">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                        </Style>
+                    </TreeView.Styles>
+                    <TreeView.ItemTemplate>
+                        <TreeDataTemplate x:DataType="vm:DirectoryNode" ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+                                <Panel Width="16" Height="16" VerticalAlignment="Center">
+                                    <PathIcon Data="{StaticResource DomainIcon}" Width="16" Height="16" Foreground="{DynamicResource Accent}" IsVisible="{Binding IsDomain}"/>
+                                    <PathIcon Data="{StaticResource ServerIcon}" Width="15" Height="15" Foreground="{DynamicResource Accent}" IsVisible="{Binding IsServer}"/>
+                                    <PathIcon Data="{StaticResource FolderIcon}" Width="16" Height="16" Foreground="#E3B341" IsVisible="{Binding IsContainer}"/>
+                                    <PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14" Foreground="{DynamicResource Accent}" IsVisible="{Binding IsUser}"/>
+                                    <PathIcon Data="{StaticResource GroupIcon}" Width="15" Height="15" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding IsGroup}"/>
+                                </Panel>
+                                <!-- Un TextBlock : en Content, « _ » serait pris pour un raccourci clavier (G_Compta → GCompta) -->
+                                <TextBlock Text="{Binding Display}" VerticalAlignment="Center"/>
+                                <TextBlock Classes="muted" Text="{Binding Tag}" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding HasTag}"/>
+                            </StackPanel>
+                        </TreeDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </DockPanel>
+        </Border>
+
+        <!-- ═══ L'objet choisi ═══ -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto,Auto" RowSpacing="12">
+            <!-- Rien de choisi : un dossier de l'arbre -->
+            <Border Grid.RowSpan="4" Classes="card" IsVisible="{Binding !HasObject}">
+                <TextBlock Classes="muted" Text="{DynamicResource Directory.Pick}" TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- Général : le nom, ce qu'il est, son nom qualifié -->
+            <Border Classes="card" IsVisible="{Binding HasObject}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Panel Width="40" Height="40" VerticalAlignment="Top">
+                        <PathIcon Data="{StaticResource PersonIcon}" Width="34" Height="34" Foreground="{DynamicResource Accent}" IsVisible="{Binding IsUser}"/>
+                        <PathIcon Data="{StaticResource GroupIcon}" Width="36" Height="36" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding IsGroup}"/>
+                    </Panel>
+                    <StackPanel Grid.Column="1" Spacing="2">
+                        <TextBlock Classes="h" Text="{Binding Title}" FontSize="18"/>
+                        <TextBlock Classes="muted" Text="{Binding KindLabel}"/>
+                        <SelectableTextBlock Classes="mono" Text="{Binding Qualified}" FontSize="12"/>
+                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="12" Margin="0,4,0,0"
+                                   IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <TabControl Grid.Row="1" IsVisible="{Binding HasObject}">
+                <TabControl.Styles>
+                    <Style Selector="TabItem">
+                        <Setter Property="FontSize" Value="15"/>
+                        <Setter Property="MinHeight" Value="36"/>
+                    </Style>
+                </TabControl.Styles>
+
+                <!-- Membre de : les groupes de l'objet, comme l'onglet de la console -->
+                <TabItem Header="{DynamicResource Directory.MemberOf}">
+                    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="8" Margin="0,8,0,0">
+                        <TextBlock Classes="muted" Text="{DynamicResource Directory.MemberOfHint}" TextWrapping="Wrap"/>
+                        <Border Grid.Row="1" Classes="code" Padding="4">
+                            <ListBox ItemsSource="{Binding MemberOf}" SelectedItem="{Binding SelectedMemberOf}" Background="Transparent">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:DirectoryEntry">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <PathIcon Data="{StaticResource GroupIcon}" Width="14" Height="14" Foreground="{DynamicResource TextMuted}"/>
+                                            <TextBlock Text="{Binding Display}" FontSize="13"/>
+                                            <TextBlock Classes="muted" Text="{Binding Detail}" FontSize="11" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8">
+                            <Button Classes="accent" Content="{DynamicResource Directory.Add}" Click="OnAddMemberOf"/>
+                            <Button Content="{DynamicResource Directory.Remove}" Command="{Binding RemoveMemberOfCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+
+                <!-- Membres : ceux du groupe choisi ; un compte n'en a pas -->
+                <TabItem Header="{DynamicResource Directory.Members}">
+                    <Panel Margin="0,8,0,0">
+                        <TextBlock Classes="muted" Text="{DynamicResource Directory.NoMembers}" TextWrapping="Wrap" IsVisible="{Binding IsUser}"/>
+                        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="8" IsVisible="{Binding IsGroup}">
+                            <TextBlock Classes="muted" Text="{DynamicResource Directory.MembersHint}" TextWrapping="Wrap"/>
+                            <Border Grid.Row="1" Classes="chip" CornerRadius="8" Padding="12,8" IsVisible="{Binding HasMembersNote}">
+                                <TextBlock Text="{Binding MembersNote}" TextWrapping="Wrap" FontSize="12"/>
+                            </Border>
+                            <Border Grid.Row="2" Classes="code" Padding="4">
+                                <ListBox ItemsSource="{Binding Members}" SelectedItem="{Binding SelectedMember}" Background="Transparent">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:DirectoryEntry">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Panel Width="14" Height="14">
+                                                    <PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14" Foreground="{DynamicResource Accent}" IsVisible="{Binding IsUser}"/>
+                                                    <PathIcon Data="{StaticResource GroupIcon}" Width="14" Height="14" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding IsGroup}"/>
+                                                </Panel>
+                                                <TextBlock Text="{Binding Display}" FontSize="13"/>
+                                                <TextBlock Classes="muted" Text="{Binding Detail}" FontSize="11" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Border>
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8">
+                                <Button Classes="accent" Content="{DynamicResource Directory.Add}" Click="OnAddMembers" IsEnabled="{Binding CanEditMembers}"/>
+                                <Button Content="{DynamicResource Directory.Remove}" Command="{Binding RemoveMemberCommand}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Panel>
+                </TabItem>
+
+                <!-- Imbrication : l'objet, ses groupes, les groupes de ses groupes ; ce que whoami aplatit -->
+                <TabItem Header="{DynamicResource Directory.Nesting}">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16" RowDefinitions="Auto,*" RowSpacing="8" Margin="0,8,0,0">
+                        <TextBlock Grid.ColumnSpan="2" Classes="muted" Text="{DynamicResource Directory.NestingHint}" TextWrapping="Wrap"/>
+                        <Border Grid.Row="1" Classes="code" Padding="6">
+                            <TreeView ItemsSource="{Binding Nesting}" Background="Transparent">
+                                <TreeView.Styles>
+                                    <Style Selector="TreeViewItem">
+                                        <Setter Property="IsExpanded" Value="True"/>
+                                    </Style>
+                                </TreeView.Styles>
+                                <TreeView.ItemTemplate>
+                                    <TreeDataTemplate x:DataType="vm:NestingNode" ItemsSource="{Binding Children}">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+                                            <Panel Width="15" Height="15" VerticalAlignment="Center">
+                                                <PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14" Foreground="{DynamicResource Accent}" IsVisible="{Binding IsUser}"/>
+                                                <PathIcon Data="{StaticResource GroupIcon}" Width="15" Height="15" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding IsGroup}"/>
+                                            </Panel>
+                                            <TextBlock Text="{Binding Display}" FontWeight="Medium" VerticalAlignment="Center"/>
+                                            <TextBlock Classes="muted" Text="{Binding Detail}" FontSize="11" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </TreeDataTemplate>
+                                </TreeView.ItemTemplate>
+                            </TreeView>
+                        </Border>
+                        <ScrollViewer Grid.Row="1" Grid.Column="1">
+                            <StackPanel Spacing="8">
+                                <TextBlock Classes="label" Text="{DynamicResource Directory.Paths}"/>
+                                <Border Classes="code">
+                                    <SelectableTextBlock Classes="mono" Text="{Binding NestingPaths}" FontSize="12" TextWrapping="Wrap"/>
+                                </Border>
+                                <StackPanel Spacing="8" IsVisible="{Binding HasNested}">
+                                    <TextBlock Classes="label" Text="{DynamicResource Directory.Nested}"/>
+                                    <ItemsControl ItemsSource="{Binding Nested}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:DirectoryEntry">
+                                                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+                                                    <PathIcon Data="{StaticResource GroupIcon}" Width="14" Height="14" Foreground="{DynamicResource TextMuted}"/>
+                                                    <TextBlock Text="{Binding Display}" FontSize="13"/>
+                                                    <TextBlock Classes="muted" Text="{Binding Detail}" FontSize="11" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+            <!-- Les commandes qui font la même chose sur un vrai serveur -->
+            <StackPanel Grid.Row="2" Spacing="6" IsVisible="{Binding HasObject}">
+                <TextBlock Classes="label" Text="{DynamicResource Directory.Commands}"/>
+                <Border Classes="code" MaxHeight="150">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <ScrollViewer>
+                            <SelectableTextBlock Classes="mono" Text="{Binding Commands}" FontSize="11" TextWrapping="Wrap"/>
+                        </ScrollViewer>
+                        <ui:CopyButton Grid.Column="1" Text="{Binding Commands}" VerticalAlignment="Top"/>
+                    </Grid>
+                </Border>
+            </StackPanel>
+
+            <Button Grid.Row="3" Content="{DynamicResource Directory.Close}" Click="OnClose" MinWidth="96" HorizontalAlignment="Right" HorizontalContentAlignment="Center"/>
+        </Grid>
+    </Grid>
+</Window>

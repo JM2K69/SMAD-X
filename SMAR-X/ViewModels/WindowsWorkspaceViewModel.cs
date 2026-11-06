@@ -16,7 +16,6 @@ namespace SMARX.ViewModels
     public sealed partial class WindowsWorkspaceViewModel : ObservableObject
     {
         private static SmarxText Text => SmarxText.Instance;
-        private bool _loadingAccount;
 
         public WindowsWorkspaceViewModel(WindowsHost host)
         {
@@ -36,19 +35,6 @@ namespace SMARX.ViewModels
         public ObservableCollection<StepItem> Steps { get; } = new();
         public ObservableCollection<string> MatrixColumns { get; } = new();
         public ObservableCollection<MatrixRow> MatrixRows { get; } = new();
-        public ObservableCollection<MembershipItem> Memberships { get; } = new();
-
-        /// <summary>Les groupes créés (pas Administrators ni Users), pour les imbriquer : un groupe global dans un groupe de domaine local.</summary>
-        public ObservableCollection<WindowsGroupItem> GroupItems { get; } = new();
-        public ObservableCollection<MembershipItem> GroupMemberships { get; } = new();
-
-        /// <summary>Les membres du groupe choisi, comptes puis groupes : on les change d'ici, comme l'onglet Membres de la console AD.</summary>
-        public ObservableCollection<MembershipItem> GroupMembers { get; } = new();
-
-        /// <summary>Les portées proposées pour un nouveau groupe : global et domaine local si le serveur est dans un domaine.</summary>
-        public ObservableCollection<Choice> GroupScopes { get; } = new();
-        public bool HasDomain => Host.Domain != null;
-
         public WindowsRightsEditorViewModel Editor { get; } = new();
         public SecurityTabViewModel Security { get; } = new();
         public IRelayCommand<MatrixCell> SelectCellCommand { get; }
@@ -68,13 +54,6 @@ namespace SMARX.ViewModels
         [ObservableProperty] private string _verdict = "";
         [ObservableProperty] private string? _newItem;
         [ObservableProperty] private WindowsUserItem? _selectedAccount;
-        [ObservableProperty] private string _newUserName = "";
-        [ObservableProperty] private string _newGroupName = "";
-        [ObservableProperty] private string _accountCommands = "";
-        [ObservableProperty] private WindowsGroupItem? _selectedGroup;
-        [ObservableProperty] private string _groupCommands = "";
-        [ObservableProperty] private bool _newUserDomain = true;
-        [ObservableProperty] private Choice? _newGroupScope;
         [ObservableProperty] private RouteItem? _selectedRoute;
 
         public string Title => $"{Host.Name} · Windows";
@@ -154,27 +133,6 @@ namespace SMARX.ViewModels
                 Users.Add(new WindowsUserItem(Host, Host.Users[i], i));
             SelectedUser = Users.FirstOrDefault(u => u.Name == tested) ?? Users.FirstOrDefault();
             SelectedAccount = Users.FirstOrDefault(u => u.Name == edited) ?? Users.FirstOrDefault();
-            RebuildGroups();
-        }
-
-        private void RebuildGroups()
-        {
-            var edited = SelectedGroup?.Name;
-            GroupItems.Clear();
-            foreach (var g in Host.Groups.Where(g => g.Name is not (WellKnown.Administrators or WellKnown.Users)))
-                GroupItems.Add(new WindowsGroupItem(Host, g));
-            SelectedGroup = GroupItems.FirstOrDefault(g => g.Name == edited) ?? GroupItems.FirstOrDefault();
-
-            var scope = NewGroupScope?.Value;
-            GroupScopes.Clear();
-            if (HasDomain)
-            {
-                GroupScopes.Add(new Choice(WindowsGroupScope.Global, Text.T("global (G_)", "global (G_)")));
-                GroupScopes.Add(new Choice(WindowsGroupScope.DomainLocal, Text.T("domaine local (DL_)", "domain local (DL_)")));
-            }
-            GroupScopes.Add(new Choice(WindowsGroupScope.Local, Text.T("local du serveur", "local to the server")));
-            NewGroupScope = GroupScopes.FirstOrDefault(c => Equals(c.Value, scope)) ?? GroupScopes.First();
-            OnPropertyChanged(nameof(HasDomain));
         }
 
         partial void OnSelectedNodeChanged(NtfsItem? value)
@@ -387,159 +345,20 @@ namespace SMARX.ViewModels
             }
         }
 
-        // ─── Comptes et groupes locaux ──────────────────────────────────────────────
+        // ─── Comptes et groupes : la fenêtre « Comptes et groupes » les gère (DirectoryViewModel) ───
 
-        partial void OnSelectedAccountChanged(WindowsUserItem? value)
-        {
-            _loadingAccount = true;
-            Memberships.Clear();
-            var french = Text.Culture == "fr-FR";
-            if (value != null)
-                foreach (var g in Host.Groups.Where(g => !string.Equals(g.Name, WellKnown.Users, StringComparison.OrdinalIgnoreCase)))
-                    Memberships.Add(Membership(value.User.Name, g, value.User.Groups, OnMembershipChanged));
-            _loadingAccount = false;
-            DescribeAccount();
-        }
-
-        /// <summary>Une case « membre de » : grisée, avec sa raison, si Active Directory refuserait l'adhésion.</summary>
-        private MembershipItem Membership(string member, WindowsGroup group, List<string> current, Action<MembershipItem> changed)
-        {
-            var isMember = current.Contains(group.Name, StringComparer.OrdinalIgnoreCase);
-            var reason = WindowsGroups.CannotJoin(Host, member, group.Name, Text.Culture);
-            return new MembershipItem(group.Name, isMember, changed)
-            {
-                Display = WellKnown.Display(group.Name, Text.Culture == "fr-FR"),
-                ScopeTag = HasDomain ? WindowsGroups.ScopeLabel(group.Scope, Text.Culture) : "",
-                // Une adhésion déjà là (venue d'un fichier) reste décochable
-                IsEnabled = isMember || reason == null,
-                Reason = reason
-            };
-        }
-
-        partial void OnSelectedGroupChanged(WindowsGroupItem? value)
-        {
-            _loadingAccount = true;
-            GroupMemberships.Clear();
-            GroupMembers.Clear();
-            if (value != null)
-            {
-                foreach (var g in Host.Groups.Where(g => !string.Equals(g.Name, WellKnown.Users, StringComparison.OrdinalIgnoreCase)
-                                                         && !string.Equals(g.Name, value.Name, StringComparison.OrdinalIgnoreCase)))
-                    GroupMemberships.Add(Membership(value.Name, g, value.Group.Groups, OnGroupMembershipChanged));
-                var french = Text.Culture == "fr-FR";
-                foreach (var u in Host.Users)
-                    GroupMembers.Add(Member(u.Name, u.Name, u.Groups, value.Name,
-                        HasDomain ? (u.Domain ? Text.T("compte du domaine", "domain account") : Text.T("compte local", "local account")) : ""));
-                foreach (var g in Host.Groups.Where(g => g.Name is not (WellKnown.Users or WellKnown.Administrators)
-                                                         && !string.Equals(g.Name, value.Name, StringComparison.OrdinalIgnoreCase)))
-                    GroupMembers.Add(Member(g.Name, WellKnown.Display(g.Name, french), g.Groups, value.Name,
-                        HasDomain ? WindowsGroups.ScopeLabel(g.Scope, Text.Culture) : ""));
-            }
-            _loadingAccount = false;
-            DescribeGroup();
-        }
-
-        /// <summary>Une case « membre » du groupe choisi : grisée, avec sa raison, si Active Directory refuserait ce membre.</summary>
-        private MembershipItem Member(string member, string display, List<string> memberOf, string group, string scopeTag)
-        {
-            var isMember = memberOf.Contains(group, StringComparer.OrdinalIgnoreCase);
-            var reason = WindowsGroups.CannotJoin(Host, member, group, Text.Culture);
-            return new MembershipItem(member, isMember, OnGroupMemberChanged)
-            {
-                Display = display,
-                ScopeTag = scopeTag,
-                IsEnabled = isMember || reason == null,
-                Reason = reason
-            };
-        }
-
-        /// <summary>Ajouter ou retirer un membre du groupe choisi : c'est la liste « Membre de » du compte ou du groupe qui change.</summary>
-        private void OnGroupMemberChanged(MembershipItem item)
-        {
-            if (_loadingAccount || SelectedGroup?.Group is not { } group) return;
-            var memberOf = Host.User(item.Group)?.Groups ?? Host.Group(item.Group)?.Groups;
-            if (memberOf == null) return;
-            memberOf.RemoveAll(g => string.Equals(g, group.Name, StringComparison.OrdinalIgnoreCase));
-            if (item.IsMember) memberOf.Add(group.Name);
-            AccountChanged();
-        }
-
-        private void OnGroupMembershipChanged(MembershipItem item)
-        {
-            if (_loadingAccount || SelectedGroup?.Group is not { } group) return;
-            group.Groups = GroupMemberships.Where(m => m.IsMember).Select(m => m.Group).ToList();
-            AccountChanged();
-        }
-
-        private void OnMembershipChanged(MembershipItem item)
-        {
-            if (_loadingAccount || SelectedAccount?.User is not { } user) return;
-            user.Groups = Memberships.Where(m => m.IsMember).Select(m => m.Group).ToList();
-            AccountChanged();
-        }
-
-        /// <summary>net user /add : un compte local, membre de Users.</summary>
-        [RelayCommand]
-        private void AddUser()
-        {
-            var name = NewUserName.Trim();
-            if (name.Length == 0 || Host.User(name) != null) return;
-            Host.Users.Add(new WindowsUser { Name = name, Domain = HasDomain && NewUserDomain });
-            NewUserName = "";
-            RebuildUsers();
-            SelectedAccount = Users.First(u => u.Name == name);
-            AccountChanged();
-        }
-
-        /// <summary>Un groupe du domaine (New-ADGroup), global ou de domaine local, ou un groupe local du serveur (net localgroup).</summary>
-        [RelayCommand]
-        private void AddGroup()
-        {
-            var name = NewGroupName.Trim();
-            if (name.Length == 0 || Host.Groups.Any(g => string.Equals(g.Name, name, StringComparison.OrdinalIgnoreCase))
-                                 || Host.User(name) != null) return;
-            Host.Groups.Add(new WindowsGroup { Name = name, Scope = NewGroupScope?.Value is WindowsGroupScope scope ? scope : WindowsGroupScope.Local });
-            NewGroupName = "";
-            AccountChanged();
-            SelectedGroup = GroupItems.FirstOrDefault(g => g.Name == name) ?? SelectedGroup;
-        }
+        /// <summary>Un compte ou un groupe a changé dans la fenêtre « Comptes et groupes » : tout se recalcule.</summary>
+        public void NotifyAccountsChanged() => AccountChanged();
 
         private void AccountChanged()
         {
             var account = SelectedAccount?.Name;
             RebuildUsers();
             SelectedAccount = Users.FirstOrDefault(u => u.Name == account) ?? SelectedAccount;
-            OnSelectedAccountChanged(SelectedAccount);
-            OnSelectedGroupChanged(SelectedGroup);
             Editor.Load(Host, SelectedNode);
             OnPropertyChanged(nameof(CanElevate));
             Recompute();
             AccountsChanged?.Invoke();
-        }
-
-        private void DescribeAccount()
-        {
-            if (SelectedAccount?.User is not { } user)
-            {
-                AccountCommands = "";
-                return;
-            }
-            var lines = user.Groups.Select(g => WindowsGroups.AddMemberCommand(Host, user.Name, g)).ToList();
-            lines.Add(Text.T($"# {user.Name} doit fermer et rouvrir sa session pour que ses groupes comptent",
-                             $"# {user.Name} must sign out and in again for the groups to apply"));
-            AccountCommands = string.Join("\n", lines);
-        }
-
-        private void DescribeGroup()
-        {
-            if (SelectedGroup?.Group is not { } group)
-            {
-                GroupCommands = "";
-                return;
-            }
-            GroupCommands = string.Join("\n", WindowsGroups.Members(Host, group.Name).Select(m => WindowsGroups.AddMemberCommand(Host, m, group.Name))
-                .Concat(group.Groups.Select(g => WindowsGroups.AddMemberCommand(Host, group.Name, g)))
-                .Prepend(WindowsGroups.CreateCommand(Host, group)));
         }
 
         public void Relabel()
@@ -555,8 +374,6 @@ namespace SMARX.ViewModels
             Security.Load(Host, SelectedNode);
             RebuildRoutes();
             Recompute();
-            DescribeAccount();
-            DescribeGroup();
         }
 
         private static IEnumerable<NtfsItem> All(IEnumerable<NtfsItem> items) => items.SelectMany(i => new[] { i }.Concat(All(i.Children)));

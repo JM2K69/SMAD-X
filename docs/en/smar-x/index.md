@@ -18,7 +18,7 @@ A sample Linux server (`srv-fic`) and a sample Windows server (`SRV-FIC`) open a
 | **Permissions** | owner, group, `chmod`, special bits, POSIX ACL and mask, default ACL (see [Linux permissions](linux-rights.md)) | the Explorer [Security tab](security-tab.md), and the ACE list as `icacls` shows it |
 | **Creation** | what a new file would get: umask, setgid, default ACL | what a new file would get: inheritance, CREATOR OWNER |
 | **Commands** | `chmod`, `chown`, `setfacl` that recreate what is shown | `icacls` that recreates what is shown |
-| **Accounts** | accounts, groups, `usermod`, `useradd`, `groupadd` | server and domain accounts, global, domain local and local groups, nested following AGDLP (see [Groups: AGDLP](windows-rules.md#groups-agdlp)); `Add-ADGroupMember`, `net localgroup`; each account's [whoami](windows-rules.md#whoami-an-accounts-token) |
+| **Accounts** | accounts, groups, `usermod`, `useradd`, `groupadd` | server and domain accounts, global, domain local and local groups, nested following AGDLP, in the [Accounts and groups](windows-rules.md#the-accounts-and-groups-window) window, like the Active Directory console; `Add-ADGroupMember`, `net localgroup`; each account's [whoami](windows-rules.md#whoami-an-accounts-token) |
 
 Each block of commands (`chmod`, `setfacl`, `icacls`, PowerShell, `smb.conf` section…) has, on its right, a button that **copies it to the clipboard**: a check mark confirms the copy. You then paste it into a terminal of the lab.
 

@@ -34,6 +34,26 @@ namespace SMARX.Views
             vm.AfterSecurityWindow();
         }
 
+        private DirectoryWindow? _directory;
+
+        /// <summary>
+        /// « Comptes et groupes… » : la fenêtre façon console Active Directory, ouverte sur le compte choisi. Elle reste
+        /// ouverte à côté ; un second clic la ramène devant.
+        /// </summary>
+        private void OnDirectory(object? sender, RoutedEventArgs e)
+        {
+            if (Vm is not { } vm) return;
+            if (_directory != null)
+            {
+                _directory.Activate();
+                return;
+            }
+            _directory = new DirectoryWindow { DataContext = new DirectoryViewModel(vm, vm.SelectedAccount?.Name) };
+            _directory.Closed += (_, _) => _directory = null;
+            if (Owner is { } owner) _directory.Show(owner);
+            else _directory.Show();
+        }
+
         /// <summary>whoami du compte testé, dans la session du testeur : sur le serveur ou par le partage choisi, élevée ou non.</summary>
         private void OnWhoamiTester(object? sender, RoutedEventArgs e)
         {

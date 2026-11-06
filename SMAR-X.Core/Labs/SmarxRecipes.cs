@@ -552,8 +552,8 @@ namespace SMARX.Labs
                 foreach (var (nf, ne) in _needs) s.Append("- ").Append(fr ? nf : ne).Append('\n');
                 s.Append('\n');
                 if (Org.HasWindows)
-                    s.Append(fr ? "Sous Windows, les groupes s'imbriquent dans la carte **Comptes**, les droits NTFS se donnent dans l'onglet **Sécurité**, le partage se règle avec **Partage avancé…**.\n"
-                                : "On Windows, groups are nested in the **Accounts** card, NTFS permissions are given in the **Security** tab, the share is set with **Advanced Sharing…**.\n");
+                    s.Append(fr ? "Sous Windows, les groupes s'imbriquent dans la fenêtre **Comptes et groupes…** de la carte **Comptes**, les droits NTFS se donnent dans l'onglet **Sécurité**, le partage se règle avec **Partage avancé…**.\n"
+                                : "On Windows, groups are nested in the **Accounts and groups…** window of the **Accounts** card, NTFS permissions are given in the **Security** tab, the share is set with **Advanced Sharing…**.\n");
                 if (Org.HasLinux)
                     s.Append(fr ? "Sous Linux, les droits se règlent dans la carte des autorisations (propriétaire, groupe, mode, ACL, ACL par défaut), les groupes d'un compte dans la carte **Comptes**.\n"
                                 : "On Linux, permissions are set in the permissions card (owner, group, mode, ACL, default ACL), an account's groups in the **Accounts** card.\n");

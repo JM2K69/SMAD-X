@@ -122,7 +122,7 @@ namespace SMARX.Labs
                     - les autorisations NTFS de `D:\Partages\RH` suivent AGDLP ;
                     - les comptes ne changent pas.
 
-                    Le partage se crée dans la carte **Partage** du dossier, avec **Partage avancé…** ; les groupes s'imbriquent dans la carte **Comptes**.
+                    Le partage se crée dans la carte **Partage** du dossier, avec **Partage avancé…** ; les groupes s'imbriquent dans la fenêtre **Comptes et groupes…** de la carte **Comptes**.
                     """,
                     """
                     # The HR department share
@@ -139,7 +139,7 @@ namespace SMARX.Labs
                     - the NTFS permissions of `D:\Partages\RH` follow AGDLP;
                     - the accounts do not change.
 
-                    The share is created in the folder's **Sharing** card, with **Advanced Sharing…**; groups are nested in the **Accounts** card.
+                    The share is created in the folder's **Sharing** card, with **Advanced Sharing…**; groups are nested in the **Accounts and groups…** window of the **Accounts** card.
                     """),
                 Start = new SmarxDocument { Windows = [DepartmentShareStart()] },
                 Objectives =

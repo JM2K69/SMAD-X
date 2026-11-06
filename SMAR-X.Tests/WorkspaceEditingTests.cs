@@ -366,18 +366,18 @@ public class WorkspaceEditingTests
         vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, WindowsOperation.Write));
         Assert.False(vm.Allowed);
 
-        vm.SelectedAccount = vm.Users.First(u => u.Name == "dave");
-        vm.Memberships.First(m => m.Group == "G_Compta").IsMember = true;
+        using var directory = new DirectoryViewModel(vm, "dave");
+        directory.AddMemberOf(["G_Compta"]);
 
         Assert.True(vm.Allowed);
-        Assert.Contains("Add-ADGroupMember -Identity G_Compta -Members dave", vm.AccountCommands);
+        Assert.Contains("Add-ADGroupMember -Identity G_Compta -Members dave", directory.Commands);
         Assert.Contains("DL_Compta_LM", vm.Users.First(u => u.Name == "dave").NestedLine);
     }
 
     /// <summary>
     /// Imbriquer un groupe global dans un groupe de domaine local donne le droit à ses membres. Active Directory refuse
-    /// un groupe de domaine local dans un groupe global, et un compte local du serveur dans un groupe du domaine : la case
-    /// est grisée, avec la raison.
+    /// un groupe de domaine local dans un groupe global, et un compte local du serveur dans un groupe du domaine : le
+    /// sélecteur le grise, avec la raison.
     /// </summary>
     [Fact]
     public void Windows_NestingAGlobalGroupInADomainLocalGroup_FollowsAdRules()
@@ -388,18 +388,21 @@ public class WorkspaceEditingTests
         vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, WindowsOperation.Write));
         Assert.False(vm.Allowed);
 
-        vm.SelectedGroup = vm.GroupItems.First(g => g.Name == "G_Stagiaires");
-        vm.GroupMemberships.First(m => m.Group == "DL_RH_LM").IsMember = true;
+        using var directory = new DirectoryViewModel(vm, "G_Stagiaires");
+        directory.AddMemberOf(["DL_RH_LM"]);
         Assert.True(vm.Allowed);
-        Assert.Contains("Add-ADGroupMember -Identity DL_RH_LM -Members G_Stagiaires", vm.GroupCommands);
+        Assert.Contains("Add-ADGroupMember -Identity DL_RH_LM -Members G_Stagiaires", directory.Commands);
 
-        vm.SelectedGroup = vm.GroupItems.First(g => g.Name == "DL_RH_LM");
-        var global = vm.GroupMemberships.First(m => m.Group == "G_RH");
+        Assert.True(directory.Select("DL_RH_LM"));
+        var global = directory.MemberOfPicker().Items.First(c => c.Name == "G_RH");
         Assert.False(global.IsEnabled);
         Assert.Equal("Un groupe de domaine local (DL_RH_LM) n'entre pas dans un groupe global (G_RH).", global.Reason);
 
-        vm.SelectedAccount = vm.Users.First(u => u.Name == "carol");
-        Assert.False(vm.Memberships.First(m => m.Group == "G_RH").IsEnabled);
-        Assert.True(vm.Memberships.First(m => m.Group == WellKnown.Administrators).IsEnabled);
+        // carol, compte local du serveur : pas de groupe du domaine ; dave, compte du domaine, entre dans un groupe local
+        directory.Select("carol");
+        Assert.False(directory.MemberOfPicker().Items.First(c => c.Name == "G_RH").IsEnabled);
+        Assert.Equal("Déjà membre.", directory.MemberOfPicker().Items.First(c => c.Name == WellKnown.Administrators).Reason);
+        directory.Select("dave");
+        Assert.True(directory.MemberOfPicker().Items.First(c => c.Name == WellKnown.Administrators).IsEnabled);
     }
 }

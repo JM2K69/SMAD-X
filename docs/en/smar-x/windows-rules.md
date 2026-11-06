@@ -29,9 +29,9 @@ The sample server is a member of the **CORP** domain and follows **AGDLP**, the 
 
 carol and Administrator are local accounts of the server. A domain account is written `CORP\alice`, a server account `SRV-FIC\carol`, as in `icacls`.
 
-The token holds the account's groups **and the groups of those groups**: alice, a member of `G_Compta`, gets `DL_Compta_LM`, because `G_Compta` is a member of it. The tester shows it from the first step; the **Accounts** card writes it under each account ("through nesting: …").
+The token holds the account's groups **and the groups of those groups**: alice, a member of `G_Compta`, gets `DL_Compta_LM`, because `G_Compta` is a member of it. The tester shows it from the first step; the **Accounts** card writes it under each account ("through nesting: …"); the **Nesting** tab of the **Accounts and groups** window draws it (see below).
 
-Nesting follows Active Directory's rules. An impossible box is grayed out, and its tooltip says why:
+Nesting follows Active Directory's rules. In **Select users or groups**, an impossible choice is grayed out, and its reason is written below it:
 
 | Group | Can contain |
 |---|---|
@@ -41,11 +41,32 @@ Nesting follows Active Directory's rules. An impossible box is grayed out, and i
 
 A local account of the server only joins a local group. A nesting that would loop is refused.
 
-![The Accounts card of the Windows workspace](../assets/screens/smarx-groups.png)
+### The Accounts and groups window
 
-*Screenshot: bob, with his global groups, and the domain local groups he gets through nesting. A domain local group is selected: among its members, the local accounts of the server are grayed out; it cannot join a global group, so those boxes are grayed out too.*
+In the Windows workspace, the **Accounts** card lists the accounts; its **Accounts and groups…** button opens a window that manages them like the *Active Directory Users and Computers* console. It stays open next to the workspace: each change goes at once into the tester, the matrix and the whoami window.
 
-In the **Accounts** card, the **Groups** part lists each group, with its scope and its members. Picking a group lets you change its **Members**, accounts and groups, like the Members tab of the Active Directory console, and nest it in another one (**Member of**). The equivalent commands are the domain's, `New-ADGroup -GroupScope Global` or `DomainLocal` and `Add-ADGroupMember`, or the server's, `net localgroup`. A new account is a domain account, unless **domain account** is unchecked; a new group is global, domain local or local to the server.
+- **On the left, the tree**: the domain (`CORP`) with its **Users**, its **Global groups (G_)** and its **Domain local groups (DL_)**, then the server with its **Local users** and its **Local groups** (Administrators, Users…). A server outside a domain only has this second part.
+- **On the right, the selected object**: its name, what it is and its qualified name (`CORP\bob`, `SRV-FIC\carol`, `BUILTIN\Administrators`), then three tabs:
+    - **Member Of**: the groups it is a direct member of;
+    - **Members**: for a group, its direct members, accounts and groups;
+    - **Nesting**: the tree of the account, its groups and the groups of those groups, each path written on one line (`bob → G_Compta → DL_Compta_LM`), and the list of the groups received through nesting. This is what `whoami` flattens into a list.
+- **Add…** opens **Select users or groups**: tick one or more accounts or groups, a filter narrows the list. What Active Directory would refuse is grayed out, with its reason: already a member, a local account of the server in a domain group, a domain local group in a global group, a nesting that would loop. **Remove** removes the selected link.
+- **New** creates an account or a group: domain user, global group, domain local group, local user or local group of the server. It is selected in the tree at once.
+- The **Users** group holds every account of the server and the domain, without adding them: its members are not changed.
+
+Below the tabs, the commands that would do the same on a real server: the domain's, `New-ADGroup -GroupScope Global` or `DomainLocal` and `Add-ADGroupMember`, or the server's, `net localgroup`.
+
+![The SMAR-X Accounts and groups window](../assets/screens/smarx-directory.png)
+
+*Screenshot: the domain local group DL_Compta_LM, in the Members tab: the global group G_Compta is a member of it.*
+
+![The Nesting tab of the Accounts and groups window](../assets/screens/smarx-nesting.png)
+
+*Screenshot: bob's nesting. He is a member of three global groups, which make him a member of four domain local groups.*
+
+![Select users or groups](../assets/screens/smarx-picker.png)
+
+*Screenshot: Add… in the Members tab of G_RH. bob is already a member; carol and Administrator, local accounts of the server, cannot join a domain group; a domain local group cannot join a global group.*
 
 The measurement on the domain controller creates these global and domain local groups and their nesting. Every open that goes through a nested group is identical to the simulator.
 

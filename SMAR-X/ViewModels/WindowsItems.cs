@@ -91,30 +91,6 @@ namespace SMARX.ViewModels
         public override string ToString() => Name;
     }
 
-    /// <summary>Un groupe de la carte des comptes : sa portée, sa description et ses membres directs.</summary>
-    public sealed class WindowsGroupItem
-    {
-        public WindowsGroupItem(WindowsHost host, WindowsGroup group)
-        {
-            Group = group;
-            var culture = SmarxText.Instance.Culture;
-            var french = culture == "fr-FR";
-            Display = WellKnown.Display(group.Name, french);
-            ScopeTag = WindowsGroups.ScopeLabel(group.Scope, culture);
-            var members = WindowsGroups.Members(host, group.Name);
-            Detail = (group.Description is { Length: > 0 } d ? d + " · " : "")
-                     + (members.Count == 0 ? SmarxText.Instance.T("aucun membre", "no member")
-                         : SmarxText.Instance.T("membres : ", "members: ") + string.Join(", ", members.Select(m => WellKnown.Display(m, french))));
-        }
-
-        public WindowsGroup Group { get; }
-        public string Name => Group.Name;
-        public string Display { get; }
-        public string ScopeTag { get; }
-        public string Detail { get; }
-        public override string ToString() => Display;
-    }
-
     /// <summary>
     /// Une ACE de la DACL effective. Une ACE explicite se modifie (type, droits, portée) ou se retire ; une ACE héritée se
     /// lit seulement, avec le dossier d'où elle vient.
