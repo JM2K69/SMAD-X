@@ -69,7 +69,67 @@ namespace SMARX.Models
         public static NtfsRights? SimpleOf(NtfsRights rights) =>
             Simple.Select(s => (NtfsRights?)s.Rights).FirstOrDefault(s => s == rights || s == (rights | NtfsRights.Synchronize));
 
-        /// <summary>« F », « M », « RX »… ou, pour une combinaison spéciale, « (RD,WD) », comme icacls.</summary>
+        /// <summary>
+        /// Les autorisations de base qu'icacls reconnaît dans un masque, dans l'ordre où il les cherche. D (suppression)
+        /// est Suppression avec Synchroniser.
+        /// </summary>
+        private static readonly (string Code, NtfsRights Rights)[] DisplaySimple =
+        [
+            ("F", NtfsRights.FullControl), ("M", NtfsRights.Modify), ("RX", NtfsRights.ReadAndExecute),
+            ("R", NtfsRights.Read), ("W", NtfsRights.Write), ("D", NtfsRights.Delete | NtfsRights.Synchronize)
+        ];
+
+        /// <summary>Les droits restants, dans l'ordre où icacls les écrit ; Autorisations de lecture s'y écrit « Rc ».</summary>
+        private static readonly (string Code, NtfsRights Right)[] DisplayOrder =
+        [
+            ("DE", NtfsRights.Delete), ("Rc", NtfsRights.ReadPermissions), ("WDAC", NtfsRights.ChangePermissions),
+            ("WO", NtfsRights.TakeOwnership), ("S", NtfsRights.Synchronize), ("RD", NtfsRights.ReadData),
+            ("WD", NtfsRights.WriteData), ("AD", NtfsRights.AppendData), ("REA", NtfsRights.ReadExtendedAttributes),
+            ("WEA", NtfsRights.WriteExtendedAttributes), ("X", NtfsRights.ExecuteFile),
+            ("DC", NtfsRights.DeleteSubdirectoriesAndFiles), ("RA", NtfsRights.ReadAttributes), ("WA", NtfsRights.WriteAttributes)
+        ];
+
+        /// <summary>
+        /// Les droits tels que les affiche icacls, relevé sur un vrai Windows pour les 16 383 combinaisons
+        /// (SMAR-X.Tests/Fidelity/icacls-display.txt) : d'abord chaque autorisation de base que le masque contient et qui
+        /// ajoute quelque chose (F, M, RX, R, W, D), puis le reste dans l'ordre d'icacls. « (RX,WD,AD) »,
+        /// « (WD,AD,WEA,WA) », « (W,Rc) ». Un refus de Contrôle total s'affiche à part : voir <see cref="DisplayAce"/>.
+        /// </summary>
+        public static string Display(NtfsRights rights)
+        {
+            var parts = new List<string>();
+            var covered = NtfsRights.None;
+            foreach (var (code, value) in DisplaySimple)
+                if ((rights & value) == value && (value & ~covered) != NtfsRights.None)
+                {
+                    parts.Add(code);
+                    covered |= value;
+                }
+            var rest = rights & ~covered;
+            parts.AddRange(DisplayOrder.Where(s => (rest & s.Right) != NtfsRights.None).Select(s => s.Code));
+            return "(" + string.Join(",", parts) + ")";
+        }
+
+        /// <summary>
+        /// Les drapeaux et les droits d'une ACE comme les affiche icacls : (I), puis (OI)(CI)(NP)(IO) — NP n'apparaît
+        /// qu'avec OI ou CI —, puis (DENY) pour un refus et les droits. Un refus de Contrôle total s'affiche « (N) ».
+        /// </summary>
+        public static string DisplayAce(bool inherited, AceInheritance inheritance, AceType type, NtfsRights rights)
+        {
+            var inherits = inheritance.HasFlag(AceInheritance.ObjectInherit) || inheritance.HasFlag(AceInheritance.ContainerInherit);
+            var flags = (inherited ? "(I)" : "")
+                        + (inheritance.HasFlag(AceInheritance.ObjectInherit) ? "(OI)" : "")
+                        + (inheritance.HasFlag(AceInheritance.ContainerInherit) ? "(CI)" : "")
+                        + (inherits && inheritance.HasFlag(AceInheritance.NoPropagate) ? "(NP)" : "")
+                        + (inheritance.HasFlag(AceInheritance.InheritOnly) ? "(IO)" : "");
+            if (type == AceType.Deny && rights == NtfsRights.FullControl) return flags + "(N)";
+            return flags + (type == AceType.Deny ? "(DENY)" : "") + Display(rights);
+        }
+
+        /// <summary>
+        /// « F », « M », « RX »… ou, pour une combinaison spéciale, « (RD,WD) » : ce que l'on donne à icacls /grant ou
+        /// /deny, qui l'accepte dans n'importe quel ordre. L'affichage d'icacls range autrement : voir <see cref="Display"/>.
+        /// </summary>
         public static string Format(NtfsRights rights)
         {
             foreach (var (code, value) in Simple)
@@ -77,15 +137,15 @@ namespace SMARX.Models
             return "(" + string.Join(",", Special.Where(s => (rights & s.Right) == s.Right).Select(s => s.Code)) + ")";
         }
 
-        /// <summary>Lit « M », « RX », « (RD,WD) » ou « RD,WD ».</summary>
+        /// <summary>Lit « M », « RX », « (RD,WD) », « RD,WD », et aussi ce qu'affiche icacls : « (RX,WD,AD) », « D », « Rc ».</summary>
         /// <exception cref="FormatException">Abréviation inconnue.</exception>
         public static NtfsRights Parse(string text)
         {
             var rights = NtfsRights.None;
             foreach (var token in text.Trim('(', ')').Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                var simple = Simple.Where(s => s.Code == token).Select(s => (NtfsRights?)s.Rights).FirstOrDefault();
-                var special = Special.Where(s => s.Code == token).Select(s => (NtfsRights?)s.Right).FirstOrDefault();
+                var simple = DisplaySimple.Where(s => s.Code == token).Select(s => (NtfsRights?)s.Rights).FirstOrDefault();
+                var special = Special.Where(s => string.Equals(s.Code, token, StringComparison.OrdinalIgnoreCase)).Select(s => (NtfsRights?)s.Right).FirstOrDefault();
                 rights |= simple ?? special ?? throw new FormatException($"Droit « {token} » inconnu.");
             }
             return rights;

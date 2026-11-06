@@ -113,7 +113,7 @@ namespace SMARX.ViewModels
             AppliesTo = WindowsExplainer.AppliesTo(ace.Inheritance, folder, text.Culture);
             RightsChoices = new ObservableCollection<Choice>(Ntfs.Simple.Select(s => new Choice(s.Rights, WindowsExplainer.Rights(s.Rights, text.Culture))));
             if (Ntfs.SimpleOf(ace.Mask) is null)
-                RightsChoices.Add(new Choice(ace.Mask, text.T("Spécial : ", "Special: ") + Ntfs.Format(ace.Mask)));
+                RightsChoices.Add(new Choice(ace.Mask, text.T("Spécial : ", "Special: ") + Ntfs.Display(ace.Mask)));
             AppliesChoices = folder ? WindowsRightsEditorViewModel.AppliesChoices() : [new Choice(AceInheritance.None, text.T("Ce fichier", "This file"))];
             _isDeny = ace.Type == AceType.Deny;
             _rights = RightsChoices.First(c => Equals(c.Value, Ntfs.SimpleOf(ace.Mask) ?? ace.Mask));

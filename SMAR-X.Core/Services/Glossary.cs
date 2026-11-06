@@ -62,6 +62,21 @@ namespace SMARX.Services
                     new("(DENY)", T("Refuser", "Deny"), T("Refuse les droits qui ne sont pas encore accordés par une ACE lue avant elle.", "Denies the rights not yet granted by an ACE read before it.")),
                     new("(OI)(CI)", T("Ce dossier, les sous-dossiers et les fichiers", "This folder, subfolders and files"), T("Le cas par défaut d'une ACE posée sur un dossier.", "The default for an ACE set on a folder."))
                 ]),
+                new(T("Lire la sortie d'icacls", "Reading icacls output"),
+                    T("icacls n'affiche pas les droits comme on les lui donne : relevé sur un vrai Windows pour chaque combinaison, SMAR-X les affiche de la même façon.",
+                      "icacls does not show rights the way they are given to it: measured on a real Windows for every combination, SMAR-X shows them the same way."),
+                [
+                    new("(RX,WD,AD)", T("Regroupement", "Grouping"), T("D'abord chaque autorisation de base que contient le masque (F, M, RX, R, W, D), puis les droits qui restent : (RD,X,WD,AD,RA,REA,RC,S) s'affiche (RX,WD,AD).",
+                                                                         "First each basic permission the mask holds (F, M, RX, R, W, D), then the remaining rights: (RD,X,WD,AD,RA,REA,RC,S) shows as (RX,WD,AD).")),
+                    new("DE,Rc,WDAC,WO,S,RD,WD,AD,REA,WEA,X,DC,RA,WA", T("Ordre des droits restants", "Order of the remaining rights"),
+                        T("Un refus d'écriture s'affiche donc (DENY)(WD,AD,WEA,WA), même donné (WD,AD,WA,WEA) ; icacls accepte n'importe quel ordre.",
+                          "A write deny therefore shows as (DENY)(WD,AD,WEA,WA), even when given as (WD,AD,WA,WEA); icacls accepts any order.")),
+                    new("D", T("Suppression", "Delete"), T("Dans la sortie : Suppression avec Synchroniser (DE et S).", "In the output: Delete with Synchronize (DE and S)."), "0x110000"),
+                    new("Rc", T("Autorisations de lecture", "Read permissions"), T("RC s'écrit ainsi dans la sortie d'icacls.", "RC is written this way in icacls output."), "0x20000"),
+                    new("(N)", T("Aucun accès", "No access"), T("Un refus de Contrôle total : icacls l'affiche (N), sans (DENY).", "A Full control deny: icacls shows it as (N), without (DENY).")),
+                    new("(I)(OI)(CI)(NP)(IO)", T("Ordre des drapeaux", "Order of the flags"), T("(I) d'abord, puis OI, CI, NP et IO, puis (DENY) ; (NP) n'apparaît qu'avec (OI) ou (CI).",
+                                                                                              "(I) first, then OI, CI, NP and IO, then (DENY); (NP) only appears with (OI) or (CI)."))
+                ]),
                 new(T("Identités prédéfinies", "Well-known identities"), null,
                 [
                     Identity(WellKnown.Everyone, T("Toute session, y compris invitée.", "Any session, guests included."), culture),

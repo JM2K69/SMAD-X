@@ -167,7 +167,7 @@ public class WindowsAccessTests
     {
         var lines = WindowsListing.Icacls(_host, @"D:\Partages\Compta\Archives\bilan-2025.xlsx");
 
-        Assert.StartsWith(@"D:\Partages\Compta\Archives\bilan-2025.xlsx CORP\DL_Archives_Refuser:(I)(DENY)(WD,AD,WA,WEA)", lines[0]);
+        Assert.StartsWith(@"D:\Partages\Compta\Archives\bilan-2025.xlsx CORP\DL_Archives_Refuser:(I)(DENY)(WD,AD,WEA,WA)", lines[0]); // l'ordre du vrai icacls
         Assert.Contains(lines, l => l.EndsWith(@"BUILTIN\Administrators:(I)(F)"));
         Assert.Contains(lines, l => l.EndsWith(@"CORP\DL_Compta_LM:(I)(M)"));
         Assert.Contains("icacls \"D:\\Partages\\Compta\" /inheritance:r", WindowsListing.Commands(_host, _host.Find(@"D:\Partages\Compta")!, @"D:\Partages\Compta"));

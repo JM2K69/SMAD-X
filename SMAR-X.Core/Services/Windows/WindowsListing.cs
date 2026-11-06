@@ -16,18 +16,8 @@ namespace SMARX.Services.Windows
             _ => host.Qualified(name)
         };
 
-        /// <summary>« (I)(OI)(CI)(M) », « (DENY)(W) » : héritée, héritage, refus, droits.</summary>
-        public static string Entry(EffectiveAce ace)
-        {
-            var flags = (ace.Inherited ? "(I)" : "")
-                        + (ace.Inheritance.HasFlag(AceInheritance.ObjectInherit) ? "(OI)" : "")
-                        + (ace.Inheritance.HasFlag(AceInheritance.ContainerInherit) ? "(CI)" : "")
-                        + (ace.Inheritance.HasFlag(AceInheritance.InheritOnly) ? "(IO)" : "")
-                        + (ace.Inheritance.HasFlag(AceInheritance.NoPropagate) ? "(NP)" : "")
-                        + (ace.Type == AceType.Deny ? "(DENY)" : "");
-            var rights = Ntfs.Format(ace.Mask);
-            return flags + (rights.StartsWith('(') ? rights : $"({rights})");
-        }
+        /// <summary>« (I)(OI)(CI)(M) », « (OI)(CI)(DENY)(WD,AD,WEA,WA) » : comme les affiche icacls (voir <see cref="Ntfs.DisplayAce"/>).</summary>
+        public static string Entry(EffectiveAce ace) => Ntfs.DisplayAce(ace.Inherited, ace.Inheritance, ace.Type, ace.Mask);
 
         /// <summary>Sortie d'icacls pour un chemin : une ligne par ACE de la DACL effective.</summary>
         public static IReadOnlyList<string> Icacls(WindowsHost host, string path)

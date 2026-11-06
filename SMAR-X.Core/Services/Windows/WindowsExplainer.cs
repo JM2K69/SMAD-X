@@ -201,9 +201,9 @@ namespace SMARX.Services.Windows
             var ace = step.Ace!;
             var origin = ace.Inherited ? T(culture, $"héritée de {ace.InheritedFrom}", $"inherited from {ace.InheritedFrom}") : T(culture, "explicite", "explicit");
             var trustee = WellKnown.Display(ace.Trustee, french);
-            // Des droits spéciaux nombreux se lisent mieux en abréviations d'icacls : « (X,RD,WD,…) »
+            // Des droits spéciaux nombreux se lisent mieux comme icacls les affiche : « (RX,WD,AD) »
             var named = Ntfs.SimpleOf(ace.Mask) != null || Ntfs.Special.Any(s => s.Right == ace.Mask);
-            var granted = named ? T(culture, $"« {Rights(ace.Mask, culture)} »", $"\"{Rights(ace.Mask, culture)}\"") : Ntfs.Format(ace.Mask);
+            var granted = named ? T(culture, $"« {Rights(ace.Mask, culture)} »", $"\"{Rights(ace.Mask, culture)}\"") : Ntfs.Display(ace.Mask);
             var what = ace.Type == AceType.Allow
                 ? T(culture, $"Autoriser {granted} à {trustee}", $"Allow {granted} to {trustee}")
                 : T(culture, $"Refuser {granted} à {trustee}", $"Deny {granted} to {trustee}");
