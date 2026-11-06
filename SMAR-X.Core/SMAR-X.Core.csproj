@@ -12,4 +12,9 @@
   <ItemGroup>
     <ProjectReference Include="..\SMAD-X.Labs\SMAD-X.Labs.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Le bouclier de l'en-tête de SMAR-X, pour l'aide-mémoire en PDF (rendu par tools/SmarxScreens, option logo) -->
+    <EmbeddedResource Include="Assets\smarx-icon.png" LogicalName="Assets/smarx-icon.png" />
+  </ItemGroup>
 </Project>

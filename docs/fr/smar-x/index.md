@@ -2,7 +2,7 @@
 
 SMAR-X (*Simulate, Model and Audit Rights eXpert*) est la troisième application de la suite [SMA-X](../index.md) : un simulateur des **droits d'accès aux fichiers**, sous Linux et sous Windows. Il répond à une question : **qui peut faire quoi, sur quoi, et pourquoi** ? L'objectif est d'apprendre à donner seulement les droits nécessaires.
 
-Un serveur Linux (`srv-fic`) et un serveur Windows (`SRV-FIC`) d'exemple s'ouvrent au démarrage. Le bouton **Linux / Windows** passe de l'un à l'autre, **Ouvrir...** et **Enregistrer...** lisent et écrivent un fichier `.smar-x.json`, **Aide-mémoire** explique chaque abréviation (`rwx`, `F`, `M`, `RD`, `(OI)`, `(CI)`…).
+Un serveur Linux (`srv-fic`) et un serveur Windows (`SRV-FIC`) d'exemple s'ouvrent au démarrage. Le bouton **Linux / Windows** passe de l'un à l'autre, **Ouvrir...** et **Enregistrer...** lisent et écrivent un fichier `.smar-x.json`, **Aide-mémoire** explique chaque abréviation (`rwx`, `F`, `M`, `RD`, `(OI)`, `(CI)`…) et donne des commandes d'exemple (voir [L'aide-mémoire](#laide-memoire)).
 
 ![SMAR-X sur le serveur Linux d'exemple](../assets/screens/smarx-linux.png)
 
@@ -25,6 +25,21 @@ Chaque bloc de commandes (`chmod`, `setfacl`, `icacls`, PowerShell, section de `
 Sous **D'où ?**, le testeur choisit l'origine de l'accès : **Sur le serveur** (une session ouverte sur le serveur), ou **Depuis le réseau**, par un partage : **SMB** sous Windows (voir [Accès par un partage](partages.md)), **Samba** sous Linux (voir [Partage Samba](samba.md)).
 
 Le bouton **Exercices** ouvre un exercice : un besoin à satisfaire avec seulement les droits nécessaires, corrigé par **Vérifier** (voir [Exercices](exercices.md)).
+
+## L'aide-mémoire
+
+**Aide-mémoire** ouvre une fenêtre à deux onglets, **Windows** et **Linux**. Chacun explique d'abord les abréviations que montre SMAR-X, puis donne des commandes d'exemple sur les serveurs d'exemple : pour chacune, ce qu'elle fait, puis la commande, avec un bouton qui la copie.
+
+- **Windows** : `icacls` (donner, remplacer, refuser, retirer, héritage, propriétaire, sauvegarde) ; PowerShell sans module (`Get-Acl`, `Set-Acl`, `New-SmbShare`, `Grant-SmbShareAccess`, `Add-ADGroupMember`, `whoami /groups`) ; le module **NTFSSecurity**, chaque commande en face de son équivalent `icacls`, puis les valeurs de `-AppliesTo` en face des drapeaux d'héritage, et celles de `-AccessRights` en face des abréviations.
+- **Linux** : `ls`, `stat`, `chown`, `chmod` (octal, lettres, `X`, setgid, sticky), `getfacl` et `setfacl` (ACL, ACL par défaut, récursif, sauvegarde et restauration), `umask`, les groupes d'un compte (`id`, `usermod -aG`), et `testparm`, `smbpasswd`, `smbcontrol` pour Samba.
+
+NTFSSecurity est un module de la PowerShell Gallery (`Install-Module -Name NTFSSecurity`), pour Windows PowerShell 5.1 et PowerShell 7 sous Windows. Ses commandes prennent des noms de droits (`Modify`, `ReadAndExecute`) et renvoient des objets : elles se scriptent mieux qu'`icacls`. Son auteur annonce son archivage, au profit du module WindowsAccessControl. SMAR-X montre ces commandes, il ne les exécute pas.
+
+**Exporter en PDF…** enregistre les deux onglets dans un PDF, dans la langue de l'interface. En tête, le bouclier de SMAR-X et d'où vient le document : SMAR-X et sa version, la suite SMA-X et son [dépôt GitHub](https://github.com/JM2K69/SMAD-X), la date. Chaque page porte en bas la provenance et son numéro (« page 3 / 13 »).
+
+![L'aide-mémoire de SMAR-X](../assets/screens/smarx-glossary.png)
+
+*Capture : l'onglet Windows, aux équivalents `icacls` du module NTFSSecurity.*
 
 ## Fidèle aux vrais systèmes
 

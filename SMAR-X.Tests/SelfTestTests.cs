@@ -14,6 +14,6 @@ public class SelfTestTests
         var code = Program.SelfTest(output);
 
         Assert.True(code == 0, output.ToString());
-        Assert.Contains("engines ok, texts ok", output.ToString());
+        Assert.Contains("engines ok, texts ok, pdf ok", output.ToString());
     }
 }

@@ -7,6 +7,7 @@ SMAR-X simule les droits d'accès aux fichiers, et ses moteurs sont comparés à
 - Les comparaisons ont été faites sur un noyau Linux 6.19 (Debian 13, `setfacl` 2.3.2), Samba 4.22, Windows Server 2025 et Windows 11 en anglais. D'autres versions peuvent différer sur un détail.
 - Seuls les serveurs d'exemple ont été mesurés. Un serveur construit par le formateur suit les mêmes règles, mais ses cas particuliers n'ont pas été vérifiés un par un.
 - L'onglet Sécurité a été relevé sur un Windows 11 en anglais ; ses libellés français sont ceux de Windows en français, sans relevé.
+- Les commandes de l'aide-mémoire (`icacls`, PowerShell, NTFSSecurity, `chmod`, `setfacl`, Samba) viennent de la documentation de chaque outil. Contrairement aux moteurs, elles n'ont pas été rejouées sur le labo.
 
 ## Ce que SMAR-X représente
 

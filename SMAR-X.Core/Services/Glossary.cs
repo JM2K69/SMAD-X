@@ -9,13 +9,28 @@ namespace SMARX.Services
     /// <summary>Une ligne de l'aide-mémoire : l'abréviation, son nom, et ce qu'elle veut dire (sur un fichier, sur un dossier).</summary>
     public sealed record GlossaryRow(string Code, string Name, string Meaning, string? Value = null);
 
-    public sealed record GlossarySection(string Title, string? Intro, IReadOnlyList<GlossaryRow> Rows);
+    /// <summary>
+    /// Une commande d'exemple, prête à copier, et ce qu'elle fait. <see cref="Icacls"/> : la commande icacls qui fait la
+    /// même chose, quand la commande est celle d'un module PowerShell (NTFSSecurity).
+    /// </summary>
+    public sealed record GlossaryCommand(string Command, string Meaning, string? Icacls = null)
+    {
+        public bool HasIcacls => Icacls != null;
+    }
+
+    /// <summary>Une section de l'aide-mémoire : des abréviations expliquées, ou des commandes d'exemple, ou les deux.</summary>
+    public sealed record GlossarySection(string Title, string? Intro, IReadOnlyList<GlossaryRow> Rows, IReadOnlyList<GlossaryCommand>? Commands = null)
+    {
+        public IReadOnlyList<GlossaryCommand> CommandList => Commands ?? [];
+        public bool HasRows => Rows.Count > 0;
+        public bool HasCommands => CommandList.Count > 0;
+    }
 
     /// <summary>
     /// Aide-mémoire des abréviations que montre SMAR-X, en français ou en anglais. Les droits Windows viennent des
     /// définitions du moteur (<see cref="Ntfs"/>) : chaque abréviation d'icacls y est, avec sa valeur.
     /// </summary>
-    public static class Glossary
+    public static partial class Glossary
     {
         public static IReadOnlyList<GlossarySection> Windows(string culture)
         {
@@ -52,7 +67,8 @@ namespace SMARX.Services
                     Identity(WellKnown.CreatorOwner, T("Dans ce qui hérite de l'ACE, devient le propriétaire (le créateur).", "In what inherits the ACE, becomes the owner (the creator)."), culture),
                     Identity(WellKnown.OwnerRights, T("Remplace les droits que le propriétaire a d'office (lire et modifier les autorisations).", "Replaces the rights the owner has implicitly (read and change permissions)."), culture),
                     Identity(WellKnown.System, T("Le système d'exploitation lui-même.", "The operating system itself."), culture)
-                ])
+                ]),
+                .. WindowsExamples(culture)
             ];
         }
 
@@ -133,7 +149,8 @@ namespace SMARX.Services
                     new("022", T("Courant", "Common"), T("Fichier 644 (rw-r--r--), dossier 755 (rwxr-xr-x).", "File 644 (rw-r--r--), directory 755 (rwxr-xr-x).")),
                     new("027", T("Prudent", "Careful"), T("Fichier 640 (rw-r-----), dossier 750 (rwxr-x---).", "File 640 (rw-r-----), directory 750 (rwxr-x---).")),
                     new("077", T("Privé", "Private"), T("Fichier 600 (rw-------), dossier 700 (rwx------).", "File 600 (rw-------), directory 700 (rwx------)."))
-                ])
+                ]),
+                .. LinuxExamples(culture)
             ];
         }
 

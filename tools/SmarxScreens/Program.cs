@@ -2,9 +2,11 @@
 // serveurs d'exemple, pour quelques accès qui montrent chacun une règle.
 // Usage : dotnet run --project tools/SmarxScreens -- <dossier de sortie>
 //         dotnet run --project tools/SmarxScreens -- --docs <racine du dépôt>   (captures de la documentation, en français et en anglais)
+//         dotnet run --project tools/SmarxScreens -- --logo <fichier .png>      (le bouclier de l'en-tête, pour l'aide-mémoire en PDF)
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.Threading;
@@ -17,6 +19,13 @@ using SMARX.ViewModels;
 using SMARX.Views;
 
 var docs = args.Length > 1 && args[0] == "--docs";
+if (args.Length > 1 && args[0] == "--logo")
+{
+    AppBuilder.Configure<App>().UseSkia().UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
+        .WithInterFont().SetupWithoutStarting();
+    Logo(Path.GetFullPath(args[1]));
+    return;
+}
 var outDir = Path.GetFullPath(docs ? args[1] : args.Length > 0 ? args[0] : "smarx-screens");
 Directory.CreateDirectory(outDir);
 
@@ -58,6 +67,8 @@ if (docs)
         LinuxCard(culture, "/srv/projets", "Default.Title", "smarx-default-acl");
         // Un exercice fourni, vérifié au départ : rien n'est encore fait, les gardes tiennent ; aucun indice ouvert
         LabWindow(culture, "smarx-lab");
+        // L'aide-mémoire, défilé jusqu'aux équivalents icacls du module NTFSSecurity
+        GlossaryAt(culture, "NTFSSecurity", "smarx-glossary");
     }
     return;
 }
@@ -135,6 +146,30 @@ void PickerCapture(string culture, string group, string name)
     var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
     var file = Path.Combine(outDir, name + ".png");
     frame.Save(file);
+    Console.WriteLine(file);
+    window.Close();
+}
+
+// Le logo de l'en-tête de SMAR-X (MainWindow.axaml) : le bouclier blanc sur le dégradé, quatre fois plus grand
+static void Logo(string file)
+{
+    const int size = 160;
+    var logo = new Border
+    {
+        Width = size, Height = size, CornerRadius = new CornerRadius(size / 4.0),
+        Background = new LinearGradientBrush
+        {
+            StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative), EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
+            GradientStops = { new GradientStop(Color.Parse("#4C9AFF"), 0), new GradientStop(Color.Parse("#8250DF"), 1) }
+        },
+        Child = new PathIcon { Data = (Geometry)Application.Current!.FindResource("ShieldIcon")!, Width = size / 2.0, Height = size / 2.0, Foreground = Brushes.White }
+    };
+    var window = new Window { Content = logo, Width = size, Height = size, Background = Brushes.Transparent, TransparencyLevelHint = [WindowTransparencyLevel.Transparent] };
+    window.Show();
+    Pump(300);
+    using var bitmap = new RenderTargetBitmap(new PixelSize(size, size));
+    bitmap.Render(logo);
+    bitmap.Save(file);
     Console.WriteLine(file);
     window.Close();
 }
@@ -261,6 +296,27 @@ void Glossary(string culture, int tab, string name)
     var window = new GlossaryWindow { DataContext = new GlossaryViewModel(tab), Width = 1100, Height = 1500 };
     window.Show();
     Pump(700);
+    var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
+    var file = Path.Combine(outDir, name + ".png");
+    frame.Save(file);
+    Console.WriteLine(file);
+    window.Close();
+}
+
+// L'aide-mémoire (onglet Windows), défilé jusqu'à la première section dont le titre contient ce texte
+void GlossaryAt(string culture, string section, string name)
+{
+    SmarxText.Instance.SetLanguage(culture);
+    Application.Current!.RequestedThemeVariant = ThemeVariant.Dark;
+    var window = new GlossaryWindow { DataContext = new GlossaryViewModel(0), Width = 1100, Height = 820 };
+    window.Show();
+    Pump(700);
+    var title = window.GetVisualDescendants().OfType<TextBlock>().First(b => b.Text?.Contains(section) == true && b.Classes.Contains("h"));
+    var card = title.GetVisualAncestors().OfType<Border>().First(b => b.Classes.Contains("card"));
+    var scroller = card.GetVisualAncestors().OfType<ScrollViewer>().First();
+    var top = card.TranslatePoint(new Point(0, 0), (Visual)scroller.Content!) ?? new Point();
+    scroller.Offset = new Vector(0, top.Y);
+    Pump(500);
     var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
     var file = Path.Combine(outDir, name + ".png");
     frame.Save(file);

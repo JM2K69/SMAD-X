@@ -1,9 +1,12 @@
+using System;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using SMARX.ViewModels;
 
 namespace SMARX.Views
 {
-    /// <summary>Aide-mémoire des abréviations, ouvert à côté de la fenêtre principale (une seule fois à la fois).</summary>
+    /// <summary>Aide-mémoire des abréviations et des commandes, ouvert à côté de la fenêtre principale (une seule fois à la fois).</summary>
     public partial class GlossaryWindow : Window
     {
         private static GlossaryWindow? _open;
@@ -30,6 +33,19 @@ namespace SMARX.Views
                 _open = null;
             };
             if (owner != null) _open.Show(owner); else _open.Show();
+        }
+
+        /// <summary>« Exporter en PDF… » : les deux onglets, dans la langue de l'interface, là où on le choisit.</summary>
+        private async void OnExportPdf(object? sender, RoutedEventArgs e)
+        {
+            if (DataContext is not GlossaryViewModel vm) return;
+            var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                FileTypeChoices = [new FilePickerFileType("PDF") { Patterns = ["*.pdf"] }],
+                SuggestedFileName = vm.PdfFileName,
+                DefaultExtension = "pdf"
+            });
+            if (file?.TryGetLocalPath() is { } path) vm.ExportPdf(path);
         }
     }
 }

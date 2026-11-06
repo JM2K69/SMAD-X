@@ -7,6 +7,7 @@ SMAR-X simulates file access rights, and its engines are compared with real syst
 - The comparisons were made on a Linux 6.19 kernel (Debian 13, `setfacl` 2.3.2), Samba 4.22, Windows Server 2025 and an English Windows 11. Other versions may differ on a detail.
 - Only the sample servers were measured. A server built by the trainer follows the same rules, but its special cases were not checked one by one.
 - The Security tab was recorded on an English Windows 11; its French labels are those of a French Windows, not recorded.
+- The cheat sheet's commands (`icacls`, PowerShell, NTFSSecurity, `chmod`, `setfacl`, Samba) come from each tool's documentation. Unlike the engines, they were not replayed on the lab.
 
 ## What SMAR-X represents
 

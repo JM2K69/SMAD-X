@@ -25,7 +25,8 @@ namespace SMARX
         /// <summary>
         /// Vérification de l'exécutable publié, lancée par la CI de release (<c>SMAR-X --self-test</c>), sans fenêtre :
         /// les deux serveurs d'exemple se construisent, les quatre moteurs (noyau, Samba, NTFS, SMB) rendent le verdict
-        /// attendu sur le même accès en local puis par un partage, et les textes existent dans les deux langues.
+        /// attendu sur le même accès en local puis par un partage, les textes existent dans les deux langues, et
+        /// l'aide-mémoire en PDF a ses polices et le bouclier de SMAR-X.
         /// </summary>
         /// <returns>0 si tout est conforme, 1 sinon.</returns>
         internal static int SelfTest(TextWriter output)
@@ -49,8 +50,10 @@ namespace SMARX
                 var texts = !fr.StartsWith('[') && !en.StartsWith('[') && fr != en;
                 // Le même accès : autorisé en local, refusé par le partage
                 var engines = kernel && !samba && ntfs && !smb;
-                output.WriteLine($"SMAR-X {typeof(Program).Assembly.GetName().Version}: engines {(engines ? "ok" : "unexpected")}, texts {(texts ? "ok" : "missing")}");
-                return engines && texts ? 0 : 1;
+                // L'aide-mémoire en PDF : les polices de secours de la suite et le bouclier, embarqués dans l'exe
+                var pdf = SMADX.Services.MarkdownPdf.EmbeddedFontCount == 3 && SMARX.Services.Glossary.Logo().Length > 0;
+                output.WriteLine($"SMAR-X {typeof(Program).Assembly.GetName().Version}: engines {(engines ? "ok" : "unexpected")}, texts {(texts ? "ok" : "missing")}, pdf {(pdf ? "ok" : "missing")}");
+                return engines && texts && pdf ? 0 : 1;
             }
             catch (Exception ex)
             {

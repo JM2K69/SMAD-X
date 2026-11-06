@@ -2,7 +2,7 @@
 
 SMAR-X (*Simulate, Model and Audit Rights eXpert*) is the third application of the [SMA-X](../index.md) suite: a simulator of **file access rights**, on Linux and on Windows. It answers one question: **who can do what, on what, and why**? The goal is to learn to grant only the rights that are needed.
 
-A sample Linux server (`srv-fic`) and a sample Windows server (`SRV-FIC`) open at startup. The **Linux / Windows** button switches between them, **Open...** and **Save...** read and write a `.smar-x.json` file, and **Cheat sheet** explains every abbreviation (`rwx`, `F`, `M`, `RD`, `(OI)`, `(CI)`…).
+A sample Linux server (`srv-fic`) and a sample Windows server (`SRV-FIC`) open at startup. The **Linux / Windows** button switches between them, **Open...** and **Save...** read and write a `.smar-x.json` file, and **Cheat sheet** explains every abbreviation (`rwx`, `F`, `M`, `RD`, `(OI)`, `(CI)`…) and gives example commands (see [The cheat sheet](#the-cheat-sheet)).
 
 ![SMAR-X on the sample Linux server](../assets/screens/smarx-linux.png)
 
@@ -25,6 +25,21 @@ Each block of commands (`chmod`, `setfacl`, `icacls`, PowerShell, `smb.conf` sec
 Under **From where?**, the tester picks where the access comes from: **On the server** (a session open on the server), or **From the network**, through a share: **SMB** on Windows (see [Access through a share](shares.md)), **Samba** on Linux (see [Samba share](samba.md)).
 
 The **Labs** button opens a lab: a need to meet with only the permissions required, graded by **Check** (see [Labs](labs.md)).
+
+## The cheat sheet
+
+**Cheat sheet** opens a window with two tabs, **Windows** and **Linux**. Each first explains the abbreviations SMAR-X shows, then gives example commands on the sample servers: for each, what it does, then the command, with a button that copies it.
+
+- **Windows**: `icacls` (grant, replace, deny, remove, inheritance, owner, backup); PowerShell without a module (`Get-Acl`, `Set-Acl`, `New-SmbShare`, `Grant-SmbShareAccess`, `Add-ADGroupMember`, `whoami /groups`); the **NTFSSecurity** module, each command next to its `icacls` equivalent, then the `-AppliesTo` values next to the inheritance flags, and the `-AccessRights` values next to the abbreviations.
+- **Linux**: `ls`, `stat`, `chown`, `chmod` (octal, letters, `X`, setgid, sticky), `getfacl` and `setfacl` (ACL, default ACL, recursive, backup and restore), `umask`, an account's groups (`id`, `usermod -aG`), and `testparm`, `smbpasswd`, `smbcontrol` for Samba.
+
+NTFSSecurity is a PowerShell Gallery module (`Install-Module -Name NTFSSecurity`), for Windows PowerShell 5.1 and PowerShell 7 on Windows. Its commands take right names (`Modify`, `ReadAndExecute`) and return objects: they script better than `icacls`. Its author announces it will be archived, in favour of the WindowsAccessControl module. SMAR-X shows these commands, it does not run them.
+
+**Export to PDF…** saves both tabs to a PDF, in the interface language. At the top, the SMAR-X shield and where the document comes from: SMAR-X and its version, the SMA-X suite and its [GitHub repository](https://github.com/JM2K69/SMAD-X), the date. Each page carries the origin and its number at the bottom ("page 3 / 13").
+
+![The SMAR-X cheat sheet](../assets/screens/smarx-glossary.png)
+
+*Screenshot: the Windows tab, at the `icacls` equivalents of the NTFSSecurity module.*
 
 ## Faithful to real systems
 
