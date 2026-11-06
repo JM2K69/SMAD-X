@@ -17,19 +17,19 @@
 	<Grid RowDefinitions="Auto,*,Auto">
 
 		<!-- ── Top bar ────────────────────────────────────────────────────── -->
-		<Border Grid.Row="0" Background="#1E2230" Padding="12,8">
+		<Border Grid.Row="0" Classes="card" Padding="18,12" Margin="16,16,16,12">
 			<DockPanel>
 				<!-- Stats -->
 				<StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="20">
 					<StackPanel HorizontalAlignment="Center">
 						<TextBlock Text="{Binding Source={StaticResource Loc}, Path=SitesLabelSites}"
-								   FontSize="11" Foreground="#888" HorizontalAlignment="Center"/>
+								   Classes="label" HorizontalAlignment="Center"/>
 						<TextBlock Text="{Binding Sites.Count}" FontSize="22" FontWeight="Bold"
 								   Foreground="#0078D4" HorizontalAlignment="Center"/>
 					</StackPanel>
 					<StackPanel HorizontalAlignment="Center">
 						<TextBlock Text="{Binding Source={StaticResource Loc}, Path=SitesLabelLinks}"
-								   FontSize="11" Foreground="#888" HorizontalAlignment="Center"/>
+								   Classes="label" HorizontalAlignment="Center"/>
 						<TextBlock Text="{Binding GraphEdgeCount}" FontSize="22" FontWeight="Bold"
 								   Foreground="#107C10" HorizontalAlignment="Center"/>
 					</StackPanel>
@@ -37,18 +37,17 @@
 
 				<!-- Filter -->
 				<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-					<TextBlock Text="🔍" FontSize="16" VerticalAlignment="Center" Foreground="#AAA"/>
+					<TextBlock Text="🔍" FontSize="15" VerticalAlignment="Center" Foreground="{DynamicResource TextMuted}"/>
 					<TextBox Width="260"
 							 PlaceholderText="{Binding Source={StaticResource Loc}, Path=SitesFilterPlaceholder}"
-							 Text="{Binding FilterText}"
-							 Background="#2D3250" Foreground="White"
-							 BorderBrush="#444" CornerRadius="4"/>
+							 Text="{Binding FilterText}"/>
 				</StackPanel>
 			</DockPanel>
 		</Border>
 
 		<!-- ── Tab content ───────────────────────────────────────────────── -->
-		<TabControl Grid.Row="1">
+		<Border Grid.Row="1" Classes="card" Padding="12,6,12,12" Margin="16,0,16,0">
+		<TabControl Classes="suite">
 
 			<!-- ══ TAB 1 : Table ══════════════════════════════════════════ -->
 			<TabItem Header="{Binding Source={StaticResource Loc}, Path=SitesTabTable}">
@@ -72,7 +71,7 @@
 					</DataGrid>
 
 					<GridSplitter Grid.Row="1" ResizeDirection="Rows" Height="6"
-								  HorizontalAlignment="Stretch" Background="#333"/>
+								  HorizontalAlignment="Stretch" Background="Transparent"/>
 
 					<!-- Site Links DataGrid -->
 					<DataGrid Grid.Row="2"
@@ -92,22 +91,22 @@
 					</DataGrid>
 
 					<GridSplitter Grid.Row="3" ResizeDirection="Rows" Height="6"
-								  HorizontalAlignment="Stretch" Background="#333"/>
+								  HorizontalAlignment="Stretch" Background="Transparent"/>
 
 					<!-- Detail panel for selected site -->
-					<Border Grid.Row="4" Background="#181C2E" Padding="10,6"
+					<Border Grid.Row="4" Classes="code" Padding="12,8"
 							IsVisible="{Binding SelectedSite, Converter={x:Static ObjectConverters.IsNotNull}}">
 						<Grid ColumnDefinitions="Auto,12,*,12,*,12,*">
 							<TextBlock Grid.Column="0"
 									   Text="{Binding Source={StaticResource Loc}, Path=SitesDetailSelected}"
-									   Foreground="#888" VerticalAlignment="Top" FontSize="11"/>
+									   Classes="label" VerticalAlignment="Top"/>
 							<StackPanel Grid.Column="2" Spacing="2">
 								<TextBlock Text="{Binding Source={StaticResource Loc}, Path=SitesDetailSubnets}"
 										   Foreground="#88AACC" FontSize="11" FontWeight="SemiBold"/>
 								<ItemsControl ItemsSource="{Binding SelectedSite.Subnets}">
 									<ItemsControl.ItemTemplate>
 										<DataTemplate x:DataType="models:ADSubnet">
-											<TextBlock FontSize="11" Foreground="#CCC"
+											<TextBlock FontSize="11"
 													   Text="{Binding Cidr, StringFormat='• {0}'}"/>
 										</DataTemplate>
 									</ItemsControl.ItemTemplate>
@@ -119,7 +118,7 @@
 								<ItemsControl ItemsSource="{Binding SelectedSite.DomainControllers}">
 									<ItemsControl.ItemTemplate>
 										<DataTemplate x:DataType="x:String">
-											<TextBlock FontSize="11" Foreground="#CCC"
+											<TextBlock FontSize="11"
 													   Text="{Binding StringFormat='• {0}'}"/>
 										</DataTemplate>
 									</ItemsControl.ItemTemplate>
@@ -131,7 +130,7 @@
 								<ItemsControl ItemsSource="{Binding SelectedSite.LinkedGPOs}">
 									<ItemsControl.ItemTemplate>
 										<DataTemplate x:DataType="x:String">
-											<TextBlock FontSize="11" Foreground="#CCC"
+											<TextBlock FontSize="11"
 													   Text="{Binding StringFormat='• {0}'}"/>
 										</DataTemplate>
 									</ItemsControl.ItemTemplate>
@@ -147,7 +146,7 @@
 				<ScrollViewer HorizontalScrollBarVisibility="Auto"
 							  VerticalScrollBarVisibility="Auto">
 					<Canvas Width="1400" Height="820"
-							Background="#12141A"
+							Background="{DynamicResource CodeBg}"
 							ClipToBounds="False">
 
 						<!-- Edges (lines) -->
@@ -261,13 +260,14 @@
 			</TabItem>
 
 		</TabControl>
+		</Border>
 
 		<!-- ── Status bar ────────────────────────────────────────────────── -->
-		<Border Grid.Row="2" Background="#1A1C2E" Padding="12,4">
+		<Border Grid.Row="2" Classes="footer" Margin="0,12,0,0">
 			<DockPanel>
 				<TextBlock DockPanel.Dock="Left"
 						   Text="{Binding StatusText}"
-						   Foreground="#888" FontSize="12"
+						   Classes="muted" TextWrapping="NoWrap"
 						   VerticalAlignment="Center"/>
 				<TextBlock DockPanel.Dock="Right"
 						   IsVisible="{Binding !HasData}"

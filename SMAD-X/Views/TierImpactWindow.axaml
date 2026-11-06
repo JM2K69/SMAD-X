@@ -8,21 +8,23 @@
         Width="1150" Height="800"
         WindowStartupLocation="CenterOwner">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="12">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="16">
 
         <!-- ═══ Ce que fait la simulation ═══ -->
-        <DockPanel Grid.Row="0" Margin="0,0,0,8">
+        <Border Grid.Row="0" Classes="card" Padding="18,14" Margin="0,0,0,12">
+        <DockPanel>
             <Button DockPanel.Dock="Right" Content="{Binding Source={StaticResource Loc}, Path=ComparisonRefresh}"
-                    Command="{Binding RefreshCommand}" Padding="12,5" VerticalAlignment="Top" Margin="12,0,0,0"/>
+                    Command="{Binding RefreshCommand}" Classes="tool" VerticalAlignment="Top" Margin="12,0,0,0"/>
             <StackPanel Spacing="4">
                 <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TierImpactDescription}" TextWrapping="Wrap"/>
-                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TierImpactNote}" TextWrapping="Wrap" FontSize="11" Opacity="0.8"/>
+                <TextBlock Classes="muted" Text="{Binding Source={StaticResource Loc}, Path=TierImpactNote}" FontSize="11"/>
                 <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TierImpactBusy}" IsVisible="{Binding IsBusy}" FontStyle="Italic"/>
             </StackPanel>
         </DockPanel>
+        </Border>
 
         <!-- ═══ Bilan : avant, puis après chaque modèle ═══ -->
-        <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+        <Border Grid.Row="1" Classes="card" Padding="18,12" Margin="0,0,0,12">
             <StackPanel Spacing="2">
                 <Grid ColumnDefinitions="360,150,*,*" Margin="0,0,0,4">
                     <TextBlock Grid.Column="1" Text="{Binding Source={StaticResource Loc}, Path=TierImpactBefore}" FontWeight="SemiBold"/>
@@ -33,7 +35,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:TierImpactRow">
                             <Grid ColumnDefinitions="360,150,*,*" Margin="0,1">
-                                <TextBlock Grid.Column="0" Text="{Binding Label}" Opacity="0.85"/>
+                                <TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="{DynamicResource TextMuted}"/>
                                 <TextBlock Grid.Column="1" Text="{Binding Before}"/>
                                 <TextBlock Grid.Column="2" Text="{Binding First}" FontWeight="SemiBold"/>
                                 <TextBlock Grid.Column="3" Text="{Binding Second}" FontWeight="SemiBold"/>
@@ -45,19 +47,20 @@
         </Border>
 
         <!-- ═══ Modèle détaillé, migration du domaine ═══ -->
-        <DockPanel Grid.Row="2" Margin="0,0,0,8">
+        <DockPanel Grid.Row="2" Margin="2,0,0,10">
             <Button DockPanel.Dock="Right" Content="{Binding Source={StaticResource Loc}, Path=TierImpactMigrate}"
-                    Command="{Binding MigrateCommand}" Padding="12,5"/>
+                    Command="{Binding MigrateCommand}" Classes="accent"/>
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TierImpactDetails}" VerticalAlignment="Center"/>
+                <TextBlock Classes="label" Text="{Binding Source={StaticResource Loc}, Path=TierImpactDetails}" VerticalAlignment="Center"/>
                 <ComboBox ItemsSource="{Binding Impacts}" SelectedItem="{Binding SelectedImpact}" Width="300"/>
-                <TextBlock Text="{Binding DetailSummary}" VerticalAlignment="Center" Opacity="0.85" TextWrapping="Wrap"/>
+                <TextBlock Classes="muted" Text="{Binding DetailSummary}" VerticalAlignment="Center" FontSize="13"/>
             </StackPanel>
         </DockPanel>
 
-        <TabControl Grid.Row="3">
+        <Border Grid.Row="3" Classes="card" Padding="12,6,12,8">
+        <TabControl Classes="suite">
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=TierImpactPlan}">
-                <ListBox ItemsSource="{Binding Steps}">
+                <ListBox Classes="plain" ItemsSource="{Binding Steps}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:TierStepItem">
                             <Grid ColumnDefinitions="24,200,*">
@@ -69,7 +72,7 @@
                                         <Run Text=" → "/>
                                         <Run Text="{Binding To}" FontFamily="Consolas, Courier New, monospace" FontSize="12"/>
                                     </TextBlock>
-                                    <TextBlock Text="{Binding Reason}" FontSize="11" Opacity="0.8" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding Reason}" FontSize="11" Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
                         </DataTemplate>
@@ -77,7 +80,7 @@
                 </ListBox>
             </TabItem>
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=TierImpactIssues}">
-                <ListBox ItemsSource="{Binding Issues}">
+                <ListBox Classes="plain" ItemsSource="{Binding Issues}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="x:String">
                             <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
@@ -86,36 +89,36 @@
                 </ListBox>
             </TabItem>
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=TierImpactCutPaths}">
-                <ListBox ItemsSource="{Binding CutPaths}">
+                <ListBox Classes="plain" ItemsSource="{Binding CutPaths}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:TierPathItem">
                             <StackPanel>
                                 <TextBlock Text="{Binding Source}" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Steps}" FontSize="12" Opacity="0.85" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Steps}" FontSize="12" Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap"/>
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
             </TabItem>
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=TierImpactRemainingPaths}">
-                <ListBox ItemsSource="{Binding RemainingPaths}">
+                <ListBox Classes="plain" ItemsSource="{Binding RemainingPaths}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:TierPathItem">
                             <StackPanel>
                                 <TextBlock Text="{Binding Source}" FontWeight="SemiBold"/>
-                                <TextBlock Text="{Binding Steps}" FontSize="12" Opacity="0.85" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Steps}" FontSize="12" Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap"/>
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
             </TabItem>
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=ComparisonFixed}">
-                <ListBox ItemsSource="{Binding FixedFindings}">
+                <ListBox Classes="plain" ItemsSource="{Binding FixedFindings}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:ComparedFinding">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <TextBlock Text="✔" Foreground="#27AE60" FontWeight="Bold" VerticalAlignment="Center"/>
-                                <Border Background="{Binding SeverityColor}" CornerRadius="4" Padding="6,1" VerticalAlignment="Center">
+                                <Border Background="{Binding SeverityColor}" CornerRadius="6" Padding="6,1" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding SeverityLabel}" Foreground="White" FontSize="11"/>
                                 </Border>
                                 <TextBlock VerticalAlignment="Center">
@@ -129,12 +132,12 @@
                 </ListBox>
             </TabItem>
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=ComparisonNew}">
-                <ListBox ItemsSource="{Binding NewFindings}">
+                <ListBox Classes="plain" ItemsSource="{Binding NewFindings}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:ComparedFinding">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <TextBlock Text="⚠" Foreground="#C0392B" FontWeight="Bold" VerticalAlignment="Center"/>
-                                <Border Background="{Binding SeverityColor}" CornerRadius="4" Padding="6,1" VerticalAlignment="Center">
+                                <Border Background="{Binding SeverityColor}" CornerRadius="6" Padding="6,1" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding SeverityLabel}" Foreground="White" FontSize="11"/>
                                 </Border>
                                 <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
@@ -149,5 +152,6 @@
                 </ListBox>
             </TabItem>
         </TabControl>
+        </Border>
     </Grid>
 </Window>

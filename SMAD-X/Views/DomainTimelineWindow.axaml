@@ -22,43 +22,41 @@
         <Grid Grid.Row="0" ColumnDefinitions="*,16,*" Margin="0,0,0,10">
 
             <!-- File A -->
-            <Border Grid.Column="0" BorderBrush="#444" BorderThickness="1"
-                    CornerRadius="6" Padding="12,8">
+            <Border Grid.Column="0" Classes="card" Padding="16,10">
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <StackPanel Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TimelineFileA}" FontWeight="Bold"
                                    Foreground="#4FC3F7" FontSize="13"/>
                         <TextBlock Text="{Binding FileA.DomainName, FallbackValue='—'}"
-                                   FontSize="11" Foreground="#AAAAAA"/>
+                                   Classes="muted" FontSize="11"/>
                         <TextBlock Text="{Binding FileA.SnapshotDate, StringFormat='{}{0:yyyy-MM-dd  HH:mm}', FallbackValue=''}"
-                                   FontSize="11" Foreground="#888888"/>
+                                   Classes="muted" FontSize="11"/>
                     </StackPanel>
                     <TextBlock Grid.Column="1" Text="{Binding FileALabel}"
-                               VerticalAlignment="Center" Foreground="#CCCCCC"
+                               VerticalAlignment="Center" Foreground="{DynamicResource TextMuted}"
                                TextTrimming="CharacterEllipsis" FontSize="11"/>
                     <Button Grid.Column="2" Content="{Binding Source={StaticResource Loc}, Path=TimelineOpen}"
-                            Click="OnOpenFileAClick"
+                            Click="OnOpenFileAClick" Classes="tool"
                             Margin="10,0,0,0" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
 
             <!-- File B -->
-            <Border Grid.Column="2" BorderBrush="#444" BorderThickness="1"
-                    CornerRadius="6" Padding="12,8">
+            <Border Grid.Column="2" Classes="card" Padding="16,10">
                 <Grid ColumnDefinitions="Auto,*,Auto">
                     <StackPanel Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Source={StaticResource Loc}, Path=TimelineFileB}" FontWeight="Bold"
                                    Foreground="#81C784" FontSize="13"/>
                         <TextBlock Text="{Binding FileB.DomainName, FallbackValue='—'}"
-                                   FontSize="11" Foreground="#AAAAAA"/>
+                                   Classes="muted" FontSize="11"/>
                         <TextBlock Text="{Binding FileB.SnapshotDate, StringFormat='{}{0:yyyy-MM-dd  HH:mm}', FallbackValue=''}"
-                                   FontSize="11" Foreground="#888888"/>
+                                   Classes="muted" FontSize="11"/>
                     </StackPanel>
                     <TextBlock Grid.Column="1" Text="{Binding FileBLabel}"
-                               VerticalAlignment="Center" Foreground="#CCCCCC"
+                               VerticalAlignment="Center" Foreground="{DynamicResource TextMuted}"
                                TextTrimming="CharacterEllipsis" FontSize="11"/>
                     <Button Grid.Column="2" Content="{Binding Source={StaticResource Loc}, Path=TimelineOpen}"
-                            Click="OnOpenFileBClick"
+                            Click="OnOpenFileBClick" Classes="tool"
                             Margin="10,0,0,0" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
@@ -69,22 +67,22 @@
               Margin="0,0,0,10">
             <Button Grid.Column="0" Content="{Binding Source={StaticResource Loc}, Path=TimelineCompare}"
                     Command="{Binding CompareCommand}"
-                    FontWeight="Bold" Padding="16,6"/>
+                    Classes="accent" FontWeight="SemiBold"/>
 
             <!-- Stats badges -->
-            <Border Grid.Column="2" Background="#1B5E20" CornerRadius="4"
+            <Border Grid.Column="2" Background="#1B5E20" CornerRadius="999"
                     Padding="10,4" Margin="8,0,4,0">
                 <TextBlock Foreground="#A5D6A7">
                     <Run Text="{Binding Source={StaticResource Loc}, Path=TimelineAdded}"/><Run Text="{Binding CountAdded}"/>
                 </TextBlock>
             </Border>
-            <Border Grid.Column="3" Background="#B71C1C" CornerRadius="4"
+            <Border Grid.Column="3" Background="#B71C1C" CornerRadius="999"
                     Padding="10,4" Margin="4,0">
                 <TextBlock Foreground="#EF9A9A">
                     <Run Text="{Binding Source={StaticResource Loc}, Path=TimelineRemoved}"/><Run Text="{Binding CountRemoved}"/>
                 </TextBlock>
             </Border>
-            <Border Grid.Column="4" Background="#E65100" CornerRadius="4"
+            <Border Grid.Column="4" Background="#E65100" CornerRadius="999"
                     Padding="10,4" Margin="4,0">
                 <TextBlock Foreground="#FFCC80">
                     <Run Text="{Binding Source={StaticResource Loc}, Path=TimelineModified}"/><Run Text="{Binding CountModified}"/>
@@ -92,7 +90,7 @@
             </Border>
 
             <Button Grid.Column="6" Content="{Binding Source={StaticResource Loc}, Path=TimelineExportCsv}"
-                    Click="OnExportCsvClick"
+                    Click="OnExportCsvClick" Classes="tool"
                     Margin="8,0,0,0"/>
         </Grid>
 
@@ -125,12 +123,13 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
 
-            <Button Grid.Column="3" Content="{Binding Source={StaticResource Loc}, Path=TimelineApply}"
+            <Button Grid.Column="3" Classes="tool" Content="{Binding Source={StaticResource Loc}, Path=TimelineApply}"
                     Command="{Binding ApplyFiltersCommand}"/>
         </Grid>
 
         <!-- ── Row 3 : Diff DataGrid ─────────────────────────────────────── -->
-        <DataGrid Grid.Row="3"
+        <Border Grid.Row="3" Classes="card" Padding="6">
+        <DataGrid
                   ItemsSource="{Binding FilteredChanges}"
                   IsReadOnly="True"
                   GridLinesVisibility="Horizontal"
@@ -144,13 +143,10 @@
                 <DataGridTextColumn Header="{Binding Source={StaticResource Loc}, Path=TimelineColumnDetails}"  Binding="{Binding ChangedFieldsSummary}"  Width="320"/>
             </DataGrid.Columns>
         </DataGrid>
+        </Border>
 
         <!-- ── Row 4 : Status bar ────────────────────────────────────────── -->
-        <Border Grid.Row="4" Background="#222222" CornerRadius="4"
-                Padding="10,5" Margin="0,8,0,0">
-            <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="12" Foreground="#BBBBBB"/>
-        </Border>
+        <TextBlock Grid.Row="4" Classes="muted" Text="{Binding StatusMessage}" Margin="4,10,0,0"/>
 
     </Grid>
 </Window>

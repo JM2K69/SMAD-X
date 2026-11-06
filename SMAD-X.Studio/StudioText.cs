@@ -40,6 +40,7 @@ namespace SMADX.Studio
         private static readonly Dictionary<string, (string Fr, string En)> Texts = new()
         {
             ["App.Title"] = ("SMAD-X Studio — création d'exercices", "SMAD-X Studio — lab authoring"),
+            ["App.Subtitle"] = ("Création d'exercices pour les formateurs", "Lab authoring for trainers"),
 
             ["Menu.File"] = ("Fichier", "File"),
             ["Menu.NewFromRecipe"] = ("Nouvel exercice à partir d'une recommandation...", "New lab from a recommendation..."),

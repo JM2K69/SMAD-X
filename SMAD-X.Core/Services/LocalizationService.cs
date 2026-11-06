@@ -85,6 +85,11 @@ namespace SMADX.Services
 
                 // Détails
                 ["Details.Title"] = "Détails de l'objet",
+                ["Details.Field.Name"] = "Nom",
+                ["Details.Field.Type"] = "Type",
+                ["Details.Field.DN"] = "Distinguished Name",
+                ["Details.Field.Tier"] = "Tier",
+                ["Details.Field.Description"] = "Description (Markdown)",
                 ["Details.Name"] = "Nom :",
                 ["Details.Type"] = "Type :",
                 ["Details.Tier"] = "Tier :",
@@ -1117,6 +1122,11 @@ namespace SMADX.Services
 
                 // Details
                 ["Details.Title"] = "Object Details",
+                ["Details.Field.Name"] = "Name",
+                ["Details.Field.Type"] = "Type",
+                ["Details.Field.DN"] = "Distinguished Name",
+                ["Details.Field.Tier"] = "Tier",
+                ["Details.Field.Description"] = "Description (Markdown)",
                 ["Details.Name"] = "Name:",
                 ["Details.Type"] = "Type:",
                 ["Details.Tier"] = "Tier:",

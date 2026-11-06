@@ -16,41 +16,47 @@
 
 				<!-- ── Thème Clair ───────────────────────────────── -->
 				<ResourceDictionary x:Key="Light">
-					<SolidColorBrush x:Key="AppAccentBrush"         Color="#007ACC"/>
-					<SolidColorBrush x:Key="AppSelectionBrush"      Color="#CCE4F7"/>
+					<SolidColorBrush x:Key="AppAccentBrush"         Color="#0969DA"/>
+					<SolidColorBrush x:Key="AppSelectionBrush"      Color="#DCEBFF"/>
 					<SolidColorBrush x:Key="AppTreeBgBrush"         Color="#FFFFFF"/>
-					<SolidColorBrush x:Key="AppTreeFgBrush"         Color="#1E1E1E"/>
-					<SolidColorBrush x:Key="AppSelectedItemBrush"   Color="#CCE4F7"/>
+					<SolidColorBrush x:Key="AppTreeFgBrush"         Color="#1F2328"/>
+					<SolidColorBrush x:Key="AppSelectedItemBrush"   Color="#DCEBFF"/>
 					<SolidColorBrush x:Key="AppSelectedItemFgBrush" Color="#000000"/>
-					<SolidColorBrush x:Key="AppToolbarBgBrush"      Color="#F0F0F0"/>
+					<SolidColorBrush x:Key="AppToolbarBgBrush"      Color="#FFFFFF"/>
 					<SolidColorBrush x:Key="AppTierFgBrush"         Color="#005F9E"/>
-					<SolidColorBrush x:Key="AppSeparatorBrush"      Color="#CCCCCC"/>
-					<SolidColorBrush x:Key="AppRelationsBtnBgBrush" Color="#0078D4"/>
-					<SolidColorBrush x:Key="AppRelationsBtnFgBrush" Color="#FFFFFF"/>
-					<SolidColorBrush x:Key="AppGraphBtnBgBrush"     Color="#6B3FA0"/>
-					<SolidColorBrush x:Key="AppGraphBtnFgBrush"     Color="#FFFFFF"/>
+					<SolidColorBrush x:Key="AppSeparatorBrush"      Color="#D9DFE7"/>
 				</ResourceDictionary>
 
 				<!-- ── Thème Sombre ──────────────────────────────── -->
 				<ResourceDictionary x:Key="Dark">
-					<SolidColorBrush x:Key="AppAccentBrush"         Color="#007ACC"/>
-					<SolidColorBrush x:Key="AppSelectionBrush"      Color="#094771"/>
-					<SolidColorBrush x:Key="AppTreeBgBrush"         Color="#1E1E1E"/>
-					<SolidColorBrush x:Key="AppTreeFgBrush"         Color="#E0E0E0"/>
-					<SolidColorBrush x:Key="AppSelectedItemBrush"   Color="#094771"/>
+					<SolidColorBrush x:Key="AppAccentBrush"         Color="#4C9AFF"/>
+					<SolidColorBrush x:Key="AppSelectionBrush"      Color="#1F3A5F"/>
+					<SolidColorBrush x:Key="AppTreeBgBrush"         Color="#1C2129"/>
+					<SolidColorBrush x:Key="AppTreeFgBrush"         Color="#E6EAF0"/>
+					<SolidColorBrush x:Key="AppSelectedItemBrush"   Color="#1F3A5F"/>
 					<SolidColorBrush x:Key="AppSelectedItemFgBrush" Color="#FFFFFF"/>
-					<SolidColorBrush x:Key="AppToolbarBgBrush"      Color="#2D2D30"/>
+					<SolidColorBrush x:Key="AppToolbarBgBrush"      Color="#101317"/>
 					<SolidColorBrush x:Key="AppTierFgBrush"         Color="#7FFF9A"/>
-					<SolidColorBrush x:Key="AppSeparatorBrush"      Color="#3F3F46"/>
-					<SolidColorBrush x:Key="AppRelationsBtnBgBrush" Color="#094771"/>
-					<SolidColorBrush x:Key="AppRelationsBtnFgBrush" Color="#FFFFFF"/>
-					<SolidColorBrush x:Key="AppGraphBtnBgBrush"     Color="#4B3580"/>
-					<SolidColorBrush x:Key="AppGraphBtnFgBrush"     Color="#FFFFFF"/>
+					<SolidColorBrush x:Key="AppSeparatorBrush"      Color="#2D3540"/>
 				</ResourceDictionary>
 
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>
 	</Styles.Resources>
+
+	<!-- ══════════════════════════════════════════════════════════
+		 TABLEAUX (DataGrid) : en-têtes et lignes dans la palette commune
+		 ══════════════════════════════════════════════════════════ -->
+	<Style Selector="DataGrid">
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource CardBorder}"/>
+	</Style>
+	<Style Selector="DataGridColumnHeader">
+		<Setter Property="Background" Value="{DynamicResource ChipBg}"/>
+		<Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
+		<Setter Property="FontSize" Value="12"/>
+		<Setter Property="FontWeight" Value="SemiBold"/>
+	</Style>
 
 	<!-- ══════════════════════════════════════════════════════════
 		 TREEVIEW
@@ -145,44 +151,6 @@
 	<!-- Cible directement les TextBlocks du contenu (emoji + label) -->
 	<Style Selector="StackPanel#Toolbar Button TextBlock">
 		<Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
-	</Style>
-
-	<!-- Relations / Graph : foreground dédié selon le thème -->
-	<Style Selector="StackPanel#Toolbar Button.BtnRelations">
-		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnRelations:pointerover">
-		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnRelations:pressed">
-		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnRelations /template/ ContentPresenter">
-		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnRelations:pointerover /template/ ContentPresenter">
-		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnRelations TextBlock">
-		<Setter Property="Foreground" Value="{DynamicResource AppRelationsBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnGraph">
-		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnGraph:pointerover">
-		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnGraph:pressed">
-		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnGraph /template/ ContentPresenter">
-		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnGraph:pointerover /template/ ContentPresenter">
-		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
-	</Style>
-	<Style Selector="StackPanel#Toolbar Button.BtnGraph TextBlock">
-		<Setter Property="Foreground" Value="{DynamicResource AppGraphBtnFgBrush}"/>
 	</Style>
 
 </Styles>

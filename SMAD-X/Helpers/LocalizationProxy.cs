@@ -92,6 +92,11 @@ namespace SMADX.Helpers
 
         // Details
         public string DetailsTitle => _localizationService["Details.Title"];
+        public string FieldName => _localizationService["Details.Field.Name"];
+        public string FieldType => _localizationService["Details.Field.Type"];
+        public string FieldDN => _localizationService["Details.Field.DN"];
+        public string FieldTier => _localizationService["Details.Field.Tier"];
+        public string FieldDescription => _localizationService["Details.Field.Description"];
         public string DetailsName => _localizationService["Details.Name"];
         public string DetailsType => _localizationService["Details.Type"];
         public string DetailsTier => _localizationService["Details.Tier"];

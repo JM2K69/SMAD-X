@@ -16,53 +16,49 @@
 		<vm:DelegationsViewModel/>
 	</Design.DataContext>
 
-	<Grid RowDefinitions="Auto,*,Auto" Margin="12">
+	<Grid RowDefinitions="Auto,*,Auto" Margin="16">
 
 		<!-- Statistics bar -->
-		<Border Grid.Row="0" Background="#F5F5F5" CornerRadius="4"
-				Padding="12,8" Margin="0,0,0,10">
-			<StackPanel Orientation="Horizontal" Spacing="20">
+		<Border Grid.Row="0" Classes="card" Padding="18,12" Margin="0,0,0,12">
+			<StackPanel Orientation="Horizontal" Spacing="28">
 				<StackPanel>
-					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryPasswordReset}" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryPasswordReset}" Classes="label"/>
 					<TextBlock Text="{Binding CountPasswordReset}" FontSize="20" FontWeight="Bold" Foreground="#0078D4"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryComputerManagement}" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryComputerManagement}" Classes="label"/>
 					<TextBlock Text="{Binding CountComputerManagement}" FontSize="20" FontWeight="Bold" Foreground="#107C10"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryAccountUnlock}" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryAccountUnlock}" Classes="label"/>
 					<TextBlock Text="{Binding CountAccountUnlock}" FontSize="20" FontWeight="Bold" Foreground="#E3A21A"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryAttributeWrite}" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryAttributeWrite}" Classes="label"/>
 					<TextBlock Text="{Binding CountAttributeWrite}" FontSize="20" FontWeight="Bold" Foreground="#8764B8"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryFullControl}" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryFullControl}" Classes="label"/>
 					<TextBlock Text="{Binding CountFullControl}" FontSize="20" FontWeight="Bold" Foreground="#D13438"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCardSensitive}" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCardSensitive}" Classes="label"/>
 					<TextBlock Text="{Binding CountSensitive}" FontSize="20" FontWeight="Bold" Foreground="#A4262C"/>
 				</StackPanel>
 				<StackPanel>
-					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryOther}" FontSize="11" Foreground="#666"/>
+					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationCategoryOther}" Classes="label"/>
 					<TextBlock Text="{Binding CountOther}" FontSize="20" FontWeight="Bold" Foreground="#767676"/>
 				</StackPanel>
 			</StackPanel>
 		</Border>
 
 		<!-- Main split: TreeView | Splitter | DataGrid + filters -->
-		<Grid Grid.Row="1" ColumnDefinitions="260,4,*">
+		<Grid Grid.Row="1" ColumnDefinitions="270,12,*">
 
 			<!-- Left: OU tree -->
-			<Border Grid.Column="0" BorderBrush="#CCCCCC" BorderThickness="0,0,1,0">
+			<Border Grid.Column="0" Classes="card" Padding="10,14,10,10">
 				<Grid RowDefinitions="Auto,*,Auto">
-					<Border Grid.Row="0" Padding="10,7" Background="#1A5FAF" CornerRadius="4,4,0,0">
-						<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationsTreeTitle}" FontWeight="SemiBold" FontSize="13"
-								   Foreground="White"/>
-					</Border>
+					<TextBlock Grid.Row="0" Classes="h" Text="{Binding Source={StaticResource Loc}, Path=DelegationsTreeTitle}" Margin="6,0,0,8"/>
 
 					<TreeView Grid.Row="1"
 							  x:Name="OUTreeView"
@@ -86,7 +82,7 @@
 												   FontSize="10" FontWeight="SemiBold"/>
 									</Border>
 									<!-- Delegation count badge -->
-									<Border Background="#0078D4" CornerRadius="8" Padding="5,1"
+									<Border Background="{DynamicResource Accent}" CornerRadius="999" Padding="6,1"
 											IsVisible="{Binding HasDelegations}"
 											VerticalAlignment="Center">
 										<TextBlock Text="{Binding DirectDelegationCount}"
@@ -99,17 +95,18 @@
 
 					<Button Grid.Row="2" Content="{Binding Source={StaticResource Loc}, Path=DelegationsShowAll}"
 							Command="{Binding ClearOUFilterCommand}"
-							HorizontalAlignment="Stretch" Margin="6"
+							HorizontalAlignment="Stretch" Margin="0,8,0,0" Classes="tool"
 							HorizontalContentAlignment="Center"/>
 				</Grid>
 			</Border>
 
 			<!-- Splitter -->
 			<GridSplitter Grid.Column="1" ResizeDirection="Columns"
-						  Background="#DDDDDD" Width="4"/>
+						  Background="Transparent" Width="12"/>
 
 			<!-- Right: filters + DataGrid -->
-			<Grid Grid.Column="2" RowDefinitions="Auto,Auto,*" Margin="10,0,0,0">
+			<Border Grid.Column="2" Classes="card" Padding="14">
+			<Grid RowDefinitions="Auto,Auto,*">
 
 				<!-- Filter bar -->
 				<Grid Grid.Row="0" ColumnDefinitions="*,*,Auto,Auto,Auto"
@@ -133,14 +130,14 @@
 							  IsChecked="{Binding HideInherited}" Margin="0,0,8,0"
 							  VerticalAlignment="Center"/>
 					<StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="8">
-						<Button Content="{Binding Source={StaticResource Loc}, Path=DelegationsApply}" Command="{Binding ApplyFiltersCommand}"/>
-						<Button Content="{Binding Source={StaticResource Loc}, Path=DelegationsExportCsv}" Click="OnExportCsvClick"/>
+						<Button Classes="tool" Content="{Binding Source={StaticResource Loc}, Path=DelegationsApply}" Command="{Binding ApplyFiltersCommand}"/>
+						<Button Classes="tool" Content="{Binding Source={StaticResource Loc}, Path=DelegationsExportCsv}" Click="OnExportCsvClick"/>
 					</StackPanel>
 				</Grid>
 
 				<!-- Édition : déléguer sur l'OU sélectionnée à gauche, retirer la délégation sélectionnée -->
 				<StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,10">
-					<TextBlock Text="{Binding Source={StaticResource Loc}, Path=DelegationAddLabel}" VerticalAlignment="Center"/>
+					<TextBlock Classes="label" Text="{Binding Source={StaticResource Loc}, Path=DelegationAddLabel}" VerticalAlignment="Center"/>
 					<ComboBox ItemsSource="{Binding Principals}" SelectedItem="{Binding NewTrustee}" Width="220"
 							  PlaceholderText="{Binding Source={StaticResource Loc}, Path=DelegationTrustee}"/>
 					<ComboBox ItemsSource="{Binding RightCategories}" SelectedItem="{Binding NewCategory}" Width="240">
@@ -150,8 +147,8 @@
 							</DataTemplate>
 						</ComboBox.ItemTemplate>
 					</ComboBox>
-					<Button Content="{Binding Source={StaticResource Loc}, Path=DelegationAdd}" Command="{Binding AddDelegationCommand}"/>
-					<Button Content="{Binding Source={StaticResource Loc}, Path=DelegationRemove}" Command="{Binding RemoveDelegationCommand}"/>
+					<Button Classes="tool" Content="{Binding Source={StaticResource Loc}, Path=DelegationAdd}" Command="{Binding AddDelegationCommand}"/>
+					<Button Classes="tool" Content="{Binding Source={StaticResource Loc}, Path=DelegationRemove}" Command="{Binding RemoveDelegationCommand}"/>
 				</StackPanel>
 
 				<!-- DataGrid -->
@@ -172,12 +169,11 @@
 					</DataGrid.Columns>
 				</DataGrid>
 			</Grid>
+			</Border>
 		</Grid>
 
 		<!-- Status bar -->
-		<Border Grid.Row="2" Background="#F0F0F0" Padding="8,4" Margin="0,8,0,0">
-			<TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#444444"/>
-		</Border>
+		<TextBlock Grid.Row="2" Classes="muted" Text="{Binding StatusMessage}" Margin="4,10,0,0"/>
 
 	</Grid>
 </Window>

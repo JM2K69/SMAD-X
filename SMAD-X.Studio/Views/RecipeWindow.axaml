@@ -15,53 +15,55 @@
         <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
             <TextBox Grid.Column="0" Text="{Binding Filter}"
                      PlaceholderText="{Binding [Recipe.Filter], Source={StaticResource S}}"/>
-            <Button Grid.Column="1" Margin="8,0,0,0" Click="ClearChecks"
+            <Button Classes="tool" Grid.Column="1" Margin="8,0,0,0" Click="ClearChecks"
                     Content="{Binding [Recipe.ClearChecks], Source={StaticResource S}}"/>
         </Grid>
 
         <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,Auto,Auto,*,Auto" RowDefinitions="Auto,Auto" Margin="0,12,0,0">
-            <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0"
+            <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0" Classes="label"
                        Text="{Binding [Recipe.Language], Source={StaticResource S}}"/>
             <ComboBox Grid.Row="0" Grid.Column="1" Width="180" ItemsSource="{Binding Cultures}" SelectedItem="{Binding Culture}"/>
-            <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Margin="12,0,8,0"
+            <TextBlock Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Margin="12,0,8,0" Classes="label"
                        Text="{Binding [Recipe.Domain], Source={StaticResource S}}"/>
             <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding DomainName}"/>
-            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,8,8,0"
+            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,8,8,0" Classes="label"
                        Text="{Binding [Recipe.Server], Source={StaticResource S}}"/>
             <ComboBox Grid.Row="1" Grid.Column="1" Width="180" Margin="0,8,0,0" ItemsSource="{Binding Versions}" SelectedItem="{Binding Version}"/>
             <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="12,0,0,0">
                 <Button Classes="accent" IsDefault="True" IsEnabled="{Binding CanCreate}" Click="Create"
                         Content="{Binding [Recipe.Create], Source={StaticResource S}}"/>
-                <Button IsCancel="True" Click="Cancel" Content="{Binding [Recipe.Cancel], Source={StaticResource S}}"/>
+                <Button Classes="tool" IsCancel="True" Click="Cancel" Content="{Binding [Recipe.Cancel], Source={StaticResource S}}"/>
             </StackPanel>
         </Grid>
 
         <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="0,8,0,0">
-            <Border Padding="10" CornerRadius="4" Background="#22FFFFFF">
+            <Border Padding="12,10" CornerRadius="8" Background="{DynamicResource ChipBg}">
                 <TextBlock TextWrapping="Wrap" Text="{Binding Selected.Situation}"/>
             </Border>
             <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding SelectionSummary}"
                        IsVisible="{Binding SelectionSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-            <Border Padding="10" CornerRadius="4" Background="#55E74C3C" IsVisible="{Binding HasIncompatibility}">
+            <Border Padding="12,10" CornerRadius="8" Background="{DynamicResource DangerSoft}" IsVisible="{Binding HasIncompatibility}">
                 <TextBlock TextWrapping="Wrap" Text="{Binding Incompatibility}"/>
             </Border>
         </StackPanel>
 
-        <ListBox ItemsSource="{Binding Recipes}" SelectedItem="{Binding Selected}" DoubleTapped="Create">
+        <Border Classes="card" Padding="6">
+        <ListBox Classes="plain" ItemsSource="{Binding Recipes}" SelectedItem="{Binding Selected}" DoubleTapped="Create">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid ColumnDefinitions="32,80,*,190,40">
                         <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" MinWidth="0"/>
-                        <Border Grid.Column="1" Background="{Binding SeverityColor}" CornerRadius="3" Padding="6,2"
+                        <Border Grid.Column="1" Background="{Binding SeverityColor}" CornerRadius="6" Padding="6,2"
                                 HorizontalAlignment="Left" VerticalAlignment="Center">
                             <TextBlock Text="{Binding RuleId}" Foreground="Black" FontWeight="SemiBold" FontSize="12"/>
                         </Border>
                         <TextBlock Grid.Column="2" Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="3" Text="{Binding Anssi}" Opacity="0.75" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="8,0"/>
-                        <TextBlock Grid.Column="4" Text="{Binding Level}" Opacity="0.75" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Text="{Binding Anssi}" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="8,0"/>
+                        <TextBlock Grid.Column="4" Text="{Binding Level}" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center"/>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+        </Border>
     </DockPanel>
 </Window>

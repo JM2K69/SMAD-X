@@ -9,23 +9,23 @@
         Width="1100" Height="820"
         WindowStartupLocation="CenterOwner">
 
-    <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="16">
 
         <!-- ═══ En-tête : titre, niveau, durée, score ═══ -->
-        <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,10">
+        <Border Grid.Row="0" Classes="card" Padding="18,14" Margin="0,0,0,12">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Spacing="4">
                     <TextBlock Text="{Binding Title}" FontSize="20" FontWeight="Bold" TextWrapping="Wrap"/>
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <Border Background="#2E86C1" CornerRadius="10" Padding="10,2">
-                            <TextBlock Text="{Binding LevelLabel}" Foreground="White" FontSize="12"/>
+                        <Border Background="{DynamicResource AccentSoft}" CornerRadius="999" Padding="10,2">
+                            <TextBlock Text="{Binding LevelLabel}" Foreground="{DynamicResource Accent}" FontSize="12" FontWeight="SemiBold"/>
                         </Border>
-                        <TextBlock Text="{Binding DurationLabel}" VerticalAlignment="Center" Opacity="0.8"/>
-                        <TextBlock Text="{Binding ElapsedLabel}" VerticalAlignment="Center" Opacity="0.8" IsVisible="{Binding !IsOverTime}"/>
+                        <TextBlock Classes="muted" Text="{Binding DurationLabel}" VerticalAlignment="Center" FontSize="13"/>
+                        <TextBlock Classes="muted" Text="{Binding ElapsedLabel}" VerticalAlignment="Center" FontSize="13" IsVisible="{Binding !IsOverTime}"/>
                         <TextBlock Text="{Binding ElapsedLabel}" VerticalAlignment="Center" Foreground="#C0392B" FontWeight="SemiBold" IsVisible="{Binding IsOverTime}"/>
                     </StackPanel>
                     <!-- Mode examen : ni indice, ni vérification -->
-                    <Border Background="#40C0392B" CornerRadius="4" Padding="8,4" Margin="0,4,0,0" HorizontalAlignment="Left"
+                    <Border Background="{DynamicResource DangerSoft}" CornerRadius="8" Padding="10,5" Margin="0,4,0,0" HorizontalAlignment="Left"
                             IsVisible="{Binding IsExam}">
                         <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabExamNotice}" TextWrapping="Wrap" FontWeight="SemiBold"/>
                     </Border>
@@ -40,22 +40,22 @@
 
         <!-- ═══ Énoncé | objectifs ═══ -->
         <Grid Grid.Row="1" ColumnDefinitions="5*,Auto,6*">
-            <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="14">
+            <Border Grid.Column="0" Classes="card">
                 <ScrollViewer>
                     <ContentControl Content="{Binding Statement, Converter={StaticResource MarkdownConverter}}"/>
                 </ScrollViewer>
             </Border>
 
-            <GridSplitter Grid.Column="1" Width="6" ResizeDirection="Columns" Background="Transparent"/>
+            <GridSplitter Grid.Column="1" Width="12" ResizeDirection="Columns" Background="Transparent"/>
 
-            <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" CornerRadius="6" Padding="10">
+            <Border Grid.Column="2" Classes="card" Padding="14">
                 <ScrollViewer>
                     <StackPanel>
-                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabObjectives}" FontWeight="SemiBold" FontSize="15" Margin="4,0,0,8"/>
+                        <TextBlock Classes="h" Text="{Binding Source={StaticResource Loc}, Path=LabObjectives}" Margin="4,0,0,8"/>
                         <ItemsControl ItemsSource="{Binding Objectives}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:LabObjectiveItem">
-                                    <Border BorderBrush="#40808080" BorderThickness="0,0,0,1" Padding="4,8">
+                                    <Border BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,0,0,1" Padding="4,10">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
                                             <TextBlock Grid.Column="0" Text="{Binding StatusIcon}" Foreground="{Binding StatusColor}"
                                                        FontSize="18" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Top"/>
@@ -63,19 +63,19 @@
                                                 <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontWeight="SemiBold"/>
                                                 <TextBlock Text="{Binding Feedback}" TextWrapping="Wrap" FontSize="12"
                                                            Foreground="{Binding StatusColor}" IsVisible="{Binding Passed, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                                                <Border Background="#202E86C1" CornerRadius="4" Padding="8,4" IsVisible="{Binding IsHintVisible}">
+                                                <Border Background="{DynamicResource AccentSoft}" CornerRadius="8" Padding="10,6" IsVisible="{Binding IsHintVisible}">
                                                     <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" FontSize="12"/>
                                                 </Border>
                                             </StackPanel>
                                             <StackPanel Grid.Column="2" Spacing="4" Margin="10,0,0,0" HorizontalAlignment="Right">
-                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Opacity="0.8" IsVisible="{Binding IsScored}">
+                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding IsScored}">
                                                     <Run Text="{Binding Points}"/><Run Text="{Binding Source={StaticResource Loc}, Path=LabPointsUnit}"/>
                                                 </TextBlock>
-                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Opacity="0.8" IsVisible="{Binding IsGuard}"
+                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding IsGuard}"
                                                            Text="{Binding Source={StaticResource Loc}, Path=LabGuard}"
                                                            ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=LabGuardTip}"/>
                                                 <Button Content="{Binding Source={StaticResource Loc}, Path=LabHint}" Command="{Binding ToggleHintCommand}"
-                                                        Padding="8,2" FontSize="11" IsVisible="{Binding CanShowHint}"/>
+                                                        Classes="tool" Padding="8,3" FontSize="11" IsVisible="{Binding CanShowHint}"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -84,12 +84,12 @@
                         </ItemsControl>
 
                         <!-- Questions de compréhension : la réponse s'enregistre dans la copie -->
-                        <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabQuestions}" FontWeight="SemiBold" FontSize="15" Margin="4,16,0,8"
+                        <TextBlock Classes="h" Text="{Binding Source={StaticResource Loc}, Path=LabQuestions}" Margin="4,18,0,8"
                                    IsVisible="{Binding HasQuestions}"/>
                         <ItemsControl ItemsSource="{Binding Questions}" IsVisible="{Binding HasQuestions}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:LabQuestionItem">
-                                    <Border BorderBrush="#40808080" BorderThickness="0,0,0,1" Padding="4,8">
+                                    <Border BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,0,0,1" Padding="4,10">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
                                             <TextBlock Grid.Column="0" Text="{Binding StatusIcon}" Foreground="{Binding StatusColor}"
                                                        FontSize="18" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Top"/>
@@ -128,16 +128,16 @@
                                                          PlaceholderText="{Binding Source={StaticResource Loc}, Path=LabAnswerWatermark}"/>
                                                 <TextBlock Text="{Binding Feedback}" TextWrapping="Wrap" FontSize="12"
                                                            Foreground="{Binding StatusColor}" IsVisible="{Binding Feedback, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                                                <Border Background="#202E86C1" CornerRadius="4" Padding="8,4" IsVisible="{Binding IsHintVisible}">
+                                                <Border Background="{DynamicResource AccentSoft}" CornerRadius="8" Padding="10,6" IsVisible="{Binding IsHintVisible}">
                                                     <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" FontSize="12"/>
                                                 </Border>
                                             </StackPanel>
                                             <StackPanel Grid.Column="2" Spacing="4" Margin="10,0,0,0" HorizontalAlignment="Right">
-                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Opacity="0.8">
+                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="{DynamicResource TextMuted}">
                                                     <Run Text="{Binding Points}"/><Run Text="{Binding Source={StaticResource Loc}, Path=LabPointsUnit}"/>
                                                 </TextBlock>
                                                 <Button Content="{Binding Source={StaticResource Loc}, Path=LabHint}" Command="{Binding ToggleHintCommand}"
-                                                        Padding="8,2" FontSize="11" IsVisible="{Binding CanShowHint}"/>
+                                                        Classes="tool" Padding="8,3" FontSize="11" IsVisible="{Binding CanShowHint}"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -150,27 +150,29 @@
         </Grid>
 
         <!-- ═══ Actions ═══ -->
-        <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" Margin="0,10,0,0">
+        <Border Grid.Row="2" Classes="card" Padding="16,12" Margin="0,12,0,0">
+        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabStudentName}" VerticalAlignment="Center"/>
+                <TextBlock Classes="label" Text="{Binding Source={StaticResource Loc}, Path=LabStudentName}" VerticalAlignment="Center"/>
                 <TextBox Text="{Binding StudentName}" Width="220"/>
-                <TextBlock Text="{Binding Source={StaticResource Loc}, Path=LabStudentId}" VerticalAlignment="Center" Margin="8,0,0,0"
+                <TextBlock Classes="label" Text="{Binding Source={StaticResource Loc}, Path=LabStudentId}" VerticalAlignment="Center" Margin="8,0,0,0"
                            ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=LabStudentIdTip}"/>
                 <TextBox Text="{Binding StudentId}" Width="160" ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=LabStudentIdTip}"/>
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                <Button Content="{Binding Source={StaticResource Loc}, Path=LabRestart}" Command="{Binding RestartCommand}" Padding="12,5"
+                <Button Content="{Binding Source={StaticResource Loc}, Path=LabRestart}" Command="{Binding RestartCommand}" Classes="tool"
                         IsVisible="{Binding ShowGrading}"/>
-                <Button Content="{Binding Source={StaticResource Loc}, Path=LabExportResult}" Command="{Binding ExportResultCommand}" Padding="12,5"
+                <Button Content="{Binding Source={StaticResource Loc}, Path=LabExportResult}" Command="{Binding ExportResultCommand}" Classes="tool"
                         IsVisible="{Binding ShowGrading}"/>
-                <Button Content="{Binding Source={StaticResource Loc}, Path=LabSaveSubmission}" Command="{Binding SaveSubmissionCommand}" Padding="12,5"/>
-                <Button Content="{Binding Source={StaticResource Loc}, Path=LabCheck}" Command="{Binding CheckCommand}" Padding="16,5"
-                        Background="#1E8449" Foreground="White" FontWeight="SemiBold" IsVisible="{Binding CanCheck}"/>
+                <Button Content="{Binding Source={StaticResource Loc}, Path=LabSaveSubmission}" Command="{Binding SaveSubmissionCommand}" Classes="tool"/>
+                <Button Content="{Binding Source={StaticResource Loc}, Path=LabCheck}" Command="{Binding CheckCommand}" Classes="accent"
+                        FontWeight="SemiBold" IsVisible="{Binding CanCheck}"/>
             </StackPanel>
-            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Margin="0,6,0,0" FontSize="12" Opacity="0.8" TextWrapping="Wrap"
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Margin="0,8,0,0" Classes="muted"
                        Text="{Binding Source={StaticResource Loc}, Path=LabSubmissionNeedName}" IsVisible="{Binding !HasStudentName}"/>
             <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Margin="0,6,0,0" FontSize="12" Foreground="#27AE60" TextWrapping="Wrap"
                        Text="{Binding SubmissionStatus}" IsVisible="{Binding HasStudentName}"/>
         </Grid>
+        </Border>
     </Grid>
 </Window>

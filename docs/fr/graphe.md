@@ -17,6 +17,8 @@
 
 Les cases à cocher filtrent les types de liens, et **Isolés** affiche ou masque les objets sans lien.
 
+La fenêtre du graphe reste sombre, même en thème clair : les couleurs des objets et des liens sont faites pour un fond sombre.
+
 ## Naviguer
 
 | Geste | Effet |

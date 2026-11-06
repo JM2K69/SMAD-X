@@ -23,7 +23,9 @@ public partial class SmarxTextTests
     public void EveryViewText_IsADynamicResource_TranslatedInBothLanguages()
     {
         var root = RepoRoot();
-        var themeKeys = ThemeKeyRegex().Matches(File.ReadAllText(Path.Combine(root, "SMAR-X", "App.axaml"))).Select(m => m.Groups[1].Value).ToHashSet();
+        // Les couleurs viennent du thème commun de la suite ; les icônes, de l'application
+        var themeKeys = new[] { Path.Combine(root, "SMAR-X", "App.axaml"), Path.Combine(root, "SMAD-X.UI", "Themes", "Suite.axaml") }
+            .SelectMany(f => ThemeKeyRegex().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value)).ToHashSet();
         var text = SmarxText.Instance;
 
         foreach (var view in Directory.GetFiles(Path.Combine(root, "SMAR-X", "Views"), "*.axaml"))

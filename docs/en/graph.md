@@ -17,6 +17,8 @@
 
 Checkboxes filter link types, and **Isolated** shows or hides objects without links.
 
+The graph window stays dark, even with the light theme: the colors of objects and links are made for a dark background.
+
 ## Navigating
 
 | Gesture | Effect |

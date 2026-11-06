@@ -44,7 +44,7 @@
 					<StackPanel Spacing="4">
 						<TextBlock Text="{Binding Source={StaticResource Loc}, Path=ReportScopeTypeFilter}"
 								   FontWeight="SemiBold"/>
-						<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="4" Padding="6,4">
+						<Border BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" CornerRadius="8" Padding="6,4">
 							<ItemsControl x:Name="TypeFilterList">
 								<ItemsControl.ItemsPanel>
 									<ItemsPanelTemplate>
@@ -72,15 +72,15 @@
 									HorizontalAlignment="Right">
 							<Button x:Name="BtnSelectAll"
 									Content="{Binding Source={StaticResource Loc}, Path=ReportScopeSelectAll}"
-									Click="OnSelectAll" Padding="8,3" FontSize="11"/>
+									Click="OnSelectAll" Classes="tool" Padding="8,3" FontSize="11"/>
 							<Button x:Name="BtnSelectNone"
 									Content="{Binding Source={StaticResource Loc}, Path=ReportScopeSelectNone}"
-									Click="OnSelectNone" Padding="8,3" FontSize="11"/>
+									Click="OnSelectNone" Classes="tool" Padding="8,3" FontSize="11"/>
 						</StackPanel>
 					</DockPanel>
 
 					<!-- Scrollable checkbox list -->
-					<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="4">
+					<Border BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" CornerRadius="8">
 						<ScrollViewer Height="200" VerticalScrollBarVisibility="Auto">
 							<ItemsControl x:Name="ElementList" Margin="6">
 								<ItemsControl.ItemTemplate>
@@ -95,7 +95,7 @@
 					</Border>
 
 					<!-- Selected count -->
-					<TextBlock x:Name="SelectedCountLabel" FontSize="11" Foreground="Gray"/>
+					<TextBlock x:Name="SelectedCountLabel" FontSize="11" Foreground="{DynamicResource TextMuted}"/>
 
 				</StackPanel>
 
@@ -140,12 +140,11 @@
 			<Button Grid.Column="1"
 					Content="{Binding Source={StaticResource Loc}, Path=ReportButtonExport}"
 					Click="OnExportClick"
-					Padding="20,8" Margin="0,0,8,0"
-					Background="#1E5631" Foreground="White"/>
+					Classes="accent" Padding="20,8" Margin="0,0,8,0"/>
 			<Button Grid.Column="2"
 					Content="{Binding Source={StaticResource Loc}, Path=ReportButtonCancel}"
 					Click="OnCancelClick"
-					Padding="20,8"/>
+					Classes="tool" Padding="20,8"/>
 		</Grid>
 
 	</Grid>

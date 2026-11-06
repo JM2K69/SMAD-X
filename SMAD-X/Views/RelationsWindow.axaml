@@ -22,19 +22,20 @@
     <Window.Styles>
         <!-- En-tête de colonne : s'adapte au thème -->
         <Style Selector="Border.RelHeader">
-            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource ChipBg}"/>
             <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
         </Style>
         <Style Selector="Border.RelHeader TextBlock">
-            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
         <!-- Ligne de données -->
         <Style Selector="Border.RelRow">
             <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
         </Style>
         <Style Selector="Border.RelRow TextBlock">
@@ -59,14 +60,6 @@
             <Setter Property="Padding" Value="4,1"/>
             <Setter Property="Margin" Value="0,0,6,0"/>
         </Style>
-        <!-- Bouton Supprimer -->
-        <Style Selector="Button.BtnDelete">
-            <Setter Property="Background" Value="#C42B1C"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-        <Style Selector="Button.BtnDelete:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#A4201A"/>
-        </Style>
         <!-- Icônes emoji dans les ComboBox : force le rendu couleur Skia
              en fixant FontFamily directement sur le TextBlock, ce qui
              empêche l'héritage du Foreground de la sélection TabItem/ComboBoxItem
@@ -84,15 +77,15 @@
 
     <Grid RowDefinitions="*,Auto">
 
-        <TabControl Grid.Row="0" Margin="10"
+        <Border Grid.Row="0" Classes="card" Padding="12,6,12,8" Margin="16,16,16,12">
+        <TabControl Classes="suite"
                     SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
 
             <!-- ===== ONGLET USER / COMPUTER → GROUP ===== -->
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=RelationsTabUserGroup}">
                 <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="8">
 
-                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                            BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
+                    <Border Grid.Row="0" Classes="code" Padding="12" Margin="0,0,0,8">
                         <Grid ColumnDefinitions="*,30,*,10,Auto" RowDefinitions="Auto,Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0"
                                        Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelUserComputer}"
@@ -133,7 +126,7 @@
                             <Button Grid.Row="1" Grid.Column="4"
                                     Content="{Binding Source={StaticResource Loc}, Path=RelationsAdd}"
                                     Command="{Binding #RelationsWindowRoot.DataContext.AddMembershipCommand}"
-                                    Padding="12,6" Background="#0078D4" Foreground="White" VerticalAlignment="Bottom"/>
+                                    Classes="accent" VerticalAlignment="Bottom"/>
                         </Grid>
                     </Border>
 
@@ -145,7 +138,7 @@
                         <Border Grid.Column="3" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColRelation}"/></Border>
                     </Grid>
 
-                    <ListBox Grid.Row="2" ItemsSource="{Binding Memberships}" SelectedItem="{Binding SelectedMembership, Mode=TwoWay}">
+                    <ListBox Grid.Row="2" Classes="plain" ItemsSource="{Binding Memberships}" SelectedItem="{Binding SelectedMembership, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="vm:RelationEntry">
                                 <Grid ColumnDefinitions="100,160,160,*">
@@ -168,7 +161,7 @@
                     </ListBox>
 
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
-                        <Button Classes="BtnDelete"
+                        <Button Classes="danger"
                                 Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
                                 Command="{Binding #RelationsWindowRoot.DataContext.RemoveMembershipCommand}"
                                 Padding="10,5"/>
@@ -182,8 +175,7 @@
 
                     <!-- Panneau de sélection N sources ⊂ N cibles -->
                     <Border Grid.Row="0"
-                            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                            BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
+                            Classes="code" Padding="12" Margin="0,0,0,8">
                         <Grid ColumnDefinitions="*,40,*">
 
                             <!-- Sources -->
@@ -196,8 +188,7 @@
                                          PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsFilter}"
                                          Margin="0,0,0,4" Padding="6,4"/>
                                 <Border Grid.Row="2"
-                                        BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                                        BorderThickness="1" CornerRadius="3" Height="120">
+                                        BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" CornerRadius="8" Height="120">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <ItemsControl ItemsSource="{Binding FilteredNestingSources}">
                                             <ItemsControl.ItemTemplate>
@@ -231,8 +222,7 @@
                                          PlaceholderText="{Binding Source={StaticResource Loc}, Path=RelationsFilter}"
                                          Margin="0,0,0,4" Padding="6,4"/>
                                 <Border Grid.Row="2"
-                                        BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                                        BorderThickness="1" CornerRadius="3" Height="120">
+                                        BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" CornerRadius="8" Height="120">
                                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                                         <ItemsControl ItemsSource="{Binding FilteredNestingTargets}">
                                             <ItemsControl.ItemTemplate>
@@ -262,7 +252,7 @@
                     </Grid>
 
                     <!-- Liste des imbrications existantes -->
-                    <ListBox Grid.Row="2"
+                    <ListBox Grid.Row="2" Classes="plain"
                              ItemsSource="{Binding GroupNestings}"
                              SelectedItem="{Binding SelectedGroupNesting, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
@@ -278,11 +268,11 @@
 
                     <!-- Boutons action -->
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
-                        <Button Background="#8764B8" Foreground="White"
+                        <Button Classes="accent"
                                 Content="{Binding Source={StaticResource Loc}, Path=RelationsAdd}"
                                 Command="{Binding #RelationsWindowRoot.DataContext.AddGroupNestingCommand}"
                                 Padding="12,6"/>
-                        <Button Classes="BtnDelete"
+                        <Button Classes="danger"
                                 Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
                                 Command="{Binding #RelationsWindowRoot.DataContext.RemoveGroupNestingCommand}"
                                 Padding="10,5"/>
@@ -297,10 +287,9 @@
 
                     <!-- Colonne gauche : TreeView hiérarchique des OUs -->
                     <Border Grid.Column="0"
-                            BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                            BorderThickness="1" CornerRadius="4" Margin="0,0,6,0">
+                            BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" CornerRadius="8" Margin="0,0,6,0">
                         <Grid RowDefinitions="Auto,*">
-                            <Border Grid.Row="0" Classes="RelHeader" CornerRadius="4,4,0,0">
+                            <Border Grid.Row="0" Classes="RelHeader" CornerRadius="8,8,0,0">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
                                     <TextBlock Classes="EmojiIcon" Text="📁" FontSize="13" VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelTargetOU}"
@@ -332,8 +321,7 @@
 
                         <!-- Sélecteur GPO + bouton Ajouter -->
                         <Border Grid.Row="0"
-                                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                                BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
+                                Classes="code" Padding="12" Margin="0,0,0,8">
                             <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,10,Auto">
                                 <TextBlock Grid.Row="0" Grid.Column="0"
                                            Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelGpo}"
@@ -355,7 +343,7 @@
                                 <Button Grid.Row="1" Grid.Column="2"
                                         Content="{Binding Source={StaticResource Loc}, Path=RelationsAdd}"
                                         Command="{Binding #RelationsWindowRoot.DataContext.AddGpoLinkCommand}"
-                                        Padding="12,6" Background="#107C10" Foreground="White" VerticalAlignment="Bottom"/>
+                                        Classes="accent" VerticalAlignment="Bottom"/>
                             </Grid>
                         </Border>
 
@@ -366,7 +354,7 @@
                         </Grid>
 
                         <!-- Liste des liens existants -->
-                        <ListBox Grid.Row="2" ItemsSource="{Binding GpoLinks}" SelectedItem="{Binding SelectedGpoLink, Mode=TwoWay}">
+                        <ListBox Grid.Row="2" Classes="plain" ItemsSource="{Binding GpoLinks}" SelectedItem="{Binding SelectedGpoLink, Mode=TwoWay}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="vm:RelationEntry">
                                     <Grid ColumnDefinitions="180,*">
@@ -378,7 +366,7 @@
                         </ListBox>
 
                         <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
-                            <Button Classes="BtnDelete"
+                            <Button Classes="danger"
                                     Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
                                     Command="{Binding #RelationsWindowRoot.DataContext.RemoveGpoLinkCommand}"
                                     Padding="10,5"/>
@@ -392,8 +380,7 @@
             <TabItem Header="{Binding Source={StaticResource Loc}, Path=RelationsTabPsoLinks}">
                 <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="8">
 
-                    <Border Grid.Row="0" BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                            BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,6">
+                    <Border Grid.Row="0" Classes="code" Padding="12" Margin="0,0,0,8">
                         <Grid ColumnDefinitions="*,30,*,10,Auto" RowDefinitions="Auto,Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0"
                                        Text="{Binding Source={StaticResource Loc}, Path=RelationsLabelPso}"
@@ -434,7 +421,7 @@
                             <Button Grid.Row="1" Grid.Column="4"
                                     Content="{Binding Source={StaticResource Loc}, Path=RelationsAdd}"
                                     Command="{Binding #RelationsWindowRoot.DataContext.AddPsoLinkCommand}"
-                                    Padding="12,6" Background="#CA5010" Foreground="White" VerticalAlignment="Bottom"/>
+                                    Classes="accent" VerticalAlignment="Bottom"/>
                         </Grid>
                     </Border>
 
@@ -443,7 +430,7 @@
                         <Border Grid.Column="1" Classes="RelHeader"><TextBlock Text="{Binding Source={StaticResource Loc}, Path=RelationsColTargetPso}" FontWeight="SemiBold"/></Border>
                     </Grid>
 
-                    <ListBox Grid.Row="2" ItemsSource="{Binding PsoLinks}" SelectedItem="{Binding SelectedPsoLink, Mode=TwoWay}">
+                    <ListBox Grid.Row="2" Classes="plain" ItemsSource="{Binding PsoLinks}" SelectedItem="{Binding SelectedPsoLink, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate x:DataType="vm:RelationEntry">
                                 <Grid ColumnDefinitions="220,*">
@@ -455,7 +442,7 @@
                     </ListBox>
 
                     <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
-                        <Button Classes="BtnDelete"
+                        <Button Classes="danger"
                                 Content="{Binding Source={StaticResource Loc}, Path=RelationsDelete}"
                                 Command="{Binding #RelationsWindowRoot.DataContext.RemovePsoLinkCommand}"
                                 Padding="10,5"/>
@@ -464,18 +451,15 @@
             </TabItem>
 
         </TabControl>
+        </Border>
 
         <!-- Barre de statut + bouton Fermer -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="10,0,10,10">
-            <Border Grid.Column="0" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}"
-                    CornerRadius="4" Padding="8,4">
-                <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" FontSize="12"
-                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
-            </Border>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="16,0,16,16">
+            <TextBlock Grid.Column="0" Classes="muted" Text="{Binding StatusMessage}" VerticalAlignment="Center" Margin="4,0,0,0"/>
             <Button Grid.Column="1"
                     Content="{Binding Source={StaticResource Loc}, Path=RelationsClose}"
                     Click="OnCloseClick"
-                    Padding="16,6" Margin="10,0,0,0" Background="#0078D4" Foreground="White"/>
+                    Classes="tool" MinWidth="90" HorizontalContentAlignment="Center" Margin="10,0,0,0"/>
         </Grid>
     </Grid>
 </Window>

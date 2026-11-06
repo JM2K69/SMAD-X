@@ -13,6 +13,8 @@
         <converters:LocalizedValueConverter x:Key="LocValue"/>
         <converters:LocalizedFormatConverter x:Key="LocFormat"/>
         <helpers:LocalizationProxy x:Key="Loc"/>
+        <!-- L'annuaire : une racine et trois branches -->
+        <StreamGeometry x:Key="DirectoryIcon">M9,2 L15,2 L15,7.5 L9,7.5 Z M11.25,7.5 L12.75,7.5 L12.75,10.5 L11.25,10.5 Z M4.25,10.25 L19.75,10.25 L19.75,11.75 L4.25,11.75 Z M4.25,11 L5.75,11 L5.75,15 L4.25,15 Z M11.25,11 L12.75,11 L12.75,15 L11.25,15 Z M18.25,11 L19.75,11 L19.75,15 L18.25,15 Z M2,15 L8,15 L8,21 L2,21 Z M9,15 L15,15 L15,21 L9,21 Z M16,15 L22,15 L22,21 L16,21 Z</StreamGeometry>
     </Application.Resources>
 
     <Application.DataTemplates>
@@ -22,6 +24,7 @@
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+        <StyleInclude Source="avares://SMAD-X.UI/Themes/Suite.axaml"/>
         <StyleInclude Source="avares://SMAD-X/Styles/AppStyles.axaml"/>
     </Application.Styles>
 </Application>

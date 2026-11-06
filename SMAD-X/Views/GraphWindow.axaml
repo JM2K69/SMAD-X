@@ -8,52 +8,47 @@
         Width="1250" Height="780"
         WindowStartupLocation="CenterOwner"
         CanResize="True"
-        Background="#12141A">
+        RequestedThemeVariant="Dark">
 
     <Grid RowDefinitions="Auto,*,Auto">
 
         <!-- ═══ TOOLBAR ═══ -->
-        <Border Grid.Row="0" Background="#1E2230" Padding="8,4">
-            <StackPanel Orientation="Vertical" Spacing="4">
+        <Border Grid.Row="0" Classes="header" Padding="14,10">
+            <StackPanel Orientation="Vertical" Spacing="8">
 
                 <!-- Ligne 1 : boutons de contrôle + stats -->
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Right"
                                Text="{Binding StatsText}"
-                               Foreground="#666888" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center"
                                FontSize="11" Margin="0,0,4,0"/>
-                    <StackPanel Orientation="Horizontal" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
                         <Button x:Name="BtnFitView"
                                 Content="{Binding Source={StaticResource Loc}, Path=GraphFitView}"
                                 ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=GraphFitViewTooltip}"
-                                Click="OnFitView" Padding="10,4"
-                                Background="#0078D4" Foreground="White"/>
+                                Click="OnFitView" Classes="accent"/>
                         <Button x:Name="BtnZoomIn"
                                 Content="{Binding Source={StaticResource Loc}, Path=GraphZoomIn}"
-                                Click="OnZoomIn" Padding="10,4"
-                                Background="#2D3250" Foreground="White"/>
+                                Click="OnZoomIn" Classes="tool"/>
                         <Button x:Name="BtnZoomOut"
                                 Content="{Binding Source={StaticResource Loc}, Path=GraphZoomOut}"
-                                Click="OnZoomOut" Padding="10,4"
-                                Background="#2D3250" Foreground="White"/>
+                                Click="OnZoomOut" Classes="tool"/>
                         <Button x:Name="BtnRelayout"
                                 Content="{Binding Source={StaticResource Loc}, Path=GraphRelayout}"
                                 ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=GraphRelayoutTooltip}"
-                                Click="OnRelayout" Padding="10,4"
-                                Background="#2D3250" Foreground="White"/>
+                                Click="OnRelayout" Classes="tool"/>
                         <Button x:Name="BtnRefresh"
                                 Content="{Binding Source={StaticResource Loc}, Path=GraphReload}"
                                 ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=GraphReloadTooltip}"
-                                Click="OnRefresh" Padding="10,4"
-                                Background="#2D3250" Foreground="White"/>
+                                Click="OnRefresh" Classes="tool"/>
                     </StackPanel>
                 </DockPanel>
 
                 <!-- Ligne 2 : filtres (wrap automatique) -->
                 <WrapPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding Source={StaticResource Loc}, Path=GraphFilters}"
-                               Foreground="#AAAAAA" VerticalAlignment="Center"
-                               FontSize="12" Margin="0,0,8,0"/>
+                               Classes="label" VerticalAlignment="Center"
+                               Margin="0,0,10,0"/>
                     <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterMemberOf}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowMemberOf, Mode=TwoWay}"
                               Foreground="#BB86FC" VerticalAlignment="Center" Margin="0,0,10,0"/>
@@ -84,21 +79,20 @@
         </Border>
 
         <!-- ═══ CANVAS GRAPHE ═══ -->
-        <Border Grid.Row="1" Background="#12141A" ClipToBounds="True">
+        <Border Grid.Row="1" Background="{DynamicResource CodeBg}" ClipToBounds="True">
             <ContentControl x:Name="GraphHost" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         </Border>
 
         <!-- ═══ BARRE D'INFO NŒUD SÉLECTIONNÉ ═══ -->
-        <Border Grid.Row="2" Background="#1A1C2A" Padding="10,6">
+        <Border Grid.Row="2" Classes="footer" Padding="16,8">
             <Grid ColumnDefinitions="*,Auto">
                 <TextBlock Grid.Column="0"
                            Text="{Binding SelectedNodeInfo}"
-                           Foreground="#CCCCCC" VerticalAlignment="Center" FontSize="12"
-                           FontFamily="Consolas"/>
+                           Classes="mono" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" FontSize="12"/>
                 <Button Grid.Column="1"
                         Content="{Binding Source={StaticResource Loc}, Path=GraphClose}"
                         Click="OnClose"
-                        Padding="14,5" Background="#0078D4" Foreground="White"/>
+                        Classes="accent" MinWidth="90" HorizontalContentAlignment="Center"/>
             </Grid>
         </Border>
 

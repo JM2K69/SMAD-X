@@ -6,19 +6,19 @@
 
     <Application.Resources>
         <converters:MarkdownConverter x:Key="MarkdownConverter"/>
+        <!-- Un flacon de laboratoire : l'atelier des exercices -->
+        <StreamGeometry x:Key="StudioIcon">M8.5,2 L15.5,2 L15.5,4 L14.25,4 L14.25,9.2 L20.1,19.3 C20.8,20.6 19.9,22 18.4,22 L5.6,22 C4.1,22 3.2,20.6 3.9,19.3 L9.75,9.2 L9.75,4 L8.5,4 Z</StreamGeometry>
     </Application.Resources>
 
     <Application.Styles>
         <FluentTheme />
-        <Style Selector="Window">
-            <Setter Property="Background" Value="#1E2128"/>
-        </Style>
+        <StyleInclude Source="avares://SMAD-X.UI/Themes/Suite.axaml"/>
         <Style Selector="TextBlock.label">
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="0,10,0,4"/>
         </Style>
         <Style Selector="TextBlock.hint">
-            <Setter Property="Opacity" Value="0.75"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="FontSize" Value="12"/>
         </Style>

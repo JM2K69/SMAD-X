@@ -7,7 +7,7 @@
         WindowStartupLocation="CenterOwner"
         CanResize="False">
     <Grid RowDefinitions="Auto,Auto,Auto,Auto" Margin="20">
-        <Border Grid.Row="0" Height="100" Background="{Binding PreviewBrush}" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Margin="0,0,0,20"/>
+        <Border Grid.Row="0" Height="100" Background="{Binding PreviewBrush}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="2" CornerRadius="5" Margin="0,0,0,20"/>
         <StackPanel Grid.Row="1" Spacing="15" Margin="0,0,0,20">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <TextBlock Grid.Column="0" Text="{Binding Source={StaticResource Loc}, Path=ColorPickerRed}" Width="80" VerticalAlignment="Center"/>
@@ -29,7 +29,7 @@
                 <TextBox Grid.Column="1" Text="{Binding HexColor, Mode=TwoWay}"/>
             </Grid>
         </StackPanel>
-        <Border Grid.Row="2" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,20">
+        <Border Grid.Row="2" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" Padding="10" Margin="0,0,0,20">
             <StackPanel Spacing="10">
                 <TextBlock Text="{Binding Source={StaticResource Loc}, Path=ColorPickerPresets}" FontWeight="SemiBold"/>
                 <ItemsControl ItemsSource="{Binding PresetColors}">
@@ -40,15 +40,15 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Width="30" Height="30" Background="{Binding}" BorderBrush="Black" BorderThickness="1" Margin="2" Padding="0" Click="OnPresetColorClick" Tag="{Binding}"/>
+                            <Button Width="30" Height="30" Background="{Binding}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" Margin="2" Padding="0" Click="OnPresetColorClick" Tag="{Binding}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </StackPanel>
         </Border>
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
-            <Button Content="{Binding Source={StaticResource Loc}, Path=ColorPickerOk}" Click="OnOkClick" Width="100" Padding="10,5"/>
-            <Button Content="{Binding Source={StaticResource Loc}, Path=ColorPickerCancel}" Click="OnCancelClick" Width="100" Padding="10,5"/>
+            <Button Content="{Binding Source={StaticResource Loc}, Path=ColorPickerOk}" Click="OnOkClick" Width="100" Classes="accent" HorizontalContentAlignment="Center"/>
+            <Button Content="{Binding Source={StaticResource Loc}, Path=ColorPickerCancel}" Click="OnCancelClick" Width="100" Classes="tool" HorizontalContentAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Window>

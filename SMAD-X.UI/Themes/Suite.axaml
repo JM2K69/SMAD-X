@@ -1,0 +1,190 @@
+<!--
+    Thème commun de la suite (SMAD-X, SMAD-X Studio, SMAR-X), tiré de SMAR-X : palette claire et sombre, cartes,
+    titres, libellés, puces, blocs de code, boutons. Chaque application l'inclut juste après FluentTheme :
+        <StyleInclude Source="avares://SMAD-X.UI/Themes/Suite.axaml"/>
+-->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="WindowBg" Color="#14171C"/>
+                    <SolidColorBrush x:Key="HeaderBg" Color="#101317"/>
+                    <SolidColorBrush x:Key="CardBg" Color="#1C2129"/>
+                    <SolidColorBrush x:Key="CardBorder" Color="#2D3540"/>
+                    <SolidColorBrush x:Key="CodeBg" Color="#12161C"/>
+                    <SolidColorBrush x:Key="ChipBg" Color="#262D38"/>
+                    <SolidColorBrush x:Key="ChipHoverBg" Color="#303846"/>
+                    <SolidColorBrush x:Key="TextMuted" Color="#9AA5B4"/>
+                    <SolidColorBrush x:Key="Accent" Color="#4C9AFF"/>
+                    <SolidColorBrush x:Key="AccentSoft" Color="#1F3A5F"/>
+                    <SolidColorBrush x:Key="Danger" Color="#E5534B"/>
+                    <SolidColorBrush x:Key="DangerSoft" Color="#4A2023"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="WindowBg" Color="#EEF1F5"/>
+                    <SolidColorBrush x:Key="HeaderBg" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="CardBg" Color="#FFFFFF"/>
+                    <SolidColorBrush x:Key="CardBorder" Color="#D9DFE7"/>
+                    <SolidColorBrush x:Key="CodeBg" Color="#F4F6F9"/>
+                    <SolidColorBrush x:Key="ChipBg" Color="#E9EDF2"/>
+                    <SolidColorBrush x:Key="ChipHoverBg" Color="#DDE3EA"/>
+                    <SolidColorBrush x:Key="TextMuted" Color="#5B6573"/>
+                    <SolidColorBrush x:Key="Accent" Color="#0969DA"/>
+                    <SolidColorBrush x:Key="AccentSoft" Color="#DCEBFF"/>
+                    <SolidColorBrush x:Key="Danger" Color="#CF222E"/>
+                    <SolidColorBrush x:Key="DangerSoft" Color="#FFE3E3"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <Style Selector="Window">
+        <Setter Property="Background" Value="{DynamicResource WindowBg}"/>
+    </Style>
+
+    <!-- Une carte : chaque sujet de l'écran dans la sienne -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource CardBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="18"/>
+    </Style>
+    <Style Selector="Border.code">
+        <Setter Property="Background" Value="{DynamicResource CodeBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="12,10"/>
+    </Style>
+    <Style Selector="Border.chip">
+        <Setter Property="Background" Value="{DynamicResource ChipBg}"/>
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="Padding" Value="10,3"/>
+    </Style>
+    <!-- Barre d'en-tête et barre d'état -->
+    <Style Selector="Border.header">
+        <Setter Property="Background" Value="{DynamicResource HeaderBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="20,12"/>
+    </Style>
+    <Style Selector="Border.footer">
+        <Setter Property="Background" Value="{DynamicResource HeaderBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding" Value="20,7"/>
+    </Style>
+    <!-- Séparateur vertical entre deux groupes de boutons -->
+    <Style Selector="Border.vrule">
+        <Setter Property="Width" Value="1"/>
+        <Setter Property="Height" Value="24"/>
+        <Setter Property="Margin" Value="6,0"/>
+        <Setter Property="Background" Value="{DynamicResource CardBorder}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Textes : titre de carte, libellé de champ, texte secondaire, valeur technique -->
+    <Style Selector="TextBlock.h">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style Selector="TextBlock.label">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
+        <Setter Property="LetterSpacing" Value="0.4"/>
+    </Style>
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style Selector="TextBlock.mono, SelectableTextBlock.mono">
+        <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+    </Style>
+    <Style Selector="TextBox.mono">
+        <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+    </Style>
+
+    <!-- Boutons : d'en-tête, d'outil (neutres), lien, danger -->
+    <Style Selector="Button.header">
+        <Setter Property="Background" Value="{DynamicResource ChipBg}"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="12,6"/>
+    </Style>
+    <Style Selector="Button.tool">
+        <Setter Property="Background" Value="{DynamicResource ChipBg}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="10,6"/>
+    </Style>
+    <Style Selector="Button.tool:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ChipHoverBg}"/>
+    </Style>
+    <Style Selector="Button.link">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Button.danger">
+        <Setter Property="Background" Value="{DynamicResource DangerSoft}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Danger}"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+    <Style Selector="Button.danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Danger}"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <!-- L'action principale d'un écran -->
+    <Style Selector="Button.accent">
+        <Setter Property="Background" Value="{DynamicResource Accent}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="12,6"/>
+    </Style>
+    <Style Selector="Button.accent:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource Accent}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Opacity" Value="0.88"/>
+    </Style>
+
+    <!-- Une liste posée dans une carte : sans cadre, éléments arrondis, sélection douce -->
+    <Style Selector="ListBox.plain">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style Selector="ListBox.plain ListBoxItem">
+        <Setter Property="Margin" Value="0,1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+    <Style Selector="ListBox.plain ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+    <Style Selector="ListBox.plain ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ChipBg}"/>
+    </Style>
+    <Style Selector="ListBox.plain ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+    </Style>
+    <Style Selector="ListBox.plain ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+    </Style>
+    <Style Selector="ListBox.plain ListBoxItem:selected:focus /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+    </Style>
+
+    <!-- Onglets sobres : titres de taille normale, l'onglet choisi souligné par l'accent -->
+    <Style Selector="TabControl.suite TabItem">
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Padding" Value="12,0"/>
+    </Style>
+</Styles>

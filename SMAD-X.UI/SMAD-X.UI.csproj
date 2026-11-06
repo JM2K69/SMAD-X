@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Éléments d'interface Avalonia partagés par SMAD-X et SMAD-X Studio : rendu Markdown, thème clair / sombre. -->
+  <!-- Éléments d'interface Avalonia partagés par SMAD-X, SMAD-X Studio et SMAR-X : rendu Markdown, thème commun de la suite (Themes/Suite.axaml, clair et sombre). -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>

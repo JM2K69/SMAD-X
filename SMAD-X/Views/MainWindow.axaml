@@ -27,10 +27,27 @@
     </Window.Styles>
 
     <Grid RowDefinitions="Auto,*,Auto">
-        <!-- Menu et Toolbar -->
-        <Grid Grid.Row="0" RowDefinitions="Auto,Auto">
+        <!-- En-tête : l'application et ses menus, puis la barre d'outils -->
+        <StackPanel Grid.Row="0">
+          <Border Classes="header" Padding="20,10">
+            <Grid ColumnDefinitions="Auto,*">
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" DataContext="{StaticResource Loc}">
+                    <Border Width="38" Height="38" CornerRadius="10">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                                <GradientStop Color="#4C9AFF" Offset="0"/>
+                                <GradientStop Color="#2BB3A3" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <PathIcon Data="{StaticResource DirectoryIcon}" Width="20" Height="20" Foreground="White"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="SMAD-X" FontSize="18" FontWeight="Bold"/>
+                        <TextBlock Classes="muted" Text="{Binding AboutFullName}"/>
+                    </StackPanel>
+                </StackPanel>
             <!-- Menu principal -->
-            <Menu Grid.Row="0" x:Name="MainMenu" DataContext="{StaticResource Loc}">
+            <Menu Grid.Column="1" Margin="28,0,0,0" VerticalAlignment="Center" x:Name="MainMenu" DataContext="{StaticResource Loc}">
                 <MenuItem Header="{Binding MenuFile}">
                     <!-- En mode exercice, rien ne remplace le domaine de l'apprenant, et Ctrl+S enregistre sa copie -->
                     <MenuItem Header="{Binding MenuFileNewDomain}" Command="{Binding #MainWindowRoot.DataContext.CreateNewDomainCommand}" InputGesture="Ctrl+N" IsVisible="{Binding #MainWindowRoot.DataContext.IsFreeMode}"/>
@@ -134,111 +151,108 @@
                     <MenuItem Header="{Binding MenuHelpAbout}" Command="{Binding #MainWindowRoot.DataContext.ShowAboutCommand}"/>
                 </MenuItem>
             </Menu>
+            </Grid>
+          </Border>
 
-            <!-- Toolbar -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5" Spacing="5" x:Name="Toolbar" DataContext="{StaticResource Loc}">
-                <Button Command="{Binding #MainWindowRoot.DataContext.AddOrganizationalUnitCommand}" Padding="10,5">
+          <!-- Barre d'outils : créer, supprimer, analyser, exporter -->
+          <Border Classes="header" Padding="16,8">
+            <StackPanel Orientation="Horizontal" Spacing="6" x:Name="Toolbar" DataContext="{StaticResource Loc}">
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddOrganizationalUnitCommand}" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="📁" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarOU}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Command="{Binding #MainWindowRoot.DataContext.AddContainerCommand}" Padding="10,5">
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddContainerCommand}" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="📦" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarContainer}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Command="{Binding #MainWindowRoot.DataContext.AddUserCommand}" Padding="10,5">
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddUserCommand}" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="👤" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarUser}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Command="{Binding #MainWindowRoot.DataContext.AddGroupCommand}" Padding="10,5">
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddGroupCommand}" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="👥" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarGroup}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Command="{Binding #MainWindowRoot.DataContext.AddComputerCommand}" Padding="10,5">
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddComputerCommand}" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="💻" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarComputer}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Command="{Binding #MainWindowRoot.DataContext.AddGMSACommand}" Padding="10,5">
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddGMSACommand}" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="🔐" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarGMSA}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Command="{Binding #MainWindowRoot.DataContext.AddPolicyCommand}" Padding="10,5">
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddPolicyCommand}" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="📋" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarPolicy}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Command="{Binding #MainWindowRoot.DataContext.AddPasswordSettingsObjectCommand}" Padding="10,5">
+                <Button Command="{Binding #MainWindowRoot.DataContext.AddPasswordSettingsObjectCommand}" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="🔑" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarPSO}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Separator Width="1" Height="30"/>
-                <Button Command="{Binding #MainWindowRoot.DataContext.DeleteObjectCommand}" Padding="10,5">
+                <Border Classes="vrule"/>
+                <Button Command="{Binding #MainWindowRoot.DataContext.DeleteObjectCommand}" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="🗑️" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarDelete}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Separator Width="1" Height="30"/>
+                <Border Classes="vrule"/>
                 <Button Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
-                        Classes="BtnRelations"
-                        Padding="10,5"
-                        Background="{DynamicResource AppRelationsBtnBgBrush}"
-                        Foreground="{DynamicResource AppRelationsBtnFgBrush}">
+                        Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="🔗" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarRelations}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
                 <Button Command="{Binding #MainWindowRoot.DataContext.ShowGraphViewCommand}"
-                        Classes="BtnGraph"
-                        Padding="10,5"
-                        Background="{DynamicResource AppGraphBtnBgBrush}"
-                        Foreground="{DynamicResource AppGraphBtnFgBrush}">
+                        Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="🕸️" FontSize="14"/>
                         <TextBlock Text="{Binding ToolbarGraph}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Command="{Binding #MainWindowRoot.DataContext.ShowAuditCommand}" Padding="10,5" Background="#7B241C">
+                <Button Command="{Binding #MainWindowRoot.DataContext.ShowAuditCommand}" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="🛡️" FontSize="14"/>
-                        <TextBlock Text="{Binding MenuAnalyseAudit}" VerticalAlignment="Center" Foreground="White"/>
+                        <TextBlock Text="{Binding MenuAnalyseAudit}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Separator Width="1" Height="30"/>
-                <Button Click="OnExportTreePngClick" Padding="10,5" Background="#1E5631">
+                <Border Classes="vrule"/>
+                <Button Click="OnExportTreePngClick" Classes="tool">
                     <StackPanel Orientation="Horizontal" Spacing="4">
                         <TextBlock Text="📷" FontSize="14"/>
-                        <TextBlock Text="{Binding ToolbarExportPNG}" VerticalAlignment="Center" Foreground="White"/>
+                        <TextBlock Text="{Binding ToolbarExportPNG}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
-        </Grid>
+          </Border>
+        </StackPanel>
 
-        <!-- Zone principale : TreeView + Détails -->
-        <Grid Grid.Row="1" ColumnDefinitions="400,5,*">
-            <!-- TreeView -->
-            <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Padding="5">
+        <!-- Zone principale : l'arbre de l'annuaire, puis les détails de l'objet choisi, une carte par sujet -->
+        <Grid Grid.Row="1" ColumnDefinitions="400,12,*" Margin="16,14,16,14">
+            <!-- Arbre -->
+            <Border Grid.Column="0" Classes="card" Padding="12">
                 <Grid RowDefinitions="Auto,Auto,*,Auto" DataContext="{StaticResource Loc}">
-                    <TextBlock Grid.Row="0" Text="{Binding TreeViewTitle}" 
-                               FontWeight="Bold" FontSize="14" Margin="0,0,0,6"/>
+                    <TextBlock Grid.Row="0" Classes="h" Text="{Binding TreeViewTitle}" Margin="4,0,0,10"/>
 
                     <!-- ═══ BARRE DE RECHERCHE ═══ -->
-                    <Border Grid.Row="1" Margin="0,0,0,8" CornerRadius="4"
+                    <Border Grid.Row="1" Margin="0,0,0,8" CornerRadius="8" Background="{DynamicResource CodeBg}"
                             BorderThickness="1" BorderBrush="{DynamicResource AppSeparatorBrush}">
                         <Grid ColumnDefinitions="Auto,*,Auto">
                             <TextBlock Grid.Column="0" Text="🔍" FontSize="13"
@@ -438,17 +452,17 @@
                         <Button HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Stretch"
                                 Padding="6,5"
-                                Background="{DynamicResource AppSeparatorBrush}"
-                                BorderThickness="0"
+                                Background="{DynamicResource ChipBg}"
+                                BorderThickness="0" CornerRadius="8"
                                 Command="{Binding #MainWindowRoot.DataContext.ToggleSitesExpandedCommand}">
                             <Grid ColumnDefinitions="*,Auto">
                                 <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                     <TextBlock Text="🏢" FontFamily="Segoe UI Emoji" FontSize="14" VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding SitesPanelTitle}" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"
                                                Foreground="{DynamicResource AppTreeFgBrush}"/>
-                                    <Border Background="#1A3A8F" CornerRadius="3" Padding="5,1" VerticalAlignment="Center">
+                                    <Border Background="{DynamicResource AccentSoft}" CornerRadius="999" Padding="7,1" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding #MainWindowRoot.DataContext.SiteRootNodes.Count}"
-                                                   Foreground="#7FA8FF" FontSize="10" FontWeight="SemiBold"/>
+                                                   Foreground="{DynamicResource Accent}" FontSize="10" FontWeight="SemiBold"/>
                                     </Border>
                                 </StackPanel>
                                 <TextBlock Grid.Column="1" Text="∧" VerticalAlignment="Center" Margin="0,0,4,0"
@@ -488,106 +502,91 @@
             </Border>
 
             <!-- Séparateur -->
-            <GridSplitter Grid.Column="1" Background="LightGray" ResizeDirection="Columns"/>
+            <GridSplitter Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
 
-            <!-- Panneau de détails -->
-            <Border Grid.Column="2" BorderBrush="Gray" BorderThickness="1" Padding="10">
-                <ScrollViewer>
-                    <Grid RowDefinitions="Auto,*" DataContext="{StaticResource Loc}">
-                        <!-- Titre du panneau de détails avec binding -->
-                        <TextBlock Grid.Row="0" 
-                                   Text="{Binding DetailsTitle}" 
-                                   FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+            <!-- Détails de l'objet : une carte par sujet -->
+            <ScrollViewer Grid.Column="2" Padding="0,0,8,0">
+                <StackPanel Spacing="14" DataContext="{StaticResource Loc}">
+                    <!-- L'objet et ses actions -->
+                    <Border Classes="card">
+                        <StackPanel Spacing="14">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Classes="h" Text="{Binding DetailsTitle}" VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                                    <Button Classes="tool" Content="{Binding ActionRename}" Command="{Binding #MainWindowRoot.DataContext.RenameObjectCommand}"/>
+                                    <Button Classes="tool" Content="{Binding ActionCopy}" Command="{Binding #MainWindowRoot.DataContext.CopyObjectCommand}"/>
+                                    <Button Classes="danger" Content="{Binding ActionDelete}" Command="{Binding #MainWindowRoot.DataContext.DeleteObjectCommand}"/>
+                                </StackPanel>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="14" RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+                                <StackPanel Spacing="5">
+                                    <TextBlock Classes="label" Text="{Binding FieldName}"/>
+                                    <!-- Validé par Entrée ou en quittant le champ, pas à chaque frappe ; Échap annule (voir le code-behind) -->
+                                    <TextBox x:Name="ObjectNameBox"
+                                         Text="{Binding #MainWindowRoot.DataContext.SelectedObjectName, Mode=OneWay}"
+                                         KeyDown="OnObjectNameKeyDown"
+                                         LostFocus="OnObjectNameLostFocus"
+                                         helpers:FocusExtensions.IsFocused="{Binding #MainWindowRoot.DataContext.SelectedNode.IsEditing, Mode=TwoWay}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Spacing="5">
+                                    <TextBlock Classes="label" Text="{Binding FieldType}"/>
+                                    <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedObjectType}" IsReadOnly="True"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="{Binding FieldDN}"/>
+                                    <TextBox Classes="mono" Text="{Binding #MainWindowRoot.DataContext.SelectedObjectDistinguishedName}"
+                                             IsReadOnly="True" TextWrapping="Wrap" FontSize="13"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="{Binding FieldTier}"/>
+                                    <ComboBox x:Name="TierComboBox"
+                                              SelectedIndex="{Binding #MainWindowRoot.DataContext.SelectedObjectTierIndex, Mode=OneWay}"
+                                              ItemsSource="{Binding #MainWindowRoot.DataContext.AvailableTiers}"
+                                              SelectionChanged="OnTierComboBoxSelectionChanged"
+                                              Width="200" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
 
-                        <StackPanel Grid.Row="1" Spacing="10">
-                            <StackPanel Spacing="5">
-                                <TextBlock Text="{Binding DetailsName}" FontWeight="SemiBold"/>
-                                <!-- Validé par Entrée ou en quittant le champ, pas à chaque frappe ; Échap annule (voir le code-behind) -->
-                                <TextBox x:Name="ObjectNameBox"
-                                     Text="{Binding #MainWindowRoot.DataContext.SelectedObjectName, Mode=OneWay}"
-                                     KeyDown="OnObjectNameKeyDown"
-                                     LostFocus="OnObjectNameLostFocus"
-                                     helpers:FocusExtensions.IsFocused="{Binding #MainWindowRoot.DataContext.SelectedNode.IsEditing, Mode=TwoWay}" />
-                            </StackPanel>
-
-                            <StackPanel Spacing="5">
-                                <TextBlock Text="{Binding DetailsType}" FontWeight="SemiBold"/>
-                                <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedObjectType}" IsReadOnly="True"/>
-                            </StackPanel>
-
-                            <StackPanel Spacing="5">
-                                <TextBlock Text="{Binding DetailsDN}" FontWeight="SemiBold"/>
-                                <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedObjectDistinguishedName}" 
-                                         IsReadOnly="True" TextWrapping="Wrap"/>
-                            </StackPanel>
-
-                            <StackPanel Spacing="5">
-                                <TextBlock Text="{Binding DetailsTier}" FontWeight="SemiBold"/>
-                                <ComboBox x:Name="TierComboBox"
-                                          SelectedIndex="{Binding #MainWindowRoot.DataContext.SelectedObjectTierIndex, Mode=OneWay}"
-                                          ItemsSource="{Binding #MainWindowRoot.DataContext.AvailableTiers}"
-                                          SelectionChanged="OnTierComboBoxSelectionChanged"
-                                          Width="200" HorizontalAlignment="Left"/>
-                            </StackPanel>
-
-                                            <Separator/>
-
-                                            <StackPanel Spacing="5">
-                                                <DockPanel>
-                                                    <TextBlock Text="{Binding DetailsDescription}" FontWeight="SemiBold" 
-                                                               DockPanel.Dock="Left"/>
-                                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="5">
-                                                        <Button Command="{Binding #MainWindowRoot.DataContext.ImportDescriptionCommand}"
-                                                                ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=MenuFileImportDescription}"
-                                                                IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}"
-                                                                Padding="6,4" Width="32">
-                                                            <TextBlock Text="📥" FontFamily="Segoe UI Emoji" FontSize="13"
-                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                        </Button>
-                                                        <Button Command="{Binding #MainWindowRoot.DataContext.ToggleMarkdownEditCommand}"
-                                                                HorizontalAlignment="Right"
-                                                                Padding="8,4">
-                                                            <StackPanel Orientation="Horizontal" Spacing="3">
-                                                                <TextBlock Text="{Binding #MainWindowRoot.DataContext.IsMarkdownEditMode}" IsVisible="False"/>
-                                                                <TextBlock Text="{Binding DetailsEdit}" IsVisible="{Binding !#MainWindowRoot.DataContext.IsMarkdownEditMode}"/>
-                                                                <TextBlock Text="{Binding DetailsPreview}" IsVisible="{Binding #MainWindowRoot.DataContext.IsMarkdownEditMode}"/>
-                                                            </StackPanel>
-                                                        </Button>
-                                                    </StackPanel>
-                                                </DockPanel>
-
-                                                <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedObjectDescription, Mode=TwoWay}" 
-                                                         AcceptsReturn="True" 
-                                                         TextWrapping="Wrap"
-                                                         Height="300"
-                                                         IsVisible="{Binding #MainWindowRoot.DataContext.IsMarkdownEditMode}"/>
-
-                                                <Border BorderBrush="LightGray" BorderThickness="1" 
-                                                        Padding="10" Height="300"
-                                                        IsVisible="{Binding !#MainWindowRoot.DataContext.IsMarkdownEditMode}">
-                                                    <ScrollViewer>
-                                                        <ContentControl Content="{Binding #MainWindowRoot.DataContext.SelectedObjectDescription, Converter={StaticResource MarkdownConverter}}"/>
-                                                    </ScrollViewer>
-                                                </Border>
-                                            </StackPanel>
-
-                                            <Separator/>
-
-                                            <StackPanel Spacing="5">
-                                                <TextBlock Text="{Binding DetailsActions}" FontWeight="SemiBold"/>
-                                                <StackPanel Orientation="Horizontal" Spacing="5">
-                                                    <Button Content="{Binding ActionRename}" Command="{Binding #MainWindowRoot.DataContext.RenameObjectCommand}" Padding="10,5"/>
-                                                    <Button Content="{Binding ActionCopy}" Command="{Binding #MainWindowRoot.DataContext.CopyObjectCommand}" Padding="10,5"/>
-                                                    <Button Content="{Binding ActionDelete}" Command="{Binding #MainWindowRoot.DataContext.DeleteObjectCommand}" 
-                                                            Padding="10,5" Background="#CC0000"/>
-                                                </StackPanel>
-                                            </StackPanel>
+                    <!-- Description -->
+                    <Border Classes="card">
+                        <StackPanel Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Classes="h" Text="{Binding FieldDescription}" VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                                    <Button Classes="tool" Command="{Binding #MainWindowRoot.DataContext.ImportDescriptionCommand}"
+                                            ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=MenuFileImportDescription}"
+                                            IsEnabled="{Binding #MainWindowRoot.DataContext.CanCopySelected}">
+                                        <TextBlock Text="📥" FontFamily="Segoe UI Emoji" FontSize="13"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Button>
+                                    <Button Classes="tool" Command="{Binding #MainWindowRoot.DataContext.ToggleMarkdownEditCommand}">
+                                        <StackPanel Orientation="Horizontal" Spacing="3">
+                                            <TextBlock Text="{Binding DetailsEdit}" IsVisible="{Binding !#MainWindowRoot.DataContext.IsMarkdownEditMode}"/>
+                                            <TextBlock Text="{Binding DetailsPreview}" IsVisible="{Binding #MainWindowRoot.DataContext.IsMarkdownEditMode}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                            <TextBox Text="{Binding #MainWindowRoot.DataContext.SelectedObjectDescription, Mode=TwoWay}"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     Height="300"
+                                     IsVisible="{Binding #MainWindowRoot.DataContext.IsMarkdownEditMode}"/>
+                            <Border Classes="code" Padding="14,10" Height="300"
+                                    IsVisible="{Binding !#MainWindowRoot.DataContext.IsMarkdownEditMode}">
+                                <ScrollViewer>
+                                    <ContentControl Content="{Binding #MainWindowRoot.DataContext.SelectedObjectDescription, Converter={StaticResource MarkdownConverter}}"/>
+                                </ScrollViewer>
+                            </Border>
+                        </StackPanel>
+                    </Border>
 
                                             <!-- ===== SÉCURITÉ : comptes (User/Computer/GMSA), groupes et GPO ===== -->
-                                            <StackPanel Spacing="5"
-                                                        IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.HasSecurityAttributes, FallbackValue=False}">
-                                                <Separator/>
-                                                <TextBlock Text="{Binding DetailsSecurity}" FontWeight="SemiBold"/>
+                                            <Border Classes="card" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.HasSecurityAttributes, FallbackValue=False}">
+                                            <StackPanel Spacing="8">
+                                                <TextBlock Classes="h" Text="{Binding DetailsSecurity}"/>
 
                                                 <!-- Drapeaux userAccountControl -->
                                                 <StackPanel Spacing="2" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSecurity.IsAccount, FallbackValue=False}">
@@ -756,24 +755,21 @@
                                                              Text="{Binding #MainWindowRoot.DataContext.SelectedSecurity.Owner, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
                                                 </StackPanel>
                                             </StackPanel>
-
-                                            <!-- ===== RELATIONS CONTEXTUELLES ===== -->
-
+                                            </Border>
                                             <!-- MemberOf : User ou Groupe -->
-                                            <StackPanel Spacing="5"
-                                                        IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSupportsMemberOf}">
-                                                <Separator/>
+                                            <Border Classes="card" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSupportsMemberOf}">
+                                            <StackPanel Spacing="8">
                                                 <DockPanel>
-                                                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DetailsMemberOf}" FontWeight="SemiBold" DockPanel.Dock="Left"/>
+                                                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DetailsMemberOf}" Classes="h" DockPanel.Dock="Left" VerticalAlignment="Center"/>
                                                     <Button Content="{Binding Source={StaticResource Loc}, Path=ActionManage}" DockPanel.Dock="Right"
                                                             Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
-                                                            Padding="8,3" FontSize="11"/>
+                                                            Classes="tool"/>
                                                 </DockPanel>
                                                 <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
                                                     <ItemsControl ItemsSource="{Binding #MainWindowRoot.DataContext.SelectedMemberOf}">
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
-                                                                <Border Background="{DynamicResource AppSelectedItemBrush}" CornerRadius="3" Padding="6,3" Margin="0,2">
+                                                                <Border Background="{DynamicResource ChipBg}" CornerRadius="6" Padding="8,4" Margin="0,2">
                                                                     <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
                                                                 </Border>
                                                             </DataTemplate>
@@ -781,22 +777,21 @@
                                                     </ItemsControl>
                                                 </ScrollViewer>
                                             </StackPanel>
-
+                                            </Border>
                                             <!-- LinkedGPOs : OU -->
-                                            <StackPanel Spacing="5"
-                                                        IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSupportsGpoLinks}">
-                                                <Separator/>
+                                            <Border Classes="card" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedSupportsGpoLinks}">
+                                            <StackPanel Spacing="8">
                                                 <DockPanel>
-                                                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DetailsLinkedGPOs}" FontWeight="SemiBold" DockPanel.Dock="Left"/>
+                                                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DetailsLinkedGPOs}" Classes="h" DockPanel.Dock="Left" VerticalAlignment="Center"/>
                                                     <Button Content="{Binding Source={StaticResource Loc}, Path=ActionManage}" DockPanel.Dock="Right"
                                                             Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
-                                                            Padding="8,3" FontSize="11"/>
+                                                            Classes="tool"/>
                                                 </DockPanel>
                                                 <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
                                                     <ItemsControl ItemsSource="{Binding #MainWindowRoot.DataContext.SelectedLinkedGPOs}">
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
-                                                                <Border Background="{DynamicResource AppSelectedItemBrush}" CornerRadius="3" Padding="6,3" Margin="0,2">
+                                                                <Border Background="{DynamicResource ChipBg}" CornerRadius="6" Padding="8,4" Margin="0,2">
                                                                     <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
                                                                 </Border>
                                                             </DataTemplate>
@@ -804,22 +799,21 @@
                                                     </ItemsControl>
                                                 </ScrollViewer>
                                             </StackPanel>
-
+                                            </Border>
                                             <!-- PSO subjects -->
-                                            <StackPanel Spacing="5"
-                                                        IsVisible="{Binding #MainWindowRoot.DataContext.SelectedIsPso}">
-                                                <Separator/>
+                                            <Border Classes="card" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedIsPso}">
+                                            <StackPanel Spacing="8">
                                                 <DockPanel>
-                                                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DetailsPSOAppliesTo}" FontWeight="SemiBold" DockPanel.Dock="Left"/>
+                                                    <TextBlock Text="{Binding Source={StaticResource Loc}, Path=DetailsPSOAppliesTo}" Classes="h" DockPanel.Dock="Left" VerticalAlignment="Center"/>
                                                     <Button Content="{Binding Source={StaticResource Loc}, Path=ActionManage}" DockPanel.Dock="Right"
                                                             Command="{Binding #MainWindowRoot.DataContext.ManageRelationsCommand}"
-                                                            Padding="8,3" FontSize="11"/>
+                                                            Classes="tool"/>
                                                 </DockPanel>
                                                 <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
                                                     <ItemsControl ItemsSource="{Binding #MainWindowRoot.DataContext.SelectedPSOAppliesTo}">
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
-                                                                <Border Background="{DynamicResource AppSelectedItemBrush}" CornerRadius="3" Padding="6,3" Margin="0,2">
+                                                                <Border Background="{DynamicResource ChipBg}" CornerRadius="6" Padding="8,4" Margin="0,2">
                                                                     <TextBlock Text="{Binding}" FontSize="12" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
                                                                 </Border>
                                                             </DataTemplate>
@@ -827,12 +821,11 @@
                                                     </ItemsControl>
                                                 </ScrollViewer>
                                             </StackPanel>
-
+                                            </Border>
                                             <!-- ===== Politique de mot de passe : domaine (Default Domain Policy) et PSO ===== -->
-                                            <StackPanel Spacing="5"
-                                                        IsVisible="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                                <Separator/>
-                                                <TextBlock Text="{Binding DetailsPasswordPolicy}" FontWeight="SemiBold"/>
+                                            <Border Classes="card" IsVisible="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                            <StackPanel Spacing="8">
+                                                <TextBlock Classes="h" Text="{Binding DetailsPasswordPolicy}"/>
                                                 <TextBlock Text="{Binding DetailsPasswordPolicyHint}" FontSize="11" Opacity="0.75" TextWrapping="Wrap"/>
                                                 <DockPanel IsVisible="{Binding #MainWindowRoot.DataContext.SelectedPasswordPolicy.IsPso, FallbackValue=False}">
                                                     <NumericUpDown DockPanel.Dock="Right" Width="120" Minimum="0" Maximum="100000" FormatString="0"
@@ -895,18 +888,17 @@
                                                     <TextBlock Text="{Binding DomainTierModel}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                                 </DockPanel>
                                             </StackPanel>
-                                        </StackPanel>
-                                    </Grid>
-                                </ScrollViewer>
-                            </Border>
+                                            </Border>
+                </StackPanel>
+            </ScrollViewer>
                         </Grid>
 
         <!-- Barre d'état -->
-        <Grid Grid.Row="2" Height="30" ColumnDefinitions="*,Auto">
-            <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" 
-                       VerticalAlignment="Center" Margin="10,0"/>
-            <TextBlock Grid.Column="1" Text="{Binding ObjectCountsSummary}" 
-                       VerticalAlignment="Center" Margin="10,0" FontSize="11"/>
-        </Grid>
+        <Border Grid.Row="2" Classes="footer">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Classes="muted" Text="{Binding StatusMessage}" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+                <TextBlock Grid.Column="1" Classes="muted" Text="{Binding ObjectCountsSummary}" VerticalAlignment="Center" FontSize="11" Margin="16,0,0,0"/>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

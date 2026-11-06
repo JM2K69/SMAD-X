@@ -14,27 +14,27 @@
     <Grid Margin="20" RowDefinitions="Auto,Auto,Auto,*,Auto" DataContext="{StaticResource Loc}">
 
         <!-- Titre -->
-        <TextBlock Grid.Row="0" 
-                   Text="{Binding DialogNewDomainHeader}" 
-                   FontSize="18" 
-                   FontWeight="Bold" 
+        <TextBlock Grid.Row="0"
+                   Text="{Binding DialogNewDomainHeader}"
+                   FontSize="18"
+                   FontWeight="Bold"
                    Margin="0,0,0,20"/>
 
         <!-- Description -->
-        <TextBlock Grid.Row="1" 
+        <TextBlock Grid.Row="1"
                    Text="{Binding DialogNewDomainDescription}"
-                   TextWrapping="Wrap" 
+                   TextWrapping="Wrap"
                    Margin="0,0,0,20"/>
 
         <!-- Saisie du nom de domaine -->
         <StackPanel Grid.Row="2" Spacing="10" Margin="0,0,0,20">
             <TextBlock Text="{Binding DialogNewDomainDomainName}" FontWeight="SemiBold"/>
-            <TextBox Name="DomainNameTextBox" 
+            <TextBox Name="DomainNameTextBox"
                      PlaceholderText="{Binding DialogNewDomainDomainPlaceholder}"/>
 
-            <TextBlock Name="ValidationMessage" 
-                       Foreground="Red" 
-                       FontSize="12" 
+            <TextBlock Name="ValidationMessage"
+                       Foreground="Red"
+                       FontSize="12"
                        IsVisible="False"/>
 
             <!-- Version de Windows Server : les objets et permissions par défaut du domaine neuf -->
@@ -47,14 +47,14 @@
             <ComboBox Name="TieringComboBox" HorizontalAlignment="Stretch"
                       SelectionChanged="OnTieringChanged"
                       ToolTip.Tip="{Binding DialogNewDomainTieringTooltip}"/>
-            <TextBlock Name="TierModelSourceText" FontSize="11" Opacity="0.75" TextWrapping="Wrap" IsVisible="False"/>
+            <TextBlock Name="TierModelSourceText" FontSize="11" Foreground="{DynamicResource TextMuted}" TextWrapping="Wrap" IsVisible="False"/>
         </StackPanel>
 
         <!-- Aperçu : couleurs du thème, lisibles en clair comme en sombre -->
-        <Border Grid.Row="3" 
-                BorderBrush="{DynamicResource AppSeparatorBrush}" 
-                BorderThickness="1" 
-                Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" 
+        <Border Grid.Row="3"
+                BorderBrush="{DynamicResource AppSeparatorBrush}"
+                BorderThickness="1"
+                Background="{DynamicResource CodeBg}"
                 Padding="10"
                 Margin="0,0,0,20">
             <ScrollViewer MaxHeight="150">
@@ -67,15 +67,15 @@
         </Border>
 
         <!-- Boutons -->
-        <StackPanel Grid.Row="4" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Right" 
+        <StackPanel Grid.Row="4"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
                     Spacing="10">
-            <Button Content="{Binding DialogNewDomainCancel}" 
-                    Width="100" 
+            <Button Content="{Binding DialogNewDomainCancel}" Classes="tool" HorizontalContentAlignment="Center"
+                    Width="100"
                     Click="OnCancelClick"/>
-            <Button Content="{Binding DialogNewDomainCreate}" 
-                    Width="100" 
+            <Button Content="{Binding DialogNewDomainCreate}" Classes="accent" HorizontalContentAlignment="Center"
+                    Width="100"
                     Click="OnCreateClick"
                     IsDefault="True"/>
         </StackPanel>

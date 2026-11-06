@@ -6,11 +6,11 @@
 
 | Area | Purpose |
 |---|---|
-| **Menus** | File, Edit, View, Settings, **Analyse**, **Labs**, Help |
+| **Header** | the application's name, then its menus: File, Edit, View, Settings, **Analyse**, **Labs**, Help |
 | **Toolbar** | create an object (OU, container, user, group, computer, gMSA, policy, PSO) under the selected object; Relations, Graph, Security audit, Export PNG |
 | **Active Directory Structure** | the domain tree, with a search bar (name, type or description) and badges: tier, linked `GPO`, `DEL` delegation, `AUDIT` finding |
 | **AD Sites** | below the tree: sites, their subnets and domain controllers |
-| **Object Details** | name, type, DN, tier, Markdown sheet, actions, **Security** section |
+| **Object Details** | one card per topic: the object (name, type, DN, tier) and its actions (Rename, Copy, Delete), its Markdown sheet, then depending on the object **Security**, groups, linked GPOs, password policy |
 | **Status bar** | latest message and object counts per type |
 
 ## A first domain

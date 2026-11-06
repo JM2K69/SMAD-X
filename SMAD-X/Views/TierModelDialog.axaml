@@ -29,7 +29,7 @@
                 <ItemsControl Name="NotesList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="x:String">
-                            <TextBlock Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" FontSize="12" Opacity="0.85" Margin="0,2"/>
+                            <TextBlock Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextMuted}" Margin="0,2"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -38,7 +38,7 @@
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,16,0,0">
             <Button Name="ApplyButton" Content="{Binding Source={StaticResource Loc}, Path=DialogTierModelApply}" Click="OnApplyClick" IsDefault="True" Classes="accent"/>
-            <Button Content="{Binding Source={StaticResource Loc}, Path=DialogNewDomainCancel}" Click="OnCancelClick" IsCancel="True"/>
+            <Button Content="{Binding Source={StaticResource Loc}, Path=DialogNewDomainCancel}" Click="OnCancelClick" IsCancel="True" Classes="tool"/>
         </StackPanel>
     </Grid>
 </Window>
