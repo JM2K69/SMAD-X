@@ -65,6 +65,7 @@ Chaque moteur a été confronté à la réalité : on reproduit la situation sur
 | SMAR-X | **Windows Server 2025**, contrôleur de domaine | 1 512 ouvertures sous le jeton de chaque compte, les propriétaires, l'ordre réel des ACL |
 | SMAR-X | Windows Server 2025, depuis un **Windows 11** du domaine | 1 540 ouvertures par les partages et 50 dossiers listés |
 | SMAR-X | l'**Explorateur de Windows 11** | l'onglet Sécurité : 96 vues de comptes, 103 entrées de la fenêtre Avancé, 8 séquences de cases cochées |
+| SMAR-X | **Windows 11** (PowerShell 5.1, module NTFSSecurity) et **Debian 13** | les 50 commandes de l'[aide-mémoire](smar-x/index.md#laide-memoire), rejouées telles qu'elles sont écrites ; chaque commande NTFSSecurity laisse les mêmes ACE que son équivalent `icacls` |
 
 Le détail de SMAR-X, et ce que ces mesures ont appris, est dans [Fidèle aux vrais systèmes](smar-x/index.md#fidele-aux-vrais-systemes) et [Règles de Windows vérifiées](smar-x/regles-windows.md). Ce qui n'est pas simulé est dit franchement : voir les [limites de SMAR-X](smar-x/limites.md).
 
