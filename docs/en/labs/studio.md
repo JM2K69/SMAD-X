@@ -239,7 +239,7 @@ smx-arbo-martinworks-mixte/
 ├── 1-trainer/         your copy, trainer-notes.md, fixed-servers.smar-x.json
 ├── 2-to-hand-out/     the subject, to open in SMAR-X
 ├── 3-submissions/     the copies (.smarx-submission.json)
-└── 4-results/         grades.csv, grades-moodle.csv, class-results.md
+└── 4-results/         grades.csv, grades-moodle.csv, class-results.md, reports/ (one PDF per learner)
 ```
 
 The trainer notes give the commands that take the starting servers to the fixed ones. Hand out only `2-to-hand-out`.
@@ -287,11 +287,18 @@ The solution is the fixed servers, prepared in SMAR-X then saved (`.smar-x.json`
 - two copies of the same work session: one is a copy of the other;
 - the written answers to grade by hand.
 
-Each copy has its grade, its dots (one per objective, then per question: green met, orange partly, red not met; hovering gives the explanation) and its remarks.
+Each copy has its grade (followed by `*` when answers remain to be graded), its dots (one per objective, then per question: green met, orange partly, red not met, grey to grade; hovering gives the explanation) and its remarks.
 
 ![Copies of a SMAR-X lab](../assets/screens/studio-smarx-submissions.png)
 
 The exports are those of a SMAD-X lab (see [Exporting the grades](#exporting-the-grades)), on the **Grade out of** scale (20 by default). For a lab laid out by role, they are written without asking into `4-results`, and the copies of `3-submissions` are graded as soon as the lab opens; otherwise, Studio asks where to save them:
+
+*Screenshot: Camille Martin's copy is selected; on the right, the answers, the points to give by hand and the comment.*
+
+As for a SMAD-X lab (see [Grading by hand and commenting](#grading-by-hand-and-commenting)):
+
+- **Selected submission** shows each answer, its automatic grading and a **Points given** field; the **comment** goes into the learner's report. **Save the grade** writes it all beside the copy, in `<copy>.smarx-marks.json`: the copy, sealed, is never changed. If the learner hands in another answer, the grade given by hand no longer applies;
+- **Success per objective** shows, objective by objective (guards included) then question by question, how many graded copies meet it.
 
 | Button | Produces |
 |---|---|
@@ -299,7 +306,8 @@ The exports are those of a SMAD-X lab (see [Exporting the grades](#exporting-the
 | **Export for Moodle (CSV)...** | the Moodle grade import file: ID, name, grade out of the scale |
 | **Export class results (Markdown)...** | average, median, everyone's grade, success per objective and per question |
 
-There is no PDF report per learner for a SMAR-X lab. In SMAR-X too, the learner can enter an **ID** beside their name: the exports use it. The [command line](#command-line) also grades the copies of a SMAR-X lab.
+| **Individual reports (PDF)...** | one PDF per graded copy, in `4-results/reports`: the grade, each objective with its explanation, the answers to the questions and the comment. It holds neither the answer key nor the trainer-only remarks. |
+In SMAR-X too, the learner can enter an **ID** beside their name: the exports use it. The [command line](#command-line) also grades the copies of a SMAR-X lab.
 
 ---
 
@@ -385,7 +393,7 @@ SMAD-X.Studio recipe SMX-ARBO SMX-GROUPE --company "Martin Works" --services "Ac
 | `grade <lab> <submission or folder>...` | grades the given submissions, wherever they are; `--csv`, `--moodle`, `--reports` and `--report` choose the files. `+` met, `~` in part, `-` not met, `?` to grade by hand in Studio |
 | `recipe <SMX-ID>...` or `recipe smx-all` | SMAR-X recipes (see [From a recipe](#from-a-recipe)): one lab per recipe, for the company of `--company`, `--services` and `--platform`, each in its folder laid out by role (your copy, notes, fixed servers, subject) |
 | `grade <SMAR-X lab folder>` | grades the copies of `3-submissions` and writes every result to `4-results` |
-| `grade <SMAR-X lab> [<copy or folder>...]` | grades the copies of a SMAR-X lab: the `.smarx-lab.json` file, or a folder holding just one. Without copies given, it takes every `.smarx-submission.json` of its folder, subfolders included. Same lines, same signs and same options, except `--reports`, which is for SMAD-X labs only |
+| `grade <SMAR-X lab> [<copy or folder>...]` | grades the copies of a SMAR-X lab: the `.smarx-lab.json` file, or a folder holding just one. Without copies given, it takes every `.smarx-submission.json` of its folder, subfolders included. Same lines, same signs and same options |
 
 | Option | Effect |
 |---|---|
@@ -401,7 +409,7 @@ SMAD-X.Studio recipe SMX-ARBO SMX-GROUPE --company "Martin Works" --services "Ac
 | `--exam-close audit,fixes,paths,comparison` | with `--exam`: tools closed during the exam |
 | `--csv <file>` | `grade`: grade spreadsheet for Excel |
 | `--moodle <file>` | `grade`: Moodle grade import file |
-| `--reports <folder>` | `grade`: one PDF report per learner (SMAD-X labs only) |
+| `--reports <folder>` | `grade`: one PDF report per learner |
 | `--scale <n>` | `grade`: scale of the exported grades (20 by default) |
 | `--report <file>` | `grade`: class results in Markdown |
 | `--company <name>` | SMAR-X `recipe`: the company, which gives the domain (`Lumen` by default) |
@@ -409,4 +417,4 @@ SMAD-X.Studio recipe SMX-ARBO SMX-GROUPE --company "Martin Works" --services "Ac
 | `--platform windows`, `linux` or `both` | SMAR-X `recipe`: the server (`windows` by default); a recipe that does not run on it is refused |
 | `--verbose` | also shows the checks that passed |
 
-Each lab written is validated straight away. The exit code is **0** when all is well, **1** when a lab has errors (it is still written, to be fixed in Studio), the recipes cannot be combined, there is no submission to grade or a submission needs attention (not graded, changed or copied), and **2** for a wrong command, `--reports` with a SMAR-X lab included.
+Each lab written is validated straight away. The exit code is **0** when all is well, **1** when a lab has errors (it is still written, to be fixed in Studio), the recipes cannot be combined, there is no submission to grade or a submission needs attention (not graded, changed or copied), and **2** for a wrong command.

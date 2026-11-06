@@ -239,7 +239,7 @@ smx-arbo-ateliermartin-mixte/
 ├── 1-formateur/       l'exemplaire, notes-formateur.md, serveurs-corriges.smar-x.json
 ├── 2-a-distribuer/    le sujet, à ouvrir dans SMAR-X
 ├── 3-copies-rendues/  les copies (.smarx-submission.json)
-└── 4-resultats/       notes.csv, notes-moodle.csv, bilan-classe.md
+└── 4-resultats/       notes.csv, notes-moodle.csv, bilan-classe.md, comptes-rendus/ (un PDF par apprenant)
 ```
 
 Les notes du formateur donnent les commandes qui mènent des serveurs de départ aux serveurs corrigés. Ne distribuez que `2-a-distribuer`.
@@ -287,11 +287,18 @@ La solution, ce sont les serveurs corrigés, préparés dans SMAR-X puis enregis
 - deux copies de la même session de travail : l'une est la copie de l'autre ;
 - les réponses écrites à noter à la main.
 
-Chaque copie a sa note, ses pastilles (une par objectif, puis par question : verte atteint, orange en partie, rouge non atteint ; le survol donne l'explication) et ses remarques.
+Chaque copie a sa note (suivie de `*` quand des réponses restent à noter), ses pastilles (une par objectif, puis par question : verte atteint, orange en partie, rouge non atteint, grise à noter ; le survol donne l'explication) et ses remarques.
 
 ![Copies d'un exercice SMAR-X](../assets/screens/studio-smarx-submissions.png)
 
 Les exports sont ceux d'un exercice SMAD-X (voir [Exporter les notes](#exporter-les-notes)), sur le barème **Note sur** (20 par défaut). Pour un exercice rangé par rôle, ils s'écrivent sans rien demander dans `4-resultats`, et les copies de `3-copies-rendues` sont corrigées dès l'ouverture ; sinon, Studio demande où les enregistrer :
+
+*Capture : la copie de Camille Martin est sélectionnée ; à droite, ses réponses, les points à donner à la main et l'appréciation.*
+
+Comme pour un exercice SMAD-X (voir [Noter à la main et apprécier](#noter-a-la-main-et-apprecier)) :
+
+- **Copie sélectionnée** montre chaque réponse, sa correction automatique et un champ **Points donnés** ; l'**appréciation** passe dans le compte rendu de l'apprenant. **Enregistrer la note** écrit le tout à côté de la copie, dans `<copie>.smarx-marks.json` : la copie, scellée, n'est jamais modifiée. Si l'apprenant rend une autre réponse, la note donnée à la main ne s'applique plus ;
+- **Réussite par objectif** montre, objectif par objectif (gardes comprises) puis question par question, combien de copies corrigées l'atteignent.
 
 | Bouton | Produit |
 |---|---|
@@ -299,7 +306,8 @@ Les exports sont ceux d'un exercice SMAD-X (voir [Exporter les notes](#exporter-
 | **Exporter pour Moodle (CSV)...** | le fichier d'import des notes de Moodle : identifiant, nom, note sur le barème |
 | **Exporter le bilan (Markdown)...** | moyenne, médiane, notes de chacun, réussite par objectif et par question |
 
-Il n'y a pas de compte rendu PDF par apprenant pour un exercice SMAR-X. Dans SMAR-X aussi, l'apprenant peut indiquer un **identifiant** à côté de son nom : c'est lui que reprennent les exports. La [ligne de commande](#en-ligne-de-commande) corrige aussi les copies d'un exercice SMAR-X.
+| **Comptes rendus individuels (PDF)...** | un PDF par copie corrigée, dans `4-resultats/comptes-rendus` : la note, chaque objectif avec son explication, les réponses aux questions et l'appréciation. Il ne contient ni le corrigé des questions, ni les remarques réservées au formateur. |
+Dans SMAR-X aussi, l'apprenant peut indiquer un **identifiant** à côté de son nom : c'est lui que reprennent les exports. La [ligne de commande](#en-ligne-de-commande) corrige aussi les copies d'un exercice SMAR-X.
 
 ---
 
@@ -385,7 +393,7 @@ SMAD-X.Studio recipe SMX-ARBO SMX-GROUPE --company "Atelier Martin" --services "
 | `grade <exercice> <copie ou dossier>...` | corrige les copies données, où qu'elles soient ; les options `--csv`, `--moodle`, `--reports` et `--report` choisissent les fichiers. `+` atteint, `~` en partie, `-` non atteint, `?` à noter à la main dans Studio |
 | `recipe <SMX-ID>...` ou `recipe smx-all` | les recettes SMAR-X (voir [À partir d'une recette](#a-partir-dune-recette)) : un exercice par recette, pour l'entreprise de `--company`, `--services` et `--platform`, chacun dans son dossier rangé par rôle (exemplaire, notes, serveurs corrigés, sujet) |
 | `grade <dossier d'un exercice SMAR-X>` | corrige les copies de `3-copies-rendues` et écrit tous les résultats dans `4-resultats` |
-| `grade <exercice SMAR-X> [<copie ou dossier>...]` | corrige les copies d'un exercice SMAR-X : le fichier `.smarx-lab.json`, ou un dossier qui en contient un seul. Sans copie donnée, ce sont toutes les `.smarx-submission.json` de son dossier, sous-dossiers compris. Mêmes lignes, mêmes signes et mêmes options, sauf `--reports`, réservé aux exercices SMAD-X |
+| `grade <exercice SMAR-X> [<copie ou dossier>...]` | corrige les copies d'un exercice SMAR-X : le fichier `.smarx-lab.json`, ou un dossier qui en contient un seul. Sans copie donnée, ce sont toutes les `.smarx-submission.json` de son dossier, sous-dossiers compris. Mêmes lignes, mêmes signes et mêmes options |
 
 | Option | Effet |
 |---|---|
@@ -401,7 +409,7 @@ SMAD-X.Studio recipe SMX-ARBO SMX-GROUPE --company "Atelier Martin" --services "
 | `--exam-close audit,fixes,paths,comparison` | avec `--exam` : outils fermés pendant l'examen |
 | `--csv <fichier>` | `grade` : tableau des notes pour Excel |
 | `--moodle <fichier>` | `grade` : fichier d'import des notes de Moodle |
-| `--reports <dossier>` | `grade` : un compte rendu PDF par apprenant (exercice SMAD-X seulement) |
+| `--reports <dossier>` | `grade` : un compte rendu PDF par apprenant |
 | `--scale <n>` | `grade` : barème des notes exportées (20 par défaut) |
 | `--report <fichier>` | `grade` : bilan de la classe en Markdown |
 | `--company <nom>` | `recipe` SMAR-X : l'entreprise, qui donne le domaine (`Lumen` par défaut) |
@@ -409,4 +417,4 @@ SMAD-X.Studio recipe SMX-ARBO SMX-GROUPE --company "Atelier Martin" --services "
 | `--platform windows`, `linux` ou `both` | `recipe` SMAR-X : le serveur (`windows` par défaut) ; une recette qui ne s'y fait pas est refusée |
 | `--verbose` | affiche aussi les vérifications réussies |
 
-Chaque exercice écrit est validé aussitôt. Le code de sortie vaut **0** si tout va bien, **1** si un exercice a des erreurs (il est quand même écrit, pour être corrigé dans Studio), si les recettes ne peuvent pas être combinées, s'il n'y a aucune copie à corriger ou si une copie est à revoir (non corrigée, modifiée ou recopiée), et **2** pour une commande incorrecte, `--reports` avec un exercice SMAR-X compris.
+Chaque exercice écrit est validé aussitôt. Le code de sortie vaut **0** si tout va bien, **1** si un exercice a des erreurs (il est quand même écrit, pour être corrigé dans Studio), si les recettes ne peuvent pas être combinées, s'il n'y a aucune copie à corriger ou si une copie est à revoir (non corrigée, modifiée ou recopiée), et **2** pour une commande incorrecte.

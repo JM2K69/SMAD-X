@@ -447,18 +447,8 @@ namespace SMADX.Services.Labs
         private static string Prose(string text) => text.Replace(" :", "\u00A0:");
 
         /// <summary>La réponse en clair : le texte des choix cochés, les associations faites, ou le texte écrit.</summary>
-        public static string AnswerText(LabQuestion question, LabAnswer? answer, string culture)
-        {
-            if (answer == null || answer.IsEmpty) return T(culture, "(pas de réponse)", "(no answer)");
-            string Choice(string id) => question.Choices.FirstOrDefault(c => string.Equals(c.Id, id, StringComparison.OrdinalIgnoreCase)) is { } c ? c.Text.Resolve(culture) : id;
-            return question.Kind switch
-            {
-                LabQuestionKind.Text => (answer.Text ?? string.Empty).Trim(),
-                LabQuestionKind.Matching => string.Join(" ; ", (question.Prompts ?? [])
-                    .Select(p => $"{p.Text.Resolve(culture)} → {(answer.Matches?.GetValueOrDefault(p.Id) is { } id ? Choice(id) : "—")}")),
-                _ => string.Join(" ; ", (answer.Choices ?? []).Select(Choice))
-            };
-        }
+        public static string AnswerText(LabQuestion question, LabAnswer? answer, string culture) =>
+            LabQuestionGrader.AnswerText(question, answer, culture);
 
         /// <summary>Nom proposé pour le compte rendu d'une copie : « id_Prénom Nom.pdf », sans caractère interdit.</summary>
         public static string StudentReportFileName(LabDefinition lab, GradedSubmission row, string extension)

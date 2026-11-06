@@ -14,6 +14,9 @@ namespace SMARX.Services.Labs
     /// <summary>Une copie SMAR-X corrigée : la copie (null si illisible), son résultat et les remarques pour le formateur.</summary>
     public sealed record SmarxGradedSubmission(string Path, SmarxSubmission? Submission, SmarxLabResult? Result, IReadOnlyList<LabIssue> Issues)
     {
+        /// <summary>Notes du formateur sur cette copie (points donnés à la main, appréciation), s'il y en a.</summary>
+        public SubmissionMarks? Marks { get; init; }
+
         public string Student => SafeText.Name(Submission?.Student is { Length: > 0 } s ? s : System.IO.Path.GetFileName(Path));
         public string StudentId => SafeText.Name(Submission?.StudentId ?? "");
         public bool Graded => Result != null;
@@ -62,11 +65,102 @@ namespace SMARX.Services.Labs
                     issues.Add(new(LabIssueLevel.Error, T(culture, $"Même session de travail que la copie de {string.Join(", ", twins)} : l'une est la copie de l'autre.",
                                                                    $"Same work session as the copy of {string.Join(", ", twins)}: one is a copy of the other.")));
                 var result = SmarxLabGrader.Grade(lab, submission.Work, submission.Answers, culture);
+                // Les points donnés à la main, tant que la réponse notée est celle de la copie
+                var marks = SmarxMarksService.Load(copy.path, submission);
+                if (marks != null)
+                    result = result with
+                    {
+                        Questions = result.Questions.Select(q =>
+                        {
+                            if (!marks.Questions.TryGetValue(q.Question.Id, out var mark)) return q;
+                            if (mark.Answer == (q.Answer?.Signature() ?? string.Empty)) return LabQuestionGrader.Marked(q, mark.Points);
+                            issues.Add(new(LabIssueLevel.Warning, T(culture, $"La réponse à {q.Question.Id} a changé depuis votre note : à noter de nouveau.",
+                                                                             $"The answer to {q.Question.Id} changed since you graded it: grade it again.")));
+                            return q;
+                        }).ToList()
+                    };
                 var toReview = result.Questions.Count(q => q.NeedsReview);
                 if (toReview > 0)
                     issues.Add(new(LabIssueLevel.Warning, T(culture, $"{toReview} réponse(s) à noter à la main.", $"{toReview} answer(s) to grade by hand.")));
-                return new SmarxGradedSubmission(copy.path, submission, result, issues);
+                return new SmarxGradedSubmission(copy.path, submission, result, issues) { Marks = marks };
             }).ToList();
+        }
+
+        /// <summary>
+        /// Compte rendu individuel, à remettre à l'apprenant : sa note, chaque objectif avec son explication, ses réponses
+        /// et l'appréciation du formateur. Sans le corrigé des questions ni les remarques sur la copie (réservées au formateur).
+        /// </summary>
+        public static string StudentReport(SmarxLab lab, SmarxGradedSubmission row, string culture, int scale = DefaultScale)
+        {
+            var numbers = Numbers(culture);
+            string Cell(string text) => SafeText.Markdown(text).Replace("\n", " ");
+            var sb = new StringBuilder();
+            sb.Append($"# {Cell(lab.Title.Resolve(culture))}\n\n");
+            sb.Append($"- **{T(culture, "Apprenant", "Learner")}** : {Cell(row.Student)}{(row.StudentId.Length > 0 ? $" ({Cell(row.StudentId)})" : "")}\n");
+            if (row.Submission is { } s)
+                sb.Append($"- **{T(culture, "Copie enregistrée le", "Copy saved on")}** : {s.SavedAt.ToString("g", numbers)}\n");
+            if (row.Result is not { } result)
+            {
+                sb.Append('\n').Append(T(culture, "Cette copie n'a pas pu être corrigée : voyez-le avec votre formateur.", "This copy could not be graded: see your trainer.")).Append("\n\n");
+                return sb.ToString();
+            }
+            sb.Append($"- **{T(culture, "Note", "Grade")}** : {Format(result.Score, numbers)} / {result.MaxPoints}{(result.MaxPoints > 0 ? T(culture, $", soit {Format(row.Scaled(scale), numbers)} / {scale}", $", that is {Format(row.Scaled(scale), numbers)} / {scale}") : "")}\n");
+            if (row.ToReview > 0)
+                sb.Append($"- **{T(culture, "Note provisoire", "Provisional grade")}** : {T(culture, $"{row.ToReview} réponse(s) reste(nt) à noter par le formateur.", $"{row.ToReview} answer(s) still to be graded by the trainer.")}\n");
+            if (row.HintsUsed > 0 && !lab.Exam)
+                sb.Append($"- **{T(culture, "Indices consultés", "Hints viewed")}** : {row.HintsUsed}\n");
+            sb.Append('\n');
+
+            sb.Append($"## {T(culture, "Objectifs", "Objectives")}\n\n");
+            sb.Append($"| | {T(culture, "Objectif", "Objective")} | {T(culture, "Points", "Points")} | {T(culture, "Commentaire", "Comment")} |\n");
+            sb.Append("|---|---|---|---|\n");
+            foreach (var o in result.Objectives.Where(o => !o.Objective.Guard || !o.Passed))
+            {
+                var mark = o.Passed ? "✔" : o.EarnedPoints > 0 ? "◐" : "✘";
+                var points = o.Objective.Guard ? T(culture, "garde", "guard") : $"{Format(o.EarnedPoints, numbers)} / {o.Objective.Points}";
+                sb.Append($"| {mark} | {Cell(o.Objective.Title.Resolve(culture))} | {points} | {Cell(o.Feedback)} |\n");
+            }
+            sb.Append('\n');
+
+            if (result.Questions.Count > 0)
+            {
+                sb.Append($"## {T(culture, "Questions", "Questions")}\n\n");
+                sb.Append($"| | {T(culture, "Question", "Question")} | {T(culture, "Votre réponse", "Your answer")} | {T(culture, "Points", "Points")} |\n");
+                sb.Append("|---|---|---|---|\n");
+                foreach (var q in result.Questions)
+                {
+                    var mark = q.NeedsReview ? "?" : q.Passed ? "✔" : q.EarnedPoints > 0 ? "◐" : "✘";
+                    var points = q.NeedsReview ? T(culture, "à noter", "to grade") : $"{Format(q.EarnedPoints, numbers)} / {q.Question.Points}";
+                    sb.Append($"| {mark} | {Cell(q.Question.Title.Resolve(culture))} | {Cell(LabQuestionGrader.AnswerText(q.Question, q.Answer, culture))} | {points} |\n");
+                }
+                sb.Append('\n');
+            }
+
+            if (!string.IsNullOrWhiteSpace(row.Marks?.Comment))
+            {
+                // L'espace avant les deux-points devient insécable : le moteur PDF lirait « mot : mot » comme un tableau
+                sb.Append($"## {T(culture, "Appréciation du formateur", "Trainer's comment")}\n\n");
+                sb.Append(SafeText.Markdown(row.Marks!.Comment!.Trim()).Replace(" :", " :")).Append("\n\n");
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>Nom proposé pour le compte rendu d'une copie : « id_Prénom Nom.pdf », sans caractère interdit.</summary>
+        public static string StudentReportFileName(SmarxLab lab, SmarxGradedSubmission row, string extension)
+        {
+            var name = row.Student;
+            foreach (var c in Path.GetInvalidFileNameChars())
+                name = name.Replace(c, '_');
+            return $"{lab.Id}_{name}{extension}";
+        }
+
+        /// <summary>Réussite de la classe sur un objectif ou une question : combien de copies corrigées l'atteignent.</summary>
+        public static (int Met, int Graded) Success(IReadOnlyList<SmarxGradedSubmission> rows, string id)
+        {
+            var graded = rows.Where(r => r.Result != null).ToList();
+            var met = graded.Count(r => r.Result!.Objectives.Any(o => o.Objective.Id == id && o.Passed)
+                                        || r.Result.Questions.Any(q => q.Question.Id == id && q.Passed));
+            return (met, graded.Count);
         }
 
         /// <summary>Copie à regarder : non corrigée, ou avec une remarque grave.</summary>

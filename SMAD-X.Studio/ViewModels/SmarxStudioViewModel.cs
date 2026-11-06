@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SMADX.Models;
+using SMADX.Services;
 using SMADX.Services.Labs;
 using SMARX.Models;
 using SMARX.Services.Labs;
@@ -193,7 +194,7 @@ namespace SMADX.Studio.ViewModels
         public string FileName => System.IO.Path.GetFileName(Graded.Path);
         public string SavedAt => Submission?.SavedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? "";
         public double Points => Graded.Points;
-        public string Grade => Result == null ? "—" : $"{SmarxClassGrader.Format(Points, CultureInfo.GetCultureInfo(Culture))} / {MaxPoints}";
+        public string Grade => Result == null ? "—" : $"{SmarxClassGrader.Format(Points, CultureInfo.GetCultureInfo(Culture))} / {MaxPoints}{(Graded.ToReview > 0 ? " *" : "")}";
         public string Percent => Result != null && MaxPoints > 0 ? $"{100.0 * Points / MaxPoints:0} %" : "";
         public int Hints => Graded.HintsUsed;
 
@@ -611,16 +612,113 @@ namespace SMADX.Studio.ViewModels
         [RelayCommand]
         public void Regrade()
         {
+            // Rangé par rôle : les copies déposées depuis dans 3-copies-rendues sont ajoutées
+            foreach (var path in Project?.SubmissionFiles() ?? [])
+                if (!_submissionPaths.Contains(path, StringComparer.OrdinalIgnoreCase))
+                    _submissionPaths.Add(path);
             var culture = EditCulture;
+            var selected = SelectedSubmission?.Graded.Path;
             _graded = SmarxClassGrader.GradeAll(Lab, _submissionPaths, culture);
             Submissions.Clear();
             foreach (var graded in _graded) Submissions.Add(new SmarxSubmissionRow(graded, Lab.MaxPoints, culture));
             var count = _graded.Count(g => g.Graded);
+            var toReview = _graded.Sum(g => g.ToReview);
             ClassSummary = SmarxClassGrader.Average(_graded) is { } average
-                ? Text.T($"{count} copie(s) corrigée(s) — moyenne {average:0.#} / {Lab.MaxPoints}", $"{count} copy(ies) graded — average {average:0.#} / {Lab.MaxPoints}")
+                ? Text.T($"{count} copie(s) corrigée(s) — moyenne {average:0.#} / {Lab.MaxPoints}.", $"{count} copy(ies) graded — average {average:0.#} / {Lab.MaxPoints}.")
+                  + (toReview > 0 ? " " + string.Format(Text["Submissions.ToReview"], toReview) : "")
                 : Text["Submissions.None"];
+
+            // Réussite de la classe, objectif par objectif puis question par question
+            ObjectiveRates.Clear();
+            foreach (var (id, title, points) in Lab.Objectives.Select(o => (o.Id, o.Title.Resolve(culture) + (o.Guard ? Text.T(" (garde)", " (guard)") : ""), o.Points))
+                         .Concat(Lab.Questions.Select(q => (q.Id, q.Title.Resolve(culture), q.Points))))
+            {
+                var (met, graded) = SmarxClassGrader.Success(_graded, id);
+                ObjectiveRates.Add(new ObjectiveRate($"{id} · {title}", points,
+                    graded > 0 ? $"{met} / {graded} ({100.0 * met / graded:0} %)" : "—", graded > 0 ? 100.0 * met / graded : 0));
+            }
             OnPropertyChanged(nameof(HasSubmissions));
+            SelectedSubmission = Submissions.FirstOrDefault(s => string.Equals(s.Graded.Path, selected, StringComparison.OrdinalIgnoreCase));
             _status(ClassSummary);
+        }
+
+        public ObservableCollection<ObjectiveRate> ObjectiveRates { get; } = new();
+
+        // ─── Copie sélectionnée : notes à la main et appréciation ────────────────
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasSelectedSubmission))]
+        [NotifyCanExecuteChangedFor(nameof(SaveMarksCommand))]
+        private SmarxSubmissionRow? _selectedSubmission;
+
+        public bool HasSelectedSubmission => SelectedSubmission is { Graded.Graded: true };
+
+        public ObservableCollection<QuestionMarkItem> SelectedAnswers { get; } = new();
+
+        /// <summary>Appréciation du formateur sur la copie sélectionnée, reprise dans son compte rendu.</summary>
+        [ObservableProperty] private string _comment = "";
+
+        partial void OnSelectedSubmissionChanged(SmarxSubmissionRow? value)
+        {
+            SelectedAnswers.Clear();
+            Comment = value?.Graded.Marks?.Comment ?? "";
+            if (value?.Graded.Result is not { } result) return;
+            foreach (var q in result.Questions)
+                SelectedAnswers.Add(new QuestionMarkItem(q, EditCulture,
+                    q.Manual && value.Graded.Marks?.Questions.TryGetValue(q.Question.Id, out var mark) == true ? mark.Points : null));
+        }
+
+        /// <summary>
+        /// Enregistre, à côté de la copie (.smarx-marks.json), les points donnés à la main et l'appréciation, puis recorrige :
+        /// la copie elle-même, scellée, n'est pas modifiée.
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(HasSelectedSubmission))]
+        private void SaveMarks()
+        {
+            if (SelectedSubmission?.Graded is not { Submission: { } submission } row) return;
+            var marks = new SubmissionMarks
+            {
+                LabId = submission.LabId, SessionId = submission.SessionId,
+                Comment = string.IsNullOrWhiteSpace(Comment) ? null : Comment.Trim()
+            };
+            foreach (var item in SelectedAnswers.Where(a => a.Points is not null))
+                marks.Questions[item.Result.Question.Id] = new QuestionMark
+                {
+                    Points = Math.Clamp(item.Points!.Value, 0, item.Max),
+                    Answer = item.Result.Answer?.Signature() ?? string.Empty
+                };
+            try
+            {
+                SmarxMarksService.Save(marks, row.Path);
+                Regrade();
+                _status(string.Format(Text["Submissions.MarksSaved"], row.Student));
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                _status(string.Format(Text["Status.Error"], ex.Message));
+            }
+        }
+
+        /// <summary>Un compte rendu PDF par copie corrigée : dans 4-resultats/comptes-rendus pour un exercice rangé, sinon dans le dossier choisi.</summary>
+        [RelayCommand]
+        private async Task ExportReportsAsync()
+        {
+            if ((Project?.ReportsFolder ?? await _dialogs.PickFolderAsync(Text["Submissions.ExportReports"])) is not { } folder) return;
+            _status(string.Format(Text["Submissions.ReportsSaved"], ExportReports(folder), folder));
+        }
+
+        /// <summary>Écrit les comptes rendus PDF ; renvoie leur nombre.</summary>
+        public int ExportReports(string folder)
+        {
+            Directory.CreateDirectory(folder);
+            var count = 0;
+            foreach (var row in _graded.Where(r => r.Graded))
+            {
+                ADDocumentReportService.MarkdownToPdf(SmarxClassGrader.StudentReport(Lab, row, EditCulture, Scale),
+                    Path.Combine(folder, SmarxClassGrader.StudentReportFileName(Lab, row, ".pdf")));
+                count++;
+            }
+            return count;
         }
 
         private IReadOnlyList<SmarxGradedSubmission> _graded = [];
@@ -639,6 +737,8 @@ namespace SMADX.Studio.ViewModels
             _submissionPaths.Clear();
             _graded = [];
             Submissions.Clear();
+            ObjectiveRates.Clear();
+            SelectedSubmission = null;
             ClassSummary = Text["Submissions.None"];
             OnPropertyChanged(nameof(HasSubmissions));
         }

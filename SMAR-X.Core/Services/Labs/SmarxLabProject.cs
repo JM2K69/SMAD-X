@@ -17,7 +17,7 @@ namespace SMARX.Services.Labs
     ///   1-formateur/       smx-arbo-lumen-windows.smarx-lab.json (l'exemplaire), notes-formateur.md, serveurs-corriges.smar-x.json
     ///   2-a-distribuer/    smx-arbo-lumen-windows.smarx-lab.json (le sujet)
     ///   3-copies-rendues/  les copies (.smarx-submission.json)
-    ///   4-resultats/       notes.csv, notes-moodle.csv, bilan-classe.md
+    ///   4-resultats/       notes.csv, notes-moodle.csv, bilan-classe.md, comptes-rendus/ (un PDF par apprenant)
     /// </code>
     /// </summary>
     public sealed class SmarxLabProject
@@ -50,6 +50,7 @@ namespace SMARX.Services.Labs
         public string GradesPath => Path.Combine(ResultsFolder, N("notes.csv", "grades.csv"));
         public string MoodlePath => Path.Combine(ResultsFolder, N("notes-moodle.csv", "grades-moodle.csv"));
         public string ClassReportPath => Path.Combine(ResultsFolder, N("bilan-classe.md", "class-results.md"));
+        public string ReportsFolder => Path.Combine(ResultsFolder, N("comptes-rendus", "reports"));
 
         public string LabPath(string labId) => Path.Combine(TrainerFolder, labId + SmarxLab.FileExtension);
         public string SubjectPath(string labPath) => Path.Combine(HandOutFolder, Path.GetFileName(labPath));
@@ -159,8 +160,8 @@ namespace SMARX.Services.Labs
                   |---|---|
                   | `{trainer}` | **à garder pour vous** : l'exemplaire `{labFile}` (indices et corrigé), les notes du formateur et les serveurs corrigés. Ouvrez l'exemplaire dans SMAD-X Studio. |
                   | `{handOut}` | **le seul fichier à donner** aux apprenants : le sujet `{labFile}`, à ouvrir dans SMAR-X, sans indices en examen ni corrigé des questions. Studio le réécrit à chaque enregistrement. |
-                  | `{submissions}` | déposez ici les copies (`.smarx-submission.json`) rendues par les apprenants : Studio les corrige à l'ouverture de l'exercice. |
-                  | `{results}` | les notes (CSV pour Excel et l'ENT, import Moodle) et le bilan de la classe, exportés depuis l'onglet Copies. |
+                  | `{submissions}` | déposez ici les copies (`.smarx-submission.json`) rendues par les apprenants : Studio les corrige à l'ouverture de l'exercice, et y range vos notes à la main (`.smarx-marks.json`). |
+                  | `{results}` | les notes (CSV pour Excel et l'ENT, import Moodle), le bilan de la classe et un compte rendu PDF par apprenant, exportés depuis l'onglet Copies. |
 
                   Ne distribuez jamais le dossier `{trainer}` : il contient la solution.
                   """
@@ -173,8 +174,8 @@ namespace SMARX.Services.Labs
                   |---|---|
                   | `{trainer}` | **keep it to yourself**: your copy `{labFile}` (hints and answer key), the trainer notes and the fixed servers. Open your copy in SMAD-X Studio. |
                   | `{handOut}` | **the only file to give** learners: the subject `{labFile}`, to open in SMAR-X, without hints in an exam nor answer key. Studio rewrites it at every save. |
-                  | `{submissions}` | drop here the copies (`.smarx-submission.json`) handed in by learners: Studio grades them when the lab opens. |
-                  | `{results}` | the grades (CSV for Excel and the school platform, Moodle import) and the class results, exported from the Submissions tab. |
+                  | `{submissions}` | drop here the copies (`.smarx-submission.json`) handed in by learners: Studio grades them when the lab opens, and stores your grades by hand beside them (`.smarx-marks.json`). |
+                  | `{results}` | the grades (CSV for Excel and the school platform, Moodle import), the class results and one PDF report per learner, exported from the Submissions tab. |
 
                   Never hand out the `{trainer}` folder: it holds the solution.
                   """;

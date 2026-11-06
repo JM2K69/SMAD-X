@@ -244,9 +244,9 @@ public class StudioSmarxTests
         Assert.StartsWith("# Le dossier de l'équipe projet — bilan de la classe", File.ReadAllText(report));
     }
 
-    /// <summary>Le dossier qui contient l'exercice : ses copies sont cherchées dedans ; --reports reste réservé à SMAD-X.</summary>
+    /// <summary>Le dossier qui contient l'exercice : ses copies sont cherchées dedans ; --reports écrit un compte rendu PDF par copie corrigée.</summary>
     [Fact]
-    public void Cli_Grade_TakesTheLabFolder_AndRefusesPdfReports()
+    public void Cli_Grade_TakesTheLabFolder_AndWritesPdfReports()
     {
         var (folder, lab) = ClassFolder();
 
@@ -255,9 +255,9 @@ public class StudioSmarxTests
         Assert.Contains("3/3 graded", output);
         Assert.Contains("error: Copy edited after it was saved (broken seal).", output);
 
-        var refused = Cli("grade", lab, folder, "--reports", Path.Combine(folder, "pdf"));
-        Assert.Equal(2, refused.Code);
-        Assert.Contains("--reports", refused.Error);
+        var pdf = Path.Combine(folder, "pdf");
+        Cli("grade", lab, folder, "--reports", pdf, "--lang", "fr");
+        Assert.Equal(3, Directory.GetFiles(pdf, "*.pdf").Length);
     }
 
     /// <summary>
@@ -289,6 +289,7 @@ public class StudioSmarxTests
         Assert.True(File.Exists(project.GradesPath));
         Assert.True(File.Exists(project.MoodlePath));
         Assert.True(File.Exists(project.ClassReportPath));
+        Assert.Single(Directory.GetFiles(project.ReportsFolder, "*.pdf"));
 
         var refused = Cli("recipe", "SMX-AUDIT", "--platform", "windows", "--lang", "fr", "--out", output);
         Assert.Equal(1, refused.Code);
@@ -336,5 +337,38 @@ public class StudioSmarxTests
 
         await reopened.ExportGradesCommand.ExecuteAsync(null);
         Assert.True(File.Exists(project.GradesPath));
+    }
+
+    /// <summary>
+    /// La copie sélectionnée dans Studio : des points donnés à la main et une appréciation, enregistrés à côté de la copie
+    /// (.smarx-marks.json) ; la note change, la réussite par objectif suit, et le compte rendu PDF s'écrit.
+    /// </summary>
+    [Fact]
+    public void Studio_GradesASmarxQuestionByHand_AndWritesTheReports()
+    {
+        var folder = TempDir();
+        var lab = SmarxBuiltInLabs.SambaDiagnosis();
+        var copy = Path.Combine(folder, SmarxLabService.SubmissionFileName(lab.Id, "Camille Martin"));
+        File.WriteAllText(copy, SmarxLabService.SerializeSubmission(new SmarxSubmission
+        {
+            Student = "Camille Martin", LabId = lab.Id, SessionId = Guid.NewGuid(), StartedOn = new DateTime(2026, 11, 6, 9, 0, 0),
+            SavedAt = new DateTime(2026, 11, 6, 9, 30, 0), Lab = lab, Work = SmarxLabGrader.Clone(lab.Start),
+            Answers = { ["q1"] = new LabAnswer { Choices = ["b"] } }
+        }));
+        var studio = new StudioViewModel(new Dialogs());
+        studio.LoadSmarx(lab, null);
+        var smarx = studio.Smarx!;
+        smarx.AddSubmissions([copy]);
+        Assert.Equal(lab.Objectives.Count + lab.Questions.Count, smarx.ObjectiveRates.Count);
+
+        smarx.SelectedSubmission = smarx.Submissions.Single();
+        smarx.SelectedAnswers.Single(a => a.Result.Question.Id == "q1").Points = 0.5;
+        smarx.Comment = "Bonne piste.";
+        smarx.SaveMarksCommand.Execute(null);
+
+        Assert.True(File.Exists(SmarxMarksService.MarksPath(copy)));
+        Assert.Equal(0.5, smarx.Submissions.Single().Points);
+        Assert.Equal("Bonne piste.", smarx.Comment);
+        Assert.Equal(1, smarx.ExportReports(Path.Combine(folder, "pdf")));
     }
 }

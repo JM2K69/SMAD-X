@@ -134,6 +134,8 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     smarx.ValidateCommand.Execute(null);
     Capture(main, Out("studio-smarx-validation"));
     smarx.AddSubmissions(SmarxClassSubmissions(demo));
+    smarx.SelectedSubmission = smarx.Submissions.First();
+    smarx.Comment = T(culture, "Bien vu : x sans r, c'est traverser sans lister.", "Well spotted: x without r means crossing without listing.");
     Tab(main, 5);
     Capture(main, Out("studio-smarx-submissions"));
     main.Close();
@@ -180,6 +182,12 @@ static SmarxLab DemoSmarxLab(string culture)
                 } },
             new SmarxObjective { Id = "o3", Guard = true, Points = 0, Title = LocalizedText.Of("Les comptes ne changent pas", "The accounts do not change"),
                 Check = new SmarxCheck { Type = SmarxCheckType.AccountUnchanged, System = linux, Account = "*" } }
+        ],
+        // Une réponse écrite sans corrigé : le formateur la note à la main, dans l'onglet Copies
+        Questions =
+        [
+            new LabQuestion { Id = "q1", Points = 2, Kind = LabQuestionKind.Text,
+                Title = LocalizedText.Of("Pourquoi dave a-t-il besoin de x sur /srv/compta ?", "Why does dave need x on /srv/compta?") }
         ]
     };
 }
@@ -204,13 +212,19 @@ static IReadOnlyList<string> SmarxClassSubmissions(SmarxLab lab)
     budget.Acl = new PosixAcl { Users = [AclEntry.Of("dave", "rw-")], GroupObj = "r--" };
     budget.ModeBits = Convert.ToInt32("0660", 8);
     var copies = new[] { ("Camille Martin", DemoSmarxSolution(lab), 18), ("Hugo Petit", SmarxLabGrader.Clone(lab.Start), 25), ("Inès Moreau", half, 22) };
+    var answers = new Dictionary<string, string>
+    {
+        ["Camille Martin"] = "Pour traverser le dossier jusqu'à budget.ods, sans pouvoir le lister.",
+        ["Inès Moreau"] = "Pour ouvrir le dossier."
+    };
     return copies.Select(c =>
     {
         var path = Path.Combine(folder, SmarxLabService.SubmissionFileName(lab.Id, c.Item1));
         File.WriteAllText(path, SmarxLabService.SerializeSubmission(new SmarxSubmission
         {
             Student = c.Item1, LabId = lab.Id, SessionId = Guid.NewGuid(), StartedOn = new DateTime(2026, 11, 6, 9, 0, 0),
-            SavedAt = new DateTime(2026, 11, 6, 9, c.Item3, 0), ElapsedMinutes = c.Item3, Lab = lab, Work = c.Item2
+            SavedAt = new DateTime(2026, 11, 6, 9, c.Item3, 0), ElapsedMinutes = c.Item3, Lab = lab, Work = c.Item2,
+            Answers = answers.TryGetValue(c.Item1, out var text) ? new Dictionary<string, LabAnswer> { ["q1"] = new LabAnswer { Text = text } } : []
         }));
         return path;
     }).ToList();

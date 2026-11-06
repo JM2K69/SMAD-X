@@ -28,6 +28,24 @@ namespace SMADX.Services.Labs
     /// </summary>
     public static class LabQuestionGrader
     {
+        /// <summary>
+        /// La réponse en clair, pour le formateur et le compte rendu : le texte des choix cochés, les associations faites,
+        /// ou le texte écrit. Commune à SMAD-X et SMAR-X.
+        /// </summary>
+        public static string AnswerText(LabQuestion question, LabAnswer? answer, string culture)
+        {
+            var english = culture.StartsWith("en", StringComparison.OrdinalIgnoreCase);
+            if (answer == null || answer.IsEmpty) return english ? "(no answer)" : "(pas de réponse)";
+            string Choice(string id) => question.Choices.FirstOrDefault(c => string.Equals(c.Id, id, StringComparison.OrdinalIgnoreCase)) is { } c ? c.Text.Resolve(culture) : id;
+            return question.Kind switch
+            {
+                LabQuestionKind.Text => (answer.Text ?? string.Empty).Trim(),
+                LabQuestionKind.Matching => string.Join(" ; ", (question.Prompts ?? [])
+                    .Select(p => $"{p.Text.Resolve(culture)} → {(answer.Matches?.GetValueOrDefault(p.Id) is { } id ? Choice(id) : "—")}")),
+                _ => string.Join(" ; ", (answer.Choices ?? []).Select(Choice))
+            };
+        }
+
         private static Localizer Loc => Localizer.Current;
 
         public static LabQuestionResult Grade(LabQuestion question, LabAnswer? answer)

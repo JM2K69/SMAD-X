@@ -72,7 +72,7 @@ namespace SMADX.Studio
                   SMAD-X.Studio export-subject <lab.smadx-lab.json>... [--out <folder>] [--lang fr|en]
                   SMAD-X.Studio grade <lab folder> [--scale 20] [--lang fr|en]
                   SMAD-X.Studio grade <lab.smadx-lab.json> <submission.smadx-submission.json|folder>... [--csv <grades.csv>] [--moodle <moodle.csv>] [--reports <folder>] [--scale 20] [--report <results.md>] [--lang fr|en]
-                  SMAD-X.Studio grade <lab.smarx-lab.json|folder> [<copy.smarx-submission.json|folder>...] [--csv <grades.csv>] [--moodle <moodle.csv>] [--scale 20] [--report <results.md>] [--lang fr|en]
+                  SMAD-X.Studio grade <lab.smarx-lab.json|folder> [<copy.smarx-submission.json|folder>...] [--csv <grades.csv>] [--moodle <moodle.csv>] [--reports <folder>] [--scale 20] [--report <results.md>] [--lang fr|en]
 
                 --exam: exam mode in SMAD-X (no hints, no score, no start over; time measured).
                 --exam : mode examen dans SMAD-X (ni indice, ni score, ni « Recommencer » ; temps mesuré).
@@ -91,11 +91,11 @@ namespace SMADX.Studio
                 - non atteint, ? à noter à la main dans Studio. Avec un dossier d'exercice, les copies de 3-copies-rendues
                 sont corrigées et tous les résultats écrits dans 4-resultats ; sinon --csv, --moodle (import Moodle),
                 --reports (un PDF par apprenant) et --report les choisissent. Notes sur --scale (20 par défaut).
-                A SMAR-X lab (.smarx-lab.json, or a folder holding one) is graded the same way, with the copies given after
-                it or, otherwise, every .smarx-submission.json of its folder; --reports is for SMAD-X labs only.
-                Un exercice SMAR-X (.smarx-lab.json, ou un dossier qui en contient un) se corrige de la même façon, avec les
-                copies données après lui ou, sinon, toutes les .smarx-submission.json de son dossier ; --reports est réservé
-                aux exercices SMAD-X.
+                A SMAR-X lab (.smarx-lab.json, a folder holding one, or its folder laid out by role) is graded the same way,
+                with the copies given after it or, otherwise, those of its folder (3-submissions for a lab folder).
+                Un exercice SMAR-X (.smarx-lab.json, un dossier qui en contient un, ou son dossier rangé par rôle) se corrige
+                de la même façon, avec les copies données après lui ou, sinon, celles de son dossier (3-copies-rendues
+                pour un dossier d'exercice).
 
                 recipe writes one lab per rule; with --combine, one lab with every misconfiguration in the same domain.
                 recipe écrit un exercice par règle ; avec --combine, un seul exercice avec tous les manques dans le même domaine.
@@ -161,6 +161,16 @@ namespace SMADX.Studio
                 result = Math.Max(result, Write(created.Lab, created.TeacherNotes, options, output, error, created.Solution));
             }
             return result;
+        }
+
+        /// <summary>Un compte rendu PDF par copie SMAR-X corrigée, dans le dossier ; renvoie le dossier.</summary>
+        private static string SmarxReports(SmarxLab lab, IReadOnlyList<SmarxGradedSubmission> rows, string folder, Options options)
+        {
+            Directory.CreateDirectory(folder);
+            foreach (var row in rows.Where(r => r.Graded))
+                ADDocumentReportService.MarkdownToPdf(SmarxClassGrader.StudentReport(lab, row, options.Culture, options.Scale),
+                    Path.Combine(folder, SmarxClassGrader.StudentReportFileName(lab, row, ".pdf")));
+            return folder;
         }
 
         /// <summary>
@@ -386,8 +396,6 @@ namespace SMADX.Studio
         /// <summary>Corrige les copies d'un exercice SMAR-X : mêmes lignes, mêmes signes et mêmes exports qu'un exercice SMAD-X.</summary>
         private static int GradeSmarx(string labPath, Options options, TextWriter output, TextWriter error)
         {
-            if (options.Reports != null)
-                throw new CliException("grade: --reports (one PDF per learner) is for SMAD-X labs; for a SMAR-X lab, use --csv, --moodle or --report.");
             // Un dossier d'exercice rangé par rôle : ses copies (3-copies-rendues), et tous les résultats dans 4-resultats
             var project = options.Inputs.Count == 1 && Directory.Exists(options.Inputs[0]) ? SmarxLabProject.OfRoot(options.Inputs[0]) : null;
             var inputs = options.Inputs.Count > 1 ? options.Inputs.Skip(1).ToList()
@@ -438,9 +446,14 @@ namespace SMADX.Studio
                 File.WriteAllText(options.Report, SmarxClassGrader.ClassReport(lab, rows, options.Culture));
                 output.WriteLine(options.Report);
             }
-            if (project != null && options.Csv == null && options.Moodle == null && options.Report == null)
+            if (options.Reports != null)
+                output.WriteLine(SmarxReports(lab, rows, options.Reports, options));
+            if (project != null && options.Csv == null && options.Moodle == null && options.Report == null && options.Reports == null)
+            {
                 foreach (var written in project.SaveResults(lab, rows, options.Culture, options.Scale))
                     output.WriteLine(written);
+                output.WriteLine(SmarxReports(lab, rows, project.ReportsFolder, options));
+            }
             return rows.Count == 0 || rows.Any(SmarxClassGrader.NeedsAttention) ? 1 : 0;
         }
 
