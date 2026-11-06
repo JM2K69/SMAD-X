@@ -4,7 +4,7 @@ Un exercice SMAR-X décrit un besoin : qui doit pouvoir faire quoi, sur quoi, et
 
 ![La fenêtre d'un exercice SMAR-X](../assets/screens/smarx-lab.png)
 
-*Capture : un exercice fourni, vérifié au départ. Rien n'est encore fait : les objectifs ne sont pas atteints, le quatrième l'est en partie, les gardes tiennent.*
+*Capture : un exercice fourni, vérifié au départ. Rien n'est encore fait : aucun objectif n'est atteint, les gardes tiennent.*
 
 ## Ouvrir un exercice
 
@@ -24,7 +24,7 @@ Pendant un exercice, **Serveur d'exemple** et **Ouvrir…** sont masqués : ils 
 |---|---|
 | Accès autorisé | un compte peut faire une opération sur un objet, en local ou par un partage |
 | Accès refusé | un compte ne peut pas la faire |
-| Exactement les accès nécessaires | pour quelques comptes, objets et opérations : chaque accès est permis **si et seulement si** il est nécessaire. Chaque case juste rapporte sa part des points |
+| Exactement les accès nécessaires | pour quelques comptes, objets et opérations : chaque accès est permis **si et seulement si** il est nécessaire. Sans crédit partiel, il faut que toutes les cases soient justes ; avec, chaque case juste rapporte sa part des points |
 | Ce que reçoit un nouveau fichier | ce qu'un compte créera dans un dossier, un autre compte pourra le lire ou le modifier |
 | Règle d'hygiène | une bonne pratique, voir plus bas |
 | Garde | voir plus bas |
@@ -56,7 +56,7 @@ Chaque objectif dit pourquoi : l'accès testé et son résultat, les accès en t
 
 ## La copie
 
-Avec son nom, l'apprenant enregistre sa copie : **Enregistrer ma copie…** écrit un fichier `.smarx-submission.json`. Il contient l'exercice reçu, les serveurs de l'apprenant, ses réponses, les indices consultés, et la date de début et d'enregistrement. La copie est **scellée** : le sceau couvre tout son contenu, si bien qu'une copie retouchée à la main se repère à la correction.
+Avec son nom, l'apprenant enregistre sa copie : **Enregistrer ma copie…** écrit un fichier `.smarx-submission.json`. Il contient l'exercice reçu, les serveurs de l'apprenant, ses réponses, les indices consultés, et la date de début et d'enregistrement. La copie est **scellée** : le sceau couvre tout son contenu, si bien qu'une copie retouchée à la main se repère à la correction. Le formateur crée les exercices et corrige les copies d'une classe dans [SMAD-X Studio](../exercices/studio.md#exercices-smar-x).
 
 ## Le mode examen
 

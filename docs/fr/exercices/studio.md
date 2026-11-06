@@ -1,10 +1,12 @@
 # SMAD-X Studio
 
-**SMAD-X Studio** est l'outil du formateur : un second exécutable, livré dans la même archive que SMAD-X, qui crée des exercices, les vérifie et produit la fiche du formateur. Il fait, avec une fenêtre, ce que le [mode opératoire](creer.md) décrit à la main.
+**SMAD-X Studio** est l'outil du formateur : un exécutable livré dans sa propre archive (voir [Installation](../installation.md)), qui crée des exercices, les vérifie et produit la fiche du formateur. Il fait, avec une fenêtre, ce que le [mode opératoire](creer.md) décrit à la main. Il crée aussi les exercices de SMAR-X et corrige leurs copies (voir [Exercices SMAR-X](#exercices-smar-x)).
 
 Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X, l'exercice se met en forme dans Studio, l'apprenant le fait dans SMAD-X et rend sa **copie**, que Studio corrige avec celles de toute la classe.
 
 ![Accueil de SMAD-X Studio](../assets/screens/studio-home.png)
+
+**Affichage > Thème clair** ou **Thème sombre** change l'apparence de Studio ; le choix est retenu pour la prochaine session.
 
 ---
 
@@ -187,6 +189,67 @@ L'onglet **Réussite par objectif** montre ce que la classe a compris et ce qu'i
 | **Exporter le bilan (Markdown)...** | le bilan de la classe : moyenne, médiane, notes de chacun, réussite par objectif et par question. |
 
 Dans SMAD-X, l'apprenant peut indiquer un **identifiant** (son numéro ou son adresse) à côté de son nom : c'est lui que reprennent les exports.
+
+---
+
+## Exercices SMAR-X
+
+Studio crée aussi les [exercices de SMAR-X](../smar-x/exercices.md) : un besoin d'accès à satisfaire avec seulement les droits nécessaires, sur des serveurs Linux et Windows. Un seul exercice est ouvert à la fois, de SMAD-X ou de SMAR-X ; la pastille **Exercice SMAR-X** le signale.
+
+| Menu **Fichier** | Ce qu'il fait |
+|---|---|
+| **Nouvel exercice SMAR-X sur les serveurs d'exemple** | un exercice sur les serveurs d'exemple de SMAR-X, Linux et Windows |
+| **Nouvel exercice SMAR-X à partir de serveurs (.smar-x.json)...** | un exercice sur des serveurs préparés dans SMAR-X et enregistrés avec **Enregistrer…** |
+| **Ouvrir un exercice SMAR-X (.smarx-lab.json)...** | rouvre un exercice ; sa solution, rangée à côté, est relue |
+
+**Enregistrer** (`Ctrl+S`), **Enregistrer sous** et **Exporter le sujet** valent pour l'exercice ouvert. Le sujet n'a pas le corrigé des questions et, pour un examen, pas les indices.
+
+### Les onglets
+
+Les onglets **Exercice**, **Énoncé** et **Questions** sont ceux d'un exercice SMAD-X. L'onglet **Objectifs** propose les vérifications de SMAR-X :
+
+![Objectifs d'un exercice SMAR-X](../assets/screens/studio-smarx-objectives.png)
+
+*Capture : un exercice de démonstration, propre à la documentation.*
+
+| Vérification | Champs |
+|---|---|
+| Accès autorisé, accès refusé | compte, opération, chemin, et le partage par lequel passe l'accès (ou en local) |
+| Exactement les accès nécessaires | les comptes, les chemins et les opérations vérifiés, un par ligne ; les accès nécessaires, un par ligne (`compte opération chemin`) ; le partage |
+| Ce que reçoit un nouveau fichier | le compte qui crée, le dossier, l'autre compte et l'opération qu'il doit pouvoir faire |
+| Règle d'hygiène | la règle, et le chemin ou le partage concerné |
+| Le compte ne change pas | le compte, ou `*` pour tous |
+| Les droits du chemin ne changent pas | le chemin |
+
+Les listes proposent les comptes, les chemins et les partages des serveurs de départ.
+
+- **« Exactement les accès nécessaires »** : chaque case (compte, chemin, opération) est juste si l'accès est permis exactement quand il est nécessaire. Sans **crédit partiel**, l'objectif est atteint quand toutes les cases sont justes. Avec, chaque case juste rapporte sa part des points, y compris les refus déjà justes au départ.
+- **Une garde** est respectée au départ et ne rapporte rien. Violée, elle annule les objectifs du même compte ou du même chemin. Le compte et les droits d'un chemin qui ne changent pas sont des gardes.
+
+### Valider
+
+**Valider l'exercice** vérifie :
+
+- qu'il a un identifiant, un titre dans les deux langues et au moins un objectif ;
+- qu'au départ, aucun objectif noté n'est atteint et que toutes les gardes tiennent ;
+- que la **solution** atteint tous les objectifs.
+
+La solution, ce sont les serveurs corrigés, préparés dans SMAR-X puis enregistrés (`.smar-x.json`) : **Choisir les serveurs corrigés (solution)...** les charge. Studio la range à côté de l'exercice, sous le nom `id.solution.smar-x.json`, jamais dedans.
+
+![Validation d'un exercice SMAR-X](../assets/screens/studio-smarx-validation.png)
+
+### Corriger les copies
+
+**Ajouter des copies...** charge les copies (`.smarx-submission.json`) rendues par les apprenants. Studio les corrige avec l'exercice tel qu'il est ouvert, corrigé des questions compris. Il signale :
+
+- une copie modifiée après son enregistrement (sceau rompu), ou sans sceau ;
+- la copie d'un autre exercice ;
+- deux copies de la même session de travail : l'une est la copie de l'autre ;
+- les réponses écrites à noter à la main.
+
+Chaque copie a sa note, ses pastilles (une par objectif, puis par question : verte atteint, orange en partie, rouge non atteint ; le survol donne l'explication) et ses remarques. **Exporter les notes (CSV)...** écrit une ligne par copie.
+
+![Copies d'un exercice SMAR-X](../assets/screens/studio-smarx-submissions.png)
 
 ---
 

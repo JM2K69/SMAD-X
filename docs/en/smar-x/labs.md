@@ -4,7 +4,7 @@ A SMAR-X lab describes a need: who must be able to do what, on what, and nothing
 
 ![The window of a SMAR-X lab](../assets/screens/smarx-lab.png)
 
-*Screenshot: a provided lab, checked at the start. Nothing is done yet: the objectives are not met, the fourth one is partly met, the guards hold.*
+*Screenshot: a provided lab, checked at the start. Nothing is done yet: no objective is met, the guards hold.*
 
 ## Opening a lab
 
@@ -24,7 +24,7 @@ During a lab, **Sample server** and **Open…** are hidden: they would replace t
 |---|---|
 | Access allowed | an account can perform an operation on an object, locally or through a share |
 | Access denied | an account cannot perform it |
-| Exactly the accesses needed | for a few accounts, objects and operations: each access is allowed **if and only if** it is needed. Each right cell earns its share of the points |
+| Exactly the accesses needed | for a few accounts, objects and operations: each access is allowed **if and only if** it is needed. Without partial credit, every cell must be right; with it, each right cell earns its share of the points |
 | What a new file gets | what an account will create in a folder, another account will be able to read or modify it |
 | Hygiene rule | a good practice, see below |
 | Guard | see below |
@@ -56,7 +56,7 @@ Each objective says why: the access tested and its result, the accesses too many
 
 ## The copy
 
-With their name, the learner saves their copy: **Save my copy…** writes a `.smarx-submission.json` file. It holds the lab received, the learner's servers, their answers, the hints viewed, and the start and save dates. The copy is **sealed**: the seal covers its whole content, so a copy edited by hand is spotted when it is graded.
+With their name, the learner saves their copy: **Save my copy…** writes a `.smarx-submission.json` file. It holds the lab received, the learner's servers, their answers, the hints viewed, and the start and save dates. The copy is **sealed**: the seal covers its whole content, so a copy edited by hand is spotted when it is graded. The trainer creates labs and grades a class's copies in [SMAD-X Studio](../labs/studio.md#smar-x-labs).
 
 ## Exam mode
 

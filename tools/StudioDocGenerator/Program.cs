@@ -15,6 +15,9 @@ using SMADX.Services.Labs;
 using SMADX.Studio;
 using SMADX.Studio.ViewModels;
 using SMADX.Studio.Views;
+using SMARX.Models;
+using SMARX.Samples;
+using SMARX.Services.Labs;
 
 var repo = Path.GetFullPath(args.Length > 0 ? args[0] : ".");
 
@@ -116,12 +119,93 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     vm.SelectedSubmission = vm.Submissions.FirstOrDefault(s => s.Graded.Graded && s.Graded.Result!.Questions.Count > 0);
     Tab(main, 6);
     Capture(main, Out("studio-submissions"));
+
+    // ─── Un exercice SMAR-X de démonstration, propre à la documentation ────────
+    var demo = DemoSmarxLab(culture);
+    vm.LoadSmarx(demo, null);
+    var smarx = vm.Smarx!;
+    smarx.Solution = DemoSmarxSolution(demo);
+    smarx.SolutionLabel = demo.Id + SmarxStudioViewModel.SolutionExtension;
+    vm.Status = StudioText.Instance["Status.SmarxCreated"];
+    Tab(main, 2);
+    smarx.SelectedObjective = smarx.Objectives.First(o => o.Model.Check.Type == SmarxCheckType.ExactAccess);
+    Capture(main, Out("studio-smarx-objectives"));
+    Tab(main, 4);
+    smarx.ValidateCommand.Execute(null);
+    Capture(main, Out("studio-smarx-validation"));
+    smarx.AddSubmissions(SmarxClassSubmissions(demo));
+    Tab(main, 5);
+    Capture(main, Out("studio-smarx-submissions"));
     main.Close();
 
     Console.WriteLine($"{lang} : captures de Studio dans {outDir}");
 }
 
 static string T(string culture, string fr, string en) => culture == "fr-FR" ? fr : en;
+
+// Exercice SMAR-X de démonstration : dave, stagiaire, lit budget.ods et rien d'autre de la comptabilité. Il n'est
+// pas fourni avec SMAR-X ; sa solution n'apparaît dans aucune capture.
+static SmarxLab DemoSmarxLab(string culture)
+{
+    const string Compta = "/srv/compta", Budget = "/srv/compta/budget.ods", Notes = "/srv/compta/notes.txt";
+    var linux = SmarxSystem.Linux;
+    return new SmarxLab
+    {
+        Id = "demo-smarx-compta",
+        Level = LabLevel.Beginner,
+        DurationMinutes = 15,
+        Title = LocalizedText.Of("Démonstration : un stagiaire à la comptabilité", "Demo: an intern in accounting"),
+        Statement = LocalizedText.Of(
+            "# Un stagiaire à la comptabilité\n\ndave doit lire `budget.ods`, et rien d'autre de `/srv/compta`.\n\n*Exercice de démonstration de la documentation.*",
+            "# An intern in accounting\n\ndave must read `budget.ods`, and nothing else in `/srv/compta`.\n\n*Documentation demo lab.*"),
+        Start = new SmarxDocument { Linux = [LinuxSamples.FileServer()] },
+        Objectives =
+        [
+            new SmarxObjective { Id = "o1", Points = 2, Title = LocalizedText.Of("dave lit budget.ods", "dave reads budget.ods"),
+                Check = new SmarxCheck { Type = SmarxCheckType.AccessAllowed, System = linux, Account = "dave", Operation = "Read", Path = Budget } },
+            new SmarxObjective { Id = "o2", Points = 3, Title = LocalizedText.Of("Rien d'autre pour dave", "Nothing else for dave"),
+                Check = new SmarxCheck
+                {
+                    Type = SmarxCheckType.ExactAccess, System = linux, Accounts = ["dave"], Paths = [Compta, Budget, Notes],
+                    Operations = ["List", "Enter", "Read", "Write"], Needs = [$"dave Enter {Compta}", $"dave Read {Budget}"]
+                } },
+            new SmarxObjective { Id = "o3", Guard = true, Points = 0, Title = LocalizedText.Of("Les comptes ne changent pas", "The accounts do not change"),
+                Check = new SmarxCheck { Type = SmarxCheckType.AccountUnchanged, System = linux, Account = "*" } }
+        ]
+    };
+}
+
+static SmarxDocument DemoSmarxSolution(SmarxLab lab)
+{
+    var work = SmarxLabGrader.Clone(lab.Start);
+    var host = work.Linux[0];
+    host.Find("/srv/compta")!.Acl = new PosixAcl { Users = [AclEntry.Of("dave", "--x")], GroupObj = "rwx" };
+    host.Find("/srv/compta/budget.ods")!.Acl = new PosixAcl { Users = [AclEntry.Of("dave", "r--")], GroupObj = "r--" };
+    return work;
+}
+
+// Copies d'apprenants fictifs : une solution, un départ inchangé, une copie qui donne trop (dave écrit aussi budget.ods)
+static IReadOnlyList<string> SmarxClassSubmissions(SmarxLab lab)
+{
+    var folder = Path.Combine(Path.GetTempPath(), "smadx-studio-captures", "smarx-" + Guid.NewGuid().ToString("N"));
+    Directory.CreateDirectory(folder);
+    var half = SmarxLabGrader.Clone(lab.Start);
+    half.Linux[0].Find("/srv/compta")!.Acl = new PosixAcl { Users = [AclEntry.Of("dave", "--x")], GroupObj = "rwx" };
+    var budget = half.Linux[0].Find("/srv/compta/budget.ods")!;
+    budget.Acl = new PosixAcl { Users = [AclEntry.Of("dave", "rw-")], GroupObj = "r--" };
+    budget.ModeBits = Convert.ToInt32("0660", 8);
+    var copies = new[] { ("Camille Martin", DemoSmarxSolution(lab), 18), ("Hugo Petit", SmarxLabGrader.Clone(lab.Start), 25), ("Inès Moreau", half, 22) };
+    return copies.Select(c =>
+    {
+        var path = Path.Combine(folder, SmarxLabService.SubmissionFileName(lab.Id, c.Item1));
+        File.WriteAllText(path, SmarxLabService.SerializeSubmission(new SmarxSubmission
+        {
+            Student = c.Item1, LabId = lab.Id, SessionId = Guid.NewGuid(), StartedOn = new DateTime(2026, 11, 6, 9, 0, 0),
+            SavedAt = new DateTime(2026, 11, 6, 9, c.Item3, 0), ElapsedMinutes = c.Item3, Lab = lab, Work = c.Item2
+        }));
+        return path;
+    }).ToList();
+}
 
 static IEnumerable<ADObject> Flatten(ADObject o) => new[] { o }.Concat(o.Children.SelectMany(Flatten));
 
@@ -185,7 +269,9 @@ static IReadOnlyList<string> ClassSubmissions(LabDefinition lab, string culture)
 
 static void Tab(Window window, int index)
 {
-    window.GetVisualDescendants().OfType<TabControl>().First().SelectedIndex = index;
+    // Les onglets de l'exercice affiché : ceux d'un exercice SMAD-X ou d'un exercice SMAR-X (mis en page d'abord)
+    Pump();
+    window.GetVisualDescendants().OfType<TabControl>().First(t => t.IsEffectivelyVisible).SelectedIndex = index;
     Pump();
 }
 

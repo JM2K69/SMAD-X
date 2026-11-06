@@ -30,7 +30,7 @@ All produce the same format: you can start with A or C and finish with B.
 5. Save the domain (`.smad-x.json`) so you can come back to it.
 
 ### 2.2 Open the domain in SMAD-X Studio
-Start [SMAD-X Studio](studio.md), shipped in the same archive as SMAD-X, then **File > New lab from a domain (.smad-x.json)...** and pick the saved domain.
+Start [SMAD-X Studio](studio.md) (its own archive, see [Installation](../installation.md)), then **File > New lab from a domain (.smad-x.json)...** and pick the saved domain.
 
 Studio makes it the starting domain of a new lab, lays out the statement template and suggests the objectives drawn from the audit and the attack paths.
 

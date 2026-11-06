@@ -38,5 +38,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SMAD-X.Core\SMAD-X.Core.csproj" />
     <ProjectReference Include="..\SMAD-X.UI\SMAD-X.UI.csproj" />
+    <ProjectReference Include="..\SMAR-X.Core\SMAR-X.Core.csproj" />
   </ItemGroup>
 </Project>

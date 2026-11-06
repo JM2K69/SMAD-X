@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:SMADX.Studio.Views"
         x:Class="SMADX.Studio.Views.MainWindow"
         x:Name="Root"
         Title="{Binding [App.Title], Source={StaticResource S}}"
@@ -32,6 +33,10 @@
                 <MenuItem Header="{Binding [Menu.NewFromDomain], Source={StaticResource S}}" Command="{Binding NewFromDomainCommand}"/>
                 <MenuItem Header="{Binding [Menu.Convert], Source={StaticResource S}}" Command="{Binding ConvertScenarioCommand}"/>
                 <Separator/>
+                <MenuItem Header="{Binding [Menu.NewSmarx], Source={StaticResource S}}" Command="{Binding NewSmarxSampleCommand}"/>
+                <MenuItem Header="{Binding [Menu.NewSmarxFromServers], Source={StaticResource S}}" Command="{Binding NewSmarxFromServersCommand}"/>
+                <MenuItem Header="{Binding [Menu.OpenSmarx], Source={StaticResource S}}" Command="{Binding OpenSmarxCommand}"/>
+                <Separator/>
                 <MenuItem Header="{Binding [Menu.OpenFolder], Source={StaticResource S}}" Command="{Binding OpenFolderCommand}" InputGesture="Ctrl+O" HotKey="Ctrl+O"/>
                 <MenuItem Header="{Binding [Menu.Open], Source={StaticResource S}}" Command="{Binding OpenCommand}"/>
                 <MenuItem Header="{Binding [Menu.Save], Source={StaticResource S}}" Command="{Binding SaveCommand}" InputGesture="Ctrl+S" HotKey="Ctrl+S"/>
@@ -41,6 +46,10 @@
                 <MenuItem Header="{Binding [Menu.ShowFolder], Source={StaticResource S}}" Command="{Binding ShowProjectFolderCommand}"/>
                 <Separator/>
                 <MenuItem Header="{Binding [Menu.Quit], Source={StaticResource S}}" Click="Quit"/>
+            </MenuItem>
+            <MenuItem Header="{Binding [Menu.View], Source={StaticResource S}}">
+                <MenuItem Header="{Binding [Menu.ThemeLight], Source={StaticResource S}}" Command="{Binding SetThemeCommand}" CommandParameter="Light"/>
+                <MenuItem Header="{Binding [Menu.ThemeDark], Source={StaticResource S}}" Command="{Binding SetThemeCommand}" CommandParameter="Dark"/>
             </MenuItem>
             <MenuItem Header="{Binding [Menu.Language], Source={StaticResource S}}">
                 <MenuItem Header="Français" Command="{Binding SetLanguageCommand}" CommandParameter="fr-FR"/>
@@ -56,7 +65,7 @@
 
         <Grid>
             <!-- Aucun exercice ouvert -->
-            <Border Classes="card" Padding="28,24" IsVisible="{Binding !HasLab}" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="600">
+            <Border Classes="card" Padding="28,24" IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="600">
             <StackPanel Spacing="12">
                 <TextBlock Text="{Binding [Empty.Title], Source={StaticResource S}}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center"/>
                 <TextBlock Classes="muted" Text="{Binding [Empty.Text], Source={StaticResource S}}" TextAlignment="Center" FontSize="13"/>
@@ -66,6 +75,8 @@
                     <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding ConvertScenarioCommand}" Content="{Binding [Menu.Convert], Source={StaticResource S}}"/>
                     <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding OpenFolderCommand}" Content="{Binding [Menu.OpenFolder], Source={StaticResource S}}"/>
                     <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding OpenCommand}" Content="{Binding [Menu.Open], Source={StaticResource S}}"/>
+                    <Button Classes="tool" HorizontalAlignment="Stretch" Margin="0,8,0,0" Command="{Binding NewSmarxSampleCommand}" Content="{Binding [Menu.NewSmarx], Source={StaticResource S}}"/>
+                    <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding OpenSmarxCommand}" Content="{Binding [Menu.OpenSmarx], Source={StaticResource S}}"/>
                 </StackPanel>
                 <StackPanel Spacing="4" Margin="0,12,0,0" IsVisible="{Binding HasRecentLabs}">
                     <TextBlock Classes="label" Text="{Binding [Empty.Recent], Source={StaticResource S}}"/>
@@ -85,6 +96,9 @@
                 </StackPanel>
             </StackPanel>
             </Border>
+
+            <!-- Un exercice SMAR-X -->
+            <views:SmarxLabView DataContext="{Binding Smarx}" IsVisible="{Binding #Root.DataContext.HasSmarxLab}"/>
 
             <DockPanel IsVisible="{Binding HasLab}">
                 <!-- Langue des textes édités -->

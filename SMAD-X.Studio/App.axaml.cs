@@ -19,7 +19,7 @@ namespace SMADX.Studio
 
         public override void OnFrameworkInitializationCompleted()
         {
-            ThemeService.Instance.ApplyTheme(AppTheme.Dark);
+            ThemeService.Instance.ApplyTheme(StudioSettings.Load().Theme == nameof(AppTheme.Light) ? AppTheme.Light : AppTheme.Dark);
             ErrorReporter.LogDirectory = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(ErrorReporter.LogDirectory)!, "Studio");
 
             Dispatcher.UIThread.UnhandledException += (_, e) =>

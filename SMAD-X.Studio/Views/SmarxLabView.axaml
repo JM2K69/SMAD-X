@@ -1,0 +1,348 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SMADX.Studio.Views.SmarxLabView"
+             x:Name="SmarxRoot">
+
+    <!-- Un exercice SMAR-X : mêmes onglets qu'un exercice SMAD-X, objectifs vérifiés par les moteurs de SMAR-X -->
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="20,14,20,0" Spacing="10">
+            <Border Background="{DynamicResource AccentSoft}" CornerRadius="999" Padding="10,3" VerticalAlignment="Center">
+                <TextBlock Text="{Binding [Smarx.Badge], Source={StaticResource S}}" Foreground="{DynamicResource Accent}" FontWeight="SemiBold" FontSize="12"/>
+            </Border>
+            <TextBlock Classes="label" VerticalAlignment="Center" Margin="0" Text="{Binding [Lab.EditCulture], Source={StaticResource S}}"/>
+            <ComboBox Width="140" ItemsSource="{Binding EditCultures}" SelectedItem="{Binding EditCultureChoice}"/>
+            <TextBlock Classes="mono" VerticalAlignment="Center" Margin="16,0,0,0" FontSize="12" Foreground="{DynamicResource TextMuted}" Text="{Binding FilePath}"/>
+        </StackPanel>
+
+        <TabControl Classes="suite" Margin="16,4,16,12">
+            <!-- ═══ Exercice ═══ -->
+            <TabItem Header="{Binding [Tab.Lab], Source={StaticResource S}}">
+                <Border Classes="card" Margin="0,10,0,0" Padding="16">
+                    <ScrollViewer>
+                        <StackPanel MaxWidth="780" HorizontalAlignment="Left">
+                            <TextBlock Classes="label" Text="{Binding [Lab.Title], Source={StaticResource S}}"/>
+                            <TextBox Text="{Binding LabTitle}"/>
+                            <TextBlock Classes="label" Text="{Binding [Lab.Id], Source={StaticResource S}}"/>
+                            <TextBox Text="{Binding LabId}"/>
+                            <Grid ColumnDefinitions="*,16,*">
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Classes="label" Text="{Binding [Lab.Level], Source={StaticResource S}}"/>
+                                    <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding Levels}" SelectedItem="{Binding Level}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Classes="label" Text="{Binding [Lab.Duration], Source={StaticResource S}}"/>
+                                    <NumericUpDown Minimum="1" Maximum="600" Increment="5" FormatString="0" Value="{Binding Duration}"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Classes="label" Text="{Binding [Smarx.Start], Source={StaticResource S}}"/>
+                            <TextBlock Text="{Binding StartSummary}" TextWrapping="Wrap"/>
+                            <TextBlock Classes="label" Text="{Binding [Lab.Points], Source={StaticResource S}}"/>
+                            <TextBlock Text="{Binding TotalPoints}"/>
+                            <CheckBox Margin="0,16,0,2" IsChecked="{Binding IsExam}" Content="{Binding [Lab.Exam], Source={StaticResource S}}"/>
+                            <TextBlock Classes="hint" Text="{Binding [Lab.Exam.Hint], Source={StaticResource S}}"/>
+                            <StackPanel Margin="24,6,0,0" Spacing="2" IsVisible="{Binding IsExam}">
+                                <CheckBox IsChecked="{Binding ExamCheck}" Content="{Binding [Lab.ExamCheck], Source={StaticResource S}}"/>
+                                <TextBlock Classes="hint" Text="{Binding [Lab.ExamCheck.Hint], Source={StaticResource S}}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </TabItem>
+
+            <!-- ═══ Énoncé ═══ -->
+            <TabItem Header="{Binding [Tab.Statement], Source={StaticResource S}}">
+                <Border Classes="card" Margin="0,10,0,0" Padding="16">
+                    <Grid ColumnDefinitions="*,12,*">
+                        <TextBox Grid.Column="0" Classes="code" Text="{Binding Statement}" VerticalAlignment="Stretch"/>
+                        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent"/>
+                        <DockPanel Grid.Column="2">
+                            <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="8,0,0,6" Text="{Binding [Statement.Preview], Source={StaticResource S}}"/>
+                            <Border Padding="12" CornerRadius="8" Background="{DynamicResource CodeBg}">
+                                <ScrollViewer>
+                                    <ContentControl Content="{Binding Statement, Converter={StaticResource MarkdownConverter}}"/>
+                                </ScrollViewer>
+                            </Border>
+                        </DockPanel>
+                    </Grid>
+                </Border>
+            </TabItem>
+
+            <!-- ═══ Objectifs ═══ -->
+            <TabItem Header="{Binding [Tab.Objectives], Source={StaticResource S}}">
+                <Border Classes="card" Margin="0,10,0,0" Padding="16">
+                    <Grid ColumnDefinitions="380,12,*">
+                        <DockPanel Grid.Column="0">
+                            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <Button Classes="accent" Command="{Binding AddObjectiveCommand}" Content="{Binding [Objectives.Add], Source={StaticResource S}}"/>
+                                <Button Classes="tool" Command="{Binding RemoveObjectiveCommand}" Content="{Binding [Objectives.Remove], Source={StaticResource S}}"/>
+                                <Button Classes="tool" Command="{Binding MoveObjectiveUpCommand}" Content="▲"/>
+                                <Button Classes="tool" Command="{Binding MoveObjectiveDownCommand}" Content="▼"/>
+                            </WrapPanel>
+                            <TextBlock DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                                <Run Text="{Binding [Lab.Points], Source={StaticResource S}}"/><Run Text=" : "/><Run Text="{Binding TotalPoints}"/>
+                            </TextBlock>
+                            <ListBox Classes="plain" Background="{DynamicResource CodeBg}" CornerRadius="8" ItemsSource="{Binding Objectives}" SelectedItem="{Binding SelectedObjective}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Summary}" TextWrapping="Wrap"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+
+                        <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent"/>
+
+                        <ScrollViewer Grid.Column="2">
+                            <StackPanel Margin="8,0,8,8" DataContext="{Binding SelectedObjective}" IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                <TextBlock Classes="label" Text="{Binding [Objective.Title], Source={StaticResource S}}"/>
+                                <TextBox Text="{Binding Title}"/>
+                                <TextBlock Classes="label" Text="{Binding [Objective.Hint], Source={StaticResource S}}"/>
+                                <TextBox Text="{Binding Hint}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50"/>
+                                <Grid ColumnDefinitions="120,16,*,16,140">
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Classes="label" Text="{Binding [Objective.Points], Source={StaticResource S}}"/>
+                                        <NumericUpDown Minimum="0" Maximum="50" FormatString="0" Value="{Binding Points}" IsEnabled="{Binding IsScored}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Classes="label" Text="{Binding [Smarx.Kind], Source={StaticResource S}}"/>
+                                        <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #SmarxRoot.DataContext.CheckTypes}" SelectedItem="{Binding TypeChoice}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="4">
+                                        <TextBlock Classes="label" Text="{Binding [Smarx.System], Source={StaticResource S}}"/>
+                                        <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #SmarxRoot.DataContext.Systems}" SelectedItem="{Binding SystemChoice}"/>
+                                    </StackPanel>
+                                </Grid>
+                                <CheckBox Margin="0,10,0,0" IsChecked="{Binding Guard}">
+                                    <TextBlock Text="{Binding [Smarx.Guard], Source={StaticResource S}}" TextWrapping="Wrap"/>
+                                </CheckBox>
+
+                                <StackPanel IsVisible="{Binding ShowAccount}">
+                                    <TextBlock Classes="label" Text="{Binding [Smarx.Account], Source={StaticResource S}}"/>
+                                    <AutoCompleteBox Text="{Binding Account}" FilterMode="ContainsOrdinal" ItemsSource="{Binding Accounts}"/>
+                                </StackPanel>
+                                <StackPanel IsVisible="{Binding ShowOther}">
+                                    <TextBlock Classes="label" Text="{Binding [Smarx.Other], Source={StaticResource S}}"/>
+                                    <AutoCompleteBox Text="{Binding Other}" FilterMode="ContainsOrdinal" ItemsSource="{Binding Accounts}"/>
+                                </StackPanel>
+                                <StackPanel IsVisible="{Binding ShowOperation}">
+                                    <TextBlock Classes="label" Text="{Binding [Smarx.Operation], Source={StaticResource S}}"/>
+                                    <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding OperationsAvailable}" SelectedItem="{Binding Operation}"/>
+                                </StackPanel>
+                                <StackPanel IsVisible="{Binding ShowPath}">
+                                    <TextBlock Classes="label" Text="{Binding [Smarx.Path], Source={StaticResource S}}"/>
+                                    <AutoCompleteBox Classes="mono" Text="{Binding Path}" FilterMode="ContainsOrdinal" ItemsSource="{Binding PathsAvailable}"/>
+                                </StackPanel>
+                                <StackPanel IsVisible="{Binding ShowRule}">
+                                    <TextBlock Classes="label" Text="{Binding [Smarx.Rule], Source={StaticResource S}}"/>
+                                    <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #SmarxRoot.DataContext.Rules}" SelectedItem="{Binding RuleChoice}"/>
+                                </StackPanel>
+                                <StackPanel IsVisible="{Binding ShowShare}">
+                                    <TextBlock Classes="label" Text="{Binding [Smarx.Share], Source={StaticResource S}}"/>
+                                    <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding SharesAvailable}" SelectedItem="{Binding Share}"/>
+                                </StackPanel>
+                                <StackPanel IsVisible="{Binding ShowExact}">
+                                    <Grid ColumnDefinitions="*,12,*,12,*">
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Classes="label" Text="{Binding [Smarx.Accounts], Source={StaticResource S}}"/>
+                                            <TextBox Classes="code" Text="{Binding AccountsText}" MinHeight="80"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Classes="label" Text="{Binding [Smarx.Paths], Source={StaticResource S}}"/>
+                                            <TextBox Classes="code" Text="{Binding PathsText}" MinHeight="80"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Classes="label" Text="{Binding [Smarx.Operations], Source={StaticResource S}}"/>
+                                            <TextBox Classes="code" Text="{Binding OperationsText}" MinHeight="80"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <TextBlock Classes="label" Text="{Binding [Smarx.Needs], Source={StaticResource S}}"/>
+                                    <TextBox Classes="code" Text="{Binding NeedsText}" MinHeight="80"/>
+                                    <TextBlock Classes="hint" Text="{Binding [Smarx.Needs.Hint], Source={StaticResource S}}"/>
+                                    <CheckBox Margin="0,8,0,0" IsChecked="{Binding Partial}" Content="{Binding [Objective.IsPartial], Source={StaticResource S}}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </TabItem>
+
+                    <!-- ═══ Questions de compréhension ═══ -->
+                    <TabItem Header="{Binding [Tab.Questions], Source={StaticResource S}}">
+<Border Classes="card" Margin="0,10,0,0" Padding="16">
+                        <Grid ColumnDefinitions="380,12,*" >
+                            <DockPanel Grid.Column="0">
+                                <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,8" Text="{Binding [Questions.Intro], Source={StaticResource S}}"/>
+                                <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                    <Button Classes="accent" Command="{Binding AddQuestionCommand}" Content="{Binding [Questions.Add], Source={StaticResource S}}"/>
+                                    <Button Classes="tool" Command="{Binding RemoveQuestionCommand}" Content="{Binding [Objectives.Remove], Source={StaticResource S}}"/>
+                                    <Button Classes="tool" Command="{Binding MoveQuestionUpCommand}" Content="▲"/>
+                                    <Button Classes="tool" Command="{Binding MoveQuestionDownCommand}" Content="▼"/>
+                                </WrapPanel>
+                                <TextBlock DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                                    <Run Text="{Binding [Lab.Points], Source={StaticResource S}}"/><Run Text=" : "/><Run Text="{Binding TotalPoints}"/>
+                                </TextBlock>
+                                <ListBox Classes="plain" Background="{DynamicResource CodeBg}" CornerRadius="8" ItemsSource="{Binding Questions}" SelectedItem="{Binding SelectedQuestion}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Summary}" TextWrapping="Wrap"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+
+                            <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent"/>
+
+                            <ScrollViewer Grid.Column="2">
+                                <StackPanel Margin="8,0,8,8" DataContext="{Binding SelectedQuestion}" IsVisible="{Binding $self.DataContext, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    <TextBlock Classes="label" Text="{Binding [Question.Title], Source={StaticResource S}}"/>
+                                    <TextBox Text="{Binding Title}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50"/>
+                                    <Grid ColumnDefinitions="200,16,120">
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Classes="label" Text="{Binding [Question.Kind], Source={StaticResource S}}"/>
+                                            <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding #SmarxRoot.DataContext.QuestionKinds}" SelectedItem="{Binding KindChoice}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Classes="label" Text="{Binding [Question.Points], Source={StaticResource S}}"/>
+                                            <NumericUpDown Minimum="0" Maximum="50" FormatString="0" Value="{Binding Points}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <CheckBox Margin="0,8,0,0" IsVisible="{Binding CanBePartial}" IsChecked="{Binding Partial}" Content="{Binding [Question.Partial], Source={StaticResource S}}"/>
+
+                                    <!-- Association : les paires -->
+                                    <StackPanel IsVisible="{Binding IsMatching}">
+                                        <TextBlock Classes="label" Text="{Binding [Question.Pairs], Source={StaticResource S}}" TextWrapping="Wrap"/>
+                                        <ItemsControl ItemsSource="{Binding Pairs}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid ColumnDefinitions="*,Auto,*,Auto" Margin="0,2">
+                                                        <TextBox Grid.Column="0" Text="{Binding Left}"/>
+                                                        <TextBlock Grid.Column="1" Text="→" Margin="8,0" VerticalAlignment="Center"/>
+                                                        <TextBox Grid.Column="2" Text="{Binding Right}"/>
+                                                        <Button Classes="tool" Grid.Column="3" Margin="6,0,0,0" Content="✕"
+                                                                Command="{Binding #SmarxRoot.DataContext.SelectedQuestion.RemovePairCommand}" CommandParameter="{Binding}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <Button Classes="tool" Margin="0,4,0,0" Command="{Binding AddPairCommand}" Content="{Binding [Question.AddPair], Source={StaticResource S}}"/>
+                                    </StackPanel>
+
+                                    <!-- Choix à cocher, ou intrus d'une association -->
+                                    <StackPanel IsVisible="{Binding ShowChoices}">
+                                        <TextBlock Classes="label" IsVisible="{Binding IsChoice}" Text="{Binding [Question.Choices], Source={StaticResource S}}"/>
+                                        <TextBlock Classes="label" IsVisible="{Binding IsMatching}" Text="{Binding [Question.Distractors], Source={StaticResource S}}" TextWrapping="Wrap"/>
+                                        <ItemsControl ItemsSource="{Binding Choices}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,2">
+                                                        <CheckBox Grid.Column="0" IsChecked="{Binding Correct}" IsVisible="{Binding !#SmarxRoot.DataContext.SelectedQuestion.IsMatching}"/>
+                                                        <TextBox Grid.Column="1" Text="{Binding Text}"/>
+                                                        <Button Classes="tool" Grid.Column="2" Margin="6,0,0,0" Content="✕" IsVisible="{Binding #SmarxRoot.DataContext.SelectedQuestion.CanEditChoices}"
+                                                                Command="{Binding #SmarxRoot.DataContext.SelectedQuestion.RemoveChoiceCommand}" CommandParameter="{Binding}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <Button Classes="tool" Margin="0,4,0,0" Command="{Binding AddChoiceCommand}" IsVisible="{Binding IsChoice}"
+                                                IsEnabled="{Binding CanEditChoices}" Content="{Binding [Question.AddChoice], Source={StaticResource S}}"/>
+                                        <Button Classes="tool" Margin="0,4,0,0" Command="{Binding AddChoiceCommand}" IsVisible="{Binding IsMatching}"
+                                                Content="{Binding [Question.AddDistractor], Source={StaticResource S}}"/>
+                                    </StackPanel>
+
+                                    <!-- Réponse écrite -->
+                                    <StackPanel IsVisible="{Binding IsText}">
+                                        <TextBlock Classes="label" Text="{Binding [Question.Accepted], Source={StaticResource S}}"/>
+                                        <TextBox Text="{Binding AcceptedAnswers}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60"/>
+                                        <TextBlock Classes="hint" Text="{Binding [Question.Accepted.Hint], Source={StaticResource S}}"/>
+                                    </StackPanel>
+
+                                    <TextBlock Classes="label" Text="{Binding [Question.Hint], Source={StaticResource S}}"/>
+                                    <TextBox Text="{Binding Hint}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="40"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
+</Border>
+                    </TabItem>
+
+
+            <!-- ═══ Validation ═══ -->
+            <TabItem Header="{Binding [Tab.Validation], Source={StaticResource S}}">
+                <Border Classes="card" Margin="0,10,0,0" Padding="16">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,10">
+                            <TextBlock Classes="hint" Text="{Binding [Smarx.Validation.Intro], Source={StaticResource S}}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Button Classes="accent" Command="{Binding ValidateCommand}" Content="{Binding [Validation.Run], Source={StaticResource S}}"/>
+                                <Button Classes="tool" Command="{Binding ChooseSolutionCommand}" Content="{Binding [Smarx.ChooseSolution], Source={StaticResource S}}"/>
+                            </StackPanel>
+                            <TextBlock Classes="hint" Text="{Binding SolutionText}"/>
+                        </StackPanel>
+                        <ScrollViewer>
+                            <ItemsControl ItemsSource="{Binding Issues}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="24,*" Margin="0,2">
+                                            <TextBlock Grid.Column="0" Text="{Binding Icon}" Foreground="{Binding Color}" FontWeight="Bold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+            </TabItem>
+
+            <!-- ═══ Copies : corriger une classe ═══ -->
+            <TabItem Header="{Binding [Tab.Submissions], Source={StaticResource S}}">
+                <Border Classes="card" Margin="0,10,0,0" Padding="16">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,10">
+                            <TextBlock Classes="hint" Text="{Binding [Smarx.Submissions.Intro], Source={StaticResource S}}"/>
+                            <WrapPanel>
+                                <Button Classes="accent" Command="{Binding AddSubmissionsCommand}" Content="{Binding [Submissions.Add], Source={StaticResource S}}"/>
+                                <Button Classes="tool" Command="{Binding RegradeCommand}" Content="{Binding [Submissions.Regrade], Source={StaticResource S}}"/>
+                                <Button Classes="tool" Command="{Binding ExportGradesCommand}" Content="{Binding [Submissions.ExportCsv], Source={StaticResource S}}"/>
+                                <Button Classes="tool" Command="{Binding ClearSubmissionsCommand}" Content="{Binding [Submissions.Clear], Source={StaticResource S}}"/>
+                            </WrapPanel>
+                            <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding ClassSummary}"/>
+                        </StackPanel>
+                        <Grid DockPanel.Dock="Top" ColumnDefinitions="190,80,55,55,170,130,*" Margin="12,0,12,4">
+                            <TextBlock Grid.Column="0" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Student], Source={StaticResource S}}"/>
+                            <TextBlock Grid.Column="1" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Grade], Source={StaticResource S}}"/>
+                            <TextBlock Grid.Column="2" Classes="hint" FontWeight="SemiBold" Text="%"/>
+                            <TextBlock Grid.Column="3" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Hints], Source={StaticResource S}}"/>
+                            <TextBlock Grid.Column="4" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Objectives], Source={StaticResource S}}"/>
+                            <TextBlock Grid.Column="5" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.SavedAt], Source={StaticResource S}}"/>
+                            <TextBlock Grid.Column="6" Classes="hint" FontWeight="SemiBold" Text="{Binding [Submissions.Remarks], Source={StaticResource S}}"/>
+                        </Grid>
+                        <ListBox Classes="plain" Background="{DynamicResource CodeBg}" CornerRadius="8" ItemsSource="{Binding Submissions}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="190,80,55,55,170,130,*">
+                                        <TextBlock Grid.Column="0" Text="{Binding Student}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FileName}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Grade}" FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Percent}"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding Hints}"/>
+                                        <ItemsControl Grid.Column="4" ItemsSource="{Binding Marks}" VerticalAlignment="Center">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="11" Height="11" Margin="0,1,3,1" CornerRadius="2" Background="{Binding Color}" ToolTip.Tip="{Binding Tip}"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Grid.Column="5" Text="{Binding SavedAt}" Foreground="{DynamicResource TextMuted}"/>
+                                        <TextBlock Grid.Column="6" Text="{Binding Remarks}" Foreground="{Binding RemarksColor}" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+                </Border>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</UserControl>

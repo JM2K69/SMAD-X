@@ -1,10 +1,12 @@
 # SMAD-X Studio
 
-**SMAD-X Studio** is the trainer's tool: a second executable, shipped in the same archive as SMAD-X, that creates labs, checks them and produces the trainer sheet. It does, with a window, what the [how-to](create.md) describes by hand.
+**SMAD-X Studio** is the trainer's tool: an executable shipped in its own archive (see [Installation](../installation.md)), that creates labs, checks them and produces the trainer sheet. It does, with a window, what the [how-to](create.md) describes by hand. It also creates SMAR-X labs and grades their copies (see [SMAR-X labs](#smar-x-labs)).
 
 Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the lab is shaped in Studio, the learner does it in SMAD-X and hands in a **submission**, which Studio grades with the rest of the class.
 
 ![SMAD-X Studio home](../assets/screens/studio-home.png)
+
+**View > Light theme** or **Dark theme** changes Studio's look; the choice is kept for the next session.
 
 ---
 
@@ -187,6 +189,67 @@ The **Success per objective** tab shows what the class understood and what to go
 | **Export class results (Markdown)...** | the class results: average, median, everyone's grade, success per objective and per question. |
 
 In SMAD-X, the learner can enter an **ID** (their number or address) beside their name: the exports use it.
+
+---
+
+## SMAR-X labs
+
+Studio also creates [SMAR-X labs](../smar-x/labs.md): an access need to meet with only the permissions required, on Linux and Windows servers. One lab is open at a time, from SMAD-X or from SMAR-X; the **SMAR-X lab** badge shows it.
+
+| **File** menu | What it does |
+|---|---|
+| **New SMAR-X lab on the sample servers** | a lab on SMAR-X's sample servers, Linux and Windows |
+| **New SMAR-X lab from servers (.smar-x.json)...** | a lab on servers prepared in SMAR-X and saved with **Save…** |
+| **Open a SMAR-X lab (.smarx-lab.json)...** | reopens a lab; its solution, stored next to it, is read again |
+
+**Save** (`Ctrl+S`), **Save as** and **Export the subject** apply to the open lab. The subject has no answer key for the questions and, for an exam, no hints.
+
+### The tabs
+
+The **Lab**, **Statement** and **Questions** tabs are those of a SMAD-X lab. The **Objectives** tab offers SMAR-X's checks:
+
+![Objectives of a SMAR-X lab](../assets/screens/studio-smarx-objectives.png)
+
+*Screenshot: a demo lab, specific to the documentation.*
+
+| Check | Fields |
+|---|---|
+| Access allowed, access denied | account, operation, path, and the share the access goes through (or locally) |
+| Exactly the accesses needed | the accounts, paths and operations checked, one per line; the accesses needed, one per line (`account operation path`); the share |
+| What a new file gets | the account that creates, the folder, the other account and the operation it must be able to perform |
+| Hygiene rule | the rule, and the path or the share concerned |
+| The account does not change | the account, or `*` for all |
+| The path's permissions do not change | the path |
+
+The lists offer the starting servers' accounts, paths and shares.
+
+- **"Exactly the accesses needed"**: each cell (account, path, operation) is right when the access is allowed exactly when it is needed. Without **partial credit**, the objective is met when every cell is right. With it, each right cell earns its share of the points, including the denials already right at the start.
+- **A guard** is met at the start and earns nothing. Broken, it cancels the objectives about the same account or path. An unchanged account and a path's unchanged permissions are guards.
+
+### Validating
+
+**Validate the lab** checks:
+
+- that it has an ID, a title in both languages and at least one objective;
+- that at the start, no scored objective is met and every guard holds;
+- that the **solution** meets every objective.
+
+The solution is the fixed servers, prepared in SMAR-X then saved (`.smar-x.json`): **Choose the fixed servers (solution)...** loads them. Studio stores it next to the lab, as `id.solution.smar-x.json`, never inside it.
+
+![Validation of a SMAR-X lab](../assets/screens/studio-smarx-validation.png)
+
+### Grading the copies
+
+**Add submissions...** loads the copies (`.smarx-submission.json`) handed in by the learners. Studio grades them with the lab as it is open, answer key included. It flags:
+
+- a copy edited after it was saved (broken seal), or without a seal;
+- the copy of another lab;
+- two copies of the same work session: one is a copy of the other;
+- the written answers to grade by hand.
+
+Each copy has its grade, its dots (one per objective, then per question: green met, orange partly, red not met; hovering gives the explanation) and its remarks. **Export grades (CSV)...** writes one line per copy.
+
+![Copies of a SMAR-X lab](../assets/screens/studio-smarx-submissions.png)
 
 ---
 

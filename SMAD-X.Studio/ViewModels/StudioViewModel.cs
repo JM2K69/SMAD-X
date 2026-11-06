@@ -11,6 +11,9 @@ using SMADX.Services;
 using SMADX.Services.AttackPaths;
 using SMADX.Services.Audit;
 using SMADX.Services.Labs;
+using SMARX.Models;
+using SMARX.Samples;
+using SMARX.Services.Labs;
 
 namespace SMADX.Studio.ViewModels
 {
@@ -73,7 +76,7 @@ namespace SMADX.Studio.ViewModels
         // ─── Exercice ouvert ─────────────────────────────────────────────────────
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasLab), nameof(LabId), nameof(LabTitle), nameof(Statement), nameof(Level), nameof(Duration), nameof(IsExam), nameof(ExamCheck),
+        [NotifyPropertyChangedFor(nameof(HasLab), nameof(IsEmpty), nameof(LabId), nameof(LabTitle), nameof(Statement), nameof(Level), nameof(Duration), nameof(IsExam), nameof(ExamCheck),
             nameof(ExamCloseAudit), nameof(ExamCloseFixGuidance), nameof(ExamCloseAttackPaths), nameof(ExamCloseComparison),
                                   nameof(LanguageChoice), nameof(CategoryChoice), nameof(DomainSummary), nameof(TotalPoints))]
         [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportSheetCommand), nameof(ExportSubjectCommand), nameof(ValidateCommand),
@@ -91,6 +94,72 @@ namespace SMADX.Studio.ViewModels
         [ObservableProperty] private string _solutionLabel = "";
 
         public bool HasLab => Lab != null;
+
+        // ─── Exercice SMAR-X ouvert (à la place d'un exercice SMAD-X) ────────────
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasSmarxLab), nameof(IsEmpty))]
+        [NotifyCanExecuteChangedFor(nameof(SaveCommand), nameof(SaveAsCommand), nameof(ExportSubjectCommand))]
+        private SmarxStudioViewModel? _smarx;
+
+        public bool HasSmarxLab => Smarx != null;
+
+        /// <summary>Aucun exercice ouvert : l'écran d'accueil.</summary>
+        public bool IsEmpty => !HasLab && !HasSmarxLab;
+
+        /// <summary>Enregistrer et exporter le sujet : l'exercice ouvert, SMAD-X ou SMAR-X.</summary>
+        private bool CanSave => HasLab || HasSmarxLab;
+
+        /// <summary>Ouvre un exercice SMAR-X : il remplace l'exercice SMAD-X ouvert.</summary>
+        public void LoadSmarx(SmarxLab lab, string? path)
+        {
+            Lab = null;
+            FilePath = null;
+            Smarx = new SmarxStudioViewModel(lab, path, _dialogs, s => Status = s, EditCulture);
+        }
+
+        /// <summary>Un nouvel exercice SMAR-X sur les serveurs d'exemple de SMAR-X (Linux et Windows).</summary>
+        [RelayCommand]
+        private void NewSmarxSample()
+        {
+            LoadSmarx(NewSmarxLab(new SmarxDocument { Linux = [LinuxSamples.FileServer()], Windows = [WindowsSamples.FileServer()] }), null);
+            Status = Text["Status.SmarxCreated"];
+        }
+
+        /// <summary>Un nouvel exercice SMAR-X sur des serveurs préparés dans SMAR-X (.smar-x.json).</summary>
+        [RelayCommand]
+        private async Task NewSmarxFromServersAsync()
+        {
+            if (await _dialogs.OpenFileAsync(Text["Menu.NewSmarxFromServers"], Text["File.SmarxServers"], "*" + SmarxDocument.FileExtension) is not { } path) return;
+            await RunAsync(async () =>
+            {
+                LoadSmarx(NewSmarxLab(SmarxDocument.Parse(await File.ReadAllTextAsync(path))), null);
+                Status = Text["Status.SmarxCreated"];
+            });
+        }
+
+        [RelayCommand]
+        private async Task OpenSmarxAsync()
+        {
+            if (await _dialogs.OpenFileAsync(Text["Menu.OpenSmarx"], Text["File.SmarxLab"], "*" + SmarxLab.FileExtension) is not { } path) return;
+            await RunAsync(async () =>
+            {
+                LoadSmarx(SmarxLabService.Parse(await File.ReadAllTextAsync(path)), path);
+                Status = string.Format(Text["Status.Opened"], Path.GetFileName(path));
+            });
+        }
+
+        private SmarxLab NewSmarxLab(SmarxDocument start) => new()
+        {
+            Id = "nouvel-exercice",
+            Title = new LocalizedText { [EditCulture] = Text.T("Nouvel exercice SMAR-X", "New SMAR-X lab") },
+            Statement = new LocalizedText
+            {
+                [EditCulture] = Text.T("# Titre\n\nLe contexte.\n\n## Le besoin\n\n- qui doit pouvoir faire quoi, sur quoi ;\n- ce que personne d'autre ne doit pouvoir faire.\n",
+                                       "# Title\n\nThe context.\n\n## The need\n\n- who must be able to do what, on what;\n- what nobody else must be able to do.\n")
+            },
+            Start = start
+        };
 
         public ObservableCollection<ObjectiveItem> Objectives { get; } = new();
         public ObservableCollection<QuestionItem> Questions { get; } = new();
@@ -515,17 +584,19 @@ namespace SMADX.Studio.ViewModels
         private Task ShowProjectFolderAsync() => Project is { } project ? _dialogs.ShowFolderAsync(project.Root) : Task.CompletedTask;
 
         /// <summary>Jamais enregistré, l'exercice est d'abord rangé dans son dossier (Studio demande où).</summary>
-        [RelayCommand(CanExecute = nameof(HasLab))]
+        [RelayCommand(CanExecute = nameof(CanSave))]
         private async Task SaveAsync()
         {
+            if (Smarx != null) { await RunAsync(() => Smarx.SaveAsync(false)); return; }
             if (FilePath == null) { await PlaceInFolderAsync(); return; }
             await RunAsync(() => Save(FilePath));
         }
 
         /// <summary>Range l'exercice dans un dossier choisi : un sous-dossier à son nom, sauf si le dossier est vide.</summary>
-        [RelayCommand(CanExecute = nameof(HasLab))]
+        [RelayCommand(CanExecute = nameof(CanSave))]
         private async Task SaveAsAsync()
         {
+            if (Smarx != null) { await RunAsync(() => Smarx.SaveAsync(true)); return; }
             var start = Project is { } project ? Path.GetDirectoryName(project.Root) : StudioSettings.Load().LabsFolder;
             if (await _dialogs.PickFolderAsync(Text["Menu.SaveAs"], start) is not { } folder) return;
             await RunAsync(() => SaveToFolder(folder));
@@ -621,9 +692,10 @@ namespace SMADX.Studio.ViewModels
         /// Rangé dans son dossier, l'exercice est enregistré et le sujet écrit dans 2-a-distribuer, sans rien demander :
         /// le sujet et l'exemplaire qui corrigera les copies restent ainsi identiques.
         /// </remarks>
-        [RelayCommand(CanExecute = nameof(HasLab))]
+        [RelayCommand(CanExecute = nameof(CanSave))]
         private async Task ExportSubjectAsync()
         {
+            if (Smarx != null) { await RunAsync(() => Smarx.ExportSubjectAsync()); return; }
             if (FilePath == null && !await PlaceInFolderAsync()) return;
             if (Project != null)
             {
@@ -687,6 +759,7 @@ namespace SMADX.Studio.ViewModels
             var questions = lab.Questions.ToList();
             Objectives.Clear();
             Questions.Clear();
+            Smarx = null;
             Lab = lab;
             FilePath = path;
             Notes = notes;
@@ -969,6 +1042,19 @@ namespace SMADX.Studio.ViewModels
             if (Lab == null) { SheetPreview = ""; return; }
             try { SheetPreview = LabValidator.TeacherSheet(CurrentLab(), EditCulture, Notes, Clock(), SolutionDomain()); }
             catch (Exception ex) { SheetPreview = ex.Message; }
+        }
+
+        // ─── Thème de l'interface ────────────────────────────────────────────────
+
+        /// <summary>Thème clair ou sombre, retenu pour la prochaine session.</summary>
+        [RelayCommand]
+        private void SetTheme(string theme)
+        {
+            var chosen = theme == nameof(AppTheme.Light) ? AppTheme.Light : AppTheme.Dark;
+            ThemeService.Instance.ApplyTheme(chosen);
+            var settings = StudioSettings.Load();
+            settings.Theme = chosen.ToString();
+            settings.Save();
         }
 
         // ─── Langue de l'interface ───────────────────────────────────────────────

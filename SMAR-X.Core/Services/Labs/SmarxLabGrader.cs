@@ -60,9 +60,10 @@ namespace SMARX.Services.Labs
                 var check = r.Objective.Check;
                 var touched = check.AccountsInvolved.Any(accounts.Contains)
                               || check.PathsInvolved.Any(p => paths.Any(g => Under(check.System, p, g)));
-                return touched && r.Fraction > 0
-                    ? r with { Fraction = 0, Annulled = true, Feedback = T(culture, "Annulé : une garde n'est plus respectée (voir plus bas).", "Cancelled: a guard is no longer met (see below).") }
-                    : r;
+                if (!touched) return r;
+                // Annulé, même s'il n'était pas atteint : la garde violée est la première chose à corriger
+                var cancelled = T(culture, "Annulé : une garde n'est plus respectée (voir plus bas).", "Cancelled: a guard is no longer met (see below).");
+                return r with { Fraction = 0, Annulled = true, Feedback = r.Passed || r.Fraction > 0 ? cancelled : $"{cancelled} {r.Feedback}" };
             }).ToList();
 
             var questions = lab.Questions.Select(q => LabQuestionGrader.Grade(q, answers?.GetValueOrDefault(q.Id))).ToList();
@@ -178,7 +179,7 @@ namespace SMARX.Services.Labs
                     : T(culture, $"{what} : autorisé, alors que ce n'est pas nécessaire", $"{what}: allowed, though it is not needed"));
             }
             if (total == 0) return new SmarxObjectiveResult(objective, 0, T(culture, "Rien à vérifier.", "Nothing to check."));
-            var fraction = (double)right / total;
+            var fraction = objective.Partial ? (double)right / total : right == total ? 1 : 0;
             var feedback = wrong.Count == 0
                 ? T(culture, $"Les {total} accès vérifiés sont exactement ceux qui sont nécessaires.", $"The {total} accesses checked are exactly the ones needed.")
                 : T(culture, $"{right} accès justes sur {total}. ", $"{right} of {total} accesses right. ") + string.Join(T(culture, " ; ", "; "), wrong.Take(4)) + (wrong.Count > 4 ? T(culture, " ; …", "; …") : ".");

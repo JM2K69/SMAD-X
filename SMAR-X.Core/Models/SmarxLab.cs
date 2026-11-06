@@ -62,6 +62,12 @@ namespace SMARX.Models
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool Guard { get; set; }
+        /// <summary>
+        /// Crédit partiel (« exactement les accès nécessaires ») : chaque case juste rapporte sa part des points. Sans lui,
+        /// l'objectif n'est atteint que si toutes les cases sont justes : les refus déjà justes au départ ne rapportent rien.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Partial { get; set; }
         public SmarxCheck Check { get; set; } = new();
     }
 
@@ -74,8 +80,8 @@ namespace SMARX.Models
         AccessDenied,
         /// <summary>
         /// Rien de plus que nécessaire : pour chaque compte de Accounts, chaque chemin de Paths et chaque opération
-        /// de Operations, l'accès est permis si et seulement s'il figure dans Needs. Chaque case juste rapporte sa
-        /// part des points.
+        /// de Operations, l'accès est permis si et seulement s'il figure dans Needs. Avec le crédit partiel, chaque case
+        /// juste rapporte sa part des points ; sans lui, toutes doivent l'être.
         /// </summary>
         ExactAccess,
         /// <summary>Ce que crée Account dans le dossier Path, Other peut lui faire Operation (setgid, ACL par défaut, héritage).</summary>

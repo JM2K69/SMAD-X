@@ -126,7 +126,7 @@
 - **For trainers**: the sample domains in [`Samples/AttackPaths`](Samples/AttackPaths/README.md) describe each path and its fix, so they are the answer keys of the attack-path labs; write your own labs with the [lab creation guide](https://jm2k69.github.io/SMAD-X/en/labs/create/)
 
 ### 🧑‍🏫 SMAD-X Studio — lab authoring for trainers
-A second executable, shipped in the same archive ([documentation](https://jm2k69.github.io/SMAD-X/en/labs/studio/)):
+A second executable, shipped in its own archive ([documentation](https://jm2k69.github.io/SMAD-X/en/labs/studio/)), light or dark:
 - **New lab from a recommendation**: one recipe per audit rule / ANSSI control point, alone or **several combined** in the same domain; Studio builds a healthy, populated domain, injects only those misconfigurations, and produces the **fixed domain**, which gets all the points
 - **Convert** a `.smad-x.json` scenario into a lab: the context becomes the statement, the path and the fix go into the trainer notes
 - **One folder per lab**, laid out by role as soon as it is created (trainer copy, subject to hand out, submissions, results): every export goes to its place, and the lab reopens from its folder or the recent list; drop the learners' submissions on the window and they are filed and graded
@@ -136,6 +136,10 @@ A second executable, shipped in the same archive ([documentation](https://jm2k69
 - **Validation** like the shipped labs' tests (nothing met at start, effective guards, no visible solution, complete questions), a **suggested solution** for any lab (each audit finding fixed without deleting, guards kept) or one made by hand in SMAD-X, kept with the lab, and a **trainer sheet**
 - **Grading a class**: add several submissions or a whole folder, get each grade, written answers graded by hand with a comment, success per objective and per question; CSV export (grade out of 20 for the school platform), **Moodle**, **individual PDF reports** and a Markdown class report; submissions edited by hand, handed in under another name, holding someone else's domain, reopened outside exam mode or made with another SMAD-X version are flagged
 - **Command line** for batches: `SMAD-X.Studio recipe all --lang en --out labs`, `convert`, `validate`, `export-subject`, `grade lab.smadx-lab.json submissions/ --csv grades.csv --moodle moodle.csv --reports reports`
+- **SMAR-X labs** (`.smarx-lab.json`): objectives checked by SMAR-X's engines (access allowed or denied, exactly the accesses needed, what a new file gets, hygiene rules, guards), validated against the fixed servers, and a class's copies graded
+
+### 🔐 SMAR-X — file access rights, Linux and Windows
+A third executable, in its own archive ([documentation](https://jm2k69.github.io/SMAD-X/en/smar-x/)): who can do what, on what, and why, on a Linux server (mode, POSIX ACLs, default ACLs, Samba shares) and a Windows server (NTFS, the Explorer Security tab, SMB shares), locally or from the network. Its engines are compared with real systems (Linux kernel, Samba, Windows Server, Windows 11), and its **labs** ask for the permissions needed, and only those.
 
 ## 🚀 Quick Start
 

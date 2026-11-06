@@ -30,7 +30,7 @@ Tous produisent le même format : on peut commencer par A ou C et finir par B.
 5. Enregistrez le domaine (`.smad-x.json`), pour pouvoir y revenir.
 
 ### 2.2 Ouvrir le domaine dans SMAD-X Studio
-Lancez [SMAD-X Studio](studio.md), livré dans la même archive que SMAD-X, puis **Fichier > Nouvel exercice à partir d'un domaine (.smad-x.json)...** et choisissez le domaine enregistré.
+Lancez [SMAD-X Studio](studio.md) (sa propre archive, voir [Installation](../installation.md)), puis **Fichier > Nouvel exercice à partir d'un domaine (.smad-x.json)...** et choisissez le domaine enregistré.
 
 Studio en fait le domaine de départ d'un nouvel exercice, pose le modèle d'énoncé et propose les objectifs tirés de l'audit et des chemins d'attaque.
 

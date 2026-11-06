@@ -21,6 +21,9 @@ namespace SMADX.Studio
         /// <summary>Les derniers exercices ouverts, le plus récent en tête.</summary>
         public List<RecentLab> RecentLabs { get; set; } = new();
 
+        /// <summary>Thème de l'interface : « Dark » (par défaut) ou « Light ».</summary>
+        public string Theme { get; set; } = "Dark";
+
         public static StudioSettings Load()
         {
             try

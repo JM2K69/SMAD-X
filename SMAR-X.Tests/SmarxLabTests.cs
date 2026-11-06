@@ -173,6 +173,21 @@ public class SmarxLabTests
         Assert.False(result.Objectives.Single(o => o.Objective.Id == "o1").Passed);
     }
 
+    /// <summary>
+    /// « Exactement les accès nécessaires » : sans crédit partiel, il faut toutes les cases justes (les refus déjà justes
+    /// au départ ne rapportent rien) ; avec, chaque case juste rapporte sa part.
+    /// </summary>
+    [Fact]
+    public void ExactAccess_PartialCredit_IsChosenByTheTrainer()
+    {
+        var lab = SmarxBuiltInLabs.LinuxTeamFolder();
+        var objective = lab.Objectives.Single(o => o.Id == "o4");
+
+        Assert.Equal(0, SmarxLabGrader.Evaluate(lab, objective, Work(lab), Fr).Fraction);
+        objective.Partial = true;
+        Assert.InRange(SmarxLabGrader.Evaluate(lab, objective, Work(lab), Fr).Fraction, 0.01, 0.99);
+    }
+
     [Fact]
     public void Lab_RoundTripsThroughItsFile_AndTheSubjectHasNoAnswerKey()
     {
