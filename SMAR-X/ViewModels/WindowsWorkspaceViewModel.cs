@@ -91,6 +91,12 @@ namespace SMARX.ViewModels
             SelectedOperation = Operations.FirstOrDefault(o => Equals(o.Operation, WindowsOperation.Write)) ?? SelectedOperation;
         }
 
+        /// <summary>Choisit l'objet de ce chemin dans l'arbre, s'il existe (l'objet d'un exercice, à son ouverture).</summary>
+        public void Select(string path)
+        {
+            if (Find(Tree[0], path) is { } item) SelectedNode = item;
+        }
+
         private static NtfsItem? Find(NtfsItem item, string path) =>
             string.Equals(item.Path, path, StringComparison.OrdinalIgnoreCase) ? item : item.Children.Select(c => Find(c, path)).FirstOrDefault(f => f != null);
 

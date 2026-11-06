@@ -1,9 +1,12 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using SMARX.Labs;
 using SMARX.Models;
 using SMARX.Samples;
+using SMARX.Services.Labs;
 
 namespace SMARX.ViewModels
 {
@@ -61,6 +64,55 @@ namespace SMARX.ViewModels
         [RelayCommand]
         private void ToggleLanguage() => Text.SetLanguage(Text.Culture == "fr-FR" ? "en-US" : "fr-FR");
 
+        // ─── Exercices ───────────────────────────────────────────────────────────
+
+        public IReadOnlyList<SmarxLab> BuiltInLabs { get; } = SmarxBuiltInLabs.All();
+
+        /// <summary>L'exercice en cours ; null en mode libre.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasLab), nameof(IsFreeMode))]
+        private SmarxLabViewModel? _lab;
+
+        public bool HasLab => Lab != null;
+        /// <summary>Hors exercice : charger l'exemple ou ouvrir un fichier remplacerait les serveurs de l'apprenant.</summary>
+        public bool IsFreeMode => Lab == null;
+
+        /// <summary>Ouvre un exercice : ses serveurs de départ remplacent ceux des espaces concernés.</summary>
+        public void OpenLab(SmarxLab lab)
+        {
+            Lab = new SmarxLabViewModel(lab, () => LabWork(lab), () => LoadStart(lab));
+            LoadStart(lab);
+        }
+
+        private void LoadStart(SmarxLab lab)
+        {
+            var work = SmarxLabGrader.Clone(lab.Start);
+            if (work.Linux.Count > 0) Linux.Load(work.Linux[0]);
+            if (work.Windows.Count > 0) Windows.Load(work.Windows[0]);
+            Current = work.Linux.Count == 0 && work.Windows.Count > 0 ? Windows : Linux;
+            // L'arbre s'ouvre sur l'objet du premier objectif
+            if (lab.Objectives.Select(o => o.Check.Path).FirstOrDefault(p => p != null) is { } path)
+            {
+                if (Current == Linux) Linux.Select(path);
+                else Windows.Select(path);
+            }
+        }
+
+        /// <summary>Les serveurs de l'apprenant : ceux des espaces que l'exercice utilise.</summary>
+        private SmarxDocument LabWork(SmarxLab lab) => new()
+        {
+            Linux = lab.Start.Linux.Count > 0 ? [Linux.Host] : [],
+            Windows = lab.Start.Windows.Count > 0 ? [Windows.Host] : []
+        };
+
+        /// <summary>Quitte l'exercice : retour aux serveurs d'exemple.</summary>
+        [RelayCommand]
+        private void LeaveLab()
+        {
+            Lab = null;
+            LoadSample();
+        }
+
         /// <summary>Ouvre un fichier : son premier serveur Linux et son premier serveur Windows ; l'exemple pour ce qui manque.</summary>
         public void Load(SmarxDocument document)
         {
@@ -78,6 +130,7 @@ namespace SMARX.ViewModels
             if (e.PropertyName != nameof(SmarxText.CurrentCulture)) return;
             Linux.Relabel();
             Windows.Relabel();
+            Lab?.Relabel();
             OnPropertyChanged(nameof(Legend));
         }
     }

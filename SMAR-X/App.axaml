@@ -1,11 +1,13 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:SMADX.Converters"
              x:Class="SMARX.App"
              RequestedThemeVariant="Dark">
 
     <Application.Resources>
         <ResourceDictionary>
             <!-- La palette et les styles génériques viennent du thème commun (SMAD-X.UI/Themes/Suite.axaml) -->
+            <converters:MarkdownConverter x:Key="MarkdownConverter"/>
 
             <StreamGeometry x:Key="FolderIcon">M2,6.5 C2,5.1 3.1,4 4.5,4 L9.2,4 L11.4,6.2 L19.5,6.2 C20.9,6.2 22,7.3 22,8.7 L22,17.5 C22,18.9 20.9,20 19.5,20 L4.5,20 C3.1,20 2,18.9 2,17.5 Z</StreamGeometry>
             <StreamGeometry x:Key="FileIcon">M6.5,2 L14,2 L20,8 L20,19.5 C20,20.9 18.9,22 17.5,22 L6.5,22 C5.1,22 4,20.9 4,19.5 L4,4.5 C4,3.1 5.1,2 6.5,2 Z</StreamGeometry>

@@ -22,6 +22,8 @@ A sample Linux server (`srv-fic`) and a sample Windows server (`SRV-FIC`) open a
 
 Under **From where?**, the tester picks where the access comes from: **On the server** (a session open on the server), or **From the network**, through a share: **SMB** on Windows (see [Access through a share](shares.md)), **Samba** on Linux (see [Samba share](samba.md)).
 
+The **Labs** button opens a lab: a need to meet with only the permissions required, graded by **Check** (see [Labs](labs.md)).
+
 ## Faithful to real systems
 
 SMAR-X's engines are not written "from memory": their results are compared with those of real systems. The measurements are frozen in the tests (`SMAR-X.Tests/Fidelity`), which fail if the simulator drifts away from them.

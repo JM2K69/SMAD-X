@@ -1,10 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- Moteur de SMAR-X (Simulate, Model and Audit Rights eXpert), sans interface : modèle des serveurs
-       (comptes, groupes, arborescence, droits) et calcul des droits effectifs, expliqués étape par étape. -->
+       (comptes, groupes, arborescence, droits) et calcul des droits effectifs, expliqués étape par étape ;
+       exercices, correction et copies, sur le socle commun des exercices (SMAD-X.Labs). -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <AssemblyName>SMAR-X.Core</AssemblyName>
     <RootNamespace>SMARX</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SMAD-X.Labs\SMAD-X.Labs.csproj" />
+  </ItemGroup>
 </Project>

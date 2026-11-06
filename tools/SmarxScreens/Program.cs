@@ -10,6 +10,7 @@ using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using SMARX;
+using SMARX.Labs;
 using SMARX.Services.Linux;
 using SMARX.Services.Windows;
 using SMARX.ViewModels;
@@ -48,6 +49,8 @@ if (docs)
         SambaWindow(culture, "/srv/projets", "smarx-samba-share");
         // L'ACL par défaut de /srv/projets : ce que recevra ce qui y sera créé
         LinuxCard(culture, "/srv/projets", "Default.Title", "smarx-default-acl");
+        // Un exercice fourni, vérifié au départ : rien n'est encore fait, les gardes tiennent ; aucun indice ouvert
+        LabWindow(culture, "smarx-lab");
     }
     return;
 }
@@ -63,6 +66,22 @@ void LinuxNetwork(string culture, string user, string path, LinuxOperation opera
     vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, operation));
     vm.SelectedAccount = vm.Users.First(u => u.Name == user);
     Capture(shell, name, 1000);
+}
+
+// La fenêtre d'un exercice fourni, après « Vérifier » sur les serveurs de départ
+void LabWindow(string culture, string name)
+{
+    var shell = Prepare(culture, ThemeVariant.Dark);
+    shell.OpenLab(SmarxBuiltInLabs.LinuxTeamFolder());
+    var window = new SmarxLabWindow { DataContext = shell.Lab, Width = 1000, Height = 820 };
+    window.Show();
+    shell.Lab!.CheckCommand.Execute(null);
+    Pump(700);
+    var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
+    var file = Path.Combine(outDir, name + ".png");
+    frame.Save(file);
+    Console.WriteLine(file);
+    window.Close();
 }
 
 // Une carte de la colonne de droite de l'espace Linux, seule : la fenêtre est rendue assez haute pour tout montrer

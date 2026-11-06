@@ -22,6 +22,8 @@ Un serveur Linux (`srv-fic`) et un serveur Windows (`SRV-FIC`) d'exemple s'ouvre
 
 Sous **D'où ?**, le testeur choisit l'origine de l'accès : **Sur le serveur** (une session ouverte sur le serveur), ou **Depuis le réseau**, par un partage : **SMB** sous Windows (voir [Accès par un partage](partages.md)), **Samba** sous Linux (voir [Partage Samba](samba.md)).
 
+Le bouton **Exercices** ouvre un exercice : un besoin à satisfaire avec seulement les droits nécessaires, corrigé par **Vérifier** (voir [Exercices](exercices.md)).
+
 ## Fidèle aux vrais systèmes
 
 Les moteurs de SMAR-X ne sont pas écrits « de mémoire » : leurs résultats sont comparés à ceux de vrais systèmes. Les relevés sont figés dans les tests (`SMAR-X.Tests/Fidelity`), qui échouent si le simulateur s'en écarte.

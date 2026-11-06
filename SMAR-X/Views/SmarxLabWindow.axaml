@@ -1,0 +1,166 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMARX.ViewModels"
+        xmlns:labs="using:SMADX.ViewModels"
+        x:Class="SMARX.Views.SmarxLabWindow"
+        x:DataType="vm:SmarxLabViewModel"
+        Title="{Binding Title}"
+        Icon="/Assets/icone.ico"
+        Width="1000" Height="820" MinWidth="720" MinHeight="560"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+
+        <!-- ═══ En-tête : titre, niveau, durée, score ═══ -->
+        <Border Grid.Row="0" Classes="card" Padding="18,14" Margin="0,0,0,12">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="{Binding Title}" FontSize="20" FontWeight="Bold" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Border Background="{DynamicResource AccentSoft}" CornerRadius="999" Padding="10,2">
+                            <TextBlock Text="{Binding LevelLabel}" Foreground="{DynamicResource Accent}" FontSize="12" FontWeight="SemiBold"/>
+                        </Border>
+                        <TextBlock Classes="muted" Text="{Binding DurationLabel}" VerticalAlignment="Center" FontSize="13"/>
+                    </StackPanel>
+                    <Border Background="{DynamicResource DangerSoft}" CornerRadius="8" Padding="10,5" Margin="0,4,0,0" HorizontalAlignment="Left"
+                            IsVisible="{Binding IsExam}">
+                        <TextBlock Text="{Binding ExamNotice}" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                    </Border>
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" IsVisible="{Binding ShowGrading}">
+                    <TextBlock Text="{Binding ScoreLabel}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{DynamicResource Lab.Completed}" Foreground="#27AE60" FontWeight="SemiBold" HorizontalAlignment="Right"
+                               IsVisible="{Binding IsCompleted}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ Énoncé | objectifs et questions ═══ -->
+        <Grid Grid.Row="1" ColumnDefinitions="5*,12,6*">
+            <Border Grid.Column="0" Classes="card">
+                <ScrollViewer>
+                    <ContentControl Content="{Binding Statement, Converter={StaticResource MarkdownConverter}}"/>
+                </ScrollViewer>
+            </Border>
+
+            <Border Grid.Column="2" Classes="card" Padding="14">
+                <ScrollViewer>
+                    <StackPanel>
+                        <TextBlock Classes="h" Text="{DynamicResource Lab.Objectives}" Margin="4,0,0,8"/>
+                        <ItemsControl ItemsSource="{Binding Objectives}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SmarxObjectiveItem">
+                                    <Border BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,0,0,1" Padding="4,10">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <TextBlock Grid.Column="0" Text="{Binding StatusIcon}" Foreground="{Binding StatusColor}"
+                                                       FontSize="18" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Top"/>
+                                            <StackPanel Grid.Column="1" Spacing="3">
+                                                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Feedback}" TextWrapping="Wrap" FontSize="12" Foreground="{Binding StatusColor}"
+                                                           IsVisible="{Binding Feedback, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                                <Border Background="{DynamicResource AccentSoft}" CornerRadius="8" Padding="10,6" IsVisible="{Binding IsHintVisible}">
+                                                    <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" FontSize="12"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Spacing="4" Margin="10,0,0,0" HorizontalAlignment="Right">
+                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding IsScored}">
+                                                    <Run Text="{Binding Points}"/><Run Text="{DynamicResource Lab.Points}"/>
+                                                </TextBlock>
+                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding IsGuard}"
+                                                           Text="{DynamicResource Lab.Guard}" ToolTip.Tip="{DynamicResource Lab.GuardTip}"/>
+                                                <Button Classes="tool" Padding="8,3" FontSize="11" Content="{DynamicResource Lab.Hint}"
+                                                        Command="{Binding ToggleHintCommand}" IsVisible="{Binding CanShowHint}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Questions de compréhension : la réponse s'enregistre dans la copie -->
+                        <TextBlock Classes="h" Text="{DynamicResource Lab.Questions}" Margin="4,18,0,8" IsVisible="{Binding HasQuestions}"/>
+                        <ItemsControl ItemsSource="{Binding Questions}" IsVisible="{Binding HasQuestions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="labs:LabQuestionItem">
+                                    <Border BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,0,0,1" Padding="4,10">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <TextBlock Grid.Column="0" Text="{Binding StatusIcon}" Foreground="{Binding StatusColor}"
+                                                       FontSize="18" FontWeight="Bold" Margin="0,0,10,0" VerticalAlignment="Top"/>
+                                            <StackPanel Grid.Column="1" Spacing="4">
+                                                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                                                <ItemsControl ItemsSource="{Binding Choices}" IsVisible="{Binding IsSingleChoice}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="labs:LabChoiceItem">
+                                                            <RadioButton GroupName="{Binding GroupName}" IsChecked="{Binding IsSelected}">
+                                                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
+                                                            </RadioButton>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <ItemsControl ItemsSource="{Binding Choices}" IsVisible="{Binding IsMultipleChoice}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="labs:LabChoiceItem">
+                                                            <CheckBox IsChecked="{Binding IsSelected}">
+                                                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
+                                                            </CheckBox>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <ItemsControl ItemsSource="{Binding Prompts}" IsVisible="{Binding IsMatching}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="labs:LabPromptItem">
+                                                            <Grid ColumnDefinitions="*,Auto,*" Margin="0,2">
+                                                                <TextBlock Grid.Column="0" Text="{Binding Text}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="1" Text="→" Margin="8,0" VerticalAlignment="Center"/>
+                                                                <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <TextBox Text="{Binding Text}" IsVisible="{Binding IsText}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50"
+                                                         PlaceholderText="{DynamicResource Lab.Answer}"/>
+                                                <TextBlock Text="{Binding Feedback}" TextWrapping="Wrap" FontSize="12" Foreground="{Binding StatusColor}"
+                                                           IsVisible="{Binding Feedback, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                                <Border Background="{DynamicResource AccentSoft}" CornerRadius="8" Padding="10,6" IsVisible="{Binding IsHintVisible}">
+                                                    <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" FontSize="12"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Spacing="4" Margin="10,0,0,0" HorizontalAlignment="Right">
+                                                <TextBlock HorizontalAlignment="Right" FontSize="12" Foreground="{DynamicResource TextMuted}">
+                                                    <Run Text="{Binding Points}"/><Run Text="{DynamicResource Lab.Points}"/>
+                                                </TextBlock>
+                                                <Button Classes="tool" Padding="8,3" FontSize="11" Content="{DynamicResource Lab.Hint}"
+                                                        Command="{Binding ToggleHintCommand}" IsVisible="{Binding CanShowHint}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- ═══ L'apprenant et les actions ═══ -->
+        <Border Grid.Row="2" Classes="card" Padding="16,12" Margin="0,12,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                    <TextBlock Classes="label" Text="{DynamicResource Lab.Student}" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding StudentName}" Width="200"/>
+                    <TextBlock Classes="label" Text="{DynamicResource Lab.StudentId}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    <TextBox Text="{Binding StudentId}" Width="130"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <Button Classes="tool" Content="{DynamicResource Lab.Restart}" Command="{Binding RestartCommand}" IsVisible="{Binding ShowGrading}"/>
+                    <Button Classes="tool" Content="{DynamicResource Lab.Save}" Click="OnSave" IsEnabled="{Binding HasStudentName}"/>
+                    <Button Classes="accent" Content="{DynamicResource Lab.Check}" Command="{Binding CheckCommand}" FontWeight="SemiBold" IsVisible="{Binding CanCheck}"/>
+                </StackPanel>
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Margin="0,8,0,0" Classes="muted"
+                           Text="{DynamicResource Lab.NeedName}" IsVisible="{Binding !HasStudentName}"/>
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Margin="0,8,0,0" FontSize="12" Foreground="#27AE60" TextWrapping="Wrap"
+                           Text="{Binding SubmissionStatus}" IsVisible="{Binding HasStudentName}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

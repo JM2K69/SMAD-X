@@ -93,6 +93,12 @@ namespace SMARX.ViewModels
             SelectedNode = Find(Tree[0], "/srv/compta/budget.ods") ?? Tree[0];
         }
 
+        /// <summary>Choisit l'objet de ce chemin dans l'arbre, s'il existe (l'objet d'un exercice, à son ouverture).</summary>
+        public void Select(string path)
+        {
+            if (Find(Tree[0], path) is { } item) SelectedNode = item;
+        }
+
         private static NodeItem? Find(NodeItem item, string path) =>
             item.Path == path ? item : item.Children.Select(c => Find(c, path)).FirstOrDefault(f => f != null);
 
