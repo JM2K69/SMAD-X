@@ -4,13 +4,13 @@ On Windows, SMAR-X shows the **… Properties · Security** card at the top of t
 
 ![The SMAR-X Security tab on the Archives folder](../assets/screens/smarx-security.png)
 
-*Screenshot: GL_Compta gets Modify from Compta through inheritance (gray check marks); on Archives itself, an ACE denies Write (solid check mark).*
+*Screenshot: DL_Compta_LM gets Modify from Compta through inheritance (gray check marks). On Archives itself, an ACE denies Write to DL_Archives_Refuser.*
 
 ## The list of accounts
 
 **Group or user names** lists every account named by an ACE of the object, explicit or inherited. Well-known identities show on their own (**Everyone**, **SYSTEM**, **Authenticated Users**); a built-in group, a local account or a local group comes with the server name: **Administrators (SRV-FIC\Administrators)**.
 
-The order is the one Windows uses: accounts are **sorted by SID, written as text**. Everyone (`S-1-1-0`) thus comes before CREATOR OWNER (`S-1-3-0`), Authenticated Users (`S-1-5-11`) before SYSTEM (`S-1-5-18`), and local accounts and groups (`S-1-5-21-…`) before the built-in Administrators and Users groups (`S-1-5-32-…`).
+The order is the one Windows uses: accounts are **sorted by SID, written as text**. Everyone (`S-1-1-0`) thus comes before CREATOR OWNER (`S-1-3-0`), Authenticated Users (`S-1-5-11`) before SYSTEM (`S-1-5-18`), and server or domain accounts and groups (`S-1-5-21-…`) before the built-in Administrators and Users groups (`S-1-5-32-…`).
 
 ## The check marks
 
@@ -67,7 +67,7 @@ If inheritance and an explicit ACE both give the same row, the check mark stays 
 
 ![The SMAR-X Edit window](../assets/screens/smarx-edit.png)
 
-*Screenshot: inherited Modify, grayed-out boxes; the Write deny, set on Archives, can still be changed.*
+*Screenshot: DL_Archives_Refuser; its Write deny, set on Archives, can still be changed. An inherited allow, for its part, has its boxes grayed out.*
 
 Windows does not just add or remove rights: it **rewrites the account's explicit ACEs**. SMAR-X does the same:
 

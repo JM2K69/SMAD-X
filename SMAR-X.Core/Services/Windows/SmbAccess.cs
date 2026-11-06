@@ -72,7 +72,7 @@ namespace SMARX.Services.Windows
         public static ShareAccessResult Check(WindowsHost host, WindowsUser user, SmbShare share, string path, WindowsOperation operation)
         {
             if (!share.Contains(path)) throw new ArgumentException($"{path} n'est pas dans le partage {share.Name}.", nameof(path));
-            var token = WindowsToken.Remote(user);
+            var token = WindowsToken.Remote(host, user);
             var connected = CanConnect(share, token);
             var shareCheck = CheckShare(share, token, WindowsAccess.Needed(operation));
             var ntfs = WindowsAccess.Check(host, token, path, operation);
@@ -89,11 +89,15 @@ namespace SMARX.Services.Windows
         /// <summary>
         /// Un droit spécial à l'ouverture par le partage : le partage doit l'accorder, puis NTFS (parent compris), sauf si
         /// l'énumération basée sur l'accès rend l'objet introuvable. (Supprimer un dossier partagé échoue ensuite, voir
-        /// <see cref="IsShared"/>.)
+        /// <see cref="IsShared"/>.) Par SMB, Synchroniser seul se décide comme Attributs de lecture : mesuré sur 220
+        /// ouvertures (Fidelity/windows-shares.txt), dont la racine de Compta$, que dave lit seulement par son dossier parent.
         /// </summary>
-        public static bool Open(WindowsHost host, WindowsToken token, SmbShare share, string path, NtfsRights right) =>
-            CanConnect(share, token) && !Hidden(host, token, share, path)
-            && CheckShare(share, token, right).Granted && WindowsAccess.Open(host, token, path, right) != OpenGrant.Denied;
+        public static bool Open(WindowsHost host, WindowsToken token, SmbShare share, string path, NtfsRights right)
+        {
+            if (right == NtfsRights.Synchronize) right = NtfsRights.ReadAttributes;
+            return CanConnect(share, token) && !Hidden(host, token, share, path)
+                   && CheckShare(share, token, right).Granted && WindowsAccess.Open(host, token, path, right) != OpenGrant.Denied;
+        }
 
         /// <summary>
         /// L'énumération basée sur l'accès cache l'objet au compte, qui peut lister son dossier : par le partage, l'objet est

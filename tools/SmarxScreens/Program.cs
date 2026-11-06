@@ -34,8 +34,8 @@ if (docs)
     {
         outDir = Path.Combine(root, "docs", language, "assets", "screens");
         Linux(culture, ThemeVariant.Dark, "bob", "/srv/partage", LinuxOperation.Create, "smarx-linux");
-        Security(culture, ThemeVariant.Dark, @"D:\Partages\Compta\Archives", "GL_Compta", "smarx-security");
-        Dialog(culture, @"D:\Partages\Compta\Archives", "GL_Compta", false, "smarx-edit");
+        Security(culture, ThemeVariant.Dark, @"D:\Partages\Compta\Archives", "DL_Compta_LM", "smarx-security");
+        Dialog(culture, @"D:\Partages\Compta\Archives", "DL_Archives_Refuser", false, "smarx-edit");
         Dialog(culture, @"D:\Partages\Compta\Archives", null, true, "smarx-advanced");
         // Le même accès, sur le serveur puis depuis le réseau : NTFS laisse dave modifier planning.xlsx,
         // mais par le partage Projets (Lecture), il ne l'écrit plus
@@ -47,6 +47,8 @@ if (docs)
         LinuxNetwork(culture, "carol", "/srv/partage/doc.txt", LinuxOperation.Write, null, "smarx-samba-local");
         LinuxNetwork(culture, "carol", "/srv/partage/doc.txt", LinuxOperation.Write, "partage", "smarx-samba");
         SambaWindow(culture, "/srv/projets", "smarx-samba-share");
+        // AGDLP : bob et ses groupes imbriqués ; un groupe de domaine local, qui n'entre pas dans un groupe global
+        WindowsAccounts(culture, "bob", "DL_Compta_LM", "smarx-groups");
         // L'ACL par défaut de /srv/projets : ce que recevra ce qui y sera créé
         LinuxCard(culture, "/srv/projets", "Default.Title", "smarx-default-acl");
         // Un exercice fourni, vérifié au départ : rien n'est encore fait, les gardes tiennent ; aucun indice ouvert
@@ -80,6 +82,28 @@ void LabWindow(string culture, string name)
     var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
     var file = Path.Combine(outDir, name + ".png");
     frame.Save(file);
+    Console.WriteLine(file);
+    window.Close();
+}
+
+// La carte des comptes de l'espace Windows, seule : un compte et ses groupes imbriqués, un groupe et ses imbrications
+void WindowsAccounts(string culture, string account, string group, string name)
+{
+    var shell = Prepare(culture, ThemeVariant.Dark);
+    shell.ShowWindowsCommand.Execute(null);
+    var vm = shell.Windows;
+    vm.SelectedAccount = vm.Users.First(u => u.Name == account);
+    vm.SelectedGroup = vm.GroupItems.First(g => g.Name == group);
+    var window = new MainWindow { DataContext = shell, Width = 1600, Height = 3200 };
+    window.Show();
+    Pump(700);
+    var title = SmarxText.Instance["Accounts.Title"];
+    var card = window.GetVisualDescendants().OfType<TextBlock>().First(t => t.Text == title && t.IsEffectivelyVisible)
+        .GetVisualAncestors().OfType<Border>().First(b => b.Classes.Contains("card"));
+    using var bitmap = new RenderTargetBitmap(new PixelSize((int)card.Bounds.Width, (int)card.Bounds.Height));
+    bitmap.Render(card);
+    var file = Path.Combine(outDir, name + ".png");
+    bitmap.Save(file);
     Console.WriteLine(file);
     window.Close();
 }
@@ -158,9 +182,9 @@ Windows("fr-FR", ThemeVariant.Dark, "carol", @"D:\Admin", WindowsOperation.List,
 Windows("fr-FR", ThemeVariant.Light, "bob", @"D:\Partages\Commun", WindowsOperation.CreateFile, false, "08-windows-creator-owner-clair", 2100);
 Windows("en-US", ThemeVariant.Dark, "alice", @"D:\Partages\RH\annonce-rh.txt", WindowsOperation.Read, false, "09-windows-traverse-english");
 Glossary("fr-FR", 0, "10-aide-memoire-windows");
-Security("fr-FR", ThemeVariant.Dark, @"D:\Partages\Projets", "GL_Stagiaires", "12-onglet-securite");
+Security("fr-FR", ThemeVariant.Dark, @"D:\Partages\Projets", "DL_Projets_Refuser", "12-onglet-securite");
 Security("en-US", ThemeVariant.Light, @"D:\Partages\Projets\planning.xlsx", "dave", "13-security-tab-english");
-Dialog("fr-FR", @"D:\Partages\Compta\Archives", "GL_Compta", false, "14-fenetre-modifier");
+Dialog("fr-FR", @"D:\Partages\Compta\Archives", "DL_Archives_Refuser", false, "14-fenetre-modifier");
 Dialog("fr-FR", @"D:\Partages\Compta\Archives", null, true, "15-fenetre-avance");
 Glossary("fr-FR", 1, "11-aide-memoire-linux");
 

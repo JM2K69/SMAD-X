@@ -12,7 +12,7 @@ The same access, on the server then from the network:
 
     ![SMAR-X tests an access on the server](../assets/screens/smarx-network-local.png)
 
-    *Screenshot: locally, dave modifies `planning.xlsx`: the explicit Modify ACE grants it. The token is that of an open session (INTERACTIVE).*
+    *Screenshot: locally, dave modifies `planning.xlsx`: the explicit Modify ACE of DL_Planning_LM, which he gets through G_Stagiaires, grants it. The token is that of an open session (INTERACTIVE).*
 
 === "From the network"
 
@@ -30,14 +30,14 @@ Over the network, each open goes through **two** AccessChecks: the share's DACL,
 | Change | `M`: Read, plus write and delete |
 | Full Control | `F`: Change, plus change permissions and take ownership |
 
-The sample server shows both ways of doing it:
+The sample server follows the practice Microsoft recommends, a broad share which NTFS narrows down, except for one narrower share, to compare:
 
 | Share | Share permissions | Idea |
 |---|---|---|
 | `Partages` (`D:\Partages`) | Authenticated Users: Change; Administrators: Full Control; access-based enumeration | a broad share, as Microsoft advises: NTFS does the sorting |
-| `Projets` (`D:\Partages\Projets`) | Everyone: Read | the same folder through another share: the same file, another result |
-| `Compta$` (`D:\Partages\Compta`) | GL_Compta: Change; Administrators: Full Control | least privilege on both sides; `$` hides the share from the server's list |
-| `Apps` (`D:\Apps`) | Everyone: Read | what Windows offers when you share a folder |
+| `Projets` (`D:\Partages\Projets`) | Everyone: Read | the counter-example: the same folder through another share, the same file, another result |
+| `Compta$` (`D:\Partages\Compta`) | Authenticated Users: Change; Administrators: Full Control | a broad share; `$` hides it from the server's list |
+| `Apps` (`D:\Apps`) | Authenticated Users: Change; Administrators: Full Control | a broad share: NTFS grants users only Read and execute |
 
 dave can modify `planning.xlsx` locally and through `\\SRV-FIC\Partages\Projets`, but not through `\\SRV-FIC\Projets`.
 
@@ -84,3 +84,5 @@ The measurement had to work around two behaviors of the Windows SMB **client**, 
 
 - an open that only asks for attributes (**Write attributes**, **Read attributes**), **Synchronize** or **Traverse** first succeeds **without asking the server**: the first real operation is what fails. The measurement therefore performs one, which changes nothing;
 - the client caches the attributes it reads for about ten seconds and serves them even to **another account** on the same computer. The measurement waits between two accounts.
+
+It also showed a rule SMAR-X applies: through a share, **Synchronize** alone is decided like **Read attributes**, over the 220 opens measured. Through `\\SRV-FIC\Compta$`, dave has no right on `D:\Partages\Compta`. He still reads its attributes, because he can list `D:\Partages`: the opens with Read attributes or Synchronize succeed, every other one fails.

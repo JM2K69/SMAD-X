@@ -149,7 +149,7 @@ namespace SMADX.Studio.ViewModels
         public bool ShowOperation => Check.Type is SmarxCheckType.AccessAllowed or SmarxCheckType.AccessDenied or SmarxCheckType.CreatedAllows;
         public bool ShowPath => Check.Type is not (SmarxCheckType.ExactAccess or SmarxCheckType.AccountUnchanged);
         public bool ShowShare => Check.Type is SmarxCheckType.AccessAllowed or SmarxCheckType.AccessDenied or SmarxCheckType.ExactAccess or SmarxCheckType.CreatedAllows
-                                 || Check.Type == SmarxCheckType.Hygiene && Check.Rule == SmarxHygieneRule.ShareLeastPrivilege;
+                                 || Check.Type == SmarxCheckType.Hygiene && Check.Rule == SmarxHygieneRule.ShareStandard;
         public bool ShowExact => Check.Type == SmarxCheckType.ExactAccess;
         public bool ShowRule => Check.Type == SmarxCheckType.Hygiene;
         public bool ShowAnyAccount => Check.Type == SmarxCheckType.AccountUnchanged;

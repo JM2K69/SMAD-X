@@ -14,10 +14,40 @@ The canonical order puts **explicit ACEs before inherited ones**, and among expl
 
 ## The token
 
-- The token of a local session holds the account, its groups, **Everyone**, **Authenticated Users**, **INTERACTIVE** and **Users**.
+- The token of a local session holds the account, its groups and, step by step, the groups of its groups, **Everyone**, **Authenticated Users**, **INTERACTIVE** and **Users**.
 - **User Account Control (UAC)**: without elevation, an administrator's **Administrators** group is "deny only". It counts for denies, never for allows. The built-in **Administrator** account is not filtered.
 - An administrator in an elevated session has the **Take ownership of files** privilege.
 - The folders on the path are not checked: everyone has the **Bypass traverse checking** privilege.
+
+## Groups: AGDLP
+
+The sample server is a member of the **CORP** domain and follows **AGDLP**, the method Microsoft recommends:
+
+- the domain **accounts** (alice, bob, dave) are in **global groups**, one per role: `G_Employes`, `G_Compta`, `G_RH`, `G_Stagiaires`;
+- the global groups are members of **domain local groups**, one per resource and per right: `DL_<resource>_L` (read), `_LM` (read and modify), `_CT` (full control), `_Refuser` (deny);
+- NTFS **permissions** name only domain local groups and the built-in identities (Administrators, SYSTEM, CREATOR OWNER, Authenticated Users…).
+
+carol and Administrator are local accounts of the server. A domain account is written `CORP\alice`, a server account `SRV-FIC\carol`, as in `icacls`.
+
+The token holds the account's groups **and the groups of those groups**: alice, a member of `G_Compta`, gets `DL_Compta_LM`, because `G_Compta` is a member of it. The tester shows it from the first step; the **Accounts** card writes it under each account ("through nesting: …").
+
+Nesting follows Active Directory's rules. An impossible box is grayed out, and its tooltip says why:
+
+| Group | Can contain |
+|---|---|
+| global (`G_`) | domain accounts, global groups |
+| domain local (`DL_`) | domain accounts, global groups, domain local groups |
+| local to the server (Administrators…) | any account, global and domain local groups, never another local group |
+
+A local account of the server only joins a local group. A nesting that would loop is refused.
+
+![The Accounts card of the Windows workspace](../assets/screens/smarx-groups.png)
+
+*Screenshot: bob, with his global groups, and the domain local groups he gets through nesting. A domain local group is selected: it cannot join a global group, so those boxes are grayed out.*
+
+In the **Accounts** card, the **Groups** part lists each group, with its scope and its members. Picking a group lets you nest it in another one (**Member of**). The equivalent commands are the domain's, `New-ADGroup -GroupScope Global` or `DomainLocal` and `Add-ADGroupMember`, or the server's, `net localgroup`. A new account is a domain account, unless **domain account** is unchecked; a new group is global, domain local or local to the server.
+
+The measurement on the domain controller creates these global and domain local groups and their nesting. Every open that goes through a nested group is identical to the simulator.
 
 ## The owner
 
@@ -47,7 +77,7 @@ Almost every file open asks for **Synchronize**. The Security tab therefore leav
 
 ## Through a share
 
-Over the network come the share permissions, the network token (UAC remote restrictions) and access-based enumeration: see [Access through a share](shares.md).
+Over the network come the share permissions, the network token (UAC remote restrictions) and access-based enumeration: see [Access through a share](shares.md). Through a share, **Synchronize** alone is decided like **Read attributes**.
 
 ## Comparing with a real server
 

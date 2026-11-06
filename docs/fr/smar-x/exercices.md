@@ -33,9 +33,10 @@ Pendant un exercice, **Serveur d'exemple** et **Ouvrir…** sont masqués : ils 
 
 - Linux : rien n'est modifiable par les autres (`o+w`), sauf un dossier sticky comme `/tmp` ; aucun programme setuid ou setgid.
 - Windows : ni Modification ni Contrôle total pour Tout le monde, Utilisateurs authentifiés ou Utilisateurs.
-- Partage Windows : ni Modifier ni Contrôle total pour ces mêmes groupes, et Contrôle total aux seuls Administrateurs.
+- Windows, AGDLP : les autorisations NTFS ne nomment ni compte, ni groupe global, ni groupe local créé sur le serveur ; seulement des groupes de domaine local et les identités intégrées (voir [Les groupes : AGDLP](regles-windows.md#les-groupes-agdlp)).
+- Partage Windows : la pratique que conseille Microsoft, un partage large dont NTFS fait le tri. Contrôle total aux seuls Administrateurs, et Tout le monde au plus en Lecture ; Utilisateurs authentifiés : Modifier convient.
 
-**Une garde** est marquée « garde ». Elle est respectée au départ et ne rapporte aucun point : elle interdit une solution de facilité, comme ouvrir un dossier à tous, ajouter un compte à un groupe ou changer des droits qui étaient justes. Violée, elle **annule** les objectifs qui portent sur le même compte ou le même chemin. Une garde « les comptes ne changent pas » porte sur leurs groupes, leur groupe principal et leur umask.
+**Une garde** est marquée « garde ». Elle est respectée au départ et ne rapporte aucun point : elle interdit une solution de facilité, comme ouvrir un dossier à tous, ajouter un compte à un groupe ou changer des droits qui étaient justes. Violée, elle **annule** les objectifs qui portent sur le même compte ou le même chemin. Une garde « les comptes ne changent pas » porte sur leurs groupes, leur groupe principal et leur umask ; sous Windows, aussi sur le fait d'être administrateur, même par un groupe imbriqué. Imbriquer un groupe dans un autre ne change pas les comptes.
 
 ## Vérifier
 
@@ -69,7 +70,7 @@ L'exemplaire du formateur d'un examen contient le corrigé des questions : SMAR-
 | Exercice | Niveau | Serveur | Thème |
 |---|---|---|---|
 | Le dossier de l'équipe projet | débutant | Linux | un dossier partagé par une équipe, y compris pour les fichiers à venir |
-| Le partage du service RH | intermédiaire | Windows | un partage dédié à un service, au plus juste |
+| Le partage du service RH | intermédiaire | Windows | un partage large pour un service, et ses autorisations NTFS selon AGDLP |
 | Pourquoi carol n'écrit-elle pas ? | intermédiaire | Linux et Samba | diagnostiquer un accès refusé par un partage, puis le corriger sans rien donner de plus |
 
 ## Comment c'est vérifié

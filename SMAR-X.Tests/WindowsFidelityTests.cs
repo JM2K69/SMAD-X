@@ -27,7 +27,7 @@ public class WindowsFidelityTests
         {
             var (user, elevated, path, code) = (_host.User(a[1])!, bool.Parse(a[2]), a[3], a[4]);
             var right = Ntfs.Special.Single(s => s.Code == code).Right;
-            var granted = WindowsAccess.Open(_host, WindowsToken.Local(user, elevated), path, right) != OpenGrant.Denied;
+            var granted = WindowsAccess.Open(_host, WindowsToken.Local(_host, user, elevated), path, right) != OpenGrant.Denied;
             if (granted != (a[5] == "yes"))
                 differences.Add(string.Join('|', a) + $" ; SMAR-X : {(granted ? "yes" : "no")}");
         }

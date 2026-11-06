@@ -4,13 +4,13 @@ Sous Windows, SMAR-X montre en haut de la colonne **Autorisations** la carte **P
 
 ![L'onglet Sécurité de SMAR-X sur le dossier Archives](../assets/screens/smarx-security.png)
 
-*Capture : GL_Compta reçoit Modification de Compta par héritage (coches grises) ; sur Archives même, une ACE refuse l'Écriture (coche pleine).*
+*Capture : DL_Compta_LM reçoit Modification de Compta par héritage (coches grises). Sur Archives même, une ACE refuse l'Écriture à DL_Archives_Refuser.*
 
 ## La liste des comptes
 
 **Noms de groupes ou d'utilisateurs** donne chaque compte cité par une ACE de l'objet, explicite ou héritée. Les identités prédéfinies s'affichent seules (**Tout le monde**, **Système**, **Utilisateurs authentifiés**) ; un groupe intégré, un compte ou un groupe local, avec le nom du serveur : **Administrateurs (SRV-FIC\Administrateurs)**.
 
-L'ordre est celui de Windows : les comptes sont **rangés par SID, écrit en texte**. Tout le monde (`S-1-1-0`) passe ainsi avant CREATOR OWNER (`S-1-3-0`), Utilisateurs authentifiés (`S-1-5-11`) avant Système (`S-1-5-18`), et les comptes et groupes locaux (`S-1-5-21-…`) avant les groupes intégrés Administrateurs et Utilisateurs (`S-1-5-32-…`).
+L'ordre est celui de Windows : les comptes sont **rangés par SID, écrit en texte**. Tout le monde (`S-1-1-0`) passe ainsi avant CREATOR OWNER (`S-1-3-0`), Utilisateurs authentifiés (`S-1-5-11`) avant Système (`S-1-5-18`), et les comptes et groupes du serveur ou du domaine (`S-1-5-21-…`) avant les groupes intégrés Administrateurs et Utilisateurs (`S-1-5-32-…`).
 
 ## Les coches
 
@@ -67,7 +67,7 @@ Si l'héritage et une ACE explicite donnent tous deux la même ligne, la coche r
 
 ![La fenêtre Modifier de SMAR-X](../assets/screens/smarx-edit.png)
 
-*Capture : Modification héritée, cases grisées ; le refus d'Écriture, posé sur Archives, reste modifiable.*
+*Capture : DL_Archives_Refuser ; son refus d'Écriture, posé sur Archives, reste modifiable. Une autorisation héritée, elle, a ses cases grisées.*
 
 Windows ne se contente pas d'ajouter ou de retirer des droits : il **réécrit les ACE explicites du compte**. SMAR-X fait de même :
 

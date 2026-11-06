@@ -131,7 +131,7 @@ public class MainWindowViewModelTests
         var copy = SmarxDocument.Parse(json);
         Assert.Equal("srv-fic", copy.Linux.Single().Name);
         Assert.Equal("SRV-FIC", copy.Windows.Single().Name);
-        Assert.Equal("dave", copy.Windows[0].Find(@"D:\Partages\Projets\planning.xlsx")!.Aces.Single().Trustee);
+        Assert.Equal("DL_Planning_LM", copy.Windows[0].Find(@"D:\Partages\Projets\planning.xlsx")!.Aces.Single().Trustee);
         Assert.Equal("bob", copy.Linux[0].Find("/srv/partage")!.Acl!.Users.Single().Name);
         Assert.Throws<InvalidDataException>(() => SmarxDocument.Parse("{\"Format\":\"autre\"}"));
     }

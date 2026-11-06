@@ -103,8 +103,17 @@ namespace SMARX.Models
         NoSetuid,
         /// <summary>Windows : aucune autorisation Modification ou Contrôle total pour Tout le monde, Utilisateurs authentifiés ou Utilisateurs.</summary>
         NoBroadWrite,
-        /// <summary>Windows : le partage ne donne ni Modifier ni Contrôle total à Tout le monde, Utilisateurs authentifiés ou Utilisateurs, et Contrôle total aux seuls Administrateurs.</summary>
-        ShareLeastPrivilege
+        /// <summary>
+        /// Windows, partage : la pratique conseillée par Microsoft, un partage large dont NTFS fait le tri. Contrôle total
+        /// aux seuls Administrateurs, et Tout le monde au plus en Lecture ; Utilisateurs authentifiés : Modifier convient.
+        /// </summary>
+        ShareStandard,
+        /// <summary>
+        /// Windows, AGDLP : les autorisations NTFS ne nomment ni compte ni groupe global (ni groupe local créé sur le
+        /// serveur) ; seulement des groupes de domaine local et les identités intégrées (Administrateurs, Système,
+        /// Utilisateurs, Créateur propriétaire…).
+        /// </summary>
+        DomainLocalOnly
     }
 
     /// <summary>Vérification déclarative ; seuls les champs utiles au type sont renseignés.</summary>

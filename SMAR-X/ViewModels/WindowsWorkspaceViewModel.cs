@@ -37,6 +37,15 @@ namespace SMARX.ViewModels
         public ObservableCollection<string> MatrixColumns { get; } = new();
         public ObservableCollection<MatrixRow> MatrixRows { get; } = new();
         public ObservableCollection<MembershipItem> Memberships { get; } = new();
+
+        /// <summary>Les groupes créés (pas Administrators ni Users), pour les imbriquer : un groupe global dans un groupe de domaine local.</summary>
+        public ObservableCollection<WindowsGroupItem> GroupItems { get; } = new();
+        public ObservableCollection<MembershipItem> GroupMemberships { get; } = new();
+
+        /// <summary>Les portées proposées pour un nouveau groupe : global et domaine local si le serveur est dans un domaine.</summary>
+        public ObservableCollection<Choice> GroupScopes { get; } = new();
+        public bool HasDomain => Host.Domain != null;
+
         public WindowsRightsEditorViewModel Editor { get; } = new();
         public SecurityTabViewModel Security { get; } = new();
         public IRelayCommand<MatrixCell> SelectCellCommand { get; }
@@ -59,6 +68,10 @@ namespace SMARX.ViewModels
         [ObservableProperty] private string _newUserName = "";
         [ObservableProperty] private string _newGroupName = "";
         [ObservableProperty] private string _accountCommands = "";
+        [ObservableProperty] private WindowsGroupItem? _selectedGroup;
+        [ObservableProperty] private string _groupCommands = "";
+        [ObservableProperty] private bool _newUserDomain = true;
+        [ObservableProperty] private Choice? _newGroupScope;
         [ObservableProperty] private RouteItem? _selectedRoute;
 
         public string Title => $"{Host.Name} · Windows";
@@ -109,6 +122,27 @@ namespace SMARX.ViewModels
                 Users.Add(new WindowsUserItem(Host, Host.Users[i], i));
             SelectedUser = Users.FirstOrDefault(u => u.Name == tested) ?? Users.FirstOrDefault();
             SelectedAccount = Users.FirstOrDefault(u => u.Name == edited) ?? Users.FirstOrDefault();
+            RebuildGroups();
+        }
+
+        private void RebuildGroups()
+        {
+            var edited = SelectedGroup?.Name;
+            GroupItems.Clear();
+            foreach (var g in Host.Groups.Where(g => g.Name is not (WellKnown.Administrators or WellKnown.Users)))
+                GroupItems.Add(new WindowsGroupItem(Host, g));
+            SelectedGroup = GroupItems.FirstOrDefault(g => g.Name == edited) ?? GroupItems.FirstOrDefault();
+
+            var scope = NewGroupScope?.Value;
+            GroupScopes.Clear();
+            if (HasDomain)
+            {
+                GroupScopes.Add(new Choice(WindowsGroupScope.Global, Text.T("global (G_)", "global (G_)")));
+                GroupScopes.Add(new Choice(WindowsGroupScope.DomainLocal, Text.T("domaine local (DL_)", "domain local (DL_)")));
+            }
+            GroupScopes.Add(new Choice(WindowsGroupScope.Local, Text.T("local du serveur", "local to the server")));
+            NewGroupScope = GroupScopes.FirstOrDefault(c => Equals(c.Value, scope)) ?? GroupScopes.First();
+            OnPropertyChanged(nameof(HasDomain));
         }
 
         partial void OnSelectedNodeChanged(NtfsItem? value)
@@ -330,12 +364,43 @@ namespace SMARX.ViewModels
             var french = Text.Culture == "fr-FR";
             if (value != null)
                 foreach (var g in Host.Groups.Where(g => !string.Equals(g.Name, WellKnown.Users, StringComparison.OrdinalIgnoreCase)))
-                    Memberships.Add(new MembershipItem(g.Name, value.User.Groups.Contains(g.Name, StringComparer.OrdinalIgnoreCase), OnMembershipChanged)
-                    {
-                        Display = WellKnown.Display(g.Name, french)
-                    });
+                    Memberships.Add(Membership(value.User.Name, g, value.User.Groups, OnMembershipChanged));
             _loadingAccount = false;
             DescribeAccount();
+        }
+
+        /// <summary>Une case « membre de » : grisée, avec sa raison, si Active Directory refuserait l'adhésion.</summary>
+        private MembershipItem Membership(string member, WindowsGroup group, List<string> current, Action<MembershipItem> changed)
+        {
+            var isMember = current.Contains(group.Name, StringComparer.OrdinalIgnoreCase);
+            var reason = WindowsGroups.CannotJoin(Host, member, group.Name, Text.Culture);
+            return new MembershipItem(group.Name, isMember, changed)
+            {
+                Display = WellKnown.Display(group.Name, Text.Culture == "fr-FR"),
+                ScopeTag = HasDomain ? WindowsGroups.ScopeLabel(group.Scope, Text.Culture) : "",
+                // Une adhésion déjà là (venue d'un fichier) reste décochable
+                IsEnabled = isMember || reason == null,
+                Reason = reason
+            };
+        }
+
+        partial void OnSelectedGroupChanged(WindowsGroupItem? value)
+        {
+            _loadingAccount = true;
+            GroupMemberships.Clear();
+            if (value != null)
+                foreach (var g in Host.Groups.Where(g => !string.Equals(g.Name, WellKnown.Users, StringComparison.OrdinalIgnoreCase)
+                                                         && !string.Equals(g.Name, value.Name, StringComparison.OrdinalIgnoreCase)))
+                    GroupMemberships.Add(Membership(value.Name, g, value.Group.Groups, OnGroupMembershipChanged));
+            _loadingAccount = false;
+            DescribeGroup();
+        }
+
+        private void OnGroupMembershipChanged(MembershipItem item)
+        {
+            if (_loadingAccount || SelectedGroup?.Group is not { } group) return;
+            group.Groups = GroupMemberships.Where(m => m.IsMember).Select(m => m.Group).ToList();
+            AccountChanged();
         }
 
         private void OnMembershipChanged(MembershipItem item)
@@ -351,22 +416,24 @@ namespace SMARX.ViewModels
         {
             var name = NewUserName.Trim();
             if (name.Length == 0 || Host.User(name) != null) return;
-            Host.Users.Add(new WindowsUser { Name = name });
+            Host.Users.Add(new WindowsUser { Name = name, Domain = HasDomain && NewUserDomain });
             NewUserName = "";
             RebuildUsers();
             SelectedAccount = Users.First(u => u.Name == name);
             AccountChanged();
         }
 
-        /// <summary>net localgroup /add : un groupe local.</summary>
+        /// <summary>Un groupe du domaine (New-ADGroup), global ou de domaine local, ou un groupe local du serveur (net localgroup).</summary>
         [RelayCommand]
         private void AddGroup()
         {
             var name = NewGroupName.Trim();
-            if (name.Length == 0 || Host.Groups.Any(g => string.Equals(g.Name, name, StringComparison.OrdinalIgnoreCase))) return;
-            Host.Groups.Add(new WindowsGroup { Name = name });
+            if (name.Length == 0 || Host.Groups.Any(g => string.Equals(g.Name, name, StringComparison.OrdinalIgnoreCase))
+                                 || Host.User(name) != null) return;
+            Host.Groups.Add(new WindowsGroup { Name = name, Scope = NewGroupScope?.Value is WindowsGroupScope scope ? scope : WindowsGroupScope.Local });
             NewGroupName = "";
             AccountChanged();
+            SelectedGroup = GroupItems.FirstOrDefault(g => g.Name == name) ?? SelectedGroup;
         }
 
         private void AccountChanged()
@@ -375,6 +442,7 @@ namespace SMARX.ViewModels
             RebuildUsers();
             SelectedAccount = Users.FirstOrDefault(u => u.Name == account) ?? SelectedAccount;
             OnSelectedAccountChanged(SelectedAccount);
+            OnSelectedGroupChanged(SelectedGroup);
             Editor.Load(Host, SelectedNode);
             OnPropertyChanged(nameof(CanElevate));
             Recompute();
@@ -387,10 +455,21 @@ namespace SMARX.ViewModels
                 AccountCommands = "";
                 return;
             }
-            var lines = user.Groups.Select(g => $"net localgroup \"{g}\" {user.Name} /add").ToList();
+            var lines = user.Groups.Select(g => WindowsGroups.AddMemberCommand(Host, user.Name, g)).ToList();
             lines.Add(Text.T($"# {user.Name} doit fermer et rouvrir sa session pour que ses groupes comptent",
                              $"# {user.Name} must sign out and in again for the groups to apply"));
             AccountCommands = string.Join("\n", lines);
+        }
+
+        private void DescribeGroup()
+        {
+            if (SelectedGroup?.Group is not { } group)
+            {
+                GroupCommands = "";
+                return;
+            }
+            GroupCommands = string.Join("\n", group.Groups.Select(g => WindowsGroups.AddMemberCommand(Host, group.Name, g))
+                .Prepend(WindowsGroups.CreateCommand(Host, group)));
         }
 
         public void Relabel()
@@ -407,6 +486,7 @@ namespace SMARX.ViewModels
             RebuildRoutes();
             Recompute();
             DescribeAccount();
+            DescribeGroup();
         }
 
         private static IEnumerable<NtfsItem> All(IEnumerable<NtfsItem> items) => items.SelectMany(i => new[] { i }.Concat(All(i.Children)));

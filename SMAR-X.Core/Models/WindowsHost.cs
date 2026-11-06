@@ -6,12 +6,18 @@ using System.Text.Json.Serialization;
 namespace SMARX.Models
 {
     /// <summary>
-    /// Serveur Windows simulé : ses comptes et groupes locaux, et un volume NTFS (« D: »). Les identités prédéfinies
-    /// (Everyone, Authenticated Users, INTERACTIVE, CREATOR OWNER…) ne sont pas des groupes à créer : voir <see cref="WellKnown"/>.
+    /// Serveur Windows simulé : ses comptes et groupes, locaux ou du domaine dont il est membre, et un volume NTFS (« D: »).
+    /// Les identités prédéfinies (Everyone, Authenticated Users, INTERACTIVE, CREATOR OWNER…) ne sont pas des groupes à
+    /// créer : voir <see cref="WellKnown"/>.
     /// </summary>
     public sealed class WindowsHost
     {
         public string Name { get; set; } = "SRV-WIN";
+
+        /// <summary>Nom NetBIOS du domaine dont le serveur est membre (« CORP »), ou null pour un serveur hors domaine.</summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Domain { get; set; }
+
         public List<WindowsUser> Users { get; set; } = new();
         public List<WindowsGroup> Groups { get; set; } = new();
         public NtfsNode Root { get; set; } = NtfsNode.Directory("D:", "Administrators");
@@ -22,6 +28,14 @@ namespace SMARX.Models
         public SmbShare? Share(string name) => Shares.FirstOrDefault(s => string.Equals(s.Name, name, StringComparison.OrdinalIgnoreCase));
 
         public WindowsUser? User(string name) => Users.FirstOrDefault(u => string.Equals(u.Name, name, StringComparison.OrdinalIgnoreCase));
+
+        public WindowsGroup? Group(string name) => Groups.FirstOrDefault(g => string.Equals(g.Name, name, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>Compte ou groupe du domaine (et non du serveur) : un compte marqué du domaine, un groupe global ou de domaine local.</summary>
+        public bool IsDomain(string name) => Domain != null && (User(name)?.Domain == true || Group(name)?.Scope is WindowsGroupScope.Global or WindowsGroupScope.DomainLocal);
+
+        /// <summary>Nom qualifié d'un compte ou d'un groupe créé : « CORP\G_RH » pour le domaine, « SRV-FIC\carol » pour le serveur.</summary>
+        public string Qualified(string name) => $"{(IsDomain(name) ? Domain : Name)}\\{name}";
 
         /// <summary>Nœud d'un chemin « D:\Partages\Compta » (sans distinction de casse, comme NTFS sous Windows), ou null.</summary>
         public NtfsNode? Find(string path)
@@ -68,16 +82,19 @@ namespace SMARX.Models
         }
     }
 
-    /// <summary>Compte local. Tous les comptes locaux sont membres de Users ; « Administrator » est le compte intégré.</summary>
+    /// <summary>
+    /// Compte local du serveur, ou compte du domaine (<see cref="Domain"/>). Tous les comptes sont membres de Users ;
+    /// « Administrator » est le compte intégré.
+    /// </summary>
     public sealed class WindowsUser
     {
         public string Name { get; set; } = string.Empty;
 
-        /// <summary>Groupes locaux, Administrators compris ; Users est implicite.</summary>
+        /// <summary>
+        /// Groupes dont le compte est membre directement, Administrators compris ; Users est implicite. Les groupes de ces
+        /// groupes s'y ajoutent dans le jeton (voir <c>WindowsGroups.Effective</c>).
+        /// </summary>
         public List<string> Groups { get; set; } = new();
-
-        [JsonIgnore]
-        public bool IsAdministrator => Groups.Contains(WellKnown.Administrators, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>Le compte Administrator intégré : le contrôle de compte d'utilisateur ne filtre pas son jeton.</summary>
         [JsonIgnore]
@@ -91,12 +108,25 @@ namespace SMARX.Models
         public bool Domain { get; set; }
     }
 
+    /// <summary>
+    /// Portée d'un groupe. Local : un groupe du serveur (Administrators, Users, ou créé avec net localgroup). Global et
+    /// domaine local : des groupes du domaine, ceux du modèle AGDLP (les comptes dans des groupes globaux, les groupes
+    /// globaux dans des groupes de domaine local, et les autorisations aux seuls groupes de domaine local).
+    /// </summary>
+    public enum WindowsGroupScope { Local, Global, DomainLocal }
+
     public sealed class WindowsGroup
     {
         public string Name { get; set; } = string.Empty;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Description { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public WindowsGroupScope Scope { get; set; }
+
+        /// <summary>Groupes dont ce groupe est membre (imbrication) : un groupe global dans un groupe de domaine local, par exemple.</summary>
+        public List<string> Groups { get; set; } = new();
     }
 
     /// <summary>Identités prédéfinies de Windows, sous leur nom anglais (celui d'icacls sur un Windows anglais).</summary>

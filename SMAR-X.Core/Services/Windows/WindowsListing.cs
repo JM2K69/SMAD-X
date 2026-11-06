@@ -7,13 +7,13 @@ namespace SMARX.Services.Windows
     /// <summary>Les autorisations telles que les montre icacls, et les commandes icacls qui les recréent.</summary>
     public static class WindowsListing
     {
-        /// <summary>Nom complet d'une identité, comme icacls : « BUILTIN\Administrators », « NT AUTHORITY\SYSTEM », « SRV-FIC\alice ».</summary>
+        /// <summary>Nom complet d'une identité, comme icacls : « BUILTIN\Administrators », « NT AUTHORITY\SYSTEM », « SRV-FIC\carol », « CORP\G_RH ».</summary>
         public static string Account(WindowsHost host, string name) => name switch
         {
             WellKnown.Administrators or WellKnown.Users => "BUILTIN\\" + name,
             WellKnown.System or WellKnown.AuthenticatedUsers or WellKnown.Interactive or WellKnown.Network => "NT AUTHORITY\\" + name,
             WellKnown.Everyone or WellKnown.CreatorOwner or WellKnown.OwnerRights => name,
-            _ => $"{host.Name}\\{name}"
+            _ => host.Qualified(name)
         };
 
         /// <summary>« (I)(OI)(CI)(M) », « (DENY)(W) » : héritée, héritage, refus, droits.</summary>

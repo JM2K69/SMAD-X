@@ -12,7 +12,7 @@ Le même accès, sur le serveur puis depuis le réseau :
 
     ![SMAR-X teste un accès sur le serveur](../assets/screens/smarx-network-local.png)
 
-    *Capture : en local, dave modifie `planning.xlsx` : l'ACE explicite Modification le lui accorde. Le jeton est celui d'une session ouverte (INTERACTIF).*
+    *Capture : en local, dave modifie `planning.xlsx` : l'ACE explicite Modification de DL_Planning_LM, qu'il reçoit par G_Stagiaires, le lui accorde. Le jeton est celui d'une session ouverte (INTERACTIF).*
 
 === "Depuis le réseau"
 
@@ -30,14 +30,14 @@ Par le réseau, chaque ouverture passe **deux** AccessCheck : la DACL du partage
 | Modifier | `M` : Lecture, plus écrire et supprimer |
 | Contrôle total | `F` : Modifier, plus changer les autorisations et prendre possession |
 
-Le serveur d'exemple montre les deux façons de faire :
+Le serveur d'exemple suit la pratique que conseille Microsoft, un partage large dont NTFS fait le tri, sauf un partage, plus étroit, pour comparer :
 
 | Partage | Autorisations du partage | Idée |
 |---|---|---|
 | `Partages` (`D:\Partages`) | Utilisateurs authentifiés : Modifier ; Administrateurs : Contrôle total ; énumération basée sur l'accès | un partage large, comme le conseille Microsoft : NTFS fait le tri |
-| `Projets` (`D:\Partages\Projets`) | Tout le monde : Lecture | le même dossier par un autre partage : le même fichier, un autre résultat |
-| `Compta$` (`D:\Partages\Compta`) | GL_Compta : Modifier ; Administrateurs : Contrôle total | le moindre privilège des deux côtés ; `$` cache le partage de la liste du serveur |
-| `Apps` (`D:\Apps`) | Tout le monde : Lecture | ce que Windows propose quand on partage un dossier |
+| `Projets` (`D:\Partages\Projets`) | Tout le monde : Lecture | le contre-exemple : le même dossier par un autre partage, le même fichier, un autre résultat |
+| `Compta$` (`D:\Partages\Compta`) | Utilisateurs authentifiés : Modifier ; Administrateurs : Contrôle total | un partage large ; `$` le cache de la liste du serveur |
+| `Apps` (`D:\Apps`) | Utilisateurs authentifiés : Modifier ; Administrateurs : Contrôle total | un partage large : NTFS ne donne que Lecture et exécution aux utilisateurs |
 
 dave peut modifier `planning.xlsx` en local et par `\\SRV-FIC\Partages\Projets`, mais pas par `\\SRV-FIC\Projets`.
 
@@ -84,3 +84,5 @@ La mesure a dû contourner deux comportements du **client** SMB de Windows, bons
 
 - une ouverture qui ne demande que des attributs (**Attributs d'écriture**, **Attributs de lecture**), **Synchroniser** ou **Parcours** réussit d'abord **sans consulter le serveur** : c'est la première vraie opération qui échoue. La mesure en fait donc une, qui ne change rien ;
 - le client garde en cache, une dizaine de secondes, les attributs lus et les sert même à **un autre compte** du même poste. La mesure attend entre deux comptes.
+
+Elle a aussi montré une règle que SMAR-X applique : par un partage, **Synchroniser** seul se décide comme **Attributs de lecture**, sur les 220 ouvertures mesurées. Par `\\SRV-FIC\Compta$`, dave n'a aucun droit sur `D:\Partages\Compta`. Il en lit pourtant les attributs, car il peut lister `D:\Partages` : les ouvertures avec Attributs de lecture ou Synchroniser réussissent, toutes les autres échouent.

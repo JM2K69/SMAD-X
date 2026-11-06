@@ -148,10 +148,12 @@ namespace SMARX.Services.Windows
                 _ => null
             };
             if (known != null) return known;
+            // Le serveur et le domaine ont chacun leur SID : S-1-5-21-0-0-0 et S-1-5-21-1-1-1, ici
+            var authority = host.IsDomain(name) ? "S-1-5-21-1-1-1-" : "S-1-5-21-0-0-0-";
             var user = host.Users.FindIndex(u => Same(u.Name, name));
-            if (user >= 0) return "S-1-5-21-0-0-0-" + (host.Users[user].IsBuiltInAdministrator ? 500 : 1001 + user);
+            if (user >= 0) return authority + (host.Users[user].IsBuiltInAdministrator ? 500 : 1001 + user);
             var group = host.Groups.FindIndex(g => Same(g.Name, name));
-            return "S-1-5-21-0-0-0-" + (group >= 0 ? 1001 + host.Users.Count + group : 9999);
+            return authority + (group >= 0 ? 1001 + host.Users.Count + group : 9999);
         }
 
         /// <summary>Les entrées de « Paramètres de sécurité avancés », dans l'ordre de la DACL, fusionnées.</summary>
@@ -239,7 +241,7 @@ namespace SMARX.Services.Windows
             return name is WellKnown.Everyone or WellKnown.CreatorOwner or WellKnown.OwnerRights or WellKnown.System
                 or WellKnown.AuthenticatedUsers or WellKnown.Interactive or WellKnown.Network
                 ? shown
-                : $"{shown} ({host.Name}\\{shown})";
+                : $"{shown} ({(host.IsDomain(name) ? host.Domain : host.Name)}\\{shown})";
         }
 
         // ── La fenêtre « Autorisations pour … » (bouton Modifier) ──

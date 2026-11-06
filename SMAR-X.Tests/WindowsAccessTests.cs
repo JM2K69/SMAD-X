@@ -151,15 +151,15 @@ public class WindowsAccessTests
     [Fact]
     public void Opening_GetsReadAttributesAndDelete_FromTheParentFolder()
     {
-        var dave = WindowsToken.Local(_host.User("dave")!, elevated: false);
+        var dave = WindowsToken.Local(_host, _host.User("dave")!, elevated: false);
         // Lister D:\Partages montre les attributs de Compta, où dave n'a aucun droit
         Assert.Equal(OpenGrant.ByParent, WindowsAccess.Open(_host, dave, @"D:\Partages\Compta", NtfsRights.ReadAttributes));
         Assert.Equal(OpenGrant.Denied, WindowsAccess.Open(_host, dave, @"D:\Partages\Compta\Archives", NtfsRights.ReadAttributes));
-        Assert.Equal(OpenGrant.Granted, WindowsAccess.Open(_host, WindowsToken.Local(_host.User("alice")!, false), @"D:\Partages\Compta\budget.xlsx", NtfsRights.ReadAttributes));
+        Assert.Equal(OpenGrant.Granted, WindowsAccess.Open(_host, WindowsToken.Local(_host, _host.User("alice")!, false), @"D:\Partages\Compta\budget.xlsx", NtfsRights.ReadAttributes));
 
         var host = new WindowsHost { Name = "S", Users = [new WindowsUser { Name = "u" }] };
         host.Root = NtfsNode.Directory("D:", WellKnown.Administrators, NtfsAce.Allow("u", "(DC)", None)).With(NtfsNode.File("a.txt", WellKnown.Administrators));
-        Assert.Equal(OpenGrant.ByParent, WindowsAccess.Open(host, WindowsToken.Local(host.User("u")!, false), @"D:\a.txt", NtfsRights.Delete));
+        Assert.Equal(OpenGrant.ByParent, WindowsAccess.Open(host, WindowsToken.Local(host, host.User("u")!, false), @"D:\a.txt", NtfsRights.Delete));
     }
 
     [Fact]
@@ -167,9 +167,9 @@ public class WindowsAccessTests
     {
         var lines = WindowsListing.Icacls(_host, @"D:\Partages\Compta\Archives\bilan-2025.xlsx");
 
-        Assert.StartsWith(@"D:\Partages\Compta\Archives\bilan-2025.xlsx SRV-FIC\GL_Compta:(I)(DENY)(WD,AD,WA,WEA)", lines[0]);
+        Assert.StartsWith(@"D:\Partages\Compta\Archives\bilan-2025.xlsx CORP\DL_Archives_Refuser:(I)(DENY)(WD,AD,WA,WEA)", lines[0]);
         Assert.Contains(lines, l => l.EndsWith(@"BUILTIN\Administrators:(I)(F)"));
-        Assert.Contains(lines, l => l.EndsWith(@"SRV-FIC\GL_Compta:(I)(M)"));
+        Assert.Contains(lines, l => l.EndsWith(@"CORP\DL_Compta_LM:(I)(M)"));
         Assert.Contains("icacls \"D:\\Partages\\Compta\" /inheritance:r", WindowsListing.Commands(_host, _host.Find(@"D:\Partages\Compta")!, @"D:\Partages\Compta"));
     }
 
@@ -178,8 +178,8 @@ public class WindowsAccessTests
     {
         var lines = WindowsExplainer.Steps(_host, Try("dave", @"D:\Partages\Projets\notes.txt", Write), "fr-FR");
 
-        Assert.StartsWith("session locale : dave, Tout le monde, Utilisateurs authentifiés, INTERACTIF, Utilisateurs, GL_Stagiaires", lines[0].Detail);
-        Assert.Contains(lines, s => s.Title == @"ACE 1, héritée de D:\Partages\Projets" && s.Detail.StartsWith("Refuser « Écriture » à GL_Stagiaires → refuse"));
+        Assert.StartsWith("session locale : dave, Tout le monde, Utilisateurs authentifiés, INTERACTIF, Utilisateurs, G_Employes, G_Stagiaires, DL_Projets_LM, DL_Projets_Refuser, DL_Planning_LM", lines[0].Detail);
+        Assert.Contains(lines, s => s.Title == @"ACE 1, héritée de D:\Partages\Projets" && s.Detail.StartsWith("Refuser « Écriture » à DL_Projets_Refuser → refuse"));
         Assert.Contains("refus seulement", WindowsExplainer.Steps(_host, Try("carol", @"D:\Admin", List), "fr-FR")[0].Detail);
         Assert.Equal("Résultat : dave ne peut pas modifier le contenu de D:\\Partages\\Projets\\notes.txt.",
             WindowsExplainer.Verdict(Try("dave", @"D:\Partages\Projets\notes.txt", Write), "fr-FR"));

@@ -18,7 +18,7 @@ A sample Linux server (`srv-fic`) and a sample Windows server (`SRV-FIC`) open a
 | **Permissions** | owner, group, `chmod`, special bits, POSIX ACL and mask, default ACL (see [Linux permissions](linux-rights.md)) | the Explorer [Security tab](security-tab.md), and the ACE list as `icacls` shows it |
 | **Creation** | what a new file would get: umask, setgid, default ACL | what a new file would get: inheritance, CREATOR OWNER |
 | **Commands** | `chmod`, `chown`, `setfacl` that recreate what is shown | `icacls` that recreates what is shown |
-| **Accounts** | accounts, groups, `usermod`, `useradd`, `groupadd` | local accounts and groups, `net localgroup` |
+| **Accounts** | accounts, groups, `usermod`, `useradd`, `groupadd` | server and domain accounts, global, domain local and local groups, nested following AGDLP (see [Groups: AGDLP](windows-rules.md#groups-agdlp)); `Add-ADGroupMember`, `net localgroup` |
 
 Under **From where?**, the tester picks where the access comes from: **On the server** (a session open on the server), or **From the network**, through a share: **SMB** on Windows (see [Access through a share](shares.md)), **Samba** on Linux (see [Samba share](samba.md)).
 

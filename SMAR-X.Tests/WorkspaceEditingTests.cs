@@ -161,7 +161,7 @@ public class WorkspaceEditingTests
         vm.Editor.NewRights = vm.Editor.NewRightsChoices.First(c => Equals(c.Value, NtfsRights.Read));
         vm.Editor.AddAceCommand.Execute(null);
         Assert.True(vm.Allowed);
-        Assert.Contains("icacls \"D:\\Partages\\Compta\\budget.xlsx\" /grant:r \"SRV-FIC\\dave:(R)\"", vm.Editor.Commands);
+        Assert.Contains("icacls \"D:\\Partages\\Compta\\budget.xlsx\" /grant:r \"CORP\\dave:(R)\"", vm.Editor.Commands);
 
         // L'ACE explicite devient un refus : il omet Synchroniser, comme l'onglet Sécurité
         var ace = vm.Editor.Aces.First(a => a.IsExplicit);
@@ -169,7 +169,7 @@ public class WorkspaceEditingTests
         Assert.Equal("(RD,RA,REA,RC)", vm.SelectedNode!.Node.Aces.Single().Rights);
         Assert.False(vm.Allowed);
 
-        // Sans les ACE héritées, alice (GL_Compta) perd l'accès au fichier
+        // Sans les ACE héritées, alice (G_Compta, donc DL_Compta_LM) perd l'accès au fichier
         vm.SelectedUser = vm.Users.First(u => u.Name == "alice");
         Assert.True(vm.Allowed);
         vm.Editor.DisableInheritanceRemoveCommand.Execute(null);
@@ -192,15 +192,17 @@ public class WorkspaceEditingTests
         vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, WindowsOperation.CreateFile));
         Assert.False(vm.Allowed);
 
-        vm.Security.SelectedPrincipal = vm.Security.Principals.First(p => p.Trustee == "GL_Compta");
+        vm.Security.SelectedPrincipal = vm.Security.Principals.First(p => p.Trustee == "DL_Compta_LM");
         var write = vm.Security.Rows.Single(r => r.Label == "Écriture");
         Assert.Equal(("✓", true), (write.AllowMark, write.AllowGray));   // héritée de Compta
+        Assert.Equal("", write.DenyMark);
+        vm.Security.SelectedPrincipal = vm.Security.Principals.First(p => p.Trustee == "DL_Archives_Refuser");
+        write = vm.Security.Rows.Single(r => r.Label == "Écriture");
         Assert.Equal(("✓", false), (write.DenyMark, write.DenyGray));    // posée sur Archives
 
         var edit = new PermissionsEditViewModel(vm.Host, vm.SelectedNode!);
-        edit.SelectedPrincipal = edit.Principals.First(p => p.Trustee == "GL_Compta");
+        edit.SelectedPrincipal = edit.Principals.First(p => p.Trustee == "DL_Archives_Refuser");
         var row = edit.Rows.Single(r => r.Permission == BasicPermission.Write);
-        Assert.False(row.AllowEnabled);
         Assert.True(row.DenyEnabled);
         row.DenyChecked = false;
         vm.AfterSecurityWindow();
@@ -211,7 +213,7 @@ public class WorkspaceEditingTests
         Assert.False(vm.Allowed);
 
         edit = new PermissionsEditViewModel(vm.Host, vm.SelectedNode!);
-        edit.SelectedPrincipal = edit.Principals.First(p => p.Trustee == "GL_Compta");
+        edit.SelectedPrincipal = edit.Principals.First(p => p.Trustee == "DL_Compta_LM");
         edit.RemoveCommand.Execute(null);
         Assert.True(edit.HasMessage);
 
@@ -354,8 +356,9 @@ public class WorkspaceEditingTests
         Assert.DoesNotContain("(I)", vm.Editor.Icacls);
     }
 
+    /// <summary>AGDLP : dave entre dans le groupe global G_Compta, qui est dans DL_Compta_LM, et écrit le budget.</summary>
     [Fact]
-    public void Windows_AddingDaveToGlCompta_LetsHimWriteTheBudget()
+    public void Windows_AddingDaveToGCompta_LetsHimWriteTheBudget_ThroughTheDomainLocalGroup()
     {
         var vm = Shell().Windows;
         vm.SelectedNode = FindWindows(vm.Tree[0], @"D:\Partages\Compta\budget.xlsx");
@@ -364,9 +367,39 @@ public class WorkspaceEditingTests
         Assert.False(vm.Allowed);
 
         vm.SelectedAccount = vm.Users.First(u => u.Name == "dave");
-        vm.Memberships.First(m => m.Group == "GL_Compta").IsMember = true;
+        vm.Memberships.First(m => m.Group == "G_Compta").IsMember = true;
 
         Assert.True(vm.Allowed);
-        Assert.Contains("net localgroup \"GL_Compta\" dave /add", vm.AccountCommands);
+        Assert.Contains("Add-ADGroupMember -Identity G_Compta -Members dave", vm.AccountCommands);
+        Assert.Contains("DL_Compta_LM", vm.Users.First(u => u.Name == "dave").NestedLine);
+    }
+
+    /// <summary>
+    /// Imbriquer un groupe global dans un groupe de domaine local donne le droit à ses membres. Active Directory refuse
+    /// un groupe de domaine local dans un groupe global, et un compte local du serveur dans un groupe du domaine : la case
+    /// est grisée, avec la raison.
+    /// </summary>
+    [Fact]
+    public void Windows_NestingAGlobalGroupInADomainLocalGroup_FollowsAdRules()
+    {
+        var vm = Shell().Windows;
+        vm.SelectedNode = FindWindows(vm.Tree[0], @"D:\Partages\RH\salaires.xlsx");
+        vm.SelectedUser = vm.Users.First(u => u.Name == "dave");
+        vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, WindowsOperation.Write));
+        Assert.False(vm.Allowed);
+
+        vm.SelectedGroup = vm.GroupItems.First(g => g.Name == "G_Stagiaires");
+        vm.GroupMemberships.First(m => m.Group == "DL_RH_LM").IsMember = true;
+        Assert.True(vm.Allowed);
+        Assert.Contains("Add-ADGroupMember -Identity DL_RH_LM -Members G_Stagiaires", vm.GroupCommands);
+
+        vm.SelectedGroup = vm.GroupItems.First(g => g.Name == "DL_RH_LM");
+        var global = vm.GroupMemberships.First(m => m.Group == "G_RH");
+        Assert.False(global.IsEnabled);
+        Assert.Equal("Un groupe de domaine local (DL_RH_LM) n'entre pas dans un groupe global (G_RH).", global.Reason);
+
+        vm.SelectedAccount = vm.Users.First(u => u.Name == "carol");
+        Assert.False(vm.Memberships.First(m => m.Group == "G_RH").IsEnabled);
+        Assert.True(vm.Memberships.First(m => m.Group == WellKnown.Administrators).IsEnabled);
     }
 }

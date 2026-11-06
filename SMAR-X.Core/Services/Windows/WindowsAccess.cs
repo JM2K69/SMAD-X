@@ -76,7 +76,7 @@ namespace SMARX.Services.Windows
         };
 
         public static WindowsAccessResult Check(WindowsHost host, WindowsUser user, string path, WindowsOperation operation, bool elevated = false) =>
-            Check(host, WindowsToken.Local(user, elevated), path, operation);
+            Check(host, WindowsToken.Local(host, user, elevated), path, operation);
 
         /// <summary>Un accès sous un jeton donné : celui d'une session locale, ou d'une session réseau (voir SmbAccess).</summary>
         public static WindowsAccessResult Check(WindowsHost host, WindowsToken token, string path, WindowsOperation operation)

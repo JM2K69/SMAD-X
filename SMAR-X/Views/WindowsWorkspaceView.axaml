@@ -4,6 +4,19 @@
              x:Class="SMARX.Views.WindowsWorkspaceView"
              x:DataType="vm:WindowsWorkspaceViewModel">
 
+    <UserControl.Resources>
+        <!-- Une case « membre de » : la portée du groupe à côté, grisée avec sa raison si Active Directory la refuserait -->
+        <DataTemplate x:Key="MembershipTemplate" x:DataType="vm:MembershipItem">
+            <CheckBox IsChecked="{Binding IsMember}" IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Reason}" Margin="0,0,12,0">
+                <!-- Un TextBlock : en Content, « _ » serait pris pour un raccourci clavier (G_Compta → GCompta) -->
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <TextBlock Text="{Binding Display}"/>
+                    <TextBlock Classes="muted" Text="{Binding ScopeTag}" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding HasScopeTag}"/>
+                </StackPanel>
+            </CheckBox>
+        </DataTemplate>
+    </UserControl.Resources>
+
     <Grid ColumnDefinitions="330,*,470" ColumnSpacing="16" Margin="16">
 
         <!-- ═══ Arborescence NTFS ═══ -->
@@ -404,7 +417,8 @@
                                         </Border>
                                         <StackPanel Grid.Column="1" Margin="10,0,0,0">
                                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                                            <TextBlock Classes="muted mono" Text="{Binding IdLine}" FontSize="11"/>
+                                            <TextBlock Classes="muted mono" Text="{Binding IdLine}" FontSize="11" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="muted mono" Text="{Binding NestedLine}" FontSize="11" TextWrapping="Wrap" IsVisible="{Binding HasNested}"/>
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>
@@ -413,29 +427,67 @@
                         <Border Classes="code" Padding="12">
                             <StackPanel Spacing="8">
                                 <TextBlock Classes="label" Text="{DynamicResource Accounts.Groups}"/>
-                                <ItemsControl ItemsSource="{Binding Memberships}">
+                                <ItemsControl ItemsSource="{Binding Memberships}" ItemTemplate="{StaticResource MembershipTemplate}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel Orientation="Horizontal"/>
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:MembershipItem">
-                                            <CheckBox IsChecked="{Binding IsMember}" Margin="0,0,12,0">
-                                                <!-- Un TextBlock : en Content, « _ » serait pris pour un raccourci clavier (GL_Compta → GLCompta) -->
-                                                <TextBlock Text="{Binding Display}"/>
-                                            </CheckBox>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                                 <SelectableTextBlock Classes="mono" Text="{Binding AccountCommands}" FontSize="12" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
-                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="6">
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
                             <TextBox Text="{Binding NewUserName}" PlaceholderText="{DynamicResource Accounts.NewUser}"/>
-                            <Button Grid.Column="1" Content="{DynamicResource Accounts.AddUser}" Command="{Binding AddUserCommand}" MinWidth="130"/>
-                            <TextBox Grid.Row="1" Text="{Binding NewGroupName}" PlaceholderText="{DynamicResource Accounts.NewGroup}"/>
-                            <Button Grid.Row="1" Grid.Column="1" Content="{DynamicResource Accounts.AddGroup}" Command="{Binding AddGroupCommand}" MinWidth="130"/>
+                            <CheckBox Grid.Column="1" IsChecked="{Binding NewUserDomain}" IsVisible="{Binding HasDomain}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Accounts.DomainAccount}"/>
+                            </CheckBox>
+                            <Button Grid.Column="2" Content="{DynamicResource Accounts.AddUser}" Command="{Binding AddUserCommand}" MinWidth="130"/>
+                        </Grid>
+
+                        <!-- Les groupes : leur portée, leurs membres, et l'imbrication (AGDLP : un groupe global dans un groupe de domaine local) -->
+                        <StackPanel Spacing="2" Margin="0,8,0,0">
+                            <TextBlock Classes="h" Text="{DynamicResource Accounts.GroupsTitle}"/>
+                            <TextBlock Classes="muted" Text="{DynamicResource Accounts.GroupsHint}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <ListBox ItemsSource="{Binding GroupItems}" SelectedItem="{Binding SelectedGroup}" Background="Transparent" AutoScrollToSelectedItem="False">
+                            <!-- Tous les groupes, sans virtualisation : la liste est dans la colonne qui défile -->
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:WindowsGroupItem">
+                                    <StackPanel Spacing="2">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{Binding Display}" FontWeight="SemiBold"/>
+                                            <Border Classes="chip" Padding="6,1" CornerRadius="6" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding ScopeTag}" FontSize="11"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock Classes="muted" Text="{Binding Detail}" FontSize="11" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Border Classes="code" Padding="12">
+                            <StackPanel Spacing="8">
+                                <TextBlock Classes="label" Text="{DynamicResource Accounts.Groups}"/>
+                                <ItemsControl ItemsSource="{Binding GroupMemberships}" ItemTemplate="{StaticResource MembershipTemplate}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                                <SelectableTextBlock Classes="mono" Text="{Binding GroupCommands}" FontSize="12" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                            <TextBox Text="{Binding NewGroupName}" PlaceholderText="{DynamicResource Accounts.NewGroup}"/>
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding GroupScopes}" SelectedItem="{Binding NewGroupScope}" MinWidth="150"/>
+                            <Button Grid.Column="2" Content="{DynamicResource Accounts.AddGroup}" Command="{Binding AddGroupCommand}" MinWidth="130"/>
                         </Grid>
                     </StackPanel>
                 </Border>

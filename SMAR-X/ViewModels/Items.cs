@@ -217,6 +217,14 @@ namespace SMARX.ViewModels
         public string Group { get; }
         public string Display { get; init; } = "";
 
+        /// <summary>Portée du groupe, sous Windows : « global », « domaine local », « local ».</summary>
+        public string ScopeTag { get; init; } = "";
+        public bool HasScopeTag => ScopeTag.Length > 0;
+
+        /// <summary>Une adhésion impossible (un groupe de domaine local dans un groupe global…) se lit, grisée, avec sa raison.</summary>
+        public bool IsEnabled { get; init; } = true;
+        public string? Reason { get; init; }
+
         [ObservableProperty] private bool _isMember;
 
         partial void OnIsMemberChanged(bool value) => _changed(this);

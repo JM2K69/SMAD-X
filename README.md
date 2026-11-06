@@ -139,7 +139,7 @@ A second executable, shipped in its own archive ([documentation](https://jm2k69.
 - **SMAR-X labs** (`.smarx-lab.json`): objectives checked by SMAR-X's engines (access allowed or denied, exactly the accesses needed, what a new file gets, hygiene rules, guards), validated against the fixed servers, and a class's copies graded, in the window or with `SMAD-X.Studio grade lab.smarx-lab.json copies/ --csv grades.csv --moodle moodle.csv`
 
 ### 🔐 SMAR-X — file access rights, Linux and Windows
-A third executable, in its own archive ([documentation](https://jm2k69.github.io/SMAD-X/en/smar-x/)): who can do what, on what, and why, on a Linux server (mode, POSIX ACLs, default ACLs, Samba shares) and a Windows server (NTFS, the Explorer Security tab, SMB shares), locally or from the network. Its engines are compared with real systems (Linux kernel, Samba, Windows Server, Windows 11), and its **labs** ask for the permissions needed, and only those.
+A third executable, in its own archive ([documentation](https://jm2k69.github.io/SMAD-X/en/smar-x/)): who can do what, on what, and why, on a Linux server (mode, POSIX ACLs, default ACLs, Samba shares) and a Windows server member of a domain (NTFS, the Explorer Security tab, SMB shares, groups nested following AGDLP), locally or from the network. Its engines are compared with real systems (Linux kernel, Samba, Windows Server, Windows 11), and its **labs** ask for the permissions needed, and only those.
 
 ## 🚀 Quick Start
 

@@ -266,7 +266,17 @@ namespace SMARX.Services.Labs
                             offenders.Add(path);
                     break;
                 }
-                case SmarxHygieneRule.ShareLeastPrivilege:
+                case SmarxHygieneRule.DomainLocalOnly:
+                {
+                    // AGDLP : chaque ACE explicite nomme un groupe de domaine local ou une identité intégrée
+                    var host = work.Windows.First();
+                    foreach (var (node, path) in Walk(host.Find(c.Path ?? "D:"), c.Path ?? "D:"))
+                    foreach (var ace in node.Aces)
+                        if (NotDomainLocal(host, ace.Trustee, culture) is { } what && !offenders.Contains($"{path} : {ace.Trustee} ({what})"))
+                            offenders.Add($"{path} : {ace.Trustee} ({what})");
+                    break;
+                }
+                case SmarxHygieneRule.ShareStandard:
                 {
                     var host = work.Windows.First();
                     var shares = c.Share != null
@@ -277,9 +287,10 @@ namespace SMARX.Services.Labs
                     foreach (var share in shares)
                     foreach (var ace in share.Permissions.Where(a => a.Type == AceType.Allow))
                     {
-                        var broad = BroadTrustees.Contains(ace.Trustee, StringComparer.OrdinalIgnoreCase) && ace.Right >= ShareRight.Change;
+                        // Tout le monde compte aussi les invités : au plus Lecture ; Contrôle total aux seuls Administrateurs
+                        var everyone = string.Equals(ace.Trustee, WellKnown.Everyone, StringComparison.OrdinalIgnoreCase) && ace.Right >= ShareRight.Change;
                         var full = ace.Right == ShareRight.FullControl && !string.Equals(ace.Trustee, WellKnown.Administrators, StringComparison.OrdinalIgnoreCase);
-                        if (broad || full) offenders.Add($"{share.Name} : {ace.Trustee} {ace.Right}");
+                        if (everyone || full) offenders.Add($"{share.Name} : {WellKnown.Display(ace.Trustee, culture == "fr-FR")} {ShareRightLabel(ace.Right, culture)}");
                     }
                     break;
                 }
@@ -288,6 +299,27 @@ namespace SMARX.Services.Labs
                 ? T(culture, "Règle respectée.", "Rule met.")
                 : T(culture, "Règle non respectée : ", "Rule not met: ") + string.Join(", ", offenders.Take(5)) + (offenders.Count > 5 ? ", …" : "."));
         }
+
+        /// <summary>Pourquoi une identité n'a pas sa place dans une ACL selon AGDLP (« compte », « groupe global »), ou null.</summary>
+        private static string? NotDomainLocal(WindowsHost host, string trustee, string culture)
+        {
+            if (host.User(trustee) != null) return T(culture, "compte", "account");
+            if (host.Group(trustee) is not { } group) return null; // identité intégrée : Tout le monde, Système, Créateur propriétaire…
+            if (group.Name is WellKnown.Administrators or WellKnown.Users) return null;
+            return group.Scope switch
+            {
+                WindowsGroupScope.DomainLocal => null,
+                WindowsGroupScope.Global => T(culture, "groupe global", "global group"),
+                _ => T(culture, "groupe local", "local group")
+            };
+        }
+
+        private static string ShareRightLabel(ShareRight right, string culture) => right switch
+        {
+            ShareRight.FullControl => T(culture, "Contrôle total", "Full Control"),
+            ShareRight.Change => T(culture, "Modifier", "Change"),
+            _ => T(culture, "Lecture", "Read")
+        };
 
         private static IEnumerable<(LinuxNode Node, string Path)> Walk(LinuxNode? node, string path)
         {
@@ -314,7 +346,10 @@ namespace SMARX.Services.Labs
         {
             Dictionary<string, string> Accounts(SmarxDocument doc) => check.System == SmarxSystem.Linux
                 ? (doc.Linux.FirstOrDefault()?.Users ?? []).ToDictionary(u => u.Name, u => $"{u.Uid}|{u.PrimaryGroup}|{string.Join(',', u.Groups.Order())}|{u.Umask}")
-                : (doc.Windows.FirstOrDefault()?.Users ?? []).ToDictionary(u => u.Name, u => string.Join(',', u.Groups.Order(StringComparer.OrdinalIgnoreCase)), StringComparer.OrdinalIgnoreCase);
+                : doc.Windows.FirstOrDefault() is { } host
+                    ? host.Users.ToDictionary(u => u.Name, u => string.Join(',', u.Groups.Order(StringComparer.OrdinalIgnoreCase))
+                                                                + (WindowsGroups.IsAdministrator(host, u) ? "|admin" : ""), StringComparer.OrdinalIgnoreCase)
+                    : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var before = Accounts(start);
             var after = Accounts(work);
             return before.Keys.Union(after.Keys)

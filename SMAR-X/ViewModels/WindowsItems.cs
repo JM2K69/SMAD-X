@@ -66,11 +66,15 @@ namespace SMARX.ViewModels
         public WindowsUserItem(WindowsHost host, WindowsUser user, int index)
         {
             User = user;
-            Brush = user.IsAdministrator ? Palette.Denied : Palette.Account(index);
+            IsAdministrator = WindowsGroups.IsAdministrator(host, user);
+            Brush = IsAdministrator ? Palette.Denied : Palette.Account(index);
             var french = SmarxText.Instance.Culture == "fr-FR";
             Groups = string.Join(", ", user.Groups.Select(g => WellKnown.Display(g, french)));
-            IdLine = $"{host.Name}\\{user.Name} : " + string.Join(", ", user.Groups.Append(WellKnown.Users).Distinct(StringComparer.OrdinalIgnoreCase)
+            IdLine = $"{host.Qualified(user.Name)} : " + string.Join(", ", user.Groups.Append(WellKnown.Users).Distinct(StringComparer.OrdinalIgnoreCase)
                 .Select(g => WellKnown.Display(g, french)));
+            var nested = WindowsGroups.Nested(host, user);
+            NestedLine = nested.Count == 0 ? ""
+                : SmarxText.Instance.T("par imbrication : ", "through nesting: ") + string.Join(", ", nested.Select(g => WellKnown.Display(g, french)));
         }
 
         public WindowsUser User { get; }
@@ -79,8 +83,36 @@ namespace SMARX.ViewModels
         public IBrush Brush { get; }
         public string Groups { get; }
         public string IdLine { get; }
-        public bool IsAdministrator => User.IsAdministrator;
+
+        /// <summary>Les groupes du jeton venus des groupes du compte : « par imbrication : DL_RH_LM ».</summary>
+        public string NestedLine { get; }
+        public bool HasNested => NestedLine.Length > 0;
+        public bool IsAdministrator { get; }
         public override string ToString() => Name;
+    }
+
+    /// <summary>Un groupe de la carte des comptes : sa portée, sa description et ses membres directs.</summary>
+    public sealed class WindowsGroupItem
+    {
+        public WindowsGroupItem(WindowsHost host, WindowsGroup group)
+        {
+            Group = group;
+            var culture = SmarxText.Instance.Culture;
+            var french = culture == "fr-FR";
+            Display = WellKnown.Display(group.Name, french);
+            ScopeTag = WindowsGroups.ScopeLabel(group.Scope, culture);
+            var members = WindowsGroups.Members(host, group.Name);
+            Detail = (group.Description is { Length: > 0 } d ? d + " · " : "")
+                     + (members.Count == 0 ? SmarxText.Instance.T("aucun membre", "no member")
+                         : SmarxText.Instance.T("membres : ", "members: ") + string.Join(", ", members.Select(m => WellKnown.Display(m, french))));
+        }
+
+        public WindowsGroup Group { get; }
+        public string Name => Group.Name;
+        public string Display { get; }
+        public string ScopeTag { get; }
+        public string Detail { get; }
+        public override string ToString() => Display;
     }
 
     /// <summary>

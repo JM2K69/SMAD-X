@@ -38,7 +38,7 @@ public class WindowsShareFidelityTests
         var differences = new List<string>();
         foreach (var a in accesses)
         {
-            var (token, share, path) = (WindowsToken.Remote(host.User(a[1])!), host.Share(a[2])!, a[3]);
+            var (token, share, path) = (WindowsToken.Remote(host, host.User(a[1])!), host.Share(a[2])!, a[3]);
             var right = Ntfs.Special.Single(s => s.Code == a[4]).Right;
             var actual = SmbAccess.Hidden(host, token, share, path) ? NotFound
                 : !SmbAccess.Open(host, token, share, path, right) ? "no"
@@ -62,7 +62,7 @@ public class WindowsShareFidelityTests
         var differences = new List<string>();
         foreach (var l in listings)
         {
-            var (token, share, folder) = (WindowsToken.Remote(host.User(l[1])!), host.Share(l[2])!, l[3]);
+            var (token, share, folder) = (WindowsToken.Remote(host, host.User(l[1])!), host.Share(l[2])!, l[3]);
             var shown = SmbAccess.Hidden(host, token, share, folder) ? "!DirectoryNotFoundException"
                 : SmbAccess.Open(host, token, share, folder, NtfsRights.ReadData)
                 ? string.Join('/', SmbAccess.List(host, token, share, folder).Where(e => e.Visible).Select(e => e.Node.Name).Order(StringComparer.OrdinalIgnoreCase))

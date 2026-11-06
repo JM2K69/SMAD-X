@@ -34,23 +34,38 @@ public class WindowsShareTests
     public void RemoteToken_HasNetwork_AndUacFiltersALocalAdministrator()
     {
         var carol = _host.User("carol")!;
-        var token = WindowsToken.Remote(carol);
+        var token = WindowsToken.Remote(_host, carol);
         Assert.True(token.Has(WellKnown.Network, forAllow: true));
         Assert.False(token.Has(WellKnown.Interactive, forAllow: true));
         Assert.False(token.Has(WellKnown.Administrators, forAllow: true));   // compte local : refus seulement
 
-        // Compta$ n'accorde qu'à GL_Compta et Administrators : carol, filtrée, ne s'y connecte pas
-        Assert.False(Try("carol", "Compta$", @"D:\Partages\Compta", List).Connected);
+        // Compta$ est large (Utilisateurs authentifiés) : carol s'y connecte, mais NTFS ne lui donne rien tant qu'elle est filtrée
+        Assert.True(Try("carol", "Compta$", @"D:\Partages\Compta", List).Connected);
+        Assert.False(Try("carol", "Compta$", @"D:\Partages\Compta", List).Allowed);
         Assert.True(Try("Administrator", "Compta$", @"D:\Partages\Compta", List).Allowed);   // compte intégré, non filtré
 
         carol.Domain = true;   // un compte du domaine n'est pas filtré à distance
         Assert.True(Try("carol", "Compta$", @"D:\Partages\Compta", List).Allowed);
     }
 
+    /// <summary>
+    /// Par SMB, Synchroniser seul se décide comme Attributs de lecture (mesuré) : par Compta$, dave lit les attributs de
+    /// D:\Partages\Compta par son dossier parent, et l'ouverture avec Synchroniser réussit ; Parcours, non.
+    /// </summary>
+    [Fact]
+    public void Synchronize_ThroughAShare_IsDecidedLikeReadAttributes()
+    {
+        var dave = WindowsToken.Remote(_host, _host.User("dave")!);
+        var compta = _host.Share("Compta$")!;
+        Assert.True(SmbAccess.Open(_host, dave, compta, @"D:\Partages\Compta", NtfsRights.ReadAttributes));
+        Assert.True(SmbAccess.Open(_host, dave, compta, @"D:\Partages\Compta", NtfsRights.Synchronize));
+        Assert.False(SmbAccess.Open(_host, dave, compta, @"D:\Partages\Compta", NtfsRights.ExecuteFile));
+    }
+
     [Fact]
     public void AccessBasedEnumeration_HidesWhatTheAccountCannotRead_AndMakesItNotFound()
     {
-        var alice = WindowsToken.Remote(_host.User("alice")!);
+        var alice = WindowsToken.Remote(_host, _host.User("alice")!);
         var partages = _host.Share("Partages")!;
         var visible = SmbAccess.List(_host, alice, partages, @"D:\Partages").Where(e => e.Visible).Select(e => e.Node.Name);
         Assert.Equal(new[] { "Commun", "Compta", "Projets" }, visible.Order());

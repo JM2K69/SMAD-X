@@ -25,15 +25,15 @@ namespace SMARX.Services.Windows
         /// </summary>
         public bool CanTakeOwnership => Elevated;
 
-        public static WindowsToken Local(WindowsUser user, bool elevated)
+        public static WindowsToken Local(WindowsHost host, WindowsUser user, bool elevated)
         {
-            var admin = user.IsAdministrator;
+            var admin = WindowsGroups.IsAdministrator(host, user);
             var effective = admin && (elevated || user.IsBuiltInAdministrator);
             var sids = new List<TokenSid>
             {
                 new(user.Name), new(WellKnown.Everyone), new(WellKnown.AuthenticatedUsers), new(WellKnown.Interactive), new(WellKnown.Users)
             };
-            sids.AddRange(user.Groups.Where(g => !string.Equals(g, WellKnown.Administrators, StringComparison.OrdinalIgnoreCase)
+            sids.AddRange(WindowsGroups.Effective(host, user).Where(g => !string.Equals(g, WellKnown.Administrators, StringComparison.OrdinalIgnoreCase)
                                                  && !string.Equals(g, WellKnown.Users, StringComparison.OrdinalIgnoreCase))
                 .Select(g => new TokenSid(g)));
             if (admin)
@@ -46,15 +46,15 @@ namespace SMARX.Services.Windows
         /// Users. Les restrictions distantes de l'UAC laissent Administrators en « refus seulement » pour un compte local ;
         /// le compte Administrator intégré et un compte du domaine ne sont pas filtrés, et gardent leurs privilèges.
         /// </summary>
-        public static WindowsToken Remote(WindowsUser user)
+        public static WindowsToken Remote(WindowsHost host, WindowsUser user)
         {
-            var admin = user.IsAdministrator;
+            var admin = WindowsGroups.IsAdministrator(host, user);
             var effective = admin && (user.IsBuiltInAdministrator || user.Domain);
             var sids = new List<TokenSid>
             {
                 new(user.Name), new(WellKnown.Everyone), new(WellKnown.AuthenticatedUsers), new(WellKnown.Network), new(WellKnown.Users)
             };
-            sids.AddRange(user.Groups.Where(g => !string.Equals(g, WellKnown.Administrators, StringComparison.OrdinalIgnoreCase)
+            sids.AddRange(WindowsGroups.Effective(host, user).Where(g => !string.Equals(g, WellKnown.Administrators, StringComparison.OrdinalIgnoreCase)
                                                  && !string.Equals(g, WellKnown.Users, StringComparison.OrdinalIgnoreCase))
                 .Select(g => new TokenSid(g)));
             if (admin)

@@ -104,38 +104,44 @@ namespace SMARX.Labs
             {
                 Id = "windows-partage-rh",
                 Level = LabLevel.Intermediate,
-                DurationMinutes = 25,
+                DurationMinutes = 30,
                 Title = L("Le partage du service RH", "The HR department share"),
                 Statement = L(
                     """
                     # Le partage du service RH
 
-                    Les postes du service RH (le groupe **GL_RH**, dont bob) doivent ouvrir leurs fichiers par un partage dédié : `\\SRV-FIC\RH`, sur le dossier `D:\Partages\RH`. Les autorisations NTFS de ce dossier sont déjà les bonnes : ne les modifiez pas.
+                    Les postes du service RH doivent ouvrir leurs fichiers par un partage dédié : `\\SRV-FIC\RH`, sur le dossier `D:\Partages\RH`. Les comptes du service sont dans le groupe global **G_RH** (dont bob) ; le groupe de domaine local **DL_RH_LM** a été créé pour ce dossier, mais personne ne s'en sert encore.
+
+                    Le serveur suit AGDLP : les comptes dans des groupes globaux, les groupes globaux dans des groupes de domaine local, et les autorisations NTFS aux seuls groupes de domaine local. Les partages suivent la pratique conseillée par Microsoft : un partage large, dont NTFS fait le tri.
 
                     ## Le besoin
 
                     - par `\\SRV-FIC\RH`, bob lit et modifie `salaires.xlsx`, liste le dossier et y crée des fichiers ;
                     - par ce partage, alice et dave n'ont accès à rien ;
-                    - les autorisations du partage ne donnent que ce qu'il faut ;
+                    - le partage suit la pratique du serveur ;
+                    - les autorisations NTFS de `D:\Partages\RH` suivent AGDLP ;
                     - les comptes ne changent pas.
 
-                    Le partage se crée dans la carte **Partage** du dossier, avec **Partage avancé…**.
+                    Le partage se crée dans la carte **Partage** du dossier, avec **Partage avancé…** ; les groupes s'imbriquent dans la carte **Comptes**.
                     """,
                     """
                     # The HR department share
 
-                    The HR workstations (the **GL_RH** group, including bob) must open their files through a dedicated share: `\\SRV-FIC\RH`, on the `D:\Partages\RH` folder. This folder's NTFS permissions are already right: do not change them.
+                    The HR workstations must open their files through a dedicated share: `\\SRV-FIC\RH`, on the `D:\Partages\RH` folder. The department's accounts are in the global group **G_RH** (including bob); the domain local group **DL_RH_LM** was created for this folder, but nothing uses it yet.
+
+                    The server follows AGDLP: accounts in global groups, global groups in domain local groups, and NTFS permissions to domain local groups only. The shares follow the practice Microsoft recommends: a broad share, which NTFS narrows down.
 
                     ## The need
 
                     - through `\\SRV-FIC\RH`, bob reads and modifies `salaires.xlsx`, lists the folder and creates files in it;
                     - through this share, alice and dave get access to nothing;
-                    - the share permissions grant only what is needed;
+                    - the share follows the server's practice;
+                    - the NTFS permissions of `D:\Partages\RH` follow AGDLP;
                     - the accounts do not change.
 
-                    The share is created in the folder's **Sharing** card, with **Advanced Sharing…**.
+                    The share is created in the folder's **Sharing** card, with **Advanced Sharing…**; groups are nested in the **Accounts** card.
                     """),
-                Start = new SmarxDocument { Windows = [WindowsSamples.FileServer()] },
+                Start = new SmarxDocument { Windows = [DepartmentShareStart()] },
                 Objectives =
                 [
                     Objective("o1", 3, L(@"bob modifie salaires.xlsx par \\SRV-FIC\RH", @"bob modifies salaires.xlsx through \\SRV-FIC\RH"),
@@ -150,16 +156,30 @@ namespace SMARX.Labs
                             Paths = [RhFolder, Salaries], Operations = ["List", "CreateFile", "Read", "Write"],
                             Needs = [$"bob List {RhFolder}", $"bob CreateFile {RhFolder}", $"bob Read {Salaries}", $"bob Write {Salaries}"]
                         }),
-                    Objective("o3", 2, L("Le partage RH ne donne que ce qu'il faut", "The RH share grants only what is needed"),
-                        L("Ni Modifier ni Contrôle total pour Tout le monde, Utilisateurs authentifiés ou Utilisateurs, et Contrôle total aux seuls Administrateurs : c'est au groupe du service d'avoir Modifier.",
-                          "Neither Change nor Full Control for Everyone, Authenticated Users or Users, and Full Control for Administrators only: the department's group is the one to get Change."),
-                        new SmarxCheck { Type = SmarxCheckType.Hygiene, System = windows, Rule = SmarxHygieneRule.ShareLeastPrivilege, Share = "RH" }),
-                    Objective("g1", 0, L("Les autorisations NTFS de D:\\Partages\\RH ne changent pas", "The NTFS permissions of D:\\Partages\\RH do not change"), new LocalizedText(),
-                        new SmarxCheck { Type = SmarxCheckType.PathUnchanged, System = windows, Path = RhFolder }, guard: true),
-                    Objective("g2", 0, L("Les comptes ne changent pas", "The accounts do not change"), new LocalizedText(),
+                    Objective("o3", 2, L("Le partage RH suit la pratique du serveur", "The RH share follows the server's practice"),
+                        L("Un partage large, dont NTFS fait le tri : Contrôle total aux seuls Administrateurs, et jamais Modifier pour Tout le monde, qui compte aussi les invités.",
+                          "A broad share, which NTFS narrows down: Full Control for Administrators only, and never Change for Everyone, which also counts guests."),
+                        new SmarxCheck { Type = SmarxCheckType.Hygiene, System = windows, Rule = SmarxHygieneRule.ShareStandard, Share = "RH" }),
+                    Objective("o4", 2, L("Les autorisations NTFS de D:\\Partages\\RH suivent AGDLP", "The NTFS permissions of D:\\Partages\\RH follow AGDLP"),
+                        L("Ni compte ni groupe global dans l'ACL : un groupe de domaine local reçoit le droit, et le groupe global du service en devient membre.",
+                          "Neither account nor global group in the ACL: a domain local group gets the right, and the department's global group becomes its member."),
+                        new SmarxCheck { Type = SmarxCheckType.Hygiene, System = windows, Rule = SmarxHygieneRule.DomainLocalOnly, Path = RhFolder }),
+                    Objective("g1", 0, L("Les comptes ne changent pas", "The accounts do not change"), new LocalizedText(),
                         new SmarxCheck { Type = SmarxCheckType.AccountUnchanged, System = windows, Account = "*" }, guard: true)
                 ]
             };
+        }
+
+        /// <summary>
+        /// Le serveur d'exemple, avant qu'on s'occupe du service RH : le dossier donne Modifier directement au groupe global
+        /// G_RH, et DL_RH_LM n'a encore aucun membre.
+        /// </summary>
+        private static WindowsHost DepartmentShareStart()
+        {
+            var host = WindowsSamples.FileServer();
+            host.Group("G_RH")!.Groups.Remove("DL_RH_LM");
+            host.Find(RhFolder)!.Aces.Single(a => a.Trustee == "DL_RH_LM").Trustee = "G_RH";
+            return host;
         }
 
         // ─── Samba : pourquoi carol n'écrit-elle pas ? ───────────────────────────

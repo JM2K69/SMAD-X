@@ -33,9 +33,10 @@ During a lab, **Sample server** and **Open…** are hidden: they would replace t
 
 - Linux: nothing is writable by others (`o+w`), except a sticky folder such as `/tmp`; no setuid or setgid program.
 - Windows: neither Modify nor Full control for Everyone, Authenticated Users or Users.
-- Windows share: neither Change nor Full Control for these same groups, and Full Control for Administrators only.
+- Windows, AGDLP: NTFS permissions name no account, no global group and no local group created on the server; only domain local groups and the built-in identities (see [Groups: AGDLP](windows-rules.md#groups-agdlp)).
+- Windows share: the practice Microsoft recommends, a broad share which NTFS narrows down. Full Control for Administrators only, and Everyone Read at most; Authenticated Users: Change is fine.
 
-**A guard** is marked "guard". It is met at the start and earns no point: it forbids an easy way out, such as opening a folder to everyone, adding an account to a group or changing permissions that were right. Broken, it **cancels** the objectives about the same account or the same path. An "accounts do not change" guard covers their groups, their primary group and their umask.
+**A guard** is marked "guard". It is met at the start and earns no point: it forbids an easy way out, such as opening a folder to everyone, adding an account to a group or changing permissions that were right. Broken, it **cancels** the objectives about the same account or the same path. An "accounts do not change" guard covers their groups, their primary group and their umask; on Windows, also whether they are administrators, even through a nested group. Nesting a group in another does not change the accounts.
 
 ## Checking
 
@@ -69,7 +70,7 @@ The trainer's copy of an exam holds the answer key of the questions: SMAR-X refu
 | Lab | Level | Server | Topic |
 |---|---|---|---|
 | The project team's folder | beginner | Linux | a folder shared by a team, including for the files to come |
-| The HR department share | intermediate | Windows | a share dedicated to a department, as tight as possible |
+| The HR department share | intermediate | Windows | a broad share for a department, and its NTFS permissions following AGDLP |
 | Why can't carol write? | intermediate | Linux and Samba | diagnose an access denied through a share, then fix it without granting anything more |
 
 ## How it is verified

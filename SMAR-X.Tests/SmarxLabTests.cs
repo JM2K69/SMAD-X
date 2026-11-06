@@ -39,12 +39,14 @@ public class SmarxLabTests
                 break;
             }
             case "windows-partage-rh":
-                work.Windows[0].Shares.Add(new SmbShare
-                {
-                    Name = "RH", Path = SmarxBuiltInLabs.RhFolder,
-                    Permissions = [ShareAce.Allow("GL_RH", ShareRight.Change)]
-                });
+            {
+                // AGDLP : le droit NTFS au groupe de domaine local, le groupe global dedans ; un partage large
+                var host = work.Windows[0];
+                host.Find(SmarxBuiltInLabs.RhFolder)!.Aces.Single(a => a.Trustee == "G_RH").Trustee = "DL_RH_LM";
+                host.Group("G_RH")!.Groups.Add("DL_RH_LM");
+                host.Shares.Add(BroadRhShare());
                 break;
+            }
             case "samba-carol-ecrit":
             {
                 var host = work.Linux[0];
@@ -57,6 +59,12 @@ public class SmarxLabTests
         }
         return work;
     }
+
+    private static SmbShare BroadRhShare() => new()
+    {
+        Name = "RH", Path = SmarxBuiltInLabs.RhFolder,
+        Permissions = [ShareAce.Allow(WellKnown.AuthenticatedUsers, ShareRight.Change), ShareAce.Allow(WellKnown.Administrators, ShareRight.FullControl)]
+    };
 
     private static Dictionary<string, LabAnswer> RightAnswers(SmarxLab lab) =>
         lab.Questions.ToDictionary(q => q.Id, q => new LabAnswer { Choices = q.Choices.Where(c => c.Correct).Select(c => c.Id).ToList() });
@@ -146,7 +154,68 @@ public class SmarxLabTests
         Assert.True(result.Objectives.Single(o => o.Objective.Id == "o1").Passed);
         var rule = result.Objectives.Single(o => o.Objective.Id == "o3");
         Assert.False(rule.Passed);
-        Assert.Equal("Règle non respectée : RH : Everyone FullControl.", rule.Feedback);
+        Assert.Equal("Règle non respectée : RH : Tout le monde Contrôle total.", rule.Feedback);
+    }
+
+    /// <summary>Le partage large conseillé par Microsoft, Utilisateurs authentifiés : Modifier, respecte la règle du partage.</summary>
+    [Fact]
+    public void RhShare_AuthenticatedUsersChange_MeetsTheShareRule()
+    {
+        var lab = SmarxBuiltInLabs.WindowsDepartmentShare();
+        var work = Work(lab);
+        work.Windows[0].Shares.Add(BroadRhShare());
+
+        var result = SmarxLabGrader.Grade(lab, work, null, Fr);
+
+        Assert.True(result.Objectives.Single(o => o.Objective.Id == "o3").Passed);
+    }
+
+    /// <summary>Le droit NTFS laissé au groupe global : bob passe, mais la règle AGDLP le relève.</summary>
+    [Fact]
+    public void RhAcl_WithTheGlobalGroup_FailsAgdlp()
+    {
+        var lab = SmarxBuiltInLabs.WindowsDepartmentShare();
+        var work = Work(lab);
+        work.Windows[0].Shares.Add(BroadRhShare());
+
+        var result = SmarxLabGrader.Grade(lab, work, null, Fr);
+
+        Assert.True(result.Objectives.Single(o => o.Objective.Id == "o1").Passed);
+        Assert.True(result.Objectives.Single(o => o.Objective.Id == "o2").Passed);
+        var agdlp = result.Objectives.Single(o => o.Objective.Id == "o4");
+        Assert.False(agdlp.Passed);
+        Assert.Equal(@"Règle non respectée : D:\Partages\RH : G_RH (groupe global).", agdlp.Feedback);
+    }
+
+    /// <summary>bob mis directement dans DL_RH_LM : un compte dans un groupe de domaine local, la garde des comptes l'annule.</summary>
+    [Fact]
+    public void RhAccount_AddedToTheDomainLocalGroup_IsCancelledByTheGuard()
+    {
+        var lab = SmarxBuiltInLabs.WindowsDepartmentShare();
+        var work = Solved(lab);
+        var host = work.Windows[0];
+        host.Group("G_RH")!.Groups.Remove("DL_RH_LM");
+        host.User("bob")!.Groups.Add("DL_RH_LM");
+
+        var result = SmarxLabGrader.Grade(lab, work, null, Fr);
+
+        Assert.False(result.Objectives.Single(o => o.Objective.Id == "g1").Passed);
+        Assert.True(result.Objectives.Single(o => o.Objective.Id == "o1").Annulled);
+    }
+
+    /// <summary>G_RH imbriqué dans Administrateurs : bob devient administrateur sans que ses groupes changent ; la garde le voit.</summary>
+    [Fact]
+    public void RhGroup_NestedInAdministrators_BreaksTheGuard()
+    {
+        var lab = SmarxBuiltInLabs.WindowsDepartmentShare();
+        var work = Solved(lab);
+        work.Windows[0].Group("G_RH")!.Groups.Add(WellKnown.Administrators);
+
+        var result = SmarxLabGrader.Grade(lab, work, null, Fr);
+
+        var guard = result.Objectives.Single(o => o.Objective.Id == "g1");
+        Assert.False(guard.Passed);
+        Assert.Equal("Comptes modifiés : bob.", guard.Feedback);
     }
 
     /// <summary>Le partage n'existe pas encore : l'explication le dit.</summary>

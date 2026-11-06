@@ -377,7 +377,7 @@ namespace SMARX.ViewModels
         {
             EffectiveRights.Clear();
             if (EffectiveUser == null || _host.User((string)EffectiveUser.Value) is not { } user) return;
-            var token = WindowsToken.Local(user, Elevated);
+            var token = WindowsToken.Local(_host, user, Elevated);
             foreach (var (_, right) in Ntfs.Special)
             {
                 var grant = WindowsAccess.Open(_host, token, _item.Path, right);

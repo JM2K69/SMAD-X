@@ -14,10 +14,40 @@ L'ordre canonique met **les ACE explicites avant les héritées**, et parmi les 
 
 ## Le jeton
 
-- Le jeton d'une session locale contient le compte, ses groupes, **Tout le monde**, **Utilisateurs authentifiés**, **INTERACTIF** et **Utilisateurs**.
+- Le jeton d'une session locale contient le compte, ses groupes et, de proche en proche, les groupes de ses groupes, **Tout le monde**, **Utilisateurs authentifiés**, **INTERACTIF** et **Utilisateurs**.
 - **Contrôle de compte d'utilisateur (UAC)** : sans élévation, le groupe **Administrateurs** d'un administrateur est en « refus seulement ». Il compte pour les refus, jamais pour les autorisations. Le compte **Administrator** intégré n'est pas filtré.
 - Un administrateur en session élevée a le privilège **Prendre possession de fichiers**.
 - Les dossiers du chemin ne sont pas vérifiés : tout le monde a le privilège **Contourner la vérification de parcours**.
+
+## Les groupes : AGDLP
+
+Le serveur d'exemple est membre du domaine **CORP** et suit **AGDLP**, la méthode que conseille Microsoft :
+
+- les **comptes** du domaine (alice, bob, dave) sont dans des **groupes globaux**, un par rôle : `G_Employes`, `G_Compta`, `G_RH`, `G_Stagiaires` ;
+- les groupes globaux sont membres de **groupes de domaine local**, un par ressource et par droit : `DL_<ressource>_L` (lecture), `_LM` (lecture et modification), `_CT` (contrôle total), `_Refuser` (refus) ;
+- les **autorisations** NTFS ne nomment que des groupes de domaine local et les identités intégrées (Administrateurs, Système, CRÉATEUR PROPRIÉTAIRE, Utilisateurs authentifiés…).
+
+carol et Administrator sont des comptes locaux du serveur. Un compte du domaine s'écrit `CORP\alice`, un compte du serveur `SRV-FIC\carol`, comme dans `icacls`.
+
+Le jeton contient les groupes du compte **et les groupes de ces groupes** : alice, membre de `G_Compta`, reçoit `DL_Compta_LM`, car `G_Compta` en est membre. Le testeur le montre dès la première étape ; la carte **Comptes** l'écrit sous chaque compte (« par imbrication : … »).
+
+Les imbrications suivent les règles d'Active Directory. Une case impossible est grisée, et son info-bulle dit pourquoi :
+
+| Groupe | Peut contenir |
+|---|---|
+| global (`G_`) | des comptes du domaine, des groupes globaux |
+| domaine local (`DL_`) | des comptes du domaine, des groupes globaux, des groupes de domaine local |
+| local du serveur (Administrateurs…) | tout compte, des groupes globaux et de domaine local, jamais un autre groupe local |
+
+Un compte local du serveur n'entre que dans un groupe local. Une imbrication qui tournerait en rond est refusée.
+
+![La carte Comptes de l'espace Windows](../assets/screens/smarx-groups.png)
+
+*Capture : bob, avec ses groupes globaux, et les groupes de domaine local qu'il reçoit par imbrication. Un groupe de domaine local est choisi : il n'entre pas dans un groupe global, ces cases sont grisées.*
+
+Dans la carte **Comptes**, la partie **Groupes** liste chaque groupe, avec sa portée et ses membres. Choisir un groupe permet de l'imbriquer dans un autre (**Membre de**). Les commandes équivalentes sont celles du domaine, `New-ADGroup -GroupScope Global` ou `DomainLocal` et `Add-ADGroupMember`, ou celles du serveur, `net localgroup`. Un nouveau compte est un compte du domaine, sauf si l'on décoche **du domaine** ; un nouveau groupe est global, de domaine local ou local au serveur.
+
+La mesure sur le contrôleur de domaine crée ces groupes globaux et de domaine local et leurs imbrications. Toutes les ouvertures qui passent par un groupe imbriqué sont identiques au simulateur.
 
 ## Le propriétaire
 
@@ -47,7 +77,7 @@ Presque toute ouverture de fichier demande **Synchroniser**. L'onglet Sécurité
 
 ## Par un partage
 
-Par le réseau, s'ajoutent les autorisations du partage, le jeton réseau (les restrictions distantes de l'UAC) et l'énumération basée sur l'accès : voir [Accès par un partage](partages.md).
+Par le réseau, s'ajoutent les autorisations du partage, le jeton réseau (les restrictions distantes de l'UAC) et l'énumération basée sur l'accès : voir [Accès par un partage](partages.md). Par un partage, **Synchroniser** seul se décide comme **Attributs de lecture**.
 
 ## Comparer avec un vrai serveur
 

@@ -105,7 +105,7 @@ public static class SmarxDacl
         L("'@");
         L("    New-ADOrganizationalUnit -Name 'SMARX-Test' -Path $domain.DistinguishedName -ProtectedFromAccidentalDeletion $false");
         foreach (var g in testGroups)
-            L($"    New-ADGroup -Name {Q(Prefix + g.Name)} -SamAccountName {Q(Prefix + g.Name)} -GroupScope DomainLocal -GroupCategory Security -Path $ou");
+            L($"    New-ADGroup -Name {Q(Prefix + g.Name)} -SamAccountName {Q(Prefix + g.Name)} -GroupScope {(g.Scope == WindowsGroupScope.Global ? "Global" : "DomainLocal")} -GroupCategory Security -Path $ou");
         foreach (var u in testUsers)
             L($"    New-ADUser -Name {Q(Prefix + u.Name)} -SamAccountName {Q(Prefix + u.Name)} -UserPrincipalName \"{Prefix}{u.Name}@$($domain.DNSRoot)\" -AccountPassword (ConvertTo-SecureString $passwords[{Q(u.Name)}] -AsPlainText -Force) -Enabled $true -Path $ou");
         foreach (var u in testUsers)
@@ -113,6 +113,12 @@ public static class SmarxDacl
                 L(g == WellKnown.Administrators
                     ? $"    Add-ADGroupMember -Identity (Get-ADGroup -Filter \"SID -eq 'S-1-5-32-544'\") -Members {Q(Prefix + u.Name)}"
                     : $"    Add-ADGroupMember -Identity {Q(Prefix + g)} -Members {Q(Prefix + u.Name)}");
+        // AGDLP : les groupes globaux dans les groupes de domaine local
+        foreach (var g in testGroups)
+            foreach (var parent in g.Groups)
+                L(parent == WellKnown.Administrators
+                    ? $"    Add-ADGroupMember -Identity (Get-ADGroup -Filter \"SID -eq 'S-1-5-32-544'\") -Members {Q(Prefix + g.Name)}"
+                    : $"    Add-ADGroupMember -Identity {Q(Prefix + parent)} -Members {Q(Prefix + g.Name)}");
         L("    $sids = @{}");
         foreach (var (name, sid) in WellKnownSids)
             L($"    $sids[{Q(name)}] = {Q(sid)}");
