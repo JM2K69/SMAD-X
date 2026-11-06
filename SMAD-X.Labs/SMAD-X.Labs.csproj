@@ -8,4 +8,14 @@
     <AssemblyName>SMAD-X.Labs</AssemblyName>
     <RootNamespace>SMADX</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Polices de secours du PDF (emoji, symboles, flèches), embarquées pour un rendu identique sur tous les OS ;
+         partagées par les PDF de SMAD-X, de Studio et de SMAR-X (Services/MarkdownPdf.cs) -->
+    <EmbeddedResource Include="Fonts\*.ttf" LogicalName="Fonts/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OfficeIMO.Markdown.Pdf" Version="3.5.1" />
+  </ItemGroup>
 </Project>

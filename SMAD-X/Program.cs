@@ -39,7 +39,7 @@ namespace SMADX
                 var labs = new LabService().BuiltInLabs();
                 var loc = LocalizationService.Instance;
                 var sheets = new[] { "fr-FR", "en-US" }.All(c => !loc.Translate("Desc.Users.Krbtgt", c).StartsWith('['));
-                var fonts = typeof(LabService).Assembly.GetManifestResourceNames().Count(r => r.StartsWith("Fonts/", StringComparison.Ordinal));
+                var fonts = MarkdownPdf.EmbeddedFontCount;
                 output.WriteLine($"SMAD-X {EngineInfo.Version}: {labs.Count} labs, sheets {(sheets ? "ok" : "missing")}, {fonts} fonts");
                 return labs.Count > 0 && sheets && fonts > 0 ? 0 : 1;
             }

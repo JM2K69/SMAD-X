@@ -86,7 +86,7 @@ jobs:
         shell: pwsh
         run: |
           foreach ($dir in Get-ChildItem publish/${{ matrix.rid }} -Directory) {
-            Copy-Item LICENSE, NOTICE, THIRD-PARTY-NOTICES.md, SMAD-X.Core/Fonts/OFL.txt -Destination $dir.FullName
+            Copy-Item LICENSE, NOTICE, THIRD-PARTY-NOTICES.md, SMAD-X.Labs/Fonts/OFL.txt -Destination $dir.FullName
           }
 
       # Les exe publiés tels qu'ils seront livrés : extraction single-file, runtime, contenu embarqué.

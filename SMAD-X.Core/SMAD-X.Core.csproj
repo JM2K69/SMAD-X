@@ -17,8 +17,6 @@
   <ItemGroup>
     <!-- Descriptions pédagogiques Markdown ; lues par LocalizationService -->
     <EmbeddedResource Include="Content\**\*.md" LogicalName="Content/%(RecursiveDir)%(Filename)%(Extension)" />
-    <!-- Polices de secours du PDF (emoji, symboles), embarquées pour un rendu identique sur tous les OS -->
-    <EmbeddedResource Include="Fonts\*.ttf" LogicalName="Fonts/%(Filename)%(Extension)" />
     <!-- Exercices fournis (.smadx-lab.json), générés par tools/LabGenerator et tools/SampleGenerator -->
     <EmbeddedResource Include="Labs\*.smadx-lab.json" LogicalName="Labs/%(Filename)%(Extension)" />
     <EmbeddedResource Include="TierModels\*.json" LogicalName="TierModels/%(Filename)%(Extension)" />

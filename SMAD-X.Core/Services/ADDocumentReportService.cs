@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using OfficeIMO.Markdown;
 using OfficeIMO.Markdown.Pdf;
-using OfficeIMO.Pdf;
 using OfficeIMO.Word;
 using OfficeIMO.Word.Markdown;
 using SMADX.Models;
@@ -485,27 +484,6 @@ namespace SMADX.Services
         // ── PDF render helper ─────────────────────────────────────────────────
 
         /// <summary>
-        /// Fallback fonts embedded in the executable (see Fonts/README.md): emoji, symbols, then
-        /// arrows / math / box drawing. Body text stays on the PDF standard Helvetica.
-        /// </summary>
-        private static readonly Lazy<PdfEmbeddedFontFallbackSet> PdfFontFallbacks = new(() =>
-            new PdfEmbeddedFontFallbackSet(new[]
-            {
-                EmbeddedFont("Noto Emoji",          "NotoEmoji-wght.ttf"),
-                EmbeddedFont("Noto Sans Symbols 2", "NotoSansSymbols2-Regular.ttf"),
-                EmbeddedFont("Noto Sans Mono",      "NotoSansMono-Regular.ttf")
-            }));
-
-        private static PdfEmbeddedFontFallbackCandidate EmbeddedFont(string fontName, string fileName)
-        {
-            using var stream = typeof(ADDocumentReportService).Assembly.GetManifestResourceStream("Fonts/" + fileName)
-                ?? throw new InvalidOperationException($"Embedded font Fonts/{fileName} is missing");
-            using var buffer = new MemoryStream();
-            stream.CopyTo(buffer);
-            return new PdfEmbeddedFontFallbackCandidate(fontName, buffer.ToArray());
-        }
-
-        /// <summary>
         /// Renders markdown to PDF with the embedded fallback fonts only (portable policy: no
         /// system font), so the output is the same on Windows, Linux and macOS. If OfficeIMO still
         /// cannot encode a character, a second attempt substitutes app emoji with short text
@@ -516,16 +494,8 @@ namespace SMADX.Services
 
         private static void RenderPdf(string markdown, string filePath, string theme)
         {
-            var pdfOptions = new PdfOptions();
-            pdfOptions.RegisterEmbeddedFontFallbacks(PdfFontFallbacks.Value);
-
-            var opts = new MarkdownToPdfOptions
-            {
-                Theme          = ResolveVisualTheme(theme),
-                TextFallbacks  = PdfTextFallbackFeatures.Default,
-                PdfOptions     = pdfOptions,
-                ResourcePolicy = PdfResourcePolicy.CreatePortableDeterministic()
-            };
+            // Les polices de secours et les ressources portables sont celles de toute la suite (SMAD-X.Labs)
+            var opts = MarkdownPdf.NewOptions(ResolveVisualTheme(theme));
 
             try
             {
