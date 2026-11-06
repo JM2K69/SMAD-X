@@ -2,7 +2,7 @@
 
 ## Télécharger
 
-Chaque version est publiée sur la page [Releases](https://github.com/JM2K69/SMAD-X/releases/latest) du dépôt, avec **une archive par application et par plateforme** :
+Chaque version de la suite SMA-X est publiée sur la page [Releases](https://github.com/JM2K69/SMAD-X/releases/latest) du dépôt, avec **une archive par application et par plateforme** :
 
 | Plateforme | SMAD-X | SMAD-X Studio | SMAR-X |
 |---|---|---|---|

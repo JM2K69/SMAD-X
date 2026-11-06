@@ -1,6 +1,6 @@
 # SMAD-X Studio
 
-**SMAD-X Studio** est l'outil du formateur : un exécutable livré dans sa propre archive (voir [Installation](../installation.md)), qui crée des exercices, les vérifie et produit la fiche du formateur. Il fait, avec une fenêtre, ce que le [mode opératoire](creer.md) décrit à la main. Il crée aussi les exercices de SMAR-X et corrige leurs copies (voir [Exercices SMAR-X](#exercices-smar-x)).
+**SMAD-X Studio** est l'outil du formateur de la suite [SMA-X](../index.md) : un exécutable livré dans sa propre archive (voir [Installation](../installation.md)), qui crée des exercices, les vérifie et produit la fiche du formateur. Il fait, avec une fenêtre, ce que le [mode opératoire](creer.md) décrit à la main. Il crée aussi les exercices de SMAR-X et corrige leurs copies (voir [Exercices SMAR-X](#exercices-smar-x)).
 
 Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X, l'exercice se met en forme dans Studio, l'apprenant le fait dans SMAD-X et rend sa **copie**, que Studio corrige avec celles de toute la classe.
 

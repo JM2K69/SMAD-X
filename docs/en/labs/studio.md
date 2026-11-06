@@ -1,6 +1,6 @@
 # SMAD-X Studio
 
-**SMAD-X Studio** is the trainer's tool: an executable shipped in its own archive (see [Installation](../installation.md)), that creates labs, checks them and produces the trainer sheet. It does, with a window, what the [how-to](create.md) describes by hand. It also creates SMAR-X labs and grades their copies (see [SMAR-X labs](#smar-x-labs)).
+**SMAD-X Studio** is the trainer's tool of the [SMA-X](../index.md) suite: an executable shipped in its own archive (see [Installation](../installation.md)), that creates labs, checks them and produces the trainer sheet. It does, with a window, what the [how-to](create.md) describes by hand. It also creates SMAR-X labs and grades their copies (see [SMAR-X labs](#smar-x-labs)).
 
 Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the lab is shaped in Studio, the learner does it in SMAD-X and hands in a **submission**, which Studio grades with the rest of the class.
 

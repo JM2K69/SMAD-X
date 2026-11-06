@@ -1,6 +1,6 @@
 # SMAR-X
 
-SMAR-X (*Simulate, Model and Audit Rights eXpert*) is the third application of the suite: a simulator of **file access rights**, on Linux and on Windows. It answers one question: **who can do what, on what, and why**? The goal is to learn to grant only the rights that are needed.
+SMAR-X (*Simulate, Model and Audit Rights eXpert*) is the third application of the [SMA-X](../index.md) suite: a simulator of **file access rights**, on Linux and on Windows. It answers one question: **who can do what, on what, and why**? The goal is to learn to grant only the rights that are needed.
 
 A sample Linux server (`srv-fic`) and a sample Windows server (`SRV-FIC`) open at startup. The **Linux / Windows** button switches between them, **Open...** and **Save...** read and write a `.smar-x.json` file, and **Cheat sheet** explains every abbreviation (`rwx`, `F`, `M`, `RD`, `(OI)`, `(CI)`…).
 

@@ -2,71 +2,87 @@
 title: Accueil
 ---
 
-# SMAD-X
+# La suite SMA-X
 
-**Simuler, Modéliser et Auditer Active Directory eXpert** : un simulateur d'Active Directory pensé pour **apprendre**. On y construit un domaine fidèle à une vraie installation, on l'audite selon les recommandations de l'**ANSSI**, du **NIST**, du **CIS** et de **MITRE ATT&CK**, on découvre **qui peut prendre le contrôle du domaine**, et on s'entraîne sur des **exercices corrigés automatiquement**.
+**Simuler, Modéliser, Auditer – eXpert** : trois applications pour **apprendre la sécurité des systèmes** sans risquer une vraie infrastructure. Chaque simulateur reproduit son sujet fidèlement, explique pourquoi un accès est accordé ou refusé, et sert d'énoncé à des exercices corrigés automatiquement, pour toute une classe.
 
-Aucune infrastructure n'est nécessaire : tout se passe dans l'application, sur Windows, Linux ou macOS.
+Le nom de chaque simulateur ajoute une lettre à la racine **SMA** : **D** pour l'annuaire (*Directory*, Active Directory), **R** pour les droits (*Rights*).
 
-[Télécharger SMAD-X](installation.md){ .md-button .md-button--primary }
-[Prendre en main](prise-en-main.md){ .md-button }
+[Télécharger](installation.md){ .md-button .md-button--primary }
+[Découvrir SMAD-X](smad-x.md){ .md-button }
+[Découvrir SMAR-X](smar-x/index.md){ .md-button }
 
-![La fenêtre principale de SMAD-X](assets/screens/main.png)
+!!! success "Des moteurs vérifiés sur de vrais systèmes"
+    Les simulateurs ne sont pas écrits « de mémoire ». Leurs résultats ont été comparés, un à un, à ceux de **vrais Windows Server, Windows 11, noyaux Linux et serveurs Samba**, installés et mesurés pour l'occasion. Ces relevés sont figés dans les tests : si un moteur s'en écarte, les tests échouent et aucune version ne sort. Le détail est plus bas, dans [Testé sur de vrais systèmes](#teste-sur-de-vrais-systemes).
 
-## Ce que l'on peut faire
+## Les trois outils
 
 <div class="grid cards" markdown>
 
--   :material-file-tree: **Modéliser un domaine**
+-   :material-domain: **SMAD-X**
 
     ---
 
-    Une structure identique à un AD fraîchement installé (Builtin, Users, Domain Controllers, System…), puis vos OU, comptes, groupes, GPO, PSO, délégations et sites. Chaque objet a une fiche pédagogique.
+    Le simulateur d'**Active Directory** : un domaine identique à une vraie installation, audité selon l'ANSSI, le NIST, le CIS et MITRE ATT&CK, ses chemins d'attaque, le modèle en tiers, et des exercices corrigés automatiquement.
 
-    [:octicons-arrow-right-24: Modéliser](modelisation.md)
+    [:octicons-arrow-right-24: SMAD-X](smad-x.md)
 
--   :material-shield-search: **Auditer**
-
-    ---
-
-    35 règles de sécurité, chacune reliée à ses sources : checklist AD de l'ANSSI, NIST SP 800-53 et 800-63B, CIS Controls, MITRE ATT&CK, Microsoft. Un score et un niveau ANSSI estimé.
-
-    [:octicons-arrow-right-24: Audit de sécurité](audit.md)
-
--   :material-sword-cross: **Trouver les chemins d'attaque**
+-   :material-folder-key: **SMAR-X**
 
     ---
 
-    Qui peut prendre le contrôle du domaine, et par quelles étapes : Kerberoasting, délégations, propriétaires, GPO, délégation Kerberos… Le chemin se surligne dans le graphe.
+    Le simulateur des **droits d'accès aux fichiers**, sous Linux et sous Windows, sur le serveur et par un partage (SMB, Samba) : qui peut faire quoi, sur quoi, et pourquoi, étape par étape.
 
-    [:octicons-arrow-right-24: Chemins d'attaque](chemins-d-attaque.md)
+    [:octicons-arrow-right-24: SMAR-X](smar-x/index.md)
 
--   :material-school: **S'exercer**
+-   :material-flask: **SMAD-X Studio**
 
     ---
 
-    Des exercices réalistes, en français et en anglais, corrigés par l'audit et les chemins d'attaque, avec indices et compte rendu. Et un mode opératoire pour écrire les vôtres.
+    L'outil du **formateur**, commun aux deux simulateurs : il crée les exercices (recommandations, recettes, domaine ou serveurs préparés), écrit le sujet et la fiche formateur, et corrige les copies de toute une classe.
 
-    [:octicons-arrow-right-24: Exercices](exercices/index.md)
+    [:octicons-arrow-right-24: SMAD-X Studio](exercices/studio.md)
 
 </div>
 
+## Comment ils s'articulent
+
+1. Le formateur prépare une situation dans **SMAD-X** (un domaine) ou dans **SMAR-X** (des serveurs), ou part d'une recette de **Studio**.
+2. **Studio** en fait un exercice : le sujet à distribuer, la solution et la fiche formateur.
+3. L'apprenant fait l'exercice dans **SMAD-X** ou **SMAR-X**, vérifie son travail (hors examen) et rend sa **copie**.
+4. **Studio** corrige les copies de la classe : notes, réussite par objectif, exports pour Moodle et comptes rendus PDF.
+
+## Testé sur de vrais systèmes
+
+Chaque moteur a été confronté à la réalité : on reproduit la situation sur un vrai système, on mesure ce qu'il accorde ou refuse, et le simulateur doit donner exactement la même réponse.
+
+| Outil | Système réel | Ce qui est comparé |
+|---|---|---|
+| SMAD-X | domaines **Windows Server 2019, 2022 et 2025** tout juste promus | le domaine neuf, objet par objet et permission par permission, et l'audit des deux (voir [Un domaine neuf, comme un vrai](audit.md#un-domaine-neuf-comme-un-vrai)) |
+| SMAD-X | un domaine Windows Server 2025 durci par **HardenAD** 2.9.9 | le modèle appliqué : OU, groupes, GPO et leurs paramètres, appartenances, délégations |
+| SMAR-X | **noyau Linux** 6.19, Debian 13 | 925 accès et 140 créations de fichiers, droits Unix et ACL POSIX |
+| SMAR-X | **Samba** 4.22 | 20 connexions, 160 opérations et 72 créations par les partages |
+| SMAR-X | **Windows Server 2025**, contrôleur de domaine | 1 512 ouvertures sous le jeton de chaque compte, les propriétaires, l'ordre réel des ACL |
+| SMAR-X | Windows Server 2025, depuis un **Windows 11** du domaine | 1 540 ouvertures par les partages et 50 dossiers listés |
+| SMAR-X | l'**Explorateur de Windows 11** | l'onglet Sécurité : 96 vues de comptes, 103 entrées de la fenêtre Avancé, 8 séquences de cases cochées |
+
+Le détail de SMAR-X, et ce que ces mesures ont appris, est dans [Fidèle aux vrais systèmes](smar-x/index.md#fidele-aux-vrais-systemes) et [Règles de Windows vérifiées](smar-x/regles-windows.md). Ce qui n'est pas simulé est dit franchement : voir les [limites de SMAR-X](smar-x/limites.md).
+
 ## Pour qui ?
 
-- **Étudiants et apprentis administrateurs** : comprendre la structure d'un AD, le modèle en tiers et les erreurs de configuration qui mènent à la compromission, sans risquer un vrai domaine.
-- **Formateurs** : préparer une situation, la distribuer sous forme d'exercice et laisser SMAD-X corriger.
-- **Administrateurs** : documenter un AD existant (script d'import), en produire un rapport, et repérer ses faiblesses avant un audit.
+- **Étudiants et apprentis administrateurs** : comprendre un Active Directory, le modèle en tiers, les droits Linux et NTFS, les partages, et les erreurs de configuration qui mènent à la compromission.
+- **Formateurs** : préparer une situation, la distribuer sous forme d'exercice et laisser Studio corriger les copies.
+- **Administrateurs** : documenter un AD existant (script d'import de SMAD-X), en produire un rapport, et repérer ses faiblesses avant un audit.
 
 ## En un coup d'œil
 
 | | |
 |---|---|
 | **Plateformes** | Windows, Linux, macOS (Intel et Apple Silicon) |
-| **Installation** | un seul fichier exécutable, tout inclus |
+| **Installation** | une archive par application, un seul exécutable chacune, tout inclus |
 | **Langues** | français et anglais, changement à chaud |
-| **Format** | `.smad-x.json` (domaine), `.smadx-lab.json` (exercice) |
-| **Exports** | JSON, rapport Markdown / DOCX / PDF, image PNG |
+| **Formats** | `.smad-x.json` (domaine), `.smar-x.json` (serveurs), `.smadx-lab.json` et `.smarx-lab.json` (exercices) |
 | **Licence** | Apache 2.0, y compris en formation payante |
 
-!!! warning "Un simulateur, pas un outil d'administration"
-    SMAD-X ne se connecte jamais à un annuaire réel. L'import se fait par un script PowerShell que vous lancez vous-même et qui ne fait que lire ; SMAD-X ne produit aucun script qui modifie un annuaire.
+!!! warning "Des simulateurs, pas des outils d'administration"
+    Aucune application de la suite ne se connecte à un annuaire ou à un serveur réel. L'import d'un domaine dans SMAD-X se fait par un script PowerShell que vous lancez vous-même et qui ne fait que lire. Les commandes qu'affiche SMAR-X (`icacls`, `chmod`, `setfacl`, PowerShell) sont là pour être essayées sur un labo, par vous.

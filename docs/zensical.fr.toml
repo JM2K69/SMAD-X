@@ -3,11 +3,11 @@
 # Construction : voir docs/README.md
 
 [project]
-site_name = "SMAD-X"
+site_name = "SMA-X"
 site_url = "https://jm2k69.github.io/SMAD-X/"
-site_description = "Simuler, modéliser et auditer Active Directory : un simulateur pédagogique avec audit ANSSI, chemins d'attaque et exercices corrigés."
+site_description = "La suite SMA-X : simuler, modéliser et auditer Active Directory (SMAD-X) et les droits d'accès aux fichiers (SMAR-X), avec des moteurs vérifiés sur de vrais systèmes et des exercices corrigés (SMAD-X Studio)."
 site_author = "Jérôme Bezet-Torres"
-copyright = "Copyright &copy; 2026 Jérôme Bezet-Torres — SMAD-X, usage non commercial"
+copyright = "Copyright &copy; 2026 Jérôme Bezet-Torres — SMA-X, usage non commercial"
 repo_url = "https://github.com/JM2K69/SMAD-X"
 repo_name = "JM2K69/SMAD-X"
 docs_dir = "fr"
@@ -15,19 +15,20 @@ site_dir = "site"
 
 nav = [
   { "Accueil" = "index.md" },
-  { "Démarrer" = [
-    "installation.md",
+  { "Installation" = "installation.md" },
+  { "SMAD-X" = [
+    "smad-x.md",
     "prise-en-main.md",
-  ] },
-  { "Modéliser" = [
-    "modelisation.md",
-    "cloisonnement.md",
-    "graphe.md",
-  ] },
-  { "Analyser" = [
-    "audit.md",
-    "chemins-d-attaque.md",
-    "avant-apres.md",
+    { "Modéliser" = [
+      "modelisation.md",
+      "cloisonnement.md",
+      "graphe.md",
+    ] },
+    { "Analyser" = [
+      "audit.md",
+      "chemins-d-attaque.md",
+      "avant-apres.md",
+    ] },
   ] },
   { "Exercices" = [
     "exercices/index.md",
