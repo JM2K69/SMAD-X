@@ -48,6 +48,57 @@ public class WorkspaceEditingTests
         Assert.Contains("2001(compta)", vm.Users.First(u => u.Name == "dave").IdLine);
     }
 
+    /// <summary>
+    /// L'ACL par défaut d'un dossier, modifiée comme avec setfacl -d, sur les cas relevés sur un vrai noyau
+    /// (Debian 13, acl 2.3.2) : la première entrée copie user::, group:: (celui de l'ACL d'accès) et other:: du
+    /// dossier ; le masque est l'union de group:: et des entrées nommées ; il reste après le retrait de la dernière
+    /// entrée nommée, et un fichier créé reçoit alors une ACL réduite au masque ; setfacl -k la supprime.
+    /// </summary>
+    [Fact]
+    public void Linux_DefaultAcl_IsEditedLikeSetfaclD()
+    {
+        var vm = Shell().Linux;
+        var editor = vm.Editor;
+
+        // /srv : 0755, sans ACL ; setfacl -d -m u:bob:rw- /srv
+        vm.SelectedNode = FindLinux(vm.Tree[0], "/srv");
+        Assert.False(editor.HasDefaultAcl);
+        editor.DefaultUserToAdd = "bob";
+        editor.AddDefaultUserCommand.Execute(null);
+        editor.DefaultEntries.Single().Bits.W = true;
+        Assert.Equal("default:user::rwx\ndefault:user:bob:rw-\ndefault:group::r-x\ndefault:mask::rwx\ndefault:other::r-x", editor.DefaultAcl);
+        Assert.Contains("setfacl -d -m u::rwx,u:bob:rw-,g::r-x,m::rwx,o::r-x /srv", editor.Commands);
+
+        // /srv/partage : 0750 et une ACL d'accès (group:: r-x) ; setfacl -d -m g:rh:rwx
+        vm.SelectedNode = FindLinux(vm.Tree[0], "/srv/partage");
+        editor.DefaultGroupToAdd = "rh";
+        editor.AddDefaultGroupCommand.Execute(null);
+        var rh = editor.DefaultEntries.Single();
+        rh.Bits.W = true;
+        rh.Bits.X = true;
+        Assert.Equal("default:user::rwx\ndefault:group::r-x\ndefault:group:rh:rwx\ndefault:mask::rwx\ndefault:other::---", editor.DefaultAcl);
+
+        // setfacl -d -x g:rh : le masque reste, recalculé (r-x)
+        rh.Remove.Execute(null);
+        Assert.Equal("default:user::rwx\ndefault:group::r-x\ndefault:mask::r-x\ndefault:other::---", editor.DefaultAcl);
+        Assert.Equal("r-x", editor.DefaultMask);
+        var created = LinuxCreation.Create(vm.Host, vm.Host.User("root")!, "/srv/partage", "f", LinuxNodeKind.File).Node!;
+        Assert.Equal("-rw-r-----+", LinuxListing.Mode(created));
+        Assert.Equal(["user::rw-", "group::r-x\t#effective:r--", "mask::r--", "other::---"], LinuxListing.Getfacl(created, "/srv/partage/f").Where(l => !l.StartsWith('#')));
+
+        // setfacl -k : plus d'ACL par défaut, l'umask revient
+        editor.RemoveDefaultAclCommand.Execute(null);
+        Assert.False(editor.HasDefaultAcl);
+        Assert.Null(vm.Host.Find("/srv/partage")!.DefaultAcl);
+        Assert.DoesNotContain("setfacl -d", editor.Commands);
+
+        // Un dossier qui en a une : /srv/projets
+        vm.SelectedNode = FindLinux(vm.Tree[0], "/srv/projets");
+        Assert.True(editor.HasDefaultAcl);
+        Assert.Equal(["group:rh"], editor.DefaultEntries.Select(e => e.Tag));
+        Assert.Equal("rwx", editor.DefaultMask);
+    }
+
     [Fact]
     public void Linux_NewAccountAndGroup_GetTheNextFreeIds()
     {

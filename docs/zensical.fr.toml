@@ -37,6 +37,7 @@ nav = [
   ] },
   { "SMAR-X" = [
     "smar-x/index.md",
+    "smar-x/droits-linux.md",
     "smar-x/onglet-securite.md",
     "smar-x/partages.md",
     "smar-x/samba.md",

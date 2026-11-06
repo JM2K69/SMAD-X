@@ -15,7 +15,7 @@ Un serveur Linux (`srv-fic`) et un serveur Windows (`SRV-FIC`) d'exemple s'ouvre
 | **Arborescence** | fichiers et dossiers, `ls -l` de chacun | fichiers et dossiers NTFS, propriétaire, héritage désactivé |
 | **Testeur** | un compte, une opération, un chemin : autorisé ou refusé, avec chaque étape du noyau | la même chose avec AccessCheck : le jeton, puis chaque ACE dans l'ordre |
 | **Matrice d'accès** | chaque compte, chaque opération ; un clic sur une case l'explique | idem |
-| **Autorisations** | propriétaire, groupe, `chmod`, bits spéciaux, ACL POSIX et masque | l'[onglet Sécurité](onglet-securite.md) de l'Explorateur, et la liste des ACE comme `icacls` |
+| **Autorisations** | propriétaire, groupe, `chmod`, bits spéciaux, ACL POSIX et masque, ACL par défaut (voir [Droits Linux](droits-linux.md)) | l'[onglet Sécurité](onglet-securite.md) de l'Explorateur, et la liste des ACE comme `icacls` |
 | **Création** | ce que recevrait un nouveau fichier : umask, setgid, ACL par défaut | ce que recevrait un nouveau fichier : héritage, CREATOR OWNER |
 | **Commandes** | `chmod`, `chown`, `setfacl` qui recréent l'état affiché | `icacls` qui recrée l'état affiché |
 | **Comptes** | comptes, groupes, `usermod`, `useradd`, `groupadd` | comptes et groupes locaux, `net localgroup` |

@@ -309,7 +309,12 @@
                         <Border Classes="chip" CornerRadius="8" Padding="12,8" IsVisible="{Binding !Editor.HasAcl}">
                             <TextBlock Text="{DynamicResource Rights.NoAcl}" TextWrapping="Wrap" FontSize="12"/>
                         </Border>
-                        <Grid ColumnDefinitions="*,44,44,44" IsVisible="{Binding Editor.HasAcl}">
+                        <Grid ColumnDefinitions="*,44,44,44,36" IsVisible="{Binding Editor.HasAcl}">
+                            <TextBlock Grid.Column="1" Classes="label mono" Text="r" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Classes="label mono" Text="w" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Classes="label mono" Text="x" HorizontalAlignment="Center"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,44,44,44,36" IsVisible="{Binding Editor.HasAcl}">
                             <TextBlock Classes="mono" Text="group::" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource Rights.OwningGroup}"/>
                             <CheckBox Grid.Column="1" IsChecked="{Binding Editor.GroupObjBits.R}" HorizontalAlignment="Center"/>
                             <CheckBox Grid.Column="2" IsChecked="{Binding Editor.GroupObjBits.W}" HorizontalAlignment="Center"/>
@@ -318,7 +323,7 @@
                         <ItemsControl ItemsSource="{Binding Editor.AclEntries}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:AclEntryItem">
-                                    <Grid ColumnDefinitions="*,44,44,44,Auto" Margin="0,0,0,4">
+                                    <Grid ColumnDefinitions="*,44,44,44,36" Margin="0,0,0,4">
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock Classes="mono" Text="{Binding Tag}"/>
                                             <TextBlock Classes="muted mono" Text="{Binding Effective}" Foreground="#E5534B" IsVisible="{Binding Effective, Converter={x:Static ObjectConverters.IsNotNull}}"/>
@@ -326,7 +331,7 @@
                                         <CheckBox Grid.Column="1" IsChecked="{Binding Bits.R}" HorizontalAlignment="Center"/>
                                         <CheckBox Grid.Column="2" IsChecked="{Binding Bits.W}" HorizontalAlignment="Center"/>
                                         <CheckBox Grid.Column="3" IsChecked="{Binding Bits.X}" HorizontalAlignment="Center"/>
-                                        <Button Grid.Column="4" Content="✕" Command="{Binding Remove}" Padding="8,2" ToolTip.Tip="{DynamicResource Rights.Remove}"/>
+                                        <Button Grid.Column="4" Content="✕" Command="{Binding Remove}" Padding="8,2" HorizontalAlignment="Right" ToolTip.Tip="{DynamicResource Rights.Remove}"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -341,12 +346,75 @@
                         <Border Classes="code">
                             <SelectableTextBlock Classes="mono" Text="{Binding Editor.Getfacl}" FontSize="12"/>
                         </Border>
-                        <StackPanel Spacing="6" IsVisible="{Binding Editor.DefaultAcl, Converter={x:Static ObjectConverters.IsNotNull}}">
-                            <TextBlock Classes="label" Text="{DynamicResource Rights.DefaultAcl}"/>
-                            <Border Classes="code">
-                                <SelectableTextBlock Classes="mono" Text="{Binding Editor.DefaultAcl}" FontSize="12"/>
-                            </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- ACL par défaut d'un dossier : reçue par ce qui y sera créé (setfacl -d) -->
+                <Border Classes="card" IsVisible="{Binding Editor.IsDirectory}">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="h" Text="{DynamicResource Default.Title}"/>
+                            <TextBlock Classes="muted" Text="{DynamicResource Default.Hint}"/>
                         </StackPanel>
+                        <Border Classes="chip" CornerRadius="8" Padding="12,8" IsVisible="{Binding !Editor.HasDefaultAcl}">
+                            <TextBlock Text="{DynamicResource Default.None}" TextWrapping="Wrap" FontSize="12"/>
+                        </Border>
+                        <Grid ColumnDefinitions="*,44,44,44,36" IsVisible="{Binding Editor.HasDefaultAcl}">
+                            <TextBlock Grid.Column="1" Classes="label mono" Text="r" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Classes="label mono" Text="w" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Classes="label mono" Text="x" HorizontalAlignment="Center"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,44,44,44,36" RowDefinitions="Auto,Auto" RowSpacing="6" IsVisible="{Binding Editor.HasDefaultAcl}">
+                            <TextBlock Classes="mono" Text="user::" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource Rights.Owner}"/>
+                            <CheckBox Grid.Column="1" IsChecked="{Binding Editor.DefaultUserObjBits.R}" HorizontalAlignment="Center"/>
+                            <CheckBox Grid.Column="2" IsChecked="{Binding Editor.DefaultUserObjBits.W}" HorizontalAlignment="Center"/>
+                            <CheckBox Grid.Column="3" IsChecked="{Binding Editor.DefaultUserObjBits.X}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Classes="mono" Text="group::" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource Rights.OwningGroup}"/>
+                            <CheckBox Grid.Row="1" Grid.Column="1" IsChecked="{Binding Editor.DefaultGroupObjBits.R}" HorizontalAlignment="Center"/>
+                            <CheckBox Grid.Row="1" Grid.Column="2" IsChecked="{Binding Editor.DefaultGroupObjBits.W}" HorizontalAlignment="Center"/>
+                            <CheckBox Grid.Row="1" Grid.Column="3" IsChecked="{Binding Editor.DefaultGroupObjBits.X}" HorizontalAlignment="Center"/>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Editor.DefaultEntries}" IsVisible="{Binding Editor.HasDefaultAcl}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:AclEntryItem">
+                                    <Grid ColumnDefinitions="*,44,44,44,36" Margin="0,0,0,4">
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Classes="mono" Text="{Binding Tag}"/>
+                                            <TextBlock Classes="muted mono" Text="{Binding Effective}" Foreground="#E5534B" IsVisible="{Binding Effective, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="1" IsChecked="{Binding Bits.R}" HorizontalAlignment="Center"/>
+                                        <CheckBox Grid.Column="2" IsChecked="{Binding Bits.W}" HorizontalAlignment="Center"/>
+                                        <CheckBox Grid.Column="3" IsChecked="{Binding Bits.X}" HorizontalAlignment="Center"/>
+                                        <Button Grid.Column="4" Content="✕" Command="{Binding Remove}" Padding="8,2" HorizontalAlignment="Right" ToolTip.Tip="{DynamicResource Rights.Remove}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <StackPanel Spacing="2" IsVisible="{Binding Editor.DefaultMask, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <Grid ColumnDefinitions="*,Auto,36">
+                                <TextBlock Classes="mono" Text="mask::" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource Rights.Mask}"/>
+                                <Border Grid.Column="1" Classes="chip" VerticalAlignment="Center">
+                                    <TextBlock Classes="mono" Text="{Binding Editor.DefaultMask}" FontWeight="Bold" Foreground="{DynamicResource Accent}"/>
+                                </Border>
+                            </Grid>
+                            <TextBlock Classes="muted" Text="{DynamicResource Default.Mask}" TextWrapping="Wrap" FontSize="11"/>
+                        </StackPanel>
+                        <Grid ColumnDefinitions="*,44,44,44,36" IsVisible="{Binding Editor.HasDefaultAcl}">
+                            <TextBlock Classes="mono" Text="other::" VerticalAlignment="Center" ToolTip.Tip="{DynamicResource Rights.Other}"/>
+                            <CheckBox Grid.Column="1" IsChecked="{Binding Editor.DefaultOtherBits.R}" HorizontalAlignment="Center"/>
+                            <CheckBox Grid.Column="2" IsChecked="{Binding Editor.DefaultOtherBits.W}" HorizontalAlignment="Center"/>
+                            <CheckBox Grid.Column="3" IsChecked="{Binding Editor.DefaultOtherBits.X}" HorizontalAlignment="Center"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" RowDefinitions="Auto,Auto" RowSpacing="6">
+                            <ComboBox ItemsSource="{Binding Editor.Users}" SelectedItem="{Binding Editor.DefaultUserToAdd}" HorizontalAlignment="Stretch"/>
+                            <Button Grid.Column="1" Content="{DynamicResource Rights.AddUser}" Command="{Binding Editor.AddDefaultUserCommand}" MinWidth="120"/>
+                            <ComboBox Grid.Row="1" ItemsSource="{Binding Editor.Groups}" SelectedItem="{Binding Editor.DefaultGroupToAdd}" HorizontalAlignment="Stretch"/>
+                            <Button Grid.Row="1" Grid.Column="1" Content="{DynamicResource Rights.AddGroup}" Command="{Binding Editor.AddDefaultGroupCommand}" MinWidth="120"/>
+                        </Grid>
+                        <Button Content="{DynamicResource Default.Remove}" Command="{Binding Editor.RemoveDefaultAclCommand}" IsVisible="{Binding Editor.HasDefaultAcl}"/>
+                        <Border Classes="code" IsVisible="{Binding Editor.HasDefaultAcl}">
+                            <SelectableTextBlock Classes="mono" Text="{Binding Editor.DefaultAcl}" FontSize="12"/>
+                        </Border>
                     </StackPanel>
                 </Border>
 

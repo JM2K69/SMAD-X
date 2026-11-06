@@ -15,7 +15,7 @@ A sample Linux server (`srv-fic`) and a sample Windows server (`SRV-FIC`) open a
 | **Tree** | files and directories, the `ls -l` of each | NTFS files and folders, owner, inheritance disabled |
 | **Tester** | an account, an operation, a path: allowed or denied, with each kernel step | the same with AccessCheck: the token, then each ACE in order |
 | **Access matrix** | every account, every operation; click a cell to see why | same |
-| **Permissions** | owner, group, `chmod`, special bits, POSIX ACL and mask | the Explorer [Security tab](security-tab.md), and the ACE list as `icacls` shows it |
+| **Permissions** | owner, group, `chmod`, special bits, POSIX ACL and mask, default ACL (see [Linux permissions](linux-rights.md)) | the Explorer [Security tab](security-tab.md), and the ACE list as `icacls` shows it |
 | **Creation** | what a new file would get: umask, setgid, default ACL | what a new file would get: inheritance, CREATOR OWNER |
 | **Commands** | `chmod`, `chown`, `setfacl` that recreate what is shown | `icacls` that recreates what is shown |
 | **Accounts** | accounts, groups, `usermod`, `useradd`, `groupadd` | local accounts and groups, `net localgroup` |

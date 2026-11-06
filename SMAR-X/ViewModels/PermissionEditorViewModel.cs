@@ -23,6 +23,8 @@ namespace SMARX.ViewModels
             foreach (var bits in new[] { OwnerBits, GroupBits, OtherBits })
                 bits.Changed += ApplyMode;
             GroupObjBits.Changed += RecalculateMask;
+            foreach (var bits in new[] { DefaultUserObjBits, DefaultGroupObjBits, DefaultOtherBits })
+                bits.Changed += WriteDefault;
         }
 
         /// <summary>Le serveur simulé a été modifié.</summary>
@@ -52,6 +54,17 @@ namespace SMARX.ViewModels
         [ObservableProperty] private string? _userToAdd;
         [ObservableProperty] private string? _groupToAdd;
 
+        // ACL par défaut d'un dossier (setfacl -d) : user::, entrées nommées, group::, masque, other::
+        public PermBits DefaultUserObjBits { get; } = new();
+        public PermBits DefaultGroupObjBits { get; } = new();
+        public PermBits DefaultOtherBits { get; } = new();
+        public ObservableCollection<AclEntryItem> DefaultEntries { get; } = new();
+        [ObservableProperty] private bool _hasDefaultAcl;
+        /// <summary>Le masque de l'ACL par défaut, ou null quand elle n'a que user::, group:: et other::.</summary>
+        [ObservableProperty] private string? _defaultMask;
+        [ObservableProperty] private string? _defaultUserToAdd;
+        [ObservableProperty] private string? _defaultGroupToAdd;
+
         public string GroupRowLabel => HasAcl ? SmarxText.Instance["Rights.Mask"] : SmarxText.Instance["Rights.Group"];
 
         public void Load(LinuxHost host, NodeItem? item)
@@ -63,8 +76,8 @@ namespace SMARX.ViewModels
             foreach (var u in host.Users) Users.Add(u.Name);
             Groups.Clear();
             foreach (var g in host.Groups) Groups.Add(g.Name);
-            UserToAdd = host.Users.FirstOrDefault(u => !u.IsRoot)?.Name;
-            GroupToAdd = host.Groups.FirstOrDefault(g => g.Name != "root")?.Name;
+            UserToAdd = DefaultUserToAdd = host.Users.FirstOrDefault(u => !u.IsRoot)?.Name;
+            GroupToAdd = DefaultGroupToAdd = host.Groups.FirstOrDefault(g => g.Name != "root")?.Name;
             if (item != null)
             {
                 var node = item.Node;
@@ -78,6 +91,12 @@ namespace SMARX.ViewModels
                 GroupBits.Value = node.GroupPerm;
                 OtherBits.Value = node.OtherPerm;
                 LoadAcl(node);
+                LoadDefault(node);
+            }
+            else
+            {
+                DefaultEntries.Clear();
+                HasDefaultAcl = false;
             }
             _loading = false;
             Describe();
@@ -155,7 +174,8 @@ namespace SMARX.ViewModels
                 GroupObjBits.Value = GroupBits.Value;
                 _loading = false;
             }
-            AclEntries.Add(Entry(isUser, AclEntry.Of(name, "r--")));
+            // Les utilisateurs avant les groupes, dans l'ordre de getfacl
+            AclEntries.Insert(isUser ? AclEntries.Count(e => e.IsUser) : AclEntries.Count, Entry(isUser, AclEntry.Of(name, "r--")));
             RecalculateMask();
         }
 
@@ -186,6 +206,91 @@ namespace SMARX.ViewModels
             Changed?.Invoke();
         }
 
+        private void LoadDefault(LinuxNode node)
+        {
+            DefaultEntries.Clear();
+            HasDefaultAcl = node.DefaultAcl != null;
+            if (node.DefaultAcl is not { } d) return;
+            DefaultUserObjBits.Value = Perms.Parse(d.UserObj);
+            DefaultGroupObjBits.Value = Perms.Parse(d.GroupObj);
+            DefaultOtherBits.Value = Perms.Parse(d.Other);
+            foreach (var e in d.Users) DefaultEntries.Add(DefaultEntry(true, e));
+            foreach (var e in d.Groups) DefaultEntries.Add(DefaultEntry(false, e));
+        }
+
+        private AclEntryItem DefaultEntry(bool isUser, AclEntry entry)
+        {
+            var item = new AclEntryItem(isUser, entry.Name, Perms.Parse(entry.Perm), RemoveDefaultEntry);
+            item.Bits.Changed += WriteDefault;
+            return item;
+        }
+
+        /// <summary>
+        /// setfacl -d -m : écrit l'ACL par défaut et recalcule son masque (l'union de group:: et des entrées nommées).
+        /// Comme setfacl, une ACL par défaut qui a eu un masque le garde, même sans entrée nommée.
+        /// </summary>
+        private void WriteDefault()
+        {
+            if (_loading || _item == null || !_item.Node.IsDirectory) return;
+            var node = _item.Node;
+            var hadMask = node.DefaultAcl is { } previous && (previous.Users.Count > 0 || previous.Groups.Count > 0 || previous.Mask != null);
+            var acl = new PosixDefaultAcl
+            {
+                UserObj = DefaultUserObjBits.Text,
+                Users = DefaultEntries.Where(e => e.IsUser).Select(e => AclEntry.Of(e.Name, e.Bits.Text)).ToList(),
+                GroupObj = DefaultGroupObjBits.Text,
+                Groups = DefaultEntries.Where(e => !e.IsUser).Select(e => AclEntry.Of(e.Name, e.Bits.Text)).ToList(),
+                Other = DefaultOtherBits.Text
+            };
+            if (hadMask || DefaultEntries.Count > 0)
+                acl.Mask = Perms.Format(LinuxCreation.UnionMask(acl));
+            node.DefaultAcl = acl;
+            HasDefaultAcl = true;
+            Apply();
+        }
+
+        [RelayCommand]
+        private void AddDefaultUser() => AddDefault(true, DefaultUserToAdd);
+
+        [RelayCommand]
+        private void AddDefaultGroup() => AddDefault(false, DefaultGroupToAdd);
+
+        private void AddDefault(bool isUser, string? name)
+        {
+            if (_item is not { Node.IsDirectory: true } || string.IsNullOrEmpty(name) || DefaultEntries.Any(e => e.IsUser == isUser && e.Name == name)) return;
+            if (!HasDefaultAcl)
+            {
+                // Première entrée : comme setfacl -d -m, user::, group:: et other:: sont copiés des droits du dossier
+                // (group:: de son ACL s'il en a une, sinon le groupe du mode)
+                var node = _item.Node;
+                _loading = true;
+                DefaultUserObjBits.Value = node.OwnerPerm;
+                DefaultGroupObjBits.Value = node.Acl is { } acl ? Perms.Parse(acl.GroupObj) : node.GroupPerm;
+                DefaultOtherBits.Value = node.OtherPerm;
+                _loading = false;
+            }
+            DefaultEntries.Insert(isUser ? DefaultEntries.Count(e => e.IsUser) : DefaultEntries.Count, DefaultEntry(isUser, AclEntry.Of(name, "r--")));
+            WriteDefault();
+        }
+
+        private void RemoveDefaultEntry(AclEntryItem entry)
+        {
+            DefaultEntries.Remove(entry);
+            WriteDefault();
+        }
+
+        /// <summary>setfacl -k : plus d'ACL par défaut ; ce qui sera créé ici suivra de nouveau l'umask.</summary>
+        [RelayCommand]
+        private void RemoveDefaultAcl()
+        {
+            if (_item == null || _item.Node.DefaultAcl == null) return;
+            _item.Node.DefaultAcl = null;
+            _loading = true;
+            LoadDefault(_item.Node);
+            _loading = false;
+            Apply();
+        }
+
         /// <summary>Ligne ls -l, mode octal, effectif de chaque entrée, getfacl et commandes équivalentes.</summary>
         public void Describe()
         {
@@ -201,6 +306,14 @@ namespace SMARX.ViewModels
             Getfacl = string.Join("\n", LinuxListing.Getfacl(node, _item.Path).Where(l => !l.StartsWith("default:")));
             var defaults = LinuxListing.Getfacl(node, _item.Path).Where(l => l.StartsWith("default:")).ToList();
             DefaultAcl = defaults.Count > 0 ? string.Join("\n", defaults) : null;
+            DefaultMask = node.DefaultAcl is { } d && (d.Users.Count > 0 || d.Groups.Count > 0 || d.Mask != null)
+                ? Perms.Format(d.Mask is { } m ? Perms.Parse(m) : LinuxCreation.UnionMask(d))
+                : null;
+            foreach (var e in DefaultEntries)
+            {
+                var effective = DefaultMask is { } mask ? e.Bits.Value & Perms.Parse(mask) : e.Bits.Value;
+                e.Effective = effective != e.Bits.Value ? SmarxText.Instance.T($"effectif : {Perms.Format(effective)}", $"effective: {Perms.Format(effective)}") : null;
+            }
             Commands = string.Join("\n", LinuxScripts.Commands(node, _item.Path));
         }
 

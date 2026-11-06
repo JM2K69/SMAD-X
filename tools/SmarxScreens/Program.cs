@@ -5,8 +5,10 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
+using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using SMARX;
 using SMARX.Services.Linux;
 using SMARX.Services.Windows;
@@ -44,6 +46,8 @@ if (docs)
         LinuxNetwork(culture, "carol", "/srv/partage/doc.txt", LinuxOperation.Write, null, "smarx-samba-local");
         LinuxNetwork(culture, "carol", "/srv/partage/doc.txt", LinuxOperation.Write, "partage", "smarx-samba");
         SambaWindow(culture, "/srv/projets", "smarx-samba-share");
+        // L'ACL par défaut de /srv/projets : ce que recevra ce qui y sera créé
+        LinuxCard(culture, "/srv/projets", "Default.Title", "smarx-default-acl");
     }
     return;
 }
@@ -59,6 +63,26 @@ void LinuxNetwork(string culture, string user, string path, LinuxOperation opera
     vm.SelectedOperation = vm.Operations.First(o => Equals(o.Operation, operation));
     vm.SelectedAccount = vm.Users.First(u => u.Name == user);
     Capture(shell, name, 1000);
+}
+
+// Une carte de la colonne de droite de l'espace Linux, seule : la fenêtre est rendue assez haute pour tout montrer
+void LinuxCard(string culture, string path, string titleKey, string name)
+{
+    var shell = Prepare(culture, ThemeVariant.Dark);
+    var vm = shell.Linux;
+    vm.SelectedNode = Find(vm.Tree[0], path, n => n.Path, n => n.Children);
+    var window = new MainWindow { DataContext = shell, Width = 1600, Height = 2600 };
+    window.Show();
+    Pump(700);
+    var title = SmarxText.Instance[titleKey];
+    var card = window.GetVisualDescendants().OfType<TextBlock>().First(t => t.Text == title && t.IsEffectivelyVisible)
+        .GetVisualAncestors().OfType<Border>().First(b => b.Classes.Contains("card"));
+    using var bitmap = new RenderTargetBitmap(new PixelSize((int)card.Bounds.Width, (int)card.Bounds.Height));
+    bitmap.Render(card);
+    var file = Path.Combine(outDir, name + ".png");
+    bitmap.Save(file);
+    Console.WriteLine(file);
+    window.Close();
 }
 
 // La fenêtre Partage Samba d'un dossier
