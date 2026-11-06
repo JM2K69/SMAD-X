@@ -1,4 +1,4 @@
-﻿# SMAD-X — Simulateur Expert Active Directory
+﻿# SMA-X — Simuler, Modéliser, Auditer – eXpert
 
 <p align="center">
   <img alt="Version" src="https://img.shields.io/github/v/release/JM2K69/SMAD-X?label=version"/>
@@ -10,19 +10,54 @@
   <img alt="Téléchargements" src="https://img.shields.io/github/downloads/JM2K69/SMAD-X/total?label=t%C3%A9l%C3%A9chargements&color=brightgreen&logo=github"/>
 </p>
 
-<p align="center">
-  <img src="./SMAD-X.png" alt="Capture d'écran SMAD-X" width="450"/>
-</p>
-
 > 🇬🇧 English documentation is available in [README.md](./README.md).
 
-**SMAD-X** (*Simulate, Model and Audit Active Directory eXpert*) est un simulateur expert d'Active Directory construit avec Avalonia UI et .NET 10. Il génère une structure AD fidèle à une installation fraîche de Windows Server et vous permet de la visualiser, documenter et exporter sans aucune infrastructure réelle.
+**SMA-X** (*Simuler, Modéliser, Auditer – eXpert*) est une suite de trois applications pour **apprendre la sécurité des systèmes** sans risquer une vraie infrastructure. Chaque simulateur reproduit son sujet fidèlement, explique pourquoi un accès est accordé ou refusé, et sert d'énoncé à des exercices corrigés automatiquement, pour toute une classe. Construite avec Avalonia UI et .NET 10, pour Windows, Linux et macOS.
 
----
+| Outil | Ce qu'il fait | Documentation |
+|---|---|---|
+| 🛡️ **SMAD-X** | Le simulateur d'**Active Directory** : un domaine identique à une installation neuve de Windows Server 2019, 2022 ou 2025, audité selon l'ANSSI, le NIST, le CIS et MITRE ATT&CK, ses chemins d'attaque, le modèle en tiers, des exercices corrigés | [SMAD-X](https://jm2k69.github.io/SMAD-X/smad-x/) |
+| 🔐 **SMAR-X** | Le simulateur des **droits d'accès aux fichiers**, sous Linux et sous Windows, sur le serveur et par un partage (SMB, Samba) : qui peut faire quoi, sur quoi, et pourquoi | [SMAR-X](https://jm2k69.github.io/SMAD-X/smar-x/) |
+| 🧑‍🏫 **SMAD-X Studio** | L'outil du **formateur**, commun aux deux simulateurs : crée les exercices, écrit le sujet et la fiche formateur, corrige toute une classe | [Studio](https://jm2k69.github.io/SMAD-X/exercices/studio/) |
 
 > 📖 **Documentation** : [jm2k69.github.io/SMAD-X](https://jm2k69.github.io/SMAD-X/) (français) · [jm2k69.github.io/SMAD-X/en](https://jm2k69.github.io/SMAD-X/en/) (English)
 
-## 🎯 Fonctionnalités
+<p align="center">
+  <img src="./images/SMADX.png" alt="SMAD-X" width="900"/>
+</p>
+
+<p align="center">
+  <img src="./docs/fr/assets/screens/smarx-linux.png" alt="SMAR-X" width="900"/>
+</p>
+
+## ✅ Testé sur de vrais systèmes
+
+Les simulateurs ne sont pas écrits « de mémoire ». Leurs résultats ont été comparés, un à un, à ceux de vrais systèmes installés et mesurés pour l'occasion. Ces relevés sont figés dans les tests : si un moteur s'en écarte, les tests échouent et aucune version ne sort.
+
+| Outil | Système réel | Ce qui est comparé |
+|---|---|---|
+| SMAD-X | domaines **Windows Server 2019, 2022 et 2025** tout juste promus | le domaine neuf, objet par objet et permission par permission, et l'audit des deux |
+| SMAD-X | un domaine Windows Server 2025 durci par **HardenAD** 2.9.9 | le modèle appliqué : OU, groupes, GPO et leurs paramètres, appartenances, délégations |
+| SMAR-X | **noyau Linux** 6.19, Debian 13 | 925 accès et 140 créations de fichiers |
+| SMAR-X | **Samba** 4.22 | 20 connexions, 160 opérations et 72 créations par les partages |
+| SMAR-X | **Windows Server 2025**, contrôleur de domaine | 1 512 ouvertures sous le jeton de chaque compte, les propriétaires, l'ordre réel des ACL |
+| SMAR-X | Windows Server 2025, depuis un **Windows 11** du domaine | 1 540 ouvertures par les partages et 50 dossiers listés |
+| SMAR-X | l'**Explorateur** et **icacls** de Windows 11 | l'onglet Sécurité (96 vues de comptes, 103 entrées de la fenêtre Avancé, 8 séquences de cases cochées) et l'affichage des droits par icacls (16 383 combinaisons) |
+| SMAR-X | Windows 11 (PowerShell 5.1, NTFSSecurity) et Debian 13 | les 50 commandes de l'aide-mémoire, rejouées telles qu'elles sont écrites |
+
+## 📦 Téléchargement
+
+Chaque version, sur la page [Releases](https://github.com/JM2K69/SMAD-X/releases/latest), a **une archive par application et par plateforme** (Windows x64, Linux x64, macOS Intel et Apple Silicon) : `SMAD-X-<plateforme>.zip`, `SMAD-X-Studio-<plateforme>.zip` et `SMAR-X-<plateforme>.zip`. Chacune contient un seul exécutable autonome : rien à installer. Un apprenant n'a besoin que du simulateur de l'exercice.
+
+---
+
+## 🛡️ SMAD-X — Active Directory
+
+<p align="center">
+  <img src="./SMAD-X.png" alt="SMAD-X" width="300"/>
+</p>
+
+**SMAD-X** (*Simulate, Model and Audit Active Directory eXpert*) génère une structure AD fidèle à une installation neuve de Windows Server et permet de la visualiser, l'auditer, la documenter et l'exporter sans aucune infrastructure réelle.
 
 ### 🏗️ Structure AD par défaut complète et fidèle
 - Génération automatique de tous les containers et objets présents dans un domaine AD fraîchement promu, sous Windows Server 2019, 2022 ou 2025 (vérifiée sur de vrais exports de chaque version) :
@@ -121,26 +156,47 @@
 - Rien ne se perd : fermer avec des modifications non enregistrées demande d'enregistrer, et le mode exercice garde chaque minute une copie de secours, proposée à l'ouverture suivante
 - **Pour les formateurs** : les domaines d'exemple de [`Samples/AttackPaths`](Samples/AttackPaths/README.md) décrivent chaque chemin et sa correction, ce sont donc les corrigés des exercices de chemins d'attaque ; pour écrire vos propres exercices : le [mode opératoire](https://jm2k69.github.io/SMAD-X/exercices/creer/)
 
-### 🧑‍🏫 SMAD-X Studio — création d'exercices pour les formateurs
-Un second exécutable, livré dans la même archive ([documentation](https://jm2k69.github.io/SMAD-X/exercices/studio/)) :
-- **Nouvel exercice à partir d'une recommandation** : une recette par règle d'audit / point de contrôle ANSSI, seule ou **plusieurs réunies** dans le même domaine ; Studio construit un domaine sain et peuplé, n'y injecte que ces manques, et produit le **domaine corrigé**, qui obtient tous les points
+## 🔐 SMAR-X — droits d'accès aux fichiers, Linux et Windows
+
+**SMAR-X** (*Simulate, Model and Audit Rights eXpert*) répond à une question : **qui peut faire quoi, sur quoi, et pourquoi**, sur un serveur Linux et un serveur Windows membre d'un domaine, d'exemple, sur le serveur ou depuis le réseau ([documentation](https://jm2k69.github.io/SMAD-X/smar-x/)).
+
+- **Testeur** : un compte, une opération, un chemin : autorisé ou refusé, avec chaque étape du noyau Linux ou d'AccessCheck sous Windows (le jeton, puis chaque ACE dans l'ordre)
+- **Matrice d'accès** : chaque compte, chaque opération ; un clic sur une case l'explique
+- **Linux** : propriétaire, groupe, `chmod`, bits spéciaux, ACL POSIX et leur masque, ACL par défaut, umask ; partages **Samba**, avec la section de `smb.conf`
+- **Windows** : l'**onglet Sécurité** de l'Explorateur (fenêtres Modifier et Avancé, accès effectif), la sortie d'`icacls` telle que l'écrit le vrai `icacls`, les partages **SMB** (Partage avancé, énumération basée sur l'accès), les comptes et les groupes dans une fenêtre comme la **console Active Directory** (membres, membre de, imbrication, règles AGDLP), et le **whoami** de chaque compte
+- **Depuis le réseau** : le même accès sur le serveur ou par un partage, côte à côte
+- **Aide-mémoire** : chaque abréviation, puis des commandes d'exemple (`icacls`, PowerShell, le module **NTFSSecurity** en face de ses équivalents `icacls`, `chmod`, `setfacl`, Samba), chacune copiée d'un clic, et un **export PDF**
+- **Exercices** (`.smarx-lab.json`) : un besoin à satisfaire avec seulement les droits nécessaires, corrigé par les moteurs ; créés à partir de **recettes** (une entreprise, ses services, Windows ou Linux) et corrigés pour toute une classe dans SMAD-X Studio
+
+<p align="center">
+  <img src="./docs/fr/assets/screens/smarx-nesting.png" alt="Comptes et groupes de SMAR-X" width="900"/>
+</p>
+
+## 🧑‍🏫 SMAD-X Studio — création d'exercices pour les formateurs
+
+Un troisième exécutable, livré dans sa propre archive ([documentation](https://jm2k69.github.io/SMAD-X/exercices/studio/)), clair ou sombre, pour les **exercices SMAD-X et SMAR-X** :
+- **Nouvel exercice SMAD-X à partir d'une recommandation** : une recette par règle d'audit / point de contrôle ANSSI, seule ou **plusieurs réunies** dans le même domaine ; Studio construit un domaine sain et peuplé, n'y injecte que ces manques, et produit le **domaine corrigé**, qui obtient tous les points
+- **Nouvel exercice SMAR-X à partir d'une recette** : une entreprise, ses services et la plateforme ; les serveurs corrects sont la solution, une copie abîmée est le départ
 - **Convertir** un scénario `.smad-x.json` en exercice : le contexte devient l'énoncé, le chemin et la correction vont dans les notes du formateur
+- **Un dossier par exercice**, rangé par rôle dès sa création (exemplaire du formateur, sujet à distribuer, copies, résultats) : chaque export va à sa place, et l'exercice se rouvre par son dossier ou la liste des récents ; les copies glissées sur la fenêtre sont rangées et corrigées
 - Éditeur d'énoncé Markdown avec aperçu, éditeur d'objectifs avec **suggestions** tirées de l'audit et des chemins d'attaque, et **gardes** contre les corrections brutales : une garde violée annule les objectifs qui concernaient l'objet protégé
 - **Questions de compréhension** posées avec les objectifs : choix unique ou multiple, oui / non, association, réponse écrite ; **crédit partiel** pour les objectifs qui se comptent et les questions à plusieurs réponses
 - **Exemplaire du formateur et sujet** : votre fichier garde les indices et le corrigé ; le **sujet** exporté n'en a aucun, et SMAD-X refuse d'ouvrir l'exemplaire d'un examen
-- **Validation** comme les tests des exercices fournis (rien d'atteint au départ, gardes efficaces, aucune solution visible, questions complètes), **solution proposée** pour n'importe quel exercice (chaque constat de l'audit corrigé sans rien supprimer, gardes respectées) ou faite à la main dans SMAD-X, gardée avec l'exercice, et **fiche formateur**
-- **Corriger une classe** : plusieurs copies ou un dossier entier, la note de chacun, les réponses écrites notées à la main avec une appréciation, la réussite par objectif et par question ; exports CSV (note sur 20 pour l'ENT), **Moodle**, **comptes rendus individuels en PDF** et bilan Markdown ; les copies retouchées, rendues sous un autre nom, contenant le domaine d'un autre, rouvertes hors mode examen ou faites avec une autre version de SMAD-X sont signalées
-- **Ligne de commande** pour les lots : `SMAD-X.Studio recipe all --lang fr --out exercices`, `convert`, `validate`, `export-subject`, `grade exercice.smadx-lab.json copies/ --csv notes.csv --moodle moodle.csv --reports comptes-rendus`
+- **Validation** comme les tests des exercices fournis (rien d'atteint au départ, gardes efficaces, aucune solution visible, questions complètes), **solution proposée** et **fiche formateur**
+- **Corriger une classe** : la note de chacun, les réponses écrites notées à la main avec une appréciation, la réussite par objectif et par question ; exports CSV (note sur 20 pour l'ENT), **Moodle**, **comptes rendus individuels en PDF** et bilan Markdown ; les copies suspectes sont signalées
+- **Ligne de commande** pour les lots : `SMAD-X.Studio recipe all --lang fr --out exercices`, `convert`, `validate`, `export-subject`, `grade exercice.smadx-lab.json copies/ --csv notes.csv --moodle moodle.csv --reports comptes-rendus`, et le même `grade` pour un exercice SMAR-X
 
 ## 🚀 Démarrage rapide
 
-1. **Prérequis** : .NET 10 SDK — Windows, macOS ou Linux
-2. **Compilation** : `dotnet build`
-3. **Exécution** : `dotnet run --project SMAD-X/SMAD-X.csproj`
+- **Télécharger** une archive sur la page [Releases](https://github.com/JM2K69/SMAD-X/releases/latest) : rien à installer.
+- **Depuis les sources** (.NET 10 SDK, Windows, macOS ou Linux) : `dotnet build`, puis
+  - `dotnet run --project SMAD-X/SMAD-X.csproj`
+  - `dotnet run --project SMAR-X/SMAR-X.csproj`
+  - `dotnet run --project SMAD-X.Studio/SMAD-X.Studio.csproj`
 
 ---
 
-## 📖 Utilisation
+## 📖 Utiliser SMAD-X
 
 ### Structure par défaut au démarrage
 Au lancement, SMAD-X charge automatiquement un domaine `contoso.com` avec une structure AD complète et fidèle à une installation fraîche de Windows Server.
@@ -177,18 +233,18 @@ Activez **Imbrication de groupes** pour afficher séparément les arêtes Groupe
 | 🔑 **Sujets PSO** | Affecter des Password Settings Objects |
 
 ### Fenêtre Délégations
-`Affichage > Délégations` : liste toutes les entrées de délégation avec filtres par trustee, DN cible, catégorie et héritage.
-Exportez la liste complète en CSV pour vos audits.
+`Analyse > Délégations...` (`Ctrl+D`) : liste toutes les entrées de délégation avec filtres par mandataire, DN cible, catégorie et héritage.
+Exportez la liste complète en CSV pour vos audits. Une colonne s'élargit ou se rétrécit en faisant glisser le bord droit de son en-tête.
 
 ### Chronologie AD
-`Affichage > Chronologie AD` : comparez deux instantanés `.smadx.json` côte à côte.
+`Analyse > Évolution du domaine...` (`Ctrl+T`) : comparez deux instantanés `.smad-x.json` côte à côte.
 Visualisez les objets ajoutés, supprimés et modifiés avec export en CSV.
 
 ### Sauvegarde / Chargement
 
 | Action | Menu |
 |---|---|
-| Enregistrer | `Fichier > Enregistrer…` (`.smadx.json`) |
+| Enregistrer | `Fichier > Enregistrer…` (`.smad-x.json`) |
 | Ouvrir | `Fichier > Ouvrir…` |
 | Importer un AD réel | `Fichier > Générer le script d'import depuis AD…` (script en lecture seule) |
 
@@ -263,8 +319,12 @@ Les couleurs sont configurables via `Paramètres > Configuration des tiers`.
 | **SMAD-X** | L'application |
 | **SMAD-X.Studio** | L'outil du formateur : crée les exercices et corrige les copies |
 | **SMAD-X.Tests** | Tests xUnit |
+| **SMAR-X.Core** | Moteurs des droits d'accès : noyau Linux, Samba, NTFS, SMB, expliqués étape par étape ; exercices SMAR-X et leur correction |
+| **SMAR-X** | L'application des droits d'accès |
+| **SMAR-X.Tests** | Tests xUnit, avec les relevés faits sur de vrais systèmes (`Fidelity/`) |
+| **tools/** | Outils de mesure (vrais systèmes), captures de la documentation, générateurs d'exercices |
 
-L'application :
+L'application SMAD-X :
 
 ```
 SMAD-X/
@@ -324,11 +384,9 @@ SMAD-X/
 |---|---|---|
 | **.NET** | 10 | Runtime cross-platform |
 | **Avalonia UI** | 12.0.3 | Framework UI cross-platform |
-| **CommunityToolkit.Mvvm** | latest | Implémentation MVVM |
-| **Markdig** | latest | Rendu Markdown |
-| **OfficeIMO.Markdown** | 0.6.42 | Modèle de document Markdown |
-| **OfficeIMO.Markdown.Pdf** | 1.0.15 | Export PDF depuis Markdown |
-| **OfficeIMO.Word.Markdown** | 1.0.51 | Export DOCX depuis Markdown |
+| **CommunityToolkit.Mvvm** | 8.4.2 | Implémentation MVVM |
+| **OfficeIMO** (Markdown, Markdown.Pdf, Word, Word.Markdown) | 3.5.1 | Modèle Markdown, export PDF et DOCX |
+| **xUnit** | 2.9.3 | Tests |
 | **System.Text.Json** | intégré | Sérialisation JSON |
 
 ---
@@ -341,6 +399,8 @@ SMAD-X/
 | **Administrateur** | Documenter et auditer une architecture AD existante |
 | **Architecte** | Concevoir et valider une nouvelle structure avant déploiement |
 | **Pentester / Red Team** | Visualiser les chemins d'attaque via les relations, les tiers et les notes de sécurité des comptes par défaut |
+| **Formateur (droits de fichiers)** | Enseigner les droits Linux et NTFS, les partages et le moindre privilège avec SMAR-X, et corriger les exercices |
+| **Étudiant** | Voir pourquoi un accès est accordé ou refusé, étape par étape, sur le serveur et par un partage |
 
 ---
 
@@ -371,13 +431,15 @@ SMAD-X/
 - [x] Chronologie AD — diff entre deux instantanés (ajoutés / supprimés / modifiés, export CSV)
 - [x] **Topologie des sites AD** (sites, sous-réseaux, DCs, liens de réplication, GPOs liées, tier)
 - [x] **Export de rapport de documentation** (Markdown, DOCX, PDF avec sélection du thème)
+- [x] **SMAD-X Studio** : exercices SMAD-X et SMAR-X, à partir de recettes, et correction de toute une classe
+- [x] **SMAR-X** : droits d'accès aux fichiers sous Linux et Windows, en local et par les partages, vérifiés sur de vrais systèmes
 - [ ] Support multi-domaines / forêts
 
 ---
 
 ## 📄 Licence
 
-SMAD-X est sous **[licence Apache 2.0](./LICENSE)** : vous pouvez l'utiliser, le modifier et le redistribuer, y compris dans une formation payante, à condition de conserver la licence et le fichier [NOTICE](./NOTICE). Il est fourni sans garantie.
+La suite SMA-X (SMAD-X, SMAD-X Studio et SMAR-X) est sous **[licence Apache 2.0](./LICENSE)** : vous pouvez l'utiliser, la modifier et la redistribuer, y compris dans une formation payante, à condition de conserver la licence et le fichier [NOTICE](./NOTICE). Elle est fournie sans garantie.
 
 Les bibliothèques et polices tierces gardent leur propre licence (MIT, BSD, SIL Open Font License) : voir [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md). Ces fichiers sont aussi dans chaque archive de version.
 
