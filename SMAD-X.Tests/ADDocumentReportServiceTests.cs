@@ -107,6 +107,23 @@ public class ADDocumentReportServiceTests
         AssertNonEmptyFile(path);
     }
 
+    /// <summary>
+    /// « **GUID** : … » reste une ligne de texte dans le PDF et le Word. Lu avec les listes de définitions, il devenait
+    /// un tableau à deux colonnes : constaté sur le rapport d'un vrai domaine Windows Server 2025 neuf (ses deux GPO).
+    /// </summary>
+    [Fact]
+    public async Task FullReport_KeepsColonLinesAsText()
+    {
+        var path = TempFile(".md");
+        var domain = (await new ADDataService().LoadDocumentAsync(Path.Combine(AppContext.BaseDirectory, "Fidelity", "windows-server-2025.smad-x.json"))).Document!;
+
+        Assert.True(await _service.ExportMarkdownAsync(domain, path));
+        var markdown = File.ReadAllText(path);
+        Assert.Contains("**GUID** : ", markdown);
+        Assert.Contains(OfficeIMO.Markdown.MarkdownReader.Parse(markdown).Blocks, b => b is OfficeIMO.Markdown.DefinitionListBlock);
+        Assert.DoesNotContain(MarkdownPdf.Parse(markdown).Blocks, b => b is OfficeIMO.Markdown.DefinitionListBlock);
+    }
+
     [Fact]
     public async Task FullReportDocx_Exports()
     {

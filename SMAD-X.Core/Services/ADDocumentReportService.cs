@@ -114,7 +114,7 @@ namespace SMADX.Services
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                 var md = BuildSingleElementMarkdown(name, typeLabel, description);
                 var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
-                using var word = MarkdownReader.Parse(md).ToWordDocument(opts);
+                using var word = MarkdownPdf.Parse(md).ToWordDocument(opts);
                 word.Save(filePath);
                 return Task.FromResult(true);
             }
@@ -254,7 +254,7 @@ namespace SMADX.Services
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
                 var sb = new StringBuilder();
                 BuildMarkdown(document, sb);
-                var markdownDoc = MarkdownReader.Parse(sb.ToString());
+                var markdownDoc = MarkdownPdf.Parse(sb.ToString());
                 var opts = new MarkdownToWordOptions { Theme = ResolveVisualTheme(theme) };
                 using var word = markdownDoc.ToWordDocument(opts);
                 word.Save(filePath);
@@ -489,7 +489,10 @@ namespace SMADX.Services
         /// cannot encode a character, a second attempt substitutes app emoji with short text
         /// labels — DOCX/.md are never affected.
         /// </summary>
-        /// <summary>PDF d'un texte Markdown (compte rendu d'exercice…), avec les polices embarquées.</summary>
+        /// <summary>
+        /// PDF d'un texte Markdown (compte rendu d'exercice…), avec les polices embarquées. Comme le Word, le Markdown est
+        /// lu par MarkdownPdf.Parse, sans listes de définitions : une ligne « **GUID** : … » reste une ligne de texte.
+        /// </summary>
         public static void MarkdownToPdf(string markdown, string filePath, string theme = "WordLike") => RenderPdf(markdown, filePath, theme);
 
         private static void RenderPdf(string markdown, string filePath, string theme)
@@ -499,11 +502,11 @@ namespace SMADX.Services
 
             try
             {
-                MarkdownReader.Parse(markdown).SaveAsPdf(filePath, opts);
+                MarkdownPdf.Parse(markdown).SaveAsPdf(filePath, opts);
             }
             catch (Exception ex) when (IsUnencodableTextError(ex))
             {
-                MarkdownReader.Parse(EmojiSafeMarkdown(markdown)).SaveAsPdf(filePath, opts);
+                MarkdownPdf.Parse(EmojiSafeMarkdown(markdown)).SaveAsPdf(filePath, opts);
             }
         }
 
