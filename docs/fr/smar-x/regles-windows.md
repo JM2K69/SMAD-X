@@ -43,11 +43,27 @@ Un compte local du serveur n'entre que dans un groupe local. Une imbrication qui
 
 ![La carte Comptes de l'espace Windows](../assets/screens/smarx-groups.png)
 
-*Capture : bob, avec ses groupes globaux, et les groupes de domaine local qu'il reçoit par imbrication. Un groupe de domaine local est choisi : il n'entre pas dans un groupe global, ces cases sont grisées.*
+*Capture : bob, avec ses groupes globaux, et les groupes de domaine local qu'il reçoit par imbrication. Un groupe de domaine local est choisi : dans ses membres, les comptes locaux du serveur sont grisés ; il n'entre pas dans un groupe global, ces cases sont grisées aussi.*
 
-Dans la carte **Comptes**, la partie **Groupes** liste chaque groupe, avec sa portée et ses membres. Choisir un groupe permet de l'imbriquer dans un autre (**Membre de**). Les commandes équivalentes sont celles du domaine, `New-ADGroup -GroupScope Global` ou `DomainLocal` et `Add-ADGroupMember`, ou celles du serveur, `net localgroup`. Un nouveau compte est un compte du domaine, sauf si l'on décoche **du domaine** ; un nouveau groupe est global, de domaine local ou local au serveur.
+Dans la carte **Comptes**, la partie **Groupes** liste chaque groupe, avec sa portée et ses membres. Choisir un groupe permet de changer ses **Membres**, comptes et groupes, comme l'onglet Membres de la console Active Directory, et de l'imbriquer dans un autre (**Membre de**). Les commandes équivalentes sont celles du domaine, `New-ADGroup -GroupScope Global` ou `DomainLocal` et `Add-ADGroupMember`, ou celles du serveur, `net localgroup`. Un nouveau compte est un compte du domaine, sauf si l'on décoche **du domaine** ; un nouveau groupe est global, de domaine local ou local au serveur.
 
 La mesure sur le contrôleur de domaine crée ces groupes globaux et de domaine local et leurs imbrications. Toutes les ouvertures qui passent par un groupe imbriqué sont identiques au simulateur.
+
+## whoami : le jeton d'un compte
+
+**whoami de ce compte…**, sous **Qui ?** dans le testeur et dans la carte **Comptes**, ouvre ce qu'affiche `whoami /user /groups` : le compte et son SID, puis chaque identité du jeton avec son type, son SID et ses attributs. La colonne **Pourquoi** l'explique : membre direct, « par G_Compta » pour un groupe reçu par imbrication, session ouverte sur le serveur ou session réseau.
+
+![La fenêtre whoami de SMAR-X](../assets/screens/smarx-whoami.png)
+
+*Capture : dave vient d'être ajouté à G_RH. Le jeton de sa prochaine session reçoit G_RH et, par lui, DL_RH_LM ; dans sa session ouverte, whoami montre encore l'ancien jeton.*
+
+- **Type** : `Well-known group` pour une identité prédéfinie, `Alias` pour un groupe local (`BUILTIN\…`) ou de domaine local (avec l'attribut `Local Group`), `Group` pour un groupe global.
+- **Administrateurs** : sans élévation, `Group used for deny only` (refus seulement) ; en session élevée, `Group owner`, et le niveau d'intégrité passe de `Medium` à `High`. Par un partage, un compte local administrateur reste filtré.
+- La fenêtre suit le compte, la session (sur le serveur, ou réseau par un partage) et l'élévation choisis. Elle reste ouverte à côté et se met à jour quand on change des groupes.
+
+**Les groupes ne comptent qu'à la session suivante.** Windows lit les groupes d'un compte à l'ouverture de sa session ; après un changement, `whoami` montre encore l'ancien jeton. La fenêtre le signale et marque ce qui change : `+` ajouté, `−` retiré, `~` attributs changés. **Fermer et rouvrir la session** donne au compte son nouveau jeton. Dans SMAR-X, les sessions s'ouvrent au chargement du serveur ou au début d'un exercice. Le testeur et la matrice, eux, calculent toujours avec les groupes du moment, comme après une nouvelle ouverture de session.
+
+Le texte est celui d'un Windows en anglais, comme les machines du labo. Un vrai jeton porte quelques identités de plus (`LOCAL`, `CONSOLE LOGON`, `This Organization`, `Domain Users`…) : elles ne changent rien aux accès que simule SMAR-X, qui ne les montre pas.
 
 ## Le propriétaire
 

@@ -79,6 +79,7 @@
                                 <CheckBox IsChecked="{Binding Elevated}" IsVisible="{Binding CanElevate}">
                                     <TextBlock Text="{DynamicResource Tester.Elevated}" TextWrapping="Wrap" FontSize="12"/>
                                 </CheckBox>
+                                <Button Classes="link" Content="{DynamicResource Whoami.Open}" Click="OnWhoamiTester" HorizontalAlignment="Left"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Spacing="6">
                                 <TextBlock Classes="label" Text="{DynamicResource Tester.What}"/>
@@ -435,6 +436,7 @@
                                     </ItemsControl.ItemsPanel>
                                 </ItemsControl>
                                 <SelectableTextBlock Classes="mono" Text="{Binding AccountCommands}" FontSize="12" TextWrapping="Wrap"/>
+                                <Button Classes="tool" Content="{DynamicResource Whoami.Open}" Click="OnWhoamiAccount" HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Border>
                         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
@@ -473,7 +475,15 @@
                         </ListBox>
                         <Border Classes="code" Padding="12">
                             <StackPanel Spacing="8">
-                                <TextBlock Classes="label" Text="{DynamicResource Accounts.Groups}"/>
+                                <TextBlock Classes="label" Text="{DynamicResource Accounts.Members}"/>
+                                <ItemsControl ItemsSource="{Binding GroupMembers}" ItemTemplate="{StaticResource MembershipTemplate}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                                <TextBlock Classes="label" Text="{DynamicResource Accounts.Groups}" Margin="0,6,0,0"/>
                                 <ItemsControl ItemsSource="{Binding GroupMemberships}" ItemTemplate="{StaticResource MembershipTemplate}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>

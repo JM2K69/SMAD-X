@@ -34,6 +34,28 @@ namespace SMARX.Views
             vm.AfterSecurityWindow();
         }
 
+        /// <summary>whoami du compte testé, dans la session du testeur : sur le serveur ou par le partage choisi, élevée ou non.</summary>
+        private void OnWhoamiTester(object? sender, RoutedEventArgs e)
+        {
+            if (Vm is not { SelectedUser: { } user } vm) return;
+            ShowWhoami(new WhoamiViewModel(vm, user.Name, vm.SelectedRoute?.Share != null, vm.Elevated));
+        }
+
+        /// <summary>whoami du compte choisi dans la carte Comptes, dans une session sur le serveur.</summary>
+        private void OnWhoamiAccount(object? sender, RoutedEventArgs e)
+        {
+            if (Vm is not { SelectedAccount: { } account } vm) return;
+            ShowWhoami(new WhoamiViewModel(vm, account.Name, false, false));
+        }
+
+        /// <summary>La fenêtre reste ouverte à côté : on change les groupes et l'on voit le jeton changer.</summary>
+        private void ShowWhoami(WhoamiViewModel whoami)
+        {
+            var window = new WhoamiWindow { DataContext = whoami };
+            if (Owner is { } owner) window.Show(owner);
+            else window.Show();
+        }
+
         /// <summary>Bouton Avancé : « Paramètres de sécurité avancés », l'accès effectif ouvert sur le compte testé.</summary>
         private async void OnAdvancedSecurity(object? sender, RoutedEventArgs e)
         {

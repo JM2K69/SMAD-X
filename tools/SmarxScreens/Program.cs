@@ -49,6 +49,8 @@ if (docs)
         SambaWindow(culture, "/srv/projets", "smarx-samba-share");
         // AGDLP : bob et ses groupes imbriqués ; un groupe de domaine local, qui n'entre pas dans un groupe global
         WindowsAccounts(culture, "bob", "DL_Compta_LM", "smarx-groups");
+        // whoami de dave, juste après l'avoir mis dans G_RH : la session ouverte garde l'ancien jeton
+        Whoami(culture, "dave", "G_RH", "smarx-whoami");
         // L'ACL par défaut de /srv/projets : ce que recevra ce qui y sera créé
         LinuxCard(culture, "/srv/projets", "Default.Title", "smarx-default-acl");
         // Un exercice fourni, vérifié au départ : rien n'est encore fait, les gardes tiennent ; aucun indice ouvert
@@ -78,6 +80,24 @@ void LabWindow(string culture, string name)
     var window = new SmarxLabWindow { DataContext = shell.Lab, Width = 1000, Height = 820 };
     window.Show();
     shell.Lab!.CheckCommand.Execute(null);
+    Pump(700);
+    var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
+    var file = Path.Combine(outDir, name + ".png");
+    frame.Save(file);
+    Console.WriteLine(file);
+    window.Close();
+}
+
+// La fenêtre whoami d'un compte qu'on vient de mettre dans un groupe : ce qui change à la prochaine session
+void Whoami(string culture, string account, string group, string name)
+{
+    var shell = Prepare(culture, ThemeVariant.Dark);
+    var vm = shell.Windows;
+    var whoami = new WhoamiViewModel(vm, account, network: false, elevated: false);
+    vm.SelectedGroup = vm.GroupItems.First(g => g.Name == group);
+    vm.GroupMembers.First(m => m.Group == account).IsMember = true;
+    var window = new WhoamiWindow { DataContext = whoami, Width = 1240, Height = 900 };
+    window.Show();
     Pump(700);
     var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
     var file = Path.Combine(outDir, name + ".png");

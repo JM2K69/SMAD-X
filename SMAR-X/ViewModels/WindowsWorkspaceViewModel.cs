@@ -42,6 +42,9 @@ namespace SMARX.ViewModels
         public ObservableCollection<WindowsGroupItem> GroupItems { get; } = new();
         public ObservableCollection<MembershipItem> GroupMemberships { get; } = new();
 
+        /// <summary>Les membres du groupe choisi, comptes puis groupes : on les change d'ici, comme l'onglet Membres de la console AD.</summary>
+        public ObservableCollection<MembershipItem> GroupMembers { get; } = new();
+
         /// <summary>Les portées proposées pour un nouveau groupe : global et domaine local si le serveur est dans un domaine.</summary>
         public ObservableCollection<Choice> GroupScopes { get; } = new();
         public bool HasDomain => Host.Domain != null;
@@ -96,12 +99,41 @@ namespace SMARX.ViewModels
         public void Load(WindowsHost host)
         {
             Host = host;
+            // Les sessions s'ouvrent avec le serveur : leurs jetons gardent les groupes de ce moment
+            _sessionStart = WindowsGroups.Snapshot(host);
+            _sessions.Clear();
             OnPropertyChanged(nameof(Title));
             Tree.Clear();
             Tree.Add(new NtfsItem(host.Root, host.Root.Name + "\\"));
             RebuildUsers("dave");
             SelectedNode = Find(Tree[0], @"D:\Partages\Projets\planning.xlsx") ?? Tree[0];
             SelectedOperation = Operations.FirstOrDefault(o => Equals(o.Operation, WindowsOperation.Write)) ?? SelectedOperation;
+            AccountsChanged?.Invoke();
+        }
+
+        // ─── Sessions ouvertes : ce que montre whoami ─────────────────────────────
+
+        private WindowsHost _sessionStart = new();
+        private readonly Dictionary<string, WindowsHost> _sessions = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>Un compte ou un groupe a changé : la fenêtre whoami se met à jour.</summary>
+        public event Action? AccountsChanged;
+
+        /// <summary>
+        /// Les comptes et les groupes tels que Windows les a lus à l'ouverture de la session du compte : au chargement du
+        /// serveur, ou à sa dernière reconnexion (<see cref="Relogon"/>). Null si le compte n'existait pas encore.
+        /// </summary>
+        public WindowsHost? SessionOf(string user)
+        {
+            var host = _sessions.TryGetValue(user, out var h) ? h : _sessionStart;
+            return host.User(user) == null ? null : host;
+        }
+
+        /// <summary>Le compte ferme et rouvre sa session : son jeton prend ses groupes d'aujourd'hui.</summary>
+        public void Relogon(string user)
+        {
+            _sessions[user] = WindowsGroups.Snapshot(Host);
+            AccountsChanged?.Invoke();
         }
 
         /// <summary>Choisit l'objet de ce chemin dans l'arbre, s'il existe (l'objet d'un exercice, à son ouverture).</summary>
@@ -388,12 +420,48 @@ namespace SMARX.ViewModels
         {
             _loadingAccount = true;
             GroupMemberships.Clear();
+            GroupMembers.Clear();
             if (value != null)
+            {
                 foreach (var g in Host.Groups.Where(g => !string.Equals(g.Name, WellKnown.Users, StringComparison.OrdinalIgnoreCase)
                                                          && !string.Equals(g.Name, value.Name, StringComparison.OrdinalIgnoreCase)))
                     GroupMemberships.Add(Membership(value.Name, g, value.Group.Groups, OnGroupMembershipChanged));
+                var french = Text.Culture == "fr-FR";
+                foreach (var u in Host.Users)
+                    GroupMembers.Add(Member(u.Name, u.Name, u.Groups, value.Name,
+                        HasDomain ? (u.Domain ? Text.T("compte du domaine", "domain account") : Text.T("compte local", "local account")) : ""));
+                foreach (var g in Host.Groups.Where(g => g.Name is not (WellKnown.Users or WellKnown.Administrators)
+                                                         && !string.Equals(g.Name, value.Name, StringComparison.OrdinalIgnoreCase)))
+                    GroupMembers.Add(Member(g.Name, WellKnown.Display(g.Name, french), g.Groups, value.Name,
+                        HasDomain ? WindowsGroups.ScopeLabel(g.Scope, Text.Culture) : ""));
+            }
             _loadingAccount = false;
             DescribeGroup();
+        }
+
+        /// <summary>Une case « membre » du groupe choisi : grisée, avec sa raison, si Active Directory refuserait ce membre.</summary>
+        private MembershipItem Member(string member, string display, List<string> memberOf, string group, string scopeTag)
+        {
+            var isMember = memberOf.Contains(group, StringComparer.OrdinalIgnoreCase);
+            var reason = WindowsGroups.CannotJoin(Host, member, group, Text.Culture);
+            return new MembershipItem(member, isMember, OnGroupMemberChanged)
+            {
+                Display = display,
+                ScopeTag = scopeTag,
+                IsEnabled = isMember || reason == null,
+                Reason = reason
+            };
+        }
+
+        /// <summary>Ajouter ou retirer un membre du groupe choisi : c'est la liste « Membre de » du compte ou du groupe qui change.</summary>
+        private void OnGroupMemberChanged(MembershipItem item)
+        {
+            if (_loadingAccount || SelectedGroup?.Group is not { } group) return;
+            var memberOf = Host.User(item.Group)?.Groups ?? Host.Group(item.Group)?.Groups;
+            if (memberOf == null) return;
+            memberOf.RemoveAll(g => string.Equals(g, group.Name, StringComparison.OrdinalIgnoreCase));
+            if (item.IsMember) memberOf.Add(group.Name);
+            AccountChanged();
         }
 
         private void OnGroupMembershipChanged(MembershipItem item)
@@ -446,6 +514,7 @@ namespace SMARX.ViewModels
             Editor.Load(Host, SelectedNode);
             OnPropertyChanged(nameof(CanElevate));
             Recompute();
+            AccountsChanged?.Invoke();
         }
 
         private void DescribeAccount()
@@ -468,7 +537,8 @@ namespace SMARX.ViewModels
                 GroupCommands = "";
                 return;
             }
-            GroupCommands = string.Join("\n", group.Groups.Select(g => WindowsGroups.AddMemberCommand(Host, group.Name, g))
+            GroupCommands = string.Join("\n", WindowsGroups.Members(Host, group.Name).Select(m => WindowsGroups.AddMemberCommand(Host, m, group.Name))
+                .Concat(group.Groups.Select(g => WindowsGroups.AddMemberCommand(Host, group.Name, g)))
                 .Prepend(WindowsGroups.CreateCommand(Host, group)));
         }
 

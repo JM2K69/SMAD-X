@@ -1,0 +1,76 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMARX.ViewModels"
+        x:Class="SMARX.Views.WhoamiWindow"
+        x:DataType="vm:WhoamiViewModel"
+        Title="{Binding Title}"
+        Icon="/Assets/icone.ico"
+        Width="1240" Height="720" MinWidth="900" MinHeight="480"
+        WindowStartupLocation="CenterOwner">
+
+    <!-- whoami : le jeton d'une session, chaque identité expliquée, et ce qui change depuis l'ouverture de la session -->
+    <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12" Margin="18">
+        <StackPanel Orientation="Horizontal" Spacing="14">
+            <TextBlock Classes="label" Text="{DynamicResource Whoami.Account}" VerticalAlignment="Center" Margin="0"/>
+            <ComboBox ItemsSource="{Binding Accounts}" SelectedItem="{Binding Account}" MinWidth="160"/>
+            <RadioButton GroupName="WhoamiSession" IsChecked="{Binding Local}" VerticalAlignment="Center">
+                <TextBlock Text="{DynamicResource Whoami.Local}"/>
+            </RadioButton>
+            <RadioButton GroupName="WhoamiSession" IsChecked="{Binding Network}" VerticalAlignment="Center">
+                <TextBlock Text="{DynamicResource Whoami.Network}"/>
+            </RadioButton>
+            <CheckBox IsChecked="{Binding Elevated}" IsEnabled="{Binding CanElevate}" VerticalAlignment="Center">
+                <TextBlock Text="{DynamicResource Whoami.Elevated}"/>
+            </CheckBox>
+        </StackPanel>
+
+        <!-- La session ouverte a encore l'ancien jeton -->
+        <Border Grid.Row="1" Classes="chip" CornerRadius="8" Padding="12,8" IsVisible="{Binding HasChanges}">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                <TextBlock Text="{Binding Changes}" TextWrapping="Wrap" FontSize="12" VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Classes="accent" Content="{DynamicResource Whoami.Relogon}" Command="{Binding RelogonCommand}" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="2">
+            <StackPanel Spacing="10" Margin="0,0,6,0">
+                <TextBlock Classes="h" Text="{Binding TableTitle}"/>
+                <Border Classes="code" Padding="10,6">
+                    <StackPanel Spacing="2">
+                        <Grid ColumnDefinitions="22,2.3*,1.1*,2.6*,2.6*,2.2*" ColumnSpacing="10" Margin="0,0,0,4">
+                            <TextBlock Grid.Column="1" Classes="label" Margin="0" Text="{DynamicResource Whoami.Name}"/>
+                            <TextBlock Grid.Column="2" Classes="label" Margin="0" Text="Type"/>
+                            <TextBlock Grid.Column="3" Classes="label" Margin="0" Text="SID"/>
+                            <TextBlock Grid.Column="4" Classes="label" Margin="0" Text="{DynamicResource Whoami.Attributes}"/>
+                            <TextBlock Grid.Column="5" Classes="label" Margin="0" Text="{DynamicResource Whoami.Why}"/>
+                        </Grid>
+                        <ItemsControl ItemsSource="{Binding Rows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:WhoamiRow">
+                                    <Border Background="{Binding Background}" CornerRadius="4" Padding="0,3">
+                                        <Grid ColumnDefinitions="22,2.3*,1.1*,2.6*,2.6*,2.2*" ColumnSpacing="10">
+                                            <TextBlock Text="{Binding Change}" Foreground="{Binding Color}" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Classes="mono" Text="{Binding Name}" FontSize="12" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Type}" FontSize="12"/>
+                                            <TextBlock Grid.Column="3" Classes="mono" Text="{Binding Sid}" FontSize="11" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding Attributes}" FontSize="11" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Column="5" Classes="muted" Text="{Binding Meaning}" FontSize="12" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Classes="label" Text="{DynamicResource Whoami.SessionText}" Margin="0,6,0,0"/>
+                <Border Classes="code">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                        <SelectableTextBlock Classes="mono" Text="{Binding SessionText}" FontSize="11"/>
+                    </ScrollViewer>
+                </Border>
+                <TextBlock Classes="muted" Text="{DynamicResource Whoami.Note}" TextWrapping="Wrap" FontSize="12"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

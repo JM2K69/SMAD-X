@@ -43,11 +43,27 @@ A local account of the server only joins a local group. A nesting that would loo
 
 ![The Accounts card of the Windows workspace](../assets/screens/smarx-groups.png)
 
-*Screenshot: bob, with his global groups, and the domain local groups he gets through nesting. A domain local group is selected: it cannot join a global group, so those boxes are grayed out.*
+*Screenshot: bob, with his global groups, and the domain local groups he gets through nesting. A domain local group is selected: among its members, the local accounts of the server are grayed out; it cannot join a global group, so those boxes are grayed out too.*
 
-In the **Accounts** card, the **Groups** part lists each group, with its scope and its members. Picking a group lets you nest it in another one (**Member of**). The equivalent commands are the domain's, `New-ADGroup -GroupScope Global` or `DomainLocal` and `Add-ADGroupMember`, or the server's, `net localgroup`. A new account is a domain account, unless **domain account** is unchecked; a new group is global, domain local or local to the server.
+In the **Accounts** card, the **Groups** part lists each group, with its scope and its members. Picking a group lets you change its **Members**, accounts and groups, like the Members tab of the Active Directory console, and nest it in another one (**Member of**). The equivalent commands are the domain's, `New-ADGroup -GroupScope Global` or `DomainLocal` and `Add-ADGroupMember`, or the server's, `net localgroup`. A new account is a domain account, unless **domain account** is unchecked; a new group is global, domain local or local to the server.
 
 The measurement on the domain controller creates these global and domain local groups and their nesting. Every open that goes through a nested group is identical to the simulator.
+
+## whoami: an account's token
+
+**whoami of this account…**, under **Who?** in the tester and in the **Accounts** card, opens what `whoami /user /groups` shows: the account and its SID, then each identity of the token with its type, its SID and its attributes. The **Why** column explains it: direct member, "through G_Compta" for a group received through nesting, session open on the server or network session.
+
+![The SMAR-X whoami window](../assets/screens/smarx-whoami.png)
+
+*Screenshot: dave was just added to G_RH. The token of his next session gets G_RH and, through it, DL_RH_LM; in his open session, whoami still shows the old token.*
+
+- **Type**: `Well-known group` for a predefined identity, `Alias` for a local group (`BUILTIN\…`) or a domain local group (with the `Local Group` attribute), `Group` for a global group.
+- **Administrators**: without elevation, `Group used for deny only`; in an elevated session, `Group owner`, and the integrity level goes from `Medium` to `High`. Through a share, a local administrator account stays filtered.
+- The window follows the chosen account, session (on the server, or network through a share) and elevation. It stays open alongside and updates when groups change.
+
+**Groups only count from the next session.** Windows reads an account's groups when its session opens; after a change, `whoami` still shows the old token. The window says so and marks what changes: `+` added, `−` removed, `~` attributes changed. **Sign out and in again** gives the account its new token. In SMAR-X, sessions open when the server is loaded or when a lab starts. The tester and the matrix, for their part, always compute with the current groups, as after a new sign-in.
+
+The text is that of an English Windows, like the lab's computers. A real token holds a few more identities (`LOCAL`, `CONSOLE LOGON`, `This Organization`, `Domain Users`…): they change nothing to the accesses SMAR-X simulates, which does not show them.
 
 ## The owner
 

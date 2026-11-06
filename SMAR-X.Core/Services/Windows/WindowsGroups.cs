@@ -19,19 +19,38 @@ namespace SMARX.Services.Windows
     public static class WindowsGroups
     {
         /// <summary>Les groupes du jeton : directs, puis imbriqués, dans l'ordre où on les rencontre, sans doublon.</summary>
-        public static IReadOnlyList<string> Effective(WindowsHost host, WindowsUser user)
+        public static IReadOnlyList<string> Effective(WindowsHost host, WindowsUser user) =>
+            EffectiveWithOrigin(host, user).Select(o => o.Group).ToList();
+
+        /// <summary>
+        /// Les groupes du jeton, chacun avec le groupe par lequel le compte le reçoit (null : il en est membre directement).
+        /// Le premier chemin trouvé, le plus court.
+        /// </summary>
+        public static IReadOnlyList<(string Group, string? Via)> EffectiveWithOrigin(WindowsHost host, WindowsUser user)
         {
-            var seen = new List<string>();
-            var queue = new Queue<string>(user.Groups);
+            var seen = new List<(string Group, string? Via)>();
+            var queue = new Queue<(string Group, string? Via)>(user.Groups.Select(g => (g, (string?)null)));
             while (queue.Count > 0)
             {
-                var name = queue.Dequeue();
-                if (seen.Contains(name, StringComparer.OrdinalIgnoreCase)) continue;
-                seen.Add(name);
-                foreach (var parent in host.Group(name)?.Groups ?? []) queue.Enqueue(parent);
+                var (name, via) = queue.Dequeue();
+                if (seen.Any(s => string.Equals(s.Group, name, StringComparison.OrdinalIgnoreCase))) continue;
+                seen.Add((name, via));
+                foreach (var parent in host.Group(name)?.Groups ?? []) queue.Enqueue((parent, name));
             }
             return seen;
         }
+
+        /// <summary>
+        /// Les comptes et les groupes du serveur, copiés : ce que Windows a lu à l'ouverture d'une session. Un changement de
+        /// groupe ne compte qu'à la session suivante.
+        /// </summary>
+        public static WindowsHost Snapshot(WindowsHost host) => new()
+        {
+            Name = host.Name,
+            Domain = host.Domain,
+            Users = host.Users.Select(u => new WindowsUser { Name = u.Name, Domain = u.Domain, Groups = [.. u.Groups] }).ToList(),
+            Groups = host.Groups.Select(g => new WindowsGroup { Name = g.Name, Description = g.Description, Scope = g.Scope, Groups = [.. g.Groups] }).ToList()
+        };
 
         /// <summary>Les groupes obtenus par imbrication seulement (pas directement).</summary>
         public static IReadOnlyList<string> Nested(WindowsHost host, WindowsUser user) =>
