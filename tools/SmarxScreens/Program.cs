@@ -109,7 +109,7 @@ void SambaWindow(string culture, string folder, string name)
 {
     var shell = Prepare(culture, ThemeVariant.Dark);
     var vm = shell.Linux;
-    var window = new SambaShareWindow { DataContext = new SambaShareSettingsViewModel(vm.Host, Find(vm.Tree[0], folder, n => n.Path, n => n.Children)), Height = 960 };
+    var window = new SambaShareWindow { DataContext = new SambaShareSettingsViewModel(vm.Host, Find(vm.Tree[0], folder, n => n.Path, n => n.Children)) };
     window.Show();
     Pump(700);
     var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);
@@ -138,7 +138,7 @@ void Sharing(string culture, string folder, string name)
 {
     var shell = Prepare(culture, ThemeVariant.Dark);
     var vm = shell.Windows;
-    var window = new ShareWindow { DataContext = new ShareSettingsViewModel(vm.Host, Find(vm.Tree[0], folder, n => n.Path, n => n.Children)), Height = 900 };
+    var window = new ShareWindow { DataContext = new ShareSettingsViewModel(vm.Host, Find(vm.Tree[0], folder, n => n.Path, n => n.Children)) };
     window.Show();
     Pump(700);
     var frame = window.CaptureRenderedFrame() ?? throw new Exception("Aucune image rendue pour " + name);

@@ -73,7 +73,7 @@ La carte **Partage Samba de …** donne le chemin réseau de l'objet et les part
 
 - **Partager ce dossier** crée un partage avec les valeurs par défaut de Samba : lecture seule, `create mask = 0744`, `directory mask = 0755`.
 - Un dossier peut avoir plusieurs partages : **Ajouter** et **Supprimer**.
-- Chaque paramètre de smb.conf a sa ligne, et **La section de smb.conf** l'écrit telle que Samba la lit.
+- Chaque paramètre de smb.conf a sa ligne : à gauche, qui peut entrer, lire ou écrire ; au milieu, l'identité Unix et les modes des fichiers créés. À droite, **La section de smb.conf** l'écrit telle que Samba la lit.
 
 **OK** garde les changements ; **Annuler** remet les partages comme avant.
 

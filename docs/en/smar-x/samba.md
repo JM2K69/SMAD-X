@@ -73,7 +73,7 @@ The **Samba sharing of …** card gives the object's network path and the shares
 
 - **Share this folder** creates a share with Samba's defaults: read-only, `create mask = 0744`, `directory mask = 0755`.
 - A directory can have several shares: **Add** and **Remove**.
-- Each smb.conf parameter has its row, and **The smb.conf section** writes it as Samba reads it.
+- Each smb.conf parameter has its row: on the left, who can enter, read or write; in the middle, the Unix identity and the modes of the files created. On the right, **The smb.conf section** writes it as Samba reads it.
 
 **OK** keeps the changes; **Cancel** puts the shares back as they were.
 

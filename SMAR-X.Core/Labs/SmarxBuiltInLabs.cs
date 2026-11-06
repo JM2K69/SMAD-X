@@ -151,8 +151,8 @@ namespace SMARX.Labs
                             Needs = [$"bob List {RhFolder}", $"bob CreateFile {RhFolder}", $"bob Read {Salaries}", $"bob Write {Salaries}"]
                         }),
                     Objective("o3", 2, L("Le partage RH ne donne que ce qu'il faut", "The RH share grants only what is needed"),
-                        L("Ni Modifier ni Contrôle total pour Tout le monde, et Contrôle total aux seuls Administrateurs.",
-                          "Neither Change nor Full Control for Everyone, and Full Control for Administrators only."),
+                        L("Ni Modifier ni Contrôle total pour Tout le monde, Utilisateurs authentifiés ou Utilisateurs, et Contrôle total aux seuls Administrateurs : c'est au groupe du service d'avoir Modifier.",
+                          "Neither Change nor Full Control for Everyone, Authenticated Users or Users, and Full Control for Administrators only: the department's group is the one to get Change."),
                         new SmarxCheck { Type = SmarxCheckType.Hygiene, System = windows, Rule = SmarxHygieneRule.ShareLeastPrivilege, Share = "RH" }),
                     Objective("g1", 0, L("Les autorisations NTFS de D:\\Partages\\RH ne changent pas", "The NTFS permissions of D:\\Partages\\RH do not change"), new LocalizedText(),
                         new SmarxCheck { Type = SmarxCheckType.PathUnchanged, System = windows, Path = RhFolder }, guard: true),
