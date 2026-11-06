@@ -247,9 +247,19 @@ La solution, ce sont les serveurs corrigés, préparés dans SMAR-X puis enregis
 - deux copies de la même session de travail : l'une est la copie de l'autre ;
 - les réponses écrites à noter à la main.
 
-Chaque copie a sa note, ses pastilles (une par objectif, puis par question : verte atteint, orange en partie, rouge non atteint ; le survol donne l'explication) et ses remarques. **Exporter les notes (CSV)...** écrit une ligne par copie.
+Chaque copie a sa note, ses pastilles (une par objectif, puis par question : verte atteint, orange en partie, rouge non atteint ; le survol donne l'explication) et ses remarques.
 
 ![Copies d'un exercice SMAR-X](../assets/screens/studio-smarx-submissions.png)
+
+Les exports sont ceux d'un exercice SMAD-X (voir [Exporter les notes](#exporter-les-notes)), sur le barème **Note sur** (20 par défaut). Studio demande où les enregistrer :
+
+| Bouton | Produit |
+|---|---|
+| **Exporter les notes (CSV)...** | une ligne par copie, avec les mêmes colonnes qu'un exercice SMAD-X |
+| **Exporter pour Moodle (CSV)...** | le fichier d'import des notes de Moodle : identifiant, nom, note sur le barème |
+| **Exporter le bilan (Markdown)...** | moyenne, médiane, notes de chacun, réussite par objectif et par question |
+
+Il n'y a pas de compte rendu PDF par apprenant pour un exercice SMAR-X. Dans SMAR-X aussi, l'apprenant peut indiquer un **identifiant** à côté de son nom : c'est lui que reprennent les exports. La [ligne de commande](#en-ligne-de-commande) corrige aussi les copies d'un exercice SMAR-X.
 
 ---
 
@@ -316,6 +326,10 @@ SMAD-X.Studio grade exercices/anssi-krb-01 --lang fr
 SMAD-X.Studio grade exercices/anssi-krb-01/1-formateur/anssi-krb-01.smadx-lab.json copies-groupe-a copies-groupe-b --lang fr --csv notes.csv --moodle moodle.csv --reports comptes-rendus --report bilan.md
 ```
 
+```bash
+SMAD-X.Studio grade droits/partage-rh.smarx-lab.json copies-rh --lang fr --csv notes.csv --moodle moodle.csv --report bilan.md
+```
+
 | Commande | Rôle |
 |---|---|
 | `list-recipes` | liste les recettes : règle, gravité, point ANSSI, titre |
@@ -325,6 +339,7 @@ SMAD-X.Studio grade exercices/anssi-krb-01/1-formateur/anssi-krb-01.smadx-lab.js
 | `export-subject <fichier ou dossier>...` | réécrit le sujet de chaque exercice dans son dossier `2-a-distribuer`, ou dans `--out` |
 | `grade <dossier de l'exercice>` | corrige les copies de `3-copies-rendues` et écrit tous les résultats dans `4-resultats` |
 | `grade <exercice> <copie ou dossier>...` | corrige les copies données, où qu'elles soient ; les options `--csv`, `--moodle`, `--reports` et `--report` choisissent les fichiers. `+` atteint, `~` en partie, `-` non atteint, `?` à noter à la main dans Studio |
+| `grade <exercice SMAR-X> [<copie ou dossier>...]` | corrige les copies d'un exercice SMAR-X : le fichier `.smarx-lab.json`, ou un dossier qui en contient un seul. Sans copie donnée, ce sont toutes les `.smarx-submission.json` de son dossier, sous-dossiers compris. Mêmes lignes, mêmes signes et mêmes options, sauf `--reports`, réservé aux exercices SMAD-X |
 
 | Option | Effet |
 |---|---|
@@ -340,9 +355,9 @@ SMAD-X.Studio grade exercices/anssi-krb-01/1-formateur/anssi-krb-01.smadx-lab.js
 | `--exam-close audit,fixes,paths,comparison` | avec `--exam` : outils fermés pendant l'examen |
 | `--csv <fichier>` | `grade` : tableau des notes pour Excel |
 | `--moodle <fichier>` | `grade` : fichier d'import des notes de Moodle |
-| `--reports <dossier>` | `grade` : un compte rendu PDF par apprenant |
+| `--reports <dossier>` | `grade` : un compte rendu PDF par apprenant (exercice SMAD-X seulement) |
 | `--scale <n>` | `grade` : barème des notes exportées (20 par défaut) |
 | `--report <fichier>` | `grade` : bilan de la classe en Markdown |
 | `--verbose` | affiche aussi les vérifications réussies |
 
-Chaque exercice écrit est validé aussitôt. Le code de sortie vaut **0** si tout va bien, **1** si un exercice a des erreurs (il est quand même écrit, pour être corrigé dans Studio), si les recettes ne peuvent pas être combinées ou si une copie est à revoir (non corrigée, modifiée ou recopiée), et **2** pour une commande incorrecte.
+Chaque exercice écrit est validé aussitôt. Le code de sortie vaut **0** si tout va bien, **1** si un exercice a des erreurs (il est quand même écrit, pour être corrigé dans Studio), si les recettes ne peuvent pas être combinées, s'il n'y a aucune copie à corriger ou si une copie est à revoir (non corrigée, modifiée ou recopiée), et **2** pour une commande incorrecte, `--reports` avec un exercice SMAR-X compris.

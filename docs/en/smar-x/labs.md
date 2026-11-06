@@ -56,7 +56,7 @@ Each objective says why: the access tested and its result, the accesses too many
 
 ## The copy
 
-With their name, the learner saves their copy: **Save my copy…** writes a `.smarx-submission.json` file. It holds the lab received, the learner's servers, their answers, the hints viewed, and the start and save dates. The copy is **sealed**: the seal covers its whole content, so a copy edited by hand is spotted when it is graded. The trainer creates labs and grades a class's copies in [SMAD-X Studio](../labs/studio.md#smar-x-labs).
+With their name and, optionally, their **ID** (their number or address, used by the grade exports), the learner saves their copy: **Save my copy…** writes a `.smarx-submission.json` file. It holds the lab received, the learner's servers, their answers, the hints viewed, and the start and save dates. The copy is **sealed**: the seal covers its whole content, so a copy edited by hand is spotted when it is graded. The trainer creates labs and grades a class's copies in [SMAD-X Studio](../labs/studio.md#smar-x-labs).
 
 ## Exam mode
 

@@ -185,15 +185,17 @@ namespace SMADX.Studio.ViewModels
     }
 
     /// <summary>Une copie SMAR-X dans l'onglet « Copies » : note, indices, objectifs et questions, remarques.</summary>
-    public sealed record SmarxSubmissionRow(string Path, SmarxSubmission? Submission, SmarxLabResult? Result, IReadOnlyList<LabIssue> Issues, int MaxPoints, string Culture)
+    public sealed record SmarxSubmissionRow(SmarxGradedSubmission Graded, int MaxPoints, string Culture)
     {
-        public string Student => Submission?.Student ?? System.IO.Path.GetFileName(Path);
-        public string FileName => System.IO.Path.GetFileName(Path);
+        public SmarxSubmission? Submission => Graded.Submission;
+        public SmarxLabResult? Result => Graded.Result;
+        public string Student => Graded.Student;
+        public string FileName => System.IO.Path.GetFileName(Graded.Path);
         public string SavedAt => Submission?.SavedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? "";
-        public double Points => Result?.Score ?? 0;
-        public string Grade => Result == null ? "—" : $"{Points.ToString("0.##", CultureInfo.GetCultureInfo(Culture))} / {MaxPoints}";
+        public double Points => Graded.Points;
+        public string Grade => Result == null ? "—" : $"{SmarxClassGrader.Format(Points, CultureInfo.GetCultureInfo(Culture))} / {MaxPoints}";
         public string Percent => Result != null && MaxPoints > 0 ? $"{100.0 * Points / MaxPoints:0} %" : "";
-        public int Hints => Submission?.HintsUsed.Count ?? 0;
+        public int Hints => Graded.HintsUsed;
 
         public IReadOnlyList<ObjectiveMark> Marks => Result is not { } result ? []
             : result.Objectives.Select(o => new ObjectiveMark(o.Passed ? MarkState.Met : o.Fraction > 0 && !o.Annulled ? MarkState.Partial : MarkState.Missed,
@@ -202,9 +204,9 @@ namespace SMADX.Studio.ViewModels
                     $"{q.Question.Id} · {q.Question.Title.Resolve(Culture)}")))
                 .ToList();
 
-        public string Remarks => string.Join(" ", Issues.Select(i => i.Message));
-        public string RemarksColor => Issues.Any(i => i.Level == LabIssueLevel.Error) ? "#E74C3C"
-            : Issues.Any(i => i.Level == LabIssueLevel.Warning) ? "#F39C12" : "#27AE60";
+        public string Remarks => string.Join(" ", Graded.Issues.Select(i => i.Message));
+        public string RemarksColor => Graded.Issues.Any(i => i.Level == LabIssueLevel.Error) ? "#E74C3C"
+            : Graded.Issues.Any(i => i.Level == LabIssueLevel.Warning) ? "#F39C12" : "#27AE60";
     }
 
     /// <summary>
@@ -617,52 +619,32 @@ namespace SMADX.Studio.ViewModels
         public void Regrade()
         {
             var culture = EditCulture;
-            var copies = _submissionPaths.Select(path =>
-            {
-                try { return (path, Submission: (SmarxSubmission?)SmarxLabService.ParseSubmission(File.ReadAllText(path)), Error: (string?)null); }
-                catch (Exception ex) when (ex is InvalidDataException or IOException) { return (path, Submission: null, Error: ex.Message); }
-            }).ToList();
-
+            _graded = SmarxClassGrader.GradeAll(Lab, _submissionPaths, culture);
             Submissions.Clear();
-            foreach (var (path, submission, error) in copies)
-            {
-                var issues = new List<LabIssue>();
-                SmarxLabResult? result = null;
-                if (submission == null)
-                    issues.Add(new(LabIssueLevel.Error, Text.T($"Copie illisible : {error}", $"Unreadable copy: {error}")));
-                else
-                {
-                    if (submission.SealCheck == SubmissionSeal.Broken)
-                        issues.Add(new(LabIssueLevel.Error, Text.T("Copie modifiée après son enregistrement (sceau rompu).", "Copy edited after it was saved (broken seal).")));
-                    else if (submission.SealCheck == SubmissionSeal.Missing)
-                        issues.Add(new(LabIssueLevel.Warning, Text.T("Copie sans sceau.", "Copy without a seal.")));
-                    if (!string.Equals(submission.LabId, Lab.Id, StringComparison.OrdinalIgnoreCase))
-                        issues.Add(new(LabIssueLevel.Error, Text.T($"Copie d'un autre exercice ({submission.LabId}).", $"Copy of another lab ({submission.LabId}).")));
-                    var twins = copies.Where(c => c.Submission != null && c.Submission != submission && c.Submission.SessionId == submission.SessionId)
-                        .Select(c => c.Submission!.Student).ToList();
-                    if (twins.Count > 0)
-                        issues.Add(new(LabIssueLevel.Error, Text.T($"Même session de travail que la copie de {string.Join(", ", twins)} : l'une est la copie de l'autre.",
-                                                                  $"Same work session as the copy of {string.Join(", ", twins)}: one is a copy of the other.")));
-                    result = SmarxLabGrader.Grade(Lab, submission.Work, submission.Answers, culture);
-                    var toReview = result.Questions.Count(q => q.NeedsReview);
-                    if (toReview > 0)
-                        issues.Add(new(LabIssueLevel.Warning, Text.T($"{toReview} réponse(s) à noter à la main.", $"{toReview} answer(s) to grade by hand.")));
-                }
-                Submissions.Add(new SmarxSubmissionRow(path, submission, result, issues, Lab.MaxPoints, culture));
-            }
-
-            var graded = Submissions.Where(s => s.Result != null).ToList();
-            ClassSummary = graded.Count == 0 ? Text["Submissions.None"]
-                : Text.T($"{graded.Count} copie(s) corrigée(s) — moyenne {graded.Average(s => s.Points):0.#} / {Lab.MaxPoints}",
-                         $"{graded.Count} copy(ies) graded — average {graded.Average(s => s.Points):0.#} / {Lab.MaxPoints}");
+            foreach (var graded in _graded) Submissions.Add(new SmarxSubmissionRow(graded, Lab.MaxPoints, culture));
+            var count = _graded.Count(g => g.Graded);
+            ClassSummary = SmarxClassGrader.Average(_graded) is { } average
+                ? Text.T($"{count} copie(s) corrigée(s) — moyenne {average:0.#} / {Lab.MaxPoints}", $"{count} copy(ies) graded — average {average:0.#} / {Lab.MaxPoints}")
+                : Text["Submissions.None"];
             OnPropertyChanged(nameof(HasSubmissions));
             _status(ClassSummary);
+        }
+
+        private IReadOnlyList<SmarxGradedSubmission> _graded = [];
+
+        /// <summary>Barème des notes exportées : sur 20 par défaut.</summary>
+        [ObservableProperty] private int _scale = SmarxClassGrader.DefaultScale;
+
+        partial void OnScaleChanged(int value)
+        {
+            if (value < 1) Scale = 1;
         }
 
         [RelayCommand]
         private void ClearSubmissions()
         {
             _submissionPaths.Clear();
+            _graded = [];
             Submissions.Clear();
             ClassSummary = Text["Submissions.None"];
             OnPropertyChanged(nameof(HasSubmissions));
@@ -676,18 +658,23 @@ namespace SMADX.Studio.ViewModels
             _status(string.Format(Text["Status.Saved"], Path.GetFileName(path)));
         }
 
-        /// <summary>Les notes de la classe, une copie par ligne (Excel les ouvre directement).</summary>
-        public string GradesCsv()
+        [RelayCommand]
+        private async Task ExportMoodleAsync()
         {
-            var numbers = CultureInfo.GetCultureInfo(EditCulture);
-            var sb = new StringBuilder();
-            sb.AppendLine(Text.T("Apprenant;Identifiant;Note;Sur;Indices;Remarques", "Learner;ID;Grade;Out of;Hints;Remarks"));
-            foreach (var row in Submissions)
-                sb.AppendLine(string.Join(';', Csv(row.Student), Csv(row.Submission?.StudentId ?? ""), row.Result == null ? "" : row.Points.ToString("0.##", numbers),
-                    Lab.MaxPoints, row.Hints, Csv(row.Remarks)));
-            return sb.ToString();
+            if (await _dialogs.SaveFileAsync(Text["Submissions.ExportMoodle"], Lab.Id + ".moodle.csv", Text["File.Csv"], "*.csv") is not { } path) return;
+            File.WriteAllText(path, SmarxClassGrader.MoodleCsv(Lab, _graded, EditCulture, Scale), new UTF8Encoding(false));
+            _status(string.Format(Text["Status.Saved"], Path.GetFileName(path)));
         }
 
-        private static string Csv(string value) => value.Contains(';') || value.Contains('"') ? "\"" + value.Replace("\"", "\"\"") + "\"" : value;
+        [RelayCommand]
+        private async Task ExportClassReportAsync()
+        {
+            if (await _dialogs.SaveFileAsync(Text["Submissions.ExportReport"], Lab.Id + ".bilan.md", Text["File.Markdown"], "*.md") is not { } path) return;
+            File.WriteAllText(path, SmarxClassGrader.ClassReport(Lab, _graded, EditCulture));
+            _status(string.Format(Text["Status.Saved"], Path.GetFileName(path)));
+        }
+
+        /// <summary>Les notes de la classe, une copie par ligne (Excel les ouvre directement), sur le barème choisi.</summary>
+        public string GradesCsv() => SmarxClassGrader.Csv(Lab, _graded, EditCulture, Scale);
     }
 }

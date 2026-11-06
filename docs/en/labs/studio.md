@@ -247,9 +247,19 @@ The solution is the fixed servers, prepared in SMAR-X then saved (`.smar-x.json`
 - two copies of the same work session: one is a copy of the other;
 - the written answers to grade by hand.
 
-Each copy has its grade, its dots (one per objective, then per question: green met, orange partly, red not met; hovering gives the explanation) and its remarks. **Export grades (CSV)...** writes one line per copy.
+Each copy has its grade, its dots (one per objective, then per question: green met, orange partly, red not met; hovering gives the explanation) and its remarks.
 
 ![Copies of a SMAR-X lab](../assets/screens/studio-smarx-submissions.png)
+
+The exports are those of a SMAD-X lab (see [Exporting the grades](#exporting-the-grades)), on the **Grade out of** scale (20 by default). Studio asks where to save them:
+
+| Button | Produces |
+|---|---|
+| **Export grades (CSV)...** | one line per copy, with the same columns as a SMAD-X lab |
+| **Export for Moodle (CSV)...** | the Moodle grade import file: ID, name, grade out of the scale |
+| **Export class results (Markdown)...** | average, median, everyone's grade, success per objective and per question |
+
+There is no PDF report per learner for a SMAR-X lab. In SMAR-X too, the learner can enter an **ID** beside their name: the exports use it. The [command line](#command-line) also grades the copies of a SMAR-X lab.
 
 ---
 
@@ -316,6 +326,10 @@ SMAD-X.Studio grade labs/anssi-krb-01 --lang en
 SMAD-X.Studio grade labs/anssi-krb-01/1-trainer/anssi-krb-01.smadx-lab.json submissions-group-a submissions-group-b --lang en --csv grades.csv --moodle moodle.csv --reports reports --report results.md
 ```
 
+```bash
+SMAD-X.Studio grade permissions/hr-share.smarx-lab.json hr-copies --lang en --csv grades.csv --moodle moodle.csv --report results.md
+```
+
 | Command | Purpose |
 |---|---|
 | `list-recipes` | lists the recipes: rule, severity, ANSSI point, title |
@@ -325,6 +339,7 @@ SMAD-X.Studio grade labs/anssi-krb-01/1-trainer/anssi-krb-01.smadx-lab.json subm
 | `export-subject <file or folder>...` | rewrites the subject of each lab into its `2-to-hand-out` folder, or into `--out` |
 | `grade <lab folder>` | grades the submissions of `3-submissions` and writes every result to `4-results` |
 | `grade <lab> <submission or folder>...` | grades the given submissions, wherever they are; `--csv`, `--moodle`, `--reports` and `--report` choose the files. `+` met, `~` in part, `-` not met, `?` to grade by hand in Studio |
+| `grade <SMAR-X lab> [<copy or folder>...]` | grades the copies of a SMAR-X lab: the `.smarx-lab.json` file, or a folder holding just one. Without copies given, it takes every `.smarx-submission.json` of its folder, subfolders included. Same lines, same signs and same options, except `--reports`, which is for SMAD-X labs only |
 
 | Option | Effect |
 |---|---|
@@ -340,9 +355,9 @@ SMAD-X.Studio grade labs/anssi-krb-01/1-trainer/anssi-krb-01.smadx-lab.json subm
 | `--exam-close audit,fixes,paths,comparison` | with `--exam`: tools closed during the exam |
 | `--csv <file>` | `grade`: grade spreadsheet for Excel |
 | `--moodle <file>` | `grade`: Moodle grade import file |
-| `--reports <folder>` | `grade`: one PDF report per learner |
+| `--reports <folder>` | `grade`: one PDF report per learner (SMAD-X labs only) |
 | `--scale <n>` | `grade`: scale of the exported grades (20 by default) |
 | `--report <file>` | `grade`: class results in Markdown |
 | `--verbose` | also shows the checks that passed |
 
-Each lab written is validated straight away. The exit code is **0** when all is well, **1** when a lab has errors (it is still written, to be fixed in Studio), the recipes cannot be combined or a submission needs attention (not graded, changed or copied), and **2** for a wrong command.
+Each lab written is validated straight away. The exit code is **0** when all is well, **1** when a lab has errors (it is still written, to be fixed in Studio), the recipes cannot be combined, there is no submission to grade or a submission needs attention (not graded, changed or copied), and **2** for a wrong command, `--reports` with a SMAR-X lab included.

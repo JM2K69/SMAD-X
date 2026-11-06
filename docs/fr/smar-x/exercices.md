@@ -56,7 +56,7 @@ Chaque objectif dit pourquoi : l'accès testé et son résultat, les accès en t
 
 ## La copie
 
-Avec son nom, l'apprenant enregistre sa copie : **Enregistrer ma copie…** écrit un fichier `.smarx-submission.json`. Il contient l'exercice reçu, les serveurs de l'apprenant, ses réponses, les indices consultés, et la date de début et d'enregistrement. La copie est **scellée** : le sceau couvre tout son contenu, si bien qu'une copie retouchée à la main se repère à la correction. Le formateur crée les exercices et corrige les copies d'une classe dans [SMAD-X Studio](../exercices/studio.md#exercices-smar-x).
+Avec son nom et, s'il le veut, son **identifiant** (son numéro ou son adresse, repris par les exports de notes), l'apprenant enregistre sa copie : **Enregistrer ma copie…** écrit un fichier `.smarx-submission.json`. Il contient l'exercice reçu, les serveurs de l'apprenant, ses réponses, les indices consultés, et la date de début et d'enregistrement. La copie est **scellée** : le sceau couvre tout son contenu, si bien qu'une copie retouchée à la main se repère à la correction. Le formateur crée les exercices et corrige les copies d'une classe dans [SMAD-X Studio](../exercices/studio.md#exercices-smar-x).
 
 ## Le mode examen
 

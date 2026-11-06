@@ -303,7 +303,13 @@
                                 <Button Classes="accent" Command="{Binding AddSubmissionsCommand}" Content="{Binding [Submissions.Add], Source={StaticResource S}}"/>
                                 <Button Classes="tool" Command="{Binding RegradeCommand}" Content="{Binding [Submissions.Regrade], Source={StaticResource S}}"/>
                                 <Button Classes="tool" Command="{Binding ExportGradesCommand}" Content="{Binding [Submissions.ExportCsv], Source={StaticResource S}}"/>
+                                <Button Classes="tool" Command="{Binding ExportMoodleCommand}" Content="{Binding [Submissions.ExportMoodle], Source={StaticResource S}}"/>
+                                <Button Classes="tool" Command="{Binding ExportClassReportCommand}" Content="{Binding [Submissions.ExportReport], Source={StaticResource S}}"/>
                                 <Button Classes="tool" Command="{Binding ClearSubmissionsCommand}" Content="{Binding [Submissions.Clear], Source={StaticResource S}}"/>
+                                <StackPanel Orientation="Horizontal" Spacing="6" Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Classes="label" VerticalAlignment="Center" Margin="0" Text="{Binding [Submissions.Scale], Source={StaticResource S}}"/>
+                                    <NumericUpDown Minimum="1" Maximum="1000" FormatString="0" Value="{Binding Scale}" Width="110"/>
+                                </StackPanel>
                             </WrapPanel>
                             <TextBlock FontWeight="SemiBold" TextWrapping="Wrap" Text="{Binding ClassSummary}"/>
                         </StackPanel>

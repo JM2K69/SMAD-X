@@ -6,12 +6,15 @@ using System.Linq;
 using SMADX.Models;
 using SMADX.Services;
 using SMADX.Services.Labs;
+using SMARX.Models;
+using SMARX.Services.Labs;
 
 namespace SMADX.Studio
 {
     /// <summary>
     /// Ligne de commande de Studio, pour produire des exercices en série et corriger une classe :
-    /// <c>list-recipes</c>, <c>recipe</c>, <c>convert</c>, <c>validate</c>, <c>export-subject</c> et <c>grade</c>. Chaque exercice est
+    /// <c>list-recipes</c>, <c>recipe</c>, <c>convert</c>, <c>validate</c>, <c>export-subject</c> et <c>grade</c>, qui corrige aussi
+    /// les copies d'un exercice SMAR-X. Chaque exercice est
     /// écrit avec, à côté, ses notes du formateur (<c>.notes.md</c>), jamais dans l'exercice, et, pour une
     /// recette, son domaine corrigé (<c>.solution.smad-x.json</c>).
     /// </summary>
@@ -67,6 +70,7 @@ namespace SMADX.Studio
                   SMAD-X.Studio export-subject <lab.smadx-lab.json>... [--out <folder>] [--lang fr|en]
                   SMAD-X.Studio grade <lab folder> [--scale 20] [--lang fr|en]
                   SMAD-X.Studio grade <lab.smadx-lab.json> <submission.smadx-submission.json|folder>... [--csv <grades.csv>] [--moodle <moodle.csv>] [--reports <folder>] [--scale 20] [--report <results.md>] [--lang fr|en]
+                  SMAD-X.Studio grade <lab.smarx-lab.json|folder> [<copy.smarx-submission.json|folder>...] [--csv <grades.csv>] [--moodle <moodle.csv>] [--scale 20] [--report <results.md>] [--lang fr|en]
 
                 --exam: exam mode in SMAD-X (no hints, no score, no start over; time measured).
                 --exam : mode examen dans SMAD-X (ni indice, ni score, ni « Recommencer » ; temps mesuré).
@@ -85,6 +89,11 @@ namespace SMADX.Studio
                 - non atteint, ? à noter à la main dans Studio. Avec un dossier d'exercice, les copies de 3-copies-rendues
                 sont corrigées et tous les résultats écrits dans 4-resultats ; sinon --csv, --moodle (import Moodle),
                 --reports (un PDF par apprenant) et --report les choisissent. Notes sur --scale (20 par défaut).
+                A SMAR-X lab (.smarx-lab.json, or a folder holding one) is graded the same way, with the copies given after
+                it or, otherwise, every .smarx-submission.json of its folder; --reports is for SMAD-X labs only.
+                Un exercice SMAR-X (.smarx-lab.json, ou un dossier qui en contient un) se corrige de la même façon, avec les
+                copies données après lui ou, sinon, toutes les .smarx-submission.json de son dossier ; --reports est réservé
+                aux exercices SMAD-X.
 
                 recipe writes one lab per rule; with --combine, one lab with every misconfiguration in the same domain.
                 recipe écrit un exercice par règle ; avec --combine, un seul exercice avec tous les manques dans le même domaine.
@@ -231,7 +240,8 @@ namespace SMADX.Studio
         /// </summary>
         private static int Grade(Options options, TextWriter output, TextWriter error)
         {
-            if (options.Inputs.Count == 0) throw new CliException("grade: give the lab folder, or the lab (.smadx-lab.json) then the submissions or their folder.");
+            if (options.Inputs.Count == 0) throw new CliException("grade: give the lab folder, or the lab (.smadx-lab.json or .smarx-lab.json) then the submissions or their folder.");
+            if (SmarxLabPath(options.Inputs[0]) is { } smarxLab) return GradeSmarx(smarxLab, options, output, error);
             // Un dossier d'exercice (ou son exemplaire) : ses copies rendues, et ses résultats dans 4-resultats
             var labPath = options.Inputs[0];
             var project = Directory.Exists(labPath) ? LabProject.OfRoot(labPath) : LabProject.Of(labPath);
@@ -301,6 +311,73 @@ namespace SMADX.Studio
                 foreach (var written in project.SaveResults(lab, rows, options.Culture, options.Scale))
                     output.WriteLine(written);
             return rows.Count == 0 || rows.Any(SubmissionGrader.NeedsAttention) ? 1 : 0;
+        }
+
+        /// <summary>
+        /// L'exercice SMAR-X désigné : un fichier .smarx-lab.json, ou un dossier (qui n'est pas un dossier d'exercice SMAD-X)
+        /// qui en contient un seul. Null : un exercice SMAD-X.
+        /// </summary>
+        private static string? SmarxLabPath(string input)
+        {
+            if (File.Exists(input) || !Directory.Exists(input))
+                return input.EndsWith(SmarxLab.FileExtension, StringComparison.OrdinalIgnoreCase) ? input : null;
+            if (LabProject.OfRoot(input) != null) return null;
+            return Directory.GetFiles(input, "*" + SmarxLab.FileExtension) is [var single] ? single : null;
+        }
+
+        /// <summary>Corrige les copies d'un exercice SMAR-X : mêmes lignes, mêmes signes et mêmes exports qu'un exercice SMAD-X.</summary>
+        private static int GradeSmarx(string labPath, Options options, TextWriter output, TextWriter error)
+        {
+            if (options.Reports != null)
+                throw new CliException("grade: --reports (one PDF per learner) is for SMAD-X labs; for a SMAR-X lab, use --csv, --moodle or --report.");
+            var inputs = options.Inputs.Count > 1 ? options.Inputs.Skip(1).ToList()
+                : Directory.Exists(options.Inputs[0]) ? [options.Inputs[0]]
+                : throw new CliException("grade: give the copies or their folder after the lab.");
+            SmarxLab lab;
+            try { lab = SmarxLabService.Parse(File.ReadAllText(labPath)); }
+            catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
+            {
+                error.WriteLine($"{labPath}: {ex.Message}");
+                return 1;
+            }
+
+            var paths = inputs.SelectMany<string, string>(i => Directory.Exists(i)
+                ? Directory.GetFiles(i, "*" + SmarxSubmission.FileExtension, SearchOption.AllDirectories).Order(StringComparer.Ordinal)
+                : new[] { i }).ToList();
+            var rows = SmarxClassGrader.GradeAll(lab, paths, options.Culture);
+            var width = Math.Max(12, rows.Select(r => r.Student.Length).DefaultIfEmpty(0).Max());
+            var numbers = CultureInfo.GetCultureInfo(options.Culture);
+            foreach (var r in rows)
+            {
+                var grade = r.Graded ? $"{SmarxClassGrader.Format(r.Points, numbers)}/{lab.MaxPoints}" : "-";
+                output.WriteLine($"{r.Student.PadRight(width)}  {grade,7}  hints {r.HintsUsed}  {SmarxClassGrader.Marks(r)}");
+                // Aucun caractère de contrôle venu d'une copie ne peut masquer ou imiter une ligne
+                foreach (var issue in r.Issues)
+                    output.WriteLine($"  {(issue.Level == LabIssueLevel.Error ? "error" : "warning")}: {SafeText.Name(issue.Message)}");
+            }
+            var graded = rows.Count(r => r.Graded);
+            if (rows.Sum(r => r.ToReview) is > 0 and var toReview)
+                output.WriteLine($"{toReview} answer(s) to grade by hand in Studio");
+            output.WriteLine(SmarxClassGrader.Average(rows) is { } average && SmarxClassGrader.Median(rows) is { } median
+                ? $"{graded}/{rows.Count} graded, average {average.ToString("0.#", numbers)}/{lab.MaxPoints}, median {median.ToString("0.#", numbers)}"
+                : $"{graded}/{rows.Count} graded");
+
+            if (options.Csv != null)
+            {
+                File.WriteAllText(options.Csv, SmarxClassGrader.Csv(lab, rows, options.Culture, options.Scale), new System.Text.UTF8Encoding(true));
+                output.WriteLine(options.Csv);
+            }
+            if (options.Moodle != null)
+            {
+                File.WriteAllText(options.Moodle, SmarxClassGrader.MoodleCsv(lab, rows, options.Culture, options.Scale), new System.Text.UTF8Encoding(false));
+                output.WriteLine(options.Moodle);
+            }
+            if (options.Report != null)
+            {
+                File.WriteAllText(options.Report, SmarxClassGrader.ClassReport(lab, rows, options.Culture));
+                output.WriteLine(options.Report);
+            }
+            return rows.Count == 0 || rows.Any(SmarxClassGrader.NeedsAttention) ? 1 : 0;
         }
 
         /// <summary>

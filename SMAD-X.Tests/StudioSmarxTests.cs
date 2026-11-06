@@ -187,7 +187,73 @@ public class StudioSmarxTests
         Assert.Contains("Lucas Bernard", rows[Path.GetFileName(copyA)].Remarks);
         Assert.Contains("#E74C3C", rows[Path.GetFileName(tampered)].RemarksColor);
         Assert.Equal(lab.Objectives.Count, rows[Path.GetFileName(good)].Marks.Count);
-        Assert.StartsWith("Apprenant;Identifiant;Note", vm.GradesCsv());
+        Assert.StartsWith("Apprenant;Identifiant;Fichier;Enregistrée le;Points;Sur;Note sur 20", vm.GradesCsv());
         Assert.Equal(6, vm.GradesCsv().Split('\n', StringSplitOptions.RemoveEmptyEntries).Length);
+    }
+
+    /// <summary>Des copies pour la ligne de commande : une solution, un départ inchangé, une copie retouchée.</summary>
+    private static (string Folder, string Lab) ClassFolder()
+    {
+        var folder = TempDir();
+        var lab = SmarxBuiltInLabs.LinuxTeamFolder();
+        var labPath = Path.Combine(folder, lab.Id + SmarxLab.FileExtension);
+        File.WriteAllText(labPath, SmarxLabService.Serialize(lab));
+        var copies = Path.Combine(folder, "copies");
+        Directory.CreateDirectory(copies);
+        foreach (var (student, work) in new[] { ("Camille Martin", TeamFolderSolution(lab)), ("Hugo Petit", SmarxLabGrader.Clone(lab.Start)), ("Nathan Roux", SmarxLabGrader.Clone(lab.Start)) })
+            File.WriteAllText(Path.Combine(copies, SmarxLabService.SubmissionFileName(lab.Id, student)), SmarxLabService.SerializeSubmission(new SmarxSubmission
+            {
+                Student = student, LabId = lab.Id, SessionId = Guid.NewGuid(), StartedOn = new DateTime(2026, 11, 6, 9, 0, 0),
+                SavedAt = new DateTime(2026, 11, 6, 9, 30, 0), Lab = lab, Work = work
+            }));
+        var tampered = Path.Combine(copies, SmarxLabService.SubmissionFileName(lab.Id, "Nathan Roux"));
+        File.WriteAllText(tampered, File.ReadAllText(tampered).Replace("Nathan Roux", "Nathan R."));
+        return (folder, labPath);
+    }
+
+    private static (int Code, string Output, string Error) Cli(params string[] args)
+    {
+        var output = new StringWriter();
+        var error = new StringWriter();
+        var code = SMADX.Studio.Cli.Run(args, output, error);
+        return (code, output.ToString(), error.ToString());
+    }
+
+    /// <summary>La ligne de commande corrige un exercice SMAR-X comme un exercice SMAD-X : notes, signes, remarques, exports.</summary>
+    [Fact]
+    public void Cli_Grade_GradesASmarxLab_WithItsExports()
+    {
+        var (folder, lab) = ClassFolder();
+        var csv = Path.Combine(folder, "notes.csv");
+        var moodle = Path.Combine(folder, "moodle.csv");
+        var report = Path.Combine(folder, "bilan.md");
+
+        var (code, output, _) = Cli("grade", lab, Path.Combine(folder, "copies"), "--csv", csv, "--moodle", moodle, "--report", report, "--lang", "fr");
+
+        // La copie retouchée demande une attention : code 1
+        Assert.Equal(1, code);
+        Assert.Matches(@"Camille Martin\s+9/9\s+hints 0\s+\+{6}", output);
+        Assert.Matches(@"Hugo Petit\s+0/9", output);
+        Assert.Contains("error: Copie modifiée après son enregistrement (sceau rompu).", output);
+        Assert.Contains("3/3 graded", output);
+        Assert.StartsWith("Apprenant;Identifiant;Fichier", File.ReadAllText(csv).TrimStart('\uFEFF'));
+        Assert.Contains("Camille Martin,20", File.ReadAllText(moodle));
+        Assert.StartsWith("# Le dossier de l'équipe projet — bilan de la classe", File.ReadAllText(report));
+    }
+
+    /// <summary>Le dossier qui contient l'exercice : ses copies sont cherchées dedans ; --reports reste réservé à SMAD-X.</summary>
+    [Fact]
+    public void Cli_Grade_TakesTheLabFolder_AndRefusesPdfReports()
+    {
+        var (folder, lab) = ClassFolder();
+
+        var (code, output, _) = Cli("grade", folder, "--lang", "en");
+        Assert.Equal(1, code);
+        Assert.Contains("3/3 graded", output);
+        Assert.Contains("error: Copy edited after it was saved (broken seal).", output);
+
+        var refused = Cli("grade", lab, folder, "--reports", Path.Combine(folder, "pdf"));
+        Assert.Equal(2, refused.Code);
+        Assert.Contains("--reports", refused.Error);
     }
 }
