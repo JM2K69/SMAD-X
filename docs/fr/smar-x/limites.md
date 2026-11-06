@@ -8,7 +8,7 @@ SMAR-X simule les droits d'accès aux fichiers, et ses moteurs sont comparés à
 - Seuls les serveurs d'exemple ont été mesurés. Un serveur construit par le formateur suit les mêmes règles, mais ses cas particuliers n'ont pas été vérifiés un par un.
 - L'onglet Sécurité a été relevé sur un Windows 11 en anglais ; ses libellés français sont ceux de Windows en français, sans relevé.
 - Les commandes de l'aide-mémoire ont été rejouées telles qu'elles sont écrites, sur un Windows 11 du labo (Windows PowerShell 5.1, module NTFSSecurity 4.2.6) et sur un Debian 13 (`tools/SmarxGlossaryCheck`). Elles ont tourné sur une copie des dossiers d'exemple (`C:\SmxGlossary`), avec des groupes locaux du même nom à la place de ceux du domaine `CORP`. Trois exceptions : `Add-ADGroupMember`, qui modifierait l'annuaire, n'est vérifiée que dans sa syntaxe ; `smbpasswd -a` a été rejouée avec `-s` (le mot de passe lu sur l'entrée standard) ; `Install-Module` avec `-Force`, sans confirmation.
-- L'affichage façon `icacls` de SMAR-X liste les droits spéciaux dans l'ordre de la fenêtre Avancé. Le vrai `icacls` les regroupe et les range autrement : `(RD,X,WD,AD,RA,REA,RC,S)` s'affiche `(RX,WD,AD)`, et un refus d'écriture `(DENY)(WD,AD,WEA,WA)`. Les droits sont les mêmes ; seule leur écriture diffère.
+- Les commandes `icacls` que propose SMAR-X donnent les droits spéciaux dans l'ordre de la fenêtre Avancé, (WD,AD,WA,WEA) par exemple ; `icacls` les accepte dans n'importe quel ordre, mais les affiche dans le sien (voir [Comment icacls écrit les droits](regles-windows.md#comment-icacls-ecrit-les-droits)).
 
 ## Ce que SMAR-X représente
 

@@ -52,6 +52,7 @@ SMAR-X's engines are not written "from memory": their results are compared with 
 | Windows Server 2025 (domain controller) | 1,512 file and folder opens under each account's token, the owners, the ACLs in their real order | `tools/SmarxWindowsCheck` |
 | Windows Server 2025, from a Windows 11 of the domain | 1,540 opens through the shares and 50 folders listed, under each account's network identity | `tools/SmarxWindowsCheck --network` |
 | Windows 11 (Explorer) | the Security tab: 96 account views, 103 Advanced window entries, 8 sequences of clicked boxes | `tools/SmarxSecurityTabCheck` |
+| Windows 11 (`icacls`) | how rights are shown: the 16,383 combinations of special rights, allowed and denied, and the inheritance flags | `tools/SmarxWindowsCheck/icacls-display.ps1` |
 | Windows 11 (PowerShell 5.1, NTFSSecurity 4.2.6) and Debian 13 | the 50 cheat sheet commands, each as it is written: it does what is said, and each NTFSSecurity command leaves the same ACEs as its `icacls` equivalent | `tools/SmarxGlossaryCheck` |
 
 What these comparisons taught about Windows is described in [Verified Windows rules](windows-rules.md). What SMAR-X does not simulate is gathered in [Limits](limits.md).

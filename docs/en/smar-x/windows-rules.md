@@ -86,6 +86,17 @@ The measurement on the domain controller creates these global and domain local g
 
 The text is that of an English Windows, like the lab's computers. A real token holds a few more identities (`LOCAL`, `CONSOLE LOGON`, `This Organization`, `Domain Users`…): they change nothing to the accesses SMAR-X simulates, which does not show them.
 
+## How icacls writes rights
+
+`icacls` does not show rights in the order they are given to it. Its display was measured on a Windows 11 for each of the 16,383 combinations of the 14 special rights, allowed then denied, and for each combination of the inheritance flags (`tools/SmarxWindowsCheck/icacls-display.ps1`). SMAR-X shows rights the same way:
+
+- first each **basic permission** the mask holds: `F`, `M`, `RX`, `R`, `W`, and `D` (Delete with Synchronize); `(RD,X,WD,AD,RA,REA,RC,S)` shows as `(RX,WD,AD)`;
+- then the **remaining rights**, always in this order: `DE`, `Rc`, `WDAC`, `WO`, `S`, `RD`, `WD`, `AD`, `REA`, `WEA`, `X`, `DC`, `RA`, `WA`. Read permissions is written `Rc` there;
+- a **Full control** deny shows as `(N)`, without `(DENY)`; other denies, `(DENY)` followed by the rights;
+- the flags come first: `(I)`, then `(OI)(CI)(NP)(IO)`; `(NP)` only appears with `(OI)` or `(CI)`.
+
+As input, `icacls` accepts rights in any order: `/deny account:(WD,AD,WA,WEA)` sets the same ACE it then shows as `(DENY)(WD,AD,WEA,WA)`.
+
 ## The owner
 
 The owner always has **Read permissions** and **Change permissions**, even without an ACE, unless the DACL holds an **OWNER RIGHTS** ACE: it then replaces these implicit rights.
@@ -110,7 +121,7 @@ SMAR-X's **Effective Access** tab (Advanced window) says so: "(from the parent f
 
 ## Denies from the Security tab
 
-Almost every file open asks for **Synchronize**. The Security tab therefore leaves it out of a deny. Denying Write there writes `(WD,AD,WA,WEA)`, whereas `icacls … /deny account:(W)` also denies Synchronize: the account could no longer open the file, not even to read it. Only the **Full control** deny keeps Synchronize. The rest of the boxes' behavior is described in [The Security tab](security-tab.md#the-edit-window).
+Almost every file open asks for **Synchronize**. The Security tab therefore leaves it out of a deny. Denying Write there sets the ACE `icacls` shows as `(DENY)(WD,AD,WEA,WA)`, whereas `icacls … /deny account:(W)` also denies Synchronize: the account could no longer open the file, not even to read it. Only the **Full control** deny keeps Synchronize. The rest of the boxes' behavior is described in [The Security tab](security-tab.md#the-edit-window).
 
 ## Through a share
 

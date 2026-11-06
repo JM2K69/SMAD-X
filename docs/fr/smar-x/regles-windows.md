@@ -86,6 +86,17 @@ La mesure sur le contrôleur de domaine crée ces groupes globaux et de domaine 
 
 Le texte est celui d'un Windows en anglais, comme les machines du labo. Un vrai jeton porte quelques identités de plus (`LOCAL`, `CONSOLE LOGON`, `This Organization`, `Domain Users`…) : elles ne changent rien aux accès que simule SMAR-X, qui ne les montre pas.
 
+## Comment icacls écrit les droits
+
+`icacls` n'affiche pas les droits dans l'ordre où on les lui donne. Son affichage a été relevé sur un Windows 11 pour chacune des 16 383 combinaisons des 14 droits spéciaux, autorisée puis refusée, et pour chaque combinaison des drapeaux d'héritage (`tools/SmarxWindowsCheck/icacls-display.ps1`). SMAR-X affiche les droits de la même façon :
+
+- d'abord chaque **autorisation de base** que contient le masque : `F`, `M`, `RX`, `R`, `W`, et `D` (Suppression avec Synchroniser) ; `(RD,X,WD,AD,RA,REA,RC,S)` s'affiche `(RX,WD,AD)` ;
+- puis les **droits qui restent**, toujours dans cet ordre : `DE`, `Rc`, `WDAC`, `WO`, `S`, `RD`, `WD`, `AD`, `REA`, `WEA`, `X`, `DC`, `RA`, `WA`. Autorisations de lecture s'y écrit `Rc` ;
+- un refus de **Contrôle total** s'affiche `(N)`, sans `(DENY)` ; les autres refus, `(DENY)` suivi des droits ;
+- les drapeaux viennent avant : `(I)`, puis `(OI)(CI)(NP)(IO)` ; `(NP)` n'apparaît qu'avec `(OI)` ou `(CI)`.
+
+En entrée, `icacls` accepte les droits dans n'importe quel ordre : `/deny compte:(WD,AD,WA,WEA)` pose la même ACE qu'il affiche ensuite `(DENY)(WD,AD,WEA,WA)`.
+
 ## Le propriétaire
 
 Le propriétaire a toujours **Autorisations de lecture** et **Modifier les autorisations**, même sans ACE, sauf si la DACL contient une ACE **DROITS DU PROPRIÉTAIRE** (OWNER RIGHTS) : elle remplace alors ces droits implicites.
@@ -110,7 +121,7 @@ L'onglet **Accès effectif** de SMAR-X (fenêtre Avancé) l'indique : « (par le
 
 ## Les refus de l'onglet Sécurité
 
-Presque toute ouverture de fichier demande **Synchroniser**. L'onglet Sécurité l'omet donc d'un refus. Refuser l'Écriture y écrit `(WD,AD,WA,WEA)`, alors que `icacls … /deny compte:(W)` refuse aussi Synchroniser : le compte ne pourrait plus ouvrir le fichier, même pour le lire. Seul le refus de **Contrôle total** garde Synchroniser. Le reste du comportement des cases est décrit dans [L'onglet Sécurité](onglet-securite.md#la-fenetre-modifier).
+Presque toute ouverture de fichier demande **Synchroniser**. L'onglet Sécurité l'omet donc d'un refus. Refuser l'Écriture y pose l'ACE que `icacls` affiche `(DENY)(WD,AD,WEA,WA)`, alors que `icacls … /deny compte:(W)` refuse aussi Synchroniser : le compte ne pourrait plus ouvrir le fichier, même pour le lire. Seul le refus de **Contrôle total** garde Synchroniser. Le reste du comportement des cases est décrit dans [L'onglet Sécurité](onglet-securite.md#la-fenetre-modifier).
 
 ## Par un partage
 

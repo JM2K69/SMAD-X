@@ -65,6 +65,7 @@ Each engine was confronted with reality: the situation is reproduced on a real s
 | SMAR-X | **Windows Server 2025**, domain controller | 1,512 opens under each account's token, owners, the real order of the ACLs |
 | SMAR-X | Windows Server 2025, from a domain-joined **Windows 11** | 1,540 opens through the shares and 50 folders listed |
 | SMAR-X | the **Windows 11 Explorer** | the Security tab: 96 account views, 103 entries of the Advanced window, 8 sequences of ticked boxes |
+| SMAR-X | Windows 11's **icacls** | how rights are shown, for the 16,383 combinations of special rights and the inheritance flags (see [How icacls writes rights](smar-x/windows-rules.md#how-icacls-writes-rights)) |
 | SMAR-X | **Windows 11** (PowerShell 5.1, NTFSSecurity module) and **Debian 13** | the 50 commands of the [cheat sheet](smar-x/index.md#the-cheat-sheet), replayed as they are written; each NTFSSecurity command leaves the same ACEs as its `icacls` equivalent |
 
 The SMAR-X details, and what these measurements taught, are in [Faithful to real systems](smar-x/index.md#faithful-to-real-systems) and [Verified Windows rules](smar-x/windows-rules.md). What is not simulated is stated plainly: see the [SMAR-X limits](smar-x/limits.md).

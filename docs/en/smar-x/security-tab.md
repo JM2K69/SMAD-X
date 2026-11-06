@@ -31,7 +31,7 @@ A file has no **List folder contents** row, and a single target: itself.
 **A row is checked when the account's ACEs of one type give all its rights to each of its targets.** ACEs add up: `RX (OI)` (this folder and files) plus `RX (CI)` (this folder and subfolders) check **Read & execute**. Two details:
 
 - **(NP)** changes nothing to the check marks: `RX (OI)(CI)(NP)` checks Read & execute on the folder that holds the ACE;
-- **Synchronize** does not count: the deny `(WD,AD,WA,WEA)` checks **Deny Write**, although Write includes Synchronize.
+- **Synchronize** does not count: the deny `(DENY)(WD,AD,WEA,WA)` checks **Deny Write**, although Write includes Synchronize.
 
 **Special permissions** is checked as soon as some rights are left that no checked row explains: an extra right, or an incomplete scope. Measured examples:
 
@@ -80,7 +80,7 @@ Sequences measured on a folder where Users has an explicit Modify:
 
 | Click | Windows writes for Users |
 |---|---|
-| Deny Write | Deny `(WD,AD,WA,WEA)`; Allow `RX` (Modify loses Write and Delete) |
+| Deny Write | Deny `(WD,AD,WEA,WA)`; Allow `RX` (Modify loses Write and Delete) |
 | Deny Read | Deny `(RD,REA,RA,RC)`; Allow `W` |
 | Deny List folder contents | Deny `(CI)(RD,REA,X,RA,RC)`; Allow `W` |
 | Deny Full control | Deny `F`, Synchronize included; no allow left |

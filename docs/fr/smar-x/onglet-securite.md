@@ -31,7 +31,7 @@ Un fichier n'a pas la ligne **Affichage du contenu du dossier**, et une seule ci
 **Une ligne est cochée quand les ACE du compte, d'un même type, donnent tous ses droits à chacune de ses cibles.** Les ACE peuvent s'additionner : `RX (OI)` (ce dossier et les fichiers) plus `RX (CI)` (ce dossier et les sous-dossiers) cochent **Lecture et exécution**. Deux détails :
 
 - **(NP)** ne change rien aux coches : `RX (OI)(CI)(NP)` coche Lecture et exécution sur le dossier qui porte l'ACE ;
-- **Synchroniser** ne compte pas : le refus `(WD,AD,WA,WEA)` coche **Refuser Écriture**, bien que l'Écriture comprenne Synchroniser.
+- **Synchroniser** ne compte pas : le refus `(DENY)(WD,AD,WEA,WA)` coche **Refuser Écriture**, bien que l'Écriture comprenne Synchroniser.
 
 **Autorisations spéciales** est cochée dès qu'il reste des droits qu'aucune ligne cochée n'explique : un droit en plus, ou une portée incomplète. Exemples relevés :
 
@@ -80,7 +80,7 @@ Séquences relevées sur un dossier où Users a Modification explicite :
 
 | On clique | Windows écrit pour Users |
 |---|---|
-| Refuser Écriture | Refuser `(WD,AD,WA,WEA)` ; Autoriser `RX` (Modification perd Écriture et Suppression) |
+| Refuser Écriture | Refuser `(WD,AD,WEA,WA)` ; Autoriser `RX` (Modification perd Écriture et Suppression) |
 | Refuser Lecture | Refuser `(RD,REA,RA,RC)` ; Autoriser `W` |
 | Refuser Affichage du contenu du dossier | Refuser `(CI)(RD,REA,X,RA,RC)` ; Autoriser `W` |
 | Refuser Contrôle total | Refuser `F`, Synchroniser compris ; plus aucune autorisation |

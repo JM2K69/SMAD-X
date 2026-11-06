@@ -8,7 +8,7 @@ SMAR-X simulates file access rights, and its engines are compared with real syst
 - Only the sample servers were measured. A server built by the trainer follows the same rules, but its special cases were not checked one by one.
 - The Security tab was recorded on an English Windows 11; its French labels are those of a French Windows, not recorded.
 - The cheat sheet's commands were replayed as they are written, on a lab Windows 11 (Windows PowerShell 5.1, NTFSSecurity module 4.2.6) and on a Debian 13 (`tools/SmarxGlossaryCheck`). They ran on a copy of the sample folders (`C:\SmxGlossary`), with local groups of the same names instead of those of the `CORP` domain. Three exceptions: `Add-ADGroupMember`, which would change the directory, is only checked in its syntax; `smbpasswd -a` was replayed with `-s` (the password read from standard input); `Install-Module` with `-Force`, without confirmation.
-- SMAR-X's `icacls`-style display lists the special rights in the order of the Advanced window. The real `icacls` groups and orders them differently: `(RD,X,WD,AD,RA,REA,RC,S)` shows as `(RX,WD,AD)`, and a write deny as `(DENY)(WD,AD,WEA,WA)`. The rights are the same; only the way they are written differs.
+- The `icacls` commands SMAR-X suggests give the special rights in the order of the Advanced window, (WD,AD,WA,WEA) for example; `icacls` accepts them in any order, but shows them in its own (see [How icacls writes rights](windows-rules.md#how-icacls-writes-rights)).
 
 ## What SMAR-X represents
 

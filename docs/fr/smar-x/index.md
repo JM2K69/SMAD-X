@@ -52,6 +52,7 @@ Les moteurs de SMAR-X ne sont pas écrits « de mémoire » : leurs résultats s
 | Windows Server 2025 (contrôleur de domaine) | 1 512 ouvertures de fichiers et de dossiers sous le jeton de chaque compte, les propriétaires, les ACL dans leur ordre réel | `tools/SmarxWindowsCheck` |
 | Windows Server 2025, depuis un Windows 11 du domaine | 1 540 ouvertures par les partages et 50 dossiers listés, sous l'identité réseau de chaque compte | `tools/SmarxWindowsCheck --network` |
 | Windows 11 (Explorateur) | l'onglet Sécurité : 96 vues de comptes, 103 entrées de la fenêtre Avancé, 8 séquences de cases cochées | `tools/SmarxSecurityTabCheck` |
+| Windows 11 (`icacls`) | l'affichage des droits : les 16 383 combinaisons des droits spéciaux, autorisées et refusées, et les drapeaux d'héritage | `tools/SmarxWindowsCheck/icacls-display.ps1` |
 | Windows 11 (PowerShell 5.1, NTFSSecurity 4.2.6) et Debian 13 | les 50 commandes de l'aide-mémoire, chacune telle qu'elle est écrite : elle fait ce qui est dit, et chaque commande NTFSSecurity laisse les mêmes ACE que son équivalent `icacls` | `tools/SmarxGlossaryCheck` |
 
 Ce que ces comparaisons ont appris sur Windows est décrit dans [Règles de Windows vérifiées](regles-windows.md). Ce que SMAR-X ne simule pas est rassemblé dans [Limites](limites.md).
