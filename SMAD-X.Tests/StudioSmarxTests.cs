@@ -371,4 +371,24 @@ public class StudioSmarxTests
         Assert.Equal("Bonne piste.", smarx.Comment);
         Assert.Equal(1, smarx.ExportReports(Path.Combine(folder, "pdf")));
     }
+
+    /// <summary>
+    /// Un exercice SMAR-X rangé par rôle se rouvre par son dossier (ou l'un de ses dossiers par rôle), comme un exercice
+    /// SMAD-X, et rejoint les exercices récents de l'accueil, avec l'icône de SMAR-X.
+    /// </summary>
+    [Fact]
+    public async Task Studio_OpensASmarxLabFolder_AndListsItInTheRecentLabs()
+    {
+        var output = TempDir();
+        Assert.Equal(0, Cli("recipe", "SMX-OUVERT", "--platform", "linux", "--lang", "fr", "--out", output).Code);
+        var folder = Path.Combine(output, "smx-ouvert-lumen-linux");
+        var studio = new StudioViewModel(new Dialogs());
+
+        await studio.OpenFolderPathAsync(Path.Combine(folder, "3-copies-rendues"));
+
+        Assert.True(studio.HasSmarxLab);
+        Assert.NotNull(studio.Smarx!.Solution);
+        var root = SmarxLabProject.OfRoot(folder)!.Root;
+        Assert.Contains(studio.RecentLabs, r => r.Path == root && r.IsSmarx && !r.IsSmadx);
+    }
 }

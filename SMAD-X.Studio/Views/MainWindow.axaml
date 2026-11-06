@@ -65,39 +65,234 @@
         </Border>
 
         <Grid>
-            <!-- Aucun exercice ouvert -->
-            <Border Classes="card" Padding="28,24" IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="600">
-            <StackPanel Spacing="12">
-                <TextBlock Text="{Binding [Empty.Title], Source={StaticResource S}}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                <TextBlock Classes="muted" Text="{Binding [Empty.Text], Source={StaticResource S}}" TextAlignment="Center" FontSize="13"/>
-                <StackPanel Spacing="6" HorizontalAlignment="Center" Margin="0,8,0,0">
-                    <Button Classes="accent" HorizontalAlignment="Stretch" Command="{Binding NewFromRecipeCommand}" Content="{Binding [Menu.NewFromRecipe], Source={StaticResource S}}"/>
-                    <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding NewFromDomainCommand}" Content="{Binding [Menu.NewFromDomain], Source={StaticResource S}}"/>
-                    <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding ConvertScenarioCommand}" Content="{Binding [Menu.Convert], Source={StaticResource S}}"/>
-                    <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding OpenFolderCommand}" Content="{Binding [Menu.OpenFolder], Source={StaticResource S}}"/>
-                    <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding OpenCommand}" Content="{Binding [Menu.Open], Source={StaticResource S}}"/>
-                    <Button Classes="tool" HorizontalAlignment="Stretch" Margin="0,8,0,0" Command="{Binding NewSmarxFromRecipeCommand}" Content="{Binding [Menu.NewSmarxRecipe], Source={StaticResource S}}"/>
-                    <Button Classes="tool" HorizontalAlignment="Stretch" Margin="0,8,0,0" Command="{Binding NewSmarxSampleCommand}" Content="{Binding [Menu.NewSmarx], Source={StaticResource S}}"/>
-                    <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding OpenSmarxCommand}" Content="{Binding [Menu.OpenSmarx], Source={StaticResource S}}"/>
+            <!-- Aucun exercice ouvert : une tuile par façon de commencer, sous l'icône de son outil -->
+            <ScrollViewer IsVisible="{Binding IsEmpty}">
+            <StackPanel HorizontalAlignment="Center" MaxWidth="1200" Margin="24,20" Spacing="16">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="{Binding [Empty.Title], Source={StaticResource S}}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <TextBlock Classes="muted" Text="{Binding [Empty.Text], Source={StaticResource S}}" TextAlignment="Center" TextWrapping="Wrap" FontSize="13" MaxWidth="820" HorizontalAlignment="Center"/>
                 </StackPanel>
-                <StackPanel Spacing="4" Margin="0,12,0,0" IsVisible="{Binding HasRecentLabs}">
-                    <TextBlock Classes="label" Text="{Binding [Empty.Recent], Source={StaticResource S}}"/>
-                    <ItemsControl ItemsSource="{Binding RecentLabs}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,2" Background="Transparent" CornerRadius="8"
-                                        Command="{Binding #Root.DataContext.OpenRecentCommand}" CommandParameter="{Binding}" ToolTip.Tip="{Binding Path}">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding Path}" FontSize="11" Foreground="{DynamicResource TextMuted}" TextTrimming="CharacterEllipsis"/>
-                                    </StackPanel>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
+                <Border Classes="card" Padding="20,16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Width="40" Height="40" CornerRadius="10" Background="{StaticResource SmadxBrush}">
+                                <PathIcon Data="{StaticResource SmadxIcon}" Width="20" Height="20" Foreground="White"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="SMAD-X" FontSize="17" FontWeight="Bold"/>
+                                <TextBlock Classes="muted" Text="{Binding [Home.Smadx], Source={StaticResource S}}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <!-- Créer, puis ouvrir : deux groupes côte à côte, qui passent l'un sous l'autre dans une fenêtre étroite -->
+                        <WrapPanel>
+                            <StackPanel Spacing="6" Margin="0,0,16,0">
+                                <TextBlock Classes="label" Margin="0" Text="{Binding [Home.New], Source={StaticResource S}}"/>
+                                <WrapPanel>
+                                    <Button Classes="tile" Command="{Binding NewFromRecipeCommand}" ToolTip.Tip="{Binding [Home.Recipe.Tip], Source={StaticResource S}}">
+                                        <StackPanel Spacing="8">
+                                            <Panel Width="42" Height="42" HorizontalAlignment="Left">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmadxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <PathIcon Data="{StaticResource SmadxIcon}" Width="18" Height="18" Foreground="White"/>
+                                                </Border>
+                                                <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                    <PathIcon Data="{StaticResource NewIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Text="{Binding [Home.Recipe], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="hint" Text="{Binding [Home.Recipe.Text], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Classes="tile" Command="{Binding NewFromDomainCommand}" ToolTip.Tip="{Binding [Home.Domain.Tip], Source={StaticResource S}}">
+                                        <StackPanel Spacing="8">
+                                            <Panel Width="42" Height="42" HorizontalAlignment="Left">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmadxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <PathIcon Data="{StaticResource SmadxIcon}" Width="18" Height="18" Foreground="White"/>
+                                                </Border>
+                                                <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                    <PathIcon Data="{StaticResource NewIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Text="{Binding [Home.Domain], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="hint" Text="{Binding [Home.Domain.Text], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Classes="tile" Command="{Binding ConvertScenarioCommand}" ToolTip.Tip="{Binding [Home.Convert.Tip], Source={StaticResource S}}">
+                                        <StackPanel Spacing="8">
+                                            <Panel Width="42" Height="42" HorizontalAlignment="Left">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmadxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <PathIcon Data="{StaticResource SmadxIcon}" Width="18" Height="18" Foreground="White"/>
+                                                </Border>
+                                                <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                    <PathIcon Data="{StaticResource NewIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Text="{Binding [Home.Convert], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="hint" Text="{Binding [Home.Convert.Text], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+                            </StackPanel>
+                            <StackPanel Spacing="6" Margin="0,0,16,0">
+                                <TextBlock Classes="label" Margin="0" Text="{Binding [Home.Open], Source={StaticResource S}}"/>
+                                <WrapPanel>
+                                    <Button Classes="tile" Command="{Binding OpenFolderCommand}" ToolTip.Tip="{Binding [Home.Folder.Tip], Source={StaticResource S}}">
+                                        <StackPanel Spacing="8">
+                                            <Panel Width="42" Height="42" HorizontalAlignment="Left">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmadxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <PathIcon Data="{StaticResource SmadxIcon}" Width="18" Height="18" Foreground="White"/>
+                                                </Border>
+                                                <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                    <PathIcon Data="{StaticResource OpenIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Text="{Binding [Home.Folder], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="hint" Text="{Binding [Home.Folder.Text], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Classes="tile" Command="{Binding OpenCommand}" ToolTip.Tip="{Binding [Home.File.Tip], Source={StaticResource S}}">
+                                        <StackPanel Spacing="8">
+                                            <Panel Width="42" Height="42" HorizontalAlignment="Left">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmadxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <PathIcon Data="{StaticResource SmadxIcon}" Width="18" Height="18" Foreground="White"/>
+                                                </Border>
+                                                <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                    <PathIcon Data="{StaticResource OpenIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Text="{Binding [Home.File], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="hint" Text="{Binding [Home.File.Text], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+                            </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+                <Border Classes="card" Padding="20,16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Border Width="40" Height="40" CornerRadius="10" Background="{StaticResource SmarxBrush}">
+                                <PathIcon Data="{StaticResource SmarxIcon}" Width="20" Height="20" Foreground="White"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="SMAR-X" FontSize="17" FontWeight="Bold"/>
+                                <TextBlock Classes="muted" Text="{Binding [Home.Smarx], Source={StaticResource S}}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <!-- Créer, puis ouvrir : deux groupes côte à côte, qui passent l'un sous l'autre dans une fenêtre étroite -->
+                        <WrapPanel>
+                            <StackPanel Spacing="6" Margin="0,0,16,0">
+                                <TextBlock Classes="label" Margin="0" Text="{Binding [Home.New], Source={StaticResource S}}"/>
+                                <WrapPanel>
+                                    <Button Classes="tile" Command="{Binding NewSmarxFromRecipeCommand}" ToolTip.Tip="{Binding [Home.SmarxRecipe.Tip], Source={StaticResource S}}">
+                                        <StackPanel Spacing="8">
+                                            <Panel Width="42" Height="42" HorizontalAlignment="Left">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmarxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <PathIcon Data="{StaticResource SmarxIcon}" Width="18" Height="18" Foreground="White"/>
+                                                </Border>
+                                                <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                    <PathIcon Data="{StaticResource NewIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Text="{Binding [Home.SmarxRecipe], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="hint" Text="{Binding [Home.SmarxRecipe.Text], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Classes="tile" Command="{Binding NewSmarxSampleCommand}" ToolTip.Tip="{Binding [Home.SmarxSample.Tip], Source={StaticResource S}}">
+                                        <StackPanel Spacing="8">
+                                            <Panel Width="42" Height="42" HorizontalAlignment="Left">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmarxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <PathIcon Data="{StaticResource SmarxIcon}" Width="18" Height="18" Foreground="White"/>
+                                                </Border>
+                                                <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                    <PathIcon Data="{StaticResource NewIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Text="{Binding [Home.SmarxSample], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="hint" Text="{Binding [Home.SmarxSample.Text], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Classes="tile" Command="{Binding NewSmarxFromServersCommand}" ToolTip.Tip="{Binding [Home.SmarxServers.Tip], Source={StaticResource S}}">
+                                        <StackPanel Spacing="8">
+                                            <Panel Width="42" Height="42" HorizontalAlignment="Left">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmarxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <PathIcon Data="{StaticResource SmarxIcon}" Width="18" Height="18" Foreground="White"/>
+                                                </Border>
+                                                <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                    <PathIcon Data="{StaticResource NewIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Text="{Binding [Home.SmarxServers], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="hint" Text="{Binding [Home.SmarxServers.Text], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+                            </StackPanel>
+                            <StackPanel Spacing="6" Margin="0,0,16,0">
+                                <TextBlock Classes="label" Margin="0" Text="{Binding [Home.Open], Source={StaticResource S}}"/>
+                                <WrapPanel>
+                                    <Button Classes="tile" Command="{Binding OpenFolderCommand}" ToolTip.Tip="{Binding [Home.SmarxFolder.Tip], Source={StaticResource S}}">
+                                        <StackPanel Spacing="8">
+                                            <Panel Width="42" Height="42" HorizontalAlignment="Left">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmarxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <PathIcon Data="{StaticResource SmarxIcon}" Width="18" Height="18" Foreground="White"/>
+                                                </Border>
+                                                <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                    <PathIcon Data="{StaticResource OpenIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Text="{Binding [Home.SmarxFolder], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="hint" Text="{Binding [Home.SmarxFolder.Text], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Classes="tile" Command="{Binding OpenSmarxCommand}" ToolTip.Tip="{Binding [Home.SmarxFile.Tip], Source={StaticResource S}}">
+                                        <StackPanel Spacing="8">
+                                            <Panel Width="42" Height="42" HorizontalAlignment="Left">
+                                                <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmarxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                    <PathIcon Data="{StaticResource SmarxIcon}" Width="18" Height="18" Foreground="White"/>
+                                                </Border>
+                                                <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                                    <PathIcon Data="{StaticResource OpenIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Text="{Binding [Home.SmarxFile], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Classes="hint" Text="{Binding [Home.SmarxFile.Text], Source={StaticResource S}}"/>
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+                            </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+                <!-- Les derniers exercices, chacun avec l'icône de son outil -->
+                <Border Classes="card" Padding="20,16" IsVisible="{Binding HasRecentLabs}">
+                    <StackPanel Spacing="6">
+                        <TextBlock Classes="h" Text="{Binding [Empty.Recent], Source={StaticResource S}}"/>
+                        <ItemsControl ItemsSource="{Binding RecentLabs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,2" Background="Transparent" CornerRadius="8"
+                                            Command="{Binding #Root.DataContext.OpenRecentCommand}" CommandParameter="{Binding}" ToolTip.Tip="{Binding Path}">
+                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                            <Border Width="28" Height="28" CornerRadius="7" Background="{StaticResource SmadxBrush}" IsVisible="{Binding IsSmadx}" VerticalAlignment="Center">
+                                                <PathIcon Data="{StaticResource SmadxIcon}" Width="14" Height="14" Foreground="White"/>
+                                            </Border>
+                                            <Border Width="28" Height="28" CornerRadius="7" Background="{StaticResource SmarxBrush}" IsVisible="{Binding IsSmarx}" VerticalAlignment="Center">
+                                                <PathIcon Data="{StaticResource SmarxIcon}" Width="14" Height="14" Foreground="White"/>
+                                            </Border>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Path}" FontSize="11" Foreground="{DynamicResource TextMuted}" TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
             </StackPanel>
-            </Border>
+            </ScrollViewer>
 
             <!-- Un exercice SMAR-X -->
             <views:SmarxLabView DataContext="{Binding Smarx}" IsVisible="{Binding #Root.DataContext.HasSmarxLab}"/>

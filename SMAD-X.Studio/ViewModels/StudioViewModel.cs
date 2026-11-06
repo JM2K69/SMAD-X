@@ -23,7 +23,12 @@ namespace SMADX.Studio.ViewModels
         WindowsServerVersion Version = WindowsServerProfile.DefaultVersion);
 
     /// <summary>Un exercice récent, sur l'écran d'accueil : son titre et son dossier (ou son fichier, s'il est enregistré seul).</summary>
-    public sealed record RecentLabItem(string Title, string Path);
+    public sealed record RecentLabItem(string Title, string Path)
+    {
+        /// <summary>Un exercice SMAR-X (son dossier ou son .smarx-lab.json) : l'accueil montre l'icône de SMAR-X.</summary>
+        public bool IsSmarx => Path.EndsWith(SmarxLab.FileExtension, StringComparison.OrdinalIgnoreCase) || SmarxLabProject.OfRoot(Path) != null;
+        public bool IsSmadx => !IsSmarx;
+    }
 
     /// <summary>Fenêtres de Studio vues par le ViewModel : sélecteurs de fichiers et choix de la recette.</summary>
     public interface IStudioDialogs
@@ -163,6 +168,7 @@ namespace SMADX.Studio.ViewModels
                 Smarx.Save(project.LabPath(Smarx.Lab.Id));
                 settings.LabsFolder = Path.GetDirectoryName(project.Root);
                 settings.Save();
+                RememberSmarxRecent();
                 Status = string.Format(Text["Status.CreatedProject"], project.Root);
                 return Task.CompletedTask;
             });
@@ -184,11 +190,35 @@ namespace SMADX.Studio.ViewModels
         private async Task OpenSmarxAsync()
         {
             if (await _dialogs.OpenFileAsync(Text["Menu.OpenSmarx"], Text["File.SmarxLab"], "*" + SmarxLab.FileExtension) is not { } path) return;
+            await OpenSmarxFileAsync(path);
+        }
+
+        /// <summary>Ouvre un exercice SMAR-X par son fichier ; rangé par rôle, Studio y retrouve sa solution, ses notes et ses copies.</summary>
+        public async Task OpenSmarxFileAsync(string path)
+        {
+            if (!await ConfirmCloseAsync()) return;
             await RunAsync(async () =>
             {
                 LoadSmarx(SmarxLabService.Parse(await File.ReadAllTextAsync(path)), path);
                 Status = string.Format(Text["Status.Opened"], Path.GetFileName(path));
+                RememberSmarxRecent();
             });
+        }
+
+        /// <summary>L'exercice SMAR-X ouvert passe en tête des récents : son dossier, ou son fichier s'il est enregistré seul.</summary>
+        private void RememberSmarxRecent()
+        {
+            if (Smarx is not { FilePath: { } path } smarx) return;
+            var location = smarx.Project?.Root ?? path;
+            var title = smarx.Lab.Title.Resolve(EditCulture) is { Length: > 0 } t ? t : smarx.Lab.Id;
+            var settings = StudioSettings.Load();
+            settings.RecentLabs.RemoveAll(r => string.Equals(r.Path, location, StringComparison.OrdinalIgnoreCase)
+                                                || !Directory.Exists(r.Path) && !File.Exists(r.Path));
+            settings.RecentLabs.Insert(0, new RecentLab { Path = location, Title = title });
+            if (settings.RecentLabs.Count > MaxRecentLabs)
+                settings.RecentLabs.RemoveRange(MaxRecentLabs, settings.RecentLabs.Count - MaxRecentLabs);
+            settings.Save();
+            LoadRecentLabs();
         }
 
         private SmarxLab NewSmarxLab(SmarxDocument start) => new()
@@ -443,6 +473,8 @@ namespace SMADX.Studio.ViewModels
                 return OpenFolderPathAsync(path);
             if (path.EndsWith(LabService.FileExtension, StringComparison.OrdinalIgnoreCase))
                 return OpenLabFileAsync(path);
+            if (path.EndsWith(SmarxLab.FileExtension, StringComparison.OrdinalIgnoreCase))
+                return OpenSmarxFileAsync(path);
             if (path.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase))
             {
                 Status = Text["Submissions.OpenLabFirst"];
@@ -488,6 +520,9 @@ namespace SMADX.Studio.ViewModels
         /// </summary>
         public Task OpenFolderPathAsync(string folder)
         {
+            // Un exercice SMAR-X rangé par rôle : son dossier, ou l'un de ses dossiers par rôle
+            foreach (var candidate in new[] { folder, Path.GetDirectoryName(Path.GetFullPath(folder)) })
+                if (candidate != null && SmarxLabProject.OfRoot(candidate)?.FindLab() is { } smarxLab) return OpenSmarxFileAsync(smarxLab);
             if (LabProject.Find(folder)?.FindLab() is { } lab) return OpenLabFileAsync(lab);
             if (Directory.Exists(folder) && Directory.GetFiles(folder, "*" + LabService.FileExtension) is [var single]) return OpenLabFileAsync(single);
             Status = string.Format(Text["Status.NotALabFolder"], folder);
@@ -532,7 +567,7 @@ namespace SMADX.Studio.ViewModels
         {
             if (recent == null) return Task.CompletedTask;
             if (Directory.Exists(recent.Path)) return OpenFolderPathAsync(recent.Path);
-            if (File.Exists(recent.Path)) return OpenLabFileAsync(recent.Path);
+            if (File.Exists(recent.Path)) return recent.IsSmarx ? OpenSmarxFileAsync(recent.Path) : OpenLabFileAsync(recent.Path);
             Status = string.Format(Text["Status.NotALabFolder"], recent.Path);
             LoadRecentLabs();
             return Task.CompletedTask;
@@ -546,9 +581,10 @@ namespace SMADX.Studio.ViewModels
         /// </summary>
         public async Task DropAsync(IReadOnlyList<string> paths)
         {
-            var labFolder = paths.FirstOrDefault(p => Directory.Exists(p) && LabProject.Find(p)?.FindLab() != null && !IsOpenProject(p));
+            var labFolder = paths.FirstOrDefault(p => Directory.Exists(p) && (LabProject.Find(p)?.FindLab() != null || SmarxLabProject.OfRoot(p) != null) && !IsOpenProject(p));
             var open = labFolder
                 ?? paths.FirstOrDefault(p => File.Exists(p) && p.EndsWith(LabService.FileExtension, StringComparison.OrdinalIgnoreCase))
+                ?? paths.FirstOrDefault(p => File.Exists(p) && p.EndsWith(SmarxLab.FileExtension, StringComparison.OrdinalIgnoreCase))
                 ?? paths.FirstOrDefault(p => File.Exists(p) && p.EndsWith(".smad-x.json", StringComparison.OrdinalIgnoreCase));
             if (open != null) await OpenPathAsync(open);
 
@@ -629,7 +665,7 @@ namespace SMADX.Studio.ViewModels
         [RelayCommand(CanExecute = nameof(CanSave))]
         private async Task SaveAsync()
         {
-            if (Smarx != null) { await RunAsync(() => Smarx.SaveAsync(false)); return; }
+            if (Smarx != null) { await RunAsync(() => Smarx.SaveAsync(false)); RememberSmarxRecent(); return; }
             if (FilePath == null) { await PlaceInFolderAsync(); return; }
             await RunAsync(() => Save(FilePath));
         }
@@ -638,7 +674,7 @@ namespace SMADX.Studio.ViewModels
         [RelayCommand(CanExecute = nameof(CanSave))]
         private async Task SaveAsAsync()
         {
-            if (Smarx != null) { await RunAsync(() => Smarx.SaveAsync(true)); return; }
+            if (Smarx != null) { await RunAsync(() => Smarx.SaveAsync(true)); RememberSmarxRecent(); return; }
             var start = Project is { } project ? Path.GetDirectoryName(project.Root) : StudioSettings.Load().LabsFolder;
             if (await _dialogs.PickFolderAsync(Text["Menu.SaveAs"], start) is not { } folder) return;
             await RunAsync(() => SaveToFolder(folder));

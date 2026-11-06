@@ -6,6 +6,8 @@ Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the 
 
 ![SMAD-X Studio home](../assets/screens/studio-home.png)
 
+The **home screen** shows each way to start as a tile, under the tool of the lab: **SMAD-X** (an Active Directory domain) and **SMAR-X** (access rights). Each tile carries its tool's icon, and a small badge says what it does: **+** creates a lab, the **folder** opens one. The **recent labs**, below, also carry their tool's icon. The same commands stay in the **File** menu.
+
 **View > Light theme** or **Dark theme** changes Studio's look; the choice is kept for the next session.
 
 ---
@@ -18,7 +20,7 @@ Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the 
 | **New lab from a domain (.smad-x.json)...** | a domain prepared and saved in SMAD-X | the statement template and the objectives suggested by the audit and the attack paths |
 | **Convert a scenario into a lab...** | a `.smad-x.json` scenario whose description follows the *Context / The path / Fix it* outline | the statement taken from the context; the path and the fix go into the trainer notes |
 
-**Open a lab (its folder)...** (`Ctrl+O`) reopens a lab by its folder, or by one of its role folders: Studio finds there everything the creation laid out (your copy, the subject, the fixed domain, the notes) and grades the submissions of `3-submissions` straight away. Dropping that folder on the Studio window does the same, and the start screen lists the **recent labs**, reopened in one click. **Open a lab file (.smadx-lab.json)...** resumes a lab saved on its own, with its notes.
+**Open a lab (its folder)...** (`Ctrl+O`) reopens a lab by its folder, or by one of its role folders, whether it is a SMAD-X or a SMAR-X lab: Studio finds there everything the creation laid out (your copy, the subject, the solution, the notes) and grades the submissions of `3-submissions` straight away. Dropping that folder on the Studio window does the same, and the start screen lists the **recent labs**, reopened in one click. **Open a lab file (.smadx-lab.json)...** resumes a lab saved on its own, with its notes.
 
 **As soon as it is created**, Studio asks where to keep the lab, suggesting the folder of the previous one, and creates its folder there, laid out by role (see [The files](#the-files)): your copy, the subject to hand out and the trainer sheet are already written. Each step then writes in its place, without asking: the subject in `2-to-hand-out`, the sheet in `1-trainer`, the submissions you add in `3-submissions`, the grades and reports in `4-results`. If you cancel the folder choice, the lab stays open without being saved: **Save** will ask where to keep it.
 

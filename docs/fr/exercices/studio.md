@@ -6,6 +6,8 @@ Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X
 
 ![Accueil de SMAD-X Studio](../assets/screens/studio-home.png)
 
+L'**accueil** présente chaque façon de commencer sous forme de tuile, rangée sous l'outil de l'exercice : **SMAD-X** (un domaine Active Directory) et **SMAR-X** (les droits d'accès). Chaque tuile porte l'icône de son outil, et un petit badge dit ce qu'elle fait : **+** crée un exercice, le **dossier** en ouvre un. Les **exercices récents**, en dessous, ont aussi l'icône de leur outil. Les mêmes commandes restent dans le menu **Fichier**.
+
 **Affichage > Thème clair** ou **Thème sombre** change l'apparence de Studio ; le choix est retenu pour la prochaine session.
 
 ---
@@ -18,7 +20,7 @@ Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X
 | **Nouvel exercice à partir d'un domaine (.smad-x.json)...** | un domaine préparé et enregistré dans SMAD-X | le modèle d'énoncé et les objectifs proposés par l'audit et les chemins d'attaque |
 | **Convertir un scénario en exercice...** | un scénario `.smad-x.json` dont la description suit le plan *Contexte / Le chemin / Le corriger* | l'énoncé tiré du contexte ; le chemin et la correction passent dans les notes du formateur |
 
-**Ouvrir un exercice (son dossier)...** (`Ctrl+O`) rouvre un exercice par son dossier, ou par l'un de ses dossiers par rôle : Studio y retrouve tout ce que la création a rangé (l'exemplaire, le sujet, le domaine corrigé, les notes) et corrige aussitôt les copies de `3-copies-rendues`. Glisser ce dossier sur la fenêtre de Studio fait de même, et l'écran d'accueil liste les **exercices récents**, rouverts d'un clic. **Ouvrir un fichier d'exercice (.smadx-lab.json)...** reprend un exercice enregistré seul, avec ses notes.
+**Ouvrir un exercice (son dossier)...** (`Ctrl+O`) rouvre un exercice par son dossier, ou par l'un de ses dossiers par rôle, qu'il soit de SMAD-X ou de SMAR-X : Studio y retrouve tout ce que la création a rangé (l'exemplaire, le sujet, la solution, les notes) et corrige aussitôt les copies de `3-copies-rendues`. Glisser ce dossier sur la fenêtre de Studio fait de même, et l'écran d'accueil liste les **exercices récents**, rouverts d'un clic. **Ouvrir un fichier d'exercice (.smadx-lab.json)...** reprend un exercice enregistré seul, avec ses notes.
 
 **Dès sa création**, Studio demande où ranger l'exercice, en proposant le dossier du précédent, et y crée son dossier, rangé par rôle (voir [Les fichiers](#les-fichiers)) : l'exemplaire, le sujet à distribuer et la fiche formateur sont déjà écrits. Chaque étape écrit ensuite à sa place, sans rien demander : le sujet dans `2-a-distribuer`, la fiche dans `1-formateur`, les copies ajoutées dans `3-copies-rendues`, les notes et les comptes rendus dans `4-resultats`. Si vous annulez le choix du dossier, l'exercice reste ouvert sans être enregistré : **Enregistrer** demandera où le ranger.
 
