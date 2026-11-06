@@ -198,11 +198,51 @@ Studio crée aussi les [exercices de SMAR-X](../smar-x/exercices.md) : un besoin
 
 | Menu **Fichier** | Ce qu'il fait |
 |---|---|
+| **Nouvel exercice SMAR-X à partir d'une recette...** | un exercice généré pour une entreprise, ses services et son serveur (voir [À partir d'une recette](#a-partir-dune-recette)) |
 | **Nouvel exercice SMAR-X sur les serveurs d'exemple** | un exercice sur les serveurs d'exemple de SMAR-X, Linux et Windows |
 | **Nouvel exercice SMAR-X à partir de serveurs (.smar-x.json)...** | un exercice sur des serveurs préparés dans SMAR-X et enregistrés avec **Enregistrer…** |
 | **Ouvrir un exercice SMAR-X (.smarx-lab.json)...** | rouvre un exercice ; sa solution, rangée à côté, est relue |
 
 **Enregistrer** (`Ctrl+S`), **Enregistrer sous** et **Exporter le sujet** valent pour l'exercice ouvert. Le sujet n'a pas le corrigé des questions et, pour un examen, pas les indices.
+
+### À partir d'une recette
+
+**Nouvel exercice SMAR-X à partir d'une recette...** génère un exercice complet pour une entreprise : l'énoncé, les objectifs et les gardes, les serveurs de départ, les serveurs corrigés (la solution) et les notes du formateur. Studio le valide aussitôt, puis demande où le ranger.
+
+![Les recettes SMAR-X dans Studio](../assets/screens/studio-smarx-recipe.png)
+
+| Réglage | Ce qu'il donne |
+|---|---|
+| **Entreprise** | le nom du domaine : « Atelier Martin » donne `ateliermartin.local` (`ATELIERMARTIN`) |
+| **Services** | 2 à 8 services, séparés par des virgules. Chacun reçoit son dossier (`D:\Partages\<service>`, `/srv/<service>`), son groupe global `G_<service>`, ses groupes de domaine local `DL_<service>_L` et `DL_<service>_LM`, et deux comptes |
+| **Serveur** | Windows, Linux, ou les deux avec le même besoin |
+| **Langue de l'exercice** | la langue choisie à l'ouverture ; l'énoncé est écrit dans les deux |
+
+Les **règles de gestion** sont les mêmes pour toutes les recettes, et l'énoncé les donne dans une table : chaque service lit et modifie son dossier ; une Direction (un service dont le nom commence par « Direction »), s'il y en a une, lit et modifie tous les dossiers ; le deuxième service lit le dossier du premier. Les noms de groupes et de dossiers perdent leurs accents et leurs espaces.
+
+| Recette | Serveur | Le scénario |
+|---|---|---|
+| `SMX-ARBO` | Windows, Linux ou les deux | à construire : ouvrir le dossier de chaque service selon les règles de gestion |
+| `SMX-GROUPE` | Windows, Linux ou les deux | un compte est dans le groupe d'un autre service |
+| `SMX-NOMINATIF` | Windows | des ACL nomment des comptes et des groupes globaux, à passer en AGDLP |
+| `SMX-OUVERT` | Windows, Linux ou les deux | un dossier de service est modifiable par tous |
+| `SMX-PARTAGE` | Windows | NTFS accorde, mais le partage bloque |
+| `SMX-AUDIT` | Linux | un dossier en `777`, un setuid, un dépôt sans sticky bit, un masque d'ACL |
+
+Chaque exercice généré est vérifié par les tests de SMAR-X, pour chaque recette, chaque serveur et plusieurs entreprises : il échoue au départ, ses gardes tiennent, et sa solution atteint tous les objectifs. Les solutions de facilité connues sont rattrapées par les gardes.
+
+L'exercice est rangé dans un dossier par rôle, comme un exercice SMAD-X (voir [Les fichiers](#les-fichiers)) :
+
+```
+smx-arbo-ateliermartin-mixte/
+├── LISEZMOI.md
+├── 1-formateur/       l'exemplaire, notes-formateur.md, serveurs-corriges.smar-x.json
+├── 2-a-distribuer/    le sujet, à ouvrir dans SMAR-X
+├── 3-copies-rendues/  les copies (.smarx-submission.json)
+└── 4-resultats/       notes.csv, notes-moodle.csv, bilan-classe.md
+```
+
+Les notes du formateur donnent les commandes qui mènent des serveurs de départ aux serveurs corrigés. Ne distribuez que `2-a-distribuer`.
 
 ### Les onglets
 
@@ -251,7 +291,7 @@ Chaque copie a sa note, ses pastilles (une par objectif, puis par question : ver
 
 ![Copies d'un exercice SMAR-X](../assets/screens/studio-smarx-submissions.png)
 
-Les exports sont ceux d'un exercice SMAD-X (voir [Exporter les notes](#exporter-les-notes)), sur le barème **Note sur** (20 par défaut). Studio demande où les enregistrer :
+Les exports sont ceux d'un exercice SMAD-X (voir [Exporter les notes](#exporter-les-notes)), sur le barème **Note sur** (20 par défaut). Pour un exercice rangé par rôle, ils s'écrivent sans rien demander dans `4-resultats`, et les copies de `3-copies-rendues` sont corrigées dès l'ouverture ; sinon, Studio demande où les enregistrer :
 
 | Bouton | Produit |
 |---|---|
@@ -330,6 +370,10 @@ SMAD-X.Studio grade exercices/anssi-krb-01/1-formateur/anssi-krb-01.smadx-lab.js
 SMAD-X.Studio grade droits/partage-rh.smarx-lab.json copies-rh --lang fr --csv notes.csv --moodle moodle.csv --report bilan.md
 ```
 
+```bash
+SMAD-X.Studio recipe SMX-ARBO SMX-GROUPE --company "Atelier Martin" --services "Comptabilité,Production,Ventes,Direction" --platform both --lang fr --out exercices
+```
+
 | Commande | Rôle |
 |---|---|
 | `list-recipes` | liste les recettes : règle, gravité, point ANSSI, titre |
@@ -339,6 +383,8 @@ SMAD-X.Studio grade droits/partage-rh.smarx-lab.json copies-rh --lang fr --csv n
 | `export-subject <fichier ou dossier>...` | réécrit le sujet de chaque exercice dans son dossier `2-a-distribuer`, ou dans `--out` |
 | `grade <dossier de l'exercice>` | corrige les copies de `3-copies-rendues` et écrit tous les résultats dans `4-resultats` |
 | `grade <exercice> <copie ou dossier>...` | corrige les copies données, où qu'elles soient ; les options `--csv`, `--moodle`, `--reports` et `--report` choisissent les fichiers. `+` atteint, `~` en partie, `-` non atteint, `?` à noter à la main dans Studio |
+| `recipe <SMX-ID>...` ou `recipe smx-all` | les recettes SMAR-X (voir [À partir d'une recette](#a-partir-dune-recette)) : un exercice par recette, pour l'entreprise de `--company`, `--services` et `--platform`, chacun dans son dossier rangé par rôle (exemplaire, notes, serveurs corrigés, sujet) |
+| `grade <dossier d'un exercice SMAR-X>` | corrige les copies de `3-copies-rendues` et écrit tous les résultats dans `4-resultats` |
 | `grade <exercice SMAR-X> [<copie ou dossier>...]` | corrige les copies d'un exercice SMAR-X : le fichier `.smarx-lab.json`, ou un dossier qui en contient un seul. Sans copie donnée, ce sont toutes les `.smarx-submission.json` de son dossier, sous-dossiers compris. Mêmes lignes, mêmes signes et mêmes options, sauf `--reports`, réservé aux exercices SMAD-X |
 
 | Option | Effet |
@@ -358,6 +404,9 @@ SMAD-X.Studio grade droits/partage-rh.smarx-lab.json copies-rh --lang fr --csv n
 | `--reports <dossier>` | `grade` : un compte rendu PDF par apprenant (exercice SMAD-X seulement) |
 | `--scale <n>` | `grade` : barème des notes exportées (20 par défaut) |
 | `--report <fichier>` | `grade` : bilan de la classe en Markdown |
+| `--company <nom>` | `recipe` SMAR-X : l'entreprise, qui donne le domaine (`Lumen` par défaut) |
+| `--services <A,B,C>` | `recipe` SMAR-X : 2 à 8 services (`Compta,RH,Ventes,Direction` par défaut) |
+| `--platform windows`, `linux` ou `both` | `recipe` SMAR-X : le serveur (`windows` par défaut) ; une recette qui ne s'y fait pas est refusée |
 | `--verbose` | affiche aussi les vérifications réussies |
 
 Chaque exercice écrit est validé aussitôt. Le code de sortie vaut **0** si tout va bien, **1** si un exercice a des erreurs (il est quand même écrit, pour être corrigé dans Studio), si les recettes ne peuvent pas être combinées, s'il n'y a aucune copie à corriger ou si une copie est à revoir (non corrigée, modifiée ou recopiée), et **2** pour une commande incorrecte, `--reports` avec un exercice SMAR-X compris.

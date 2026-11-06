@@ -36,4 +36,4 @@ SMAR-X's engines are not written "from memory": their results are compared with 
 | Windows Server 2025, from a Windows 11 of the domain | 1,540 opens through the shares and 50 folders listed, under each account's network identity | `tools/SmarxWindowsCheck --network` |
 | Windows 11 (Explorer) | the Security tab: 96 account views, 103 Advanced window entries, 8 sequences of clicked boxes | `tools/SmarxSecurityTabCheck` |
 
-What these comparisons taught about Windows is described in [Verified Windows rules](windows-rules.md).
+What these comparisons taught about Windows is described in [Verified Windows rules](windows-rules.md). What SMAR-X does not simulate is gathered in [Limits](limits.md).

@@ -1,0 +1,60 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMADX.Studio.ViewModels"
+        x:Class="SMADX.Studio.Views.SmarxRecipeWindow"
+        x:DataType="vm:SmarxRecipePickerViewModel"
+        Title="{Binding [SmarxRecipe.Title], Source={StaticResource S}}"
+        Width="980" Height="660" MinWidth="720" MinHeight="480"
+        WindowStartupLocation="CenterOwner"
+        Icon="avares://SMAD-X.Studio/Assets/icone.ico">
+
+    <!-- Une recette SMAR-X : le scénario, l'entreprise et ses services, la plateforme, la langue -->
+    <DockPanel Margin="16">
+        <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,10" TextWrapping="Wrap"
+                   Text="{Binding [SmarxRecipe.Intro], Source={StaticResource S}}"/>
+
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,*,Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8" Margin="0,12,0,0">
+            <TextBlock Classes="label" Margin="0" VerticalAlignment="Center" Text="{Binding [SmarxRecipe.Company], Source={StaticResource S}}"/>
+            <TextBox Grid.Column="1" Text="{Binding Company}"/>
+            <TextBlock Grid.Column="2" Classes="label" Margin="12,0,0,0" VerticalAlignment="Center" Text="{Binding [SmarxRecipe.Platform], Source={StaticResource S}}"/>
+            <ComboBox Grid.Column="3" HorizontalAlignment="Stretch" ItemsSource="{Binding Platforms}" SelectedItem="{Binding Platform}"/>
+            <TextBlock Grid.Row="1" Classes="label" Margin="0" VerticalAlignment="Center" Text="{Binding [SmarxRecipe.Services], Source={StaticResource S}}"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Services}"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Classes="label" Margin="12,0,0,0" VerticalAlignment="Center" Text="{Binding [Recipe.Language], Source={StaticResource S}}"/>
+            <ComboBox Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch" ItemsSource="{Binding Cultures}" SelectedItem="{Binding Culture}"/>
+            <StackPanel Grid.Row="2" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button Classes="accent" IsDefault="True" IsEnabled="{Binding CanCreate}" Click="Create"
+                        Content="{Binding [Recipe.Create], Source={StaticResource S}}"/>
+                <Button Classes="tool" IsCancel="True" Click="Cancel" Content="{Binding [Recipe.Cancel], Source={StaticResource S}}"/>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="0,8,0,0">
+            <Border Padding="12,10" CornerRadius="8" Background="{DynamicResource ChipBg}">
+                <TextBlock TextWrapping="Wrap" Text="{Binding Selected.Situation}"/>
+            </Border>
+            <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding Preview}" IsVisible="{Binding !HasProblem}"/>
+            <Border Padding="12,10" CornerRadius="8" Background="{DynamicResource DangerSoft}" IsVisible="{Binding HasProblem}">
+                <TextBlock TextWrapping="Wrap" Text="{Binding Problem}"/>
+            </Border>
+            <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding [SmarxRecipe.Rules], Source={StaticResource S}}"/>
+        </StackPanel>
+
+        <Border Classes="card" Padding="6">
+            <ListBox Classes="plain" ItemsSource="{Binding Recipes}" SelectedItem="{Binding Selected}" DoubleTapped="Create">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SmarxRecipeItem">
+                        <Grid ColumnDefinitions="130,*,220,110">
+                            <Border Background="{DynamicResource AccentSoft}" CornerRadius="6" Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Id}" FontWeight="SemiBold" FontSize="12"/>
+                            </Border>
+                            <TextBlock Grid.Column="1" Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding Platforms}" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" Margin="8,0"/>
+                            <TextBlock Grid.Column="3" Text="{Binding Level}" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+    </DockPanel>
+</Window>

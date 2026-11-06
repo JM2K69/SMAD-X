@@ -12,6 +12,7 @@ using SMADX.Services.AttackPaths;
 using SMADX.Services.Audit;
 using SMADX.Services.Labs;
 using SMARX.Models;
+using SMARX.Labs;
 using SMARX.Samples;
 using SMARX.Services.Labs;
 
@@ -34,6 +35,8 @@ namespace SMADX.Studio.ViewModels
         Task<string?> PickFolderAsync(string title, string? startFolder = null);
         Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern);
         Task<RecipeRequest?> ChooseRecipeAsync();
+        /// <summary>Une recette SMAR-X, l'entreprise et la plateforme ; null si l'utilisateur annule.</summary>
+        Task<SmarxRecipeRequest?> ChooseSmarxRecipeAsync();
         /// <summary>Avant de fermer, l'exercice a des modifications non enregistrées.</summary>
         Task<UnsavedChoice> AskUnsavedAsync();
         /// <summary>Montre le dossier dans l'explorateur de fichiers.</summary>
@@ -124,6 +127,45 @@ namespace SMADX.Studio.ViewModels
         {
             LoadSmarx(NewSmarxLab(new SmarxDocument { Linux = [LinuxSamples.FileServer()], Windows = [WindowsSamples.FileServer()] }), null);
             Status = Text["Status.SmarxCreated"];
+        }
+
+        /// <summary>
+        /// Un nouvel exercice SMAR-X à partir d'une recette : l'exercice, ses serveurs corrigés et les notes du formateur,
+        /// rangés aussitôt dans leur dossier par rôle (Studio demande où, comme pour un exercice SMAD-X).
+        /// </summary>
+        [RelayCommand]
+        private async Task NewSmarxFromRecipeAsync()
+        {
+            if (!await ConfirmCloseAsync()) return;
+            if (await _dialogs.ChooseSmarxRecipeAsync() is not { } request) return;
+            await RunAsync(() =>
+            {
+                var created = SmarxRecipes.Create(request.Recipe, request.Organization, request.Culture);
+                EditCulture = request.Culture;
+                LoadSmarx(created.Lab, null);
+                Smarx!.Solution = created.Solution;
+                Smarx.SolutionLabel = Text.T("générée avec l'exercice", "generated with the lab");
+                Smarx.TeacherNotes = created.TeacherNotes.Resolve(request.Culture);
+                Smarx.Validate();
+                return Task.CompletedTask;
+            });
+            if (Smarx == null) return;
+            var settings = StudioSettings.Load();
+            var start = settings.LabsFolder is { } last && Directory.Exists(last) ? last : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (await _dialogs.PickFolderAsync(Text["Create.PickFolder"], start) is not { } chosen)
+            {
+                Status = Text["Status.CreatedNotSaved"];
+                return;
+            }
+            await RunAsync(() =>
+            {
+                var project = SmarxLabProject.Create(SmarxLabProject.RootForNew(chosen, Smarx.Lab.Id), Text.Culture);
+                Smarx.Save(project.LabPath(Smarx.Lab.Id));
+                settings.LabsFolder = Path.GetDirectoryName(project.Root);
+                settings.Save();
+                Status = string.Format(Text["Status.CreatedProject"], project.Root);
+                return Task.CompletedTask;
+            });
         }
 
         /// <summary>Un nouvel exercice SMAR-X sur des serveurs préparés dans SMAR-X (.smar-x.json).</summary>

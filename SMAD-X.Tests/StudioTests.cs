@@ -43,6 +43,7 @@ public class StudioTests
         public Task ShowFolderAsync(string folder) { ShownFolders.Add(folder); return Task.CompletedTask; }
         public Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern) => Task.FromResult(SavePath);
         public Task<RecipeRequest?> ChooseRecipeAsync() => Task.FromResult(Recipe);
+        public Task<SmarxRecipeRequest?> ChooseSmarxRecipeAsync() => Task.FromResult<SmarxRecipeRequest?>(null);
     }
 
     private static (StudioViewModel Vm, FakeDialogs Dialogs) NewStudio()

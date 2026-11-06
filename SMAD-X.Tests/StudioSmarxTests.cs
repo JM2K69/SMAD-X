@@ -24,9 +24,12 @@ public class StudioSmarxTests
         public List<string> OpenPaths { get; } = new();
         public Task<string?> OpenFileAsync(string title, string filterName, string pattern) => Task.FromResult(OpenPath);
         public Task<IReadOnlyList<string>> OpenFilesAsync(string title, string filterName, string pattern) => Task.FromResult<IReadOnlyList<string>>(OpenPaths);
-        public Task<string?> PickFolderAsync(string title, string? startFolder = null) => Task.FromResult<string?>(null);
+        public Task<string?> PickFolderAsync(string title, string? startFolder = null) => Task.FromResult(Folder);
         public Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern) => Task.FromResult(SavePath);
         public Task<RecipeRequest?> ChooseRecipeAsync() => Task.FromResult<RecipeRequest?>(null);
+        public SmarxRecipeRequest? SmarxRecipe { get; set; }
+        public string? Folder { get; set; }
+        public Task<SmarxRecipeRequest?> ChooseSmarxRecipeAsync() => Task.FromResult(SmarxRecipe);
         public Task<UnsavedChoice> AskUnsavedAsync() => Task.FromResult(UnsavedChoice.Cancel);
         public Task ShowFolderAsync(string folder) => Task.CompletedTask;
     }
@@ -255,5 +258,83 @@ public class StudioSmarxTests
         var refused = Cli("grade", lab, folder, "--reports", Path.Combine(folder, "pdf"));
         Assert.Equal(2, refused.Code);
         Assert.Contains("--reports", refused.Error);
+    }
+
+    /// <summary>
+    /// Une recette SMAR-X en ligne de commande : l'exercice est écrit dans son dossier rangé par rôle ; une copie déposée
+    /// dans 3-copies-rendues est corrigée par « grade &lt;dossier&gt; », qui écrit tous les résultats dans 4-resultats.
+    /// </summary>
+    [Fact]
+    public void Cli_Recipe_WritesASmarxLabFolder_AndGradeFillsItsResults()
+    {
+        var output = TempDir();
+        var created = Cli("recipe", "SMX-OUVERT", "--company", "Lumen", "--platform", "windows", "--lang", "fr", "--out", output);
+        Assert.Equal(0, created.Code);
+        var folder = Path.Combine(output, "smx-ouvert-lumen-windows");
+        var project = SmarxLabProject.OfRoot(folder)!;
+        Assert.True(File.Exists(project.NotesPath));
+        Assert.True(File.Exists(project.SolutionPath));
+        Assert.True(File.Exists(project.ReadMePath));
+        var subject = SmarxLabService.Parse(File.ReadAllText(project.SubjectPath(project.FindLab()!)));
+
+        File.WriteAllText(Path.Combine(project.SubmissionsFolder, SmarxLabService.SubmissionFileName(subject.Id, "Camille Martin")), SmarxLabService.SerializeSubmission(new SmarxSubmission
+        {
+            Student = "Camille Martin", LabId = subject.Id, SessionId = Guid.NewGuid(), StartedOn = new DateTime(2026, 11, 6, 9, 0, 0),
+            SavedAt = new DateTime(2026, 11, 6, 9, 30, 0), Lab = subject, Work = SmarxDocument.Parse(File.ReadAllText(project.SolutionPath))
+        }));
+        var graded = Cli("grade", folder, "--lang", "fr");
+
+        Assert.Equal(0, graded.Code);
+        Assert.Matches(@"Camille Martin\s+7/7", graded.Output);
+        Assert.True(File.Exists(project.GradesPath));
+        Assert.True(File.Exists(project.MoodlePath));
+        Assert.True(File.Exists(project.ClassReportPath));
+
+        var refused = Cli("recipe", "SMX-AUDIT", "--platform", "windows", "--lang", "fr", "--out", output);
+        Assert.Equal(1, refused.Code);
+        Assert.Contains("non disponible", refused.Error);
+    }
+
+    /// <summary>
+    /// Une recette SMAR-X dans Studio : l'exercice est généré, validé (sa solution atteint tout) et rangé dans son dossier
+    /// par rôle. Rouvert, il retrouve ses serveurs corrigés et ses notes, corrige les copies de 3-copies-rendues, et ses
+    /// exports vont dans 4-resultats sans rien demander.
+    /// </summary>
+    [Fact]
+    public async Task Studio_CreatesASmarxLabFromARecipe_InItsRoleFolder()
+    {
+        var folder = TempDir();
+        var dialogs = new Dialogs
+        {
+            Folder = folder,
+            SmarxRecipe = new SmarxRecipeRequest(SmarxRecipes.Find("SMX-GROUPE")!, SmarxOrganization.Sample(SmarxPlatform.Linux), "fr-FR")
+        };
+        var studio = new StudioViewModel(dialogs);
+
+        await studio.NewSmarxFromRecipeCommand.ExecuteAsync(null);
+
+        var smarx = studio.Smarx!;
+        Assert.DoesNotContain(smarx.Issues, i => i.Issue.Level == LabIssueLevel.Error);
+        var project = smarx.Project!;
+        Assert.Equal(folder, project.Root.TrimEnd(Path.DirectorySeparatorChar));
+        Assert.True(File.Exists(project.SolutionPath));
+        Assert.True(File.Exists(project.NotesPath));
+        Assert.True(File.Exists(project.SubjectPath(smarx.FilePath!)));
+
+        var subject = SmarxLabService.Parse(File.ReadAllText(project.SubjectPath(smarx.FilePath!)));
+        File.WriteAllText(Path.Combine(project.SubmissionsFolder, SmarxLabService.SubmissionFileName(subject.Id, "Camille Martin")), SmarxLabService.SerializeSubmission(new SmarxSubmission
+        {
+            Student = "Camille Martin", LabId = subject.Id, SessionId = Guid.NewGuid(), StartedOn = new DateTime(2026, 11, 6, 9, 0, 0),
+            SavedAt = new DateTime(2026, 11, 6, 9, 30, 0), Lab = subject, Work = SmarxDocument.Parse(File.ReadAllText(project.SolutionPath))
+        }));
+
+        studio.LoadSmarx(SmarxLabService.Parse(File.ReadAllText(smarx.FilePath!)), smarx.FilePath);
+        var reopened = studio.Smarx!;
+        Assert.NotNull(reopened.Solution);
+        Assert.Contains("usermod", reopened.TeacherNotes);
+        Assert.Equal(subject.MaxPoints, reopened.Submissions.Single().Points);
+
+        await reopened.ExportGradesCommand.ExecuteAsync(null);
+        Assert.True(File.Exists(project.GradesPath));
     }
 }

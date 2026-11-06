@@ -198,11 +198,51 @@ Studio also creates [SMAR-X labs](../smar-x/labs.md): an access need to meet wit
 
 | **File** menu | What it does |
 |---|---|
+| **New SMAR-X lab from a recipe...** | a lab generated for a company, its departments and its server (see [From a recipe](#from-a-recipe)) |
 | **New SMAR-X lab on the sample servers** | a lab on SMAR-X's sample servers, Linux and Windows |
 | **New SMAR-X lab from servers (.smar-x.json)...** | a lab on servers prepared in SMAR-X and saved with **Save…** |
 | **Open a SMAR-X lab (.smarx-lab.json)...** | reopens a lab; its solution, stored next to it, is read again |
 
 **Save** (`Ctrl+S`), **Save as** and **Export the subject** apply to the open lab. The subject has no answer key for the questions and, for an exam, no hints.
+
+### From a recipe
+
+**New SMAR-X lab from a recipe...** generates a full lab for a company: the statement, the objectives and guards, the starting servers, the fixed servers (the solution) and the trainer notes. Studio validates it at once, then asks where to lay it out.
+
+![SMAR-X recipes in Studio](../assets/screens/studio-smarx-recipe.png)
+
+| Setting | What it gives |
+|---|---|
+| **Company** | the domain name: "Martin Works" gives `martinworks.local` (`MARTINWORKS`) |
+| **Departments** | 2 to 8 departments, separated by commas. Each one gets its folder (`D:\Partages\<department>`, `/srv/<department>`), its global group `G_<department>`, its domain local groups `DL_<department>_L` and `DL_<department>_LM`, and two accounts |
+| **Server** | Windows, Linux, or both with the same need |
+| **Lab language** | the language chosen when opening; the statement is written in both |
+
+The **business rules** are the same for every recipe, and the statement gives them in a table: each department reads and modifies its folder; a Direction (a department whose name starts with "Direction"), if there is one, reads and modifies every folder; the second department reads the first one's folder. Group and folder names lose their accents and spaces.
+
+| Recipe | Server | The scenario |
+|---|---|---|
+| `SMX-ARBO` | Windows, Linux or both | to build: open each department's folder following the business rules |
+| `SMX-GROUPE` | Windows, Linux or both | an account is in another department's group |
+| `SMX-NOMINATIF` | Windows | ACLs name accounts and global groups, to move to AGDLP |
+| `SMX-OUVERT` | Windows, Linux or both | a department's folder is writable by everyone |
+| `SMX-PARTAGE` | Windows | NTFS grants, but the share blocks |
+| `SMX-AUDIT` | Linux | a `777` folder, a setuid, a drop folder without sticky bit, an ACL mask |
+
+Each generated lab is checked by SMAR-X's tests, for each recipe, each server and several companies: it fails at the start, its guards hold, and its solution meets every objective. The known easy ways out are caught by the guards.
+
+The lab is laid out in a folder by role, like a SMAD-X lab (see [The files](#the-files)):
+
+```
+smx-arbo-martinworks-mixte/
+├── README.md
+├── 1-trainer/         your copy, trainer-notes.md, fixed-servers.smar-x.json
+├── 2-to-hand-out/     the subject, to open in SMAR-X
+├── 3-submissions/     the copies (.smarx-submission.json)
+└── 4-results/         grades.csv, grades-moodle.csv, class-results.md
+```
+
+The trainer notes give the commands that take the starting servers to the fixed ones. Hand out only `2-to-hand-out`.
 
 ### The tabs
 
@@ -251,7 +291,7 @@ Each copy has its grade, its dots (one per objective, then per question: green m
 
 ![Copies of a SMAR-X lab](../assets/screens/studio-smarx-submissions.png)
 
-The exports are those of a SMAD-X lab (see [Exporting the grades](#exporting-the-grades)), on the **Grade out of** scale (20 by default). Studio asks where to save them:
+The exports are those of a SMAD-X lab (see [Exporting the grades](#exporting-the-grades)), on the **Grade out of** scale (20 by default). For a lab laid out by role, they are written without asking into `4-results`, and the copies of `3-submissions` are graded as soon as the lab opens; otherwise, Studio asks where to save them:
 
 | Button | Produces |
 |---|---|
@@ -330,6 +370,10 @@ SMAD-X.Studio grade labs/anssi-krb-01/1-trainer/anssi-krb-01.smadx-lab.json subm
 SMAD-X.Studio grade permissions/hr-share.smarx-lab.json hr-copies --lang en --csv grades.csv --moodle moodle.csv --report results.md
 ```
 
+```bash
+SMAD-X.Studio recipe SMX-ARBO SMX-GROUPE --company "Martin Works" --services "Accounting,Production,Sales,Direction" --platform both --lang en --out labs
+```
+
 | Command | Purpose |
 |---|---|
 | `list-recipes` | lists the recipes: rule, severity, ANSSI point, title |
@@ -339,6 +383,8 @@ SMAD-X.Studio grade permissions/hr-share.smarx-lab.json hr-copies --lang en --cs
 | `export-subject <file or folder>...` | rewrites the subject of each lab into its `2-to-hand-out` folder, or into `--out` |
 | `grade <lab folder>` | grades the submissions of `3-submissions` and writes every result to `4-results` |
 | `grade <lab> <submission or folder>...` | grades the given submissions, wherever they are; `--csv`, `--moodle`, `--reports` and `--report` choose the files. `+` met, `~` in part, `-` not met, `?` to grade by hand in Studio |
+| `recipe <SMX-ID>...` or `recipe smx-all` | SMAR-X recipes (see [From a recipe](#from-a-recipe)): one lab per recipe, for the company of `--company`, `--services` and `--platform`, each in its folder laid out by role (your copy, notes, fixed servers, subject) |
+| `grade <SMAR-X lab folder>` | grades the copies of `3-submissions` and writes every result to `4-results` |
 | `grade <SMAR-X lab> [<copy or folder>...]` | grades the copies of a SMAR-X lab: the `.smarx-lab.json` file, or a folder holding just one. Without copies given, it takes every `.smarx-submission.json` of its folder, subfolders included. Same lines, same signs and same options, except `--reports`, which is for SMAD-X labs only |
 
 | Option | Effect |
@@ -358,6 +404,9 @@ SMAD-X.Studio grade permissions/hr-share.smarx-lab.json hr-copies --lang en --cs
 | `--reports <folder>` | `grade`: one PDF report per learner (SMAD-X labs only) |
 | `--scale <n>` | `grade`: scale of the exported grades (20 by default) |
 | `--report <file>` | `grade`: class results in Markdown |
+| `--company <name>` | SMAR-X `recipe`: the company, which gives the domain (`Lumen` by default) |
+| `--services <A,B,C>` | SMAR-X `recipe`: 2 to 8 departments (`Compta,RH,Ventes,Direction` by default) |
+| `--platform windows`, `linux` or `both` | SMAR-X `recipe`: the server (`windows` by default); a recipe that does not run on it is refused |
 | `--verbose` | also shows the checks that passed |
 
 Each lab written is validated straight away. The exit code is **0** when all is well, **1** when a lab has errors (it is still written, to be fixed in Studio), the recipes cannot be combined, there is no submission to grade or a submission needs attention (not graded, changed or copied), and **2** for a wrong command, `--reports` with a SMAR-X lab included.

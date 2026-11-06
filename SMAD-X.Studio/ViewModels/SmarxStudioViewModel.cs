@@ -238,7 +238,20 @@ namespace SMADX.Studio.ViewModels
                 try { Solution = SmarxDocument.Parse(File.ReadAllText(SolutionPath(filePath))); SolutionLabel = Path.GetFileName(SolutionPath(filePath)); }
                 catch (InvalidDataException) { }
             }
+            // Rangé par rôle : les notes du formateur, et les copies déjà rendues, corrigées dès l'ouverture
+            if (Project is { } project)
+            {
+                if (File.Exists(project.NotesPath)) TeacherNotes = File.ReadAllText(project.NotesPath);
+                _submissionPaths.AddRange(project.SubmissionFiles());
+                if (_submissionPaths.Count > 0) Regrade();
+            }
         }
+
+        /// <summary>Le dossier de l'exercice, s'il est rangé par rôle (l'exemplaire dans 1-formateur).</summary>
+        public SmarxLabProject? Project => FilePath != null ? SmarxLabProject.Of(FilePath) : null;
+
+        /// <summary>Les notes du formateur (une solution), écrites dans 1-formateur ; jamais dans l'exercice.</summary>
+        public string? TeacherNotes { get; set; }
 
         public SmarxLab Lab { get; }
 
@@ -256,7 +269,9 @@ namespace SMADX.Studio.ViewModels
             ? Text.T("Solution : aucune pour l'instant.", "Solution: none yet.")
             : Text.T($"Solution : {(SolutionLabel.Length > 0 ? SolutionLabel : "en mémoire")}", $"Solution: {(SolutionLabel.Length > 0 ? SolutionLabel : "in memory")}");
 
-        public static string SolutionPath(string labPath) =>
+        public static string SolutionPath(string labPath) => SmarxLabProject.Of(labPath)?.SolutionPath ?? SolutionBeside(labPath);
+
+        private static string SolutionBeside(string labPath) =>
             labPath.EndsWith(SmarxLab.FileExtension, StringComparison.OrdinalIgnoreCase)
                 ? labPath[..^SmarxLab.FileExtension.Length] + SolutionExtension
                 : labPath + SolutionExtension;
@@ -509,41 +524,8 @@ namespace SMADX.Studio.ViewModels
             _status(string.Format(Text["Status.Validated"], errors, warnings));
         }
 
-        public IReadOnlyList<LabIssue> Check()
-        {
-            var issues = new List<LabIssue>();
-            var culture = EditCulture;
-            if (string.IsNullOrWhiteSpace(Lab.Id)) issues.Add(new(LabIssueLevel.Error, Text.T("L'exercice n'a pas d'identifiant.", "The lab has no ID.")));
-            foreach (var language in new[] { "fr-FR", "en-US" })
-                if (string.IsNullOrWhiteSpace(Lab.Title.GetValueOrDefault(language)))
-                    issues.Add(new(LabIssueLevel.Warning, Text.T($"Pas de titre en {language}.", $"No title in {language}.")));
-            if (Lab.Objectives.Count == 0) issues.Add(new(LabIssueLevel.Error, Text.T("L'exercice n'a aucun objectif.", "The lab has no objective.")));
-
-            foreach (var r in Lab.Objectives.Select(o => SmarxLabGrader.Evaluate(Lab, o, Lab.Start, culture)))
-            {
-                if (!r.Objective.Guard && r.Passed)
-                    issues.Add(new(LabIssueLevel.Error, Text.T($"Déjà atteint au départ : {r.Feedback}", $"Already met at the start: {r.Feedback}"), r.Objective.Id));
-                if (r.Objective.Guard && !r.Passed)
-                    issues.Add(new(LabIssueLevel.Error, Text.T($"Garde violée dès le départ : {r.Feedback}", $"Guard broken at the start: {r.Feedback}"), r.Objective.Id));
-            }
-
-            foreach (var question in Lab.Questions.Where(q => !q.HasAnswerKey && q.Kind != LabQuestionKind.Text))
-                issues.Add(new(LabIssueLevel.Warning, Text.T("Sans corrigé : à noter à la main.", "No answer key: to be graded by hand."), question.Id));
-
-            if (Solution == null)
-                issues.Add(new(LabIssueLevel.Warning, Text.T("Pas de solution : choisissez les serveurs corrigés (.smar-x.json, enregistrés depuis SMAR-X) pour vérifier que l'exercice se résout.",
-                                                              "No solution: choose the fixed servers (.smar-x.json, saved from SMAR-X) to check that the lab can be solved.")));
-            else
-            {
-                var result = SmarxLabGrader.Grade(Lab, Solution, null, culture);
-                foreach (var r in result.Objectives.Where(o => !o.Passed))
-                    issues.Add(new(LabIssueLevel.Error, Text.T($"La solution ne l'atteint pas : {r.Feedback}", $"The solution does not meet it: {r.Feedback}"), r.Objective.Id));
-                if (result.Objectives.All(o => o.Passed))
-                    issues.Add(new(LabIssueLevel.Ok, Text.T($"La solution atteint tous les objectifs ({result.Objectives.Sum(o => o.EarnedPoints):0.##} points).",
-                                                              $"The solution meets every objective ({result.Objectives.Sum(o => o.EarnedPoints):0.##} points).")));
-            }
-            return issues;
-        }
+        /// <summary>Les vérifications de SmarxLabValidator, dans la langue de l'interface.</summary>
+        public IReadOnlyList<LabIssue> Check() => SmarxLabValidator.Check(Lab, Solution, Text.Culture);
 
         [RelayCommand]
         private async Task ChooseSolutionAsync()
@@ -577,8 +559,13 @@ namespace SMADX.Studio.ViewModels
 
         public void Save(string path)
         {
-            File.WriteAllText(path, SmarxLabService.Serialize(Lab));
-            if (Solution != null) File.WriteAllText(SolutionPath(path), Solution.Serialize());
+            if (SmarxLabProject.Of(path) is { } project)
+                project.Save(Lab, path, TeacherNotes, Solution);
+            else
+            {
+                File.WriteAllText(path, SmarxLabService.Serialize(Lab));
+                if (Solution != null) File.WriteAllText(SolutionPath(path), Solution.Serialize());
+            }
             FilePath = path;
             _status(string.Format(Text["Status.Saved"], Path.GetFileName(path)));
         }
@@ -586,6 +573,12 @@ namespace SMADX.Studio.ViewModels
         /// <summary>Le sujet à distribuer : sans le corrigé des questions et, pour un examen, sans les indices.</summary>
         public async Task ExportSubjectAsync()
         {
+            if (Project is { } project && FilePath != null)
+            {
+                File.WriteAllText(project.SubjectPath(FilePath), SmarxLabService.SerializeSubject(Lab));
+                _status(string.Format(Text["Status.SubjectSaved"], project.SubjectPath(FilePath)));
+                return;
+            }
             var name = Lab.Id + (EditCulture.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? ".subject" : ".sujet") + SmarxLab.FileExtension;
             if (await _dialogs.SaveFileAsync(Text["Menu.ExportSubject"], name, Text["File.SmarxLab"], "*" + SmarxLab.FileExtension) is not { } path) return;
             File.WriteAllText(path, SmarxLabService.SerializeSubject(Lab));
@@ -653,7 +646,8 @@ namespace SMADX.Studio.ViewModels
         [RelayCommand]
         private async Task ExportGradesAsync()
         {
-            if (await _dialogs.SaveFileAsync(Text["Submissions.ExportCsv"], Lab.Id + ".notes.csv", Text["File.Csv"], "*.csv") is not { } path) return;
+            if ((Project?.GradesPath ?? await _dialogs.SaveFileAsync(Text["Submissions.ExportCsv"], Lab.Id + ".notes.csv", Text["File.Csv"], "*.csv")) is not { } path) return;
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             File.WriteAllText(path, GradesCsv(), new UTF8Encoding(true));
             _status(string.Format(Text["Status.Saved"], Path.GetFileName(path)));
         }
@@ -661,7 +655,8 @@ namespace SMADX.Studio.ViewModels
         [RelayCommand]
         private async Task ExportMoodleAsync()
         {
-            if (await _dialogs.SaveFileAsync(Text["Submissions.ExportMoodle"], Lab.Id + ".moodle.csv", Text["File.Csv"], "*.csv") is not { } path) return;
+            if ((Project?.MoodlePath ?? await _dialogs.SaveFileAsync(Text["Submissions.ExportMoodle"], Lab.Id + ".moodle.csv", Text["File.Csv"], "*.csv")) is not { } path) return;
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             File.WriteAllText(path, SmarxClassGrader.MoodleCsv(Lab, _graded, EditCulture, Scale), new UTF8Encoding(false));
             _status(string.Format(Text["Status.Saved"], Path.GetFileName(path)));
         }
@@ -669,7 +664,8 @@ namespace SMADX.Studio.ViewModels
         [RelayCommand]
         private async Task ExportClassReportAsync()
         {
-            if (await _dialogs.SaveFileAsync(Text["Submissions.ExportReport"], Lab.Id + ".bilan.md", Text["File.Markdown"], "*.md") is not { } path) return;
+            if ((Project?.ClassReportPath ?? await _dialogs.SaveFileAsync(Text["Submissions.ExportReport"], Lab.Id + ".bilan.md", Text["File.Markdown"], "*.md")) is not { } path) return;
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             File.WriteAllText(path, SmarxClassGrader.ClassReport(Lab, _graded, EditCulture));
             _status(string.Format(Text["Status.Saved"], Path.GetFileName(path)));
         }

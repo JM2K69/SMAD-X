@@ -33,6 +33,7 @@
                 <MenuItem Header="{Binding [Menu.NewFromDomain], Source={StaticResource S}}" Command="{Binding NewFromDomainCommand}"/>
                 <MenuItem Header="{Binding [Menu.Convert], Source={StaticResource S}}" Command="{Binding ConvertScenarioCommand}"/>
                 <Separator/>
+                <MenuItem Header="{Binding [Menu.NewSmarxRecipe], Source={StaticResource S}}" Command="{Binding NewSmarxFromRecipeCommand}"/>
                 <MenuItem Header="{Binding [Menu.NewSmarx], Source={StaticResource S}}" Command="{Binding NewSmarxSampleCommand}"/>
                 <MenuItem Header="{Binding [Menu.NewSmarxFromServers], Source={StaticResource S}}" Command="{Binding NewSmarxFromServersCommand}"/>
                 <MenuItem Header="{Binding [Menu.OpenSmarx], Source={StaticResource S}}" Command="{Binding OpenSmarxCommand}"/>
@@ -75,6 +76,7 @@
                     <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding ConvertScenarioCommand}" Content="{Binding [Menu.Convert], Source={StaticResource S}}"/>
                     <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding OpenFolderCommand}" Content="{Binding [Menu.OpenFolder], Source={StaticResource S}}"/>
                     <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding OpenCommand}" Content="{Binding [Menu.Open], Source={StaticResource S}}"/>
+                    <Button Classes="tool" HorizontalAlignment="Stretch" Margin="0,8,0,0" Command="{Binding NewSmarxFromRecipeCommand}" Content="{Binding [Menu.NewSmarxRecipe], Source={StaticResource S}}"/>
                     <Button Classes="tool" HorizontalAlignment="Stretch" Margin="0,8,0,0" Command="{Binding NewSmarxSampleCommand}" Content="{Binding [Menu.NewSmarx], Source={StaticResource S}}"/>
                     <Button Classes="tool" HorizontalAlignment="Stretch" Command="{Binding OpenSmarxCommand}" Content="{Binding [Menu.OpenSmarx], Source={StaticResource S}}"/>
                 </StackPanel>

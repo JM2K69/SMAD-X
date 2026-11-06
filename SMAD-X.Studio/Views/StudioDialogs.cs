@@ -66,5 +66,8 @@ namespace SMADX.Studio.Views
 
         public Task<RecipeRequest?> ChooseRecipeAsync() =>
             new RecipeWindow { DataContext = new RecipePickerViewModel() }.ShowDialog<RecipeRequest?>(owner);
+
+        public Task<SmarxRecipeRequest?> ChooseSmarxRecipeAsync() =>
+            new SmarxRecipeWindow { DataContext = new SmarxRecipePickerViewModel() }.ShowDialog<SmarxRecipeRequest?>(owner);
     }
 }

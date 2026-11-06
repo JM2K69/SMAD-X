@@ -43,6 +43,7 @@ nav = [
     "smar-x/samba.md",
     "smar-x/exercices.md",
     "smar-x/regles-windows.md",
+    "smar-x/limites.md",
   ] },
   { "Référence" = [
     "export.md",

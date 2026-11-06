@@ -6,6 +6,7 @@ using System.Linq;
 using SMADX.Models;
 using SMADX.Services;
 using SMADX.Services.Labs;
+using SMARX.Labs;
 using SMARX.Models;
 using SMARX.Services.Labs;
 
@@ -64,6 +65,7 @@ namespace SMADX.Studio
                 Without arguments, opens the window. / Sans argument, ouvre la fenêtre.
 
                   SMAD-X.Studio list-recipes [--lang fr|en]
+                  SMAD-X.Studio recipe <SMX-ID>...|smx-all [--company <name>] [--services <A,B,C>] [--platform windows|linux|both] [--exam [--exam-check]] [--lang fr|en] [--out <folder>]
                   SMAD-X.Studio recipe <RULE-ID>...|all [--combine] [--exam [--exam-check] [--exam-close <tools>]] [--lang fr|en] [--domain corp.example.lab] [--server 2019|2022|2025] [--out <folder>] [--date yyyy-MM-dd]
                   SMAD-X.Studio convert <scenario.smad-x.json>... [--exam [--exam-check] [--exam-close <tools>]] [--lang fr|en] [--out <folder>] [--date yyyy-MM-dd]
                   SMAD-X.Studio validate <lab.smadx-lab.json>... [--solution <fixed.smad-x.json>] [--lang fr|en]
@@ -97,6 +99,11 @@ namespace SMADX.Studio
 
                 recipe writes one lab per rule; with --combine, one lab with every misconfiguration in the same domain.
                 recipe écrit un exercice par règle ; avec --combine, un seul exercice avec tous les manques dans le même domaine.
+                SMAR-X recipes (SMX-…, see list-recipes) write a lab for a company: --company (Lumen by default) gives the
+                domain, --services the departments (2 to 8, Compta,RH,Ventes,Direction by default), --platform the server.
+                Les recettes SMAR-X (SMX-…, voir list-recipes) écrivent un exercice pour une entreprise : --company (Lumen par
+                défaut) donne le domaine, --services les services (2 à 8, Compta,RH,Ventes,Direction par défaut),
+                --platform le serveur.
 
                 Each lab is written to its own folder <out>/<id>, laid out by role:
                   1-trainer/       your copy <id>.smadx-lab.json, trainer-notes.md, fixed-domain.smad-x.json, trainer-sheet.md
@@ -121,12 +128,17 @@ namespace SMADX.Studio
                 var title = LocalizationService.Instance.Translate($"Audit.{recipe.RuleId}", options.Culture).Split('\n')[0].TrimStart('#', ' ').Trim();
                 output.WriteLine($"{recipe.RuleId,-8} {recipe.Rule.Severity,-9} {recipe.Anssi?.Id ?? "-",-12} {title}");
             }
+            // Les recettes SMAR-X : un scénario de droits d'accès pour une entreprise, sur les plateformes qu'il permet
+            foreach (var recipe in SmarxRecipes.All)
+                output.WriteLine($"{recipe.Id,-14} {recipe.Level,-12} {string.Join("|", recipe.Platforms).ToLowerInvariant(),-21} {recipe.Title.Resolve(options.Culture)}");
             return 0;
         }
 
         private static int Recipe(Options options, TextWriter output, TextWriter error)
         {
             if (options.Inputs.Count == 0) throw new CliException("recipe: give a rule id (KRB-01...) or « all ».");
+            if (options.Inputs.Any(i => i.StartsWith("SMX-", StringComparison.OrdinalIgnoreCase)))
+                return SmarxRecipe(options, output, error);
             var recipes = options.Inputs.Any(i => i.Equals("all", StringComparison.OrdinalIgnoreCase))
                 ? LabRecipes.All.ToList()
                 : options.Inputs.Select(id => LabRecipes.All.FirstOrDefault(r => r.RuleId.Equals(id, StringComparison.OrdinalIgnoreCase))
@@ -147,6 +159,51 @@ namespace SMADX.Studio
             {
                 var created = LabRecipes.CreateLab(recipe, options.Culture, options.Domain, options.Date, options.Server);
                 result = Math.Max(result, Write(created.Lab, created.TeacherNotes, options, output, error, created.Solution));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Les recettes SMAR-X : un exercice par recette, pour l'entreprise de --company, --services et --platform, écrit
+        /// dans son dossier rangé par rôle (exemplaire, notes, serveurs corrigés, sujet), puis validé.
+        /// </summary>
+        private static int SmarxRecipe(Options options, TextWriter output, TextWriter error)
+        {
+            if (options.Inputs.Any(i => !i.StartsWith("SMX-", StringComparison.OrdinalIgnoreCase)))
+                throw new CliException("recipe: give either SMAD-X rules or SMAR-X recipes (SMX-…), not both.");
+            var services = options.Services ?? ["Compta", "RH", "Ventes", "Direction"];
+            if (SmarxOrganization.Problem(services, options.Culture) is { } problem) throw new CliException("--services: " + problem);
+            var org = new SmarxOrganization(options.Company ?? "Lumen", services, options.Platform ?? SmarxPlatform.Windows);
+            var recipes = options.Inputs.Any(i => i.Equals("SMX-ALL", StringComparison.OrdinalIgnoreCase))
+                ? SmarxRecipes.All.Where(r => r.Supports(org.Platform)).ToList()
+                : options.Inputs.Select(id => SmarxRecipes.Find(id) ?? throw new CliException($"recipe: unknown recipe « {id} » (see list-recipes).")).ToList();
+            var result = 0;
+            foreach (var recipe in recipes)
+            {
+                if (!recipe.Supports(org.Platform))
+                {
+                    error.WriteLine($"{recipe.Id}: {(options.Culture.StartsWith("en") ? "not available on" : "non disponible sur")} {org.Platform.ToString().ToLowerInvariant()} ({string.Join(", ", recipe.Platforms).ToLowerInvariant()}).");
+                    result = 1;
+                    continue;
+                }
+                var created = SmarxRecipes.Create(recipe, org, options.Culture);
+                if (options.Exam)
+                {
+                    created.Lab.Exam = true;
+                    created.Lab.ExamCheck = options.ExamCheck;
+                }
+                var project = SmarxLabProject.Create(Path.Combine(options.Out, created.Lab.Id), options.Culture);
+                var path = project.Save(created.Lab, project.LabPath(created.Lab.Id), created.TeacherNotes.Resolve(options.Culture), created.Solution);
+                output.WriteLine(path);
+                var issues = SmarxLabValidator.Check(created.Lab, created.Solution, options.Culture);
+                foreach (var issue in issues.Where(i => i.Level != LabIssueLevel.Ok || options.Verbose))
+                {
+                    var mark = issue.Level switch { LabIssueLevel.Error => "error", LabIssueLevel.Warning => "warning", _ => "ok" };
+                    output.WriteLine($"  {mark}: {(issue.ObjectiveId is { } id ? id + " — " : "")}{issue.Message}");
+                }
+                var errors = issues.Count(i => i.Level == LabIssueLevel.Error);
+                output.WriteLine($"  {errors} error(s), {issues.Count(i => i.Level == LabIssueLevel.Warning)} warning(s), {created.Lab.Objectives.Count} objective(s), {created.Lab.MaxPoints} pt");
+                if (errors > 0) result = 1;
             }
             return result;
         }
@@ -321,6 +378,7 @@ namespace SMADX.Studio
         {
             if (File.Exists(input) || !Directory.Exists(input))
                 return input.EndsWith(SmarxLab.FileExtension, StringComparison.OrdinalIgnoreCase) ? input : null;
+            if (SmarxLabProject.OfRoot(input) is { } project) return project.FindLab();
             if (LabProject.OfRoot(input) != null) return null;
             return Directory.GetFiles(input, "*" + SmarxLab.FileExtension) is [var single] ? single : null;
         }
@@ -330,7 +388,10 @@ namespace SMADX.Studio
         {
             if (options.Reports != null)
                 throw new CliException("grade: --reports (one PDF per learner) is for SMAD-X labs; for a SMAR-X lab, use --csv, --moodle or --report.");
+            // Un dossier d'exercice rangé par rôle : ses copies (3-copies-rendues), et tous les résultats dans 4-resultats
+            var project = options.Inputs.Count == 1 && Directory.Exists(options.Inputs[0]) ? SmarxLabProject.OfRoot(options.Inputs[0]) : null;
             var inputs = options.Inputs.Count > 1 ? options.Inputs.Skip(1).ToList()
+                : project != null ? [project.SubmissionsFolder]
                 : Directory.Exists(options.Inputs[0]) ? [options.Inputs[0]]
                 : throw new CliException("grade: give the copies or their folder after the lab.");
             SmarxLab lab;
@@ -377,6 +438,9 @@ namespace SMADX.Studio
                 File.WriteAllText(options.Report, SmarxClassGrader.ClassReport(lab, rows, options.Culture));
                 output.WriteLine(options.Report);
             }
+            if (project != null && options.Csv == null && options.Moodle == null && options.Report == null)
+                foreach (var written in project.SaveResults(lab, rows, options.Culture, options.Scale))
+                    output.WriteLine(written);
             return rows.Count == 0 || rows.Any(SmarxClassGrader.NeedsAttention) ? 1 : 0;
         }
 
@@ -449,6 +513,9 @@ namespace SMADX.Studio
             public string? Moodle { get; private set; }
             public string? Reports { get; private set; }
             public int Scale { get; private set; } = SubmissionGrader.DefaultScale;
+            public string? Company { get; private set; }
+            public List<string>? Services { get; private set; }
+            public SmarxPlatform? Platform { get; private set; }
 
             public static Options Parse(IEnumerable<string> args)
             {
@@ -498,6 +565,20 @@ namespace SMADX.Studio
                         case "--report": options.Report = Value("--report"); break;
                         case "--moodle": options.Moodle = Value("--moodle"); break;
                         case "--reports": options.Reports = Value("--reports"); break;
+                        case "--company": options.Company = Value("--company"); break;
+                        case "--services":
+                            options.Services = Value("--services").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+                            break;
+                        case "--platform":
+                            var platform = Value("--platform").ToLowerInvariant();
+                            options.Platform = platform switch
+                            {
+                                "windows" => SmarxPlatform.Windows,
+                                "linux" => SmarxPlatform.Linux,
+                                "both" or "mixte" => SmarxPlatform.Both,
+                                _ => throw new CliException($"--platform: « {platform} » is not windows, linux or both.")
+                            };
+                            break;
                         case "--scale":
                             var scale = Value("--scale");
                             options.Scale = int.TryParse(scale, NumberStyles.None, CultureInfo.InvariantCulture, out var s) && s > 0

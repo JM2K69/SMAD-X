@@ -36,4 +36,4 @@ Les moteurs de SMAR-X ne sont pas écrits « de mémoire » : leurs résultats s
 | Windows Server 2025, depuis un Windows 11 du domaine | 1 540 ouvertures par les partages et 50 dossiers listés, sous l'identité réseau de chaque compte | `tools/SmarxWindowsCheck --network` |
 | Windows 11 (Explorateur) | l'onglet Sécurité : 96 vues de comptes, 103 entrées de la fenêtre Avancé, 8 séquences de cases cochées | `tools/SmarxSecurityTabCheck` |
 
-Ce que ces comparaisons ont appris sur Windows est décrit dans [Règles de Windows vérifiées](regles-windows.md).
+Ce que ces comparaisons ont appris sur Windows est décrit dans [Règles de Windows vérifiées](regles-windows.md). Ce que SMAR-X ne simule pas est rassemblé dans [Limites](limites.md).

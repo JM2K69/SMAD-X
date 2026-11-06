@@ -42,6 +42,7 @@ nav = [
     "smar-x/samba.md",
     "smar-x/labs.md",
     "smar-x/windows-rules.md",
+    "smar-x/limits.md",
   ] },
   { "Reference" = [
     "export.md",

@@ -138,6 +138,15 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     Capture(main, Out("studio-smarx-submissions"));
     main.Close();
 
+    // La fenêtre des recettes SMAR-X : l'arborescence d'une entreprise, sur Windows et Linux
+    var smarxPicker = new SmarxRecipePickerViewModel
+    {
+        Company = T(culture, "Atelier Martin", "Martin Works"),
+        Services = T(culture, "Comptabilité, Production, Ventes, Direction", "Accounting, Production, Sales, Direction")
+    };
+    smarxPicker.Platform = smarxPicker.Platforms.Last();
+    Capture(new SmarxRecipeWindow { DataContext = smarxPicker, Width = 1000, Height = 640 }, Out("studio-smarx-recipe"));
+
     Console.WriteLine($"{lang} : captures de Studio dans {outDir}");
 }
 
@@ -315,4 +324,5 @@ sealed class CaptureDialogs : IStudioDialogs
     public Task ShowFolderAsync(string folder) => Task.CompletedTask;
     public Task<string?> SaveFileAsync(string title, string suggestedName, string filterName, string pattern) => Task.FromResult<string?>(null);
     public Task<RecipeRequest?> ChooseRecipeAsync() => Task.FromResult(Recipe);
+    public Task<SmarxRecipeRequest?> ChooseSmarxRecipeAsync() => Task.FromResult<SmarxRecipeRequest?>(null);
 }
