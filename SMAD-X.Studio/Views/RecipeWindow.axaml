@@ -58,7 +58,11 @@
                             <TextBlock Text="{Binding RuleId}" Foreground="Black" FontWeight="SemiBold" FontSize="12"/>
                         </Border>
                         <TextBlock Grid.Column="2" Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="3" Text="{Binding Anssi}" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="8,0"/>
+                        <!-- Le point ANSSI ouvre les fiches des sources de la règle -->
+                        <Button Grid.Column="3" Classes="link" Click="ShowSources" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8,0"
+                                ToolTip.Tip="{Binding [Recipe.Sources.Tip], Source={StaticResource S}}">
+                            <TextBlock Text="{Binding Anssi}" TextTrimming="CharacterEllipsis" FontSize="14"/>
+                        </Button>
                         <TextBlock Grid.Column="4" Text="{Binding Level}" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center"/>
                     </Grid>
                 </DataTemplate>

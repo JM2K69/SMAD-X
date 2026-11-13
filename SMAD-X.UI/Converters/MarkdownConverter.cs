@@ -42,12 +42,25 @@ namespace SMADX.Converters
                     continue;
                 }
 
-                // Titres (# ## ###)
-                if (line.StartsWith("### "))
+                // Titres (# à ######) ; un titre long passe à la ligne
+                if (Regex.IsMatch(line, @"^#{4,6} "))
+                {
+                    stackPanel.Children.Add(new TextBlock
+                    {
+                        Text = line.TrimStart('#').Trim(),
+                        FontSize = 15,
+                        FontWeight = FontWeight.SemiBold,
+                        TextWrapping = TextWrapping.Wrap,
+                        Margin = new Avalonia.Thickness(0, 10, 0, 2),
+                        Foreground = new SolidColorBrush(Color.Parse(IsDark ? "#7DD3FC" : "#4A9EFF"))
+                    });
+                }
+                else if (line.StartsWith("### "))
                 {
                     stackPanel.Children.Add(new TextBlock
                     {
                         Text = line.Substring(4),
+                        TextWrapping = TextWrapping.Wrap,
                         FontSize = 16,
                         FontWeight = FontWeight.SemiBold,
                         Margin = new Avalonia.Thickness(0, 12, 0, 4),
@@ -59,6 +72,7 @@ namespace SMADX.Converters
                     stackPanel.Children.Add(new TextBlock
                     {
                         Text = line.Substring(3),
+                        TextWrapping = TextWrapping.Wrap,
                         FontSize = 18,
                         FontWeight = FontWeight.SemiBold,
                         Margin = new Avalonia.Thickness(0, 14, 0, 4),
@@ -70,6 +84,7 @@ namespace SMADX.Converters
                     stackPanel.Children.Add(new TextBlock
                     {
                         Text = line.Substring(2),
+                        TextWrapping = TextWrapping.Wrap,
                         FontSize = 22,
                         FontWeight = FontWeight.Bold,
                         Margin = new Avalonia.Thickness(0, 16, 0, 6),

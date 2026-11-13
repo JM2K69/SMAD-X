@@ -184,6 +184,7 @@ Un troisième exécutable, livré dans sa propre archive ([documentation](https:
 - **Exemplaire du formateur et sujet** : votre fichier garde les indices et le corrigé ; le **sujet** exporté n'en a aucun, et SMAD-X refuse d'ouvrir l'exemplaire d'un examen
 - **Validation** comme les tests des exercices fournis (rien d'atteint au départ, gardes efficaces, aucune solution visible, questions complètes), **solution proposée** et **fiche formateur**
 - **Corriger une classe** : la note de chacun, les réponses écrites notées à la main avec une appréciation, la réussite par objectif et par question ; exports CSV (note sur 20 pour l'ENT), **Moodle**, **comptes rendus individuels en PDF** et bilan Markdown ; les copies suspectes sont signalées
+- **Fiches des sources** : pour chaque règle d'audit, la fiche de chaque source qu'elle cite (ANSSI, NIST, CIS, MITRE ATT&CK, Microsoft), avec sa provenance et sa licence, exportée en PDF une à une ou pour les règles cochées ; une source se relit sur le web pour voir ce qui a changé depuis votre version
 - **Ligne de commande** pour les lots : `SMAD-X.Studio recipe all --lang fr --out exercices`, `convert`, `validate`, `export-subject`, `grade exercice.smadx-lab.json copies/ --csv notes.csv --moodle moodle.csv --reports comptes-rendus`, et le même `grade` pour un exercice SMAR-X
 
 ## 🚀 Démarrage rapide

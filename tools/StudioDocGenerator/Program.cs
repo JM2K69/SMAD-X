@@ -54,6 +54,14 @@ foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
     picker.DomainName = T(culture, "demo-studio.local", "studio-demo.lab");
     Capture(new RecipeWindow { DataContext = picker, Width = 1000, Height = 640 }, Out("studio-recipe"));
 
+    // Les fiches des sources de KRB-01, sur sa technique MITRE ATT&CK : la description de l'attaque, pas la
+    // recommandation officielle de l'ANSSI, qui donne la correction
+    var sources = new SourcesWindow { Width = 1280, Height = 800 };
+    var sourcesVm = new SourcesViewModel(sources, "KRB-01");
+    sourcesVm.SelectedReference = sourcesVm.Selected!.References.First(r => r.Reference.Framework == SMADX.Services.Audit.AuditFramework.MitreAttack);
+    sources.DataContext = sourcesVm;
+    Capture(sources, Out("studio-sources"));
+
     // ─── Exercice créé : énoncé, objectifs et propositions, validation ─────────
     dialogs.Recipe = picker.Request();
     Wait(vm.NewFromRecipeCommand.ExecuteAsync(null));

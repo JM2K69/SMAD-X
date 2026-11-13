@@ -32,6 +32,7 @@
                 <MenuItem Header="{Binding [Menu.NewFromRecipe], Source={StaticResource S}}" Command="{Binding NewFromRecipeCommand}" InputGesture="Ctrl+N" HotKey="Ctrl+N"/>
                 <MenuItem Header="{Binding [Menu.NewFromDomain], Source={StaticResource S}}" Command="{Binding NewFromDomainCommand}"/>
                 <MenuItem Header="{Binding [Menu.Convert], Source={StaticResource S}}" Command="{Binding ConvertScenarioCommand}"/>
+                <MenuItem Header="{Binding [Menu.Sources], Source={StaticResource S}}" Click="ShowSources"/>
                 <Separator/>
                 <MenuItem Header="{Binding [Menu.NewSmarxRecipe], Source={StaticResource S}}" Command="{Binding NewSmarxFromRecipeCommand}"/>
                 <MenuItem Header="{Binding [Menu.NewSmarx], Source={StaticResource S}}" Command="{Binding NewSmarxSampleCommand}"/>
@@ -166,6 +167,23 @@
                                 </WrapPanel>
                             </StackPanel>
                         </WrapPanel>
+                        <!-- Consulter : les fiches des sources, en bandeau sous les tuiles (une sixième tuile partirait seule à la ligne) -->
+                        <Button Classes="tile wide" Click="ShowSources" ToolTip.Tip="{Binding [Home.Sources.Tip], Source={StaticResource S}}">
+                            <DockPanel>
+                                <Panel DockPanel.Dock="Left" Width="42" Height="42" Margin="0,0,14,0" VerticalAlignment="Center">
+                                    <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SmadxBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                        <PathIcon Data="{StaticResource SmadxIcon}" Width="18" Height="18" Foreground="White"/>
+                                    </Border>
+                                    <Border Width="20" Height="20" CornerRadius="10" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                        <PathIcon Data="{StaticResource SheetIcon}" Width="10" Height="10" Foreground="{DynamicResource Accent}"/>
+                                    </Border>
+                                </Panel>
+                                <StackPanel VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Text="{Binding [Home.Sources], Source={StaticResource S}}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                    <TextBlock Classes="hint" Text="{Binding [Home.Sources.Text], Source={StaticResource S}}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </DockPanel>
+                        </Button>
                     </StackPanel>
                 </Border>
                 <Border Classes="card" Padding="20,16">

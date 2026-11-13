@@ -184,6 +184,7 @@ A third executable, shipped in its own archive ([documentation](https://jm2k69.g
 - **Trainer's copy and subject**: your file keeps the hints and the answer key; the exported **subject** has neither, and SMAD-X refuses to open the trainer's copy of an exam
 - **Validation** like the shipped labs' tests (nothing met at start, effective guards, no visible solution, complete questions), a **suggested solution**, and a **trainer sheet**
 - **Grading a class**: each grade, written answers graded by hand with a comment, success per objective and per question; CSV export (grade out of 20 for the school platform), **Moodle**, **individual PDF reports** and a Markdown class report; suspicious submissions are flagged
+- **Source sheets**: for each audit rule, the sheet of each source it cites (ANSSI, NIST, CIS, MITRE ATT&CK, Microsoft), with its provenance and licence, exported as PDF one by one or for the ticked rules; a source can be read again on the web to see what changed since your version
 - **Command line** for batches: `SMAD-X.Studio recipe all --lang en --out labs`, `convert`, `validate`, `export-subject`, `grade lab.smadx-lab.json submissions/ --csv grades.csv --moodle moodle.csv --reports reports`, and the same `grade` for a SMAR-X lab
 
 ## 🚀 Quick Start

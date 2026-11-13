@@ -51,6 +51,27 @@ L'énoncé produit reste général (« vérifiez la conformité avant l'audit an
 
 Studio produit aussi le **domaine corrigé** : le domaine de départ auquel il applique la correction attendue de chaque recommandation choisie, celle que décrit la fiche de la règle, sans rien supprimer. Il sert à la validation, qui vérifie qu'il obtient tous les points des objectifs, et la fiche formateur liste ce qu'il change. Il est enregistré avec l'exercice, dans `1-formateur/domaine-corrige.smad-x.json` (voir [Les fichiers](#les-fichiers)) : ouvrez-le dans SMAD-X pour montrer la correction, mais ne le donnez pas aux apprenants.
 
+### Les fiches des sources
+
+![Les fiches des sources](../assets/screens/studio-sources.png)
+
+**Fichier > Fiches des sources...**, ou la tuile **Fiches des sources** de l'accueil, ouvre les sources citées par les règles d'audit. Dans la fenêtre des recommandations, le point ANSSI d'une ligne (`vuln_spn_priv`) ouvre directement les sources de sa règle.
+
+La liste reprend celle des recommandations : la règle, son titre, son point ANSSI et son niveau, avec le même filtre, qui cherche aussi un identifiant de source (`T1558.003`, `AC-6(5)`). À droite, les sources de la règle choisie forment des pastilles (ANSSI, NIST, CIS, MITRE ATT&CK, Microsoft, modèles de cloisonnement) ; la pastille choisie affiche sa fiche, en français ou en anglais selon **Langue des fiches**. Ce sont les fiches du dépôt (voir [Sources](../reference/sources.md)) : l'élément, les règles de SMAD-X qui le citent, le texte officiel quand la licence le permet, la source et la licence.
+
+| Bouton | Ce qu'il fait |
+|---|---|
+| **Exporter la fiche en PDF...** | la fiche affichée, aux couleurs de SMAD-X, dans la langue choisie, nommée comme Studio la présente : la règle, le référentiel et l'identifiant (`ACL-03 - ANSSI vuln_permissions_naming_context.pdf`) |
+| **Exporter les fiches des règles cochées...** | un PDF par source de chaque règle cochée (sans case cochée, de la règle choisie), dans le dossier choisi, nommé de la même façon ; une source citée par deux règles cochées a un PDF au nom de chacune (`KRB-01 - MITRE ATT&CK T1558.003.pdf`, `KRB-02 - MITRE ATT&CK T1558.003.pdf`) |
+| **Ouvrir la source officielle** | la page de la source dans le navigateur, en français quand Microsoft Learn la traduit et que les fiches sont en français |
+| **Vérifier la source** | relit sur le web le référentiel de la source affichée et dit ce qui a changé depuis le relevé affiché : un titre, un niveau, un texte |
+| **Revenir aux fiches livrées** | n'apparaît qu'après une vérification : oublie les relevés faits dans Studio |
+
+Les fiches viennent du relevé livré avec Studio, dont la date s'affiche sous les boutons. **Vérifier la source** garde le nouveau relevé dans le dossier des réglages de Studio (`sources.json`, à côté de `settings.json`) : les fiches de ce référentiel en viennent ensuite, y compris dans les PDF, et la ligne sous les boutons indique « Relu par Studio le … ». Une version plus récente de Studio, livrée avec un relevé plus récent, reprend la main. Rien n'est gardé si la source est injoignable, ni si un élément cité a disparu de sa source : le message le dit. Les données de MITRE ATT&CK font environ 55 Mo. La vérification ne change pas les règles de SMAD-X : elle prévient seulement que l'ANSSI, le NIST ou MITRE ont modifié un point depuis votre version.
+
+!!! warning "Pour le formateur"
+    Une fiche ANSSI contient la **recommandation officielle**, c'est-à-dire la correction. Gardez ces fiches pour vous, comme la fiche formateur.
+
 ---
 
 ## Les onglets

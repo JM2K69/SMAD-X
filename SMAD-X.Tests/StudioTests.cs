@@ -8,6 +8,7 @@ using static SMADX.Tests.TestHelpers;
 namespace SMADX.Tests;
 
 /// <summary>SMAD-X Studio : la fenêtre d'édition (ViewModel) et la ligne de commande.</summary>
+[Collection(StudioTextCollection.Name)]
 public class StudioTests
 {
     private static readonly DateTime Now = new(2026, 10, 22, 10, 0, 0);

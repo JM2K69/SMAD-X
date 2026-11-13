@@ -13,6 +13,8 @@
         <StreamGeometry x:Key="SmarxIcon">M12,2 L20,5 L20,11 C20,16 16.6,20.4 12,22 C7.4,20.4 4,16 4,11 L4,5 Z</StreamGeometry>
         <!-- Ce que fait une tuile : créer (plus) ou ouvrir (dossier) -->
         <StreamGeometry x:Key="NewIcon">M10.5,4 L13.5,4 L13.5,10.5 L20,10.5 L20,13.5 L13.5,13.5 L13.5,20 L10.5,20 L10.5,13.5 L4,13.5 L4,10.5 L10.5,10.5 Z</StreamGeometry>
+        <!-- Une fiche : la page, son coin plié et deux lignes de texte -->
+        <StreamGeometry x:Key="SheetIcon">F1 M6,2 L14,2 L20,8 L20,20 C20,21.1 19.1,22 18,22 L6,22 C4.9,22 4,21.1 4,20 L4,4 C4,2.9 4.9,2 6,2 Z M13,3.5 L13,9 L18.5,9 Z M7,12 L17,12 L17,13.5 L7,13.5 Z M7,16 L15,16 L15,17.5 L7,17.5 Z</StreamGeometry>
         <StreamGeometry x:Key="OpenIcon">M2,6.5 C2,5.1 3.1,4 4.5,4 L9.2,4 L11.4,6.2 L19.5,6.2 C20.9,6.2 22,7.3 22,8.7 L22,17.5 C22,18.9 20.9,20 19.5,20 L4.5,20 C3.1,20 2,18.9 2,17.5 Z</StreamGeometry>
         <LinearGradientBrush x:Key="SmadxBrush" StartPoint="0%,0%" EndPoint="100%,100%">
             <GradientStop Color="#4C9AFF" Offset="0"/>
@@ -61,6 +63,44 @@
         <Style Selector="Button.tile:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource ChipHoverBg}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
+        </Style>
+        <!-- Une tuile en bandeau, sur toute la largeur de sa carte : l'icône à gauche, le texte à droite -->
+        <Style Selector="Button.tile.wide">
+            <Setter Property="Width" Value="NaN"/>
+            <Setter Property="Height" Value="NaN"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <!-- Aligné sur la grille des tuiles : 12 sous la rangée au-dessus, le bord droit sur celui de la dernière tuile -->
+            <Setter Property="Margin" Value="0,-12,28,0"/>
+        </Style>
+        <!-- Des pastilles à choisir (les sources d'une règle) : arrondies, la choisie en couleur d'accent -->
+        <Style Selector="ListBox.chips">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style Selector="ListBox.chips ListBoxItem">
+            <Setter Property="Margin" Value="0,0,6,6"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="ListBox.chips ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="{DynamicResource ChipBg}"/>
+        </Style>
+        <Style Selector="ListBox.chips ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ChipHoverBg}"/>
+        </Style>
+        <Style Selector="ListBox.chips ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+        </Style>
+        <Style Selector="ListBox.chips ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+        </Style>
+        <Style Selector="ListBox.chips ListBoxItem:selected:focus /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
         </Style>
     </Application.Styles>
 </Application>

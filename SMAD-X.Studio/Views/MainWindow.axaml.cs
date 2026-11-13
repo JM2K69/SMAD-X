@@ -35,6 +35,9 @@ namespace SMADX.Studio.Views
 
         private void Quit(object? sender, RoutedEventArgs e) => Close();
 
+        /// <summary>Les fiches des sources, à côté de Studio.</summary>
+        private void ShowSources(object? sender, RoutedEventArgs e) => SourcesWindow.Open(this);
+
         /// <summary>Un exercice modifié et non enregistré fait demander « enregistrer ? » avant de fermer.</summary>
         private async void OnClosing(object? sender, WindowClosingEventArgs e)
         {

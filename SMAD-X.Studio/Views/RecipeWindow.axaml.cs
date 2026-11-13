@@ -17,5 +17,12 @@ namespace SMADX.Studio.Views
         private void Cancel(object? sender, RoutedEventArgs e) => Close(null);
 
         private void ClearChecks(object? sender, RoutedEventArgs e) => (DataContext as RecipePickerViewModel)?.ClearChecks();
+
+        /// <summary>Les fiches des sources de la règle de cette ligne, au-dessus des recettes.</summary>
+        private async void ShowSources(object? sender, RoutedEventArgs e)
+        {
+            if ((sender as Control)?.DataContext is RecipeItem item)
+                await SourcesWindow.ShowOverAsync(this, item.RuleId);
+        }
     }
 }

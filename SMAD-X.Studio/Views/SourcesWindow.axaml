@@ -1,0 +1,106 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SMADX.Studio.Views.SourcesWindow"
+        Title="{Binding [Sources.Title], Source={StaticResource S}}"
+        Width="1280" Height="800" MinWidth="820" MinHeight="520"
+        WindowStartupLocation="CenterOwner"
+        Icon="avares://SMAD-X.Studio/Assets/icone.ico">
+
+    <DockPanel Margin="16">
+        <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,10" TextWrapping="Wrap"
+                   Text="{Binding [Sources.Intro], Source={StaticResource S}}"/>
+
+        <!-- Les règles cochées, en PDF ; la langue des fiches ; fermer -->
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="Auto,Auto,*,Auto,Auto" Margin="0,12,0,0">
+            <TextBlock Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0" Classes="label"
+                       Text="{Binding [Sources.Language], Source={StaticResource S}}"/>
+            <ComboBox Grid.Column="1" Width="160" ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}"/>
+            <Button Grid.Column="3" Classes="tool" Margin="12,0,0,0" Command="{Binding ExportCheckedCommand}"
+                    Content="{Binding [Sources.ExportChecked], Source={StaticResource S}}"
+                    ToolTip.Tip="{Binding [Sources.ExportChecked.Tip], Source={StaticResource S}}"/>
+            <Button Grid.Column="4" Classes="tool" Margin="8,0,0,0" IsCancel="True" Click="CloseWindow"
+                    Content="{Binding [Sources.Close], Source={StaticResource S}}"/>
+        </Grid>
+
+        <Grid ColumnDefinitions="5*,12,6*">
+            <!-- Les règles, comme dans les recettes -->
+            <DockPanel Grid.Column="0">
+                <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                    <TextBox Grid.Column="0" Text="{Binding Filter}"
+                             PlaceholderText="{Binding [Sources.Filter], Source={StaticResource S}}"/>
+                    <Button Classes="tool" Grid.Column="1" Margin="8,0,0,0" Click="ClearChecks"
+                            Content="{Binding [Recipe.ClearChecks], Source={StaticResource S}}"/>
+                </Grid>
+                <Border Classes="card" Padding="6">
+                    <ListBox Classes="plain" ItemsSource="{Binding Rules}" SelectedItem="{Binding Selected}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="32,80,*,Auto,36">
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsChecked}" VerticalAlignment="Center" MinWidth="0"/>
+                                    <Border Grid.Column="1" Background="{Binding SeverityColor}" CornerRadius="6" Padding="6,2"
+                                            HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding RuleId}" Foreground="Black" FontWeight="SemiBold" FontSize="12"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                               ToolTip.Tip="{Binding Title}"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding Anssi}" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center"
+                                               MaxWidth="160" TextTrimming="CharacterEllipsis" Margin="8,0"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding Level}" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+            </DockPanel>
+
+            <!-- Les sources de la règle choisie, et la fiche de l'une d'elles -->
+            <Border Grid.Column="2" Classes="card" Padding="16,12">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Spacing="10">
+                        <!-- Un DockPanel et non un StackPanel horizontal : le titre reçoit la largeur restante et passe à la ligne -->
+                        <DockPanel>
+                            <Border DockPanel.Dock="Left" Background="{Binding Selected.SeverityColor}" CornerRadius="6" Padding="6,2" Margin="0,0,10,0" VerticalAlignment="Top">
+                                <TextBlock Text="{Binding Selected.RuleId}" Foreground="Black" FontWeight="SemiBold" FontSize="12"/>
+                            </Border>
+                            <TextBlock Text="{Binding Selected.Title}" FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                        </DockPanel>
+                        <TextBlock Classes="label" Margin="0" Text="{Binding [Sources.Cited], Source={StaticResource S}}"/>
+                        <ListBox Classes="chips" ItemsSource="{Binding Selected.References}" SelectedItem="{Binding SelectedReference}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Label}" ToolTip.Tip="{Binding Tip}" FontSize="12"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <WrapPanel>
+                            <Button Classes="accent" Margin="0,0,8,6" Command="{Binding ExportPdfCommand}"
+                                    Content="{Binding [Sources.ExportPdf], Source={StaticResource S}}"/>
+                            <Button Classes="tool" Margin="0,0,8,6" Command="{Binding OpenSourceCommand}"
+                                    Content="{Binding [Sources.OpenSource], Source={StaticResource S}}"/>
+                            <Button Classes="tool" Margin="0,0,8,6" Command="{Binding CheckSourceCommand}"
+                                    Content="{Binding [Sources.Check], Source={StaticResource S}}"
+                                    ToolTip.Tip="{Binding [Sources.Check.Tip], Source={StaticResource S}}"/>
+                            <Button Classes="tool" Margin="0,0,8,6" Command="{Binding ResetToShippedCommand}" IsVisible="{Binding HasStudioRetrieval}"
+                                    Content="{Binding [Sources.Reset], Source={StaticResource S}}"
+                                    ToolTip.Tip="{Binding [Sources.Reset.Tip], Source={StaticResource S}}"/>
+                        </WrapPanel>
+                        <TextBlock Classes="hint" Text="{Binding Origin}" TextWrapping="Wrap"/>
+                        <Border Padding="12,10" CornerRadius="8" Background="{DynamicResource ChipBg}"
+                                IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                            <SelectableTextBlock Text="{Binding Message}" TextWrapping="Wrap" MaxHeight="160"/>
+                        </Border>
+                        <Separator/>
+                    </StackPanel>
+                    <ScrollViewer>
+                        <ContentControl Content="{Binding Sheet, Converter={StaticResource MarkdownConverter}}" Margin="0,0,12,0"/>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

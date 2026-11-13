@@ -51,6 +51,27 @@ The statement it writes stays general ("check compliance before the yearly audit
 
 Studio also produces the **fixed domain**: the starting domain with the expected fix of each chosen recommendation applied, the one the rule sheet describes, without deleting anything. Validation uses it to check that it gets all the objectives' points, and the trainer sheet lists what it changes. It is saved with the lab, in `1-trainer/fixed-domain.smad-x.json` (see [The files](#the-files)): open it in SMAD-X to show the fix, but do not give it to learners.
 
+### The source sheets
+
+![The source sheets](../assets/screens/studio-sources.png)
+
+**File > Source sheets...**, or the **Source sheets** tile on the home screen, opens the sources cited by the audit rules. In the recommendations window, a row's ANSSI point (`vuln_spn_priv`) opens its rule's sources directly.
+
+The list is the recommendations one: the rule, its title, its ANSSI point and level, with the same filter, which also finds a source identifier (`T1558.003`, `AC-6(5)`). On the right, the chosen rule's sources are chips (ANSSI, NIST, CIS, MITRE ATT&CK, Microsoft, tiering models); the chosen chip shows its sheet, in French or in English depending on **Sheet language**. These are the repository's sheets (see [Sources](../reference/sources.md)): the item, the SMAD-X rules that cite it, the official text where the licence allows it, the source and the licence.
+
+| Button | What it does |
+|---|---|
+| **Export the sheet as PDF...** | the sheet shown, in SMAD-X colours, in the chosen language, named as Studio shows it: the rule, the framework and the identifier (`ACL-03 - ANSSI vuln_permissions_naming_context.pdf`) |
+| **Export the sheets of the ticked rules...** | one PDF per source of each ticked rule (with nothing ticked, of the chosen rule), in the chosen folder, named the same way; a source cited by two ticked rules gets one PDF under each one's name (`KRB-01 - MITRE ATT&CK T1558.003.pdf`, `KRB-02 - MITRE ATT&CK T1558.003.pdf`) |
+| **Open the official source** | the source's page in the browser, in French when Microsoft Learn translates it and the sheet language is French |
+| **Check the source** | reads the shown source's framework again on the web and says what changed since the retrieval shown: a title, a level, a text |
+| **Back to the shipped sheets** | only shows after a check: forgets the retrievals made in Studio |
+
+The sheets come from the retrieval shipped with Studio, whose date shows under the buttons. **Check the source** keeps the new retrieval in Studio's settings folder (`sources.json`, next to `settings.json`): that framework's sheets then come from it, PDFs included, and the line under the buttons reads "Read again by Studio on …". A newer Studio version, shipped with a newer retrieval, takes over again. Nothing is kept if the source cannot be reached, or if a cited item has disappeared from its source: the message says so. The MITRE ATT&CK data is about 55 MB. The check does not change SMAD-X's rules: it only warns you that ANSSI, NIST or MITRE changed a point since your version.
+
+!!! warning "For the trainer"
+    An ANSSI sheet holds the **official recommendation**, that is, the fix. Keep these sheets to yourself, like the trainer sheet.
+
 ---
 
 ## The tabs
