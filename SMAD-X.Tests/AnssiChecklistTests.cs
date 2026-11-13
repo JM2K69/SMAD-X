@@ -22,6 +22,13 @@ public class AnssiChecklistTests
         var qSe={vuln_test:{title:{fr:(0,I.jsx)(I.Fragment,{children:`Point de test`}),en:(0,I.jsx)(I.Fragment,{children:`Test point`})},grades:[1,2],changelog:[{date:`2024-01-02`,type:`change`},{date:`2020-01-01`,type:`new`}],
         body:e=>{let t=e.attrs?.data??[];return{fr:(0,I.jsxs)(I.Fragment,{children:[(0,I.jsxs)(`p`,{children:[`Le compte `,(0,I.jsx)(Y,{SID:`S-1-5-21-domain-501`,lang:`fr`}),` est activ\xe9 ; l'h\xe9ritage de la DACL `,(0,I.jsx)(uO,{val:!1,lang:`fr`}),` est risqu\xe9.`]}),(0,I.jsx)(z,{caption:`Comptes`,columns:Zc,rows:t})]}),en:(0,I.jsx)(`p`,{children:[`The `,(0,I.jsx)(Y,{SID:`S-1-5-21-domain-501`,lang:`en`}),` account is enabled.`]})}},
         reco:e=>({fr:(0,I.jsxs)(I.Fragment,{children:[(0,I.jsxs)(`p`,{children:[`Le contr\xf4le `,(0,I.jsx)(yO,{quality:1,value:`WRITE_SPN`}),` est corrig\xe9, voir `,(0,I.jsx)(K,{href:`#/ad/controlgraph/`,children:`le graphe`}),`.`]}),(0,I.jsx)(ok,{lang:`fr`,accessMask:20}),Uk.fr,(0,I.jsx)(_O,{lang:`fr`})]}),en:(0,I.jsxs)(I.Fragment,{children:[(0,I.jsx)(`p`,{children:`Fix it.`}),Uk.en,(0,I.jsx)(_O,{lang:`en`,noContext:!0})]})})}};
+        function oO({children:e}){return(0,I.jsx)(`code`,{style:{fontFamily:`monospace`},children:e})}
+        function rB(e,t,n,r,i=Zc,o={}){return s=>{let c=s.attrs?.data??[],l=e=>o.clear?(0,I.jsx)(`div`,{children:e}):e;return{fr:(0,I.jsxs)(I.Fragment,{children:[n,l((0,I.jsx)(z,{caption:e,columns:i,rows:c}))]}),en:(0,I.jsxs)(I.Fragment,{children:[r]})}}}
+        var lSe=`Import-Module .\\AdSyncConfig.psm1
+        $credential = Get-Credential`,FO=()=>(0,I.jsx)(G_e,{"data-ad-code-block":!0,children:(0,I.jsx)(NO,{code:lSe,variant:`block`})});
+        var Rq={vuln_helper:{title:{fr:(0,I.jsx)(I.Fragment,{children:`Point mod\xe8le`}),en:(0,I.jsx)(I.Fragment,{children:`Template point`})},grades:[2],changelog:[{date:`2021-01-01`,type:`new`}],
+        body:rB(`Objets`,`Objects`,(0,I.jsx)(`p`,{children:`Texte du mod\xe8le.`}),(0,I.jsx)(`p`,{children:`Template text.`})),
+        reco:e=>({fr:(0,I.jsxs)(I.Fragment,{children:[(0,I.jsxs)(`p`,{children:[`Utiliser `,(0,I.jsx)(oO,{children:(0,I.jsx)(NO,{code:`Set-X`})}),` :`]}),(0,I.jsx)(FO,{}),e.attrs?.graph&&(0,I.jsx)(`p`,{children:`Visualisation`})]}),en:(0,I.jsx)(`p`,{children:`Use it.`})})}};
         """;
 
     private static AnssiPoint Point() => new AnssiChecklist(Page).Find("vuln_test") ?? throw new InvalidOperationException("vuln_test introuvable");
@@ -66,5 +73,23 @@ public class AnssiChecklistTests
         Assert.Contains("Un texte partagé.", point.RecoFr);
         Assert.Contains("A shared text.", point.RecoEn);
         Assert.DoesNotContain("…", point.RecoFr);
+    }
+
+    /// <summary>
+    /// Le texte d'un point construit par une fonction modèle (« body:rB(`Objets`,`Objects`,texteFr,texteEn) »), du code
+    /// passé en propriété (en ligne, ou en bloc depuis une variable), un composant sans propriété, et un texte que seul le
+    /// rapport d'analyse montre (« e.attrs?.graph&&… ») : la checklist ne l'affiche pas, la fiche non plus.
+    /// </summary>
+    [Fact]
+    public void ATemplateBody_CodeProperties_AParameterlessComponent_AndAReportOnlyText()
+    {
+        var point = new AnssiChecklist(Page).Find("vuln_helper") ?? throw new InvalidOperationException("vuln_helper introuvable");
+        Assert.Equal("Point modèle", point.TitleFr);
+        Assert.StartsWith("Texte du modèle.", point.BodyFr);
+        Assert.Contains("*(Tableau des objets concernés, dans le rapport d'analyse.)*", point.BodyFr);
+        Assert.Equal("Template text.", point.BodyEn);
+        Assert.Contains("Utiliser `Set-X` :", point.RecoFr);
+        Assert.Contains("```\nImport-Module .\\AdSyncConfig.psm1\n$credential = Get-Credential\n```", point.RecoFr);
+        Assert.DoesNotContain("Visualisation", point.RecoFr);
     }
 }

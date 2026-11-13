@@ -16,6 +16,20 @@
 
 - **ACL-02** — Chemin de contrôle vers le domaine par les permissions
 
+## Texte officiel
+
+> #### Permissions dangereuses et chemins de contrôle
+>
+> Des permissions dangereuses permettent la prise de contrôle d'un objet cible, sur lequel ces permissions sont positionnées, par l'écriture de propriétés sensibles, par délégation de droits privilégiés ou par l'usage de fonctionnalités spécifiques.
+>
+> Une fois l'objet maîtrisé par un attaquant, ce dernier peut alors poursuivre un chemin de prise de contrôle d'autres objets qui, par transitivité, peut mener à des élévations de privilèges et à la compromission de l'annuaire Active Directory tout entier. L'enchaînement de permissions dangereuses ainsi exploitées s'appelle un **chemin de contrôle**, ou un chemin d'attaque.
+>
+> Ainsi, les chemins de contrôle représentent des moyens pour un attaquant d'atteindre des cibles, et permettent d'identifier des déviances dans la gestion du domaine, de valider l'application d'un périmètre de sécurité autour des cibles considérées, mais également de révéler des moyens de persistance laissés par un attaquant après une compromission.
+
+Des permissions dangereuses existent sur des conteneurs (sites et OU) contenant des membres des groupes privilégiés. Un attaquant ayant le contrôle sur ces conteneurs pourrait lier une GPO à cet emplacement et ainsi exécuter du code sur les machines utilisées par ces membres.
+
+*(Tableau des objets concernés, dans le rapport d'analyse.)*
+
 ## Recommandation officielle
 
 Il recommandé d'enlever les permissions dangereuses sur ces conteneurs afin de revenir à un état par défaut. La correction est généralement effectuée à l'aide du composant logiciel enfichable `ADSI Edit` ou de l'utilitaire `ldp`.
@@ -35,11 +49,17 @@ Il recommandé d'enlever les permissions dangereuses sur ces conteneurs afin de 
 
 > #### Acceptation du risque
 >
-> Si des permissions spécifiques sont nécessaires, il convient de considérer que les comptes ou les groupes délégués sont eux-mêmes privilégiés. Ainsi, ces objets doivent être correctement protégés et leurs permissions appliquées doivent être au moins aussi restrictives que celles appliquées à l'objet `adminSDHolder` afin d'éviter de créer de nouveaux chemins de contrôle. Il est donc nécessaire de leur appliquer des permissions "sécurisées". Pour cela, il est recommandé d'utiliser la commande `` du module `AdSyncConfig.psm1` fourni avec Azure AD Connect. Cette commande supprime l'héritage et applique des permissions (ACE) restreintes, qui sont toutes également présentes dans un objet `adminSDHolder` par défaut.
+> Si des permissions spécifiques sont nécessaires, il convient de considérer que les comptes ou les groupes délégués sont eux-mêmes privilégiés. Ainsi, ces objets doivent être correctement protégés et leurs permissions appliquées doivent être au moins aussi restrictives que celles appliquées à l'objet `adminSDHolder` afin d'éviter de créer de nouveaux chemins de contrôle. Il est donc nécessaire de leur appliquer des permissions "sécurisées". Pour cela, il est recommandé d'utiliser la commande `Set-ADSyncRestrictedPermissions` du module `AdSyncConfig.psm1` fourni avec Azure AD Connect. Cette commande supprime l'héritage et applique des permissions (ACE) restreintes, qui sont toutes également présentes dans un objet `adminSDHolder` par défaut.
 >
 > Pour un **groupe délégué**, l'application de cette seule commande n'est pas suffisante : il faut également retirer les membres du groupe, ou les considérer eux-mêmes comme étant privilégié en leur appliquant la même commande.
 >
-> Exemple d'utilisation de `` pour appliquer des permissions "sécurisées" sur un compte privilégié :
+> Exemple d'utilisation de `Set-ADSyncRestrictedPermissions` pour appliquer des permissions "sécurisées" sur un compte privilégié :
+>
+> ```
+> Import-Module .\AdSyncConfig.psm1
+> $credential = Get-Credential
+> Set-ADSyncRestrictedPermissions -ADConnectorAccountDN "CN=ExampleUserAccount,CN=Users,DC=example,DC=ads" -Credential $credential
+> ```
 >
 > Note : le module `AdSyncConfig.psm1` peut être directement extrait du fichier d'installation d'Entra ID Connect à l'aide de l'utilitaire intégré `msiexec` : `msiexec /a "AzureADConnect.msi" /qb TARGETDIR=c:\temp\`
 >
@@ -55,7 +75,7 @@ Il recommandé d'enlever les permissions dangereuses sur ces conteneurs afin de 
 > - Des ACE bénignes : ACE pour `Self`, pour *Contrôleurs de domaine d'entreprise*, droit étendu "Sent-To" ;
 > - Si l'objet est un groupe, alors ses membres doivent également être protégés. Les sous-groupes ne sont pas tolérés.
 >
-> Si l'objet `adminSDHolder` a été modifié, il faut s'assurer que les conditions ci-dessus sont bien remplies : la commande `` ne correspondent alors peut-être plus à l'objet `adminSDHolder`.
+> Si l'objet `adminSDHolder` a été modifié, il faut s'assurer que les conditions ci-dessus sont bien remplies : la commande `Set-ADSyncRestrictedPermissions` ne correspondent alors peut-être plus à l'objet `adminSDHolder`.
 >
 > Une fois protégés, les comptes apparaissent dans le point d'information "Comptes Tier 0 supplémentaires".
 

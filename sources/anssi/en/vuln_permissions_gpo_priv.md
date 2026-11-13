@@ -16,6 +16,20 @@
 
 - **TIER-02** — Tiering violation: GPO from a less sensitive tier
 
+## Official text
+
+> #### Dangerous ACLs and attack paths
+>
+> Dangerous permissions allow taking control of a target object, on which those permissions are set, by writing sensitive attributes, privileged right delegation or through specific features.
+>
+> Once granted control of privileged objects, an attacker may then repeat the same strategy to gain control of other objects, leading to privilege escalation and possibly a full Active Directory compromise. The succession of exploited permissions constitutes an **attack path** or a control path.
+>
+> Control paths reveal how an attacker could leverage a chain of defective or dangerous permissions to gain control of some targets. They can also be leveraged to quickly identify domain mismanagement, to validate the actual security boundary of a particular scope (making sure some object of interest cannot be taken over by unauthorized users through misconfiguration). Indicators of compromise may also be found through control path review.
+
+Dangerous ACLs expose GPOs that are applied to privileged group members. An attacker gaining access to these GPOs may execute code on those privilege account workstations to escalate their privileges.
+
+*(Table of the affected objects, in the analysis report.)*
+
 ## Official recommendation
 
 GPO LDAP object permissions should be reviewed.
@@ -39,11 +53,17 @@ Before accepting the risk (see below), review the list of principals and ensure 
 
 > #### Risk Acceptance
 >
-> If special permissions are required, delegated groups or accounts should be considered as privileged. Therefore, these objects must be adequately protected, and their own access control list should be at least as strict as that of the `adminSDHolder` object. "Secure" ACLs should therefore be implemented on these delegated objects, which will not open a new control path exposure. To remove inheritance and restrict ACEs, the following command may be used: `` found in the `AdSyncConfig.psm1` module from Azure AD Connect.
+> If special permissions are required, delegated groups or accounts should be considered as privileged. Therefore, these objects must be adequately protected, and their own access control list should be at least as strict as that of the `adminSDHolder` object. "Secure" ACLs should therefore be implemented on these delegated objects, which will not open a new control path exposure. To remove inheritance and restrict ACEs, the following command may be used: `Set-ADSyncRestrictedPermissions` found in the `AdSyncConfig.psm1` module from Azure AD Connect.
 >
 > For **delegated groups**, strengthening permissions using this command is not enough: the permissions of this group's members must also be strengthened by applying this command to them, or they can be removed from the delegated group.
 >
-> Example: applying "secure" permissions on a privileged account through ``:
+> Example: applying "secure" permissions on a privileged account through `Set-ADSyncRestrictedPermissions`:
+>
+> ```
+> Import-Module .\AdSyncConfig.psm1
+> $credential = Get-Credential
+> Set-ADSyncRestrictedPermissions -ADConnectorAccountDN "CN=ExampleUserAccount,CN=Users,DC=example,DC=ads" -Credential $credential
+> ```
 >
 > Note: the `AdSyncConfig.psm1` module may be extracted from the Entra ID Connect installer with `msiexec`: `msiexec /a "AzureADConnect.msi" /qb TARGETDIR=c:\temp\`
 >
@@ -59,7 +79,7 @@ Before accepting the risk (see below), review the list of principals and ensure 
 > - Benign ACEs: ACEs for `Self`, for *Enterprise Domain Controllers* extended right "Sent-To";
 > - If the object is a group, its members must also be similarly protected. Sub-groups are not allowed.
 >
-> If the `adminSDHolder` object has been modified, do make sure that the conditions above are still met, since the ACEs that are set by the `` command might not match the modified `adminSDHolder` object anymore.
+> If the `adminSDHolder` object has been modified, do make sure that the conditions above are still met, since the ACEs that are set by the `Set-ADSyncRestrictedPermissions` command might not match the modified `adminSDHolder` object anymore.
 >
 > Once protected, accounts are listed in the information item "Additional Tier 0 accounts".
 

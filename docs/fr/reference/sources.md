@@ -24,7 +24,15 @@ Une fiche donne :
 
 Un texte qui n'existe qu'en anglais reste en anglais dans la fiche française, qui le signale : c'est la version qui fait foi.
 
-Les encadrés de la checklist de l'ANSSI (« Contexte : groupes privilégiés », « Seuils de tolérance », « Contexte : chemins de contrôle », « Limites »…) sont repris dans la langue de la fiche. Ce sont des citations dans le Markdown, et des encadrés bleus dans le PDF et dans Studio. Un groupe désigné par son SID prend son nom, comme sur la page (*Administrateurs*, *Invité*). Un droit dangereux garde son nom (`WRITE_SPN`), et un masque d'accès devient la liste des droits qu'il accorde. Seuls les nombres calculés par l'analyse d'un domaine restent des « … ».
+Les encadrés de la checklist de l'ANSSI (« Contexte : groupes privilégiés », « Seuils de tolérance », « Contexte : chemins de contrôle », « Limites »…) sont repris dans la langue de la fiche. Ce sont des citations dans le Markdown, et des encadrés bleus dans le PDF et dans Studio. Un groupe désigné par son SID prend son nom, comme sur la page (*Administrateurs*, *Invité*). Un droit dangereux garde son nom (`WRITE_SPN`), et un masque d'accès devient la liste des droits qu'il accorde. Un exemple de commande devient un bloc de code.
+
+Les fiches reprennent le texte tel que la checklist l'affiche. Ce que seul le rapport d'analyse d'un domaine montre n'y figure pas :
+
+- les nombres calculés, qui restent des « … » ;
+- les tableaux des objets trouvés ;
+- le lien vers l'onglet du graphe.
+
+Le texte des points vulnérabilité de la checklist a été comparé, ligne à ligne et dans les deux langues, à ce que le site affiche.
 
 Un point ANSSI peut avoir plusieurs niveaux, chacun avec son seuil. `vuln_privileged_members_perm` est de niveau 1 pour les permissions exploitables sans prérequis, et de niveau 2 pour toutes les permissions dangereuses. Le niveau d'une règle de SMAD-X est l'un d'eux. Un test vérifie que chaque référence citée par une règle a sa fiche dans les deux langues, et que le niveau ANSSI de chaque règle est l'un de ceux de la checklist.
 

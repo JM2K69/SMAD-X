@@ -24,7 +24,15 @@ A sheet gives:
 
 A text that only exists in English stays in English in the French sheet, which says so: it is the authoritative version.
 
-The boxes of the ANSSI checklist ("Context: privileged groups", "Alert threshold", "Context: control path exposure", "Limits"…) are reproduced in the sheet language. They are quotes in the Markdown, and blue boxes in the PDF and in Studio. A group given by its SID gets its name, as on the page (*Administrators*, *Guest*). A dangerous right keeps its name (`WRITE_SPN`), and an access mask becomes the list of rights it grants. Only the numbers computed by a domain's analysis remain "…".
+The boxes of the ANSSI checklist ("Context: privileged groups", "Alert threshold", "Context: control path exposure", "Limits"…) are reproduced in the sheet language. They are quotes in the Markdown, and blue boxes in the PDF and in Studio. A group given by its SID gets its name, as on the page (*Administrators*, *Guest*). A dangerous right keeps its name (`WRITE_SPN`), and an access mask becomes the list of rights it grants. A command example becomes a code block.
+
+The sheets reproduce the text as the checklist shows it. What only a domain's analysis report shows is left out:
+
+- the computed numbers, which remain "…";
+- the tables of objects found;
+- the link to the graph tab.
+
+The text of the checklist's vulnerability points was compared, line by line and in both languages, with what the site shows.
 
 An ANSSI point can have several levels, each with its threshold. `vuln_privileged_members_perm` is level 1 for permissions exploitable without prerequisites, and level 2 for all dangerous permissions. A SMAD-X rule's level is one of them. A test checks that each reference cited by a rule has its sheet in both languages, and that each rule's ANSSI level is one of the checklist's.
 

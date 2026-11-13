@@ -46,19 +46,19 @@ namespace SMADX.Services.Sources
             if (obj == null) return null;
             var props = Js.Object(obj);
             var title = props.TryGetValue("title", out var t) ? Js.Object(t) : [];
-            var body = Languages(props.GetValueOrDefault("body"));
-            var reco = Languages(Resolve(props.GetValueOrDefault("reco")));
+            var body = Bodies(props.GetValueOrDefault("body"));
+            var reco = Bodies(Resolve(props.GetValueOrDefault("reco")));
             var dates = props.TryGetValue("changelog", out var changelog)
                 ? DateRegex().Matches(changelog).Select(m => m.Groups[1].Value).Order().ToList() : [];
             var levels = props.TryGetValue("grades", out var grades) ? LevelRegex().Matches(grades).Select(g => int.Parse(g.Value)).ToList() : [];
             return new AnssiPoint(id,
                 Clean(Render(title.GetValueOrDefault("fr") ?? "", Scope.For("fr"))), Clean(Render(title.GetValueOrDefault("en") ?? "", Scope.For("en"))),
                 levels, dates.FirstOrDefault(), dates.LastOrDefault(),
-                Text(body.Fr, "fr"), Text(body.En, "en"), Text(reco.Fr, "fr"), Text(reco.En, "en"));
+                Text(body.Fr, "fr", body.Vars), Text(body.En, "en", body.Vars), Text(reco.Fr, "fr", reco.Vars), Text(reco.En, "en", reco.Vars));
         }
 
         /// <summary>Le Markdown d'un texte ; un tableau des objets trouvés par l'analyse devient une mention dans sa langue.</summary>
-        private string Text(string expr, string lang) => Clean(Render(expr, Scope.For(lang)).Replace(TableMark, lang == "fr"
+        private string Text(string expr, string lang, IReadOnlyDictionary<string, object?> vars) => Clean(Render(expr, new Scope(lang, vars, 0)).Replace(TableMark, lang == "fr"
             ? "*(Tableau des objets concernés, dans le rapport d'analyse.)*"
             : "*(Table of the affected objects, in the analysis report.)*"));
 
@@ -97,6 +97,44 @@ namespace SMADX.Services.Sources
             return page[start..(Js.Close(page, start) + 1)];
         }
 
+        /// <summary>
+        /// Les deux langues d'un texte, et ce que valent ses variables : « e=>({fr:…,en:…}) », ou l'appel d'une fonction
+        /// modèle « rA(`légende`,`caption`,texteFr,texteEn) » dont le corps rend « {fr:…,en:…} » à partir de ses
+        /// paramètres ; chaque paramètre vaut alors l'argument donné (un texte JSX), rendu là où la fonction le place.
+        /// </summary>
+        private (string Fr, string En, IReadOnlyDictionary<string, object?> Vars) Bodies(string? value)
+        {
+            var none = new Dictionary<string, object?>();
+            if (value == null) return ("", "", none);
+            var text = value.Trim();
+            var call = CallRegex().Match(text);
+            if (call.Success && Js.Close(text, call.Length - 1) == text.Length - 1)
+            {
+                var definition = Regex.Match(page, $@"function {Regex.Escape(call.Groups[1].Value)}\(");
+                if (definition.Success)
+                {
+                    var args = Js.Split(text[call.Length..^1]);
+                    var open = definition.Index + definition.Length - 1;
+                    var close = Js.Close(page, open);
+                    var vars = new Dictionary<string, object?>();
+                    var parameters = Js.Split(page[(open + 1)..close]);
+                    for (var i = 0; i < parameters.Count; i++)
+                    {
+                        var name = parameters[i].Split('=')[0].Trim();
+                        if (IdentifierRegex().IsMatch(name)) vars[name] = i < args.Count ? new Bound(args[i]) : null;
+                    }
+                    var bodyStart = page.IndexOf('{', close + 1);
+                    var (fr, en) = Languages(page[bodyStart..(Js.Close(page, bodyStart) + 1)]);
+                    return (fr, en, vars);
+                }
+            }
+            var (f, e) = Languages(value);
+            return (f, e, none);
+        }
+
+        /// <summary>Une expression du code laissée telle quelle (l'argument d'une fonction modèle), rendue quand on la rencontre.</summary>
+        private sealed record Bound(string Text);
+
         /// <summary>Les deux langues d'un texte : le premier objet « {fr:…,en:…} » de la valeur.</summary>
         private static (string Fr, string En) Languages(string? value)
         {
@@ -130,6 +168,7 @@ namespace SMADX.Services.Sources
         {
             expr = expr.Trim();
             if (expr.Length == 0) return "";
+            if (scope.Vars.TryGetValue(expr, out var bound) && bound is Bound argument) return Render(argument.Text, scope);
             if (Ternary(expr) is { } choice)
                 return Truthy(choice.Cond, scope) switch
                 {
@@ -148,8 +187,15 @@ namespace SMADX.Services.Sources
                 return Element(args[0], args.Count > 1 ? Js.Object(args[1]) : [], scope);
             }
             if (c == '(' && Js.Close(expr, 0) == expr.Length - 1) return Render(expr[1..^1], scope);
+            // Une fonction qui enrobe un appel JSX (« l((0,I.jsx)(…)) ») : ce qu'elle enrobe
+            var wrapper = CallRegex().Match(expr);
+            if (wrapper.Success && Js.Close(expr, wrapper.Length - 1) == expr.Length - 1
+                && Js.Split(expr[wrapper.Length..^1]) is [var wrapped] && wrapped.StartsWith("(0,", StringComparison.Ordinal))
+                return Render(wrapped, scope);
             var and = TopLevel(expr, "&&");
-            if (and >= 0) return Truthy(expr[..and], scope) == false ? "" : Render(expr[(and + 2)..], scope);
+            // « condition && texte » : le texte si la condition est vraie. Une condition qui dépend du rapport d'analyse (ses
+            // données, l'onglet du graphe) est fausse sur la checklist, qui ne montre pas ce texte : la fiche non plus
+            if (and >= 0) return Truthy(expr[..and], scope) == true ? Render(expr[(and + 2)..], scope) : "";
             if (c == 'n' && expr == "null") return "";
             // Un texte partagé par plusieurs points, rangé dans une variable : « Uk.fr », « gA »
             if (Shared(expr, scope) is { } shared) return shared;
@@ -378,7 +424,12 @@ namespace SMADX.Services.Sources
             if (props.ContainsKey("dn")) return Text("dn") is { } dn ? Code(dn) : "";
             // Une pastille qui affiche sa valeur (le nom d'un droit dangereux, « WRITE_SPN ») : du code
             if (!props.ContainsKey("children") && Text("value") is { } shown) return Code(shown);
+            // Du code passé en propriété : en ligne, ou en bloc s'il tient sur plusieurs lignes
+            if (!props.ContainsKey("children") && props.TryGetValue("code", out var source) && StringOf(source) is { } code)
+                return code.Contains('\n') ? "\n\n```\n" + code.Trim('\n') + "\n```\n\n" : Code(code);
             if (_monospace.Contains(type)) return Code(children);
+            // Un composant appelé sans aucune propriété (« FO » : un exemple de code) : on l'ouvre
+            if (props.Count == 0 && Parameterless(type) is { } content && scope.Depth < 6) return Render(content, scope with { Depth = scope.Depth + 1 });
             // Un masque d'accès : la liste des droits qu'il accorde, avec les libellés de la page
             if (props.TryGetValue("accessMask", out var mask) && long.TryParse(mask, out var bits))
                 return AccessRights(type, bits, Value(props.GetValueOrDefault("lang")) as string ?? scope.Lang);
@@ -463,6 +514,37 @@ namespace SMADX.Services.Sources
                 if (rights.Count > 0) return "\n\n" + string.Join("\n", rights) + "\n\n";
             }
             return "";
+        }
+
+        /// <summary>Une chaîne : écrite telle quelle, ou rangée dans une variable de la page.</summary>
+        private string? StringOf(string arg)
+        {
+            arg = arg.Trim();
+            if (arg.Length > 0 && arg[0] is '`' or '"' or '\'') return Js.Literal(arg);
+            return IdentifierRegex().IsMatch(arg) && Definition(arg) is { } value && value.StartsWith('`') ? Js.Literal(value) : null;
+        }
+
+        /// <summary>Ce que rend un composant sans paramètre : « X=()=>(0,I.jsx)(…) » ou « function X(){return …} ».</summary>
+        private string? Parameterless(string name)
+        {
+            var arrow = Regex.Match(page, $@"(?<![\w$.]){Regex.Escape(name)}=\(\)=>");
+            if (arrow.Success)
+            {
+                var start = arrow.Index + arrow.Length;
+                if (page.AsSpan(start).StartsWith("(0,"))
+                {
+                    var end = Js.Close(page, start);
+                    if (end + 1 < page.Length && page[end + 1] == '(') end = Js.Close(page, end + 1);
+                    return page[start..(end + 1)];
+                }
+                if (page[start] == '(') return page[start..(Js.Close(page, start) + 1)];
+                return null;
+            }
+            var function = Regex.Match(page, $@"function {Regex.Escape(name)}\(\)\{{return");
+            if (!function.Success) return null;
+            var bodyStart = function.Index + function.Length - "{return".Length;
+            var body = page[(bodyStart + 1)..Js.Close(page, bodyStart)];
+            return body.StartsWith("return", StringComparison.Ordinal) ? body["return".Length..] : null;
         }
 
         /// <summary>La valeur d'un argument (une chaîne, un nombre, « !0 », « !1 ») ; null pour une option absente ou une donnée calculée.</summary>
@@ -584,5 +666,8 @@ namespace SMADX.Services.Sources
 
         [GeneratedRegex(@"\{mask:")]
         private static partial Regex MaskRegex();
+
+        [GeneratedRegex(@"^([\w$]+)\(")]
+        private static partial Regex CallRegex();
     }
 }

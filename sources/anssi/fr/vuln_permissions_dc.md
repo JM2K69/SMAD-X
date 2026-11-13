@@ -16,6 +16,33 @@
 
 - **ACL-03** — Permissions dangereuses sur le domaine, AdminSDHolder ou les contrôleurs de domaine
 
+## Texte officiel
+
+> #### Permissions dangereuses et chemins de contrôle
+>
+> Des permissions dangereuses permettent la prise de contrôle d'un objet cible, sur lequel ces permissions sont positionnées, par l'écriture de propriétés sensibles, par délégation de droits privilégiés ou par l'usage de fonctionnalités spécifiques.
+>
+> Une fois l'objet maîtrisé par un attaquant, ce dernier peut alors poursuivre un chemin de prise de contrôle d'autres objets qui, par transitivité, peut mener à des élévations de privilèges et à la compromission de l'annuaire Active Directory tout entier. L'enchaînement de permissions dangereuses ainsi exploitées s'appelle un **chemin de contrôle**, ou un chemin d'attaque.
+>
+> Ainsi, les chemins de contrôle représentent des moyens pour un attaquant d'atteindre des cibles, et permettent d'identifier des déviances dans la gestion du domaine, de valider l'application d'un périmètre de sécurité autour des cibles considérées, mais également de révéler des moyens de persistance laissés par un attaquant après une compromission.
+
+#### Seuils de tolérance
+
+Ce point de contrôle présente des seuils de tolérance différents en fonction du niveau de sécurité visé :
+
+- au niveau **1** seules les permissions pouvant être exploitées par un attaquant, sans prérequis majeur, sont prises en compte ;
+- au niveau **2** l'ensemble des permissions potentiellement dangereuses sont prises en compte.
+
+#### Cas général
+
+Des permissions dangereuses existent sur les objets des contrôleurs de domaine. Cela permet aux comptes concernés de prendre le contrôle complet de l'Active Directory. Un attaquant peut, par exemple, répliquer l'ensemble des secrets (dont ceux des *Administrateurs du domaine*), les réutiliser et ainsi prendre le contrôle complet du domaine.
+
+#### Cas des contrôleurs de domaine en lecture seule
+
+Dans le cas particulier des contrôleurs de domaine en lecture seule (RODC), un attaquant peut répliquer l'ensemble des secrets autorisés sur ce RODC et en devenir administrateur local. Le contrôle `MANAGED_BY` permet d'être administrateur local du RODC.
+
+*(Tableau des objets concernés, dans le rapport d'analyse.)*
+
 ## Recommandation officielle
 
 Il convient de considérer les comptes ayant des permissions sur les contrôleurs de domaine comme étant privilégiés. Il est alors nécessaire de les protéger avec le mécanisme de l'`adminSDHolder`. Pour cela, ces comptes doivent appartenir au groupe *Administrateurs de l'entreprise* ou *Administrateurs du domaine*.
@@ -71,11 +98,17 @@ Dans le cadre de la mise en place de forêts d'administration, il est toléré d
 
 > #### Acceptation du risque
 >
-> Si des permissions spécifiques sont nécessaires, il convient de considérer que les comptes ou les groupes délégués sont eux-mêmes privilégiés. Ainsi, ces objets doivent être correctement protégés et leurs permissions appliquées doivent être au moins aussi restrictives que celles appliquées à l'objet `adminSDHolder` afin d'éviter de créer de nouveaux chemins de contrôle. Il est donc nécessaire de leur appliquer des permissions "sécurisées". Pour cela, il est recommandé d'utiliser la commande `` du module `AdSyncConfig.psm1` fourni avec Azure AD Connect. Cette commande supprime l'héritage et applique des permissions (ACE) restreintes, qui sont toutes également présentes dans un objet `adminSDHolder` par défaut.
+> Si des permissions spécifiques sont nécessaires, il convient de considérer que les comptes ou les groupes délégués sont eux-mêmes privilégiés. Ainsi, ces objets doivent être correctement protégés et leurs permissions appliquées doivent être au moins aussi restrictives que celles appliquées à l'objet `adminSDHolder` afin d'éviter de créer de nouveaux chemins de contrôle. Il est donc nécessaire de leur appliquer des permissions "sécurisées". Pour cela, il est recommandé d'utiliser la commande `Set-ADSyncRestrictedPermissions` du module `AdSyncConfig.psm1` fourni avec Azure AD Connect. Cette commande supprime l'héritage et applique des permissions (ACE) restreintes, qui sont toutes également présentes dans un objet `adminSDHolder` par défaut.
 >
 > Pour un **groupe délégué**, l'application de cette seule commande n'est pas suffisante : il faut également retirer les membres du groupe, ou les considérer eux-mêmes comme étant privilégié en leur appliquant la même commande.
 >
-> Exemple d'utilisation de `` pour appliquer des permissions "sécurisées" sur un compte privilégié :
+> Exemple d'utilisation de `Set-ADSyncRestrictedPermissions` pour appliquer des permissions "sécurisées" sur un compte privilégié :
+>
+> ```
+> Import-Module .\AdSyncConfig.psm1
+> $credential = Get-Credential
+> Set-ADSyncRestrictedPermissions -ADConnectorAccountDN "CN=ExampleUserAccount,CN=Users,DC=example,DC=ads" -Credential $credential
+> ```
 >
 > Note : le module `AdSyncConfig.psm1` peut être directement extrait du fichier d'installation d'Entra ID Connect à l'aide de l'utilitaire intégré `msiexec` : `msiexec /a "AzureADConnect.msi" /qb TARGETDIR=c:\temp\`
 >
@@ -91,7 +124,7 @@ Dans le cadre de la mise en place de forêts d'administration, il est toléré d
 > - Des ACE bénignes : ACE pour `Self`, pour *Contrôleurs de domaine d'entreprise*, droit étendu "Sent-To" ;
 > - Si l'objet est un groupe, alors ses membres doivent également être protégés. Les sous-groupes ne sont pas tolérés.
 >
-> Si l'objet `adminSDHolder` a été modifié, il faut s'assurer que les conditions ci-dessus sont bien remplies : la commande `` ne correspondent alors peut-être plus à l'objet `adminSDHolder`.
+> Si l'objet `adminSDHolder` a été modifié, il faut s'assurer que les conditions ci-dessus sont bien remplies : la commande `Set-ADSyncRestrictedPermissions` ne correspondent alors peut-être plus à l'objet `adminSDHolder`.
 >
 > Une fois protégés, les comptes apparaissent dans le point d'information "Comptes Tier 0 supplémentaires".
 

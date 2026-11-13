@@ -16,6 +16,27 @@
 
 - **ACL-03** — Dangerous permissions on the domain, AdminSDHolder or the domain controllers
 
+## Official text
+
+> #### Dangerous ACLs and attack paths
+>
+> Dangerous permissions allow taking control of a target object, on which those permissions are set, by writing sensitive attributes, privileged right delegation or through specific features.
+>
+> Once granted control of privileged objects, an attacker may then repeat the same strategy to gain control of other objects, leading to privilege escalation and possibly a full Active Directory compromise. The succession of exploited permissions constitutes an **attack path** or a control path.
+>
+> Control paths reveal how an attacker could leverage a chain of defective or dangerous permissions to gain control of some targets. They can also be leveraged to quickly identify domain mismanagement, to validate the actual security boundary of a particular scope (making sure some object of interest cannot be taken over by unauthorized users through misconfiguration). Indicators of compromise may also be found through control path review.
+
+> #### Alert threshold
+>
+> This assessment raises an alert depending on varying thresholds:
+>
+> - at level **1** only dangerous access control entries that can be exploited without any major prerequisite are taken into account;
+> - at level **2** all potentially dangerous access control entries are taken into account.
+
+Dangerous permissions are set on the `adminSDHolder` object. Permissions set on this object may grant trusted objects full control over the Active Directory. In a tiered administrative model, these permissions allow compromise of Tier 0 objects from lower trust tiers.
+
+*(Table of the affected objects, in the analysis report.)*
+
 ## Official recommendation
 
 #### General Case

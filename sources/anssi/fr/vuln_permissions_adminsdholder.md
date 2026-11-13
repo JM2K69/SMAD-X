@@ -16,6 +16,27 @@
 
 - **ACL-03** — Permissions dangereuses sur le domaine, AdminSDHolder ou les contrôleurs de domaine
 
+## Texte officiel
+
+> #### Permissions dangereuses et chemins de contrôle
+>
+> Des permissions dangereuses permettent la prise de contrôle d'un objet cible, sur lequel ces permissions sont positionnées, par l'écriture de propriétés sensibles, par délégation de droits privilégiés ou par l'usage de fonctionnalités spécifiques.
+>
+> Une fois l'objet maîtrisé par un attaquant, ce dernier peut alors poursuivre un chemin de prise de contrôle d'autres objets qui, par transitivité, peut mener à des élévations de privilèges et à la compromission de l'annuaire Active Directory tout entier. L'enchaînement de permissions dangereuses ainsi exploitées s'appelle un **chemin de contrôle**, ou un chemin d'attaque.
+>
+> Ainsi, les chemins de contrôle représentent des moyens pour un attaquant d'atteindre des cibles, et permettent d'identifier des déviances dans la gestion du domaine, de valider l'application d'un périmètre de sécurité autour des cibles considérées, mais également de révéler des moyens de persistance laissés par un attaquant après une compromission.
+
+> #### Seuils de tolérance
+>
+> Ce point de contrôle présente des seuils de tolérance différents en fonction du niveau de sécurité visé :
+>
+> - au niveau **1** seules les permissions pouvant être exploitées par un attaquant, sans prérequis majeur, sont prises en compte ;
+> - au niveau **2** l'ensemble des permissions potentiellement dangereuses sont prises en compte.
+
+Des permissions dangereuses existent sur l'objet `adminSDHolder`. Ces permissions permettent aux comptes concernés de prendre le contrôle complet de l'Active Directory. Dans un modèle d'administration en niveaux (*tiered administrative model*), ces permissions cassent l'étanchéité du Tier 0.
+
+*(Tableau des objets concernés, dans le rapport d'analyse.)*
+
 ## Recommandation officielle
 
 #### Cas général
