@@ -92,9 +92,19 @@ namespace SMADX.Converters
                     });
                 }
                 // Citation (>)
-                else if (line.TrimStart().StartsWith("> "))
+                // Citation (>) : les lignes qui se suivent forment un seul encadré ; plusieurs lignes sont rendues comme du
+                // Markdown (titres, listes, paragraphes), une seule garde le style d'une citation
+                else if (line.TrimStart().StartsWith(">"))
                 {
-                    var text = line.TrimStart().Substring(2);
+                    var quoted = new System.Collections.Generic.List<string>();
+                    while (i < lines.Length && lines[i].TrimStart().StartsWith(">"))
+                    {
+                        var q = lines[i].TrimStart().Substring(1);
+                        quoted.Add(q.StartsWith(" ") ? q.Substring(1) : q);
+                        i++;
+                    }
+                    i--;
+                    var single = quoted.Count == 1;
                     stackPanel.Children.Add(new Border
                     {
                         BorderBrush = new SolidColorBrush(Color.Parse(IsDark ? "#4A9EFF" : "#4A9EFF")),
@@ -102,7 +112,9 @@ namespace SMADX.Converters
                         Background = new SolidColorBrush(Color.Parse(IsDark ? "#1A2D3F" : "#F0F8FF")),
                         Padding = new Avalonia.Thickness(12, 8, 12, 8),
                         Margin = new Avalonia.Thickness(0, 4, 0, 4),
-                        Child = CreateInlineTextBlock(text, true)
+                        Child = single
+                            ? CreateInlineTextBlock(quoted[0], true)
+                            : Convert(string.Join("\n", quoted), typeof(object), null, CultureInfo.CurrentCulture) as Control
                     });
                 }
                 // Listes à puces (- ou *)
@@ -337,7 +349,7 @@ namespace SMADX.Converters
             @"(\*\*\*(.+?)\*\*\*)|(\*\*(.+?)\*\*)|(\*(.+?)\*)" +
             @"|((?<![\p{L}\p{N}_])__(?=\S)(.+?)(?<=\S)__(?![\p{L}\p{N}_]))" +
             @"|((?<![\p{L}\p{N}_])_(?=\S)(.+?)(?<=\S)_(?![\p{L}\p{N}_]))" +
-            @"|(`(.+?)`)|\[([^\]]+)\]\(([^\)]+)\)",
+            @"|(`(.+?)`)|\[([^\]]+)\]\(((?:[^()\s]|\([^()\s]*\))+)\)",
             RegexOptions.Compiled);
 
         /// <summary>

@@ -37,6 +37,10 @@ namespace SMADX.Services.Sources
         private static readonly PdfColor RecoBack = Hex("#EFF9F6");
         private static readonly PdfColor White = Hex("#FFFFFF");
         private static readonly PdfColor BandText = Hex("#A9C4E6");
+        // Un encadré de contexte (« Contexte : groupes privilégiés ») : le bleu de la page de l'ANSSI
+        private static readonly PdfColor QuoteBack = Hex("#E8F1FC");
+        private static readonly PdfColor QuoteBorder = Hex("#BFD5F2");
+        private static readonly PdfColor QuoteInk = Hex("#173F78");
 
         private static string T(string lang, string fr, string en) => lang == "fr" ? fr : en;
 
@@ -235,8 +239,10 @@ namespace SMADX.Services.Sources
         // ─── Le Markdown des textes officiels : paragraphes, listes (imbriquées), intertitres, et en ligne le gras,
         //     l'italique, le code et les liens ───
 
-        private static void Blocks(PdfContentBuilder c, string markdown)
+        /// <param name="ink">La couleur du texte : l'encre ordinaire, ou le bleu d'un encadré de contexte.</param>
+        private static void Blocks(PdfContentBuilder c, string markdown, PdfColor? ink = null)
         {
+            var text0 = ink ?? Ink;
             var paragraph = new List<string>();
             var list = new List<(int Level, bool Numbered, string Text)>();
 
@@ -247,7 +253,7 @@ namespace SMADX.Services.Sources
                 paragraph.Clear();
                 // Une ligne entière en italique entre parenthèses (« (Tableau des objets concernés…) ») : une note, en gris
                 var note = Regex.IsMatch(text, @"^\*\(.*\)\*$");
-                c.Paragraph(p => p.Runs(Inline(text, 9.5, note ? Muted : Ink)), style: new PdfParagraphStyle { LineHeight = 1.38, SpacingAfter = 7 });
+                c.Paragraph(p => p.Runs(Inline(text, 9.5, note ? Muted : text0)), style: new PdfParagraphStyle { LineHeight = 1.38, SpacingAfter = 7 });
             }
 
             void FlushList()
@@ -258,7 +264,7 @@ namespace SMADX.Services.Sources
                     var (level, numbered, _) = list[i];
                     var group = list.Skip(i).TakeWhile(x => x.Level == level && x.Numbered == numbered).ToList();
                     var style = new PdfListStyle { LeftIndent = 6 + level * 16, ItemSpacing = 3, LineHeight = 1.35, SpacingAfter = 5, MarkerColor = Teal };
-                    var items = group.Select(x => PdfListItem.Rich(Inline(x.Text, 9.5, Ink))).ToList();
+                    var items = group.Select(x => PdfListItem.Rich(Inline(x.Text, 9.5, text0))).ToList();
                     if (numbered) c.RichNumbered(items, style: style);
                     else c.RichBullets(items, style: style);
                     i += group.Count;
@@ -266,13 +272,35 @@ namespace SMADX.Services.Sources
                 list.Clear();
             }
 
-            foreach (var raw in markdown.Replace("\r\n", "\n").Split('\n'))
+            var lines = markdown.Replace("\r\n", "\n").Split('\n');
+            for (var index = 0; index < lines.Length; index++)
             {
+                var raw = lines[index];
                 var line = raw.TrimEnd();
                 if (line.Trim().Length == 0)
                 {
                     FlushParagraph();
                     FlushList();
+                    continue;
+                }
+                // Une citation (« > ») : un encadré de contexte de la source, en bleu comme sur sa page
+                if (line.TrimStart().StartsWith('>'))
+                {
+                    FlushParagraph();
+                    FlushList();
+                    var quoted = new List<string>();
+                    while (index < lines.Length && lines[index].TrimStart().StartsWith('>'))
+                    {
+                        var q = lines[index].TrimStart()[1..];
+                        quoted.Add(q.StartsWith(' ') ? q[1..] : q);
+                        index++;
+                    }
+                    index--;
+                    c.Panel(panel => Blocks(panel, string.Join("\n", quoted), QuoteInk), new PdfPanelStyle
+                    {
+                        Background = QuoteBack, BorderColor = QuoteBorder, BorderWidth = 0.8, CornerRadius = 4,
+                        PaddingX = 14, PaddingY = 10, SpacingBefore = 4, SpacingAfter = 10
+                    });
                     continue;
                 }
                 if (ListLine().Match(line) is { Success: true } item)
@@ -290,7 +318,7 @@ namespace SMADX.Services.Sources
                 {
                     FlushParagraph();
                     FlushList();
-                    c.Paragraph(p => p.Bold(true).FontSize(10.5).Color(NavyText).Text(heading.Groups[1].Value.Trim()),
+                    c.Paragraph(p => p.Bold(true).FontSize(10.5).Color(ink ?? NavyText).Text(heading.Groups[1].Value.Trim()),
                         style: new PdfParagraphStyle { SpacingBefore = 6, SpacingAfter = 4, KeepWithNext = true });
                     continue;
                 }
@@ -319,7 +347,7 @@ namespace SMADX.Services.Sources
 
         private static string Unescape(string text) => text.Replace("\\|", "|").Replace("\\*", "*").Replace("\\_", "_");
 
-        [GeneratedRegex(@"`(?<code>[^`]+)`|\*\*(?<bold>.+?)\*\*|\*(?<italic>[^*\s][^*]*?)\*|\[(?<label>[^\]]+)\]\((?<url>[^)\s]+)\)")]
+        [GeneratedRegex(@"`(?<code>[^`]+)`|\*\*(?<bold>.+?)\*\*|\*(?<italic>[^*\s][^*]*?)\*|\[(?<label>[^\]]+)\]\((?<url>(?:[^()\s]|\([^()\s]*\))+)\)")]
         private static partial Regex InlineToken();
 
         [GeneratedRegex(@"^(\s*)([-*+]|\d+\.)\s+(.*)$")]
