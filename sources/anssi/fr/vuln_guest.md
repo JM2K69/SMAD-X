@@ -17,15 +17,15 @@
 
 ## Texte officiel
 
-Le compte `S-1-5-21-domain-501` est activé.
+Le compte *Invité* est activé.
 
-Le compte `S-1-5-21-domain-501` permet aux utilisateurs réseau non authentifiés de se connecter en tant qu'`S-1-5-21-domain-501` sans mot de passe. Ces utilisateurs non autorisés peuvent accéder à toutes les ressources accessibles au compte `S-1-5-21-domain-501` sur le réseau. Cette fonctionnalité signifie que tous les objets ou dossiers partagés avec des autorisations qui autorisent l'accès au compte `S-1-5-21-domain-501`, au groupe `S-1-5-21-domain-514`, au groupe `S-1-5-32-546`, ou au groupe `S-1-1-0` sont accessibles sur le réseau, ce qui peut entraîner l'exposition ou l'altération des données.
+Le compte *Invité* permet aux utilisateurs réseau non authentifiés de se connecter en tant qu'*Invité* sans mot de passe. Ces utilisateurs non autorisés peuvent accéder à toutes les ressources accessibles au compte *Invité* sur le réseau. Cette fonctionnalité signifie que tous les objets ou dossiers partagés avec des autorisations qui autorisent l'accès au compte *Invité*, au groupe *Invités du domaine*, au groupe *Invités*, ou au groupe *Tout le monde* sont accessibles sur le réseau, ce qui peut entraîner l'exposition ou l'altération des données.
 
 *(Tableau des objets concernés, dans le rapport d'analyse.)*
 
 ## Recommandation officielle
 
-Désactiver le compte `S-1-5-21-domain-501`.
+Désactiver le compte *Invité*.
 
 ## Source et licence
 

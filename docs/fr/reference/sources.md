@@ -15,7 +15,7 @@ Une fiche donne :
 
 | Référentiel | Ce que la fiche reprend |
 |---|---|
-| ANSSI | le texte et la recommandation officiels, en français et en anglais (licence ouverte Etalab 2.0) |
+| ANSSI | le texte et la recommandation officiels, encadrés compris, en français et en anglais (licence ouverte Etalab 2.0) |
 | NIST | l'énoncé du contrôle, en anglais (domaine public) |
 | MITRE ATT&CK | le premier paragraphe de la description, en anglais, avec la mention de MITRE |
 | CIS | l'identifiant et le titre seulement : la licence (CC BY-NC-ND 4.0) n'en permet pas plus |
@@ -23,6 +23,8 @@ Une fiche donne :
 | Modèles de cloisonnement | la version reproduite, son commit et sa licence (MIT) |
 
 Un texte qui n'existe qu'en anglais reste en anglais dans la fiche française, qui le signale : c'est la version qui fait foi.
+
+Les encadrés de la checklist de l'ANSSI (« Contexte : groupes privilégiés », « Seuils de tolérance », « Contexte : chemins de contrôle », « Limites »…) sont repris dans la langue de la fiche. Ce sont des citations dans le Markdown, et des encadrés bleus dans le PDF et dans Studio. Un groupe désigné par son SID prend son nom, comme sur la page (*Administrateurs*, *Invité*). Un droit dangereux garde son nom (`WRITE_SPN`), et un masque d'accès devient la liste des droits qu'il accorde. Seuls les nombres calculés par l'analyse d'un domaine restent des « … ».
 
 Un point ANSSI peut avoir plusieurs niveaux, chacun avec son seuil. `vuln_privileged_members_perm` est de niveau 1 pour les permissions exploitables sans prérequis, et de niveau 2 pour toutes les permissions dangereuses. Le niveau d'une règle de SMAD-X est l'un d'eux. Un test vérifie que chaque référence citée par une règle a sa fiche dans les deux langues, et que le niveau ANSSI de chaque règle est l'un de ceux de la checklist.
 

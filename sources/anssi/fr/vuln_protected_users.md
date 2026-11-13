@@ -17,13 +17,13 @@
 
 ## Texte officiel
 
-Des comptes privilégiés ne sont pas protégés par le groupe `S-1-5-21-domain-525`.
+Des comptes privilégiés ne sont pas protégés par le groupe *Protected Users*.
 
 *(Tableau des objets concernés, dans le rapport d'analyse.)*
 
 ## Recommandation officielle
 
-L'ensemble des comptes privilégiés doivent être ajoutés au groupe `S-1-5-21-domain-525` afin de :
+L'ensemble des comptes privilégiés doivent être ajoutés au groupe *Protected Users* afin de :
 
 - forcer l'authentification en Kerberos ;
 - réduire la durée de vie des tickets Kerberos ;
@@ -31,7 +31,24 @@ L'ensemble des comptes privilégiés doivent être ajoutés au groupe `S-1-5-21-
 - interdire la mise en cache du mot de passe sur les postes de travail ;
 - interdire toute forme de délégation.
 
-**Attention** : l'utilisation du groupe `S-1-5-21-domain-525` a des impacts fonctionnels importants. Référence : [https://docs.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group](https://docs.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group).
+**Attention** : l'utilisation du groupe *Protected Users* a des impacts fonctionnels importants. Référence : [https://docs.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group](https://docs.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group).
+
+> #### Contexte : groupes privilégiés
+>
+> Les groupes privilégiés sont les groupes d'administration et les groupes opératifs ayant tous les droits et privilèges sur la forêt ou pouvant se les attribuer :
+>
+> - « *Administrateurs* » ;
+> - « *Contrôleurs de domaine* »;
+> - « *Administrateurs du schéma* » ;
+> - « *Administrateurs de l'entreprise* » ;
+> - « *Administrateurs du domaine* » : ces administrateurs ont les privilèges de lire la base des secrets de tous les comptes et donc d'extraire les secrets de l'ensemble des comptes privilégiés ;
+> - « *Administrateurs de clés* » et « *Administrateurs de clés de l'entreprise* »: ces administrateurs peuvent fixer des valeurs arbitraires aux attributs relatifs à Windows Hello for Business, pour tous les utilisateurs sauf ceux protégés par le mécanisme d'`adminSDHolder`. Si l'authentification basée sur les certificats a été activée, ils peuvent générer un certificat sous leur contrôle, l'assigner à un compte privilégié (par exemple, un contrôleur de domaine), et s'authentifier en tant que lui ;
+> - « *Opérateurs de compte* » : ces opérateurs peuvent administrer tous les comptes d'utilisateurs, machines et groupes; à l'exception des comptes protégés par l'`adminSDHolder` ;
+> - « *Opérateurs de serveur* » : ces opérateurs peuvent administrer les contrôleurs de domaine, et donc récupérer les secrets de tous les comptes privilégiés ;
+> - « *Opérateurs de sauvegarde* » : ces opérateurs peuvent sauvegarder un contrôleur de domaine et donc extraire les secrets de tous les comptes privilégiés depuis cette sauvegarde ;
+> - « *Opérateurs d'impression* » : ces opérateurs peuvent charger des pilotes d'impression sur les contrôleurs de domaine et donc charger un pilote malveillant pour par exemple extraire les secrets de tous les comptes privilégiés.
+>
+> Les groupes « opérateurs » sont vides par défaut et ne devraient contenir aucun membre.
 
 ## Source et licence
 

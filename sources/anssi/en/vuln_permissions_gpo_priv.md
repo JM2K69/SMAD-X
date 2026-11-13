@@ -24,6 +24,45 @@ The fix should be applied is usually applied using the `gpmc.msc` utility which 
 
 Before accepting the risk (see below), review the list of principals and ensure that they should really be considered as T0 administrators. In case of risk acceptance, all principals (including their members for groups, recursively) for whom a control path exists to a GPO that is applied to privileged group members must also be considered as privileged and protected as such.
 
+> #### Context: control path exposure
+>
+> A control path materializes through a set of granted access permissions: each granted permission can be expressed as one object controlling another through a specific property, attribute or setting. Control paths reveal how an attacker could leverage a chain of defective or dangerous permissions to gain control of some targets. They can also be leveraged to quickly identify domain mismanagement, to validate the actual security boundary of a particular scope (making sure some object of interest cannot be taken over by unauthorized users through misconfiguration). Indicators of compromise may also be found through control path review.
+>
+> #### Limitations
+>
+> Some control paths may have fixes that renders them non-exploitable. Such a case usually requires having all domain controllers equally up to date. Furthermore, dangerous features may sometimes be re-enabled through a registry or dsHeuristics setting. It is therefore still recommended to clean the affected permissions from your Active Directory to prevent an accidental re-occurrence.
+>
+> List of known specific fixes:
+>
+> - [KB5008383](https://support.microsoft.com/en-us/topic/kb5008383-active-directory-permissions-updates-cve-2021-42291-536d5555-ffba-4248-a60e-d6cbc849cde1) fixes the `OWNER` and `WRITE_OWNER` control path on computer accounts only, but the dangerous behavior can still be re-enabled.
+> - Various Exchange-related control paths have been fixed through specific cumulative updates; refer to the dedicated section below if applicable.
+
+> #### Risk Acceptance
+>
+> If special permissions are required, delegated groups or accounts should be considered as privileged. Therefore, these objects must be adequately protected, and their own access control list should be at least as strict as that of the `adminSDHolder` object. "Secure" ACLs should therefore be implemented on these delegated objects, which will not open a new control path exposure. To remove inheritance and restrict ACEs, the following command may be used: `` found in the `AdSyncConfig.psm1` module from Azure AD Connect.
+>
+> For **delegated groups**, strengthening permissions using this command is not enough: the permissions of this group's members must also be strengthened by applying this command to them, or they can be removed from the delegated group.
+>
+> Example: applying "secure" permissions on a privileged account through ``:
+>
+> Note: the `AdSyncConfig.psm1` module may be extracted from the Entra ID Connect installer with `msiexec`: `msiexec /a "AzureADConnect.msi" /qb TARGETDIR=c:\temp\`
+>
+> The installation package may be downloaded from [https://go.microsoft.com/fwlink/?LinkId=615771](https://go.microsoft.com/fwlink/?LinkId=615771).
+>
+> #### Accounts that are regarded as protected
+>
+> An object is regarded as protected "`adminSDHolder`-like" if the following conditions are all met:
+>
+> - Inheritance is disabled (flag `SE_DACL_PROTECTED`);
+> - All ACEs on the object's security descriptor belong in at least one of these groups:
+> - ACEs that are exactly identical to ACEs that are set on the forest's `adminSDHolder` object;
+> - Benign ACEs: ACEs for `Self`, for *Enterprise Domain Controllers* extended right "Sent-To";
+> - If the object is a group, its members must also be similarly protected. Sub-groups are not allowed.
+>
+> If the `adminSDHolder` object has been modified, do make sure that the conditions above are still met, since the ACEs that are set by the `` command might not match the modified `adminSDHolder` object anymore.
+>
+> Once protected, accounts are listed in the information item "Additional Tier 0 accounts".
+
 ## Source and licence
 
 - **Source**: [https://cert.cyber.gouv.fr/uploads/ad_checklist.html](https://cert.cyber.gouv.fr/uploads/ad_checklist.html)

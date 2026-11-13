@@ -26,7 +26,7 @@ Note :
 
 *(Tableau des objets concernés, dans le rapport d'analyse.)*
 
-Les comptes ayant l'héritage de la DACL  présentent le risque de ne plus se soumettre au modèle de délégation des permissions de la forêt Active Directory, bien qu'ils ne soient potentiellement plus considérés comme des comptes exceptionnels du fait de privilèges élevés.
+Les comptes ayant l'héritage de la DACL Désactivé présentent le risque de ne plus se soumettre au modèle de délégation des permissions de la forêt Active Directory, bien qu'ils ne soient potentiellement plus considérés comme des comptes exceptionnels du fait de privilèges élevés.
 
 ## Recommandation officielle
 
@@ -56,6 +56,23 @@ Si le risque n'est pas accepté, il convient de neutraliser le compte. Cette mé
 #### Cas 2 : acceptation du risque
 
 Dans le cas d'une simple erreur de manipulation (par exemple, un administrateur ayant mis par inadvertance un utilisateur dans un groupe privilégié durant un laps de temps court), il est possible d'accepter le risque. Dans ce cas, il convient de positionner l'attribut `adminCount` à 0. Afin de faciliter d'éventuelles futures investigations, cette action doit être documentée et une liste des comptes ainsi traités doit être maintenue.
+
+> #### Contexte : groupes privilégiés
+>
+> Les groupes privilégiés sont les groupes d'administration et les groupes opératifs ayant tous les droits et privilèges sur la forêt ou pouvant se les attribuer :
+>
+> - « *Administrateurs* » ;
+> - « *Contrôleurs de domaine* »;
+> - « *Administrateurs du schéma* » ;
+> - « *Administrateurs de l'entreprise* » ;
+> - « *Administrateurs du domaine* » : ces administrateurs ont les privilèges de lire la base des secrets de tous les comptes et donc d'extraire les secrets de l'ensemble des comptes privilégiés ;
+> - « *Administrateurs de clés* » et « *Administrateurs de clés de l'entreprise* »: ces administrateurs peuvent fixer des valeurs arbitraires aux attributs relatifs à Windows Hello for Business, pour tous les utilisateurs sauf ceux protégés par le mécanisme d'`adminSDHolder`. Si l'authentification basée sur les certificats a été activée, ils peuvent générer un certificat sous leur contrôle, l'assigner à un compte privilégié (par exemple, un contrôleur de domaine), et s'authentifier en tant que lui ;
+> - « *Opérateurs de compte* » : ces opérateurs peuvent administrer tous les comptes d'utilisateurs, machines et groupes; à l'exception des comptes protégés par l'`adminSDHolder` ;
+> - « *Opérateurs de serveur* » : ces opérateurs peuvent administrer les contrôleurs de domaine, et donc récupérer les secrets de tous les comptes privilégiés ;
+> - « *Opérateurs de sauvegarde* » : ces opérateurs peuvent sauvegarder un contrôleur de domaine et donc extraire les secrets de tous les comptes privilégiés depuis cette sauvegarde ;
+> - « *Opérateurs d'impression* » : ces opérateurs peuvent charger des pilotes d'impression sur les contrôleurs de domaine et donc charger un pilote malveillant pour par exemple extraire les secrets de tous les comptes privilégiés.
+>
+> Les groupes « opérateurs » sont vides par défaut et ne devraient contenir aucun membre.
 
 ## Source et licence
 

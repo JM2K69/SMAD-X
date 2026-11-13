@@ -17,13 +17,13 @@
 
 ## Official text
 
-Some privileged accounts are not protected by the `S-1-5-21-domain-525` group.
+Some privileged accounts are not protected by the *Protected Users* group.
 
 *(Table of the affected objects, in the analysis report.)*
 
 ## Official recommendation
 
-Privileged users must be members of the `S-1-5-21-domain-525` group so as to:
+Privileged users must be members of the *Protected Users* group so as to:
 
 - enforce Kerberos authentication;
 - reduce Kerberos ticket lifetime;
@@ -31,7 +31,24 @@ Privileged users must be members of the `S-1-5-21-domain-525` group so as to:
 - prevent caching of passwords on workstations;
 - prevent any type of Kerberos delegation.
 
-**Warning**: use of the `S-1-5-21-domain-525` group comes with significant functional impacts. Reference: [https://docs.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group](https://docs.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group).
+**Warning**: use of the *Protected Users* group comes with significant functional impacts. Reference: [https://docs.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group](https://docs.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/protected-users-security-group).
+
+> #### Context: privileged groups
+>
+> Privileged groups include administrator groups and operator groups which have full control over the Active Directory forest either by design, or by granting themselves such privileges:
+>
+> - « *Administrators* »;
+> - « *Domain Controllers* »;
+> - « *Schema Admins* »;
+> - « *Enterprise Admins* »;
+> - « *Domain Admins* »: these administrators are able to read the authentication database and extract password hashes and other secrets of all privileged accounts;
+> - « *Key Admins* » and « *Enterprise Key Admins* »: these administrators can set arbitrary values to attributes relating to Windows Hello for Business, for all users except those protected by the `adminSDHolder` mechanism. If certificate-based authentication has been enabled, they can generate a certificate that they control, assign it to privileged accounts (for instance, a domain controller), and log on as them;
+> - « *Account Operators* »: these operators can manage user accounts, machine accounts and groups except accounts protected by the `adminSDHolder` mechanism;
+> - « *Server Operators* »: these operators can manage domain controllers, which grants them the ability to recover privileged user secrets directly from the authentication database;
+> - « *Backup Operators* »: these operators can back up a domain controller, which grants them the ability to recover privileged user secrets from that backup;
+> - « *Print Operators* »: these operators can load arbitrary printer drivers on domain controllers, which grants them the ability to recover privileged user secrets directly from the authentication database (by loading a malicious driver).
+>
+> The « operators » groups are empty by default and must not have any member.
 
 ## Source and licence
 

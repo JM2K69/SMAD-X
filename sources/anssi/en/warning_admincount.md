@@ -26,7 +26,7 @@ Note:
 
 *(Table of the affected objects, in the analysis report.)*
 
-Accounts with DACL inheritance  risk being excluded from an organization's Active Directory delegation model, despite them no longer being exceptional accounts due to domain-level privileges.
+Accounts with DACL inheritance Disabled risk being excluded from an organization's Active Directory delegation model, despite them no longer being exceptional accounts due to domain-level privileges.
 
 ## Official recommendation
 

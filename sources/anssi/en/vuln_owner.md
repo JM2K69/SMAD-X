@@ -26,10 +26,10 @@ Some objects, created for more than 7 days, have non-standard owners. Note: Only
 
 All objects (users, groups, sMSA, gMSA, computers, OU, GPO) must be owned by one of the following objects:
 
-- « `S-1-5-21-domain-512` »;
-- « `S-1-5-21-domain-519` »;
-- « `S-1-5-32-544` »;
-- « `S-1-5-18` ».
+- « *Domain Admins* »;
+- « *Enterprise Admins* »;
+- « *Administrators* »;
+- « *Local System* ».
 
 ## Source and licence
 

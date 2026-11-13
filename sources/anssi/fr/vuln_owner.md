@@ -26,10 +26,10 @@ Des objets, créés il y a plus de 7 jours, ont des propriétaires non standard.
 
 Tous les objets (utilisateurs, groupes, sMSA, gMSA, ordinateurs, OU et GPO) doivent avoir pour propriétaire l'un des objets suivants :
 
-- « `S-1-5-21-domain-512` » ;
-- « `S-1-5-21-domain-519` » ;
-- « `S-1-5-32-544` » ;
-- « `S-1-5-18` ».
+- « *Administrateurs du domaine* » ;
+- « *Administrateurs de l'entreprise* » ;
+- « *Administrateurs* » ;
+- « *Système local* ».
 
 ## Source et licence
 

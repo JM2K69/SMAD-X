@@ -17,15 +17,15 @@
 
 ## Official text
 
-The `S-1-5-21-domain-501` account is enabled.
+The *Guest* account is enabled.
 
-The `S-1-5-21-domain-501` account allows unauthenticated network users to log on as a `S-1-5-21-domain-501` with no password. These unauthorized users could access any resources that are accessible to the `S-1-5-21-domain-501` account over the network. This capability means that any objects or shared folders with permissions that allow access to the `S-1-5-21-domain-501` account, the `S-1-5-21-domain-514` group, the `S-1-5-32-546` group, or the `S-1-1-0` group are accessible over the network, which could lead to the exposure or corruption of data.
+The *Guest* account allows unauthenticated network users to log on as a *Guest* with no password. These unauthorized users could access any resources that are accessible to the *Guest* account over the network. This capability means that any objects or shared folders with permissions that allow access to the *Guest* account, the *Domain Guests* group, the *Guests* group, or the *Everyone* group are accessible over the network, which could lead to the exposure or corruption of data.
 
 *(Table of the affected objects, in the analysis report.)*
 
 ## Official recommendation
 
-Disable the `S-1-5-21-domain-501` account.
+Disable the *Guest* account.
 
 ## Source and licence
 

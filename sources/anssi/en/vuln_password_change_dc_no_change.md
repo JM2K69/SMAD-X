@@ -25,7 +25,16 @@ Some domain controllers have not changed their password for more than 45 days, i
 
 Default domain controller settings have them change their passwords automatically every 30 days. The reason for this change not to occur properly must be investigated as it may be indicative of a compromise.
 
-…
+First, check the following registry values:
+
+- `HKLM\System\CurrentControlSet\Services\Netlogon\Parameters\DisablePasswordChange` must be set to 0 or inexistent;
+- `HKLM\System\CurrentControlSet\Services\Netlogon\Parameters\MaximumPasswordAge`: must be set to 30.
+
+Incorrect values should be reset to their default setting, and GPOs must be checked to ensure they do not override those.
+
+If these values are correct, check if the `NETLOGON` service is started with `sc.exe query netlogon`.
+
+Finally, proper synchronization between the machine password and that of the machine account in the Active Directory database must be validated. Running `nltest /SC_VERIFY:<DomainName>` (with `DomainName` being the domain NetBIOS name) can check the synchronization status, and should display `0 0x0 NERR_Success` for both verifications.
 
 ## Source and licence
 
