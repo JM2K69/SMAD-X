@@ -185,15 +185,19 @@ namespace SMADX.Services.Sources
                     }
 
                     // La source et la licence, dans un cartouche
-                    Section(c, T(lang, "Source et licence", "Source and licence"));
-                    c.Panel(panel =>
+                    // Le titre et le cartouche forment un seul bloc insécable : le titre ne reste jamais seul en bas de page
+                    c.Panel(block =>
                     {
-                        Line(panel, lang, "Source", [PdfTextRun.Link(f.Url, f.Url, Blue, false, fontSize: 8.5)]);
-                        if (f.Published != null) Line(panel, lang, T(lang, "Publication relevée", "Retrieved publication"), [PdfTextRun.Normal(f.Published, Ink, 8.5)]);
-                        Line(panel, lang, T(lang, "Relevé le", "Retrieved on"), [PdfTextRun.Normal(T(lang, $"{f.Retrieved}, par tools/SmadxSources", $"{f.Retrieved}, by tools/SmadxSources"), Ink, 8.5)]);
-                        Line(panel, lang, T(lang, "Licence", "Licence"), Inline(T(lang, f.LicenseFr, f.LicenseEn), 8.5, Ink));
-                        if (f.Notice != null) Line(panel, lang, T(lang, "Mention", "Notice"), Inline(f.Notice, 8.5, Ink));
-                    }, new PdfPanelStyle { Background = Soft, BorderColor = Rule, BorderWidth = 0.6, CornerRadius = 4, PaddingX = 12, PaddingY = 9, SpacingAfter = 10, KeepTogether = true });
+                        Section(block, T(lang, "Source et licence", "Source and licence"));
+                        block.Panel(panel =>
+                        {
+                            Line(panel, lang, "Source", [PdfTextRun.Link(f.Url, f.Url, Blue, false, fontSize: 8.5)]);
+                            if (f.Published != null) Line(panel, lang, T(lang, "Publication relevée", "Retrieved publication"), [PdfTextRun.Normal(f.Published, Ink, 8.5)]);
+                            Line(panel, lang, T(lang, "Relevé le", "Retrieved on"), [PdfTextRun.Normal(T(lang, $"{f.Retrieved}, par tools/SmadxSources", $"{f.Retrieved}, by tools/SmadxSources"), Ink, 8.5)]);
+                            Line(panel, lang, T(lang, "Licence", "Licence"), Inline(T(lang, f.LicenseFr, f.LicenseEn), 8.5, Ink));
+                            if (f.Notice != null) Line(panel, lang, T(lang, "Mention", "Notice"), Inline(f.Notice, 8.5, Ink));
+                        }, new PdfPanelStyle { Background = Soft, BorderColor = Rule, BorderWidth = 0.6, CornerRadius = 4, PaddingX = 12, PaddingY = 9 });
+                    }, new PdfPanelStyle { PaddingX = 0, PaddingY = 0, SpacingAfter = 10, KeepTogether = true });
 
                     c.Paragraph(p => p.Italic(true).FontSize(7.5).Color(Muted)
                         .Text(T(lang, $"Fiche extraite de SMAD-X {version}, suite SMA-X (Simuler, Modéliser, Auditer – eXpert), le {day}. Fiche Markdown : ",
@@ -281,6 +285,22 @@ namespace SMADX.Services.Sources
                 {
                     FlushParagraph();
                     FlushList();
+                    continue;
+                }
+                // Un bloc de code (« ``` ») : ses lignes telles quelles, en police à chasse fixe, sur fond gris
+                if (line.TrimStart().StartsWith("```"))
+                {
+                    FlushParagraph();
+                    FlushList();
+                    var code = new List<string>();
+                    index++;
+                    while (index < lines.Length && !lines[index].TrimStart().StartsWith("```")) code.Add(lines[index++]);
+                    c.Panel(panel =>
+                    {
+                        foreach (var codeLine in code)
+                            panel.Paragraph(p => p.Font(PdfStandardFont.Courier).FontSize(8.5).Color(Ink).Text(codeLine.Length == 0 ? Nbsp : codeLine),
+                                style: new PdfParagraphStyle { SpacingAfter = 0, LineHeight = 1.25 });
+                    }, new PdfPanelStyle { Background = CodeBack, BorderColor = Rule, BorderWidth = 0.6, CornerRadius = 3, PaddingX = 10, PaddingY = 7, SpacingBefore = 2, SpacingAfter = 8 });
                     continue;
                 }
                 // Une citation (« > ») : un encadré de contexte de la source, en bleu comme sur sa page
