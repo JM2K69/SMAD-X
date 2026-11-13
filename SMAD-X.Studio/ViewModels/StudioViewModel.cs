@@ -30,6 +30,9 @@ namespace SMADX.Studio.ViewModels
         public bool IsSmadx => !IsSmarx;
     }
 
+    /// <summary>Un domaine (.smad-x.json) qui n'a pas pu être lu ; le message dit pourquoi, en clair.</summary>
+    public sealed class DomainLoadException(string message) : Exception(message);
+
     /// <summary>Fenêtres de Studio vues par le ViewModel : sélecteurs de fichiers et choix de la recette.</summary>
     public interface IStudioDialogs
     {
@@ -465,7 +468,8 @@ namespace SMADX.Studio.ViewModels
 
         /// <summary>
         /// Fichier donné au lancement : un exercice s'ouvre (ou son dossier), un domaine (envoyé par SMAD-X) devient le
-        /// domaine de départ d'un nouvel exercice.
+        /// domaine de départ d'un nouvel exercice. Un autre fichier (un projet .csproj passé par « dotnet run », par exemple)
+        /// n'est pas lu comme un domaine : la barre d'état dit que rien n'est ouvert.
         /// </summary>
         public Task OpenPathAsync(string path)
         {
@@ -478,6 +482,11 @@ namespace SMADX.Studio.ViewModels
             if (path.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase))
             {
                 Status = Text["Submissions.OpenLabFirst"];
+                return Task.CompletedTask;
+            }
+            if (!path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+            {
+                Status = string.Format(Text["Status.StartupIgnored"], path);
                 return Task.CompletedTask;
             }
             return NewFromDomainFileAsync(path);
@@ -826,7 +835,31 @@ namespace SMADX.Studio.ViewModels
         private async Task<ADRootDocument> LoadDocumentAsync(string path)
         {
             var result = await _data.LoadDocumentAsync(path);
-            return result.Document ?? throw new InvalidOperationException(result.Error ?? result.Status.ToString());
+            return result.Document ?? throw new DomainLoadException(LoadFailureMessage(result, path, Text.French));
+        }
+
+        /// <summary>
+        /// Pourquoi un domaine (.smad-x.json) n'a pas pu être lu, en clair et avec le fichier en cause : introuvable (le
+        /// chemin complet), illisible, d'une version plus récente, ou pas un domaine SMAD-X (avec le détail technique).
+        /// La ligne de commande l'écrit en anglais.
+        /// </summary>
+        public static string LoadFailureMessage(DocumentLoadResult result, string path, bool french)
+        {
+            string T(string fr, string en) => french ? fr : en;
+            var name = Path.GetFileName(path);
+            var detail = string.IsNullOrWhiteSpace(result.Error) ? "" : T($" Détail : {result.Error}", $" Detail: {result.Error}");
+            return result.Status switch
+            {
+                DocumentLoadStatus.NotFound => string.Format(T("Fichier introuvable : {0}. A-t-il été déplacé, renommé ou supprimé ?",
+                                                               "File not found: {0}. Was it moved, renamed or deleted?"), path),
+                DocumentLoadStatus.Unreadable => string.Format(T("Impossible de lire {0} : il est peut-être ouvert dans un autre programme, ou protégé.",
+                                                                 "Cannot read {0}: it may be open in another program, or protected."), name) + detail,
+                DocumentLoadStatus.TooNew => string.Format(T("{0} vient d'une version plus récente de SMAD-X (format v{1} ; cette version lit jusqu'au format v{2}). Mettez Studio à jour pour l'ouvrir.",
+                                                             "{0} comes from a newer version of SMAD-X (format v{1}; this version reads up to format v{2}). Update Studio to open it."),
+                                                           name, result.FileVersion, ADRootDocument.CurrentVersion),
+                _ => string.Format(T("{0} n'est pas un domaine SMAD-X : choisissez un fichier .smad-x.json enregistré par SMAD-X.",
+                                     "{0} is not a SMAD-X domain: choose a .smad-x.json file saved by SMAD-X."), name) + detail
+            };
         }
 
         /// <summary>Affiche un exercice : objectifs, noms d'objets du domaine, aperçu de la fiche.</summary>
@@ -1153,6 +1186,8 @@ namespace SMADX.Studio.ViewModels
         private async Task RunAsync(Func<Task> action)
         {
             try { await action(); }
+            // Un fichier introuvable ou qui n'est pas un domaine : le message dit pourquoi, ce n'est pas une erreur de Studio
+            catch (DomainLoadException ex) { Status = ex.Message; }
             catch (Exception ex) { Status = string.Format(Text["Status.Error"], ex.Message); ErrorReporter.Log("Studio", ex); }
         }
 

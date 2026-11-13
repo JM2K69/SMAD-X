@@ -22,6 +22,15 @@ The **home screen** shows each way to start as a tile, under the tool of the lab
 
 **Open a lab (its folder)...** (`Ctrl+O`) reopens a lab by its folder, or by one of its role folders, whether it is a SMAD-X or a SMAR-X lab: Studio finds there everything the creation laid out (your copy, the subject, the solution, the notes) and grades the submissions of `3-submissions` straight away. Dropping that folder on the Studio window does the same, and the start screen lists the **recent labs**, reopened in one click. **Open a lab file (.smadx-lab.json)...** resumes a lab saved on its own, with its notes.
 
+Studio can also be started with a file, as SMAD-X does to send it a domain. A lab folder or lab file opens, and a `.smad-x.json` domain becomes the start of a new lab. Any other file is ignored, and the status bar says so: "nothing is open".
+
+When a domain cannot be read, the status bar names the file and says why:
+
+- it cannot be found, with its full path;
+- it cannot be read, for instance because it is open in another program;
+- it comes from a newer version of SMAD-X;
+- it is not a SMAD-X domain, with the technical detail.
+
 **As soon as it is created**, Studio asks where to keep the lab, suggesting the folder of the previous one, and creates its folder there, laid out by role (see [The files](#the-files)): your copy, the subject to hand out and the trainer sheet are already written. Each step then writes in its place, without asking: the subject in `2-to-hand-out`, the sheet in `1-trainer`, the submissions you add in `3-submissions`, the grades and reports in `4-results`. If you cancel the folder choice, the lab stays open without being saved: **Save** will ask where to keep it.
 
 ### From a recommendation

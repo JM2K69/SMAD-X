@@ -1190,4 +1190,55 @@ public class StudioTests
         Assert.Equal(second, project.ImportSubmission(second)); // déjà rangée
         Assert.Equal(first, project.ImportSubmission(a, Path.Combine("..", "..", "ailleurs.json"))); // jamais hors du dossier
     }
+
+    // ─── Un domaine qui ne peut pas être lu : le message dit lequel, et pourquoi ─
+
+    [Fact]
+    public async Task AMissingDomain_GivesItsFullPath()
+    {
+        var (vm, _) = NewStudio();
+        var path = Path.Combine(TempDir(), "absent.smad-x.json");
+        await vm.NewFromDomainFileAsync(path);
+        Assert.Equal($"Fichier introuvable : {path}. A-t-il été déplacé, renommé ou supprimé ?", vm.Status);
+        Assert.Null(vm.Lab);
+    }
+
+    [Fact]
+    public async Task AFileThatIsNotADomain_SaysSo_WithTheTechnicalDetail()
+    {
+        var (vm, _) = NewStudio();
+        var path = Path.Combine(TempDir(), "page.smad-x.json");
+        File.WriteAllText(path, "<html></html>");
+        await vm.NewFromDomainFileAsync(path);
+        Assert.StartsWith("page.smad-x.json n'est pas un domaine SMAD-X : choisissez un fichier .smad-x.json enregistré par SMAD-X. Détail : ", vm.Status);
+        Assert.Null(vm.Lab);
+    }
+
+    /// <summary>« dotnet run .\SMAD-X.Studio.csproj » passe le projet à Studio : il n'est pas lu comme un domaine.</summary>
+    [Fact]
+    public async Task AStartupFileThatIsNeitherALabNorADomain_IsNotOpened()
+    {
+        var (vm, _) = NewStudio();
+        var path = Path.Combine(TempDir(), "SMAD-X.Studio.csproj");
+        File.WriteAllText(path, "<Project Sdk=\"Microsoft.NET.Sdk\"></Project>");
+        await vm.OpenPathAsync(path);
+        Assert.Equal($"Studio a été lancé avec « {path} », qui n'est ni un exercice, ni un dossier d'exercice, ni un domaine .smad-x.json : rien n'est ouvert.", vm.Status);
+        Assert.Null(vm.Lab);
+    }
+
+    [Fact]
+    public void LoadFailures_AreWordedInEnglish_ForTheCommandLine()
+    {
+        var path = Path.Combine("labs", "domain.smad-x.json");
+        Assert.Equal($"File not found: {path}. Was it moved, renamed or deleted?",
+            StudioViewModel.LoadFailureMessage(DocumentLoadResult.Failed(DocumentLoadStatus.NotFound), path, french: false));
+        Assert.StartsWith("domain.smad-x.json comes from a newer version of SMAD-X (format v99;",
+            StudioViewModel.LoadFailureMessage(DocumentLoadResult.Failed(DocumentLoadStatus.TooNew, 99), path, french: false));
+
+        var dir = TempDir();
+        var missing = Path.Combine(dir, "absent.smad-x.json");
+        var (code, _, error) = Run("convert", missing, "--lang", "en", "--out", dir);
+        Assert.Equal(1, code);
+        Assert.Contains($"File not found: {missing}.", error);
+    }
 }

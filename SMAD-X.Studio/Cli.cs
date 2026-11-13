@@ -228,7 +228,7 @@ namespace SMADX.Studio
                 var loaded = data.LoadDocumentAsync(path).GetAwaiter().GetResult();
                 if (loaded.Document == null)
                 {
-                    error.WriteLine($"{path}: {loaded.Error ?? loaded.Status.ToString()}");
+                    error.WriteLine(ViewModels.StudioViewModel.LoadFailureMessage(loaded, path, french: false));
                     result = 1;
                     continue;
                 }
@@ -246,7 +246,7 @@ namespace SMADX.Studio
             if (options.Solution != null)
             {
                 var loaded = new ADDataService().LoadDocumentAsync(options.Solution).GetAwaiter().GetResult();
-                solution = loaded.Document?.Domain ?? throw new CliException($"{options.Solution}: {loaded.Error ?? loaded.Status.ToString()}");
+                solution = loaded.Document?.Domain ?? throw new CliException(ViewModels.StudioViewModel.LoadFailureMessage(loaded, options.Solution, french: false));
             }
             var labs = new LabService();
             var result = 0;
@@ -262,7 +262,7 @@ namespace SMADX.Studio
                     if (solution == null && File.Exists(solutionPath))
                     {
                         var loaded = new ADDataService().LoadDocumentAsync(solutionPath).GetAwaiter().GetResult();
-                        fixedDomain = labs.PrepareSolution(lab, loaded.Document ?? throw new InvalidOperationException($"{solutionPath}: {loaded.Error ?? loaded.Status.ToString()}"), options.Date).Domain;
+                        fixedDomain = labs.PrepareSolution(lab, loaded.Document ?? throw new InvalidOperationException(ViewModels.StudioViewModel.LoadFailureMessage(loaded, solutionPath, french: false)), options.Date).Domain;
                     }
                 }
                 catch (Exception ex) { error.WriteLine($"{path}: {ex.Message}"); result = 1; continue; }

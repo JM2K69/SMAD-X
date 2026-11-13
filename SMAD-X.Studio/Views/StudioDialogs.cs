@@ -25,7 +25,7 @@ namespace SMADX.Studio.Views
                 AllowMultiple = false,
                 FileTypeFilter = [new FilePickerFileType(filterName) { Patterns = [pattern] }, FilePickerFileTypes.All]
             });
-            return files.Count > 0 ? files[0].Path.LocalPath : null;
+            return files.Count > 0 ? LocalPath(files[0]) : null;
         }
 
         public async Task<IReadOnlyList<string>> OpenFilesAsync(string title, string filterName, string pattern)
@@ -36,14 +36,14 @@ namespace SMADX.Studio.Views
                 AllowMultiple = true,
                 FileTypeFilter = [new FilePickerFileType(filterName) { Patterns = [pattern] }, FilePickerFileTypes.All]
             });
-            return files.Select(f => f.Path.LocalPath).ToList();
+            return files.Select(LocalPath).ToList();
         }
 
         public async Task<string?> PickFolderAsync(string title, string? startFolder = null)
         {
             var start = startFolder != null ? await owner.StorageProvider.TryGetFolderFromPathAsync(startFolder) : null;
             var folders = await owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = title, AllowMultiple = false, SuggestedStartLocation = start });
-            return folders.Count > 0 ? folders[0].Path.LocalPath : null;
+            return folders.Count > 0 ? LocalPath(folders[0]) : null;
         }
 
         public async Task ShowFolderAsync(string folder)
@@ -61,8 +61,14 @@ namespace SMADX.Studio.Views
                 DefaultExtension = System.IO.Path.GetExtension(pattern),
                 FileTypeChoices = [new FilePickerFileType(filterName) { Patterns = [pattern] }]
             });
-            return file?.Path.LocalPath;
+            return file == null ? null : LocalPath(file);
         }
+
+        /// <summary>
+        /// Le chemin sur le disque d'un fichier ou d'un dossier choisi : celui que donne le système (TryGetLocalPath),
+        /// plutôt qu'une adresse reconvertie, qui peut altérer un nom contenant des caractères particuliers.
+        /// </summary>
+        public static string LocalPath(IStorageItem item) => item.TryGetLocalPath() ?? item.Path.LocalPath;
 
         public Task<RecipeRequest?> ChooseRecipeAsync() =>
             new RecipeWindow { DataContext = new RecipePickerViewModel() }.ShowDialog<RecipeRequest?>(owner);

@@ -54,7 +54,12 @@ Prérequis : le [SDK .NET 10](https://dotnet.microsoft.com/download).
 git clone https://github.com/JM2K69/SMAD-X.git
 cd SMAD-X
 dotnet run --project SMAD-X/SMAD-X.csproj
+dotnet run --project SMAD-X.Studio/SMAD-X.Studio.csproj
+dotnet run --project SMAR-X/SMAR-X.csproj
 ```
+
+!!! note "`dotnet run` et ses arguments"
+    Sans `--project`, ce qui suit `dotnet run` est passé à l'application. Dans le dossier de Studio, `dotnet run .\SMAD-X.Studio.csproj` donne donc ce fichier à Studio comme s'il fallait l'ouvrir : Studio l'ignore et le dit dans sa barre d'état. Dans le dossier d'un projet, lancez `dotnet run` seul ; depuis la racine du dépôt, utilisez `--project`.
 
 Pour produire l'exécutable autonome, comme la release :
 

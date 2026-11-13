@@ -22,6 +22,15 @@ L'**accueil** présente chaque façon de commencer sous forme de tuile, rangée 
 
 **Ouvrir un exercice (son dossier)...** (`Ctrl+O`) rouvre un exercice par son dossier, ou par l'un de ses dossiers par rôle, qu'il soit de SMAD-X ou de SMAR-X : Studio y retrouve tout ce que la création a rangé (l'exemplaire, le sujet, la solution, les notes) et corrige aussitôt les copies de `3-copies-rendues`. Glisser ce dossier sur la fenêtre de Studio fait de même, et l'écran d'accueil liste les **exercices récents**, rouverts d'un clic. **Ouvrir un fichier d'exercice (.smadx-lab.json)...** reprend un exercice enregistré seul, avec ses notes.
 
+Studio peut aussi être lancé avec un fichier, comme le fait SMAD-X pour lui envoyer un domaine. Un dossier ou un fichier d'exercice s'ouvre, et un domaine `.smad-x.json` devient le départ d'un nouvel exercice. Tout autre fichier est ignoré, et la barre d'état le dit : « rien n'est ouvert ».
+
+Quand un domaine ne peut pas être lu, la barre d'état nomme le fichier et dit pourquoi :
+
+- il est introuvable, avec son chemin complet ;
+- il est illisible, par exemple parce qu'il est ouvert dans un autre programme ;
+- il vient d'une version plus récente de SMAD-X ;
+- ce n'est pas un domaine SMAD-X, avec le détail technique.
+
 **Dès sa création**, Studio demande où ranger l'exercice, en proposant le dossier du précédent, et y crée son dossier, rangé par rôle (voir [Les fichiers](#les-fichiers)) : l'exemplaire, le sujet à distribuer et la fiche formateur sont déjà écrits. Chaque étape écrit ensuite à sa place, sans rien demander : le sujet dans `2-a-distribuer`, la fiche dans `1-formateur`, les copies ajoutées dans `3-copies-rendues`, les notes et les comptes rendus dans `4-resultats`. Si vous annulez le choix du dossier, l'exercice reste ouvert sans être enregistré : **Enregistrer** demandera où le ranger.
 
 ### À partir d'une recommandation

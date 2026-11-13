@@ -327,6 +327,8 @@ namespace SMADX.Studio
             ["Status.Created"] = ("Exercice créé : relisez l'énoncé et les objectifs, puis validez.", "Lab created: review the statement and objectives, then validate."),
             ["Status.Saved"] = ("Enregistré : {0}", "Saved: {0}"),
             ["Status.Opened"] = ("Ouvert : {0}", "Opened: {0}"),
+            ["Status.StartupIgnored"] = ("Studio a été lancé avec « {0} », qui n'est ni un exercice, ni un dossier d'exercice, ni un domaine .smad-x.json : rien n'est ouvert.",
+                                         "Studio was started with \"{0}\", which is neither a lab, a lab folder nor a .smad-x.json domain: nothing is open."),
             ["Status.Validated"] = ("Validation : {0} erreur(s), {1} avertissement(s).", "Validation: {0} error(s), {1} warning(s)."),
             ["Status.Error"] = ("Erreur : {0}", "Error: {0}"),
             ["Status.Added"] = ("{0} objectif(s) ajouté(s).", "{0} objective(s) added."),
