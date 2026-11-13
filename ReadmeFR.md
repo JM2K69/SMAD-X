@@ -322,7 +322,8 @@ Les couleurs sont configurables via `Paramètres > Configuration des tiers`.
 | **SMAR-X.Core** | Moteurs des droits d'accès : noyau Linux, Samba, NTFS, SMB, expliqués étape par étape ; exercices SMAR-X et leur correction |
 | **SMAR-X** | L'application des droits d'accès |
 | **SMAR-X.Tests** | Tests xUnit, avec les relevés faits sur de vrais systèmes (`Fidelity/`) |
-| **tools/** | Outils de mesure (vrais systèmes), captures de la documentation, générateurs d'exercices |
+| **tools/** | Outils de mesure (vrais systèmes), captures de la documentation, générateurs d'exercices, l'outil des fiches de sources (`SmadxSources`) |
+| **sources/** | Une fiche par élément cité par les règles d'audit (ANSSI, NIST, CIS, MITRE ATT&CK, Microsoft, modèles de cloisonnement), en français et en anglais, avec sa provenance et sa licence ; un PDF par fiche à la demande |
 
 L'application SMAD-X :
 

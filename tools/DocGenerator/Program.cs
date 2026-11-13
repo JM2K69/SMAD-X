@@ -3,6 +3,7 @@
 //   Skia), rien ne s'affiche sur le bureau et aucune touche n'est simulée ;
 // - les pages tirées du code : règles d'audit et catalogue des exercices, qui ne peuvent donc pas diverger.
 // Usage : dotnet run --project tools/DocGenerator -- <racine du dépôt>
+//         dotnet run --project tools/DocGenerator -- --logo <fichier .png>   (le logo de l'en-tête, pour le PDF des sources)
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
@@ -26,6 +27,12 @@ AppBuilder.Configure<App>()
     .UseSkia()
     .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
     .SetupWithoutStarting();
+
+if (args.Length > 1 && args[0] == "--logo")
+{
+    Logo(Path.GetFullPath(args[1]));
+    return;
+}
 
 foreach (var (culture, lang) in new[] { ("fr-FR", "fr"), ("en-US", "en") })
 {
@@ -349,6 +356,39 @@ static void ScrollDetailsToEnd(MainWindow window)
 }
 
 // Laisse tourner le dispatcher (mise en page, liaisons, minuteries comme celle du graphe)
+// Le logo de l'en-tête de SMAD-X (MainWindow.axaml) : l'annuaire blanc sur le dégradé, quatre fois plus grand
+static void Logo(string file)
+{
+    const int size = 160;
+    var logo = new Border
+    {
+        Width = size, Height = size, CornerRadius = new CornerRadius(size * 10 / 38.0),
+        Background = new Avalonia.Media.LinearGradientBrush
+        {
+            StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative), EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
+            GradientStops =
+            {
+                new Avalonia.Media.GradientStop(Avalonia.Media.Color.Parse("#4C9AFF"), 0),
+                new Avalonia.Media.GradientStop(Avalonia.Media.Color.Parse("#2BB3A3"), 1)
+            }
+        },
+        Child = new PathIcon
+        {
+            Data = (Avalonia.Media.Geometry)Application.Current!.FindResource("DirectoryIcon")!,
+            Width = size * 20 / 38.0, Height = size * 20 / 38.0, Foreground = Avalonia.Media.Brushes.White
+        }
+    };
+    var window = new Window { Content = logo, Width = size, Height = size, Background = Avalonia.Media.Brushes.Transparent };
+    window.Show();
+    Pump();
+    using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(size, size));
+    bitmap.Render(logo);
+    Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+    bitmap.Save(file);
+    Console.WriteLine(file);
+    window.Close();
+}
+
 static void Pump(int milliseconds = 300)
 {
     var end = DateTime.UtcNow.AddMilliseconds(milliseconds);

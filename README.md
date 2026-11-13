@@ -322,7 +322,8 @@ Colors are configurable via `Settings > Tier Configuration`.
 | **SMAR-X.Core** | Access rights engines: Linux kernel, Samba, NTFS, SMB, explained step by step; SMAR-X labs and their grading |
 | **SMAR-X** | The access rights application |
 | **SMAR-X.Tests** | xUnit tests, with the measurements made on real systems (`Fidelity/`) |
-| **tools/** | Measurement tools (real systems), documentation screenshots, lab generators |
+| **tools/** | Measurement tools (real systems), documentation screenshots, lab generators, the source sheets tool (`SmadxSources`) |
+| **sources/** | One sheet per item cited by the audit rules (ANSSI, NIST, CIS, MITRE ATT&CK, Microsoft, tiering models), in French and in English, with its provenance and licence; one PDF per sheet on demand |
 
 The SMAD-X application:
 

@@ -20,6 +20,9 @@
     <!-- Exercices fournis (.smadx-lab.json), générés par tools/LabGenerator et tools/SampleGenerator -->
     <EmbeddedResource Include="Labs\*.smadx-lab.json" LogicalName="Labs/%(Filename)%(Extension)" />
     <EmbeddedResource Include="TierModels\*.json" LogicalName="TierModels/%(Filename)%(Extension)" />
+    <!-- Les fiches des sources (sources/sources.json, relevé par tools/SmadxSources) et le logo de leurs PDF -->
+    <EmbeddedResource Include="..\sources\sources.json" LogicalName="Sources/sources.json" />
+    <EmbeddedResource Include="Sources\smadx-logo.png" LogicalName="Sources/smadx-logo.png" />
   </ItemGroup>
 
   <ItemGroup>

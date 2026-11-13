@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Les sources de SMAD-X (ANSSI, NIST, CIS, MITRE ATT&CK, Microsoft, modèles de cloisonnement) : relevées sur le web
+       et rédigées en fiches Markdown dans sources/{référentiel}/{fr,en}, un PDF par fiche. Le code est partagé avec
+       SMAD-X Studio (SMAD-X.Core/Services/Sources) ; ici, la ligne de commande. Commandes : voir Program.cs et
+       sources/README.md -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\SMAD-X.Core\SMAD-X.Core.csproj" />
+  </ItemGroup>
+</Project>

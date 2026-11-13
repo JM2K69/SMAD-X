@@ -24,6 +24,9 @@ namespace SMADX.Services
                 Font("Noto Sans Mono", "NotoSansMono-Regular.ttf")
             }));
 
+        /// <summary>Les polices de secours embarquées (emoji, symboles, flèches), pour un PDF composé sans Markdown.</summary>
+        public static PdfEmbeddedFontFallbackSet FontFallbacks => Fallbacks.Value;
+
         /// <summary>Le nombre de polices de secours embarquées (vérifié par le --self-test des exécutables publiés).</summary>
         public static int EmbeddedFontCount =>
             typeof(MarkdownPdf).Assembly.GetManifestResourceNames().Count(r => FontFiles.Any(f => r == "Fonts/" + f));

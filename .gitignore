@@ -43,3 +43,6 @@ logs/
 
 # Site de documentation construit par Zensical
 site/
+
+# PDF des fiches de sources, générés à côté de chaque fiche par tools/SmadxSources (pdf)
+sources/**/*.pdf
