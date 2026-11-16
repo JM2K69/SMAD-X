@@ -601,30 +601,21 @@ namespace SMADX.Graph
         }
 
         // ── Helpers FormattedText ─────────────────────────────────────────────
+        // Les pictogrammes (icônes des nœuds, « ⬇ » des arêtes d'héritage) sont dessinés au trait : GraphSymbols.
 
         private static FormattedText MakeFT(string text, double size, Color color)
-            => new FormattedText(text,
-                CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight,
-                DefaultTypeface,
-                size,
-                new SolidColorBrush(color));
+            => MakeFTWith(text, size, new SolidColorBrush(color), DefaultTypeface);
 
         private static FormattedText MakeFT(string text, double size, IBrush brush)
-            => new FormattedText(text,
-                CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight,
-                DefaultTypeface,
-                size,
-                brush);
+            => MakeFTWith(text, size, brush, DefaultTypeface);
 
         private static FormattedText MakeFTWith(string text, double size, IBrush brush, Typeface typeface)
-            => new FormattedText(text,
+            => GraphSymbols.Draw(new FormattedText(text,
                 CultureInfo.CurrentCulture,
                 FlowDirection.LeftToRight,
                 typeface,
                 size,
-                brush);
+                brush), text);
 
         // ── Interactions ──────────────────────────────────────────────────────
 

@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SMADX.ViewModels"
+        xmlns:graph="using:SMADX.Graph"
         x:Class="SMADX.Views.GraphWindow"
         x:Name="GraphWindowRoot"
         Title="{Binding Source={StaticResource Loc}, Path=GraphTitle}"
@@ -9,6 +10,11 @@
         WindowStartupLocation="CenterOwner"
         CanResize="True"
         RequestedThemeVariant="Dark">
+
+    <!-- Les pictogrammes des boutons, des filtres et de la barre d'info sont au trait, comme sur les nœuds (GraphSymbols) -->
+    <Window.Resources>
+        <graph:GraphLabelConverter x:Key="GraphLabel"/>
+    </Window.Resources>
 
     <Grid RowDefinitions="Auto,*,Auto">
 
@@ -24,21 +30,21 @@
                                FontSize="11" Margin="0,0,4,0"/>
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <Button x:Name="BtnFitView"
-                                Content="{Binding Source={StaticResource Loc}, Path=GraphFitView}"
+                                Content="{Binding Source={StaticResource Loc}, Path=GraphFitView, Converter={StaticResource GraphLabel}}"
                                 ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=GraphFitViewTooltip}"
                                 Click="OnFitView" Classes="accent"/>
                         <Button x:Name="BtnZoomIn"
-                                Content="{Binding Source={StaticResource Loc}, Path=GraphZoomIn}"
+                                Content="{Binding Source={StaticResource Loc}, Path=GraphZoomIn, Converter={StaticResource GraphLabel}}"
                                 Click="OnZoomIn" Classes="tool"/>
                         <Button x:Name="BtnZoomOut"
-                                Content="{Binding Source={StaticResource Loc}, Path=GraphZoomOut}"
+                                Content="{Binding Source={StaticResource Loc}, Path=GraphZoomOut, Converter={StaticResource GraphLabel}}"
                                 Click="OnZoomOut" Classes="tool"/>
                         <Button x:Name="BtnRelayout"
-                                Content="{Binding Source={StaticResource Loc}, Path=GraphRelayout}"
+                                Content="{Binding Source={StaticResource Loc}, Path=GraphRelayout, Converter={StaticResource GraphLabel}}"
                                 ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=GraphRelayoutTooltip}"
                                 Click="OnRelayout" Classes="tool"/>
                         <Button x:Name="BtnRefresh"
-                                Content="{Binding Source={StaticResource Loc}, Path=GraphReload}"
+                                Content="{Binding Source={StaticResource Loc}, Path=GraphReload, Converter={StaticResource GraphLabel}}"
                                 ToolTip.Tip="{Binding Source={StaticResource Loc}, Path=GraphReloadTooltip}"
                                 Click="OnRefresh" Classes="tool"/>
                     </StackPanel>
@@ -49,28 +55,28 @@
                     <TextBlock Text="{Binding Source={StaticResource Loc}, Path=GraphFilters}"
                                Classes="label" VerticalAlignment="Center"
                                Margin="0,0,10,0"/>
-                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterMemberOf}"
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterMemberOf, Converter={StaticResource GraphLabel}}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowMemberOf, Mode=TwoWay}"
                               Foreground="#BB86FC" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterGroupNesting}"
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterGroupNesting, Converter={StaticResource GraphLabel}}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowGroupNesting, Mode=TwoWay}"
                               Foreground="#E040FB" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterGpoLinks}"
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterGpoLinks, Converter={StaticResource GraphLabel}}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowGpoLinks, Mode=TwoWay}"
                               Foreground="#FFB347" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterGpoInheritance}"
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterGpoInheritance, Converter={StaticResource GraphLabel}}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowGpoInheritance, Mode=TwoWay}"
                               Foreground="#D08000" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterPso}"
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterPso, Converter={StaticResource GraphLabel}}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowPsoLinks, Mode=TwoWay}"
                               Foreground="#FF6B6B" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterDelegations}"
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterDelegations, Converter={StaticResource GraphLabel}}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowDelegations, Mode=TwoWay}"
                               Foreground="#FFB300" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterHierarchy}"
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterHierarchy, Converter={StaticResource GraphLabel}}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowHierarchy, Mode=TwoWay}"
                               Foreground="#888888" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterIsolated}"
+                    <CheckBox Content="{Binding Source={StaticResource Loc}, Path=GraphFilterIsolated, Converter={StaticResource GraphLabel}}"
                               IsChecked="{Binding #GraphWindowRoot.DataContext.ShowIsolated, Mode=TwoWay}"
                               Foreground="#AAAAAA" VerticalAlignment="Center"/>
                 </WrapPanel>
@@ -86,11 +92,11 @@
         <!-- ═══ BARRE D'INFO NŒUD SÉLECTIONNÉ ═══ -->
         <Border Grid.Row="2" Classes="footer" Padding="16,8">
             <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Grid.Column="0"
-                           Text="{Binding SelectedNodeInfo}"
-                           Classes="mono" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" FontSize="12"/>
+                <ContentControl Grid.Column="0"
+                                Content="{Binding SelectedNodeInfo, Converter={StaticResource GraphLabel}, ConverterParameter=mono}"
+                                Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" FontSize="12"/>
                 <Button Grid.Column="1"
-                        Content="{Binding Source={StaticResource Loc}, Path=GraphClose}"
+                        Content="{Binding Source={StaticResource Loc}, Path=GraphClose, Converter={StaticResource GraphLabel}}"
                         Click="OnClose"
                         Classes="accent" MinWidth="90" HorizontalContentAlignment="Center"/>
             </Grid>

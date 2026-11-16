@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Avalonia;
+using SMADX.Services;
 
 namespace SMADX.Studio
 {
@@ -22,6 +23,7 @@ namespace SMADX.Studio
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .WithInterFont()
+                .WithEmojiFont()
                 .LogToTrace();
 
         [DllImport("kernel32.dll")]

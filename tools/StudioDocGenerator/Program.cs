@@ -24,6 +24,7 @@ var repo = Path.GetFullPath(args.Length > 0 ? args[0] : ".");
 AppBuilder.Configure<App>()
     .UseSkia()
     .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
+    .WithEmojiFont()
     .SetupWithoutStarting();
 
 // Les captures ne montrent ni ne modifient les exercices récents du formateur qui les génère

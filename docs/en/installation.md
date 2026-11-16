@@ -42,6 +42,18 @@ Download only the application you need: a student does not need Studio. Each arc
 
 On first launch, SMAD-X opens the `contoso.com` sample domain, with three AD sites; SMAR-X opens its sample servers, Linux (`srv-fic`) and Windows (`SRV-FIC`).
 
+### Emoji
+
+Emoji are in color in every window, whatever the order you open them in. When the text font lacks a character, the suite looks for it first in the system emoji font:
+
+| System | Emoji font |
+|---|---|
+| Windows | Segoe UI Emoji |
+| macOS | Apple Color Emoji |
+| Linux | Noto Color Emoji (package `fonts-noto-color-emoji` on Debian and Ubuntu) |
+
+If it is missing, each character uses another system font that has it. Only the [relations graph](graph.md) draws its pictograms as line art.
+
 ## Version and updates
 
 The version is shown in **Help > About**. It is defined in a single place in the source code (`<Version>` in `Directory.Build.props`, shared by SMAD-X, SMAD-X Studio and SMAR-X), and each release matches a `vX.Y.Z` tag.

@@ -26,6 +26,7 @@ MainWindowViewModel.DefaultRecoveryFolder = Path.Combine(Path.GetTempPath(), "sm
 AppBuilder.Configure<App>()
     .UseSkia()
     .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
+    .WithEmojiFont()
     .SetupWithoutStarting();
 
 if (args.Length > 1 && args[0] == "--logo")

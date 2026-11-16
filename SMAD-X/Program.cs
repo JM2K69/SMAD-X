@@ -25,6 +25,7 @@ namespace SMADX
                 .WithDeveloperTools()
 #endif
                 .WithInterFont()
+                .WithEmojiFont()
                 .LogToTrace();
 
         /// <summary>

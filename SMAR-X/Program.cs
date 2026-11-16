@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Avalonia;
+using SMADX.Services;
 using SMARX.Samples;
 using SMARX.Services.Linux;
 using SMARX.Services.Windows;
@@ -20,6 +21,7 @@ namespace SMARX
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .WithInterFont()
+                .WithEmojiFont()
                 .LogToTrace();
 
         /// <summary>

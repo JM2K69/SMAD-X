@@ -19,6 +19,8 @@ Checkboxes filter link types, and **Isolated** shows or hides objects without li
 
 The graph window stays dark, even with the light theme: the colors of objects and links are made for a dark background.
 
+The graph's pictograms (nodes, buttons, filters, information bar) are drawn as line art, in the text color. They are white on the nodes and fade when a node is dimmed; a filter has its link's color. On Windows, they use the Segoe UI Symbol font. On macOS and Linux, where it is missing, they use the system emoji font. The other windows show emoji in color, even after the graph: see [Installation](installation.md#emoji).
+
 ## Navigating
 
 | Gesture | Effect |

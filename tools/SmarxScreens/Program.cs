@@ -11,6 +11,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using SMADX.Services;
 using SMARX;
 using SMARX.Labs;
 using SMARX.Services.Linux;
@@ -22,7 +23,7 @@ var docs = args.Length > 1 && args[0] == "--docs";
 if (args.Length > 1 && args[0] == "--logo")
 {
     AppBuilder.Configure<App>().UseSkia().UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
-        .WithInterFont().SetupWithoutStarting();
+        .WithInterFont().WithEmojiFont().SetupWithoutStarting();
     Logo(Path.GetFullPath(args[1]));
     return;
 }
@@ -33,6 +34,7 @@ AppBuilder.Configure<App>()
     .UseSkia()
     .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false })
     .WithInterFont()
+    .WithEmojiFont()
     .SetupWithoutStarting();
 
 if (docs)

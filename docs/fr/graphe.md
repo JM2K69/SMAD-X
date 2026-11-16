@@ -19,6 +19,8 @@ Les cases à cocher filtrent les types de liens, et **Isolés** affiche ou masqu
 
 La fenêtre du graphe reste sombre, même en thème clair : les couleurs des objets et des liens sont faites pour un fond sombre.
 
+Les pictogrammes du graphe (nœuds, boutons, filtres, barre d'information) sont dessinés au trait, dans la couleur du texte. Ils sont blancs sur les nœuds et pâlissent quand un nœud est estompé ; un filtre a la couleur de son lien. Sous Windows, ils prennent la police Segoe UI Symbol. Sous macOS et Linux, où elle manque, ils prennent la police emoji du système. Les autres fenêtres affichent les emoji en couleur, même après le graphe : voir [Installation](installation.md#les-emoji).
+
 ## Naviguer
 
 | Geste | Effet |
