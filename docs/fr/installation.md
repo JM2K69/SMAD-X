@@ -52,7 +52,12 @@ Les emoji des fenêtres sont en couleur, quel que soit l'ordre dans lequel on le
 | macOS | Apple Color Emoji |
 | Linux | Noto Color Emoji (paquet `fonts-noto-color-emoji` sous Debian et Ubuntu) |
 
-Si elle manque, chaque caractère prend une autre police du système qui le contient. Seul le [graphe des relations](graphe.md) dessine ses pictogrammes au trait.
+Si elle manque, chaque caractère prend une autre police du système qui le contient.
+
+Deux exceptions restent au trait, dans la couleur du texte :
+
+- les marques de résultat ✓ ✔ ✕ ✗ ✘ ◐, vertes pour un objectif atteint ou un constat corrigé, rouges pour un échec ; elles viennent de Segoe UI Symbol sous Windows ;
+- les pictogrammes du [graphe des relations](graphe.md).
 
 ## Version et mises à jour
 

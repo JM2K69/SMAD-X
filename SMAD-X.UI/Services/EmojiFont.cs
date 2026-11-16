@@ -10,6 +10,8 @@ namespace SMADX.Services
     /// la police déjà chargée qui lui convient le mieux : une fois Segoe UI Symbol chargée (pour « ⊡ » de la barre du
     /// graphe), elle l'emportait sur Segoe UI Emoji et les emoji de toutes les fenêtres ouvertes ensuite sortaient au
     /// trait, en noir et blanc.
+    /// Les marques de résultat (✓ ✔ ✕ ✗ ✘ ◐) sont l'inverse : elles prennent la couleur du texte (vert pour réussi,
+    /// rouge pour échoué) et viennent donc toujours de la police au trait.
     /// </summary>
     public static class EmojiFont
     {
@@ -22,11 +24,18 @@ namespace SMADX.Services
         /// <summary>Les mêmes pictogrammes, au trait et dans la couleur du texte : Segoe UI Symbol (Windows seulement).</summary>
         public const string LineArtFamily = "Segoe UI Symbol";
 
-        /// <summary>Place la police emoji du système en tête des polices de secours.</summary>
+        /// <summary>Les marques de résultat, toujours au trait : ◐ (U+25D0) et ✓ ✔ ✕ ✖ ✗ ✘ (U+2713 à U+2718).</summary>
+        public static UnicodeRange Marks { get; } = new([new UnicodeRangeSegment(0x25D0, 0x25D0), new UnicodeRangeSegment(0x2713, 0x2718)]);
+
+        /// <summary>Place les marques au trait, puis la police emoji du système, en tête des polices de secours.</summary>
         public static AppBuilder WithEmojiFont(this AppBuilder builder)
             => builder.With(new FontManagerOptions
             {
-                FontFallbacks = [new FontFallback { FontFamily = new FontFamily(Family) }]
+                FontFallbacks =
+                [
+                    new FontFallback { FontFamily = new FontFamily(LineArtFamily), UnicodeRange = Marks },
+                    new FontFallback { FontFamily = new FontFamily(Family) },
+                ]
             });
     }
 }

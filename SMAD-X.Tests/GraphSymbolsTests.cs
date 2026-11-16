@@ -40,6 +40,21 @@ public class GraphSymbolsTests
         Assert.Equal(new[] { "⚠️", "👨‍💻" }, Symbols("⚠️ alerte 👨‍💻 poste"));
     }
 
+    [Theory]
+    [InlineData(0x2713, true)]   // ✓
+    [InlineData(0x2714, true)]   // ✔ réussi, en vert
+    [InlineData(0x2715, true)]   // ✕
+    [InlineData(0x2717, true)]   // ✗
+    [InlineData(0x2718, true)]   // ✘ échoué, en rouge
+    [InlineData(0x25D0, true)]   // ◐ en partie
+    [InlineData(0x26A0, false)]  // ⚠ : Inter l'a déjà, au trait
+    [InlineData(0x2705, false)]  // ✅
+    [InlineData(0x1F464, false)] // 👤
+    public void ResultMarks_TakeTheTextColor(int codepoint, bool mark)
+    {
+        Assert.Equal(mark, EmojiFont.Marks.IsInRange(codepoint));
+    }
+
     [Fact]
     public void TheEmojiFont_IsTheSystemOne()
     {

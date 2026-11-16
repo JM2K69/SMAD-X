@@ -52,7 +52,12 @@ Emoji are in color in every window, whatever the order you open them in. When th
 | macOS | Apple Color Emoji |
 | Linux | Noto Color Emoji (package `fonts-noto-color-emoji` on Debian and Ubuntu) |
 
-If it is missing, each character uses another system font that has it. Only the [relations graph](graph.md) draws its pictograms as line art.
+If it is missing, each character uses another system font that has it.
+
+Two exceptions stay as line art, in the text color:
+
+- the result marks ✓ ✔ ✕ ✗ ✘ ◐, green for a met objective or a fixed finding, red for a failure; they come from Segoe UI Symbol on Windows;
+- the pictograms of the [relations graph](graph.md).
 
 ## Version and updates
 
