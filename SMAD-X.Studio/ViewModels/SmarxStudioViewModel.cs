@@ -624,7 +624,7 @@ namespace SMADX.Studio.ViewModels
             var count = _graded.Count(g => g.Graded);
             var toReview = _graded.Sum(g => g.ToReview);
             ClassSummary = SmarxClassGrader.Average(_graded) is { } average
-                ? Text.T($"{count} copie(s) corrigée(s) — moyenne {average:0.#} / {Lab.MaxPoints}.", $"{count} copy(ies) graded — average {average:0.#} / {Lab.MaxPoints}.")
+                ? Text.T($"{count} copie(s) corrigée(s), moyenne {average:0.#} / {Lab.MaxPoints}.", $"{count} copy(ies) graded, average {average:0.#} / {Lab.MaxPoints}.")
                   + (toReview > 0 ? " " + string.Format(Text["Submissions.ToReview"], toReview) : "")
                 : Text["Submissions.None"];
 

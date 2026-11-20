@@ -364,7 +364,7 @@ namespace SMADX.Services
             {
                 sb.AppendLine("## Topologie des sites AD");
                 sb.AppendLine();
-                sb.AppendLine($"**{sites.Sites.Count}** site(s) — **{sites.SiteLinks.Count}** lien(s) de réplication");
+                sb.AppendLine($"**{sites.Sites.Count}** site(s), **{sites.SiteLinks.Count}** lien(s) de réplication");
                 sb.AppendLine();
 
                 sb.AppendLine("### Sites");

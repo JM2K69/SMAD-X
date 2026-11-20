@@ -339,7 +339,7 @@ namespace SMADX.Studio
             ["Submissions.SavedAt"] = ("Enregistrée le", "Saved at"),
             ["Submissions.Remarks"] = ("Remarques", "Remarks"),
             ["Submissions.Rates"] = ("Réussite par objectif", "Success per objective"),
-            ["Submissions.Summary"] = ("{0} copie(s) corrigée(s) sur {1} — moyenne {2} / {3} ({4}), médiane {5}", "{0} of {1} submission(s) graded — average {2} / {3} ({4}), median {5}"),
+            ["Submissions.Summary"] = ("{0} copie(s) corrigée(s) sur {1}, moyenne {2} / {3} ({4}), médiane {5}", "{0} of {1} submission(s) graded, average {2} / {3} ({4}), median {5}"),
             ["Submissions.NoneGraded"] = ("Aucune des {0} copie(s) n'a pu être corrigée : voir les remarques.", "None of the {0} submission(s) could be graded: see the remarks."),
             ["Submissions.None"] = ("Aucune copie pour l'instant.", "No submissions yet."),
             ["Submissions.Graded"] = ("{0} copie(s) corrigée(s).", "{0} submission(s) graded."),

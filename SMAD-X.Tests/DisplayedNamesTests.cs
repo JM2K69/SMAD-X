@@ -5,12 +5,13 @@ using SMADX.Studio;
 namespace SMADX.Tests;
 
 /// <summary>
-/// Les noms affichés n'ont pas de tiret cadratin : « Débutant · titre » dans les menus, « nom : rôle » en tête
-/// d'une fiche, « SMAD-X · exercice : … » dans le titre d'une fenêtre.
+/// Pas de tiret cadratin entre deux mots dans les noms et les messages affichés : « Débutant · titre » dans les
+/// menus, « nom : rôle » en tête d'une fiche, « SMAD-X · exercice : … » dans le titre d'une fenêtre,
+/// « Aucun site : importez… » dans la barre d'état. Seul « — » tout seul reste, pour une case vide.
 /// </summary>
 public class DisplayedNamesTests
 {
-    private const string EmDash = "—";
+    private const string DashBetweenWords = " — ";
 
     [Fact]
     public void DescriptionHeadings_HaveNoEmDash()
@@ -26,26 +27,36 @@ public class DisplayedNamesTests
             .ToList();
 
         Assert.NotEmpty(headings);
-        Assert.DoesNotContain(headings, h => h.Contains(EmDash));
+        Assert.DoesNotContain(headings, h => h.Contains('—'));
     }
 
+    /// <summary>Les textes de l'interface de SMAD-X : tout sauf les fiches Markdown embarquées (descriptions, règles).</summary>
     [Theory]
     [InlineData("fr-FR")]
     [InlineData("en-US")]
-    public void WindowTitles_HaveNoEmDash(string culture)
+    public void InterfaceTexts_HaveNoDashBetweenWords(string culture)
     {
-        foreach (var key in new[] { "Lab.Mode.Title", "Lab.Mode.ExamTitle", "Delegations.Window.Title", "Timeline.Window.Title", "About.Copyright" })
-            Assert.DoesNotContain(EmDash, LocalizationService.Instance.Translate(key, culture));
+        var markdown = typeof(LocalizationService).Assembly.GetManifestResourceNames()
+            .Select(r => r.Replace('\\', '/'))
+            .Where(r => r.StartsWith($"Content/{culture}/") && r.EndsWith(".md"))
+            .Select(r => Path.GetFileNameWithoutExtension(r[$"Content/{culture}/".Length..]))
+            .ToHashSet();
+        var texts = LocalizationService.Instance.KeysOf(culture)
+            .Where(k => !markdown.Contains(k))
+            .Select(k => (Key: k, Text: LocalizationService.Instance.Translate(k, culture)))
+            .ToList();
+
+        Assert.NotEmpty(texts);
+        Assert.DoesNotContain(texts, t => t.Text.Contains(DashBetweenWords));
     }
 
     [Fact]
-    public void StudioTitles_HaveNoEmDash()
+    public void StudioTexts_HaveNoDashBetweenWords()
     {
         var texts = (Dictionary<string, (string Fr, string En)>)typeof(StudioText)
             .GetField("Texts", BindingFlags.NonPublic | BindingFlags.Static)!.GetValue(null)!;
-        var titles = texts.Where(t => t.Key.EndsWith("Title")).ToList();
 
-        Assert.NotEmpty(titles);
-        Assert.DoesNotContain(titles, t => t.Value.Fr.Contains(EmDash) || t.Value.En.Contains(EmDash));
+        Assert.NotEmpty(texts);
+        Assert.DoesNotContain(texts, t => t.Value.Fr.Contains(DashBetweenWords) || t.Value.En.Contains(DashBetweenWords));
     }
 }

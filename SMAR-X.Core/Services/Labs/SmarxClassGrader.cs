@@ -242,7 +242,7 @@ namespace SMARX.Services.Labs
             sb.AppendLine($"- **{T(culture, "Corrigé avec", "Graded with")}** : SMAR-X {SmarxLabService.EngineVersion}");
             sb.AppendLine($"- **{T(culture, "Copies corrigées", "Graded submissions")}** : {graded.Count} / {rows.Count}");
             if (Average(rows) is { } average && Median(rows) is { } median)
-                sb.AppendLine($"- **{T(culture, "Moyenne", "Average")}** : {N(average)} / {lab.MaxPoints} — **{T(culture, "médiane", "median")}** : {N(median)}");
+                sb.AppendLine($"- **{T(culture, "Moyenne", "Average")}** : {N(average)} / {lab.MaxPoints}, **{T(culture, "médiane", "median")}** : {N(median)}");
             sb.AppendLine();
             sb.AppendLine($"## {T(culture, "Notes", "Grades")}").AppendLine();
             sb.AppendLine($"| {T(culture, "Apprenant", "Learner")} | {T(culture, "Note", "Grade")} | {T(culture, "Indices", "Hints")} | {T(culture, "Remarques", "Remarks")} |");
