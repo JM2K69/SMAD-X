@@ -1,10 +1,10 @@
-# vuln_permissions_gpo_priv — Dangerous ACLs expose GPOs applied to privileged group members (attack path)
+# vuln_permissions_gpo_priv: Dangerous ACLs expose GPOs applied to privileged group members (attack path)
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_permissions_gpo_priv.md](../fr/vuln_permissions_gpo_priv.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_permissions_gpo_priv.md](../fr/vuln_permissions_gpo_priv.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_permissions_gpo_priv` |
 | ANSSI level | 1 (1: most critical) |
 | Added to the checklist | 2020-04-06 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **TIER-02** — Tiering violation: GPO from a less sensitive tier
+- **TIER-02**: Tiering violation: GPO from a less sensitive tier
 
 ## Official text
 

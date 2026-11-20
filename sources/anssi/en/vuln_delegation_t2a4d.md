@@ -1,10 +1,10 @@
-# vuln_delegation_t2a4d — Constrained delegation with protocol transition to a privileged service
+# vuln_delegation_t2a4d: Constrained delegation with protocol transition to a privileged service
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_delegation_t2a4d.md](../fr/vuln_delegation_t2a4d.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_delegation_t2a4d.md](../fr/vuln_delegation_t2a4d.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_delegation_t2a4d` |
 | ANSSI level | 1 (1: most critical) |
 | Added to the checklist | 2018-10-01 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **DLG-02** — Constrained delegation with protocol transition to a domain controller
+- **DLG-02**: Constrained delegation with protocol transition to a domain controller
 
 ## Official text
 

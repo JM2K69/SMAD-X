@@ -1,10 +1,10 @@
-# vuln_silo_priv — Membres des groupes privilégiés hors silo d'authentification
+# vuln_silo_priv : Membres des groupes privilégiés hors silo d'authentification
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_silo_priv.md](../en/vuln_silo_priv.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_silo_priv.md](../en/vuln_silo_priv.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_silo_priv` |
 | Niveau ANSSI | 4 (1 : le plus critique) |
 | Ajouté à la checklist | 2020-07-03 |
@@ -14,8 +14,8 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **TIER-04** — Compte privilégié connecté sur une machine moins sensible
-- **TIER-09** — Compte privilégié hors d'un silo d'authentification appliqué
+- **TIER-04** : Compte privilégié connecté sur une machine moins sensible
+- **TIER-09** : Compte privilégié hors d'un silo d'authentification appliqué
 
 ## Texte officiel
 

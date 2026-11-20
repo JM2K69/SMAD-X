@@ -61,7 +61,7 @@ public sealed class StudioSourcesTests : IDisposable
         Assert.Equal("KRB-01", vm.Selected!.RuleId);
         Assert.Equal("ANSSI · vuln_spn_priv", vm.SelectedReference!.Label);
         Assert.Contains(vm.Selected.References, r => r.Label == "MITRE ATT&CK · T1558.003");
-        Assert.StartsWith("# vuln_spn_priv — ", vm.Sheet);
+        Assert.StartsWith("# vuln_spn_priv : ", vm.Sheet);
         Assert.Contains("**KRB-01**", vm.Sheet);
         Assert.Contains("livré avec SMAD-X", vm.Origin);
         Assert.False(vm.HasStudioRetrieval);
@@ -95,14 +95,14 @@ public sealed class StudioSourcesTests : IDisposable
         Assert.Equal(["anssi"], asked);
         Assert.Contains("1 changement", vm.Message);
         Assert.Contains("« Nouveau titre »", vm.Message);
-        Assert.StartsWith("# vuln_spn_priv — Nouveau titre", vm.Sheet);
+        Assert.StartsWith("# vuln_spn_priv : Nouveau titre", vm.Sheet);
         Assert.Contains("Relu par Studio le 2099-01-01", vm.Origin);
         Assert.True(File.Exists(Local));
         Assert.True(vm.HasStudioRetrieval);
 
         // Une autre fenêtre relit le relevé gardé ; revenir aux fiches livrées l'oublie
         var again = new SourcesViewModel(new Dialogs(), "KRB-01", Local);
-        Assert.StartsWith("# vuln_spn_priv — Nouveau titre", again.Sheet);
+        Assert.StartsWith("# vuln_spn_priv : Nouveau titre", again.Sheet);
         again.ResetToShippedCommand.Execute(null);
         Assert.False(File.Exists(Local));
         Assert.DoesNotContain("Nouveau titre", again.Sheet);

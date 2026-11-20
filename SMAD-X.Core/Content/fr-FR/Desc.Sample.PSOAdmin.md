@@ -1,4 +1,4 @@
-# 🔑 PSO-Tier0-Admins — Politique mots de passe administrateurs
+# 🔑 PSO-Tier0-Admins : politique de mots de passe des administrateurs
 
 Password Settings Object appliqué aux **comptes d'administration Tier 0**.
 

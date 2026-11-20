@@ -1,10 +1,10 @@
-# SP 800-53 Rev. 5 AC-5 — Separation of Duties
+# SP 800-53 Rev. 5 AC-5 : Separation of Duties
 
-> [Sommaire : NIST — SP 800-53 Rev. 5 et SP 800-63B](README.md) · English: [AC-5.md](../en/AC-5.md)
+> [Sommaire : NIST SP 800-53 Rev. 5 et SP 800-63B](README.md) · English: [AC-5.md](../en/AC-5.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | NIST — SP 800-53 Rev. 5 et SP 800-63B |
+| Référentiel | NIST SP 800-53 Rev. 5 et SP 800-63B |
 | Identifiant | `SP 800-53 Rev. 5 AC-5` |
 | Version | 5.2.0 |
 | Lien | [csrc.nist.gov/…](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
@@ -12,11 +12,11 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **TIER-01** — Violation du cloisonnement : appartenance à un groupe plus sensible
-- **TIER-04** — Compte privilégié connecté sur une machine moins sensible
-- **TIER-05** — Élément du modèle de cloisonnement absent
-- **TIER-08** — Compte ou groupe privilégié rangé hors du Tier 0
-- **TIER-09** — Compte privilégié hors d'un silo d'authentification appliqué
+- **TIER-01** : Violation du cloisonnement : appartenance à un groupe plus sensible
+- **TIER-04** : Compte privilégié connecté sur une machine moins sensible
+- **TIER-05** : Élément du modèle de cloisonnement absent
+- **TIER-08** : Compte ou groupe privilégié rangé hors du Tier 0
+- **TIER-09** : Compte privilégié hors d'un silo d'authentification appliqué
 
 ## Texte officiel (en anglais : c'est la version qui fait foi)
 

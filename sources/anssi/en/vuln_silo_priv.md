@@ -1,10 +1,10 @@
-# vuln_silo_priv — Privileged group members not in an authentication silo
+# vuln_silo_priv: Privileged group members not in an authentication silo
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_silo_priv.md](../fr/vuln_silo_priv.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_silo_priv.md](../fr/vuln_silo_priv.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_silo_priv` |
 | ANSSI level | 4 (1: most critical) |
 | Added to the checklist | 2020-07-03 |
@@ -14,8 +14,8 @@
 
 ## SMAD-X rules that cite it
 
-- **TIER-04** — Privileged account logged on to a less sensitive machine
-- **TIER-09** — Privileged account outside an enforced authentication silo
+- **TIER-04**: Privileged account logged on to a less sensitive machine
+- **TIER-09**: Privileged account outside an enforced authentication silo
 
 ## Official text
 

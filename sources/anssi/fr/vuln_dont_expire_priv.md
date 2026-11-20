@@ -1,10 +1,10 @@
-# vuln_dont_expire_priv — Comptes privilégiés dont le mot de passe n'expire jamais
+# vuln_dont_expire_priv : Comptes privilégiés dont le mot de passe n'expire jamais
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_dont_expire_priv.md](../en/vuln_dont_expire_priv.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_dont_expire_priv.md](../en/vuln_dont_expire_priv.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_dont_expire_priv` |
 | Niveau ANSSI | 1 (1 : le plus critique) |
 | Ajouté à la checklist | 2018-10-12 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PWD-01** — Compte privilégié dont le mot de passe n'expire jamais
+- **PWD-01** : Compte privilégié dont le mot de passe n'expire jamais
 
 ## Texte officiel
 

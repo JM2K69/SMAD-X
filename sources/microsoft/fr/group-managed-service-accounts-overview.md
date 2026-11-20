@@ -11,9 +11,9 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **KRB-01** — Compte privilégié vulnérable au Kerberoasting
-- **KRB-02** — Compte utilisateur vulnérable au Kerberoasting
-- **PWD-07** — Compte de service managé dont le mot de passe ne change plus
+- **KRB-01** : Compte privilégié vulnérable au Kerberoasting
+- **KRB-02** : Compte utilisateur vulnérable au Kerberoasting
+- **PWD-07** : Compte de service managé dont le mot de passe ne change plus
 
 ## Description de la page
 

@@ -1,4 +1,4 @@
-# 🔗 SiteLink-Default-Paris — Link Default ↔ Paris
+# 🔗 SiteLink-Default-Paris: Link Default ↔ Paris
 
 AD replication link between **Default-First-Site-Name** and **Site-Paris**.
 

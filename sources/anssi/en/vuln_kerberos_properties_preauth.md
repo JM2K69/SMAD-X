@@ -1,10 +1,10 @@
-# vuln_kerberos_properties_preauth — Kerberos preauthentication disabled
+# vuln_kerberos_properties_preauth: Kerberos preauthentication disabled
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_kerberos_properties_preauth.md](../fr/vuln_kerberos_properties_preauth.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_kerberos_properties_preauth.md](../fr/vuln_kerberos_properties_preauth.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_kerberos_properties_preauth` |
 | ANSSI level | 2 (1: most critical) |
 | Added to the checklist | 2018-10-01 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **KRB-04** — Account without Kerberos preauthentication
+- **KRB-04**: Account without Kerberos preauthentication
 
 ## Official text
 

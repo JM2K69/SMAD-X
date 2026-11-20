@@ -1,10 +1,10 @@
-# warning_admincount — Comptes ayant la propriété adminCount
+# warning_admincount : Comptes ayant la propriété adminCount
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [warning_admincount.md](../en/warning_admincount.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [warning_admincount.md](../en/warning_admincount.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `warning_admincount` |
 | Niveaux ANSSI | 1, 3 (1 : le plus critique ; un seuil par niveau, voir le texte) |
 | Ajouté à la checklist | 2018-09-27 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PRIV-02** — adminCount orphelin
+- **PRIV-02** : adminCount orphelin
 
 ## Texte officiel
 

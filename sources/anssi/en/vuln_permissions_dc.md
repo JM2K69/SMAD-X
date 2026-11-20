@@ -1,10 +1,10 @@
-# vuln_permissions_dc — Dangerous ACLs expose domain controller objects (attack path)
+# vuln_permissions_dc: Dangerous ACLs expose domain controller objects (attack path)
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_permissions_dc.md](../fr/vuln_permissions_dc.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_permissions_dc.md](../fr/vuln_permissions_dc.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_permissions_dc` |
 | ANSSI levels | 1, 2 (1: most critical; one threshold per level, see the text) |
 | Added to the checklist | 2019-02-22 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **ACL-03** — Dangerous permissions on the domain, AdminSDHolder or the domain controllers
+- **ACL-03**: Dangerous permissions on the domain, AdminSDHolder or the domain controllers
 
 ## Official text
 

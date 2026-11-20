@@ -11,9 +11,9 @@
 
 ## SMAD-X rules that cite it
 
-- **PRIV-01** — Privileged group member without adminCount
-- **PRIV-02** — Orphaned adminCount
-- **ACL-03** — Dangerous permissions on the domain, AdminSDHolder or the domain controllers
+- **PRIV-01**: Privileged group member without adminCount
+- **PRIV-02**: Orphaned adminCount
+- **ACL-03**: Dangerous permissions on the domain, AdminSDHolder or the domain controllers
 
 ## Page description
 

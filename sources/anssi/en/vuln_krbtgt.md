@@ -1,10 +1,10 @@
-# vuln_krbtgt — Krbtgt account password unchanged for more than a year
+# vuln_krbtgt: Krbtgt account password unchanged for more than a year
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_krbtgt.md](../fr/vuln_krbtgt.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_krbtgt.md](../fr/vuln_krbtgt.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_krbtgt` |
 | ANSSI level | 2 (1: most critical) |
 | Added to the checklist | 2018-09-26 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **KRB-05** — krbtgt account password too old
+- **KRB-05**: krbtgt account password too old
 
 ## Official text
 

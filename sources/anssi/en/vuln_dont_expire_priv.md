@@ -1,10 +1,10 @@
-# vuln_dont_expire_priv — Privileged accounts with never-expiring passwords
+# vuln_dont_expire_priv: Privileged accounts with never-expiring passwords
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_dont_expire_priv.md](../fr/vuln_dont_expire_priv.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_dont_expire_priv.md](../fr/vuln_dont_expire_priv.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_dont_expire_priv` |
 | ANSSI level | 1 (1: most critical) |
 | Added to the checklist | 2018-10-12 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **PWD-01** — Privileged account whose password never expires
+- **PWD-01**: Privileged account whose password never expires
 
 ## Official text
 

@@ -1,4 +1,4 @@
-# 💾 SRV-FILE-01 — Serveur de fichiers (Tier 1)
+# 💾 SRV-FILE-01 : serveur de fichiers (Tier 1)
 
 Serveur de fichiers principal de l'organisation.
 

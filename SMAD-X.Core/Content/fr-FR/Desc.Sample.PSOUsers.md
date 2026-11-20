@@ -1,4 +1,4 @@
-# 🔑 PSO-Standard-Users — Politique mots de passe utilisateurs
+# 🔑 PSO-Standard-Users : politique de mots de passe des utilisateurs
 
 Password Settings Object appliqué aux **comptes utilisateurs standards Tier 2**.
 

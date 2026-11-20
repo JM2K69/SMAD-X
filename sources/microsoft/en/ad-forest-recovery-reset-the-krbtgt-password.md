@@ -11,7 +11,7 @@
 
 ## SMAD-X rules that cite it
 
-- **KRB-05** — krbtgt account password too old
+- **KRB-05**: krbtgt account password too old
 
 ## Page description
 

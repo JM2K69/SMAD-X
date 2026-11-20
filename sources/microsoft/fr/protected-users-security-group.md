@@ -11,8 +11,8 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **DLG-01** — Délégation Kerberos non contrainte
-- **DLG-04** — Compte privilégié non protégé contre la délégation
+- **DLG-01** : Délégation Kerberos non contrainte
+- **DLG-04** : Compte privilégié non protégé contre la délégation
 
 ## Description de la page
 

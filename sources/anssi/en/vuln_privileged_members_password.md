@@ -1,10 +1,10 @@
-# vuln_privileged_members_password — Privileged group members with weak password policy
+# vuln_privileged_members_password: Privileged group members with weak password policy
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_privileged_members_password.md](../fr/vuln_privileged_members_password.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_privileged_members_password.md](../fr/vuln_privileged_members_password.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_privileged_members_password` |
 | ANSSI level | 2 (1: most critical) |
 | Added to the checklist | 2019-06-03 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **PWD-09** — Privileged account with a weak password policy
+- **PWD-09**: Privileged account with a weak password policy
 
 ## Official text
 

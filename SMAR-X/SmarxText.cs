@@ -39,7 +39,7 @@ namespace SMARX
 
         private static readonly Dictionary<string, (string Fr, string En)> Texts = new()
         {
-            ["App.Title"] = ("SMAR-X — qui peut faire quoi ?", "SMAR-X — who can do what?"),
+            ["App.Title"] = ("SMAR-X : qui peut faire quoi ?", "SMAR-X: who can do what?"),
             ["App.Subtitle"] = ("Simulateur des droits Linux et Windows", "Linux and Windows permissions simulator"),
             ["Button.Open"] = ("Ouvrir…", "Open…"),
             ["Button.Save"] = ("Enregistrer…", "Save…"),
@@ -68,7 +68,7 @@ namespace SMARX
             ["Button.Sample"] = ("Serveur d'exemple", "Sample server"),
             ["Button.Language"] = ("English", "Français"),
             ["Button.Glossary"] = ("Aide-mémoire", "Cheat sheet"),
-            ["Glossary.Title"] = ("SMAR-X — aide-mémoire des abréviations et des commandes", "SMAR-X — abbreviations and commands cheat sheet"),
+            ["Glossary.Title"] = ("SMAR-X : aide-mémoire des abréviations et des commandes", "SMAR-X: abbreviations and commands cheat sheet"),
             ["Glossary.ExportPdf"] = ("Exporter en PDF…", "Export to PDF…"),
             ["Glossary.LinkLinux"] = ("rwx, s, t, +, mask… ?", "rwx, s, t, +, mask…?"),
             ["Glossary.LinkWindows"] = ("F, M, RD, WD, (OI), (CI)… ?", "F, M, RD, WD, (OI), (CI)…?"),

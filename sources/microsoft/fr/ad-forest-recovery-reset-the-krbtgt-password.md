@@ -11,7 +11,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **KRB-05** — Mot de passe du compte krbtgt trop ancien
+- **KRB-05** : Mot de passe du compte krbtgt trop ancien
 
 ## Description de la page
 

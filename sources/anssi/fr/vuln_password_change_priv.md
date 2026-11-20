@@ -1,10 +1,10 @@
-# vuln_password_change_priv — Comptes privilégiés dont le mot de passe est inchangé depuis plus de 3 ans
+# vuln_password_change_priv : Comptes privilégiés dont le mot de passe est inchangé depuis plus de 3 ans
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_password_change_priv.md](../en/vuln_password_change_priv.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_password_change_priv.md](../en/vuln_password_change_priv.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_password_change_priv` |
 | Niveau ANSSI | 1 (1 : le plus critique) |
 | Ajouté à la checklist | 2018-10-01 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PWD-04** — Mot de passe d'un compte privilégié inchangé depuis plus de 3 ans
+- **PWD-04** : Mot de passe d'un compte privilégié inchangé depuis plus de 3 ans
 
 ## Texte officiel
 

@@ -1,10 +1,10 @@
-# vuln_protected_users — Privileged accounts outside of the Protected Users group
+# vuln_protected_users: Privileged accounts outside of the Protected Users group
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_protected_users.md](../fr/vuln_protected_users.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_protected_users.md](../fr/vuln_protected_users.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_protected_users` |
 | ANSSI level | 3 (1: most critical) |
 | Added to the checklist | 2019-06-11 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **DLG-04** — Privileged account not protected against delegation
+- **DLG-04**: Privileged account not protected against delegation
 
 ## Official text
 

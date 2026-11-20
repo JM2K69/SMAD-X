@@ -1,10 +1,10 @@
-# vuln_kerberos_properties_preauth_priv — Comptes privilégiés sans préauthentification Kerberos
+# vuln_kerberos_properties_preauth_priv : Comptes privilégiés sans préauthentification Kerberos
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_kerberos_properties_preauth_priv.md](../en/vuln_kerberos_properties_preauth_priv.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_kerberos_properties_preauth_priv.md](../en/vuln_kerberos_properties_preauth_priv.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_kerberos_properties_preauth_priv` |
 | Niveau ANSSI | 1 (1 : le plus critique) |
 | Ajouté à la checklist | 2018-10-01 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **KRB-03** — Compte privilégié sans préauthentification Kerberos
+- **KRB-03** : Compte privilégié sans préauthentification Kerberos
 
 ## Texte officiel
 

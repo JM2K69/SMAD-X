@@ -1,10 +1,10 @@
-# vuln_password_change_msa_no_change_90 — Managed service accounts with passwords unchanged for more than 90 days
+# vuln_password_change_msa_no_change_90: Managed service accounts with passwords unchanged for more than 90 days
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_password_change_msa_no_change_90.md](../fr/vuln_password_change_msa_no_change_90.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_password_change_msa_no_change_90.md](../fr/vuln_password_change_msa_no_change_90.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_password_change_msa_no_change_90` |
 | ANSSI level | 2 (1: most critical) |
 | Added to the checklist | 2021-03-15 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **PWD-07** — Managed service account whose password no longer changes
+- **PWD-07**: Managed service account whose password no longer changes
 
 ## Official text
 

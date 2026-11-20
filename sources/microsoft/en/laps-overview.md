@@ -11,7 +11,7 @@
 
 ## SMAD-X rules that cite it
 
-- **LAPS-01** — Computer without LAPS
+- **LAPS-01**: Computer without LAPS
 
 ## Page description
 

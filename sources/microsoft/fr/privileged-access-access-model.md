@@ -11,13 +11,13 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PRIV-05** — Groupe protégé classé hors du Tier 0
-- **TIER-01** — Violation du cloisonnement : appartenance à un groupe plus sensible
-- **TIER-02** — Violation du cloisonnement : GPO d'un tier moins sensible
-- **TIER-04** — Compte privilégié connecté sur une machine moins sensible
-- **TIER-05** — Élément du modèle de cloisonnement absent
-- **TIER-06** — Objet rangé hors des OU du modèle de cloisonnement
-- **TIER-08** — Compte ou groupe privilégié rangé hors du Tier 0
+- **PRIV-05** : Groupe protégé classé hors du Tier 0
+- **TIER-01** : Violation du cloisonnement : appartenance à un groupe plus sensible
+- **TIER-02** : Violation du cloisonnement : GPO d'un tier moins sensible
+- **TIER-04** : Compte privilégié connecté sur une machine moins sensible
+- **TIER-05** : Élément du modèle de cloisonnement absent
+- **TIER-06** : Objet rangé hors des OU du modèle de cloisonnement
+- **TIER-08** : Compte ou groupe privilégié rangé hors du Tier 0
 
 ## Description de la page
 

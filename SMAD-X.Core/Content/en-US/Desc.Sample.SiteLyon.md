@@ -1,4 +1,4 @@
-# 🏙 Site-Lyon — Secondary Site
+# 🏙 Site-Lyon: Secondary Site
 
 Active Directory site hosting the **Lyon** domain controller, connected to Paris via a WAN link.
 

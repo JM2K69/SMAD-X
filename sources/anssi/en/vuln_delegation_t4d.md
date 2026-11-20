@@ -1,10 +1,10 @@
-# vuln_delegation_t4d — Unconstrained authentication delegation
+# vuln_delegation_t4d: Unconstrained authentication delegation
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_delegation_t4d.md](../fr/vuln_delegation_t4d.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_delegation_t4d.md](../fr/vuln_delegation_t4d.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_delegation_t4d` |
 | ANSSI level | 1 (1: most critical) |
 | Added to the checklist | 2018-09-26 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **DLG-01** — Unconstrained Kerberos delegation
+- **DLG-01**: Unconstrained Kerberos delegation
 
 ## Official text
 

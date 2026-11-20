@@ -1,4 +1,4 @@
-# 🔗 SiteLink-Default-Lyon — Lien Default ↔ Lyon
+# 🔗 SiteLink-Default-Lyon : lien Default ↔ Lyon
 
 Lien de réplication AD entre **Default-First-Site-Name** et **Site-Lyon**.
 

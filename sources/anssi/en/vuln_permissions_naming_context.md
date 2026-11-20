@@ -1,10 +1,10 @@
-# vuln_permissions_naming_context — Dangerous ACLs expose a naming context root (attack path)
+# vuln_permissions_naming_context: Dangerous ACLs expose a naming context root (attack path)
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_permissions_naming_context.md](../fr/vuln_permissions_naming_context.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_permissions_naming_context.md](../fr/vuln_permissions_naming_context.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_permissions_naming_context` |
 | ANSSI levels | 1, 2 (1: most critical; one threshold per level, see the text) |
 | Added to the checklist | 2019-02-22 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **ACL-03** — Dangerous permissions on the domain, AdminSDHolder or the domain controllers
+- **ACL-03**: Dangerous permissions on the domain, AdminSDHolder or the domain controllers
 
 ## Official text
 

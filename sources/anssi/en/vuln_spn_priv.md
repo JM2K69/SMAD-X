@@ -1,10 +1,10 @@
-# vuln_spn_priv — Privileged accounts with SPN
+# vuln_spn_priv: Privileged accounts with SPN
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_spn_priv.md](../fr/vuln_spn_priv.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_spn_priv.md](../fr/vuln_spn_priv.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_spn_priv` |
 | ANSSI level | 1 (1: most critical) |
 | Added to the checklist | 2018-09-27 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **KRB-01** — Privileged account vulnerable to Kerberoasting
+- **KRB-01**: Privileged account vulnerable to Kerberoasting
 
 ## Official text
 

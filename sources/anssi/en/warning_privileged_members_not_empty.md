@@ -1,10 +1,10 @@
-# warning_privileged_members_not_empty — Privileged groups not empty
+# warning_privileged_members_not_empty: Privileged groups not empty
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [warning_privileged_members_not_empty.md](../fr/warning_privileged_members_not_empty.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [warning_privileged_members_not_empty.md](../fr/warning_privileged_members_not_empty.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `warning_privileged_members_not_empty` |
 | ANSSI level | 3 (1: most critical) |
 | Added to the checklist | 2019-01-24 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **PRIV-03** — Privileged group that should be empty
+- **PRIV-03**: Privileged group that should be empty
 
 ## Official text
 

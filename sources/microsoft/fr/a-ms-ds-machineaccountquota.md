@@ -11,7 +11,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **ACC-03** — Tout utilisateur peut joindre des ordinateurs au domaine
+- **ACC-03** : Tout utilisateur peut joindre des ordinateurs au domaine
 
 ## Description de la page
 

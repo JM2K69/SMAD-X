@@ -1,10 +1,10 @@
-# vuln_delegation_a2d2 — Constrained authentication delegation to privileged service
+# vuln_delegation_a2d2: Constrained authentication delegation to privileged service
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_delegation_a2d2.md](../fr/vuln_delegation_a2d2.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_delegation_a2d2.md](../fr/vuln_delegation_a2d2.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_delegation_a2d2` |
 | ANSSI level | 1 (1: most critical) |
 | Added to the checklist | 2018-10-01 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **DLG-03** — Constrained delegation to a domain controller
+- **DLG-03**: Constrained delegation to a domain controller
 
 ## Official text
 

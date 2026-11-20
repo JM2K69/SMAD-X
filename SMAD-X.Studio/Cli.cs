@@ -60,7 +60,7 @@ namespace SMADX.Studio
         private static int Help(TextWriter output)
         {
             output.WriteLine("""
-                SMAD-X Studio — lab authoring / création d'exercices
+                SMAD-X Studio: lab authoring / création d'exercices
 
                 Without arguments, opens the window. / Sans argument, ouvre la fenêtre.
 
@@ -209,7 +209,7 @@ namespace SMADX.Studio
                 foreach (var issue in issues.Where(i => i.Level != LabIssueLevel.Ok || options.Verbose))
                 {
                     var mark = issue.Level switch { LabIssueLevel.Error => "error", LabIssueLevel.Warning => "warning", _ => "ok" };
-                    output.WriteLine($"  {mark}: {(issue.ObjectiveId is { } id ? id + " — " : "")}{issue.Message}");
+                    output.WriteLine($"  {mark}: {(issue.ObjectiveId is { } id ? id + " · " : "")}{issue.Message}");
                 }
                 var errors = issues.Count(i => i.Level == LabIssueLevel.Error);
                 output.WriteLine($"  {errors} error(s), {issues.Count(i => i.Level == LabIssueLevel.Warning)} warning(s), {created.Lab.Objectives.Count} objective(s), {created.Lab.MaxPoints} pt");
@@ -482,7 +482,7 @@ namespace SMADX.Studio
             foreach (var issue in report.Issues.Where(i => i.Level != LabIssueLevel.Ok || options.Verbose))
             {
                 var mark = issue.Level switch { LabIssueLevel.Error => "error", LabIssueLevel.Warning => "warning", _ => "ok" };
-                output.WriteLine($"  {mark}: {(issue.ObjectiveId is { } id ? id + " — " : "")}{issue.Message}");
+                output.WriteLine($"  {mark}: {(issue.ObjectiveId is { } id ? id + " · " : "")}{issue.Message}");
             }
             var errors = report.Issues.Count(i => i.Level == LabIssueLevel.Error);
             output.WriteLine($"  {errors} error(s), {report.Warnings} warning(s), {lab.Objectives.Count} objective(s), {lab.Objectives.Sum(o => o.Points)} pt");

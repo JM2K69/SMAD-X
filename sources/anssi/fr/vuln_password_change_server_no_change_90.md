@@ -1,10 +1,10 @@
-# vuln_password_change_server_no_change_90 — Serveurs dont le mot de passe de compte d'ordinateur est inchangé depuis plus de 90 jours
+# vuln_password_change_server_no_change_90 : Serveurs dont le mot de passe de compte d'ordinateur est inchangé depuis plus de 90 jours
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_password_change_server_no_change_90.md](../en/vuln_password_change_server_no_change_90.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_password_change_server_no_change_90.md](../en/vuln_password_change_server_no_change_90.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_password_change_server_no_change_90` |
 | Niveau ANSSI | 2 (1 : le plus critique) |
 | Ajouté à la checklist | 2019-03-21 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PWD-06** — Compte d'ordinateur dont le mot de passe ne change plus
+- **PWD-06** : Compte d'ordinateur dont le mot de passe ne change plus
 
 ## Texte officiel
 

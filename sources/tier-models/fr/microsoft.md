@@ -12,10 +12,10 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **TIER-05** — Élément du modèle de cloisonnement absent
-- **TIER-06** — Objet rangé hors des OU du modèle de cloisonnement
-- **TIER-07** — Objet en attente dans une OU de transit
-- **TIER-08** — Compte ou groupe privilégié rangé hors du Tier 0
+- **TIER-05** : Élément du modèle de cloisonnement absent
+- **TIER-06** : Objet rangé hors des OU du modèle de cloisonnement
+- **TIER-07** : Objet en attente dans une OU de transit
+- **TIER-08** : Compte ou groupe privilégié rangé hors du Tier 0
 
 ## Provenance
 

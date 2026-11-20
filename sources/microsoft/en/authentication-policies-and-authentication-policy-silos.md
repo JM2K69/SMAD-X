@@ -11,8 +11,8 @@
 
 ## SMAD-X rules that cite it
 
-- **TIER-04** — Privileged account logged on to a less sensitive machine
-- **TIER-09** — Privileged account outside an enforced authentication silo
+- **TIER-04**: Privileged account logged on to a less sensitive machine
+- **TIER-09**: Privileged account outside an enforced authentication silo
 
 ## Page description
 

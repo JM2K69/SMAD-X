@@ -11,7 +11,7 @@
 
 ## SMAD-X rules that cite it
 
-- **ACC-03** — Any user can join computers to the domain
+- **ACC-03**: Any user can join computers to the domain
 
 ## Page description
 

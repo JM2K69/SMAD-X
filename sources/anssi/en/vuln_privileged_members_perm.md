@@ -1,10 +1,10 @@
-# vuln_privileged_members_perm — Dangerous ACLs expose members of privileged groups (attack path)
+# vuln_privileged_members_perm: Dangerous ACLs expose members of privileged groups (attack path)
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_privileged_members_perm.md](../fr/vuln_privileged_members_perm.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_privileged_members_perm.md](../fr/vuln_privileged_members_perm.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_privileged_members_perm` |
 | ANSSI levels | 1, 2 (1: most critical; one threshold per level, see the text) |
 | Added to the checklist | 2019-01-11 |
@@ -14,8 +14,8 @@
 
 ## SMAD-X rules that cite it
 
-- **ACL-02** — Control path to the domain through permissions
-- **TIER-03** — Tiering violation: delegation to a less sensitive tier
+- **ACL-02**: Control path to the domain through permissions
+- **TIER-03**: Tiering violation: delegation to a less sensitive tier
 
 ## Official text
 

@@ -19,6 +19,6 @@ namespace SMADX.Models
         /// <summary>Fully deserialized AD object tree.</summary>
         public ADObject Root { get; set; } = null!;
 
-        public override string ToString() => $"{DomainName}  —  {SnapshotDate:yyyy-MM-dd HH:mm}";
+        public override string ToString() => $"{DomainName} · {SnapshotDate:yyyy-MM-dd HH:mm}";
     }
 }

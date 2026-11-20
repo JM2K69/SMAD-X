@@ -51,7 +51,7 @@
                                 <TextBlock VerticalAlignment="Center">
                                     <Run Text="{Binding RuleId}" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
                                     <Run Text=" "/><Run Text="{Binding RuleTitle}" FontWeight="SemiBold"/>
-                                    <Run Text=" — "/><Run Text="{Binding ObjectName}"/>
+                                    <Run Text=" · "/><Run Text="{Binding ObjectName}"/>
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>
@@ -70,7 +70,7 @@
                                 <TextBlock VerticalAlignment="Center">
                                     <Run Text="{Binding RuleId}" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
                                     <Run Text=" "/><Run Text="{Binding RuleTitle}" FontWeight="SemiBold"/>
-                                    <Run Text=" — "/><Run Text="{Binding ObjectName}"/>
+                                    <Run Text=" · "/><Run Text="{Binding ObjectName}"/>
                                     <Run Text=" : "/><Run Text="{Binding Detail}"/>
                                 </TextBlock>
                             </StackPanel>

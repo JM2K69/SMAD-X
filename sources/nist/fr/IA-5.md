@@ -1,10 +1,10 @@
-# SP 800-53 Rev. 5 IA-5 — Authenticator Management
+# SP 800-53 Rev. 5 IA-5 : Authenticator Management
 
-> [Sommaire : NIST — SP 800-53 Rev. 5 et SP 800-63B](README.md) · English: [IA-5.md](../en/IA-5.md)
+> [Sommaire : NIST SP 800-53 Rev. 5 et SP 800-63B](README.md) · English: [IA-5.md](../en/IA-5.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | NIST — SP 800-53 Rev. 5 et SP 800-63B |
+| Référentiel | NIST SP 800-53 Rev. 5 et SP 800-63B |
 | Identifiant | `SP 800-53 Rev. 5 IA-5` |
 | Version | 5.2.0 |
 | Lien | [csrc.nist.gov/…](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
@@ -12,17 +12,17 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **KRB-02** — Compte utilisateur vulnérable au Kerberoasting
-- **KRB-04** — Compte sans préauthentification Kerberos
-- **KRB-05** — Mot de passe du compte krbtgt trop ancien
-- **PWD-01** — Compte privilégié dont le mot de passe n'expire jamais
-- **PWD-02** — Mot de passe qui n'expire jamais
-- **PWD-03** — Mot de passe non requis
-- **PWD-04** — Mot de passe d'un compte privilégié inchangé depuis plus de 3 ans
-- **PWD-05** — Mot de passe machine d'un contrôleur de domaine inchangé
-- **PWD-07** — Compte de service managé dont le mot de passe ne change plus
-- **PWD-08** — Politique de mot de passe du domaine trop courte
-- **LAPS-01** — Ordinateur sans LAPS
+- **KRB-02** : Compte utilisateur vulnérable au Kerberoasting
+- **KRB-04** : Compte sans préauthentification Kerberos
+- **KRB-05** : Mot de passe du compte krbtgt trop ancien
+- **PWD-01** : Compte privilégié dont le mot de passe n'expire jamais
+- **PWD-02** : Mot de passe qui n'expire jamais
+- **PWD-03** : Mot de passe non requis
+- **PWD-04** : Mot de passe d'un compte privilégié inchangé depuis plus de 3 ans
+- **PWD-05** : Mot de passe machine d'un contrôleur de domaine inchangé
+- **PWD-07** : Compte de service managé dont le mot de passe ne change plus
+- **PWD-08** : Politique de mot de passe du domaine trop courte
+- **LAPS-01** : Ordinateur sans LAPS
 
 ## Texte officiel (en anglais : c'est la version qui fait foi)
 

@@ -12,10 +12,10 @@
 
 ## SMAD-X rules that cite it
 
-- **TIER-05** — Tiering model element missing
-- **TIER-06** — Object outside the tiering model's OUs
-- **TIER-07** — Object waiting in a transit OU
-- **TIER-08** — Privileged account or group outside Tier 0
+- **TIER-05**: Tiering model element missing
+- **TIER-06**: Object outside the tiering model's OUs
+- **TIER-07**: Object waiting in a transit OU
+- **TIER-08**: Privileged account or group outside Tier 0
 
 ## Provenance
 

@@ -1,10 +1,10 @@
-# vuln_password_change_msa_no_change_90 — Comptes de service managés dont le mot de passe de compte est inchangé depuis plus de 90 jours
+# vuln_password_change_msa_no_change_90 : Comptes de service managés dont le mot de passe de compte est inchangé depuis plus de 90 jours
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_password_change_msa_no_change_90.md](../en/vuln_password_change_msa_no_change_90.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_password_change_msa_no_change_90.md](../en/vuln_password_change_msa_no_change_90.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_password_change_msa_no_change_90` |
 | Niveau ANSSI | 2 (1 : le plus critique) |
 | Ajouté à la checklist | 2021-03-15 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PWD-07** — Compte de service managé dont le mot de passe ne change plus
+- **PWD-07** : Compte de service managé dont le mot de passe ne change plus
 
 ## Texte officiel
 

@@ -11,8 +11,8 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **DLG-02** — Délégation contrainte avec transition de protocole vers un contrôleur de domaine
-- **DLG-03** — Délégation contrainte vers un contrôleur de domaine
+- **DLG-02** : Délégation contrainte avec transition de protocole vers un contrôleur de domaine
+- **DLG-03** : Délégation contrainte vers un contrôleur de domaine
 
 ## Description de la page
 

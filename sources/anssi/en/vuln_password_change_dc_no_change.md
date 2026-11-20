@@ -1,10 +1,10 @@
-# vuln_password_change_dc_no_change — Domain controllers with passwords unchanged for more than 45 days
+# vuln_password_change_dc_no_change: Domain controllers with passwords unchanged for more than 45 days
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_password_change_dc_no_change.md](../fr/vuln_password_change_dc_no_change.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_password_change_dc_no_change.md](../fr/vuln_password_change_dc_no_change.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_password_change_dc_no_change` |
 | ANSSI level | 1 (1: most critical) |
 | Added to the checklist | 2019-03-21 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **PWD-05** — Domain controller machine password unchanged
+- **PWD-05**: Domain controller machine password unchanged
 
 ## Official text
 

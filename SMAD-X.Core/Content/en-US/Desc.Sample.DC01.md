@@ -1,4 +1,4 @@
-# 🖧 DC01 — Primary Domain Controller (Tier 0)
+# 🖧 DC01: Primary Domain Controller (Tier 0)
 
 First domain controller of the contoso.com domain.
 

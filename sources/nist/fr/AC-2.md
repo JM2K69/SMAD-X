@@ -1,10 +1,10 @@
-# SP 800-53 Rev. 5 AC-2 — Account Management
+# SP 800-53 Rev. 5 AC-2 : Account Management
 
-> [Sommaire : NIST — SP 800-53 Rev. 5 et SP 800-63B](README.md) · English: [AC-2.md](../en/AC-2.md)
+> [Sommaire : NIST SP 800-53 Rev. 5 et SP 800-63B](README.md) · English: [AC-2.md](../en/AC-2.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | NIST — SP 800-53 Rev. 5 et SP 800-63B |
+| Référentiel | NIST SP 800-53 Rev. 5 et SP 800-63B |
 | Identifiant | `SP 800-53 Rev. 5 AC-2` |
 | Version | 5.2.0 |
 | Lien | [csrc.nist.gov/…](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
@@ -12,13 +12,13 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PWD-06** — Compte d'ordinateur dont le mot de passe ne change plus
-- **ACC-03** — Tout utilisateur peut joindre des ordinateurs au domaine
-- **ACC-01** — Compte Invité actif
-- **ACC-02** — Compte dormant
-- **PRIV-02** — adminCount orphelin
-- **TIER-07** — Objet en attente dans une OU de transit
-- **GRP-01** — Boucle d'imbrication de groupes
+- **PWD-06** : Compte d'ordinateur dont le mot de passe ne change plus
+- **ACC-03** : Tout utilisateur peut joindre des ordinateurs au domaine
+- **ACC-01** : Compte Invité actif
+- **ACC-02** : Compte dormant
+- **PRIV-02** : adminCount orphelin
+- **TIER-07** : Objet en attente dans une OU de transit
+- **GRP-01** : Boucle d'imbrication de groupes
 
 ## Texte officiel (en anglais : c'est la version qui fait foi)
 

@@ -1,10 +1,10 @@
-# vuln_delegation_t2a4d — Délégation d'authentification contrainte avec transition de protocole vers un service privilégié
+# vuln_delegation_t2a4d : Délégation d'authentification contrainte avec transition de protocole vers un service privilégié
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_delegation_t2a4d.md](../en/vuln_delegation_t2a4d.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_delegation_t2a4d.md](../en/vuln_delegation_t2a4d.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_delegation_t2a4d` |
 | Niveau ANSSI | 1 (1 : le plus critique) |
 | Ajouté à la checklist | 2018-10-01 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **DLG-02** — Délégation contrainte avec transition de protocole vers un contrôleur de domaine
+- **DLG-02** : Délégation contrainte avec transition de protocole vers un contrôleur de domaine
 
 ## Texte officiel
 

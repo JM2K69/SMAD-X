@@ -1337,7 +1337,7 @@ namespace SMADX.Services
             {
                 Name        = "Site-Paris",
                 Description = loc["Desc.Sample.SiteParis"],
-                Location    = "Paris, France — Datacenter Principal",
+                Location    = "Paris, France (datacenter principal)",
             };
             siteParis.Subnets.Add(new ADSubnet
             {
@@ -1354,7 +1354,7 @@ namespace SMADX.Services
             {
                 Name        = "Site-Lyon",
                 Description = loc["Desc.Sample.SiteLyon"],
-                Location    = "Lyon, France — Site Secondaire",
+                Location    = "Lyon, France (site secondaire)",
             };
             siteLyon.Subnets.Add(new ADSubnet
             {

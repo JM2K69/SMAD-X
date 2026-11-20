@@ -1,4 +1,4 @@
-# 👤 Alice Smith (asmith) — Manager (Tier 2)
+# 👤 Alice Smith (asmith) : manager (Tier 2)
 
 Compte utilisateur standard pour une manager de l'organisation.
 

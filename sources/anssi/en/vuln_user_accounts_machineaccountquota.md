@@ -1,10 +1,10 @@
-# vuln_user_accounts_machineaccountquota — Unrestricted domain join
+# vuln_user_accounts_machineaccountquota: Unrestricted domain join
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_user_accounts_machineaccountquota.md](../fr/vuln_user_accounts_machineaccountquota.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_user_accounts_machineaccountquota.md](../fr/vuln_user_accounts_machineaccountquota.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_user_accounts_machineaccountquota` |
 | ANSSI level | 4 (1: most critical) |
 | Added to the checklist | 2022-07-29 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **ACC-03** — Any user can join computers to the domain
+- **ACC-03**: Any user can join computers to the domain
 
 ## Official text
 

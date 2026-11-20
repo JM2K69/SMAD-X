@@ -1,4 +1,4 @@
-# 🖧 DC03 — Domain Controller — Site Lyon (Tier 0)
+# 🖧 DC03: Domain Controller, Site Lyon (Tier 0)
 
 Secondary domain controller hosted in the **Site-Lyon** site (10.0.2.0/24).
 

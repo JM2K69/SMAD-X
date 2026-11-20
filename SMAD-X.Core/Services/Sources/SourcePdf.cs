@@ -81,9 +81,9 @@ namespace SMADX.Services.Sources
 
             var document = PdfDocument.Create(MarkdownPdf.NewPdfOptions());
             document.Meta(
-                title: item.Framework is "microsoft" or "tier-models" ? title : $"{item.Id} — {title}",
+                title: item.Framework is "microsoft" or "tier-models" ? title : $"{item.Id}{T(lang, " : ", ": ")}{title}",
                 author: $"SMAD-X {version}",
-                subject: T(lang, $"{name} — fiche extraite de la suite SMA-X : {Repository}", $"{name} — sheet taken from the SMA-X suite: {Repository}"),
+                subject: T(lang, $"{name} : fiche extraite de la suite SMA-X ({Repository})", $"{name}: sheet taken from the SMA-X suite ({Repository})"),
                 keywords: $"SMAD-X, SMA-X, {name}, {item.Id}, Active Directory");
             document.Compose(d => d.Page(page =>
             {

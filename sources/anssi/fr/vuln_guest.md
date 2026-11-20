@@ -1,10 +1,10 @@
-# vuln_guest — Compte Invité actif
+# vuln_guest : Compte Invité actif
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_guest.md](../en/vuln_guest.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_guest.md](../en/vuln_guest.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_guest` |
 | Niveau ANSSI | 2 (1 : le plus critique) |
 | Ajouté à la checklist | 2021-12-02 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **ACC-01** — Compte Invité actif
+- **ACC-01** : Compte Invité actif
 
 ## Texte officiel
 

@@ -1,10 +1,10 @@
-# vuln_group_loop — Présences de boucles d'imbrication de groupes
+# vuln_group_loop : Présences de boucles d'imbrication de groupes
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_group_loop.md](../en/vuln_group_loop.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_group_loop.md](../en/vuln_group_loop.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_group_loop` |
 | Niveau ANSSI | 4 (1 : le plus critique) |
 | Ajouté à la checklist | 2023-12-06 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **GRP-01** — Boucle d'imbrication de groupes
+- **GRP-01** : Boucle d'imbrication de groupes
 
 ## Texte officiel
 

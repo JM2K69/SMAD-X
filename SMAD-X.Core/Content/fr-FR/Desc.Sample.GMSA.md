@@ -1,4 +1,4 @@
-# 🔐 svc-webapp — Group Managed Service Account (Tier 1)
+# 🔐 svc-webapp : Group Managed Service Account (Tier 1)
 
 Compte de service géré de groupe pour l'application web de l'organisation.
 

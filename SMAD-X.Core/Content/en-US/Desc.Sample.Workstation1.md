@@ -1,4 +1,4 @@
-# 💻 WKS-001 — John Doe's Workstation (Tier 2)
+# 💻 WKS-001: John Doe's Workstation (Tier 2)
 
 Workstation assigned to developer John Doe.
 

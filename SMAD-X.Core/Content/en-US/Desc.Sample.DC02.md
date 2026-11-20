@@ -1,4 +1,4 @@
-# 🖧 DC02 — Secondary Domain Controller — Site Paris (Tier 0)
+# 🖧 DC02: Secondary Domain Controller, Site Paris (Tier 0)
 
 Secondary domain controller hosted in the **Site-Paris** site (10.0.1.0/24).
 

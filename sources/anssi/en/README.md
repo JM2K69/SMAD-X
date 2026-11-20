@@ -1,4 +1,4 @@
-# ANSSI — Active Directory control points
+# ANSSI Active Directory control points
 
 > [All sources](../../README.md) · Français : [../fr/README.md](../fr/README.md)
 

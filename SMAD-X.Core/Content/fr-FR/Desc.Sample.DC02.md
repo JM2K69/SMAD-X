@@ -1,4 +1,4 @@
-# 🖧 DC02 — Contrôleur de domaine secondaire — Site Paris (Tier 0)
+# 🖧 DC02 : contrôleur de domaine secondaire, site Paris (Tier 0)
 
 Contrôleur de domaine secondaire hébergé dans le site **Site-Paris** (10.0.1.0/24).
 

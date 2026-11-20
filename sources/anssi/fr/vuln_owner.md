@@ -1,10 +1,10 @@
-# vuln_owner — Objets ayant un propriétaire inadapté
+# vuln_owner : Objets ayant un propriétaire inadapté
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_owner.md](../en/vuln_owner.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_owner.md](../en/vuln_owner.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_owner` |
 | Niveau ANSSI | 3 (1 : le plus critique) |
 | Ajouté à la checklist | 2019-08-27 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **ACL-01** — Objet critique avec un propriétaire inadapté
+- **ACL-01** : Objet critique avec un propriétaire inadapté
 
 ## Texte officiel
 

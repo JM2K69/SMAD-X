@@ -1,10 +1,10 @@
-# vuln_password_change_priv — Privileged account passwords age too old
+# vuln_password_change_priv: Privileged account passwords age too old
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_password_change_priv.md](../fr/vuln_password_change_priv.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_password_change_priv.md](../fr/vuln_password_change_priv.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_password_change_priv` |
 | ANSSI level | 1 (1: most critical) |
 | Added to the checklist | 2018-10-01 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **PWD-04** — Privileged account password unchanged for more than 3 years
+- **PWD-04**: Privileged account password unchanged for more than 3 years
 
 ## Official text
 

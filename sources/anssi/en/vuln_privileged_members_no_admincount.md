@@ -1,10 +1,10 @@
-# vuln_privileged_members_no_admincount — Privileged groups members having an adminCount attribute which is null or 0
+# vuln_privileged_members_no_admincount: Privileged groups members having an adminCount attribute which is null or 0
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_privileged_members_no_admincount.md](../fr/vuln_privileged_members_no_admincount.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_privileged_members_no_admincount.md](../fr/vuln_privileged_members_no_admincount.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_privileged_members_no_admincount` |
 | ANSSI level | 2 (1: most critical) |
 | Added to the checklist | 2020-01-06 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **PRIV-01** — Privileged group member without adminCount
+- **PRIV-01**: Privileged group member without adminCount
 
 ## Official text
 

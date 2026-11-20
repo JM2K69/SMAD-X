@@ -11,8 +11,8 @@
 
 ## SMAD-X rules that cite it
 
-- **DLG-02** — Constrained delegation with protocol transition to a domain controller
-- **DLG-03** — Constrained delegation to a domain controller
+- **DLG-02**: Constrained delegation with protocol transition to a domain controller
+- **DLG-03**: Constrained delegation to a domain controller
 
 ## Page description
 

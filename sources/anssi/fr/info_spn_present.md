@@ -1,17 +1,17 @@
-# info_spn_present — Comptes utilisateurs avec SPN
+# info_spn_present : Comptes utilisateurs avec SPN
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [info_spn_present.md](../en/info_spn_present.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [info_spn_present.md](../en/info_spn_present.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `info_spn_present` |
 | Lien | [cert.cyber.gouv.fr/…](https://cert.cyber.gouv.fr/uploads/ad_checklist.html) |
 | Cité par SMAD-X | KRB-02 |
 
 ## Règles de SMAD-X qui le citent
 
-- **KRB-02** — Compte utilisateur vulnérable au Kerberoasting
+- **KRB-02** : Compte utilisateur vulnérable au Kerberoasting
 
 ## Texte officiel
 

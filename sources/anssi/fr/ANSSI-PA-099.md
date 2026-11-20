@@ -1,27 +1,27 @@
-# ANSSI-PA-099 — Recommandations pour l’administration sécurisée des SI reposant sur AD
+# ANSSI-PA-099 : Recommandations pour l’administration sécurisée des SI reposant sur AD
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [ANSSI-PA-099.md](../en/ANSSI-PA-099.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [ANSSI-PA-099.md](../en/ANSSI-PA-099.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `ANSSI-PA-099` |
 | Lien | [messervices.cyber.gouv.fr/…](https://messervices.cyber.gouv.fr/guides/recommandations-pour-ladministration-securisee-des-si-reposant-sur-ad) |
 | Cité par SMAD-X | PRIV-05 · ACL-02 · TIER-01 · TIER-02 · TIER-03 · TIER-04 · TIER-05 · TIER-06 · TIER-07 · TIER-08 · TIER-09 |
 
 ## Règles de SMAD-X qui le citent
 
-- **PRIV-05** — Groupe protégé classé hors du Tier 0
-- **ACL-02** — Chemin de contrôle vers le domaine par les permissions
-- **TIER-01** — Violation du cloisonnement : appartenance à un groupe plus sensible
-- **TIER-02** — Violation du cloisonnement : GPO d'un tier moins sensible
-- **TIER-03** — Violation du cloisonnement : délégation à un tier moins sensible
-- **TIER-04** — Compte privilégié connecté sur une machine moins sensible
-- **TIER-05** — Élément du modèle de cloisonnement absent
-- **TIER-06** — Objet rangé hors des OU du modèle de cloisonnement
-- **TIER-07** — Objet en attente dans une OU de transit
-- **TIER-08** — Compte ou groupe privilégié rangé hors du Tier 0
-- **TIER-09** — Compte privilégié hors d'un silo d'authentification appliqué
+- **PRIV-05** : Groupe protégé classé hors du Tier 0
+- **ACL-02** : Chemin de contrôle vers le domaine par les permissions
+- **TIER-01** : Violation du cloisonnement : appartenance à un groupe plus sensible
+- **TIER-02** : Violation du cloisonnement : GPO d'un tier moins sensible
+- **TIER-03** : Violation du cloisonnement : délégation à un tier moins sensible
+- **TIER-04** : Compte privilégié connecté sur une machine moins sensible
+- **TIER-05** : Élément du modèle de cloisonnement absent
+- **TIER-06** : Objet rangé hors des OU du modèle de cloisonnement
+- **TIER-07** : Objet en attente dans une OU de transit
+- **TIER-08** : Compte ou groupe privilégié rangé hors du Tier 0
+- **TIER-09** : Compte privilégié hors d'un silo d'authentification appliqué
 
 ## Texte officiel
 

@@ -1,10 +1,10 @@
-# vuln_privileged_members_no_admincount — Comptes membres de groupes privilégiés ayant un attribut adminCount vide ou valant 0
+# vuln_privileged_members_no_admincount : Comptes membres de groupes privilégiés ayant un attribut adminCount vide ou valant 0
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_privileged_members_no_admincount.md](../en/vuln_privileged_members_no_admincount.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_privileged_members_no_admincount.md](../en/vuln_privileged_members_no_admincount.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_privileged_members_no_admincount` |
 | Niveau ANSSI | 2 (1 : le plus critique) |
 | Ajouté à la checklist | 2020-01-06 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PRIV-01** — Membre d'un groupe privilégié sans adminCount
+- **PRIV-01** : Membre d'un groupe privilégié sans adminCount
 
 ## Texte officiel
 

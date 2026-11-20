@@ -1,10 +1,10 @@
-# vuln_user_accounts_machineaccountquota — Ajout de machines au domaine non limité
+# vuln_user_accounts_machineaccountquota : Ajout de machines au domaine non limité
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_user_accounts_machineaccountquota.md](../en/vuln_user_accounts_machineaccountquota.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_user_accounts_machineaccountquota.md](../en/vuln_user_accounts_machineaccountquota.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_user_accounts_machineaccountquota` |
 | Niveau ANSSI | 4 (1 : le plus critique) |
 | Ajouté à la checklist | 2022-07-29 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **ACC-03** — Tout utilisateur peut joindre des ordinateurs au domaine
+- **ACC-03** : Tout utilisateur peut joindre des ordinateurs au domaine
 
 ## Texte officiel
 

@@ -217,7 +217,7 @@ namespace SMADX.Services.Sources
         {
             var s = new StringBuilder();
             var title = T(lang, item.TitleFr, item.TitleEn);
-            var heading = item.Framework is "microsoft" or "tier-models" ? title : $"{item.Id} — {title}";
+            var heading = item.Framework is "microsoft" or "tier-models" ? title : $"{item.Id}{T(lang, " : ", ": ")}{title}";
             s.Append("# ").Append(heading).Append("\n\n");
             if (links)
             {
@@ -235,7 +235,7 @@ namespace SMADX.Services.Sources
             {
                 s.Append(T(lang, "## Règles de SMAD-X qui le citent\n\n", "## SMAD-X rules that cite it\n\n"));
                 foreach (var r in item.UsedBy)
-                    s.Append("- **").Append(r).Append("**").Append(rules.TryGetValue(r, out var t) ? " — " + T(lang, t.Fr, t.En) : "").Append('\n');
+                    s.Append("- **").Append(r).Append("**").Append(rules.TryGetValue(r, out var t) ? T(lang, " : ", ": ") + T(lang, t.Fr, t.En) : "").Append('\n');
                 s.Append('\n');
             }
 

@@ -1,10 +1,10 @@
-# info_user_accounts_dormant — Comptes actifs inutilisés
+# info_user_accounts_dormant : Comptes actifs inutilisés
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [info_user_accounts_dormant.md](../en/info_user_accounts_dormant.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [info_user_accounts_dormant.md](../en/info_user_accounts_dormant.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `info_user_accounts_dormant` |
 | Ajouté à la checklist | 2018-09-26 |
 | Dernière modification | 2024-04-23 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **ACC-02** — Compte dormant
+- **ACC-02** : Compte dormant
 
 ## Texte officiel
 

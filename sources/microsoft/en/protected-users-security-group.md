@@ -11,8 +11,8 @@
 
 ## SMAD-X rules that cite it
 
-- **DLG-01** — Unconstrained Kerberos delegation
-- **DLG-04** — Privileged account not protected against delegation
+- **DLG-01**: Unconstrained Kerberos delegation
+- **DLG-04**: Privileged account not protected against delegation
 
 ## Page description
 

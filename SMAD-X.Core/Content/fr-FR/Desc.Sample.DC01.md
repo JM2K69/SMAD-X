@@ -1,4 +1,4 @@
-# 🖧 DC01 — Contrôleur de domaine principal (Tier 0)
+# 🖧 DC01 : contrôleur de domaine principal (Tier 0)
 
 Premier contrôleur de domaine du domaine contoso.com.
 

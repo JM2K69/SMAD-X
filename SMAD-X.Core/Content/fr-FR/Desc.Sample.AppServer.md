@@ -1,4 +1,4 @@
-# ⚙️ SRV-APP-01 — Serveur d'applications (Tier 1)
+# ⚙️ SRV-APP-01 : serveur d'applications (Tier 1)
 
 Serveur hébergeant les applications métier de l'organisation.
 

@@ -1,4 +1,4 @@
-# ANSSI — Points de contrôle Active Directory
+# Points de contrôle Active Directory de l'ANSSI
 
 > [Toutes les sources](../../ReadmeFR.md) · English: [../en/README.md](../en/README.md)
 

@@ -1,10 +1,10 @@
-# vuln_privileged_members_perm — Permissions dangereuses sur des membres de groupes privilégiés (chemins de contrôle)
+# vuln_privileged_members_perm : Permissions dangereuses sur des membres de groupes privilégiés (chemins de contrôle)
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_privileged_members_perm.md](../en/vuln_privileged_members_perm.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_privileged_members_perm.md](../en/vuln_privileged_members_perm.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_privileged_members_perm` |
 | Niveaux ANSSI | 1, 2 (1 : le plus critique ; un seuil par niveau, voir le texte) |
 | Ajouté à la checklist | 2019-01-11 |
@@ -14,8 +14,8 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **ACL-02** — Chemin de contrôle vers le domaine par les permissions
-- **TIER-03** — Violation du cloisonnement : délégation à un tier moins sensible
+- **ACL-02** : Chemin de contrôle vers le domaine par les permissions
+- **TIER-03** : Violation du cloisonnement : délégation à un tier moins sensible
 
 ## Texte officiel
 

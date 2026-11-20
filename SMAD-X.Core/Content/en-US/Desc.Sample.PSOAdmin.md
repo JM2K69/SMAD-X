@@ -1,4 +1,4 @@
-# 🔑 PSO-Tier0-Admins — Admin Password Policy
+# 🔑 PSO-Tier0-Admins: Admin Password Policy
 
 Password Settings Object applied to **Tier 0 administration accounts**.
 

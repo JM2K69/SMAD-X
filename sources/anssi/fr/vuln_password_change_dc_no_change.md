@@ -1,10 +1,10 @@
-# vuln_password_change_dc_no_change — Contrôleurs de domaine dont le mot de passe de compte d'ordinateur est inchangé depuis plus de 45 jours
+# vuln_password_change_dc_no_change : Contrôleurs de domaine dont le mot de passe de compte d'ordinateur est inchangé depuis plus de 45 jours
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_password_change_dc_no_change.md](../en/vuln_password_change_dc_no_change.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_password_change_dc_no_change.md](../en/vuln_password_change_dc_no_change.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_password_change_dc_no_change` |
 | Niveau ANSSI | 1 (1 : le plus critique) |
 | Ajouté à la checklist | 2019-03-21 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PWD-05** — Mot de passe machine d'un contrôleur de domaine inchangé
+- **PWD-05** : Mot de passe machine d'un contrôleur de domaine inchangé
 
 ## Texte officiel
 

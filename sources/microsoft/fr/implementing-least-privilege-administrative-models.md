@@ -11,8 +11,8 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **ACL-02** — Chemin de contrôle vers le domaine par les permissions
-- **TIER-03** — Violation du cloisonnement : délégation à un tier moins sensible
+- **ACL-02** : Chemin de contrôle vers le domaine par les permissions
+- **TIER-03** : Violation du cloisonnement : délégation à un tier moins sensible
 
 ## Description de la page
 

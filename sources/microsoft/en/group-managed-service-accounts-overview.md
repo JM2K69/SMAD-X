@@ -11,9 +11,9 @@
 
 ## SMAD-X rules that cite it
 
-- **KRB-01** — Privileged account vulnerable to Kerberoasting
-- **KRB-02** — User account vulnerable to Kerberoasting
-- **PWD-07** — Managed service account whose password no longer changes
+- **KRB-01**: Privileged account vulnerable to Kerberoasting
+- **KRB-02**: User account vulnerable to Kerberoasting
+- **PWD-07**: Managed service account whose password no longer changes
 
 ## Page description
 

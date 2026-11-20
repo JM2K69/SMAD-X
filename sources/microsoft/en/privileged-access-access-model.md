@@ -11,13 +11,13 @@
 
 ## SMAD-X rules that cite it
 
-- **PRIV-05** — Protected group classified outside Tier 0
-- **TIER-01** — Tiering violation: membership in a more sensitive group
-- **TIER-02** — Tiering violation: GPO from a less sensitive tier
-- **TIER-04** — Privileged account logged on to a less sensitive machine
-- **TIER-05** — Tiering model element missing
-- **TIER-06** — Object outside the tiering model's OUs
-- **TIER-08** — Privileged account or group outside Tier 0
+- **PRIV-05**: Protected group classified outside Tier 0
+- **TIER-01**: Tiering violation: membership in a more sensitive group
+- **TIER-02**: Tiering violation: GPO from a less sensitive tier
+- **TIER-04**: Privileged account logged on to a less sensitive machine
+- **TIER-05**: Tiering model element missing
+- **TIER-06**: Object outside the tiering model's OUs
+- **TIER-08**: Privileged account or group outside Tier 0
 
 ## Page description
 

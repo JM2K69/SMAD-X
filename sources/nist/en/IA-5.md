@@ -1,10 +1,10 @@
-# SP 800-53 Rev. 5 IA-5 — Authenticator Management
+# SP 800-53 Rev. 5 IA-5: Authenticator Management
 
-> [Contents: NIST — SP 800-53 Rev. 5 and SP 800-63B](README.md) · Français : [IA-5.md](../fr/IA-5.md)
+> [Contents: NIST SP 800-53 Rev. 5 and SP 800-63B](README.md) · Français : [IA-5.md](../fr/IA-5.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | NIST — SP 800-53 Rev. 5 and SP 800-63B |
+| Framework | NIST SP 800-53 Rev. 5 and SP 800-63B |
 | Identifier | `SP 800-53 Rev. 5 IA-5` |
 | Version | 5.2.0 |
 | Link | [csrc.nist.gov/…](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
@@ -12,17 +12,17 @@
 
 ## SMAD-X rules that cite it
 
-- **KRB-02** — User account vulnerable to Kerberoasting
-- **KRB-04** — Account without Kerberos preauthentication
-- **KRB-05** — krbtgt account password too old
-- **PWD-01** — Privileged account whose password never expires
-- **PWD-02** — Password never expires
-- **PWD-03** — Password not required
-- **PWD-04** — Privileged account password unchanged for more than 3 years
-- **PWD-05** — Domain controller machine password unchanged
-- **PWD-07** — Managed service account whose password no longer changes
-- **PWD-08** — Domain password policy too short
-- **LAPS-01** — Computer without LAPS
+- **KRB-02**: User account vulnerable to Kerberoasting
+- **KRB-04**: Account without Kerberos preauthentication
+- **KRB-05**: krbtgt account password too old
+- **PWD-01**: Privileged account whose password never expires
+- **PWD-02**: Password never expires
+- **PWD-03**: Password not required
+- **PWD-04**: Privileged account password unchanged for more than 3 years
+- **PWD-05**: Domain controller machine password unchanged
+- **PWD-07**: Managed service account whose password no longer changes
+- **PWD-08**: Domain password policy too short
+- **LAPS-01**: Computer without LAPS
 
 ## Official text
 

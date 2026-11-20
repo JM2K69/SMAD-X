@@ -1,10 +1,10 @@
-# vuln_delegation_t4d — Délégation d'authentification non contrainte
+# vuln_delegation_t4d : Délégation d'authentification non contrainte
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_delegation_t4d.md](../en/vuln_delegation_t4d.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_delegation_t4d.md](../en/vuln_delegation_t4d.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_delegation_t4d` |
 | Niveau ANSSI | 1 (1 : le plus critique) |
 | Ajouté à la checklist | 2018-09-26 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **DLG-01** — Délégation Kerberos non contrainte
+- **DLG-01** : Délégation Kerberos non contrainte
 
 ## Texte officiel
 

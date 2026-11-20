@@ -1,10 +1,10 @@
-# vuln_dont_expire — Accounts with never-expiring passwords
+# vuln_dont_expire: Accounts with never-expiring passwords
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_dont_expire.md](../fr/vuln_dont_expire.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_dont_expire.md](../fr/vuln_dont_expire.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_dont_expire` |
 | ANSSI level | 2 (1: most critical) |
 | Added to the checklist | 2018-09-28 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **PWD-02** — Password never expires
+- **PWD-02**: Password never expires
 
 ## Official text
 

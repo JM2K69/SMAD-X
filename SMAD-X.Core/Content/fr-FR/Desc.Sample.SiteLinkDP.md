@@ -1,4 +1,4 @@
-# 🔗 SiteLink-Default-Paris — Lien Default ↔ Paris
+# 🔗 SiteLink-Default-Paris : lien Default ↔ Paris
 
 Lien de réplication AD entre **Default-First-Site-Name** et **Site-Paris**.
 

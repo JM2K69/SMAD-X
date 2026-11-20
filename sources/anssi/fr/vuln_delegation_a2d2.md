@@ -1,10 +1,10 @@
-# vuln_delegation_a2d2 — Délégation d'authentification contrainte vers un service privilégié
+# vuln_delegation_a2d2 : Délégation d'authentification contrainte vers un service privilégié
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_delegation_a2d2.md](../en/vuln_delegation_a2d2.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_delegation_a2d2.md](../en/vuln_delegation_a2d2.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_delegation_a2d2` |
 | Niveau ANSSI | 1 (1 : le plus critique) |
 | Ajouté à la checklist | 2018-10-01 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **DLG-03** — Délégation contrainte vers un contrôleur de domaine
+- **DLG-03** : Délégation contrainte vers un contrôleur de domaine
 
 ## Texte officiel
 

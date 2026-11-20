@@ -1,4 +1,4 @@
-# NIST — SP 800-53 Rev. 5 and SP 800-63B
+# NIST SP 800-53 Rev. 5 and SP 800-63B
 
 > [All sources](../../README.md) · Français : [../fr/README.md](../fr/README.md)
 

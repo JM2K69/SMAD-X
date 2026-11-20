@@ -1,10 +1,10 @@
-# vuln_dnsadmins — Permissions dangereuses sur le groupe DnsAdmins
+# vuln_dnsadmins : Permissions dangereuses sur le groupe DnsAdmins
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_dnsadmins.md](../en/vuln_dnsadmins.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_dnsadmins.md](../en/vuln_dnsadmins.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_dnsadmins` |
 | Niveau ANSSI | 1 (1 : le plus critique) |
 | Ajouté à la checklist | 2018-12-19 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PRIV-04** — Membre non privilégié du groupe DnsAdmins
+- **PRIV-04** : Membre non privilégié du groupe DnsAdmins
 
 ## Texte officiel
 

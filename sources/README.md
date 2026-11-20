@@ -8,8 +8,8 @@ Retrieved on 2026-11-13, by `tools/SmadxSources`.
 
 | Framework | Source | Retrieved publication | Sheets | Licence |
 |---|---|---|---|---|
-| [ANSSI — Active Directory control points](anssi/en/README.md) | [cert.cyber.gouv.fr/…](https://cert.cyber.gouv.fr/uploads/ad_checklist.html) | 2026-11-12 | 33 | Etalab Open Licence 2.0: free reuse citing the source (CERT-FR / ANSSI) and the date of its update; official texts reproduced in French and English |
-| [NIST — SP 800-53 Rev. 5 and SP 800-63B](nist/en/README.md) | [csrc.nist.gov/…](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) | SP 800-53 Rev. 5, OSCAL 5.2.0 (2026-10-22) | 6 | public domain: a United States Government publication (17 U.S.C. § 105); official statements reproduced |
+| [ANSSI Active Directory control points](anssi/en/README.md) | [cert.cyber.gouv.fr/…](https://cert.cyber.gouv.fr/uploads/ad_checklist.html) | 2026-11-12 | 33 | Etalab Open Licence 2.0: free reuse citing the source (CERT-FR / ANSSI) and the date of its update; official texts reproduced in French and English |
+| [NIST SP 800-53 Rev. 5 and SP 800-63B](nist/en/README.md) | [csrc.nist.gov/…](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) | SP 800-53 Rev. 5, OSCAL 5.2.0 (2026-10-22) | 6 | public domain: a United States Government publication (17 U.S.C. § 105); official statements reproduced |
 | [CIS Controls v8](cis/en/README.md) | [www.cisecurity.org/…](https://www.cisecurity.org/controls/v8) | 2025-03-19 | 5 | © Center for Internet Security, CC BY-NC-ND 4.0 licence: only the identifier and official title of each safeguard are reproduced, with the link |
 | [MITRE ATT&CK® (Enterprise)](mitre-attack/en/README.md) | [attack.mitre.org](https://attack.mitre.org/) | ATT&CK v20.1 | 14 | MITRE ATT&CK terms of use: reproduction allowed with the notice below; first paragraph of each description reproduced |
 | [Microsoft Learn](microsoft/en/README.md) | [learn.microsoft.com](https://learn.microsoft.com/) | — | 11 | © Microsoft: only the title and description of each page are reproduced, with the link; the content stays on Microsoft Learn |

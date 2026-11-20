@@ -1,10 +1,10 @@
-# vuln_permissions_naming_context — Permissions dangereuses sur la racine des naming contexts (chemins de contrôle)
+# vuln_permissions_naming_context : Permissions dangereuses sur la racine des naming contexts (chemins de contrôle)
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_permissions_naming_context.md](../en/vuln_permissions_naming_context.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_permissions_naming_context.md](../en/vuln_permissions_naming_context.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_permissions_naming_context` |
 | Niveaux ANSSI | 1, 2 (1 : le plus critique ; un seuil par niveau, voir le texte) |
 | Ajouté à la checklist | 2019-02-22 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **ACL-03** — Permissions dangereuses sur le domaine, AdminSDHolder ou les contrôleurs de domaine
+- **ACL-03** : Permissions dangereuses sur le domaine, AdminSDHolder ou les contrôleurs de domaine
 
 ## Texte officiel
 

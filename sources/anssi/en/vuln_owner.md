@@ -1,10 +1,10 @@
-# vuln_owner — Incorrect object owners
+# vuln_owner: Incorrect object owners
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_owner.md](../fr/vuln_owner.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_owner.md](../fr/vuln_owner.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_owner` |
 | ANSSI level | 3 (1: most critical) |
 | Added to the checklist | 2019-08-27 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **ACL-01** — Critical object with an inappropriate owner
+- **ACL-01**: Critical object with an inappropriate owner
 
 ## Official text
 

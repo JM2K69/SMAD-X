@@ -1,4 +1,4 @@
-# 💻 WKS-001 — Poste de John Doe (Tier 2)
+# 💻 WKS-001 : poste de John Doe (Tier 2)
 
 Poste de travail assigné au développeur John Doe.
 

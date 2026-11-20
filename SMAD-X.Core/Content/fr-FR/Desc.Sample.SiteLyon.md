@@ -1,4 +1,4 @@
-# 🏙 Site-Lyon — Site Secondaire
+# 🏙 Site-Lyon : site secondaire
 
 Site Active Directory hébergeant le contrôleur de domaine de **Lyon**, connecté à Paris via un lien WAN.
 

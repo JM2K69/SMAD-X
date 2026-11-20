@@ -363,8 +363,8 @@ namespace SMADX.Studio.ViewModels
         public int TotalPoints => Objectives.Where(o => !o.IsGuard).Sum(o => o.Points) + Questions.Sum(q => q.Points);
 
         public string DomainSummary => Lab == null ? "" : string.Format(Text.T(
-            "{0} — {1} objets, {2} chemin(s) d'attaque hors Tier 0, score d'audit {3} / 100",
-            "{0} — {1} objects, {2} attack path(s) outside Tier 0, audit score {3} / 100"),
+            "{0} : {1} objets, {2} chemin(s) d'attaque hors Tier 0, score d'audit {3} / 100",
+            "{0}: {1} objects, {2} attack path(s) outside Tier 0, audit score {3} / 100"),
             WindowsServerProfile.NameOf(Lab.Start.Domain.ServerVersion) is { } server ? $"{Lab.Start.Domain.Name} ({server})" : Lab.Start.Domain.Name,
             LabAuthoring.AllObjects(Lab.Start.Domain).Count(),
             new AttackPathService(Lab.Start.Domain, Clock()).PathsOutsideTier0().Count,

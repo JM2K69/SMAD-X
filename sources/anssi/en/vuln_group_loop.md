@@ -1,10 +1,10 @@
-# vuln_group_loop — Loops in group memberships
+# vuln_group_loop: Loops in group memberships
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_group_loop.md](../fr/vuln_group_loop.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_group_loop.md](../fr/vuln_group_loop.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_group_loop` |
 | ANSSI level | 4 (1: most critical) |
 | Added to the checklist | 2023-12-06 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **GRP-01** — Group nesting loop
+- **GRP-01**: Group nesting loop
 
 ## Official text
 

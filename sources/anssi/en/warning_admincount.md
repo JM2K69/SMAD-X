@@ -1,10 +1,10 @@
-# warning_admincount — Accounts with adminCount attribute
+# warning_admincount: Accounts with adminCount attribute
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [warning_admincount.md](../fr/warning_admincount.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [warning_admincount.md](../fr/warning_admincount.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `warning_admincount` |
 | ANSSI levels | 1, 3 (1: most critical; one threshold per level, see the text) |
 | Added to the checklist | 2018-09-27 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **PRIV-02** — Orphaned adminCount
+- **PRIV-02**: Orphaned adminCount
 
 ## Official text
 

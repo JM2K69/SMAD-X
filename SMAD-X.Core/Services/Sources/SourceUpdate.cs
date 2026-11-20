@@ -61,7 +61,7 @@ namespace SMADX.Services.Sources
                 }
                 frameworks.Add(new SourceFramework
                 {
-                    Id = "anssi", NameFr = "ANSSI — Points de contrôle Active Directory", NameEn = "ANSSI — Active Directory control points",
+                    Id = "anssi", NameFr = "Points de contrôle Active Directory de l'ANSSI", NameEn = "ANSSI Active Directory control points",
                     Url = AnssiChecklistUrl, Published = anssiPage.LastModified, Retrieved = today,
                     LicenseFr = "licence ouverte Etalab 2.0 : réutilisation libre en mentionnant la source (CERT-FR / ANSSI) et la date de sa mise à jour ; textes officiels repris en français et en anglais",
                     LicenseEn = "Etalab Open Licence 2.0: free reuse citing the source (CERT-FR / ANSSI) and the date of its update; official texts reproduced in French and English"
@@ -97,7 +97,7 @@ namespace SMADX.Services.Sources
                 }
                 frameworks.Add(new SourceFramework
                 {
-                    Id = "nist", NameFr = "NIST — SP 800-53 Rev. 5 et SP 800-63B", NameEn = "NIST — SP 800-53 Rev. 5 and SP 800-63B",
+                    Id = "nist", NameFr = "NIST SP 800-53 Rev. 5 et SP 800-63B", NameEn = "NIST SP 800-53 Rev. 5 and SP 800-63B",
                     Url = "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final", Retrieved = today,
                     Published = catalog.Version != null ? $"SP 800-53 Rev. 5, OSCAL {catalog.Version} ({catalog.Published})" : catalog.Published,
                     LicenseFr = "domaine public : publication du gouvernement des États-Unis (17 U.S.C. § 105) ; énoncés officiels repris, en anglais",

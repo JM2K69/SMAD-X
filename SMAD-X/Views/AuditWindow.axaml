@@ -130,7 +130,7 @@
                                             <Run Text="{Binding FrameworkLabel}" FontWeight="SemiBold"/>
                                             <Run Text=" · "/>
                                             <Run Text="{Binding Id}" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
-                                            <Run Text=" — "/>
+                                            <Run Text=" · "/>
                                             <Run Text="{Binding Title}"/>
                                         </TextBlock>
                                     </HyperlinkButton>

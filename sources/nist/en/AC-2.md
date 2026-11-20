@@ -1,10 +1,10 @@
-# SP 800-53 Rev. 5 AC-2 — Account Management
+# SP 800-53 Rev. 5 AC-2: Account Management
 
-> [Contents: NIST — SP 800-53 Rev. 5 and SP 800-63B](README.md) · Français : [AC-2.md](../fr/AC-2.md)
+> [Contents: NIST SP 800-53 Rev. 5 and SP 800-63B](README.md) · Français : [AC-2.md](../fr/AC-2.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | NIST — SP 800-53 Rev. 5 and SP 800-63B |
+| Framework | NIST SP 800-53 Rev. 5 and SP 800-63B |
 | Identifier | `SP 800-53 Rev. 5 AC-2` |
 | Version | 5.2.0 |
 | Link | [csrc.nist.gov/…](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
@@ -12,13 +12,13 @@
 
 ## SMAD-X rules that cite it
 
-- **PWD-06** — Computer account whose password no longer changes
-- **ACC-03** — Any user can join computers to the domain
-- **ACC-01** — Active Guest account
-- **ACC-02** — Dormant account
-- **PRIV-02** — Orphaned adminCount
-- **TIER-07** — Object waiting in a transit OU
-- **GRP-01** — Group nesting loop
+- **PWD-06**: Computer account whose password no longer changes
+- **ACC-03**: Any user can join computers to the domain
+- **ACC-01**: Active Guest account
+- **ACC-02**: Dormant account
+- **PRIV-02**: Orphaned adminCount
+- **TIER-07**: Object waiting in a transit OU
+- **GRP-01**: Group nesting loop
 
 ## Official text
 

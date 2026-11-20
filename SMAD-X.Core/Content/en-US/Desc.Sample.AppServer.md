@@ -1,4 +1,4 @@
-# ⚙️ SRV-APP-01 — Application Server (Tier 1)
+# ⚙️ SRV-APP-01: Application Server (Tier 1)
 
 Server hosting the organization's business applications.
 

@@ -27,7 +27,7 @@ public class LabViewModelTests
     public void BuiltInLabs_AreListedForTheMenu()
     {
         Assert.Equal(5, _main.BuiltInLabs.Count);
-        Assert.All(_main.BuiltInLabs, l => Assert.Contains(" — ", l.Title));
+        Assert.All(_main.BuiltInLabs, l => Assert.Contains(" · ", l.Title));
     }
 
     [Fact]

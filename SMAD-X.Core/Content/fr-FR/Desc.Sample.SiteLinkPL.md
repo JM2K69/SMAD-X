@@ -1,4 +1,4 @@
-# 🔗 DEFAULTIPSITELINK — Lien Paris ↔ Lyon
+# 🔗 DEFAULTIPSITELINK : lien Paris ↔ Lyon
 
 Lien de réplication AD entre les sites **Site-Paris** et **Site-Lyon**.
 

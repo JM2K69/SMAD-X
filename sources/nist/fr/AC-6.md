@@ -1,10 +1,10 @@
-# SP 800-53 Rev. 5 AC-6 — Least Privilege
+# SP 800-53 Rev. 5 AC-6 : Least Privilege
 
-> [Sommaire : NIST — SP 800-53 Rev. 5 et SP 800-63B](README.md) · English: [AC-6.md](../en/AC-6.md)
+> [Sommaire : NIST SP 800-53 Rev. 5 et SP 800-63B](README.md) · English: [AC-6.md](../en/AC-6.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | NIST — SP 800-53 Rev. 5 et SP 800-63B |
+| Référentiel | NIST SP 800-53 Rev. 5 et SP 800-63B |
 | Identifiant | `SP 800-53 Rev. 5 AC-6` |
 | Version | 5.2.0 |
 | Lien | [csrc.nist.gov/…](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) |
@@ -12,15 +12,15 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **DLG-01** — Délégation Kerberos non contrainte
-- **DLG-02** — Délégation contrainte avec transition de protocole vers un contrôleur de domaine
-- **DLG-03** — Délégation contrainte vers un contrôleur de domaine
-- **PRIV-04** — Membre non privilégié du groupe DnsAdmins
-- **ACL-01** — Objet critique avec un propriétaire inadapté
-- **ACL-02** — Chemin de contrôle vers le domaine par les permissions
-- **ACL-03** — Permissions dangereuses sur le domaine, AdminSDHolder ou les contrôleurs de domaine
-- **TIER-01** — Violation du cloisonnement : appartenance à un groupe plus sensible
-- **TIER-03** — Violation du cloisonnement : délégation à un tier moins sensible
+- **DLG-01** : Délégation Kerberos non contrainte
+- **DLG-02** : Délégation contrainte avec transition de protocole vers un contrôleur de domaine
+- **DLG-03** : Délégation contrainte vers un contrôleur de domaine
+- **PRIV-04** : Membre non privilégié du groupe DnsAdmins
+- **ACL-01** : Objet critique avec un propriétaire inadapté
+- **ACL-02** : Chemin de contrôle vers le domaine par les permissions
+- **ACL-03** : Permissions dangereuses sur le domaine, AdminSDHolder ou les contrôleurs de domaine
+- **TIER-01** : Violation du cloisonnement : appartenance à un groupe plus sensible
+- **TIER-03** : Violation du cloisonnement : délégation à un tier moins sensible
 
 ## Texte officiel (en anglais : c'est la version qui fait foi)
 

@@ -1,10 +1,10 @@
-# vuln_permissions_gpo_priv — Permissions dangereuses sur les objets de GPO s'appliquant aux membres des groupes privilégiés (chemins de contrôle)
+# vuln_permissions_gpo_priv : Permissions dangereuses sur les objets de GPO s'appliquant aux membres des groupes privilégiés (chemins de contrôle)
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_permissions_gpo_priv.md](../en/vuln_permissions_gpo_priv.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_permissions_gpo_priv.md](../en/vuln_permissions_gpo_priv.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_permissions_gpo_priv` |
 | Niveau ANSSI | 1 (1 : le plus critique) |
 | Ajouté à la checklist | 2020-04-06 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **TIER-02** — Violation du cloisonnement : GPO d'un tier moins sensible
+- **TIER-02** : Violation du cloisonnement : GPO d'un tier moins sensible
 
 ## Texte officiel
 

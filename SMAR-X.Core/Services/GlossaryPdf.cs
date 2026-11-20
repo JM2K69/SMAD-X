@@ -74,7 +74,7 @@ namespace SMARX.Services
                 s.Append("|---|---|").Append(values ? "---|" : "").Append(lf);
                 foreach (var row in section.Rows)
                 {
-                    var meaning = row.Name.Length > 0 ? $"**{Cell(row.Name)}** — {Cell(row.Meaning)}" : Cell(row.Meaning);
+                    var meaning = row.Name.Length > 0 ? $"**{Cell(row.Name)}**{T(" : ", ": ")}{Cell(row.Meaning)}" : Cell(row.Meaning);
                     s.Append("| `").Append(Cell(row.Code)).Append("` | ").Append(meaning).Append(" |");
                     if (values) s.Append(row.Value is { } v ? " `" + v + "` |" : "  |");
                     s.Append(lf);

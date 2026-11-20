@@ -11,8 +11,8 @@
 
 ## SMAD-X rules that cite it
 
-- **ACL-02** — Control path to the domain through permissions
-- **TIER-03** — Tiering violation: delegation to a less sensitive tier
+- **ACL-02**: Control path to the domain through permissions
+- **TIER-03**: Tiering violation: delegation to a less sensitive tier
 
 ## Page description
 

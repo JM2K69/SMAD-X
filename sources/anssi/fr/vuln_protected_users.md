@@ -1,10 +1,10 @@
-# vuln_protected_users — Comptes privilégiés non membres du groupe Protected Users
+# vuln_protected_users : Comptes privilégiés non membres du groupe Protected Users
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_protected_users.md](../en/vuln_protected_users.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_protected_users.md](../en/vuln_protected_users.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_protected_users` |
 | Niveau ANSSI | 3 (1 : le plus critique) |
 | Ajouté à la checklist | 2019-06-11 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **DLG-04** — Compte privilégié non protégé contre la délégation
+- **DLG-04** : Compte privilégié non protégé contre la délégation
 
 ## Texte officiel
 

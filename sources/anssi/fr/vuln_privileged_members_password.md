@@ -1,10 +1,10 @@
-# vuln_privileged_members_password — Comptes membres de groupes privilégiés avec une mauvaise politique de mot de passe
+# vuln_privileged_members_password : Comptes membres de groupes privilégiés avec une mauvaise politique de mot de passe
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_privileged_members_password.md](../en/vuln_privileged_members_password.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_privileged_members_password.md](../en/vuln_privileged_members_password.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_privileged_members_password` |
 | Niveau ANSSI | 2 (1 : le plus critique) |
 | Ajouté à la checklist | 2019-06-03 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PWD-09** — Compte privilégié soumis à une politique de mot de passe faible
+- **PWD-09** : Compte privilégié soumis à une politique de mot de passe faible
 
 ## Texte officiel
 

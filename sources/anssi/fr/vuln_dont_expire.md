@@ -1,10 +1,10 @@
-# vuln_dont_expire — Comptes dont le mot de passe n'expire jamais
+# vuln_dont_expire : Comptes dont le mot de passe n'expire jamais
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_dont_expire.md](../en/vuln_dont_expire.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_dont_expire.md](../en/vuln_dont_expire.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_dont_expire` |
 | Niveau ANSSI | 2 (1 : le plus critique) |
 | Ajouté à la checklist | 2018-09-28 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PWD-02** — Mot de passe qui n'expire jamais
+- **PWD-02** : Mot de passe qui n'expire jamais
 
 ## Texte officiel
 

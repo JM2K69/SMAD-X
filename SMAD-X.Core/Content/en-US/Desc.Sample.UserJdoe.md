@@ -1,4 +1,4 @@
-# 👤 John Doe (jdoe) — Developer (Tier 2)
+# 👤 John Doe (jdoe): Developer (Tier 2)
 
 Standard user account for an organization developer.
 

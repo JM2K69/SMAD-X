@@ -237,7 +237,7 @@ namespace SMARX.Services.Labs
             string Cell(string text) => SafeText.Markdown(text);
             var graded = rows.Where(r => r.Graded).ToList();
             var sb = new StringBuilder();
-            sb.AppendLine($"# {Cell(lab.Title.Resolve(culture))} — {T(culture, "bilan de la classe", "class results")}").AppendLine();
+            sb.AppendLine($"# {Cell(lab.Title.Resolve(culture))}{T(culture, " : bilan de la classe", ": class results")}").AppendLine();
             sb.AppendLine($"- **{T(culture, "Exercice", "Lab")}** : `{lab.Id}`{(lab.Exam ? T(culture, " (mode examen)", " (exam mode)") : "")}");
             sb.AppendLine($"- **{T(culture, "Corrigé avec", "Graded with")}** : SMAR-X {SmarxLabService.EngineVersion}");
             sb.AppendLine($"- **{T(culture, "Copies corrigées", "Graded submissions")}** : {graded.Count} / {rows.Count}");

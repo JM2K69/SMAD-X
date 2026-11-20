@@ -1,10 +1,10 @@
-# info_user_accounts_dormant — Dormant accounts
+# info_user_accounts_dormant: Dormant accounts
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [info_user_accounts_dormant.md](../fr/info_user_accounts_dormant.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [info_user_accounts_dormant.md](../fr/info_user_accounts_dormant.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `info_user_accounts_dormant` |
 | Added to the checklist | 2018-09-26 |
 | Last change | 2024-04-23 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **ACC-02** — Dormant account
+- **ACC-02**: Dormant account
 
 ## Official text
 

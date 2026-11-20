@@ -1,4 +1,4 @@
-# 🔑 PSO-Standard-Users — Standard User Password Policy
+# 🔑 PSO-Standard-Users: Standard User Password Policy
 
 Password Settings Object applied to **Tier 2 standard user accounts**.
 

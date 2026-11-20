@@ -298,8 +298,8 @@ namespace SMADX.Services
                 ["Menu.Labs.Leave"] = "Quitter le mode exercice",
                 ["FileType.Lab"] = "Exercice SMAD-X",
                 ["Lab.Open.Title"] = "Ouvrir un exercice",
-                ["Lab.Mode.Title"] = "SMAD-X — exercice : {0}",
-                ["Lab.Mode.ExamTitle"] = "SMAD-X — examen : {0}",
+                ["Lab.Mode.Title"] = "SMAD-X · exercice : {0}",
+                ["Lab.Mode.ExamTitle"] = "SMAD-X · examen : {0}",
                 ["Lab.Mode.Left"] = "Mode exercice quitté : tous les menus sont de nouveau disponibles.",
                 ["Lab.SaveSubmission"] = "Enregistrer ma copie",
                 ["Lab.Submission.Title"] = "Enregistrer ma copie",
@@ -879,7 +879,7 @@ namespace SMADX.Services
                 ["About.Feature6"] = "• Export de rapports de documentation (Markdown, DOCX, PDF) avec sélection de thème",
                 ["About.Feature7"] = "• Modèle de tiering Microsoft (Tier 0/1/2) et visualiseur de délégations avec export CSV",
                 ["About.Feature8"] = "• Support multilingue (Français/English), thème Clair/Sombre, descriptions Markdown enrichies",
-                ["About.Copyright"] = "© 2025-2026 Jérôme Bezet-Torres — licence Apache 2.0",
+                ["About.Copyright"] = "© 2025-2026 Jérôme Bezet-Torres · licence Apache 2.0",
                 ["About.Close"] = "Fermer",
 
                 // Sites AD
@@ -966,7 +966,7 @@ namespace SMADX.Services
                 ["FileType.Pdf"] = "Document PDF",
 
                 // Fenêtre des délégations
-                ["Delegations.Window.Title"] = "Active Directory — Délégations",
+                ["Delegations.Window.Title"] = "Délégations Active Directory",
                 ["Delegations.Tree.Title"] = "🏗 OU / conteneurs",
                 ["Delegations.ShowAll"] = "Afficher toutes les OU",
                 ["Delegations.Filter.Trustee"] = "Filtrer par mandataire…",
@@ -1008,7 +1008,7 @@ namespace SMADX.Services
                 ["Delegation.Card.Sensitive"] = "Droits sensibles",
 
                 // Fenêtre d'évolution du domaine (comparaison de deux fichiers)
-                ["Timeline.Window.Title"] = "Évolution du domaine — comparaison de fichiers",
+                ["Timeline.Window.Title"] = "Évolution du domaine : comparaison de fichiers",
                 ["Timeline.FileA"] = "FICHIER  A  (le plus ancien)",
                 ["Timeline.FileB"] = "FICHIER  B  (le plus récent)",
                 ["Timeline.NoFile"] = "Aucun fichier sélectionné",
@@ -1335,8 +1335,8 @@ namespace SMADX.Services
                 ["Menu.Labs.Leave"] = "Leave lab mode",
                 ["FileType.Lab"] = "SMAD-X lab",
                 ["Lab.Open.Title"] = "Open a lab",
-                ["Lab.Mode.Title"] = "SMAD-X — lab: {0}",
-                ["Lab.Mode.ExamTitle"] = "SMAD-X — exam: {0}",
+                ["Lab.Mode.Title"] = "SMAD-X · lab: {0}",
+                ["Lab.Mode.ExamTitle"] = "SMAD-X · exam: {0}",
                 ["Lab.Mode.Left"] = "Left lab mode: every menu is available again.",
                 ["Lab.SaveSubmission"] = "Save my submission",
                 ["Lab.Submission.Title"] = "Save my submission",
@@ -1914,7 +1914,7 @@ namespace SMADX.Services
                 ["About.Feature6"] = "• Documentation report export (Markdown, DOCX, PDF) with theme selection",
                 ["About.Feature7"] = "• Microsoft tiering model (Tier 0/1/2) and delegations viewer with CSV export",
                 ["About.Feature8"] = "• Multilingual support (Français/English), Light/Dark theme, rich Markdown descriptions",
-                ["About.Copyright"] = "© 2025-2026 Jérôme Bezet-Torres — Apache License 2.0",
+                ["About.Copyright"] = "© 2025-2026 Jérôme Bezet-Torres · Apache License 2.0",
                 ["About.Close"] = "Close",
 
                 // AD Sites
@@ -2001,7 +2001,7 @@ namespace SMADX.Services
                 ["FileType.Pdf"] = "PDF document",
 
                 // Delegations window
-                ["Delegations.Window.Title"] = "Active Directory — Delegations",
+                ["Delegations.Window.Title"] = "Active Directory delegations",
                 ["Delegations.Tree.Title"] = "🏗 OUs / containers",
                 ["Delegations.ShowAll"] = "Show all OUs",
                 ["Delegations.Filter.Trustee"] = "Filter trustee…",
@@ -2043,7 +2043,7 @@ namespace SMADX.Services
                 ["Delegation.Card.Sensitive"] = "Sensitive rights",
 
                 // Domain timeline window (comparing two files)
-                ["Timeline.Window.Title"] = "AD timeline — file comparison",
+                ["Timeline.Window.Title"] = "AD timeline: file comparison",
                 ["Timeline.FileA"] = "FILE  A  (older)",
                 ["Timeline.FileB"] = "FILE  B  (newer)",
                 ["Timeline.NoFile"] = "No file selected",

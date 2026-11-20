@@ -39,7 +39,7 @@ namespace SMADX.ViewModels
             var culture = Loc.CurrentCulture.Name;
             var items = new ObservableCollection<LabMenuItem>();
             foreach (var lab in LoadBuiltInLabs().Where(l => l.Category == category && (l.Language is null || string.Equals(l.Language, culture, StringComparison.OrdinalIgnoreCase))))
-                items.Add(new LabMenuItem(lab, $"{Loc[$"Lab.Level.{lab.Level}"]} — {lab.Title.Resolve(culture)}"));
+                items.Add(new LabMenuItem(lab, $"{Loc[$"Lab.Level.{lab.Level}"]} · {lab.Title.Resolve(culture)}"));
             return items;
         }
 

@@ -164,7 +164,7 @@ namespace SMADX.Studio.ViewModels
     {
         public string Icon => Issue.Level switch { LabIssueLevel.Error => "✗", LabIssueLevel.Warning => "⚠", _ => "✓" };
         public string Color => Issue.Level switch { LabIssueLevel.Error => "#E74C3C", LabIssueLevel.Warning => "#F39C12", _ => "#27AE60" };
-        public string Text => Issue.ObjectiveId is { } id ? $"{id} — {Issue.Message}" : Issue.Message;
+        public string Text => Issue.ObjectiveId is { } id ? $"{id} · {Issue.Message}" : Issue.Message;
     }
 
     /// <summary>Choix d'une liste déroulante : valeur et libellé.</summary>

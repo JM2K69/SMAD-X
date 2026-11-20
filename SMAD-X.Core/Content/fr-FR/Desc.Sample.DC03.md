@@ -1,4 +1,4 @@
-# 🖧 DC03 — Contrôleur de domaine — Site Lyon (Tier 0)
+# 🖧 DC03 : contrôleur de domaine, site Lyon (Tier 0)
 
 Contrôleur de domaine secondaire hébergé dans le site **Site-Lyon** (10.0.2.0/24).
 

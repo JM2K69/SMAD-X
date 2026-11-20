@@ -1,10 +1,10 @@
-# vuln_permissions_gpo_container_priv — Dangerous ACLs expose privileged object containers (attack path)
+# vuln_permissions_gpo_container_priv: Dangerous ACLs expose privileged object containers (attack path)
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_permissions_gpo_container_priv.md](../fr/vuln_permissions_gpo_container_priv.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_permissions_gpo_container_priv.md](../fr/vuln_permissions_gpo_container_priv.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_permissions_gpo_container_priv` |
 | ANSSI level | 2 (1: most critical) |
 | Added to the checklist | 2022-07-29 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **ACL-02** — Control path to the domain through permissions
+- **ACL-02**: Control path to the domain through permissions
 
 ## Official text
 

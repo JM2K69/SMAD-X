@@ -1,10 +1,10 @@
-# vuln_guest — Guest account enabled
+# vuln_guest: Guest account enabled
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_guest.md](../fr/vuln_guest.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_guest.md](../fr/vuln_guest.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_guest` |
 | ANSSI level | 2 (1: most critical) |
 | Added to the checklist | 2021-12-02 |
@@ -13,7 +13,7 @@
 
 ## SMAD-X rules that cite it
 
-- **ACC-01** — Active Guest account
+- **ACC-01**: Active Guest account
 
 ## Official text
 

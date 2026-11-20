@@ -1,10 +1,10 @@
-# vuln_permissions_gpo_container_priv — Permissions dangereuses sur des conteneurs d'objets privilégiés (chemins de contrôle)
+# vuln_permissions_gpo_container_priv : Permissions dangereuses sur des conteneurs d'objets privilégiés (chemins de contrôle)
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_permissions_gpo_container_priv.md](../en/vuln_permissions_gpo_container_priv.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_permissions_gpo_container_priv.md](../en/vuln_permissions_gpo_container_priv.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_permissions_gpo_container_priv` |
 | Niveau ANSSI | 2 (1 : le plus critique) |
 | Ajouté à la checklist | 2022-07-29 |
@@ -14,7 +14,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **ACL-02** — Chemin de contrôle vers le domaine par les permissions
+- **ACL-02** : Chemin de contrôle vers le domaine par les permissions
 
 ## Texte officiel
 

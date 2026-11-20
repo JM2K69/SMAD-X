@@ -1,10 +1,10 @@
-# vuln_krbtgt — Mot de passe du compte krbtgt inchangé depuis plus d'un an
+# vuln_krbtgt : Mot de passe du compte krbtgt inchangé depuis plus d'un an
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [vuln_krbtgt.md](../en/vuln_krbtgt.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [vuln_krbtgt.md](../en/vuln_krbtgt.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `vuln_krbtgt` |
 | Niveau ANSSI | 2 (1 : le plus critique) |
 | Ajouté à la checklist | 2018-09-26 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **KRB-05** — Mot de passe du compte krbtgt trop ancien
+- **KRB-05** : Mot de passe du compte krbtgt trop ancien
 
 ## Texte officiel
 

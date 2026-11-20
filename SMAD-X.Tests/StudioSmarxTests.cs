@@ -241,7 +241,7 @@ public class StudioSmarxTests
         Assert.Contains("3/3 graded", output);
         Assert.StartsWith("Apprenant;Identifiant;Fichier", File.ReadAllText(csv).TrimStart('\uFEFF'));
         Assert.Contains("Camille Martin,20", File.ReadAllText(moodle));
-        Assert.StartsWith("# Le dossier de l'équipe projet — bilan de la classe", File.ReadAllText(report));
+        Assert.StartsWith("# Le dossier de l'équipe projet : bilan de la classe", File.ReadAllText(report));
     }
 
     /// <summary>Le dossier qui contient l'exercice : ses copies sont cherchées dedans ; --reports écrit un compte rendu PDF par copie corrigée.</summary>

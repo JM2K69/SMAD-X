@@ -1,10 +1,10 @@
-# vuln_permissions_adminsdholder — Dangerous permissions on the adminSDHolder object
+# vuln_permissions_adminsdholder: Dangerous permissions on the adminSDHolder object
 
-> [Contents: ANSSI — Active Directory control points](README.md) · Français : [vuln_permissions_adminsdholder.md](../fr/vuln_permissions_adminsdholder.md)
+> [Contents: ANSSI Active Directory control points](README.md) · Français : [vuln_permissions_adminsdholder.md](../fr/vuln_permissions_adminsdholder.md)
 
 | Sheet | |
 |:---|:---|
-| Framework | ANSSI — Active Directory control points |
+| Framework | ANSSI Active Directory control points |
 | Identifier | `vuln_permissions_adminsdholder` |
 | ANSSI levels | 1, 2 (1: most critical; one threshold per level, see the text) |
 | Added to the checklist | 2019-02-22 |
@@ -14,7 +14,7 @@
 
 ## SMAD-X rules that cite it
 
-- **ACL-03** — Dangerous permissions on the domain, AdminSDHolder or the domain controllers
+- **ACL-03**: Dangerous permissions on the domain, AdminSDHolder or the domain controllers
 
 ## Official text
 

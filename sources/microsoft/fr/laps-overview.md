@@ -11,7 +11,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **LAPS-01** — Ordinateur sans LAPS
+- **LAPS-01** : Ordinateur sans LAPS
 
 ## Description de la page
 

@@ -11,8 +11,8 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **TIER-04** — Compte privilégié connecté sur une machine moins sensible
-- **TIER-09** — Compte privilégié hors d'un silo d'authentification appliqué
+- **TIER-04** : Compte privilégié connecté sur une machine moins sensible
+- **TIER-09** : Compte privilégié hors d'un silo d'authentification appliqué
 
 ## Description de la page
 

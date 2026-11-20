@@ -11,9 +11,9 @@
 
 ## SMAD-X rules that cite it
 
-- **PRIV-03** — Privileged group that should be empty
-- **PRIV-04** — Non-privileged member of the DnsAdmins group
-- **PRIV-05** — Protected group classified outside Tier 0
+- **PRIV-03**: Privileged group that should be empty
+- **PRIV-04**: Non-privileged member of the DnsAdmins group
+- **PRIV-05**: Protected group classified outside Tier 0
 
 ## Page description
 

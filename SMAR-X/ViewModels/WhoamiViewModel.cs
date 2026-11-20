@@ -89,7 +89,7 @@ namespace SMARX.ViewModels
                     Rows.Clear();
                     return;
                 }
-                Title = $"whoami — {host.Qualified(user.Name)}";
+                Title = $"whoami · {host.Qualified(user.Name)}";
                 CanElevate = !Network && WindowsGroups.IsAdministrator(host, user);
                 var elevated = Elevated && CanElevate;
 

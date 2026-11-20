@@ -1,10 +1,10 @@
-# warning_privileged_members_not_empty — Groupes privilégiés non vides
+# warning_privileged_members_not_empty : Groupes privilégiés non vides
 
-> [Sommaire : ANSSI — Points de contrôle Active Directory](README.md) · English: [warning_privileged_members_not_empty.md](../en/warning_privileged_members_not_empty.md)
+> [Sommaire : Points de contrôle Active Directory de l'ANSSI](README.md) · English: [warning_privileged_members_not_empty.md](../en/warning_privileged_members_not_empty.md)
 
 | Fiche | |
 |:---|:---|
-| Référentiel | ANSSI — Points de contrôle Active Directory |
+| Référentiel | Points de contrôle Active Directory de l'ANSSI |
 | Identifiant | `warning_privileged_members_not_empty` |
 | Niveau ANSSI | 3 (1 : le plus critique) |
 | Ajouté à la checklist | 2019-01-24 |
@@ -13,7 +13,7 @@
 
 ## Règles de SMAD-X qui le citent
 
-- **PRIV-03** — Groupe privilégié qui devrait être vide
+- **PRIV-03** : Groupe privilégié qui devrait être vide
 
 ## Texte officiel
 

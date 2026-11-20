@@ -1,4 +1,4 @@
-# 🏙 Site-Paris — Main Datacenter
+# 🏙 Site-Paris: Main Datacenter
 
 Active Directory site hosting the main servers of the **contoso.com** domain.
 
