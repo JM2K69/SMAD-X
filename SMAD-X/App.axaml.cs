@@ -89,7 +89,7 @@ namespace SMADX
             };
             TaskScheduler.UnobservedTaskException += (_, e) =>
             {
-                ErrorReporter.Report("Tâche", e.Exception);
+                Helpers.UnobservedTaskErrors.Handle(e.Exception);
                 e.SetObserved();
             };
             // Dernier recours : l'application va s'arrêter, on garde au moins la trace

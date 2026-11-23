@@ -22,6 +22,8 @@ namespace SMADX.Studio
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                // Sous Linux, pas de menu global : les menus sont dans la fenêtre (voir SMAD-X, issue #8)
+                .With(new X11PlatformOptions { UseDBusMenu = false })
                 .WithInterFont()
                 .WithEmojiFont()
                 .LogToTrace();

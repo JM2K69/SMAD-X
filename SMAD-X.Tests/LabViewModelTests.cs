@@ -313,6 +313,28 @@ public class LabViewModelTests
         Assert.False(declined.HasUnsavedChanges);
     }
 
+    /// <summary>
+    /// Copie enregistrée avant toute copie de secours : le dossier des copies de secours n'existe pas encore, et rien
+    /// n'est à supprimer. Le journal n'en garde pas trace (issue #8 : une erreur journalisée à chaque copie).
+    /// </summary>
+    [Fact]
+    public async Task SavingASubmission_BeforeAnyRecoveryCopy_LogsNothing()
+    {
+        var dialogs = new FakeDialogService();
+        var main = new MainWindowViewModel(dialogs) { RecoveryFolder = Path.Combine(Path.GetTempPath(), "smadx-tests", "no-recovery-" + Guid.NewGuid().ToString("N")) };
+        await main.OpenStartupFileAsync(LabFile("05-hygiene-comptes"));
+        DisableGuest(main);
+        dialogs.LastLab!.StudentName = "Lou";
+        dialogs.SavePath = TempFile(LabSubmissionService.FileExtension);
+
+        await dialogs.LastLab.SaveSubmissionCommand.ExecuteAsync(null);
+
+        Assert.False(main.HasUnsavedChanges);
+        Assert.False(Directory.Exists(main.RecoveryFolder));
+        var log = File.Exists(ErrorReporter.CurrentLogFile) ? File.ReadAllText(ErrorReporter.CurrentLogFile) : "";
+        Assert.DoesNotContain(main.RecoveryFolder, log);
+    }
+
     [Fact]
     public async Task ClosingWithAnUnsavedSubmission_AsksForTheName_ThenSaves()
     {

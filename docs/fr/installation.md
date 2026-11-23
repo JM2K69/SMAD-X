@@ -105,3 +105,5 @@ Une erreur inattendue s'affiche dans une fenêtre et est écrite dans le dossier
 | Windows | `%LOCALAPPDATA%\SMAD-X\logs` |
 | Linux | `~/.local/share/SMAD-X/logs` |
 | macOS | `~/Library/Application Support/SMAD-X/logs` |
+
+Sous Linux, les menus restent dans la fenêtre : SMAD-X, Studio et SMAR-X n'utilisent pas le menu global du bureau. Dans SMAD-X, les erreurs de l'intégration au bureau (appels D-Bus : méthode de saisie IBus, portails) n'interrompent aucune action : elles vont au journal, sans fenêtre d'erreur. L'erreur répétée de la méthode de saisie IBus n'y est écrite qu'une fois par session.

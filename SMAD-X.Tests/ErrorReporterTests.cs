@@ -87,4 +87,53 @@ public sealed class ErrorReporterTests : IDisposable
         Assert.Empty(_raised);
         Assert.Contains("[Avalonia/Layout] Layout cycle detected", LogContent());
     }
+
+    /// <summary>Issue #8 : sous Ubuntu, IBus fait journaliser la même erreur des centaines de fois par jour.</summary>
+    [Fact]
+    public void AvaloniaSink_LogsTheImeErrorOncePerSession()
+    {
+        var sink = new AvaloniaErrorLogSink();
+        var marker = Guid.NewGuid().ToString("N");
+
+        for (var i = 0; i < 3; i++)
+            sink.Log(LogEventLevel.Error, "IME", null, $"Error while destroying the context: {marker}");
+        sink.Log(LogEventLevel.Error, "Layout", null, $"Layout cycle {marker}");
+        sink.Log(LogEventLevel.Error, "Layout", null, $"Layout cycle {marker}");
+
+        Assert.Empty(_raised);
+        var log = LogContent();
+        Assert.Single(log.Split('\n'), l => l.Contains($"[Avalonia/IME] Error while destroying the context: {marker}"));
+        Assert.Contains("les suivantes de cette session ne sont pas journalisées", log);
+        Assert.Equal(2, log.Split('\n').Count(l => l.Contains($"Layout cycle {marker}"))); // les autres zones restent complètes
+    }
+
+    /// <summary>
+    /// Issue #8 : sans registre de menus globaux (Ubuntu GNOME), l'export du menu par Avalonia échouait dans une tâche
+    /// que personne n'attendait, et la fenêtre « Erreur inattendue » s'ouvrait au passage du ramasse-miettes.
+    /// </summary>
+    [Fact]
+    public void UnobservedDBusErrors_GoToTheLog_WithoutAnErrorWindow()
+    {
+        var dbus = new Tmds.DBus.Protocol.DBusErrorReplyException("org.freedesktop.DBus.Error.ServiceUnknown",
+            "The name com.canonical.AppMenu.Registrar was not provided by any .service files");
+
+        UnobservedTaskErrors.Handle(new AggregateException(dbus));
+
+        Assert.Empty(_raised);
+        Assert.Contains("[D-Bus]", LogContent());
+        Assert.Contains("com.canonical.AppMenu.Registrar", LogContent());
+    }
+
+    [Fact]
+    public void OtherUnobservedErrors_AreStillReported()
+    {
+        var dbus = new Tmds.DBus.Protocol.DBusErrorReplyException("org.freedesktop.DBus.Error.ServiceUnknown", "x");
+
+        UnobservedTaskErrors.Handle(new AggregateException(new InvalidOperationException("export échoué")));
+        UnobservedTaskErrors.Handle(new AggregateException(dbus, new IOException("disque plein")));
+
+        Assert.Equal(2, _raised.Count);
+        Assert.All(_raised, e => Assert.Equal("Tâche", e.Source));
+        Assert.False(UnobservedTaskErrors.IsDesktopIntegration(new AggregateException()));
+    }
 }
