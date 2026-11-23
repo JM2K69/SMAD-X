@@ -146,7 +146,7 @@ namespace SMARX.ViewModels
 
         private WindowsHost Host => _workspace.Host;
 
-        public string WindowTitle => Text.T($"Comptes et groupes \u2014 {Host.Name}", $"Accounts and groups \u2014 {Host.Name}");
+        public string WindowTitle => Text.T($"Comptes et groupes \u00b7 {Host.Name}", $"Accounts and groups \u00b7 {Host.Name}");
 
         public ObservableCollection<DirectoryNode> Tree { get; } = new();
         public ObservableCollection<DirectoryEntry> MemberOf { get; } = new();
