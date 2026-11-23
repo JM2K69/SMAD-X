@@ -105,3 +105,5 @@ An unexpected error is shown in a window and written to the log folder:
 | Windows | `%LOCALAPPDATA%\SMAD-X\logs` |
 | Linux | `~/.local/share/SMAD-X/logs` |
 | macOS | `~/Library/Application Support/SMAD-X/logs` |
+
+On Linux, menus stay in the window: SMAD-X, Studio and SMAR-X do not use the desktop's global menu. In SMAD-X, errors from the desktop integration (D-Bus calls: IBus input method, portals) stop no action: they go to the log, without an error window. The repeated IBus input method error is written there only once per session.

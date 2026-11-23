@@ -21,6 +21,9 @@ namespace SMADX
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                // Sous Linux, pas de menu global : les menus sont dans la fenêtre, et sans registre de menus (Ubuntu
+                // GNOME), l'export échouait en tâche de fond et affichait « Erreur inattendue » (issue #8)
+                .With(new X11PlatformOptions { UseDBusMenu = false })
 #if DEBUG
                 .WithDeveloperTools()
 #endif

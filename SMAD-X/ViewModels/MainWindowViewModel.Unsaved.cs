@@ -62,7 +62,10 @@ namespace SMADX.ViewModels
         {
             try
             {
-                File.Delete(RecoveryPath(lab));
+                // Copie enregistrée avant la première copie de secours : ni fichier, ni dossier (File.Delete lèverait
+                // DirectoryNotFoundException, journalisée à chaque copie, issue #8)
+                var path = RecoveryPath(lab);
+                if (File.Exists(path)) File.Delete(path);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
