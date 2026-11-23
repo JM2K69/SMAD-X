@@ -144,6 +144,26 @@ namespace SMADX.Services.Labs
         }
 
         /// <summary>
+        /// L'exercice fourni qui porte cet identifiant (celui qu'une copie d'apprenant rappelle), lu à neuf : il peut être
+        /// modifié sans toucher aux autres. Null si aucun exercice fourni ne le porte. Le fichier embarqué porte le nom de
+        /// l'exercice (Labs/&lt;id&gt;.smadx-lab.json) ; sinon, tous les exercices fournis sont lus pour le trouver.
+        /// </summary>
+        public LabDefinition? BuiltInLab(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return null;
+            var assembly = typeof(LabService).Assembly;
+            var name = assembly.GetManifestResourceNames().FirstOrDefault(r =>
+                string.Equals(r.Replace('\\', '/'), EmbeddedPrefix + id.Trim() + FileExtension, StringComparison.OrdinalIgnoreCase));
+            if (name != null)
+            {
+                using var reader = new StreamReader(assembly.GetManifestResourceStream(name)!);
+                var lab = Parse(reader.ReadToEnd());
+                if (string.Equals(lab.Id, id.Trim(), StringComparison.OrdinalIgnoreCase)) return lab;
+            }
+            return BuiltInLabs().FirstOrDefault(l => string.Equals(l.Id, id.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
         /// Copie de travail du domaine de départ, dates décalées pour que l'exercice se joue « aujourd'hui ».
         /// Le domaine de départ de l'exercice reste intact (il sert à la comparaison et à « Recommencer »).
         /// </summary>

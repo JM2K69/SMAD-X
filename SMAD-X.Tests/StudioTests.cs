@@ -776,9 +776,10 @@ public class StudioTests
         var labPath = SavedRecipeLab();
         var (vm, _) = NewStudio();
 
+        // La copie d'un exercice du formateur (pas fourni avec SMAD-X) : la barre d'état dit lequel ouvrir
         await vm.OpenPathAsync(Submission(labPath, "Camille"));
         Assert.False(vm.HasLab);
-        Assert.Equal(StudioText.Instance["Submissions.OpenLabFirst"], vm.Status);
+        Assert.Equal(string.Format(StudioText.Instance["Submissions.UnknownLab"], new LabService().LoadFile(labPath).Id), vm.Status);
 
         await vm.OpenPathAsync(labPath);
         Assert.True(vm.HasLab);
@@ -1190,6 +1191,301 @@ public class StudioTests
         Assert.True(File.Exists(SubmissionMarksService.MarksPath(second)));
         Assert.Equal(second, project.ImportSubmission(second)); // déjà rangée
         Assert.Equal(first, project.ImportSubmission(a, Path.Combine("..", "..", "ailleurs.json"))); // jamais hors du dossier
+    }
+
+    // ─── Exercices fournis avec SMAD-X : corriger leurs copies sans le dépôt ─
+
+    /// <summary>
+    /// Le fichier de l'exercice fourni dans le dépôt, celui que la ligne de commande corrige. Le dépôt se trouve depuis
+    /// ce fichier source : les binaires des tests peuvent être compilés ailleurs.
+    /// </summary>
+    private static string RepoLab(string id, [System.Runtime.CompilerServices.CallerFilePath] string source = "")
+    {
+        for (var dir = new DirectoryInfo(Path.GetDirectoryName(source)!); dir != null; dir = dir.Parent)
+            if (File.Exists(Path.Combine(dir.FullName, "SMAD-X.slnx")))
+                return Path.Combine(dir.FullName, "SMAD-X.Core", "Labs", id + LabService.FileExtension);
+        throw new DirectoryNotFoundException("SMAD-X.slnx introuvable au-dessus de " + source);
+    }
+
+    /// <summary>Copie d'un apprenant sur un exercice fourni, ouvert dans SMAD-X par son menu Exercices.</summary>
+    private static string BuiltInSubmission(string labId, string student, string folder, Action<ADObject>? work = null, string? studentId = null, int minutes = 25)
+    {
+        var session = LabSession.Begin(new LabService().BuiltInLab(labId)!, Now);
+        var document = session.NewWorkingCopy();
+        work?.Invoke(document.Domain);
+        Directory.CreateDirectory(folder);
+        var path = Path.Combine(folder, LabSubmissionService.SuggestedFileName(labId, student));
+        new LabSubmissionService().SaveFile(session.ToSubmission(student, document, [], Now.AddMinutes(minutes), studentId: studentId), path);
+        return path;
+    }
+
+    /// <summary>Une partie du travail : 03, la délégation du changement de mot de passe ; chemin-04, tout le chemin coupé.</summary>
+    private static void PartOfTheWork(string labId, ADObject domain)
+    {
+        if (labId == "03-delegation-support")
+        {
+            var users = Flatten(domain).Single(o => o.Name == "Utilisateurs");
+            users.Delegations.Add(new ADDelegation { TrusteeName = "GG-Helpdesk", TargetDN = users.DistinguishedName, Right = "ResetPassword", RightCategory = RightCategory.PasswordReset });
+            return;
+        }
+        foreach (var d in domain.Delegations.Where(x => !x.IsInherited && x.RightCategory == RightCategory.FullControl && x.TrusteeName.StartsWith("GG-")).ToList())
+            domain.Delegations.Remove(d);
+    }
+
+    [Fact]
+    public void BuiltInLab_IsReadAfreshByItsId_AsCopiesNameIt()
+    {
+        var service = new LabService();
+        foreach (var lab in service.BuiltInLabs())
+        {
+            var read = service.BuiltInLab(lab.Id);
+            Assert.NotNull(read);
+            Assert.Equal(lab.Id, read.Id);
+            Assert.NotSame(read, service.BuiltInLab(lab.Id)); // modifiable sans toucher au suivant
+        }
+        Assert.Equal("chemin-04-write-members", service.BuiltInLab("CHEMIN-04-WRITE-MEMBERS")?.Id);
+        Assert.Null(service.BuiltInLab("exercice-du-formateur"));
+        Assert.Null(service.BuiltInLab(""));
+
+        var folder = TempDir();
+        Assert.Equal("03-delegation-support", LabSubmissionService.ReadLabId(BuiltInSubmission("03-delegation-support", "Lou", folder)));
+        var notACopy = Path.Combine(folder, "page" + LabSubmissionService.FileExtension);
+        File.WriteAllText(notACopy, "<html></html>");
+        Assert.Null(LabSubmissionService.ReadLabId(notACopy));
+        File.WriteAllText(notACopy, "{\"Format\":\"smadx-lab\",\"LabId\":\"03-delegation-support\"}");
+        Assert.Null(LabSubmissionService.ReadLabId(notACopy));
+        Assert.Null(LabSubmissionService.ReadLabId(Path.Combine(folder, "absente" + LabSubmissionService.FileExtension)));
+    }
+
+    [Fact]
+    public async Task BuiltInLabs_AreListedLikeTheLabsMenuOfSmadX_AndOpenWithoutAFile()
+    {
+        var (vm, dialogs) = NewStudio();
+
+        // « identifiant · titre », triés par identifiant : le début du nom des copies (03-delegation-support_Lou.smadx-submission.json)
+        var general = vm.BuiltInLabs.Single(l => l.Id == "03-delegation-support");
+        Assert.Equal("03-delegation-support · " + new LabService().BuiltInLab(general.Id)!.Title.Resolve("fr-FR"), general.Title);
+        Assert.Equal(["01-premier-audit", "02-kerberoasting", "03-delegation-support", "04-cloisonnement", "05-hygiene-comptes"], vm.BuiltInLabs.Select(l => l.Id));
+        Assert.Equal(Enumerable.Range(1, 15).Select(i => $"chemin-{i:00}-"), vm.FrenchAttackPathLabs.Select(l => l.Id[..10]));
+        Assert.Equal(Enumerable.Range(1, 15).Select(i => $"path-{i:00}-"), vm.EnglishAttackPathLabs.Select(l => l.Id[..8]));
+
+        await vm.OpenBuiltInLabCommand.ExecuteAsync(vm.FrenchAttackPathLabs.Single(l => l.Id == "chemin-04-write-members"));
+
+        Assert.True(vm.HasLab, vm.Status);
+        Assert.Equal("chemin-04-write-members", vm.LabId);
+        Assert.Equal("fr-FR", vm.EditCulture);
+        Assert.Null(vm.FilePath);
+        Assert.False(vm.HasUnsavedChanges); // tel qu'il est fourni : fermer Studio ne demande rien
+        Assert.Equal(string.Format(StudioText.Instance["Status.OpenedBuiltIn"], vm.LabTitle), vm.Status);
+        Assert.True(vm.AddSubmissionsCommand.CanExecute(null));
+        Assert.True(vm.AddSubmissionFolderCommand.CanExecute(null));
+
+        // Modifié dans Studio, il ne change pas l'exercice fourni : le rouvrir rend l'original
+        var points = vm.Objectives[0].Points;
+        vm.Objectives[0].Points += 5;
+        Assert.True(vm.HasUnsavedChanges);
+        dialogs.UnsavedAnswer = UnsavedChoice.Discard;
+        Assert.True(await vm.OpenBuiltInLabAsync("chemin-04-write-members"));
+        Assert.Equal(points, vm.Objectives[0].Points);
+
+        // Interface en anglais : les deux séries restent proposées (les copies sont dans la langue des apprenants),
+        // et les exercices bilingues prennent leur titre anglais
+        vm.SetLanguageCommand.Execute("en-US");
+        Assert.Equal(15, vm.FrenchAttackPathLabs.Count);
+        Assert.Equal(15, vm.EnglishAttackPathLabs.Count);
+        Assert.Equal("03-delegation-support · " + new LabService().BuiltInLab("03-delegation-support")!.Title.Resolve("en-US"),
+            vm.BuiltInLabs.Single(l => l.Id == "03-delegation-support").Title);
+    }
+
+    /// <summary>
+    /// L'exercice fourni ouvert dans Studio corrige les copies comme <c>SMAD-X.Studio grade</c> avec le fichier du dépôt :
+    /// même tableau des notes, case pour case.
+    /// </summary>
+    [Theory]
+    [InlineData("03-delegation-support")]
+    [InlineData("chemin-04-write-members")]
+    public async Task BuiltInLab_GradesTheCopies_AsTheCommandLineDoesWithTheRepositoryFile(string id)
+    {
+        var folder = TempDir();
+        BuiltInSubmission(id, "Camille", folder, d => PartOfTheWork(id, d));
+        BuiltInSubmission(id, "Lucas", folder);
+        var cli = Path.Combine(TempDir(), "cli.csv");
+        var (_, output, error) = Run("grade", RepoLab(id), folder, "--lang", "fr", "--csv", cli);
+        Assert.True(File.Exists(cli), output + error);
+
+        var (vm, dialogs) = NewStudio();
+        Assert.True(await vm.OpenBuiltInLabAsync(id), vm.Status);
+        dialogs.Folder = folder;
+        await vm.AddSubmissionFolderCommand.ExecuteAsync(null);
+        var studio = Path.Combine(TempDir(), "studio.csv");
+        dialogs.SavePath = studio;
+        await vm.ExportGradesCommand.ExecuteAsync(null);
+
+        Assert.Equal(File.ReadAllText(cli), File.ReadAllText(studio));
+        Assert.Equal(2, vm.Submissions.Count(s => s.Graded.Graded));
+        Assert.True(vm.Submissions.Single(s => s.Student == "Camille").Graded.Points > vm.Submissions.Single(s => s.Student == "Lucas").Graded.Points);
+        Assert.Contains("Camille", output);
+    }
+
+    [Fact]
+    public async Task CopiesOfABuiltInLab_DroppedOnAnEmptyStudio_OpenTheLab_AndAreGraded()
+    {
+        var folder = TempDir();
+        var camille = BuiltInSubmission("chemin-04-write-members", "Camille", folder, d => PartOfTheWork("chemin-04-write-members", d));
+        var lucas = BuiltInSubmission("chemin-04-write-members", "Lucas", folder);
+
+        var (vm, _) = NewStudio();
+        await vm.DropAsync([camille, lucas]);
+
+        Assert.Equal("chemin-04-write-members", vm.LabId);
+        Assert.Null(vm.FilePath);
+        Assert.Equal(["Camille", "Lucas"], vm.Submissions.Select(s => s.Student));
+        Assert.Equal($"{vm.TotalPoints} / {vm.TotalPoints}", vm.Submissions[0].Grade);
+        Assert.Equal(camille, vm.Submissions[0].Graded.Path); // sans dossier d'exercice, les copies restent où elles sont
+        Assert.Equal(string.Format(StudioText.Instance["Submissions.OpenedBuiltIn"], vm.LabTitle) + " " + string.Format(StudioText.Instance["Submissions.Graded"], 2), vm.Status);
+
+        // Un dossier de copies, l'exercice d'une autre langue : il est ouvert aussi
+        var english = TempDir();
+        BuiltInSubmission("path-04-write-members", "Sam", english);
+        var (other, _) = NewStudio();
+        await other.DropAsync([english]);
+        Assert.Equal("path-04-write-members", other.LabId);
+        Assert.Single(other.Submissions);
+
+        // Une copie donnée au lancement (SMAD-X.Studio copie.smadx-submission.json)
+        var (started, _) = NewStudio();
+        await started.OpenPathAsync(lucas);
+        Assert.Equal("chemin-04-write-members", started.LabId);
+        Assert.Single(started.Submissions);
+
+        Assert.Equal(StudioViewModel.SubmissionsTab, started.SelectedTab); // déposer des copies montre l'onglet Copies
+        Assert.False(started.HasBatch); // un seul exercice : pas de lot
+    }
+
+    [Fact]
+    public async Task CopiesOfAnotherLab_DroppedOnAnEmptyStudio_SayWhichLabToOpen()
+    {
+        var labPath = SavedRecipeLab();
+        var copy = Submission(labPath, "Camille");
+        var (vm, _) = NewStudio();
+
+        await vm.DropAsync([copy]);
+
+        Assert.False(vm.HasLab);
+        Assert.Equal(string.Format(StudioText.Instance["Submissions.UnknownLab"], new LabService().LoadFile(labPath).Id), vm.Status);
+
+        // Un fichier qui n'est pas une copie : ouvrir d'abord l'exercice
+        var page = Path.Combine(TempDir(), "page" + LabSubmissionService.FileExtension);
+        File.WriteAllText(page, "<html></html>");
+        await vm.DropAsync([page]);
+        Assert.False(vm.HasLab);
+        Assert.Equal(StudioText.Instance["Submissions.OpenLabFirst"], vm.Status);
+
+        // Un exercice ouvert : les copies déposées s'y ajoutent, rien d'autre ne s'ouvre
+        await vm.OpenPathAsync(labPath);
+        await vm.DropAsync([BuiltInSubmission("chemin-04-write-members", "Lucas", TempDir())]);
+        Assert.Equal(labPath, vm.FilePath);
+        Assert.Contains("chemin-04-write-members", Assert.Single(vm.Submissions).Remarks);
+    }
+
+    /// <summary>
+    /// Un dossier de devoirs : un sous-dossier par apprenant, une copie par exercice fourni, des comptes rendus .md et des
+    /// captures à côté ; le nom saisi varie d'une copie à l'autre, l'identifiant beaucoup moins.
+    /// </summary>
+    private static string Homework()
+    {
+        var devoirs = TempDir();
+        var andrea = Path.Combine(devoirs, "Andrea", "td4", "exercice");
+        BuiltInSubmission("03-delegation-support", "Andrea Laurent", andrea, d => PartOfTheWork("03-delegation-support", d), "a.laurent");
+        BuiltInSubmission("chemin-04-write-members", "Andrea laurent", andrea, d => PartOfTheWork("chemin-04-write-members", d), "a.laurent");
+        var dimitri = Path.Combine(devoirs, "dimitri", "td4", "Exo");
+        BuiltInSubmission("03-delegation-support", "Dimitri.JUNIQUE", dimitri, studentId: "d.junique");
+        BuiltInSubmission("chemin-04-write-members", "Dimitri.JUNIQUE", dimitri, studentId: "D.junique");
+        BuiltInSubmission("chemin-05-gpo", "Dimitri.JUNQIUE", dimitri, studentId: "D.junique");
+        File.WriteAllText(Path.Combine(dimitri, "chemin-05-gpo_Dimitri.JUNQIUE_20261122_1301.md"), "# Compte rendu");
+        Directory.CreateDirectory(Path.Combine(devoirs, "dimitri", "td4", "Images"));
+        File.WriteAllBytes(Path.Combine(devoirs, "dimitri", "td4", "Images", "capture.png"), [0x89, 0x50, 0x4E, 0x47]);
+        return devoirs;
+    }
+
+    [Fact]
+    public async Task AHomeworkFolder_WithSeveralLabs_IsSortedByLab_GradedLabByLab_AndSummedUpPerLearner()
+    {
+        var devoirs = Homework();
+        var (vm, dialogs) = NewStudio();
+
+        await vm.DropAsync([devoirs]);
+
+        // Rangées par exercice ; le premier exercice du lot s'ouvre avec ses seules copies, sous l'onglet Copies
+        Assert.True(vm.HasBatch);
+        Assert.Equal(["03-delegation-support (2)", "chemin-04-write-members (2)", "chemin-05-gpo (1)"], vm.BatchLabs.Select(l => l.Chip));
+        Assert.Equal("03-delegation-support", vm.LabId);
+        Assert.True(vm.BatchLabs[0].IsOpen);
+        Assert.Equal(["Andrea Laurent", "Dimitri.JUNIQUE"], vm.Submissions.Select(s => s.Student));
+        Assert.DoesNotContain(vm.Submissions, s => s.Remarks.Contains("chemin-")); // pas de « copie d'un autre exercice »
+        Assert.Equal(StudioViewModel.SubmissionsTab, vm.SelectedTab);
+        Assert.Equal(string.Format(StudioText.Instance["Batch.Opened"], 5, 3, "03-delegation-support", 2), vm.Status);
+
+        // Un clic : l'exercice suivant, avec ses copies
+        await vm.OpenBatchLabCommand.ExecuteAsync(vm.BatchLabs[1]);
+        Assert.Equal("chemin-04-write-members", vm.LabId);
+        Assert.Equal(2, vm.Submissions.Count);
+        Assert.Equal($"{vm.TotalPoints} / {vm.TotalPoints}", vm.Submissions.Single(s => s.Student == "Andrea laurent").Grade);
+        Assert.True(vm.BatchLabs[1].IsOpen);
+        Assert.False(vm.BatchLabs[1].CanOpen);
+
+        // Ouvert par le menu, un exercice du lot reçoit aussi ses copies
+        Assert.True(await vm.OpenBuiltInLabAsync("chemin-05-gpo"));
+        Assert.Equal("Dimitri.JUNQIUE", Assert.Single(vm.Submissions).Student);
+
+        // Le bilan : une ligne par apprenant (son identifiant les réunit), une note par exercice, les deux moyennes
+        var lines = vm.BatchCsv().Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        Assert.Equal("Apprenant;Identifiant;03-delegation-support (sur 20);chemin-04-write-members (sur 20);chemin-05-gpo (sur 20);Exercices rendus;" +
+                     "Moyenne des exercices rendus (sur 20);Moyenne sur les 3 exercices (sur 20);Remarques", lines[0]);
+        Assert.Equal(3, lines.Length);
+        var grades = new Dictionary<string, double>();
+        foreach (var id in new[] { "03-delegation-support", "chemin-04-write-members", "chemin-05-gpo" })
+            foreach (var row in SubmissionGrader.GradeAll(new LabService().BuiltInLab(id)!, Directory.GetFiles(devoirs, id + "_*" + LabSubmissionService.FileExtension, SearchOption.AllDirectories), "fr-FR"))
+                grades[$"{row.StudentId.ToLowerInvariant()}|{id}"] = row.Scaled(20);
+        string F(double value) => SubmissionGrader.Format(Math.Round(value, 2), System.Globalization.CultureInfo.GetCultureInfo("fr-FR"));
+        var a = (grades["a.laurent|03-delegation-support"], grades["a.laurent|chemin-04-write-members"]);
+        Assert.Equal($"Andrea Laurent;a.laurent;{F(a.Item1)};{F(a.Item2)};;2;{F((a.Item1 + a.Item2) / 2)};{F((a.Item1 + a.Item2) / 3)};", lines[1]);
+        Assert.Equal(20, a.Item2);
+        var d = new[] { "03-delegation-support", "chemin-04-write-members", "chemin-05-gpo" }.Select(id => grades["d.junique|" + id]).ToList();
+        Assert.StartsWith($"Dimitri.JUNIQUE;d.junique;{F(d[0])};{F(d[1])};{F(d[2])};3;{F(d.Average())};{F(d.Sum() / 3)};", lines[2]);
+
+        var csv = Path.Combine(TempDir(), "bilan.csv");
+        dialogs.SavePath = csv;
+        await vm.ExportBatchCommand.ExecuteAsync(null);
+        Assert.Equal(vm.BatchCsv(), File.ReadAllText(csv).TrimStart('﻿'));
+
+        // Un nouveau dépôt d'un seul exercice remplace le lot
+        await vm.DropAsync([BuiltInSubmission("chemin-05-gpo", "Noa", TempDir())]);
+        Assert.False(vm.HasBatch);
+        Assert.Empty(vm.BatchLabs);
+    }
+
+    [Fact]
+    public void SubmissionBatch_KeepsTheLatestCopy_AndSaysWhatToCheck()
+    {
+        var devoirs = TempDir();
+        BuiltInSubmission("chemin-04-write-members", "Lou", Path.Combine(devoirs, "v1"), studentId: "lou", minutes: 10);
+        BuiltInSubmission("chemin-04-write-members", "Lou", Path.Combine(devoirs, "v2"), d => PartOfTheWork("chemin-04-write-members", d), "LOU", minutes: 40);
+        BuiltInSubmission("03-delegation-support", "Lou", devoirs, studentId: "lou");
+        File.WriteAllText(Path.Combine(devoirs, "page" + LabSubmissionService.FileExtension), "<html></html>");
+
+        var batch = new SubmissionBatch(Directory.GetFiles(devoirs, "*" + LabSubmissionService.FileExtension, SearchOption.AllDirectories));
+        Assert.Equal(["03-delegation-support", "chemin-04-write-members"], batch.Labs.Select(l => l.LabId));
+        Assert.Single(batch.Unreadable);
+        Assert.Equal(3, batch.Count);
+
+        var labs = batch.Labs.Select(l => new LabService().BuiltInLab(l.LabId)!)
+            .Select(lab => new GradedBatchLab(lab, SubmissionGrader.GradeAll(lab, batch.Find(lab.Id)!.Paths, "en-US"))).ToList();
+        var lines = SubmissionBatch.Csv(labs, "en-US").Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        Assert.StartsWith("Learner,ID,03-delegation-support (out of 20),chemin-04-write-members (out of 20),Labs handed in,", lines[0]);
+        var lou = Assert.Single(lines.Skip(1));
+        Assert.Contains(",20,2,", lou); // la copie la plus récente (tout le chemin coupé) compte
+        Assert.EndsWith("\"chemin-04-write-members: 2 submissions, the latest counts\"", lou); // entre guillemets : la virgule sépare les colonnes
     }
 
     // ─── Un domaine qui ne peut pas être lu : le message dit lequel, et pourquoi ─

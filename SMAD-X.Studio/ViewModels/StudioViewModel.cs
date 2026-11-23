@@ -468,8 +468,9 @@ namespace SMADX.Studio.ViewModels
 
         /// <summary>
         /// Fichier donné au lancement : un exercice s'ouvre (ou son dossier), un domaine (envoyé par SMAD-X) devient le
-        /// domaine de départ d'un nouvel exercice. Un autre fichier (un projet .csproj passé par « dotnet run », par exemple)
-        /// n'est pas lu comme un domaine : la barre d'état dit que rien n'est ouvert.
+        /// domaine de départ d'un nouvel exercice, la copie d'un exercice fourni avec SMAD-X ouvre cet exercice et se corrige.
+        /// Un autre fichier (un projet .csproj passé par « dotnet run », par exemple) n'est pas lu comme un domaine : la barre
+        /// d'état dit que rien n'est ouvert.
         /// </summary>
         public Task OpenPathAsync(string path)
         {
@@ -480,10 +481,7 @@ namespace SMADX.Studio.ViewModels
             if (path.EndsWith(SmarxLab.FileExtension, StringComparison.OrdinalIgnoreCase))
                 return OpenSmarxFileAsync(path);
             if (path.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase))
-            {
-                Status = Text["Submissions.OpenLabFirst"];
-                return Task.CompletedTask;
-            }
+                return DropAsync([path]);
             if (!path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             {
                 Status = string.Format(Text["Status.StartupIgnored"], path);
@@ -586,7 +584,8 @@ namespace SMADX.Studio.ViewModels
 
         /// <summary>
         /// Fichiers glissés sur la fenêtre : le dossier d'un exercice (ou son exemplaire) l'ouvre, un domaine crée un exercice,
-        /// les copies et les dossiers de copies sont rangés dans 3-copies-rendues de l'exercice ouvert et corrigés.
+        /// les copies et les dossiers de copies sont rangés dans 3-copies-rendues de l'exercice ouvert et corrigés. Sans
+        /// exercice ouvert, les copies d'un exercice fourni avec SMAD-X ouvrent cet exercice, puis sont corrigées.
         /// </summary>
         public async Task DropAsync(IReadOnlyList<string> paths)
         {
@@ -600,10 +599,30 @@ namespace SMADX.Studio.ViewModels
             var submissions = paths.Where(p => File.Exists(p) && p.EndsWith(LabSubmissionService.FileExtension, StringComparison.OrdinalIgnoreCase)).ToList();
             var folders = paths.Where(p => Directory.Exists(p) && p != labFolder).ToList();
             if (submissions.Count == 0 && folders.Count == 0) return;
+
+            // Les copies de plusieurs exercices (un dossier de devoirs) sont rangées par exercice : voir DropBatchAsync
+            var dropped = submissions.Select(p => (Path: Path.GetFullPath(p), From: (string?)null))
+                .Concat(folders.SelectMany(f => SubmissionsIn(f).Select(p => (Path: Path.GetFullPath(p), From: (string?)f)))).ToList();
+            var batch = new SubmissionBatch(dropped.Select(d => d.Path));
+            if (batch.HasSeveralLabs)
+            {
+                await DropBatchAsync(batch, dropped);
+                return;
+            }
+            _batch = null;
+            RefreshBatch();
+
+            string? builtIn = null;
             if (Lab == null)
             {
-                Status = Text["Submissions.OpenLabFirst"];
-                return;
+                // Rien d'ouvert : les copies d'un exercice fourni avec SMAD-X l'ouvrent (un exercice SMAR-X ouvert reste ouvert)
+                if (!IsEmpty || dropped.Count == 0)
+                {
+                    Status = Text["Submissions.OpenLabFirst"];
+                    return;
+                }
+                if (!await OpenBuiltInLabForAsync(dropped.Select(d => d.Path).ToList())) return;
+                builtIn = BuiltInTitle(Lab!);
             }
             await RunAsync(() =>
             {
@@ -615,6 +634,9 @@ namespace SMADX.Studio.ViewModels
                     else Status = string.Format(Text["Status.NotALabFolder"], folder);
                 }
             });
+            if (builtIn != null)
+                Status = string.Format(Text["Submissions.OpenedBuiltIn"], builtIn) + " " + Status;
+            SelectedTab = SubmissionsTab;
         }
 
         /// <summary>Le dossier glissé est dans le dossier de l'exercice déjà ouvert (ses copies, par exemple).</summary>
@@ -654,6 +676,12 @@ namespace SMADX.Studio.ViewModels
                 Status = string.Format(Text["Status.Opened"], path);
                 if (project?.SubmissionFiles() is { Count: > 0 } submissions)
                     AddSubmissions(submissions);
+                // Un lot déposé avant a des copies de cet exercice : elles s'y ajoutent
+                if (_batch?.Find(Lab.Id) != null)
+                {
+                    AddBatchCopies();
+                    Status = BatchStatus();
+                }
                 // Le sujet n'a ni indices d'examen ni corrigé : on corrige avec l'exemplaire
                 if (LabProject.IsHandOut(path))
                     Status = Text["Status.OpenedSubject"];
@@ -1177,7 +1205,8 @@ namespace SMADX.Studio.ViewModels
             Text.Culture = culture;
             if (ready) Status = Text["Status.Ready"];
             _questionKinds = null;
-            foreach (var name in new[] { nameof(Levels), nameof(Level), nameof(Languages), nameof(LanguageChoice), nameof(Categories), nameof(CategoryChoice), nameof(DomainSummary), nameof(QuestionKinds) })
+            foreach (var name in new[] { nameof(Levels), nameof(Level), nameof(Languages), nameof(LanguageChoice), nameof(Categories), nameof(CategoryChoice), nameof(DomainSummary), nameof(QuestionKinds),
+                                         nameof(BuiltInLabs), nameof(FrenchAttackPathLabs), nameof(EnglishAttackPathLabs) })
                 OnPropertyChanged(name);
             foreach (var q in Questions) q.Refresh();
             if (Lab?.Language == null) EditCulture = culture;

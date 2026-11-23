@@ -79,6 +79,29 @@ namespace SMADX.Services.Labs
         }
 
         /// <summary>
+        /// Identifiant de l'exercice d'une copie, lu sans charger la copie (ni son domaine, ni son sceau) ; null si le fichier
+        /// est illisible ou n'est pas une copie SMAD-X.
+        /// </summary>
+        public static string? ReadLabId(string path)
+        {
+            try
+            {
+                using var stream = File.OpenRead(path);
+                using var document = JsonDocument.Parse(stream);
+                var root = document.RootElement;
+                return root.ValueKind == JsonValueKind.Object
+                       && root.TryGetProperty("Format", out var format) && format.ValueKind == JsonValueKind.String && format.GetString() == "smadx-submission"
+                       && root.TryGetProperty("LabId", out var id) && id.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(id.GetString())
+                    ? id.GetString()!.Trim()
+                    : null;
+            }
+            catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Empreinte du domaine de départ d'un exercice : une copie faite sur un autre domaine de départ
         /// que celui du formateur ne peut pas être corrigée de façon fiable.
         /// </summary>

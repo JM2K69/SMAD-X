@@ -20,9 +20,9 @@ The **home screen** shows each way to start as a tile, under the tool of the lab
 | **New lab from a domain (.smad-x.json)...** | a domain prepared and saved in SMAD-X | the statement template and the objectives suggested by the audit and the attack paths |
 | **Convert a scenario into a lab...** | a `.smad-x.json` scenario whose description follows the *Context / The path / Fix it* outline | the statement taken from the context; the path and the fix go into the trainer notes |
 
-**Open a lab (its folder)...** (`Ctrl+O`) reopens a lab by its folder, or by one of its role folders, whether it is a SMAD-X or a SMAR-X lab: Studio finds there everything the creation laid out (your copy, the subject, the solution, the notes) and grades the submissions of `3-submissions` straight away. Dropping that folder on the Studio window does the same, and the start screen lists the **recent labs**, reopened in one click. **Open a lab file (.smadx-lab.json)...** resumes a lab saved on its own, with its notes.
+**Open a lab (its folder)...** (`Ctrl+O`) reopens a lab by its folder, or by one of its role folders, whether it is a SMAD-X or a SMAR-X lab: Studio finds there everything the creation laid out (your copy, the subject, the solution, the notes) and grades the submissions of `3-submissions` straight away. Dropping that folder on the Studio window does the same, and the start screen lists the **recent labs**, reopened in one click. **Open a lab file (.smadx-lab.json)...** resumes a lab saved on its own, with its notes. **Open a built-in SMAD-X lab** opens one of the labs of the SMAD-X **Labs** menu, to grade its submissions without the repository (see [Built-in SMAD-X labs](#built-in-smad-x-labs)).
 
-Studio can also be started with a file, as SMAD-X does to send it a domain. A lab folder or lab file opens, and a `.smad-x.json` domain becomes the start of a new lab. Any other file is ignored, and the status bar says so: "nothing is open".
+Studio can also be started with a file, as SMAD-X does to send it a domain. A lab folder or lab file opens, a `.smad-x.json` domain becomes the start of a new lab, and a submission for a built-in SMAD-X lab opens that lab and is graded. Any other file is ignored, and the status bar says so: "nothing is open".
 
 When a domain cannot be read, the status bar names the file and says why:
 
@@ -172,7 +172,7 @@ The **trainer notes** (the solution, things to watch for) and the trainer sheet 
 
 ![Submissions tab](../assets/screens/studio-submissions.png)
 
-Each learner saves their work in SMAD-X with **Save my submission**: a `.smadx-submission.json` file holding the lab they received, their domain, their answers to the questions and the hints viewed. The simplest: with the lab open, **drop the submissions on the Studio window**, or a folder of submissions (a USB stick, an assignment downloaded from the school platform): Studio files them in `3-submissions`, with the grades by hand that come with them, and grades them straight away. A submission already filed is not copied again; another file of the same name gets a number. You can also put the submissions into `3-submissions` yourself, from the file explorer: they are graded when the lab opens, or as soon as you come back to Studio if it is already open. Opened by its folder, the lab is always **your copy** (`1-trainer`), not the subject, which has no answer key. In the **Submissions** tab, the same submissions can also be added with buttons:
+Each learner saves their work in SMAD-X with **Save my submission**: a `.smadx-submission.json` file holding the lab they received, their domain, their answers to the questions and the hints viewed. The simplest: with the lab open, **drop the submissions on the Studio window**, or a folder of submissions (a USB stick, an assignment downloaded from the school platform): Studio files them in `3-submissions`, with the grades by hand that come with them, and grades them straight away. A submission already filed is not copied again; another file of the same name gets a number. You can also put the submissions into `3-submissions` yourself, from the file explorer: they are graded when the lab opens, or as soon as you come back to Studio if it is already open. Opened by its folder, the lab is always **your copy** (`1-trainer`), not the subject, which has no answer key. For a built-in SMAD-X lab, there is nothing to open: drop the submissions on Studio (see [Built-in SMAD-X labs](#built-in-smad-x-labs)). In the **Submissions** tab, the same submissions can also be added with buttons:
 
 - **Add submissions...**: pick one or several submissions at once;
 - **Add a folder...**: every submission in the folder and its subfolders, filed with their subfolders (a Moodle download has one folder per learner, and the submissions may have the same name there).
@@ -204,6 +204,34 @@ Red remarks need your attention; the grade stays displayed. Two identical soluti
 
 !!! note "What these checks guarantee"
     They catch the common cases: a submission edited in a text editor, a classmate's submission handed in under one's own name, a domain taken from someone else. The format is public and SMAD-X runs on the learner's computer: they do not stop a determined forger who would rewrite the whole file consistently. An absolute guarantee would require collecting submissions on a machine the learner does not control.
+
+### Built-in SMAD-X labs
+
+The labs of the SMAD-X **Labs** menu (**Built-in labs** and **Attack paths**, see the [catalog](catalog.md)) are embedded in Studio: their submissions are graded without the repository or any lab file.
+
+- **Drop the submissions on the window**, or their folder, with no lab open: Studio reads in the submissions the lab they name, opens the built-in lab that has this identifier and grades them. The status bar says so: "Submissions for the built-in SMAD-X lab *title*: Studio opened it." Submissions for several labs are sorted by lab (see [A homework folder: several labs](#a-homework-folder-several-labs)). Starting Studio with a submission (`SMAD-X.Studio submission.smadx-submission.json`) does the same.
+- **File > Open a built-in SMAD-X lab** opens the lab of your choice, in one of three submenus: **Built-in labs** (bilingual), **Attack paths, in French** (`chemin-01` to `chemin-15`) and **Attack paths, in English** (`path-01` to `path-15`). Both series are offered whatever the interface language. Each entry gives *identifier · title*, sorted by identifier: it is the start of the submission's file name, `<identifier>_<First Last>.smadx-submission.json`. For the submission `path-04-write-members_Lou Martin.smadx-submission.json`, pick **path-04-write-members · …**. Then add the submissions: drop them on the window, or use the buttons of the **Submissions** tab.
+
+Next to the submissions, a learner sometimes hands in a `<identifier>_<First Last>_<date>_<time>.md` file: it is the report they exported from SMAD-X (**Export result**), with the score shown in their window. Studio does not use it and ignores it when it is dropped with the submissions: it grades the `.smadx-submission.json`.
+
+The lab opened is the one SMAD-X gives the learners, hints and answer key included: the grades are those of `SMAD-X.Studio grade` with the lab's file in the repository (`SMAD-X.Core/Labs/<identifier>.smadx-lab.json`). It has no file: the submissions stay where they are, and each export asks where to write. As it comes, it has nothing to save, and closing Studio asks nothing. **Save** lays it out in a lab folder, by role like a lab created in Studio: the submissions added afterwards go to `3-submissions`, and the exports to `4-results`.
+
+Dropped with no lab open, the submissions for a lab that does not come with SMAD-X (a lab created in Studio, for instance) open nothing: the status bar gives the identifier of their lab and asks you to open your copy first. A lab already open stays open: the submissions dropped are added to it, as usual.
+
+!!! warning "A built-in lab you changed"
+    If you handed out a changed version of a built-in lab (saved in Studio, with other objectives or other points, but the same identifier), open your copy before dropping the submissions: the built-in lab would grade them with its original objectives. Another starting domain is reported by the remark "other starting domain"; other objectives are not.
+
+### A homework folder: several labs
+
+A practical session often has learners do several labs: each learner hands in a folder with one submission per lab, sometimes with their screenshots and `.md` reports. **Drop the whole homework folder on the window**: Studio looks for the submissions in it, subfolders included, and sorts them by lab from the identifier of each one. The other files are ignored.
+
+- With no lab open, the first built-in lab of the batch, in identifier order, opens with its own submissions only, and Studio shows the **Submissions** tab. A lab already open receives the submissions that are its own, filed in `3-submissions` if it has its folder; the others are not added to it.
+- At the top of the **Submissions** tab, one button per lab of the batch gives its identifier and its number of submissions, for instance `chemin-04-write-members (2)`. A click opens that lab with its submissions, graded straight away; the button of the open lab is highlighted. Opening a lab of the batch another way (from the menu, or your copy for a lab that does not come with SMAD-X) adds its submissions to it too.
+- **Summary per learner (CSV)...** writes one row per learner: their grade out of the scale for each lab of the batch, the number of labs handed in, the **average of the labs handed in** and the **average over all the labs of the batch**, where a lab not handed in counts 0. Keep the one that matches your instructions. For a lab laid out in its folder, the summary goes to `4-results`; otherwise Studio asks where to write it.
+
+A learner is recognised from one submission to the next by their **ID**, ignoring case, otherwise by their name: a typo in the name of one submission does not create a second learner if they kept the same ID. If they handed in two submissions for the same lab, the latest counts. The **Remarks** column says so, as it does for a submission to check or answers to grade in Studio.
+
+The open lab counts as it is in Studio (your points, your grades by hand); the other built-in labs count as they come. A lab of the batch that does not come with SMAD-X appears in the summary only when it is open. A new drop replaces the batch, and submissions for a single lab are graded as before.
 
 ### Grading by hand and commenting
 

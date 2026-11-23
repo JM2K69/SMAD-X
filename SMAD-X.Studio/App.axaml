@@ -6,6 +6,8 @@
 
     <Application.Resources>
         <converters:MarkdownConverter x:Key="MarkdownConverter"/>
+        <!-- Menus plus larges que les 456 px du thème Fluent : les entrées longues (les exercices fournis, « identifiant · titre ») ne sont pas coupées -->
+        <x:Double x:Key="FlyoutThemeMaxWidth">760</x:Double>
         <!-- Un flacon de laboratoire : l'atelier des exercices -->
         <StreamGeometry x:Key="StudioIcon">M8.5,2 L15.5,2 L15.5,4 L14.25,4 L14.25,9.2 L20.1,19.3 C20.8,20.6 19.9,22 18.4,22 L5.6,22 C4.1,22 3.2,20.6 3.9,19.3 L9.75,9.2 L9.75,4 L8.5,4 Z</StreamGeometry>
         <!-- Les icônes des outils, celles de leur propre fenêtre : l'annuaire de SMAD-X, le bouclier de SMAR-X -->
