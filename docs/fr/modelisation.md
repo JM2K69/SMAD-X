@@ -81,6 +81,8 @@ Les imbrications suivent les portées d'AD (modèle AGDLP) : un groupe **global*
 
 **Analyse > Délégations...** (`Ctrl+D`) liste les délégations : mandataire, droit, catégorie, DN cible, héritage, tier. On filtre par mandataire, cible ou catégorie, on masque les délégations héritées, et on exporte en CSV. Une colonne s'élargit ou se rétrécit en faisant glisser le bord droit de son en-tête. Les compteurs regroupent les catégories ; **Droits sensibles** compte celles qui donnent un objet ou ses secrets sans en avoir l'air.
 
+La fenêtre des délégations n'est pas modale : la fenêtre principale reste utilisable à côté. Il n'y en a qu'une à la fois : `Ctrl+D` ramène celle qui est ouverte. Quand on y revient, elle reprend le domaine affiché : un autre fichier ouvert, une modification annulée, une OU supprimée. Chaque délégation ajoutée ou retirée s'annule depuis la fenêtre principale (`Ctrl+Z`).
+
 | Catégorie | Droit AD | Ce qu'il donne |
 |---|---|---|
 | Réinitialisation du mot de passe | `ResetPassword` | le compte, en changeant son mot de passe |

@@ -81,6 +81,8 @@ Nesting follows AD scopes (AGDLP model): a **global** group only holds accounts 
 
 **Analysis > Delegations...** (`Ctrl+D`) lists delegations: trustee, right, category, target DN, inheritance, tier. Filter by trustee, target or category, hide inherited delegations, and export to CSV. A column widens or narrows by dragging the right edge of its header. The counters group the categories; **Sensitive rights** counts those that give an object or its secrets without looking like it.
 
+The delegations window is not modal: the main window stays usable beside it. There is only one at a time: `Ctrl+D` brings back the open one. When you come back to it, it picks up the displayed domain: another file opened, a change undone, an OU deleted. Each delegation added or removed can be undone from the main window (`Ctrl+Z`).
+
 | Category | AD right | What it gives |
 |---|---|---|
 | Password reset | `ResetPassword` | the account, by changing its password |

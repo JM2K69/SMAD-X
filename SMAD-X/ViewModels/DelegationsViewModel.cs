@@ -129,6 +129,7 @@ namespace SMADX.ViewModels
             AllDelegations.Add(delegation);
             ApplyFilters();
             RefreshStats();
+            Changed?.Invoke();
         }
 
         /// <summary>Retire la délégation sélectionnée (les délégations héritées se retirent sur l'objet parent).</summary>
@@ -144,6 +145,7 @@ namespace SMADX.ViewModels
             AllDelegations.Remove(delegation);
             ApplyFilters();
             RefreshStats();
+            Changed?.Invoke();
         }
 
         private ADObject? FindPrincipal(string name) => _root is null ? null : Flatten(_root).FirstOrDefault(o =>
@@ -153,12 +155,48 @@ namespace SMADX.ViewModels
         private static IEnumerable<ADObject> Flatten(ADObject node) =>
             new[] { node }.Concat(node.Children.SelectMany(Flatten));
 
+        /// <summary>Une délégation ajoutée ou retirée : la fenêtre principale en fait une étape d'annulation.</summary>
+        public event System.Action? Changed;
+
+        /// <summary>
+        /// Recale la fenêtre sur le domaine affiché, quand on y revient. Un autre domaine (fichier ouvert, annulation)
+        /// est rechargé. Le même garde l'OU et la délégation choisies, si elles existent encore, et ne bouge pas s'il
+        /// n'a pas changé.
+        /// </summary>
+        public void Refresh(ADObject root)
+        {
+            if (!ReferenceEquals(root, _root))
+            {
+                LoadFromTree(root);
+                return;
+            }
+
+            var delegations = CollectDelegations(root).ToList();
+            var principals = PrincipalNames(root).ToList();
+            var ou = SelectedOUNode;
+            var ouStillThere = ou is null || Flatten(root).Contains(ou);
+            if (delegations.SequenceEqual(AllDelegations) && principals.SequenceEqual(Principals) && ouStillThere) return;
+
+            var selected = SelectedDelegation;
+            Principals.Clear();
+            foreach (var name in principals) Principals.Add(name);
+            AllDelegations.Clear();
+            foreach (var d in delegations) AllDelegations.Add(d);
+            if (ouStillThere) ApplyFilters();
+            else SelectedOUNode = null; // filtre et compteurs recalculés
+            SelectedDelegation = selected is not null && FilteredDelegations.Contains(selected) ? selected : null;
+            RefreshStats();
+        }
+
+        private static IEnumerable<string> PrincipalNames(ADObject root) =>
+            Flatten(root).Where(o => o.Type is ADObjectType.Group or ADObjectType.User)
+                .Select(o => o.Name).Distinct().OrderBy(n => n, System.StringComparer.CurrentCultureIgnoreCase);
+
         public void LoadFromTree(ADObject root)
         {
             _root = root;
             Principals.Clear();
-            foreach (var name in Flatten(root).Where(o => o.Type is ADObjectType.Group or ADObjectType.User)
-                         .Select(o => o.Name).Distinct().OrderBy(n => n, System.StringComparer.CurrentCultureIgnoreCase))
+            foreach (var name in PrincipalNames(root))
                 Principals.Add(name);
 
             TreeRootItems.Clear();
@@ -212,7 +250,7 @@ namespace SMADX.ViewModels
             foreach (var d in query)
                 FilteredDelegations.Add(d);
 
-            var ouLabel = SelectedOUNode is not null ? $" \u2014 {SelectedOUNode.Name}" : string.Empty;
+            var ouLabel = SelectedOUNode is not null ? $" \u00B7 {SelectedOUNode.Name}" : string.Empty;
             StatusMessage = string.Format(LocalizationService.Instance["Delegations.Status"], FilteredDelegations.Count, AllDelegations.Count, ouLabel);
         }
 

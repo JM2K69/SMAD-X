@@ -549,4 +549,47 @@ public class DelegationEditingTests
 
         Assert.Single(corp.Delegations);
     }
+
+    /// <summary>La fenêtre n'est plus modale : elle se recale sur le domaine quand on y revient.</summary>
+    [Fact]
+    public void Refresh_KeepsTheChosenOu_AndFollowsChangesMadeInTheMainWindow()
+    {
+        var domain = BuildSmallDomain();
+        var corp = Find(domain, "Corp");
+        var vm = new DelegationsViewModel();
+        vm.Refresh(domain);
+        vm.SelectedOUNode = corp;
+        var changes = 0;
+        vm.Changed += () => changes++;
+
+        // Rien n'a changé : la fenêtre ne bouge pas
+        vm.Refresh(domain);
+        Assert.Same(corp, vm.SelectedOUNode);
+
+        // Une délégation ajoutée ailleurs apparaît, l'OU choisie reste
+        var added = new ADDelegation { TrusteeName = "Helpdesk", TargetDN = corp.DistinguishedName, Right = "ResetPassword", RightCategory = RightCategory.PasswordReset };
+        corp.Delegations.Add(added);
+        vm.Refresh(domain);
+        Assert.Same(corp, vm.SelectedOUNode);
+        Assert.Contains(added, vm.FilteredDelegations);
+
+        // L'OU supprimée dans la fenêtre principale : le filtre tombe
+        corp.Parent!.Children.Remove(corp);
+        vm.Refresh(domain);
+        Assert.Null(vm.SelectedOUNode);
+        Assert.DoesNotContain(added, vm.AllDelegations);
+
+        // Un autre domaine (fichier ouvert, annulation) : tout est rechargé
+        var other = BuildSmallDomain();
+        vm.Refresh(other);
+        Assert.Same(other, Assert.Single(vm.TreeRootItems));
+
+        // Chaque ajout ou retrait le signale à la fenêtre principale
+        vm.SelectedOUNode = Find(other, "Corp");
+        vm.NewTrustee = "Helpdesk";
+        vm.AddDelegationCommand.Execute(null);
+        vm.SelectedDelegation = vm.FilteredDelegations.Single();
+        vm.RemoveDelegationCommand.Execute(null);
+        Assert.Equal(2, changes);
+    }
 }

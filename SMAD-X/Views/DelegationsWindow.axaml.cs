@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -20,6 +21,22 @@ namespace SMADX.Views
         {
             if (DataContext is DelegationsViewModel vm)
                 vm.LoadFromTree(root);
+        }
+
+        /// <summary>
+        /// Fenêtre non modale : elle se recale sur le domaine affiché à chaque fois qu'on y revient (fichier ouvert,
+        /// annulation, objet supprimé dans la fenêtre principale), et signale chaque délégation ajoutée ou retirée.
+        /// </summary>
+        public DelegationsWindow(Func<ADObject?> getRoot, Action changed) : this()
+        {
+            if (DataContext is not DelegationsViewModel vm) return;
+            vm.Changed += changed;
+            void Follow()
+            {
+                if (getRoot() is { } root) vm.Refresh(root);
+            }
+            Follow();
+            Activated += (_, _) => Follow();
         }
 
         private void OnOUTreeSelectionChanged(object? sender, SelectionChangedEventArgs e)

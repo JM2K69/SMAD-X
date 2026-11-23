@@ -69,7 +69,9 @@ internal sealed class FakeDialogService : IDialogService
     }
     public Task ShowTierConfigurationAsync() { Opened.Add("Tiers"); return Task.CompletedTask; }
     public Task ShowTimelineAsync() { Opened.Add("Timeline"); return Task.CompletedTask; }
-    public Task ShowDelegationsAsync(ADObject? root) { Opened.Add($"Delegations:{root?.Name}"); return Task.CompletedTask; }
+    /// <summary>La fenêtre des délégations ouverte : le domaine qu'elle suit et ce qu'elle appelle à chaque changement.</summary>
+    public (Func<ADObject?> GetRoot, Action Changed)? Delegations { get; private set; }
+    public void ShowDelegations(Func<ADObject?> getRoot, Action changed) { Delegations = (getRoot, changed); Opened.Add($"Delegations:{getRoot()?.Name}"); }
     public Task ShowSitesAsync(ADSitesTopology? topology) { Opened.Add($"Sites:{topology?.Sites.Count}"); return Task.CompletedTask; }
     public Task<string?> ShowExportReportAsync(ADRootDocument document) { Opened.Add($"Report:{document.Domain.Name}"); return Task.FromResult<string?>(null); }
     public Task ShowAboutAsync() { Opened.Add("About"); return Task.CompletedTask; }
@@ -542,7 +544,7 @@ public class MainWindowViewModelTests
     [Fact]
     public async Task WindowCommands_GoThroughDialogService()
     {
-        await _vm.ShowDelegationsCommand.ExecuteAsync(null);
+        _vm.ShowDelegationsCommand.Execute(null);
         await _vm.ShowSitesCommand.ExecuteAsync(null);
         await _vm.ShowTimelineCommand.ExecuteAsync(null);
         await _vm.ShowTierConfigurationCommand.ExecuteAsync(null);
@@ -554,5 +556,37 @@ public class MainWindowViewModelTests
         Assert.Equal(
             ["Delegations:contoso.com", "Sites:3", "Timeline", "Tiers", "About", "Shortcuts", "Report:contoso.com", "Graph"],
             _dialogs.Opened);
+    }
+
+    /// <summary>
+    /// La fenêtre des délégations n'est plus modale : elle suit le domaine affiché, et chaque délégation ajoutée ou
+    /// retirée s'annule depuis la fenêtre principale.
+    /// </summary>
+    [Fact]
+    public void Delegations_StayBesideTheMainWindow_AndEachChangeCanBeUndone()
+    {
+        _vm.ShowDelegationsCommand.Execute(null);
+        var (getRoot, changed) = _dialogs.Delegations!.Value;
+        var root = getRoot()!;
+        Assert.Same(_vm.RootObject, root);
+
+        var window = new DelegationsViewModel();
+        window.Changed += changed;
+        window.Refresh(root);
+        window.SelectedOUNode = root;
+        window.NewTrustee = "Undo-Test";
+        window.NewCategory = RightCategory.PasswordReset;
+        var before = root.Delegations.Count;
+        window.AddDelegationCommand.Execute(null);
+        Assert.Equal(before + 1, root.Delegations.Count);
+
+        Assert.True(_vm.UndoCommand.CanExecute(null));
+        _vm.UndoCommand.Execute(null);
+        Assert.Equal(before, _vm.RootObject!.Delegations.Count);
+
+        // Revenue dans la fenêtre des délégations, elle montre le domaine restauré
+        window.Refresh(getRoot()!);
+        Assert.Same(_vm.RootObject, Assert.Single(window.TreeRootItems));
+        Assert.DoesNotContain(window.AllDelegations, d => d.TrusteeName == "Undo-Test");
     }
 }

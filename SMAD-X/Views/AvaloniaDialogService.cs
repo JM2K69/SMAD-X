@@ -113,8 +113,23 @@ namespace SMADX.Views
         public Task ShowTimelineAsync() =>
             new DomainTimelineWindow().ShowDialog(_owner);
 
-        public Task ShowDelegationsAsync(ADObject? root) =>
-            (root is not null ? new DelegationsWindow(root) : new DelegationsWindow()).ShowDialog(_owner);
+        private DelegationsWindow? _delegationsWindow;
+
+        /// <summary>
+        /// Les délégations dans une fenêtre non modale : la fenêtre principale reste utilisable à côté. Une seule à la
+        /// fois : « Délégations » ramène celle qui est ouverte.
+        /// </summary>
+        public void ShowDelegations(Func<ADObject?> getRoot, Action changed)
+        {
+            if (_delegationsWindow is { IsVisible: true } open)
+            {
+                open.Activate();
+                return;
+            }
+            _delegationsWindow = new DelegationsWindow(getRoot, changed);
+            _delegationsWindow.Closed += (s, _) => { if (s == _delegationsWindow) _delegationsWindow = null; };
+            _delegationsWindow.Show(_owner);
+        }
 
         public Task ShowSitesAsync(ADSitesTopology? topology) =>
             (topology is not null ? new SitesWindow(topology) : new SitesWindow()).ShowDialog(_owner);

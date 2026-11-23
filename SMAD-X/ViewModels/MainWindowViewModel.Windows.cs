@@ -57,12 +57,12 @@ namespace SMADX.ViewModels
         [RelayCommand]
         private Task ShowTimeline() => _dialogs.ShowTimelineAsync();
 
+        /// <summary>
+        /// Les délégations dans une fenêtre non modale, sur le domaine affiché : chaque délégation ajoutée ou retirée
+        /// devient une étape d'annulation de la fenêtre principale.
+        /// </summary>
         [RelayCommand]
-        private async Task ShowDelegations()
-        {
-            await _dialogs.ShowDelegationsAsync(RootObject);
-            RecordHistory(); // délégations ajoutées ou retirées dans la fenêtre
-        }
+        private void ShowDelegations() => _dialogs.ShowDelegations(() => RootObject, RecordHistory);
 
         [RelayCommand]
         private Task ShowSites() => _dialogs.ShowSitesAsync(SitesTopology);

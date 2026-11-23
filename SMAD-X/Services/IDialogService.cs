@@ -57,7 +57,11 @@ namespace SMADX.Services
 
         Task ShowTimelineAsync();
 
-        Task ShowDelegationsAsync(ADObject? root);
+        /// <summary>
+        /// Fenêtre non modale des délégations du domaine affiché (<paramref name="getRoot"/>, relu quand on y revient) :
+        /// une seule à la fois. Chaque délégation ajoutée ou retirée appelle <paramref name="changed"/>.
+        /// </summary>
+        void ShowDelegations(System.Func<ADObject?> getRoot, System.Action changed);
 
         Task ShowSitesAsync(ADSitesTopology? topology);
 

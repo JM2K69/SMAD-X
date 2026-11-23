@@ -24,7 +24,7 @@ namespace SMADX.Services
         public void ShowAttackPaths(AttackPathsViewModel viewModel) { }
         public Task ShowTierConfigurationAsync() => Task.CompletedTask;
         public Task ShowTimelineAsync() => Task.CompletedTask;
-        public Task ShowDelegationsAsync(ADObject? root) => Task.CompletedTask;
+        public void ShowDelegations(System.Func<ADObject?> getRoot, System.Action changed) { }
         public Task ShowSitesAsync(ADSitesTopology? topology) => Task.CompletedTask;
         public Task<string?> ShowExportReportAsync(ADRootDocument document) => Task.FromResult<string?>(null);
         public Task ShowAboutAsync() => Task.CompletedTask;
