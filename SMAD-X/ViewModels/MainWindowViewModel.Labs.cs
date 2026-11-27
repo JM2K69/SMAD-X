@@ -148,8 +148,9 @@ namespace SMADX.ViewModels
                 else
                 {
                     var lab = _labService.LoadFile(path);
-                    // L'exemplaire du formateur (indices, corrigé des questions) ne se passe pas : on distribue le sujet
-                    if (lab.IsTrainerCopy)
+                    // L'exemplaire du formateur (indices, corrigé des questions, vérifications d'un examen) ne se passe
+                    // pas : on distribue le sujet
+                    if (lab.IsTrainerCopy || lab.ChecksExposed)
                     {
                         StatusMessage = Loc["Lab.TrainerCopy.Status"];
                         await _dialogs.ShowMessageAsync(Loc["Lab.TrainerCopy.Title"], Loc["Lab.TrainerCopy.Message"]);

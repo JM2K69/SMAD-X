@@ -47,7 +47,9 @@ Les simulateurs ne sont pas écrits « de mémoire ». Leurs résultats ont ét�
 
 ## 📦 Téléchargement
 
-Chaque version, sur la page [Releases](https://github.com/JM2K69/SMAD-X/releases/latest), a **une archive par application et par plateforme** (Windows x64, Linux x64, macOS Intel et Apple Silicon) : `SMAD-X-<plateforme>.zip`, `SMAD-X-Studio-<plateforme>.zip` et `SMAR-X-<plateforme>.zip`. Chacune contient un seul exécutable autonome : rien à installer. Un apprenant n'a besoin que du simulateur de l'exercice.
+Chaque version, sur la page [Releases](https://github.com/JM2K69/SMAD-X/releases/latest), a **une archive par application et par plateforme** (Windows x64, Linux x64, macOS Intel et Apple Silicon) : `SMAD-X-<plateforme>.zip` et `SMAR-X-<plateforme>.zip`. Chacune contient un seul exécutable autonome : rien à installer. Un apprenant n'a besoin que du simulateur de l'exercice.
+
+**SMAD-X Studio**, l'outil des formateurs (création des exercices et des examens, correction des copies), est réservé aux enseignants : il est distribué dans un dépôt GitHub privé. Enseignant ? Demandez l'accès au mainteneur.
 
 ---
 

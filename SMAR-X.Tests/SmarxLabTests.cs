@@ -272,6 +272,49 @@ public class SmarxLabTests
     }
 
     [Fact]
+    public void ExamSubject_WithoutCheckButton_HasNoChecks_AndIsGradedWithTheTrainerCopy()
+    {
+        var lab = SmarxBuiltInLabs.LinuxTeamFolder();
+        lab.Exam = true;
+        var trainer = SmarxLabService.Parse(SmarxLabService.Serialize(lab));
+        var json = SmarxLabService.SerializeSubject(lab);
+        var subject = SmarxLabService.Parse(json);
+
+        // Le sujet : titres et points des objectifs, sans leurs vérifications ; SMAR-X refuse l'exemplaire du formateur
+        Assert.DoesNotContain("\"Check\"", json);
+        Assert.True(subject.ChecksWithheld);
+        Assert.False(subject.IsTrainerCopy || subject.ChecksExposed);
+        Assert.True(trainer.ChecksExposed);
+        Assert.Equal(lab.Objectives.Select(o => (o.Id, o.Points)), subject.Objectives.Select(o => (o.Id, o.Points)));
+        Assert.Contains(SmarxLabValidator.Check(subject, null, Fr), i => i.Message.Contains("sujet distribué"));
+
+        // La copie faite sur le sujet se corrige avec l'exemplaire ; avec le sujet, la correction est refusée
+        var path = Path.Combine(Path.GetTempPath(), $"smarx-exam-{Guid.NewGuid():N}.smarx-submission.json");
+        try
+        {
+            File.WriteAllText(path, SmarxLabService.SerializeSubmission(new SmarxSubmission
+            {
+                Student = "Camille Martin", LabId = lab.Id, SessionId = Guid.NewGuid(), StartedOn = new DateTime(2026, 11, 6, 9, 0, 0),
+                SavedAt = new DateTime(2026, 11, 6, 9, 20, 0), ElapsedMinutes = 20, Lab = subject, Work = Solved(lab)
+            }));
+            Assert.Equal(lab.MaxPoints, SmarxClassGrader.GradeAll(trainer, [path], Fr).Single().Result!.Score);
+            var refused = SmarxClassGrader.GradeAll(subject, [path], Fr).Single();
+            Assert.Null(refused.Result);
+            Assert.Contains(refused.Issues, i => i.Message.Contains("sujet distribué"));
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+
+        // Entraînement, ou examen avec « Vérifier » : les vérifications restent, le bouton en a besoin
+        lab.ExamCheck = true;
+        Assert.Contains("\"Check\"", SmarxLabService.SerializeSubject(lab));
+        lab.Exam = false;
+        Assert.False(SmarxLabService.Parse(SmarxLabService.SerializeSubject(lab)).ChecksWithheld);
+    }
+
+    [Fact]
     public void Submission_IsSealed_AndATamperedOneIsSpotted()
     {
         var lab = SmarxBuiltInLabs.LinuxTeamFolder();

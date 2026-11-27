@@ -48,6 +48,14 @@ namespace SMARX.Services.Labs
             {
                 var issues = new List<LabIssue>();
                 var submission = copy.Submission;
+                // Le sujet distribué n'a pas les vérifications : seul l'exemplaire du formateur corrige
+                if (lab.ChecksWithheld)
+                {
+                    issues.Add(new(LabIssueLevel.Error, T(culture,
+                        "Vous corrigez avec le sujet distribué aux apprenants : il n'a pas les vérifications des objectifs. Ouvrez votre exemplaire de l'exercice, dans le dossier 1-formateur.",
+                        "You are grading with the subject handed out to learners: it has no objective checks. Open your copy of the lab, in the 1-trainer folder.")));
+                    return new SmarxGradedSubmission(copy.path, submission, null, issues);
+                }
                 if (submission == null)
                 {
                     issues.Add(new(LabIssueLevel.Error, T(culture, $"Copie illisible : {copy.Error}", $"Unreadable copy: {copy.Error}")));
@@ -59,6 +67,10 @@ namespace SMARX.Services.Labs
                     issues.Add(new(LabIssueLevel.Warning, T(culture, "Copie sans sceau.", "Copy without a seal.")));
                 if (!string.Equals(submission.LabId, lab.Id, StringComparison.OrdinalIgnoreCase))
                     issues.Add(new(LabIssueLevel.Error, T(culture, $"Copie d'un autre exercice ({SafeText.Name(submission.LabId)}).", $"Copy of another lab ({SafeText.Name(submission.LabId)}).")));
+                if (lab.Exam && submission.Lab.ChecksExposed && !submission.Lab.IsTrainerCopy)
+                    issues.Add(new(LabIssueLevel.Warning, T(culture,
+                        "Copie faite sur un sujet qui contenait les vérifications des objectifs (exporté par une version plus ancienne de Studio) : l'apprenant pouvait corriger sa copie avant de la rendre.",
+                        "Copy made on a subject that contained the objective checks (exported by an older version of Studio): the learner could grade the copy before handing it in.")));
                 var twins = copies.Where(c => c.Submission != null && c.Submission != submission && c.Submission.SessionId == submission.SessionId)
                     .Select(c => SafeText.Name(c.Submission!.Student)).ToList();
                 if (twins.Count > 0)

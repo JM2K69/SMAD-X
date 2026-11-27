@@ -69,7 +69,7 @@ Le formateur peut marquer un exercice comme **examen** dans SMAD-X Studio. Un ex
 
 Selon les réglages du formateur, le bouton **Vérifier** montre quels objectifs sont atteints, sans score ni explication, et certains outils peuvent être fermés : audit de sécurité, section « Comment corriger » des fiches, chemins d'attaque, comparaison avant / après. Par défaut, tout est ouvert.
 
-Les questions d'un examen ne sont pas corrigées dans SMAD-X : le sujet que vous avez reçu n'a pas le corrigé. Vos réponses sont enregistrées dans la copie, et le formateur les corrige dans SMAD-X Studio. Le fichier de son propre exemplaire, qui contient les indices et le corrigé, ne s'ouvre pas en examen : SMAD-X l'explique et ne l'ouvre pas.
+Les questions d'un examen ne sont pas corrigées dans SMAD-X : le sujet que vous avez reçu n'a pas le corrigé. Vos réponses sont enregistrées dans la copie, et le formateur les corrige dans SMAD-X Studio. Si le formateur ne permet pas **Vérifier**, le sujet n'a pas non plus les vérifications des objectifs : c'est lui qui corrige votre copie. Le fichier de son propre exemplaire, qui contient les indices, le corrigé et les vérifications, ne s'ouvre pas en examen : SMAD-X l'explique et ne l'ouvre pas.
 
 !!! note "Ce que le mode examen garantit"
     Le mode examen retire les aides et empêche d'ouvrir un autre domaine depuis SMAD-X. Ce n'est pas un logiciel de surveillance : il ne verrouille ni l'ordinateur, ni les autres applications.

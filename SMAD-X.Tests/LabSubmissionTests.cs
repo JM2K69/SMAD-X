@@ -256,12 +256,13 @@ public class LabSubmissionTests
         node["Seal"] = SubmissionSealer.Compute(node);
     });
 
-    private LabDefinition Exam(Action<LabDefinition>? settings = null)
+    /// <summary>Un examen : l'exemplaire du formateur (qui corrige) et le sujet distribué (sur lequel l'apprenant travaille).</summary>
+    private (LabDefinition Trainer, LabDefinition Subject) Exam(Action<LabDefinition>? settings = null)
     {
         var lab = _labs.Parse(_labs.Serialize(Hygiene()));
         lab.Exam = true;
         settings?.Invoke(lab);
-        return _labs.Parse(_labs.SerializeSubject(lab)); // le sujet distribué
+        return (_labs.Parse(_labs.Serialize(lab)), _labs.Parse(_labs.SerializeSubject(lab)));
     }
 
     private static IEnumerable<string> Errors(GradedSubmission row) => row.Issues.Where(i => i.Level == LabIssueLevel.Error).Select(i => i.Message);
@@ -286,13 +287,51 @@ public class LabSubmissionTests
     }
 
     [Fact]
+    public void ExamSubject_WithoutCheckButton_HasNoChecks_SoTheLearnerCannotGradeIt()
+    {
+        var (trainer, subject) = Exam();
+
+        // Le sujet : titres et points des objectifs, sans leurs vérifications ; l'exemplaire du formateur les garde
+        var json = _labs.SerializeSubject(trainer);
+        Assert.DoesNotContain("\"Check\"", json);
+        Assert.True(subject.ChecksWithheld);
+        Assert.False(subject.ChecksExposed);
+        Assert.Equal(trainer.Objectives.Select(o => (o.Id, o.Points)), subject.Objectives.Select(o => (o.Id, o.Points)));
+        Assert.True(trainer.ChecksExposed); // SMAD-X refuse de l'ouvrir
+
+        // La copie faite sur le sujet se corrige avec l'exemplaire ; avec le sujet, la correction est refusée
+        var path = Submit(subject, "Lou");
+        var graded = SubmissionGrader.Grade(trainer, path, "fr-FR");
+        Assert.NotNull(graded.Result);
+        Assert.Empty(Errors(graded));
+        var refused = SubmissionGrader.Grade(subject, path, "fr-FR");
+        Assert.Null(refused.Result);
+        Assert.Contains(Errors(refused), m => m.Contains("sujet distribué"));
+        Assert.Contains(LabValidator.Validate(subject, "fr-FR", Started).Issues, i => i.Message.Contains("sujet distribué"));
+    }
+
+    [Fact]
+    public void PracticeLabs_AndExamsWithCheck_KeepTheirChecks()
+    {
+        // Entraînement : rien ne change ; examen avec « Vérifier » permis : le bouton a besoin des vérifications
+        var practice = _labs.Parse(_labs.Serialize(Hygiene()));
+        var (_, withCheck) = Exam(l => l.ExamCheck = true);
+        foreach (var subject in new[] { _labs.Parse(_labs.SerializeSubject(practice)), withCheck })
+        {
+            Assert.False(subject.ChecksWithheld);
+            Assert.Contains("\"Check\"", _labs.Serialize(subject));
+            Assert.False(subject.ChecksExposed);
+        }
+    }
+
+    [Fact]
     public void ExamReopenedOutsideExamMode_IsReported()
     {
-        var lab = Exam();
+        var (trainer, lab) = Exam();
         var path = Submit(lab, "Lou");
         Forge(path, node => node["Lab"]!["Exam"] = false);
 
-        var row = SubmissionGrader.Grade(lab, path, "fr-FR");
+        var row = SubmissionGrader.Grade(trainer, path, "fr-FR");
 
         Assert.Equal(SubmissionSeal.Valid, row.Submission!.SealCheck);
         Assert.Contains(Errors(row), m => m.Contains("hors mode examen"));
@@ -301,11 +340,11 @@ public class LabSubmissionTests
     [Fact]
     public void ExamWithChangedSettingsOrHints_IsReported()
     {
-        var lab = Exam(l => l.ExamClosedTools = LabTools.Audit);
+        var (trainer, lab) = Exam(l => l.ExamClosedTools = LabTools.Audit);
         var path = Submit(lab, "Lou", hints: ["o1"]);
         Forge(path, node => node["Lab"]!.AsObject().Remove("ExamClosedTools"));
 
-        var errors = Errors(SubmissionGrader.Grade(lab, path, "fr-FR")).ToList();
+        var errors = Errors(SubmissionGrader.Grade(trainer, path, "fr-FR")).ToList();
 
         Assert.Contains(errors, m => m.Contains("réglages d'examen"));
         Assert.Contains(errors, m => m.Contains("Indices consultés pendant l'examen : o1"));
@@ -334,14 +373,14 @@ public class LabSubmissionTests
     [Fact]
     public void ElapsedTime_IsMeasured_AndAnExceededExamIsReported()
     {
-        var lab = Exam(l => l.DurationMinutes = 30);
+        var (trainer, lab) = Exam(l => l.DurationMinutes = 30);
         var path = Submit(lab, "Lou", savedAt: Started.AddMinutes(45));
 
-        var row = SubmissionGrader.Grade(lab, path, "fr-FR");
+        var row = SubmissionGrader.Grade(trainer, path, "fr-FR");
 
         Assert.Equal(45, row.ElapsedMinutes);
         Assert.Contains(row.Issues, i => i.Level == LabIssueLevel.Warning && i.Message.Contains("Temps dépassé : 45 min pour 30"));
-        Assert.Contains(";45;", SubmissionGrader.Csv(lab, [row], "fr-FR"));
+        Assert.Contains(";45;", SubmissionGrader.Csv(trainer, [row], "fr-FR"));
     }
 
     [Fact]

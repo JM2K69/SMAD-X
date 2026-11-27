@@ -97,8 +97,8 @@ namespace SMARX.Views
                 await using var stream = await files[0].OpenReadAsync();
                 using var reader = new StreamReader(stream);
                 var lab = SmarxLabService.Parse(await reader.ReadToEndAsync());
-                // L'exemplaire du formateur d'un examen contient le corrigé : on distribue le sujet
-                if (lab.IsTrainerCopy)
+                // L'exemplaire du formateur d'un examen contient le corrigé ou les vérifications : on distribue le sujet
+                if (lab.IsTrainerCopy || lab.ChecksExposed)
                 {
                     await ChoiceDialog.ShowAsync(this, text["Lab.TrainerCopy.Title"], text["Lab.TrainerCopy"], "OK");
                     return;

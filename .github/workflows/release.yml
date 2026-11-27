@@ -62,6 +62,7 @@ jobs:
 
       # Une application par dossier, donc par archive : SMAD-X, SMAD-X Studio et SMAR-X, chacune un exécutable
       # autonome (un seul fichier). Le nom du dossier devient celui de l'archive : SMAD-X-Studio-win-x64.zip.
+      # Studio, l'outil des formateurs, ne va pas dans la release publique : voir « Studio, dépôt privé ».
       - name: Publish
         shell: pwsh
         run: |
@@ -135,11 +136,41 @@ jobs:
             (cd "$dir" && zip -r "../../../$name-${{ matrix.rid }}.zip" .)
           done
 
+      # SMAD-X Studio est réservé aux enseignants : son archive ne passe ni par les artefacts (téléchargeables par tout
+      # compte GitHub sur un dépôt public) ni par la release publique. Elle part dans la release du même nom du dépôt
+      # privé JM2K69/SMAD-X-Studio, où les enseignants sont invités. Il faut le secret STUDIO_RELEASE_TOKEN : un jeton
+      # à grain fin, limité à ce dépôt, avec le droit « Contents » en écriture. Sans lui, Studio n'est pas publié.
+      - name: Studio, dépôt privé
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.STUDIO_RELEASE_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: JM2K69/SMAD-X-Studio
+          ZIP: SMAD-X-Studio-${{ matrix.rid }}.zip
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::Secret STUDIO_RELEASE_TOKEN absent : SMAD-X Studio n'est pas publié dans $REPO."
+            exit 0
+          fi
+          notes="SMAD-X Studio $TAG, réservé aux enseignants : la création des exercices et des examens, et la correction des copies de SMAD-X et SMAR-X. Notes de version : https://github.com/${{ github.repository }}/releases/tag/$TAG"
+          # Les quatre plateformes publient en parallèle : la première crée la release, les autres y ajoutent leur archive
+          for attempt in 1 2 3 4 5; do
+            gh release view "$TAG" --repo "$REPO" > /dev/null 2>&1 \
+              || gh release create "$TAG" --repo "$REPO" --title "SMAD-X Studio $TAG" --notes "$notes" > /dev/null 2>&1 || true
+            if gh release upload "$TAG" "$ZIP" --repo "$REPO" --clobber; then exit 0; fi
+            sleep $((attempt * 5))
+          done
+          echo "::error::SMAD-X Studio n'a pas pu être déposé dans $REPO."
+          exit 1
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
           name: release-${{ matrix.rid }}
-          path: "*-${{ matrix.rid }}.zip"
+          path: |
+            SMAD-X-${{ matrix.rid }}.zip
+            SMAR-X-${{ matrix.rid }}.zip
           if-no-files-found: error
 
   release:
@@ -203,17 +234,20 @@ jobs:
 
             ### Téléchargements / Downloads
 
-            | Plateforme | SMAD-X | SMAD-X Studio | SMAR-X |
-            |---|---|---|---|
-            | 🪟 Windows x64       | `SMAD-X-win-x64.zip` | `SMAD-X-Studio-win-x64.zip` | `SMAR-X-win-x64.zip` |
-            | 🐧 Linux x64         | `SMAD-X-linux-x64.zip` | `SMAD-X-Studio-linux-x64.zip` | `SMAR-X-linux-x64.zip` |
-            | 🍎 macOS x64 (Intel) | `SMAD-X-osx-x64.zip` | `SMAD-X-Studio-osx-x64.zip` | `SMAR-X-osx-x64.zip` |
-            | 🍎 macOS arm64 (M1–M5) | `SMAD-X-osx-arm64.zip` | `SMAD-X-Studio-osx-arm64.zip` | `SMAR-X-osx-arm64.zip` |
+            | Plateforme | SMAD-X | SMAR-X |
+            |---|---|---|
+            | 🪟 Windows x64       | `SMAD-X-win-x64.zip` | `SMAR-X-win-x64.zip` |
+            | 🐧 Linux x64         | `SMAD-X-linux-x64.zip` | `SMAR-X-linux-x64.zip` |
+            | 🍎 macOS x64 (Intel) | `SMAD-X-osx-x64.zip` | `SMAR-X-osx-x64.zip` |
+            | 🍎 macOS arm64 (M1–M5) | `SMAD-X-osx-arm64.zip` | `SMAR-X-osx-arm64.zip` |
 
-            Une archive par application, chacune avec un seul exécutable autonome : **SMAD-X** (le simulateur Active Directory), **SMAD-X Studio** (la création d'exercices pour les formateurs), **SMAR-X** (le simulateur des droits d'accès aux fichiers, Linux et Windows).
-            One archive per application, each with a single standalone executable: **SMAD-X** (the Active Directory simulator), **SMAD-X Studio** (lab authoring for trainers), **SMAR-X** (the file access rights simulator, Linux and Windows).
+            Une archive par application, chacune avec un seul exécutable autonome : **SMAD-X** (le simulateur Active Directory), **SMAR-X** (le simulateur des droits d'accès aux fichiers, Linux et Windows).
+            One archive per application, each with a single standalone executable: **SMAD-X** (the Active Directory simulator), **SMAR-X** (the file access rights simulator, Linux and Windows).
 
-            > **macOS** : si nécessaire, dans le dossier décompressé, exécutez `chmod +x SMAD-X && xattr -d com.apple.quarantine SMAD-X` (de même pour `SMAD-X.Studio` et `SMAR-X`)
+            **SMAD-X Studio**, l'outil des formateurs (création des exercices et des examens, correction des copies), est réservé aux enseignants : il est distribué à part. Enseignant ? Demandez l'accès au mainteneur.
+            **SMAD-X Studio**, the trainers' tool (lab and exam authoring, grading), is for teachers only: it is distributed separately. Teacher? Ask the maintainer for access.
+
+            > **macOS** : si nécessaire, dans le dossier décompressé, exécutez `chmod +x SMAD-X && xattr -d com.apple.quarantine SMAD-X` (de même pour `SMAR-X`)
           files: artifacts/**/*.zip
           draft: false
           prerelease: false

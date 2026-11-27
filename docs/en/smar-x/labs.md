@@ -63,7 +63,7 @@ With their name and, optionally, their **ID** (their number or address, used by 
 
 In an exam, there are no hints, no score and no **Restart**. **Check** is available only if the trainer allowed it: it then shows only the objectives met, without explanation. The learner saves their copy and hands it to the trainer.
 
-The trainer's copy of an exam holds the answer key of the questions: SMAR-X refuses to open it. The subject is what gets handed out.
+The trainer's copy of an exam holds the answer key of the questions and, if **Check** is not allowed, the objective checks: SMAR-X refuses to open it. The subject is what gets handed out, without them: the learner cannot grade the copy before handing it in.
 
 ## The provided labs
 

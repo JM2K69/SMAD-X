@@ -47,7 +47,9 @@ The simulators are not written "from memory". Their results were compared, one b
 
 ## 📦 Download
 
-Each release, on the [Releases](https://github.com/JM2K69/SMAD-X/releases/latest) page, has **one archive per application and per platform** (Windows x64, Linux x64, macOS Intel and Apple Silicon): `SMAD-X-<platform>.zip`, `SMAD-X-Studio-<platform>.zip` and `SMAR-X-<platform>.zip`. Each holds a single standalone executable: nothing to install. A learner only needs the simulator of the lab.
+Each release, on the [Releases](https://github.com/JM2K69/SMAD-X/releases/latest) page, has **one archive per application and per platform** (Windows x64, Linux x64, macOS Intel and Apple Silicon): `SMAD-X-<platform>.zip` and `SMAR-X-<platform>.zip`. Each holds a single standalone executable: nothing to install. A learner only needs the simulator of the lab.
+
+**SMAD-X Studio**, the trainers' tool (lab and exam authoring, grading), is for teachers only: it is distributed in a private GitHub repository. Teacher? Ask the maintainer for access.
 
 ---
 

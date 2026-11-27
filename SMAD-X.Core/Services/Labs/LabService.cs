@@ -82,8 +82,9 @@ namespace SMADX.Services.Labs
 
         /// <summary>
         /// Sujet à distribuer : l'exercice sans le corrigé des questions (bons choix, réponses acceptées) et, pour un
-        /// examen, sans les indices. L'apprenant ne peut rien en lire dans le fichier ; ses réponses sont corrigées
-        /// dans Studio avec l'exemplaire du formateur. L'exercice en mémoire garde tout.
+        /// examen, sans les indices ; pour un examen sans « Vérifier », sans les vérifications des objectifs non plus
+        /// (<see cref="LabDefinition.ChecksWithheld"/>). L'apprenant ne peut rien en lire dans le fichier, ni corriger
+        /// sa copie ; elle est corrigée dans Studio avec l'exemplaire du formateur. L'exercice en mémoire garde tout.
         /// </summary>
         public string SerializeSubject(LabDefinition lab)
         {
@@ -105,6 +106,13 @@ namespace SMADX.Services.Labs
             if (lab.Exam)
                 foreach (var objective in node["Objectives"]!.AsArray().OfType<JsonObject>())
                     objective["Hint"] = new JsonObject();
+            // Examen sans « Vérifier » : les vérifications restent chez le formateur, l'apprenant ne peut pas se corriger
+            if (lab.Exam && !lab.ExamCheck)
+            {
+                foreach (var objective in node["Objectives"]!.AsArray().OfType<JsonObject>())
+                    objective.Remove("Check");
+                node["ChecksWithheld"] = true;
+            }
             return node.ToJsonString(Options);
         }
 

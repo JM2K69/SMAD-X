@@ -46,6 +46,22 @@ namespace SMARX.Models
         [JsonIgnore]
         public bool IsTrainerCopy => Exam && (Questions.Any(q => q.HasAnswerKey || HasText(q.Hint)) || Objectives.Any(o => HasText(o.Hint)));
 
+        /// <summary>
+        /// Sujet d'un examen sans « Vérifier » : les objectifs n'y gardent que leur titre et leurs points ; leurs
+        /// vérifications restent dans l'exemplaire du formateur, avec lequel Studio corrige. Un apprenant ne peut donc
+        /// pas corriger sa copie avant de la rendre. En entraînement, ou quand l'examen permet « Vérifier », les
+        /// vérifications restent : le bouton en a besoin.
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool ChecksWithheld { get; set; }
+
+        /// <summary>
+        /// Un examen sans « Vérifier » qui contient encore ses vérifications : l'exemplaire du formateur, ou un sujet
+        /// exporté par une version plus ancienne. Il ne se distribue pas : l'apprenant pourrait se corriger.
+        /// </summary>
+        [JsonIgnore]
+        public bool ChecksExposed => Exam && !ExamCheck && !ChecksWithheld && Objectives.Count > 0;
+
         private static bool HasText(LocalizedText text) => text.Values.Any(t => !string.IsNullOrWhiteSpace(t));
     }
 

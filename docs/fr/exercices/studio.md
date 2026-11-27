@@ -1,6 +1,6 @@
 # SMAD-X Studio
 
-**SMAD-X Studio** est l'outil du formateur de la suite [SMA-X](../index.md) : un exécutable livré dans sa propre archive (voir [Installation](../installation.md)), qui crée des exercices, les vérifie et produit la fiche du formateur. Il fait, avec une fenêtre, ce que le [mode opératoire](creer.md) décrit à la main. Il crée aussi les exercices de SMAR-X et corrige leurs copies (voir [Exercices SMAR-X](#exercices-smar-x)).
+**SMAD-X Studio** est l'outil du formateur de la suite [SMA-X](../index.md) : un exécutable livré dans sa propre archive, réservée aux enseignants (voir [Installation](../installation.md)), qui crée des exercices, les vérifie et produit la fiche du formateur. Il fait, avec une fenêtre, ce que le [mode opératoire](creer.md) décrit à la main. Il crée aussi les exercices de SMAR-X et corrige leurs copies (voir [Exercices SMAR-X](#exercices-smar-x)).
 
 Studio ne remplace pas SMAD-X : le domaine se prépare et se corrige dans SMAD-X, l'exercice se met en forme dans Studio, l'apprenant le fait dans SMAD-X et rend sa **copie**, que Studio corrige avec celles de toute la classe.
 
@@ -89,7 +89,7 @@ Un exercice est **bilingue** ou n'existe que dans **une langue**. La liste *Lang
 - **Autoriser « Vérifier »** : l'apprenant voit quels objectifs sont atteints, sans score ni explication ;
 - **Outils fermés pendant l'examen** : audit de sécurité, section « Comment corriger » des fiches, chemins d'attaque, comparaison avant / après. Tous sont ouverts par défaut : ils aident à analyser, mais ils montrent aussi ce que la correction vérifie.
 
-**Votre exemplaire et le sujet** : le fichier que Studio enregistre dans `1-formateur` est **votre exemplaire**, avec les indices et le corrigé des questions ; c'est avec lui que les copies se corrigent. On ne le distribue pas : pour un examen, SMAD-X refuse de l'ouvrir. À chaque enregistrement, Studio écrit aussi le **sujet**, sous le même nom, dans `2-a-distribuer` : sans le corrigé des questions et, pour un examen, sans les indices. C'est lui qu'on distribue. **Exporter le sujet pour les apprenants...** (menu **Fichier**, ou le bouton de l'onglet Exercice) enregistre l'exercice et réécrit le sujet dans `2-a-distribuer`, sans rien demander : le sujet et l'exemplaire qui corrigera les copies restent identiques. Pour un exercice enregistré seul par une version précédente, il demande où écrire le sujet, et refuse de l'écrire par-dessus votre exemplaire.
+**Votre exemplaire et le sujet** : le fichier que Studio enregistre dans `1-formateur` est **votre exemplaire**, avec les indices et le corrigé des questions ; c'est avec lui que les copies se corrigent. On ne le distribue pas : pour un examen, SMAD-X refuse de l'ouvrir. À chaque enregistrement, Studio écrit aussi le **sujet**, sous le même nom, dans `2-a-distribuer` : sans le corrigé des questions et, pour un examen, sans les indices. C'est lui qu'on distribue. Pour un examen où **Vérifier** n'est pas permis, le sujet n'a pas non plus les vérifications des objectifs : seuls leurs titres et leurs points y restent, si bien qu'un apprenant ne peut pas corriger sa copie avant de la rendre, même avec Studio. En entraînement, ou si l'examen permet **Vérifier**, les vérifications restent : le bouton en a besoin. Ouvert dans Studio, ce sujet le signale, et la correction des copies le refuse : on corrige avec l'exemplaire. **Exporter le sujet pour les apprenants...** (menu **Fichier**, ou le bouton de l'onglet Exercice) enregistre l'exercice et réécrit le sujet dans `2-a-distribuer`, sans rien demander : le sujet et l'exemplaire qui corrigera les copies restent identiques. Pour un exercice enregistré seul par une version précédente, il demande où écrire le sujet, et refuse de l'écrire par-dessus votre exemplaire.
 
 Fermer Studio avec un exercice ou des notes non enregistrés demande d'enregistrer.
 
@@ -192,6 +192,8 @@ Chaque ligne donne la note (au centième près avec le crédit partiel ; suivie 
 | copie d'examen faite hors mode examen, réglages d'examen modifiés | l'exercice reçu a été modifié pour retrouver la vérification, « Recommencer » ou des outils fermés |
 | indices consultés pendant l'examen | la copie porte des indices alors que l'examen n'en a pas |
 | l'apprenant a reçu votre exemplaire au lieu du sujet | l'exercice reçu contenait les indices ou le corrigé des questions |
+| vous corrigez avec le sujet distribué | l'exercice ouvert dans Studio est le sujet d'un examen sans **Vérifier** : il n'a pas les vérifications des objectifs, ouvrez votre exemplaire |
+| copie faite sur un sujet qui contenait les vérifications | le sujet de cet examen a été exporté par une version plus ancienne de Studio : l'apprenant pouvait corriger sa copie avant de la rendre (avertissement) |
 | question sans corrigé : ouvrez votre exemplaire | l'exercice ouvert dans Studio est le sujet : les questions ne peuvent pas être corrigées |
 | la réponse a changé depuis votre note | l'apprenant a rendu une nouvelle copie : sa réponse est à noter de nouveau |
 | temps dépassé | l'apprenant a passé plus que la durée prévue (rien n'a été bloqué) |
@@ -263,7 +265,7 @@ Studio crée aussi les [exercices de SMAR-X](../smar-x/exercices.md) : un besoin
 | **Nouvel exercice SMAR-X à partir de serveurs (.smar-x.json)...** | un exercice sur des serveurs préparés dans SMAR-X et enregistrés avec **Enregistrer…** |
 | **Ouvrir un exercice SMAR-X (.smarx-lab.json)...** | rouvre un exercice ; sa solution, rangée à côté, est relue |
 
-**Enregistrer** (`Ctrl+S`), **Enregistrer sous** et **Exporter le sujet** valent pour l'exercice ouvert. Le sujet n'a pas le corrigé des questions et, pour un examen, pas les indices.
+**Enregistrer** (`Ctrl+S`), **Enregistrer sous** et **Exporter le sujet** valent pour l'exercice ouvert. Le sujet n'a pas le corrigé des questions et, pour un examen, pas les indices, ni, sans **Vérifier**, les vérifications des objectifs.
 
 ### À partir d'une recette
 
@@ -390,7 +392,7 @@ revue-ad/
 └── 4-resultats/             notes.csv, notes-moodle.csv, bilan-classe.md, comptes-rendus/ (un PDF par apprenant)
 ```
 
-À chaque **Enregistrer**, Studio réécrit l'exemplaire, les notes, le domaine corrigé, la fiche, le sujet et le LISEZMOI. L'exemplaire et le sujet portent le même nom : c'est le dossier qui dit lequel distribuer. Les notes et le domaine corrigé ne sont jamais écrits dans l'exercice, et le sujet n'a pas le corrigé des questions : distribuer `2-a-distribuer` ne révèle pas la solution.
+À chaque **Enregistrer**, Studio réécrit l'exemplaire, les notes, le domaine corrigé, la fiche, le sujet et le LISEZMOI. L'exemplaire et le sujet portent le même nom : c'est le dossier qui dit lequel distribuer. Les notes et le domaine corrigé ne sont jamais écrits dans l'exercice, et le sujet n'a pas le corrigé des questions (ni, pour un examen sans **Vérifier**, les vérifications) : distribuer `2-a-distribuer` ne révèle pas la solution.
 
 Changez l'identifiant de l'exercice (onglet **Exercice**) : à l'enregistrement suivant, l'exemplaire et le sujet prennent le nouveau nom, et le dossier aussi s'il portait l'ancien. Faites-le avant de distribuer le sujet : une copie porte l'identifiant de l'exercice reçu, et Studio refuse de la corriger avec un autre. **Fichier > Ouvrir le dossier de l'exercice** (ou le bouton à côté de son chemin) l'ouvre dans l'explorateur de fichiers.
 

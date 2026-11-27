@@ -68,6 +68,13 @@ namespace SMADX.Services.Labs
             var issues = new List<LabIssue>();
             void Add(LabIssueLevel level, string fr, string en) => issues.Add(new LabIssue(level, T(culture, fr, en)));
 
+            // Le sujet distribué n'a pas les vérifications : seul l'exemplaire du formateur corrige
+            if (lab.ChecksWithheld)
+            {
+                Add(LabIssueLevel.Error, "Vous corrigez avec le sujet distribué aux apprenants : il n'a pas les vérifications des objectifs. Ouvrez votre exemplaire de l'exercice, dans le dossier 1-formateur.",
+                                         "You are grading with the subject handed out to learners: it has no objective checks. Open your copy of the lab, in the 1-trainer folder.");
+                return new GradedSubmission(path, submission, null, issues);
+            }
             if (!string.Equals(submission.LabId, lab.Id, StringComparison.OrdinalIgnoreCase))
             {
                 Add(LabIssueLevel.Error, $"Copie de l'exercice « {submission.LabId} », pas de « {lab.Id} ».",
@@ -117,6 +124,9 @@ namespace SMADX.Services.Labs
                 if (submission.Lab.IsTrainerCopy)
                     Add(LabIssueLevel.Error, "Copie faite sur un exercice qui contenait les indices ou les réponses : l'apprenant a reçu votre exemplaire au lieu du sujet.",
                                              "Submission made on a lab that contained the hints or the answers: the learner received your copy instead of the subject.");
+                else if (submission.Lab.ChecksExposed)
+                    Add(LabIssueLevel.Warning, "Copie faite sur un sujet qui contenait les vérifications des objectifs (exporté par une version plus ancienne de Studio) : l'apprenant pouvait corriger sa copie avant de la rendre.",
+                                               "Submission made on a subject that contained the objective checks (exported by an older version of Studio): the learner could grade the copy before handing it in.");
                 if (submission.HintsUsed.Count > 0)
                     Add(LabIssueLevel.Error, $"Indices consultés pendant l'examen : {string.Join(", ", submission.HintsUsed)}.",
                                              $"Hints viewed during the exam: {string.Join(", ", submission.HintsUsed)}.");

@@ -202,9 +202,12 @@ namespace SMADX.Studio.ViewModels
             if (!await ConfirmCloseAsync()) return;
             await RunAsync(async () =>
             {
-                LoadSmarx(SmarxLabService.Parse(await File.ReadAllTextAsync(path)), path);
+                var lab = SmarxLabService.Parse(await File.ReadAllTextAsync(path));
+                LoadSmarx(lab, path);
                 Status = string.Format(Text["Status.Opened"], Path.GetFileName(path));
-                RememberSmarxRecent();
+                // Le sujet d'un examen sans « Vérifier » n'a pas les vérifications : on corrige avec l'exemplaire
+                if (lab.ChecksWithheld) Status = Text["Status.OpenedSubject"];
+                else RememberSmarxRecent();
             });
         }
 
@@ -682,8 +685,8 @@ namespace SMADX.Studio.ViewModels
                     AddBatchCopies();
                     Status = BatchStatus();
                 }
-                // Le sujet n'a ni indices d'examen ni corrigé : on corrige avec l'exemplaire
-                if (LabProject.IsHandOut(path))
+                // Le sujet n'a ni indices d'examen ni corrigé, ni (examen sans « Vérifier ») vérifications : on corrige avec l'exemplaire
+                if (LabProject.IsHandOut(path) || Lab.ChecksWithheld)
                     Status = Text["Status.OpenedSubject"];
                 else
                     RememberRecent();

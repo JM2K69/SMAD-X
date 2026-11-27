@@ -16,6 +16,13 @@ namespace SMARX.Services.Labs
         public static IReadOnlyList<LabIssue> Check(SmarxLab lab, SmarxDocument? solution, string culture)
         {
             var issues = new List<LabIssue>();
+            if (lab.ChecksWithheld)
+            {
+                issues.Add(new(LabIssueLevel.Error, T(culture,
+                    "C'est le sujet distribué aux apprenants : les vérifications des objectifs n'y sont pas. Ouvrez votre exemplaire de l'exercice.",
+                    "This is the subject handed out to learners: the objective checks are not in it. Open your copy of the lab.")));
+                return issues;
+            }
             if (string.IsNullOrWhiteSpace(lab.Id)) issues.Add(new(LabIssueLevel.Error, T(culture, "L'exercice n'a pas d'identifiant.", "The lab has no ID.")));
             foreach (var language in new[] { "fr-FR", "en-US" })
                 if (string.IsNullOrWhiteSpace(lab.Title.GetValueOrDefault(language)))

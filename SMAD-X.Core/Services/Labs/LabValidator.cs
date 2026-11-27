@@ -35,6 +35,12 @@ namespace SMADX.Services.Labs
                 Add(LabIssueLevel.Error, "L'exercice n'a pas de domaine de départ.", "The lab has no starting domain.");
                 return new LabValidationReport(issues, null);
             }
+            if (lab.ChecksWithheld)
+            {
+                Add(LabIssueLevel.Error, "C'est le sujet distribué aux apprenants : les vérifications des objectifs n'y sont pas. Ouvrez votre exemplaire de l'exercice.",
+                                         "This is the subject handed out to learners: the objective checks are not in it. Open your copy of the lab.");
+                return new LabValidationReport(issues, null);
+            }
 
             // ─── Textes ──────────────────────────────────────────────────────────
             var languages = lab.Language is { } single ? new[] { single } : Cultures;

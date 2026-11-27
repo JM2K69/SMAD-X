@@ -46,8 +46,9 @@ namespace SMARX.Services.Labs
         }
 
         /// <summary>
-        /// Sujet à distribuer : l'exercice sans le corrigé des questions et, pour un examen, sans les indices. Les
-        /// réponses de l'apprenant sont alors corrigées avec l'exemplaire du formateur.
+        /// Sujet à distribuer : l'exercice sans le corrigé des questions et, pour un examen, sans les indices ; pour un
+        /// examen sans « Vérifier », sans les vérifications des objectifs non plus (<see cref="SmarxLab.ChecksWithheld"/>).
+        /// La copie de l'apprenant est alors corrigée avec l'exemplaire du formateur.
         /// </summary>
         public static string SerializeSubject(SmarxLab lab)
         {
@@ -68,6 +69,13 @@ namespace SMARX.Services.Labs
             if (lab.Exam)
                 foreach (var objective in node["Objectives"]!.AsArray().OfType<JsonObject>())
                     objective["Hint"] = new JsonObject();
+            // Examen sans « Vérifier » : les vérifications restent chez le formateur, l'apprenant ne peut pas se corriger
+            if (lab.Exam && !lab.ExamCheck)
+            {
+                foreach (var objective in node["Objectives"]!.AsArray().OfType<JsonObject>())
+                    objective.Remove("Check");
+                node["ChecksWithheld"] = true;
+            }
             return node.ToJsonString(Options);
         }
 

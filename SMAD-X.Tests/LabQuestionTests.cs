@@ -219,10 +219,19 @@ public class LabQuestionTests
     [Fact]
     public void GradingWithTheSubject_WarnsThatTheKeyIsMissing()
     {
-        var subject = _labs.Parse(_labs.SerializeSubject(ExamWithQuestions()));
+        // Entraînement : le sujet garde ses vérifications, mais pas le corrigé des questions
+        var practice = ExamWithQuestions();
+        practice.Exam = false;
+        var subject = _labs.Parse(_labs.SerializeSubject(practice));
         var row = SubmissionGrader.Grade(subject, Submit(subject, "Lou", new() { ["q1"] = Chose("a") }), "fr-FR");
         Assert.Contains(row.Issues, i => i.Message.Contains("ouvrez votre exemplaire"));
         Assert.True(row.ToReview > 0);
+
+        // Examen sans « Vérifier » : le sujet n'a pas les vérifications, la correction est refusée
+        var exam = _labs.Parse(_labs.SerializeSubject(ExamWithQuestions()));
+        var refused = SubmissionGrader.Grade(exam, Submit(exam, "Lou", new() { ["q1"] = Chose("a") }), "fr-FR");
+        Assert.Null(refused.Result);
+        Assert.Contains(refused.Issues, i => i.Message.Contains("Ouvrez votre exemplaire"));
     }
 
     // ─── Crédit partiel des objectifs ────────────────────────────────────────

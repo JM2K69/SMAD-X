@@ -1,6 +1,6 @@
 # SMAD-X Studio
 
-**SMAD-X Studio** is the trainer's tool of the [SMA-X](../index.md) suite: an executable shipped in its own archive (see [Installation](../installation.md)), that creates labs, checks them and produces the trainer sheet. It does, with a window, what the [how-to](create.md) describes by hand. It also creates SMAR-X labs and grades their copies (see [SMAR-X labs](#smar-x-labs)).
+**SMAD-X Studio** is the trainer's tool of the [SMA-X](../index.md) suite: an executable shipped in its own archive, for teachers only (see [Installation](../installation.md)), that creates labs, checks them and produces the trainer sheet. It does, with a window, what the [how-to](create.md) describes by hand. It also creates SMAR-X labs and grades their copies (see [SMAR-X labs](#smar-x-labs)).
 
 Studio does not replace SMAD-X: the domain is prepared and fixed in SMAD-X, the lab is shaped in Studio, the learner does it in SMAD-X and hands in a **submission**, which Studio grades with the rest of the class.
 
@@ -89,7 +89,7 @@ A lab is either **bilingual** or exists in **one language** only. The *Language 
 - **Allow "Check"**: the learner sees which objectives are met, with no score and no explanation;
 - **Tools closed during the exam**: security audit, the "How to fix" section of the sheets, attack paths, before / after comparison. All are open by default: they help analyse, but they also show what grading checks.
 
-**Your copy and the subject**: the file Studio saves in `1-trainer` is **your copy**, with the hints and the answer key of the questions; submissions are graded with it. It is not handed out: for an exam, SMAD-X refuses to open it. At every save, Studio also writes the **subject**, under the same name, in `2-to-hand-out`: without the answer key and, for an exam, without the hints. That is the file to hand out. **Export the subject for learners...** (**File** menu, or the button in the Lab tab) saves the lab and rewrites the subject in `2-to-hand-out`, without asking: the subject and the copy that will grade the submissions stay identical. For a lab saved on its own by an earlier version, it asks where to write the subject, and refuses to write it over your copy.
+**Your copy and the subject**: the file Studio saves in `1-trainer` is **your copy**, with the hints and the answer key of the questions; submissions are graded with it. It is not handed out: for an exam, SMAD-X refuses to open it. At every save, Studio also writes the **subject**, under the same name, in `2-to-hand-out`: without the answer key and, for an exam, without the hints. That is the file to hand out. For an exam where **Check** is not allowed, the subject has no objective checks either: only their titles and points remain, so a learner cannot grade the submission before handing it in, even with Studio. In practice, or when the exam allows **Check**, the checks stay: the button needs them. Opened in Studio, such a subject says so, and grading refuses it: grade with your copy. **Export the subject for learners...** (**File** menu, or the button in the Lab tab) saves the lab and rewrites the subject in `2-to-hand-out`, without asking: the subject and the copy that will grade the submissions stay identical. For a lab saved on its own by an earlier version, it asks where to write the subject, and refuses to write it over your copy.
 
 Closing Studio with an unsaved lab or notes asks you to save.
 
@@ -192,6 +192,8 @@ Each row gives the grade (to the hundredth with partial credit; followed by `*` 
 | exam submission made outside exam mode, exam settings changed | the lab received was changed to get checking, "Start over" or closed tools back |
 | hints viewed during the exam | the submission carries hints although the exam has none |
 | the learner received your copy instead of the subject | the lab received held the hints or the answer key |
+| you are grading with the subject handed out | the lab open in Studio is the subject of an exam without **Check**: it has no objective checks, open your copy |
+| submission made on a subject that contained the checks | the subject of this exam was exported by an older version of Studio: the learner could grade the submission before handing it in (warning) |
 | question with no answer key: open your copy | the lab open in Studio is the subject: the questions cannot be graded |
 | the answer changed since you graded it | the learner handed in a new submission: grade the answer again |
 | time exceeded | the learner spent more than the planned duration (nothing was blocked) |
@@ -263,7 +265,7 @@ Studio also creates [SMAR-X labs](../smar-x/labs.md): an access need to meet wit
 | **New SMAR-X lab from servers (.smar-x.json)...** | a lab on servers prepared in SMAR-X and saved with **Save…** |
 | **Open a SMAR-X lab (.smarx-lab.json)...** | reopens a lab; its solution, stored next to it, is read again |
 
-**Save** (`Ctrl+S`), **Save as** and **Export the subject** apply to the open lab. The subject has no answer key for the questions and, for an exam, no hints.
+**Save** (`Ctrl+S`), **Save as** and **Export the subject** apply to the open lab. The subject has no answer key for the questions and, for an exam, no hints, nor, without **Check**, the objective checks.
 
 ### From a recipe
 
@@ -390,7 +392,7 @@ iam-review/
 └── 4-results/               grades.csv, grades-moodle.csv, class-results.md, reports/ (one PDF per learner)
 ```
 
-At every **Save**, Studio rewrites your copy, the notes, the fixed domain, the sheet, the subject and the README. Your copy and the subject have the same name: the folder tells which one to hand out. The notes and the fixed domain are never written into the lab, and the subject has no answer key: handing out `2-to-hand-out` does not reveal the solution.
+At every **Save**, Studio rewrites your copy, the notes, the fixed domain, the sheet, the subject and the README. Your copy and the subject have the same name: the folder tells which one to hand out. The notes and the fixed domain are never written into the lab, and the subject has no answer key (nor, for an exam without **Check**, the checks): handing out `2-to-hand-out` does not reveal the solution.
 
 Change the lab ID (**Lab** tab): at the next save, your copy and the subject take the new name, and so does the folder if it had the old one. Do it before handing out the subject: a submission carries the ID of the lab it was made from, and Studio refuses to grade it with another one. **File > Open the lab folder** (or the button beside its path) opens it in the file explorer.
 

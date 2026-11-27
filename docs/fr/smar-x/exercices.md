@@ -63,7 +63,7 @@ Avec son nom et, s'il le veut, son **identifiant** (son numéro ou son adresse, 
 
 En examen, il n'y a ni indice, ni score, ni **Recommencer**. **Vérifier** n'est disponible que si le formateur l'a permis : il montre alors seulement les objectifs atteints, sans explication. L'apprenant enregistre sa copie et la rend au formateur.
 
-L'exemplaire du formateur d'un examen contient le corrigé des questions : SMAR-X refuse de l'ouvrir. On distribue le sujet.
+L'exemplaire du formateur d'un examen contient le corrigé des questions et, si **Vérifier** n'est pas permis, les vérifications des objectifs : SMAR-X refuse de l'ouvrir. On distribue le sujet, qui ne les a pas : l'apprenant ne peut pas corriger sa copie avant de la rendre.
 
 ## Les exercices fournis
 

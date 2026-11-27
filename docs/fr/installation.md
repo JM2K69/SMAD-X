@@ -4,18 +4,20 @@
 
 Chaque version de la suite SMA-X est publiée sur la page [Releases](https://github.com/JM2K69/SMAD-X/releases/latest) du dépôt, avec **une archive par application et par plateforme** :
 
-| Plateforme | SMAD-X | SMAD-X Studio | SMAR-X |
-|---|---|---|---|
-| :fontawesome-brands-windows: Windows x64 | `SMAD-X-win-x64.zip` | `SMAD-X-Studio-win-x64.zip` | `SMAR-X-win-x64.zip` |
-| :fontawesome-brands-linux: Linux x64 | `SMAD-X-linux-x64.zip` | `SMAD-X-Studio-linux-x64.zip` | `SMAR-X-linux-x64.zip` |
-| :fontawesome-brands-apple: macOS Intel | `SMAD-X-osx-x64.zip` | `SMAD-X-Studio-osx-x64.zip` | `SMAR-X-osx-x64.zip` |
-| :fontawesome-brands-apple: macOS Apple Silicon (M1 à M5) | `SMAD-X-osx-arm64.zip` | `SMAD-X-Studio-osx-arm64.zip` | `SMAR-X-osx-arm64.zip` |
+| Plateforme | SMAD-X | SMAR-X |
+|---|---|---|
+| :fontawesome-brands-windows: Windows x64 | `SMAD-X-win-x64.zip` | `SMAR-X-win-x64.zip` |
+| :fontawesome-brands-linux: Linux x64 | `SMAD-X-linux-x64.zip` | `SMAR-X-linux-x64.zip` |
+| :fontawesome-brands-apple: macOS Intel | `SMAD-X-osx-x64.zip` | `SMAR-X-osx-x64.zip` |
+| :fontawesome-brands-apple: macOS Apple Silicon (M1 à M5) | `SMAD-X-osx-arm64.zip` | `SMAR-X-osx-arm64.zip` |
 
 - **SMAD-X** : le simulateur Active Directory.
-- **SMAD-X Studio** : la [création d'exercices](exercices/studio.md), pour les formateurs.
 - **SMAR-X** : le [simulateur des droits d'accès aux fichiers](smar-x/index.md), Linux et Windows.
 
-On ne télécharge que l'application dont on a besoin : un élève n'a pas besoin de Studio. Chaque archive contient **un seul exécutable** autonome et les licences. Le runtime .NET, les bibliothèques graphiques et le contenu de l'application (fiches, exercices et polices du rapport PDF pour SMAD-X, serveurs d'exemple pour SMAR-X) sont inclus. Il n'y a rien à installer.
+!!! note "SMAD-X Studio, réservé aux enseignants"
+    [SMAD-X Studio](exercices/studio.md) crée les exercices et les examens, et corrige les copies. Il n'est pas publié avec les simulateurs, pour qu'un élève ne s'en serve pas sur sa propre copie d'examen : il est distribué dans un dépôt GitHub privé, avec les mêmes archives par plateforme (`SMAD-X-Studio-<plateforme>.zip`) à chaque version. Enseignant ? Demandez l'accès au mainteneur du projet, avec votre compte GitHub.
+
+On ne télécharge que l'application dont on a besoin. Chaque archive contient **un seul exécutable** autonome et les licences. Le runtime .NET, les bibliothèques graphiques et le contenu de l'application (fiches, exercices et polices du rapport PDF pour SMAD-X, serveurs d'exemple pour SMAR-X) sont inclus. Il n'y a rien à installer.
 
 1. Décompressez l'archive où vous voulez.
 2. Lancez l'exécutable : `SMAD-X.exe`, `SMAD-X.Studio.exe` ou `SMAR-X.exe` sous Windows ; `SMAD-X`, `SMAD-X.Studio` ou `SMAR-X` sous Linux et macOS.

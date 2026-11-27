@@ -69,7 +69,7 @@ The trainer can mark a lab as an **exam** in SMAD-X Studio. An exam always opens
 
 Depending on the trainer's settings, the **Check** button shows which objectives are met, with no score and no explanation, and some tools may be closed: security audit, the "How to fix" section of the sheets, attack paths, before / after comparison. By default, everything is open.
 
-The questions of an exam are not graded in SMAD-X: the subject you received has no answer key. Your answers are saved in the submission, and the trainer grades them in SMAD-X Studio. The trainer's own copy, which holds the hints and the answer key, does not open as an exam: SMAD-X explains why and does not open it.
+The questions of an exam are not graded in SMAD-X: the subject you received has no answer key. Your answers are saved in the submission, and the trainer grades them in SMAD-X Studio. If the trainer does not allow **Check**, the subject has no objective checks either: the trainer grades your submission. The trainer's own copy, which holds the hints, the answer key and the checks, does not open as an exam: SMAD-X explains why and does not open it.
 
 !!! note "What exam mode guarantees"
     Exam mode removes the aids and prevents opening another domain from SMAD-X. It is not proctoring software: it locks neither the computer nor other applications.
