@@ -1,0 +1,168 @@
+$ git config --global user.name "Alice Martin"
+= 0
+$ git config --global user.email alice@lycee.example
+= 0
+$ git config --global init.defaultBranch main
+= 0
+$ git init
+1 Initialized empty Git repository in /home/alice/projet/.git/
+= 0
+$ git add menu.txt
+= 0
+$ git commit -m "Menu"
+1 [main (root-commit) 77490f4] Menu
+1  1 file changed, 2 insertions(+)
+1  create mode 100644 menu.txt
+= 0
+$ git branch
+1 * \e[32mmain\e[m
+= 0
+$ git branch services
+= 0
+$ git branch
+1 * \e[32mmain\e[m
+1   services\e[m
+= 0
+$ git branch -v
+1 * \e[32mmain    \e[m 77490f4 Menu
+1   services\e[m 77490f4 Menu
+= 0
+$ git switch services
+2 Switched to branch 'services'
+= 0
+$ git branch
+1   main\e[m
+1 * \e[32mservices\e[m
+= 0
+$ git commit -am "Ajoute Services"
+1 [services 1e4638e] Ajoute Services
+1  1 file changed, 1 insertion(+)
+= 0
+$ git log --oneline --all
+1 \e[33m1e4638e\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mservices\e[m\e[33m)\e[m Ajoute Services
+1 \e[33m77490f4\e[m\e[33m (\e[m\e[1;32mmain\e[m\e[33m)\e[m Menu
+= 0
+$ git switch main
+2 Switched to branch 'main'
+= 0
+$ git switch main
+2 Already on 'main'
+= 0
+$ git merge services
+1 Updating 77490f4..1e4638e
+1 Fast-forward
+1  menu.txt | 1 \e[32m+\e[m
+1  1 file changed, 1 insertion(+)
+= 0
+$ git log --oneline
+1 \e[33m1e4638e\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m, \e[m\e[1;32mservices\e[m\e[33m)\e[m Ajoute Services
+1 \e[33m77490f4\e[m Menu
+= 0
+$ git branch -d services
+1 Deleted branch services (was 1e4638e).
+= 0
+$ git branch -d services
+2 error: branch 'services' not found
+= 1
+$ git switch -c tarifs
+2 Switched to a new branch 'tarifs'
+= 0
+$ git add tarifs.txt
+= 0
+$ git commit -m "Tarifs"
+1 [tarifs 3ec14e2] Tarifs
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 tarifs.txt
+= 0
+$ git switch main
+2 Switched to branch 'main'
+= 0
+$ git commit -am "Qui sommes-nous"
+1 [main 0cdb52e] Qui sommes-nous
+1  1 file changed, 1 insertion(+)
+= 0
+$ git merge tarifs
+1 Merge made by the 'ort' strategy.
+1  tarifs.txt | 1 \e[32m+\e[m
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 tarifs.txt
+= 0
+$ git log --oneline --all
+1 \e[33m6672d95\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Merge branch 'tarifs'
+1 \e[33m0cdb52e\e[m Qui sommes-nous
+1 \e[33m3ec14e2\e[m\e[33m (\e[m\e[1;32mtarifs\e[m\e[33m)\e[m Tarifs
+1 \e[33m1e4638e\e[m Ajoute Services
+1 \e[33m77490f4\e[m Menu
+= 0
+$ git branch -d tarifs
+1 Deleted branch tarifs (was 3ec14e2).
+= 0
+$ git switch -c titre
+2 Switched to a new branch 'titre'
+= 0
+$ git commit -am "Majuscules"
+1 [titre cabae0d] Majuscules
+1  1 file changed, 1 insertion(+), 1 deletion(-)
+= 0
+$ git switch main
+2 Switched to branch 'main'
+= 0
+$ git commit -am "Accueil du site"
+1 [main cf899e9] Accueil du site
+1  1 file changed, 1 insertion(+), 1 deletion(-)
+= 0
+$ git merge titre
+1 Auto-merging menu.txt
+1 CONFLICT (content): Merge conflict in menu.txt
+1 Automatic merge failed; fix conflicts and then commit the result.
+= 1
+$ git status
+1 On branch main
+1 You have unmerged paths.
+1   (fix conflicts and run "git commit")
+1   (use "git merge --abort" to abort the merge)
+1 
+1 Unmerged paths:
+1   (use "git add <file>..." to mark resolution)
+1 \t\e[31mboth modified:   menu.txt\e[m
+1 
+1 no changes added to commit (use "git add" and/or "git commit -a")
+= 0
+$ git status -s
+1 \e[31mUU\e[m menu.txt
+= 0
+$ git commit -m "Essai"
+1 U\tmenu.txt
+2 error: Committing is not possible because you have unmerged files.
+2 \e[33mhint: Fix them up in the work tree, and then use 'git add/rm <file>'\e[m
+2 \e[33mhint: as appropriate to mark resolution and make a commit.\e[m
+2 fatal: Exiting because of an unresolved conflict.
+= 128
+$ git add menu.txt
+= 0
+$ git status
+1 On branch main
+1 All conflicts fixed but you are still merging.
+1   (use "git commit" to conclude merge)
+1 
+1 Changes to be committed:
+1 \t\e[32mmodified:   menu.txt\e[m
+1 
+= 0
+$ git commit -m "Fusion de titre"
+1 [main 49ac9d5] Fusion de titre
+= 0
+$ git log --oneline -3
+1 \e[33m49ac9d5\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Fusion de titre
+1 \e[33mcf899e9\e[m Accueil du site
+1 \e[33mcabae0d\e[m\e[33m (\e[m\e[1;32mtitre\e[m\e[33m)\e[m Majuscules
+= 0
+$ git switch nexistepas
+2 fatal: invalid reference: nexistepas
+= 128
+$ git switch -c main
+2 fatal: a branch named 'main' already exists
+= 128
+$ git branch -D titre
+1 Deleted branch titre (was cabae0d).
+= 0

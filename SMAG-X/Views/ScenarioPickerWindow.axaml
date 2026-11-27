@@ -1,0 +1,86 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMAGX.ViewModels"
+        x:Class="SMAGX.Views.ScenarioPickerWindow"
+        x:DataType="vm:ScenarioPickerViewModel"
+        Title="{DynamicResource Scenario.PickerTitle}"
+        Icon="/Assets/icone.ico"
+        Width="1040" Height="720" MinWidth="820" MinHeight="520"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Styles>
+        <Style Selector="ListBox.path ListBoxItem">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+    </Window.Styles>
+
+    <Window.DataTemplates>
+        <DataTemplate DataType="vm:ScenarioCard">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <Border Width="28" Height="28" CornerRadius="14" Background="{DynamicResource AccentSoft}" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Step}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"
+                               Foreground="{DynamicResource Accent}"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <TextBlock Classes="muted" Text="{Binding Details}" FontSize="12"/>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+    </Window.DataTemplates>
+
+    <Grid ColumnDefinitions="340,*" Margin="16" ColumnSpacing="14">
+        <!-- ═══ Le parcours ═══ -->
+        <Border Classes="card" Padding="12">
+            <ScrollViewer>
+                <StackPanel Spacing="6">
+                    <TextBlock Classes="h" FontSize="15" Text="{DynamicResource Scenario.Solo}" Margin="4,0,0,2"/>
+                    <ListBox x:Name="SoloList" Classes="plain path" ItemsSource="{Binding Solo}" SelectionChanged="OnSelect"/>
+                    <TextBlock Classes="h" FontSize="15" Text="{DynamicResource Scenario.Pair}" Margin="4,12,0,2"/>
+                    <ListBox x:Name="PairList" Classes="plain path" ItemsSource="{Binding Pair}" SelectionChanged="OnSelect"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ═══ L'énoncé et le départ ═══ -->
+        <Grid Grid.Column="1" RowDefinitions="*,Auto" RowSpacing="12">
+            <Border Classes="card">
+                <ScrollViewer>
+                    <ContentControl Content="{Binding Statement, Converter={StaticResource MarkdownConverter}}" Margin="4"/>
+                </ScrollViewer>
+            </Border>
+            <Border Grid.Row="1" Classes="card" Padding="16,12">
+                <StackPanel Spacing="10">
+                    <DockPanel IsVisible="{Binding IsSolo}">
+                        <Button DockPanel.Dock="Right" Classes="accent" Content="{DynamicResource Scenario.Start}" Click="OnHere"/>
+                        <TextBlock Classes="muted" Text="{DynamicResource Scenario.SoloNote}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                    </DockPanel>
+                    <StackPanel Spacing="8" IsVisible="{Binding IsPair}">
+                        <TextBlock Classes="label" Text="{DynamicResource Scenario.Where}"/>
+                        <Button Classes="accent" Click="OnHere" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                            <TextBlock Text="{Binding HereLabel}"/>
+                        </Button>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Button Classes="tool" Click="OnServe" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <PathIcon Data="{StaticResource NetworkIcon}" Width="14" Height="14"/>
+                                    <TextBlock Text="{Binding ServeLabel}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Column="1" Classes="tool" Click="OnJoin" IsEnabled="{Binding Joined}"
+                                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <PathIcon Data="{StaticResource NetworkIcon}" Width="14" Height="14"/>
+                                    <TextBlock Text="{Binding JoinLabel}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                        <TextBlock Classes="muted" Text="{Binding JoinNote}" TextWrapping="Wrap" FontSize="12"/>
+                    </StackPanel>
+                    <Button HorizontalAlignment="Right" Classes="tool" Content="{DynamicResource Collab.Close}" Click="OnCancel" IsCancel="True"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

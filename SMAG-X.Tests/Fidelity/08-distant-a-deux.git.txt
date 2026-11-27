@@ -1,0 +1,287 @@
+$ git config --global user.name "Alice Martin"
+= 0
+$ git config --global user.email alice@lycee.example
+= 0
+$ cd ..
+= 0
+$ git clone git@gitlab.example:classe/projet.git
+2 Cloning into 'projet'...
+2 warning: You appear to have cloned an empty repository.
+= 0
+$ cd projet
+= 0
+$ git status
+1 On branch main
+1 
+1 No commits yet
+1 
+1 nothing to commit (create/copy files and use "git add" to track)
+= 0
+$ git remote
+1 origin
+= 0
+$ git remote -v
+1 origin\tgit@gitlab.example:classe/projet.git (fetch)
+1 origin\tgit@gitlab.example:classe/projet.git (push)
+= 0
+$ git add index.html
+= 0
+$ git commit -m "Accueil"
+1 [main (root-commit) 2f65831] Accueil
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 index.html
+= 0
+$ git status
+1 On branch main
+1 Your branch is based on 'origin/main', but the upstream is gone.
+1   (use "git branch --unset-upstream" to fixup)
+1 
+1 nothing to commit, working tree clean
+= 0
+$ git branch -vv
+1 * \e[32mmain\e[m 2f65831 [\e[34morigin/main\e[m: gone] Accueil
+= 0
+$ git push
+2 To gitlab.example:classe/projet.git
+2  * [new branch]      main -> main
+= 0
+$ git status
+1 On branch main
+1 Your branch is up to date with 'origin/main'.
+1 
+1 nothing to commit, working tree clean
+= 0
+$ git branch -vv
+1 * \e[32mmain\e[m 2f65831 [\e[34morigin/main\e[m] Accueil
+= 0
+$ git push -u origin main
+1 branch 'main' set up to track 'origin/main'.
+2 Everything up-to-date
+= 0
+$ git commit -am "Bienvenue"
+1 [main f54cdac] Bienvenue
+1  1 file changed, 1 insertion(+)
+= 0
+$ git status
+1 On branch main
+1 Your branch is ahead of 'origin/main' by 1 commit.
+1   (use "git push" to publish your local commits)
+1 
+1 nothing to commit, working tree clean
+= 0
+$ git branch -v
+1 * \e[32mmain\e[m f54cdac [ahead 1] Bienvenue
+= 0
+$ git branch -vv
+1 * \e[32mmain\e[m f54cdac [\e[34morigin/main\e[m: ahead 1] Bienvenue
+= 0
+$ git push
+2 To gitlab.example:classe/projet.git
+2    2f65831..f54cdac  main -> main
+= 0
+$ git push
+2 Everything up-to-date
+= 0
+$ git config --global user.name "Bob Durand"
+= 0
+$ git config --global user.email bob@lycee.example
+= 0
+$ cd ..
+= 0
+$ git clone git@gitlab.example:classe/projet.git
+2 Cloning into 'projet'...
+= 0
+$ cd projet
+= 0
+$ git status
+1 On branch main
+1 Your branch is up to date with 'origin/main'.
+1 
+1 nothing to commit, working tree clean
+= 0
+$ git log --oneline --all
+1 \e[33mf54cdac\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m, \e[m\e[1;31morigin/main\e[m\e[33m, \e[m\e[1;31morigin/HEAD\e[m\e[33m)\e[m Bienvenue
+1 \e[33m2f65831\e[m Accueil
+= 0
+$ git branch -a
+1 * \e[32mmain\e[m
+1   \e[31mremotes/origin/HEAD\e[m -> origin/main
+1   \e[31mremotes/origin/main\e[m
+= 0
+$ git add contact.html
+= 0
+$ git commit -m "Contact"
+1 [main 1da0915] Contact
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 contact.html
+= 0
+$ git push
+2 To gitlab.example:classe/projet.git
+2    f54cdac..1da0915  main -> main
+= 0
+$ git switch -c tarifs
+2 Switched to a new branch 'tarifs'
+= 0
+$ git add tarifs.html
+= 0
+$ git commit -m "Tarifs"
+1 [tarifs 8bcf3e9] Tarifs
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 tarifs.html
+= 0
+$ git push
+2 fatal: The current branch tarifs has no upstream branch.
+2 To push the current branch and set the remote as upstream, use
+2 
+2     git push --set-upstream origin tarifs
+2 
+2 To have this happen automatically for branches without a tracking
+2 upstream, see 'push.autoSetupRemote' in 'git help config'.
+2 
+= 128
+$ git push -u origin tarifs
+1 branch 'tarifs' set up to track 'origin/tarifs'.
+2 To gitlab.example:classe/projet.git
+2  * [new branch]      tarifs -> tarifs
+= 0
+$ git commit -am "Nouveautés"
+1 [main c2e83b0] Nouveautés
+1  1 file changed, 1 insertion(+)
+= 0
+$ git push
+2 To gitlab.example:classe/projet.git
+2  ! [rejected]        main -> main (fetch first)
+2 error: failed to push some refs to 'gitlab.example:classe/projet.git'
+2 hint: Updates were rejected because the remote contains work that you do not
+2 hint: have locally. This is usually caused by another repository pushing to
+2 hint: the same ref. If you want to integrate the remote changes, use
+2 hint: 'git pull' before pushing again.
+2 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+= 1
+$ git status
+1 On branch main
+1 Your branch is ahead of 'origin/main' by 1 commit.
+1   (use "git push" to publish your local commits)
+1 
+1 nothing to commit, working tree clean
+= 0
+$ git fetch
+2 From gitlab.example:classe/projet
+2    f54cdac..1da0915  main       -> origin/main
+2  * [new branch]      tarifs     -> origin/tarifs
+= 0
+$ git status
+1 On branch main
+1 Your branch and 'origin/main' have diverged,
+1 and have 1 and 1 different commits each, respectively.
+1   (use "git pull" if you want to integrate the remote branch with yours)
+1 
+1 nothing to commit, working tree clean
+= 0
+$ git branch -a
+1 * \e[32mmain\e[m
+1   \e[31mremotes/origin/HEAD\e[m -> origin/main
+1   \e[31mremotes/origin/main\e[m
+1   \e[31mremotes/origin/tarifs\e[m
+= 0
+$ git log --oneline --all
+1 \e[33mc2e83b0\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Nouveautés
+1 \e[33m8bcf3e9\e[m\e[33m (\e[m\e[1;31morigin/tarifs\e[m\e[33m)\e[m Tarifs
+1 \e[33m1da0915\e[m\e[33m (\e[m\e[1;31morigin/main\e[m\e[33m, \e[m\e[1;31morigin/HEAD\e[m\e[33m)\e[m Contact
+1 \e[33mf54cdac\e[m Bienvenue
+1 \e[33m2f65831\e[m Accueil
+= 0
+$ git pull
+2 hint: You have divergent branches and need to specify how to reconcile them.
+2 hint: You can do so by running one of the following commands sometime before
+2 hint: your next pull:
+2 hint:
+2 hint:   git config pull.rebase false  # merge
+2 hint:   git config pull.rebase true   # rebase
+2 hint:   git config pull.ff only       # fast-forward only
+2 hint:
+2 hint: You can replace "git config" with "git config --global" to set a default
+2 hint: preference for all repositories. You can also pass --rebase, --no-rebase,
+2 hint: or --ff-only on the command line to override the configured default per
+2 hint: invocation.
+2 fatal: Need to specify how to reconcile divergent branches.
+= 128
+$ git pull --no-rebase
+1 Merge made by the 'ort' strategy.
+1  contact.html | 1 \e[32m+\e[m
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 contact.html
+= 0
+$ git commit --amend -m "Fusion du travail de Bob"
+1 [main d6027fb] Fusion du travail de Bob
+1  Date: Fri Nov 27 10:46:00 2026 +0100
+= 0
+$ git log --oneline -3
+1 \e[33md6027fb\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Fusion du travail de Bob
+1 \e[33mc2e83b0\e[m Nouveautés
+1 \e[33m1da0915\e[m\e[33m (\e[m\e[1;31morigin/main\e[m\e[33m, \e[m\e[1;31morigin/HEAD\e[m\e[33m)\e[m Contact
+= 0
+$ git status
+1 On branch main
+1 Your branch is ahead of 'origin/main' by 2 commits.
+1   (use "git push" to publish your local commits)
+1 
+1 nothing to commit, working tree clean
+= 0
+$ git push
+2 To gitlab.example:classe/projet.git
+2    1da0915..d6027fb  main -> main
+= 0
+$ git switch tarifs
+1 branch 'tarifs' set up to track 'origin/tarifs'.
+2 Switched to a new branch 'tarifs'
+= 0
+$ git branch -vv
+1   main  \e[m d6027fb [\e[34morigin/main\e[m] Fusion du travail de Bob
+1 * \e[32mtarifs\e[m 8bcf3e9 [\e[34morigin/tarifs\e[m] Tarifs
+= 0
+$ git switch main
+1 Your branch is up to date with 'origin/main'.
+2 Switched to branch 'main'
+= 0
+$ git switch main
+1 Your branch is up to date with 'origin/main'.
+2 Switched to branch 'main'
+= 0
+$ git status
+1 On branch main
+1 Your branch is up to date with 'origin/main'.
+1 
+1 nothing to commit, working tree clean
+= 0
+$ git fetch
+2 From gitlab.example:classe/projet
+2    1da0915..d6027fb  main       -> origin/main
+= 0
+$ git status
+1 On branch main
+1 Your branch is behind 'origin/main' by 2 commits, and can be fast-forwarded.
+1   (use "git pull" to update your local branch)
+1 
+1 nothing to commit, working tree clean
+= 0
+$ git pull
+1 Updating 1da0915..d6027fb
+1 Fast-forward
+1  index.html | 1 \e[32m+\e[m
+1  1 file changed, 1 insertion(+)
+= 0
+$ git log --oneline -1
+1 \e[33md6027fb\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m, \e[m\e[1;31morigin/main\e[m\e[33m, \e[m\e[1;31morigin/HEAD\e[m\e[33m)\e[m Fusion du travail de Bob
+= 0
+$ git push origin nexistepas
+2 error: src refspec nexistepas does not match any
+2 error: failed to push some refs to 'gitlab.example:classe/projet.git'
+= 1
+$ git push autre main
+2 fatal: 'autre' does not appear to be a git repository
+2 fatal: Could not read from remote repository.
+2 
+2 Please make sure you have the correct access rights
+2 and the repository exists.
+= 128

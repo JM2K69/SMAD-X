@@ -1,0 +1,413 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMAGX.ViewModels"
+        xmlns:views="using:SMAGX.Views"
+        xmlns:controls="using:SMAGX.Controls"
+        xmlns:suite="using:SMADX.Controls"
+        x:Class="SMAGX.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        x:Name="Root"
+        Title="{DynamicResource App.Title}"
+        Icon="/Assets/icone.ico"
+        Width="1520" Height="940" MinWidth="1200" MinHeight="700"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
+
+    <Window.Styles>
+        <Style Selector="TextBlock.code">
+            <Setter Property="Foreground" Value="#FF7B72"/>
+        </Style>
+        <Style Selector="TextBlock.code.staged">
+            <Setter Property="Foreground" Value="#3FB950"/>
+        </Style>
+        <!-- Les postes, en onglets : le poste affiché sur le fond de l'accent -->
+        <!-- Les onglets GitLab et GitHub de la carte Forge -->
+        <Style Selector="Button.forgetab">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style Selector="Button.forgetab.selected">
+            <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+        </Style>
+        <Style Selector="ListBox.stations">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+        <Style Selector="ListBox.stations ListBoxItem">
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Background" Value="{DynamicResource ChipBg}"/>
+        </Style>
+        <Style Selector="ListBox.stations ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+        <Style Selector="ListBox.stations ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource ChipHoverBg}"/>
+        </Style>
+        <Style Selector="ListBox.stations ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+        </Style>
+        <Style Selector="ListBox.stations ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+        </Style>
+        <Style Selector="ListBox.stations ListBoxItem:selected:focus /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AccentSoft}"/>
+        </Style>
+    </Window.Styles>
+
+    <DockPanel>
+        <!-- ═══ En-tête ═══ -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource HeaderBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,0,0,1" Padding="20,12">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+                    <Border Width="40" Height="40" CornerRadius="10">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                                <GradientStop Color="#F05033" Offset="0"/>
+                                <GradientStop Color="#F2994A" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <PathIcon Data="{StaticResource GitIcon}" Width="22" Height="22" Foreground="White"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="SMAG-X" FontSize="19" FontWeight="Bold"/>
+                        <TextBlock Classes="muted" Text="{DynamicResource App.Subtitle}"/>
+                    </StackPanel>
+                    <!-- Le travail à deux en cours : l'icône du serveur, deux mots ; les adresses et le code au survol, la fenêtre au clic -->
+                    <Button Classes="header" Margin="16,0,0,0" VerticalAlignment="Center" Padding="10,5"
+                            IsVisible="{Binding HasNetworkStatus}" Command="{Binding CollaborateCommand}"
+                            ToolTip.Tip="{Binding NetworkDetails}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource NetworkIcon}" Width="14" Height="14" Foreground="#3FB950"/>
+                            <TextBlock Text="{Binding NetworkStatus}" VerticalAlignment="Center" FontSize="12"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Classes="header" Content="{DynamicResource Button.Scenarios}" Command="{Binding ChooseScenarioCommand}"/>
+                    <Button Classes="header" Content="{DynamicResource Button.Collaborate}" Command="{Binding CollaborateCommand}"/>
+                    <Button Classes="header" Content="{DynamicResource Button.Identity}" Command="{Binding ChangeIdentityCommand}"
+                            IsEnabled="{Binding !InScenario}"/>
+                    <Button Classes="header" Content="{DynamicResource Button.NewSession}" Command="{Binding StartSessionCommand}"/>
+                    <Button Classes="header" Content="{DynamicResource Button.Language}" Command="{Binding ToggleLanguageCommand}"/>
+                    <Button Classes="header" Content="{DynamicResource Button.Theme}" Click="OnToggleTheme"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ Les postes de la salle ═══ -->
+        <DockPanel DockPanel.Dock="Top" Margin="16,12,16,0">
+            <ListBox Classes="stations" ItemsSource="{Binding Stations}" SelectedItem="{Binding Current}" DockPanel.Dock="Left">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:StationViewModel">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource PersonIcon}" Width="14" Height="14" Foreground="{DynamicResource Accent}"/>
+                            <TextBlock Classes="mono" FontWeight="SemiBold" Text="{Binding Login}" VerticalAlignment="Center"/>
+                            <TextBlock Classes="muted" Text="{Binding IdentityText}" VerticalAlignment="Center" FontSize="12"/>
+                            <Button Classes="copy" Content="✕" Command="{Binding RemoveCommand}" IsVisible="{Binding Removable}"
+                                    ToolTip.Tip="{DynamicResource Stations.Remove}" Padding="4,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Button DockPanel.Dock="Left" Classes="tool" Content="{DynamicResource Stations.Add}" Command="{Binding AddStationCommand}"
+                    VerticalAlignment="Center" IsVisible="{Binding !InScenario}"/>
+            <TextBlock Classes="muted" Text="{DynamicResource Stations.Hint}" VerticalAlignment="Center" Margin="14,0,0,0"
+                       TextTrimming="CharacterEllipsis">
+                <TextBlock.IsVisible>
+                    <MultiBinding Converter="{x:Static BoolConverters.And}">
+                        <Binding Path="!SeveralStations"/>
+                        <Binding Path="!InScenario"/>
+                    </MultiBinding>
+                </TextBlock.IsVisible>
+            </TextBlock>
+        </DockPanel>
+
+        <!-- ═══ Le scénario en cours : énoncé, rôle, objectifs ═══ -->
+        <!-- La visibilité se lit sur la fenêtre : hors scénario, le contexte du panneau est vide -->
+        <Panel DockPanel.Dock="Left" IsVisible="{Binding InScenario}">
+        <Panel DataContext="{Binding Scenario}">
+        <Border Classes="card" Width="420" Margin="16,16,0,16" Padding="0" x:DataType="vm:ScenarioViewModel">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="16,14,16,8">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Right" Text="{Binding ScoreLabel}" FontWeight="Bold" FontSize="15" IsVisible="{Binding ShowGrading}"/>
+                        <TextBlock Classes="muted" Text="{Binding StepLabel}" FontSize="12"/>
+                    </DockPanel>
+                    <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" TextWrapping="Wrap"/>
+                    <WrapPanel Orientation="Horizontal">
+                        <Border Background="{DynamicResource AccentSoft}" CornerRadius="999" Padding="10,2" Margin="0,0,6,4">
+                            <TextBlock Text="{Binding LevelLabel}" Foreground="{DynamicResource Accent}" FontSize="12" FontWeight="SemiBold"/>
+                        </Border>
+                        <Border Background="{DynamicResource ChipBg}" CornerRadius="999" Padding="10,2" Margin="0,0,6,4">
+                            <TextBlock Text="{Binding ModeLabel}" FontSize="12"/>
+                        </Border>
+                        <Border Background="{DynamicResource ChipBg}" CornerRadius="999" Padding="10,2" Margin="0,0,6,4">
+                            <TextBlock Text="{Binding DurationLabel}" FontSize="12"/>
+                        </Border>
+                    </WrapPanel>
+                    <Border Background="#1F27AE60" CornerRadius="8" Padding="10,6" IsVisible="{Binding IsCompleted}">
+                        <TextBlock Text="{DynamicResource Scenario.Completed}" Foreground="#27AE60" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    </Border>
+                    <Border Background="{DynamicResource AccentSoft}" CornerRadius="8" Padding="10,6" IsVisible="{Binding HasRoleBrief}">
+                        <TextBlock Text="{Binding RoleBrief}" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                    </Border>
+                </StackPanel>
+                <WrapPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="16,8,16,14">
+                    <Button Classes="accent" Content="{DynamicResource Scenario.Check}" Command="{ReflectionBinding DataContext.CheckNowCommand, ElementName=Root}"
+                            IsVisible="{Binding CanCheck}" Margin="0,0,8,4"/>
+                    <Button Classes="tool" Content="{DynamicResource Scenario.Restart}" Command="{ReflectionBinding DataContext.RestartScenarioCommand, ElementName=Root}"
+                            IsVisible="{Binding ShowGrading}" Margin="0,0,8,4"/>
+                    <Button Classes="danger" Content="{DynamicResource Scenario.Quit}" Command="{ReflectionBinding DataContext.QuitScenarioCommand, ElementName=Root}"
+                            Margin="0,0,8,4"/>
+                </WrapPanel>
+                <ScrollViewer Padding="16,0">
+                    <StackPanel Spacing="10">
+                        <!-- Un peu de marge à droite : le code en ligne déborde légèrement de la largeur mesurée -->
+                        <ContentControl Content="{Binding Statement, Converter={StaticResource MarkdownConverter}}" Margin="0,0,26,0"/>
+                        <TextBlock Classes="h" FontSize="15" Text="{DynamicResource Scenario.Objectives}" Margin="0,6,0,0"/>
+                        <ItemsControl ItemsSource="{Binding Objectives}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ScenarioObjectiveItem">
+                                    <Border BorderBrush="{DynamicResource CardBorder}" BorderThickness="0,0,0,1" Padding="2,8">
+                                        <Grid ColumnDefinitions="Auto,*">
+                                            <TextBlock Text="{Binding StatusIcon}" Foreground="{Binding StatusColor}" FontSize="16" FontWeight="Bold"
+                                                       Margin="0,0,8,0" VerticalAlignment="Top"/>
+                                            <StackPanel Grid.Column="1" Spacing="4">
+                                                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding Feedback}" TextWrapping="Wrap" FontSize="12" Foreground="{Binding StatusColor}"
+                                                           IsVisible="{Binding Feedback, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                                <!-- Le rôle concerné, les points (ou « garde ») et l'indice -->
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <Border Background="{DynamicResource ChipBg}" CornerRadius="6" Padding="6,1" IsVisible="{Binding HasRole}"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Classes="mono" Text="{Binding Role}" FontSize="11"/>
+                                                    </Border>
+                                                    <TextBlock FontSize="12" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding IsScored}" VerticalAlignment="Center">
+                                                        <Run Text="{Binding Points}"/><Run Text=" pt"/>
+                                                    </TextBlock>
+                                                    <TextBlock FontSize="12" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center"
+                                                               Text="{DynamicResource Scenario.Guard}" IsVisible="{Binding IsGuard}"/>
+                                                    <Button Classes="tool" Padding="8,1" FontSize="11" Content="{DynamicResource Scenario.Hint}"
+                                                            Command="{Binding ToggleHintCommand}" IsVisible="{Binding CanShowHint}"/>
+                                                </StackPanel>
+                                                <Border Background="{DynamicResource AccentSoft}" CornerRadius="8" Padding="10,6" IsVisible="{Binding IsHintVisible}">
+                                                    <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" FontSize="12"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+        </Panel>
+        </Panel>
+
+        <Panel DataContext="{Binding Current}">
+            <Grid Margin="16" ColumnDefinitions="1.05*,1.35*,0.9*" ColumnSpacing="14" x:DataType="vm:StationViewModel">
+                <!-- ═══ Terminal ═══ -->
+                <views:TerminalView/>
+
+                <!-- ═══ Historique et trois zones ═══ -->
+                <Grid Grid.Column="1" RowDefinitions="*,Auto" RowSpacing="14">
+                    <Border Classes="card" Padding="16,14">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,8">
+                                <TextBlock Classes="h" Text="{DynamicResource Graph.Title}"/>
+                                <TextBlock Classes="muted mono" Text="{Binding RepositorySummary}"/>
+                            </StackPanel>
+                            <Border Classes="code" Padding="4">
+                                <Grid>
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" IsVisible="{Binding Graph, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                        <controls:CommitGraphView Graph="{Binding Graph}" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+                                    </ScrollViewer>
+                                    <TextBlock Classes="muted" Text="{Binding GraphMessage}" TextWrapping="Wrap" Margin="12"
+                                               IsVisible="{Binding Graph, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                </Grid>
+                            </Border>
+                        </DockPanel>
+                    </Border>
+
+                    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="14" Height="210">
+                        <Border Classes="card" Padding="14,12">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Classes="h" FontSize="14" Text="{DynamicResource Zones.Work}" Margin="0,0,0,6"/>
+                                <Grid>
+                                    <ScrollViewer>
+                                        <ItemsControl ItemsSource="{Binding WorkItems}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:ZoneItem">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,2">
+                                                        <TextBlock Classes="code" Classes.staged="{Binding Staged}" Text="{Binding Code}"/>
+                                                        <TextBlock Classes="mono" Text="{Binding Path}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                    <TextBlock Classes="muted" Text="{DynamicResource Zones.Clean}" IsVisible="{Binding WorkClean}"/>
+                                </Grid>
+                            </DockPanel>
+                        </Border>
+                        <Border Grid.Column="1" Classes="card" Padding="14,12">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Classes="h" FontSize="14" Text="{DynamicResource Zones.Index}" Margin="0,0,0,6"/>
+                                <Grid>
+                                    <ScrollViewer>
+                                        <ItemsControl ItemsSource="{Binding IndexItems}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:ZoneItem">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,2">
+                                                        <TextBlock Classes="code" Classes.staged="{Binding Staged}" Text="{Binding Code}"/>
+                                                        <TextBlock Classes="mono" Text="{Binding Path}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                    <TextBlock Classes="muted" Text="{DynamicResource Zones.Empty}" IsVisible="{Binding IndexEmpty}"/>
+                                </Grid>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- ═══ Fichiers, forge et explication ═══ -->
+                <Grid Grid.Column="2" RowDefinitions="*,Auto,Auto" RowSpacing="14">
+                    <Border Classes="card" Padding="14,12">
+                        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Classes="h" FontSize="14" Text="{DynamicResource Files.Title}"/>
+                                <TextBlock Classes="muted mono" FontSize="12" Text="{Binding FilesRootLabel}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+                            </StackPanel>
+                            <DockPanel Grid.Row="1">
+                                <Button DockPanel.Dock="Right" Classes="tool" Content="{DynamicResource Files.New}" Command="{Binding NewFileCommand}" Margin="8,0,0,0"/>
+                                <TextBox Classes="mono" Text="{Binding NewFileName}" PlaceholderText="{DynamicResource Files.NewName}"/>
+                            </DockPanel>
+                            <!-- Les dossiers et les fichiers, en arborescence ; un dossier vide est signalé : Git ne le suit pas -->
+                            <ListBox Grid.Row="2" Classes="plain" ItemsSource="{Binding Entries}" SelectedItem="{Binding SelectedEntry}" MaxHeight="190">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:FileEntry">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="{Binding Indent}">
+                                            <StackPanel Orientation="Horizontal" Spacing="8" Opacity="{Binding Opacity}">
+                                                <PathIcon Data="{StaticResource FolderIcon}" Width="14" Height="14" Foreground="#E3B341" IsVisible="{Binding IsFolder}"/>
+                                                <PathIcon Data="{StaticResource FileIcon}" Width="12" Height="12" Foreground="{DynamicResource TextMuted}" IsVisible="{Binding !IsFolder}"/>
+                                                <TextBlock Classes="mono" Text="{Binding Label}"/>
+                                            </StackPanel>
+                                            <TextBlock Classes="muted" FontSize="11" Text="{DynamicResource Files.EmptyFolder}" VerticalAlignment="Center"
+                                                       IsVisible="{Binding ShowEmpty}" ToolTip.Tip="{DynamicResource Files.EmptyFolderTip}"/>
+                                            <TextBlock Classes="muted" FontSize="11" FontStyle="Italic" Text="{DynamicResource Files.Ignored}" VerticalAlignment="Center"
+                                                       IsVisible="{Binding IsIgnored}" ToolTip.Tip="{DynamicResource Files.IgnoredTip}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Grid Grid.Row="3">
+                                <TextBox Classes="mono" Text="{Binding EditorText}" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="90"
+                                         VerticalContentAlignment="Top" IsVisible="{Binding HasSelectedFile}"/>
+                                <TextBlock Classes="muted" Text="{DynamicResource Files.None}" IsVisible="{Binding !HasSelectedFile}"/>
+                            </Grid>
+                            <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="8" IsVisible="{Binding HasSelectedFile}">
+                                <Button Classes="accent" Content="{DynamicResource Files.Save}" Command="{Binding SaveFileCommand}"/>
+                                <Button Classes="danger" Content="{DynamicResource Files.Delete}" Command="{Binding DeleteFileCommand}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- La forge est celle de la fenêtre, commune à tous les postes -->
+                    <Border Grid.Row="1" Classes="card" Padding="14,12" DataContext="{Binding #Root.DataContext}" x:DataType="vm:MainWindowViewModel">
+                        <StackPanel Spacing="8">
+                            <DockPanel>
+                                <!-- Les deux forges : façon GitLab (gitlab.example) et façon GitHub (github.example) -->
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4">
+                                    <Button Classes="forgetab" Classes.selected="{Binding !GitHubShown}" Command="{Binding ShowGitLabCommand}"
+                                            ToolTip.Tip="gitlab.example">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{StaticResource GitLabIcon}" Width="15" Height="15" Foreground="#FC6D26"/>
+                                            <TextBlock Text="GitLab" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Classes="forgetab" Classes.selected="{Binding GitHubShown}" Command="{Binding ShowGitHubCommand}"
+                                            ToolTip.Tip="github.example">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <PathIcon Data="{StaticResource GitHubIcon}" Width="15" Height="15" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+                                            <TextBlock Text="GitHub" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Classes="h" FontSize="14" Text="{DynamicResource Forge.Title}"/>
+                                        <TextBlock Classes="muted mono" FontSize="12" Text="{Binding ForgeHost}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+                                    </StackPanel>
+                                    <TextBlock Classes="muted" Text="{Binding ForgeOrigin}" IsVisible="{Binding HasForgeOrigin}" FontSize="12"/>
+                                </StackPanel>
+                            </DockPanel>
+                            <TextBlock Classes="muted" Text="{Binding ForgeIntro}" TextWrapping="Wrap"/>
+                            <!-- Le compte du poste affiché sur cette forge, et ses clés SSH -->
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Classes="tool" Command="{Binding ManageKeysCommand}" Margin="8,0,0,0">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <PathIcon Data="{StaticResource KeyIcon}" Width="14" Height="14"/>
+                                        <TextBlock Text="{DynamicResource Forge.Keys}" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <DockPanel VerticalAlignment="Center">
+                                    <PathIcon DockPanel.Dock="Left" Data="{StaticResource PersonIcon}" Width="13" Height="13" Margin="0,0,6,0"
+                                              Foreground="{DynamicResource Accent}"/>
+                                    <TextBlock Classes="mono" FontSize="12" Text="{Binding AccountText}" VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding AccountText}"/>
+                                </DockPanel>
+                            </DockPanel>
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Classes="tool" Content="{DynamicResource Forge.New}" Command="{Binding CreateProjectCommand}" Margin="8,0,0,0"/>
+                                <TextBox Classes="mono" Text="{Binding NewProjectName}" PlaceholderText="{DynamicResource Forge.NewName}"/>
+                            </DockPanel>
+                            <TextBlock Classes="muted" Text="{DynamicResource Forge.Empty}" IsVisible="{Binding NoProject}"/>
+                            <TextBlock Foreground="{DynamicResource Danger}" Text="{Binding ForgeMessage}" TextWrapping="Wrap"
+                                       IsVisible="{Binding ForgeMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                            <ItemsControl ItemsSource="{Binding Projects}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ForgeProject">
+                                        <Border Classes="code" Padding="10,8" Margin="0,0,0,6">
+                                            <StackPanel Spacing="2">
+                                                <TextBlock Text="{Binding Path}" FontWeight="SemiBold"/>
+                                                <DockPanel>
+                                                    <suite:CopyButton DockPanel.Dock="Right" Text="{Binding Url}"/>
+                                                    <SelectableTextBlock Classes="mono" Text="{Binding Url}" FontSize="12" VerticalAlignment="Center"/>
+                                                </DockPanel>
+                                                <TextBlock Classes="muted mono" Text="{Binding Branches}" FontSize="11"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="2" Classes="card" Padding="14,12" MinHeight="140">
+                        <StackPanel Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource BulbIcon}" Width="16" Height="16" Foreground="#F2CC60"/>
+                                <TextBlock Classes="h" FontSize="14" Text="{DynamicResource Explain.Title}"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding Explanation}" TextWrapping="Wrap" LineHeight="20"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Panel>
+    </DockPanel>
+</Window>

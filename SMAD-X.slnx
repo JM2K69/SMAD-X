@@ -8,4 +8,7 @@
   <Project Path="SMAR-X.Core/SMAR-X.Core.csproj" />
   <Project Path="SMAR-X/SMAR-X.csproj" />
   <Project Path="SMAR-X.Tests/SMAR-X.Tests.csproj" />
+  <Project Path="SMAG-X.Core/SMAG-X.Core.csproj" />
+  <Project Path="SMAG-X/SMAG-X.csproj" />
+  <Project Path="SMAG-X.Tests/SMAG-X.Tests.csproj" />
 </Solution>

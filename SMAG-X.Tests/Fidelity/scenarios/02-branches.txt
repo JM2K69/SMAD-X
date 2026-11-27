@@ -1,0 +1,51 @@
+# Les branches : créer, changer, fusionner en avance rapide, puis avec un vrai commit de fusion et un conflit
+$ git config --global user.name "Alice Martin"
+$ git config --global user.email alice@lycee.example
+$ git config --global init.defaultBranch main
+$ git init
+write menu.txt Accueil\nContact\n
+$ git add menu.txt
+$ git commit -m "Menu"
+$ git branch
+$ git branch services
+$ git branch
+$ git branch -v
+$ git switch services
+$ git branch
+append menu.txt Services\n
+$ git commit -am "Ajoute Services"
+$ git log --oneline --all
+$ git switch main
+$ git switch main
+$ git merge services
+$ git log --oneline
+$ git branch -d services
+$ git branch -d services
+$ git switch -c tarifs
+write tarifs.txt Formule A : 10 euros\n
+$ git add tarifs.txt
+$ git commit -m "Tarifs"
+$ git switch main
+write menu.txt Accueil\nQui sommes-nous\nContact\nServices\n
+$ git commit -am "Qui sommes-nous"
+$ git merge tarifs
+$ git log --oneline --all
+$ git branch -d tarifs
+$ git switch -c titre
+write menu.txt ACCUEIL\nQui sommes-nous\nContact\nServices\n
+$ git commit -am "Majuscules"
+$ git switch main
+write menu.txt Accueil du site\nQui sommes-nous\nContact\nServices\n
+$ git commit -am "Accueil du site"
+$ git merge titre
+$ git status
+$ git status -s
+$ git commit -m "Essai"
+write menu.txt ACCUEIL DU SITE\nQui sommes-nous\nContact\nServices\n
+$ git add menu.txt
+$ git status
+$ git commit -m "Fusion de titre"
+$ git log --oneline -3
+$ git switch nexistepas
+$ git switch -c main
+$ git branch -D titre

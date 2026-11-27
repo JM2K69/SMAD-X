@@ -1,0 +1,45 @@
+# Annuler : restore, restore --staged, reset, rm, commit --amend, checkout d'un fichier
+$ git config --global user.name "Alice Martin"
+$ git config --global user.email alice@lycee.example
+$ git config --global init.defaultBranch main
+$ git init
+write notes.txt Ligne 1\n
+write secret.env MOT_DE_PASSE=azerty\n
+$ git add notes.txt
+$ git commit -m "Notes"
+append notes.txt Ligne 2\n
+$ git restore notes.txt
+$ git status -s
+append notes.txt Ligne 2\n
+$ git add notes.txt
+$ git restore --staged notes.txt
+$ git status -s
+$ git add .
+$ git status
+$ git reset secret.env
+$ git status -s
+$ git commit -am "Ligne 2"
+$ git commit --amend -m "Deuxième ligne"
+$ git log --oneline
+$ git add secret.env
+$ git commit -m "Oups, le mot de passe"
+$ git rm --cached secret.env
+$ git status
+write .gitignore secret.env\n
+$ git add .gitignore
+$ git status -s
+$ git commit -m "Ignore le mot de passe"
+$ git add secret.env
+$ git rm notes.txt
+$ git status -s
+$ git reset --hard HEAD
+$ git status -s
+append notes.txt Ligne 3\n
+$ git rm notes.txt
+$ git checkout -- notes.txt
+$ git status -s
+$ git reset --hard HEAD~1
+$ git log --oneline
+$ git reset HEAD~1
+$ git status
+$ git restore nexistepas.txt

@@ -1,0 +1,57 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:SMADX.Converters"
+             x:Class="SMAGX.App"
+             RequestedThemeVariant="Dark">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- L'énoncé des scénarios, en Markdown (convertisseur commun de la suite) -->
+            <converters:MarkdownConverter x:Key="MarkdownConverter"/>
+            <!-- La palette et les styles génériques viennent du thème commun (SMAD-X.UI/Themes/Suite.axaml) -->
+            <!-- Trois commits et leurs liens : une branche qui part d'une ligne principale -->
+            <StreamGeometry x:Key="GitIcon">M3.5,5 A2.5,2.5 0 1 0 8.5,5 A2.5,2.5 0 1 0 3.5,5 Z M3.5,19 A2.5,2.5 0 1 0 8.5,19 A2.5,2.5 0 1 0 3.5,19 Z M15.5,7 A2.5,2.5 0 1 0 20.5,7 A2.5,2.5 0 1 0 15.5,7 Z M5.1,7.5 L6.9,7.5 L6.9,16.5 L5.1,16.5 Z M17.1,9.5 L18.9,9.5 C18.9,13 15,14.6 6.9,15.3 L6.9,13.5 C14,12.9 17.1,11.8 17.1,9.5 Z</StreamGeometry>
+            <StreamGeometry x:Key="PersonIcon">M12,12 C14.2,12 16,10.2 16,8 C16,5.8 14.2,4 12,4 C9.8,4 8,5.8 8,8 C8,10.2 9.8,12 12,12 Z M4,21 C4,17.1 7.6,14 12,14 C16.4,14 20,17.1 20,21 Z</StreamGeometry>
+            <StreamGeometry x:Key="FolderIcon">M2,6 C2,4.9 2.9,4 4,4 L9,4 L11,6 L20,6 C21.1,6 22,6.9 22,8 L22,18 C22,19.1 21.1,20 20,20 L4,20 C2.9,20 2,19.1 2,18 Z</StreamGeometry>
+            <StreamGeometry x:Key="FileIcon">M6.5,2 L14,2 L20,8 L20,19.5 C20,20.9 18.9,22 17.5,22 L6.5,22 C5.1,22 4,20.9 4,19.5 L4,4.5 C4,3.1 5.1,2 6.5,2 Z</StreamGeometry>
+            <StreamGeometry x:Key="BulbIcon">M12,2 C8.1,2 5,5.1 5,9 C5,11.4 6.2,13.5 8,14.7 L8,17 C8,17.6 8.4,18 9,18 L15,18 C15.6,18 16,17.6 16,17 L16,14.7 C17.8,13.5 19,11.4 19,9 C19,5.1 15.9,2 12,2 Z M9,19.5 L15,19.5 L15,21 C15,21.6 14.6,22 14,22 L10,22 C9.4,22 9,21.6 9,21 Z</StreamGeometry>
+            <!-- Trois postes reliés : le travail à deux par le réseau -->
+            <StreamGeometry x:Key="NetworkIcon">M9,5 A3,3 0 1 0 15,5 A3,3 0 1 0 9,5 Z M2,19 A3,3 0 1 0 8,19 A3,3 0 1 0 2,19 Z M16,19 A3,3 0 1 0 22,19 A3,3 0 1 0 16,19 Z M11.1,7.5 L12.9,7.5 L12.9,11.5 L18.3,15.6 L17.2,17 L12,13 L6.8,17 L5.7,15.6 L11.1,11.5 Z</StreamGeometry>
+            <!-- Les logos des deux forges (tracés de Simple Icons, CC0) : le chat de GitHub, le tanuki de GitLab -->
+            <StreamGeometry x:Key="GitHubIcon">M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12</StreamGeometry>
+            <StreamGeometry x:Key="GitLabIcon">m23.6004 9.5927-.0337-.0862L20.3.9814a.851.851 0 0 0-.3362-.405.8748.8748 0 0 0-.9997.0539.8748.8748 0 0 0-.29.4399l-2.2055 6.748H7.5375l-2.2057-6.748a.8573.8573 0 0 0-.29-.4412.8748.8748 0 0 0-.9997-.0537.8585.8585 0 0 0-.3362.4049L.4332 9.5015l-.0325.0862a6.0657 6.0657 0 0 0 2.0119 7.0105l.0113.0087.03.0213 4.976 3.7264 2.462 1.8633 1.4995 1.1321a1.0085 1.0085 0 0 0 1.2197 0l1.4995-1.1321 2.4619-1.8633 5.006-3.7489.0125-.01a6.0682 6.0682 0 0 0 2.0094-7.003z</StreamGeometry>
+            <!-- Une clé : la page « Clés SSH » de la forge -->
+            <StreamGeometry x:Key="KeyIcon">M7,14 C5.3,14 4,12.7 4,11 C4,9.3 5.3,8 7,8 C8.7,8 10,9.3 10,11 C10,12.7 8.7,14 7,14 Z M12.6,9 C11.8,6.7 9.6,5 7,5 C3.7,5 1,7.7 1,11 C1,14.3 3.7,17 7,17 C9.6,17 11.8,15.3 12.6,13 L17,13 L17,17 L21,17 L21,13 L23,13 L23,9 Z</StreamGeometry>
+            <!-- Le terminal reste sombre, comme un vrai terminal, quel que soit le thème -->
+            <SolidColorBrush x:Key="TerminalBg" Color="#0D1117"/>
+            <SolidColorBrush x:Key="TerminalFg" Color="#D6DEE6"/>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme/>
+        <StyleInclude Source="avares://SMAD-X.UI/Themes/Suite.axaml"/>
+
+        <!-- La saisie du terminal : sans cadre, sur le fond du terminal -->
+        <Style Selector="TextBox.terminal">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TerminalFg}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource TerminalFg}"/>
+            <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
+        </Style>
+        <Style Selector="TextBox.terminal:focus /template/ Border#PART_BorderElement, TextBox.terminal:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <!-- Une entrée des trois zones : la lettre d'état, puis le chemin -->
+        <Style Selector="TextBlock.code">
+            <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Width" Value="22"/>
+        </Style>
+    </Application.Styles>
+</Application>

@@ -1,0 +1,12 @@
+256 SHA256:Hwh1wYDy2WLKqnQELyxahI5iwQKbVY5kdXRR1cmV9X4 alice@lycee.example (ED25519)
++--[ED25519 256]--+
+|. +oo.o.==+o.o o=|
+|oB o...o ..   +..|
+|=+o .o.o        .|
+|=.+   =...     . |
+|+=.+ o .S .     E|
+|=.o o    . .    .|
+|.. o      .      |
+|. o              |
+|..               |
++----[SHA256]-----+

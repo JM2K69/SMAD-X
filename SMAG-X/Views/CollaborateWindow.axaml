@@ -1,0 +1,66 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SMAGX.ViewModels"
+        x:Class="SMAGX.Views.CollaborateWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="{DynamicResource Collab.Title}"
+        Icon="/Assets/icone.ico"
+        Width="820" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+    <Border Padding="24">
+        <StackPanel Spacing="14">
+            <TextBlock Classes="h" Text="{DynamicResource Collab.Title}"/>
+            <TextBlock Classes="muted" Text="{DynamicResource Collab.Intro}" TextWrapping="Wrap"/>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                <!-- ═══ Servir sa forge ═══ -->
+                <Border Classes="card" Padding="16">
+                    <StackPanel Spacing="10">
+                        <TextBlock Classes="h" FontSize="15" Text="{DynamicResource Collab.ServeTitle}"/>
+                        <TextBlock Classes="muted" Text="{DynamicResource Collab.ServeIntro}" TextWrapping="Wrap"/>
+                        <Button Classes="accent" Content="{DynamicResource Collab.Start}" Command="{Binding StartServerCommand}"
+                                IsVisible="{Binding !Serving}" IsEnabled="{Binding CanServe}"/>
+                        <StackPanel Spacing="6" IsVisible="{Binding Serving}">
+                            <TextBlock Classes="label" Text="{DynamicResource Collab.Address}"/>
+                            <SelectableTextBlock Classes="mono" FontSize="18" FontWeight="SemiBold" Text="{Binding ServerAddress}"/>
+                            <TextBlock Classes="muted" FontSize="11" TextWrapping="Wrap" IsVisible="{Binding HasServerOtherAddresses}">
+                                <Run Text="{DynamicResource Collab.Others}"/><Run Text="{Binding ServerOtherAddresses}"/>
+                            </TextBlock>
+                            <TextBlock Classes="label" Text="{DynamicResource Collab.Code}"/>
+                            <SelectableTextBlock Classes="mono" FontSize="30" FontWeight="Bold" Text="{Binding ServerCode}" Foreground="{DynamicResource Accent}"/>
+                            <TextBlock Classes="muted" Text="{Binding ServerVisitors}" TextWrapping="Wrap"/>
+                            <Button Classes="danger" Content="{DynamicResource Collab.Stop}" Command="{Binding StopServerCommand}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <TextBlock Foreground="{DynamicResource Danger}" Text="{Binding ServerError}" TextWrapping="Wrap"
+                                   IsVisible="{Binding ServerError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ Rejoindre un camarade ═══ -->
+                <Border Grid.Column="1" Classes="card" Padding="16">
+                    <StackPanel Spacing="10">
+                        <TextBlock Classes="h" FontSize="15" Text="{DynamicResource Collab.JoinTitle}"/>
+                        <TextBlock Classes="muted" Text="{DynamicResource Collab.JoinIntro}" TextWrapping="Wrap"/>
+                        <StackPanel Spacing="10" IsVisible="{Binding !Joined}">
+                            <StackPanel Spacing="4">
+                                <TextBlock Classes="label" Text="{DynamicResource Collab.JoinAddress}"/>
+                                <TextBox Classes="mono" Text="{Binding JoinAddress}" PlaceholderText="192.168.1.20" IsEnabled="{Binding !Serving}"/>
+                            </StackPanel>
+                            <StackPanel Spacing="4">
+                                <TextBlock Classes="label" Text="{DynamicResource Collab.Code}"/>
+                                <TextBox Classes="mono" Text="{Binding JoinCode}" PlaceholderText="1234" MaxLength="8" IsEnabled="{Binding !Serving}"/>
+                            </StackPanel>
+                            <Button Classes="accent" Content="{DynamicResource Collab.Join}" Command="{Binding JoinCommand}" IsEnabled="{Binding CanJoin}"/>
+                        </StackPanel>
+                        <StackPanel Spacing="8" IsVisible="{Binding Joined}">
+                            <TextBlock Text="{Binding JoinedText}" TextWrapping="Wrap"/>
+                            <Button Classes="danger" Content="{DynamicResource Collab.Leave}" Command="{Binding LeaveCommand}"/>
+                        </StackPanel>
+                        <TextBlock Foreground="{DynamicResource Danger}" Text="{Binding JoinError}" TextWrapping="Wrap"
+                                   IsVisible="{Binding JoinError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            <Button HorizontalAlignment="Right" Classes="tool" Content="{DynamicResource Collab.Close}" Click="OnClose" IsCancel="True"/>
+        </StackPanel>
+    </Border>
+</Window>

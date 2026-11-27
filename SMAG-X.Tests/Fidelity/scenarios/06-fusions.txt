@@ -1,0 +1,65 @@
+# Fusions : plusieurs fichiers, ajouts des deux côtés, conflit add/add, modify/delete, --abort, --no-ff, « into »
+$ git config --global user.name "Alice Martin"
+$ git config --global user.email alice@lycee.example
+$ git config --global init.defaultBranch main
+$ git init
+write index.html <html>\n<head>\n<title>Accueil</title>\n</head>\n<body>\n<h1>Bienvenue</h1>\n</body>\n</html>\n
+write style.css body {\n  margin: 0;\n}\n
+write contact.html <p>Contact</p>\n
+$ git add .
+$ git commit -m "Site"
+$ git switch -c design
+write style.css body {\n  margin: 0;\n  color: navy;\n}\nh1 {\n  font-size: 2em;\n}\n
+write logo.svg <svg/>\n
+$ git add .
+$ git commit -m "Couleurs et logo"
+$ git switch main
+write index.html <html>\n<head>\n<title>Accueil</title>\n<meta charset="utf-8">\n</head>\n<body>\n<h1>Bienvenue</h1>\n</body>\n</html>\n
+$ git commit -am "Encodage"
+$ git merge design
+$ git log --oneline
+$ git switch -c pied
+write index.html <html>\n<head>\n<title>Accueil</title>\n<meta charset="utf-8">\n</head>\n<body>\n<h1>Bienvenue</h1>\n<footer>2026</footer>\n</body>\n</html>\n
+write mentions.html <p>Mentions</p>\n
+$ git add .
+$ git commit -m "Pied de page"
+$ git switch main
+write index.html <html>\n<head>\n<title>Accueil - Agence</title>\n<meta charset="utf-8">\n</head>\n<body>\n<h1>Bienvenue</h1>\n</body>\n</html>\n
+write mentions.html <p>Mentions legales</p>\n
+$ git rm contact.html
+$ git add .
+$ git commit -m "Titre et mentions"
+$ git merge pied
+$ git status
+$ git status -s
+$ git merge --abort
+$ git status
+$ git merge --abort
+$ git switch pied
+write contact.html <p>Contact : 01 02 03 04 05</p>\n
+$ git add contact.html
+$ git commit -m "Telephone"
+$ git switch main
+$ git merge pied
+$ git status
+$ git merge --abort
+$ git switch -c dev
+write dev.txt dev\n
+$ git add dev.txt
+$ git commit -m "Dev"
+$ git switch -c fonction
+write fonction.txt f\n
+$ git add fonction.txt
+$ git commit -m "Fonction"
+$ git switch dev
+write dev2.txt d2\n
+$ git add dev2.txt
+$ git commit -m "Dev 2"
+$ git merge fonction -m "Fusion de fonction"
+$ git log --oneline -3
+$ git log -1
+$ git switch main
+$ git merge --no-ff dev
+$ git log -1
+$ git merge dev
+$ git merge nexistepas

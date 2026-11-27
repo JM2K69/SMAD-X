@@ -1,0 +1,43 @@
+# Sous-dossiers, chemins relatifs, .gitignore, fichiers non suivis regroupés, statistiques longues
+$ git config --global user.name "Alice Martin"
+$ git config --global user.email alice@lycee.example
+$ git config --global init.defaultBranch main
+$ git init
+mkdir src
+mkdir src/modeles
+write src/app.py print("bonjour")\n
+write src/modeles/client.py class Client: pass\n
+write src/modeles/facture.py class Facture: pass\n
+write README.md # Projet\n
+write build/sortie.log log\n
+write .gitignore build/\n*.log\n
+$ git status
+$ git status -s
+$ git add README.md .gitignore
+$ git status
+$ git add src/app.py
+$ git status
+$ cd src
+$ git status
+$ git status -s
+$ git add modeles
+$ git status
+$ git commit -m "Code"
+$ cd ..
+write src/modeles/client.py class Client:\n    def __init__(self, nom):\n        self.nom = nom\n
+write src/un_nom_de_fichier_vraiment_tres_long_pour_voir_comment_git_le_coupe.txt 1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n
+$ git switch -c long
+$ git add .
+$ git commit -m "Long"
+$ git switch main
+$ git merge long
+write build/autre.log x\n
+write notes.log x\n
+$ git status
+$ git add notes.log
+$ git add -f notes.log
+$ git status -s
+$ git rm -r src
+$ git status -s
+$ git reset --hard
+$ git rm src

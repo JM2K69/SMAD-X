@@ -1,0 +1,168 @@
+$ git config --global user.name "Alice Martin"
+= 0
+$ git config --global user.email alice@lycee.example
+= 0
+$ git config --global init.defaultBranch main
+= 0
+$ git init
+1 Initialized empty Git repository in /home/alice/projet/.git/
+= 0
+$ git status
+1 On branch main
+1 
+1 No commits yet
+1 
+1 Untracked files:
+1   (use "git add <file>..." to include in what will be committed)
+1 \t\e[31m.gitignore\e[m
+1 \t\e[31mREADME.md\e[m
+1 \t\e[31msrc/\e[m
+1 
+1 nothing added to commit but untracked files present (use "git add" to track)
+= 0
+$ git status -s
+1 \e[31m??\e[m .gitignore
+1 \e[31m??\e[m README.md
+1 \e[31m??\e[m src/
+= 0
+$ git add README.md .gitignore
+= 0
+$ git status
+1 On branch main
+1 
+1 No commits yet
+1 
+1 Changes to be committed:
+1   (use "git rm --cached <file>..." to unstage)
+1 \t\e[32mnew file:   .gitignore\e[m
+1 \t\e[32mnew file:   README.md\e[m
+1 
+1 Untracked files:
+1   (use "git add <file>..." to include in what will be committed)
+1 \t\e[31msrc/\e[m
+1 
+= 0
+$ git add src/app.py
+= 0
+$ git status
+1 On branch main
+1 
+1 No commits yet
+1 
+1 Changes to be committed:
+1   (use "git rm --cached <file>..." to unstage)
+1 \t\e[32mnew file:   .gitignore\e[m
+1 \t\e[32mnew file:   README.md\e[m
+1 \t\e[32mnew file:   src/app.py\e[m
+1 
+1 Untracked files:
+1   (use "git add <file>..." to include in what will be committed)
+1 \t\e[31msrc/modeles/\e[m
+1 
+= 0
+$ cd src
+= 0
+$ git status
+1 On branch main
+1 
+1 No commits yet
+1 
+1 Changes to be committed:
+1   (use "git rm --cached <file>..." to unstage)
+1 \t\e[32mnew file:   ../.gitignore\e[m
+1 \t\e[32mnew file:   ../README.md\e[m
+1 \t\e[32mnew file:   app.py\e[m
+1 
+1 Untracked files:
+1   (use "git add <file>..." to include in what will be committed)
+1 \t\e[31mmodeles/\e[m
+1 
+= 0
+$ git status -s
+1 \e[32mA\e[m  ../.gitignore
+1 \e[32mA\e[m  ../README.md
+1 \e[32mA\e[m  app.py
+1 \e[31m??\e[m modeles/
+= 0
+$ git add modeles
+= 0
+$ git status
+1 On branch main
+1 
+1 No commits yet
+1 
+1 Changes to be committed:
+1   (use "git rm --cached <file>..." to unstage)
+1 \t\e[32mnew file:   ../.gitignore\e[m
+1 \t\e[32mnew file:   ../README.md\e[m
+1 \t\e[32mnew file:   app.py\e[m
+1 \t\e[32mnew file:   modeles/client.py\e[m
+1 \t\e[32mnew file:   modeles/facture.py\e[m
+1 
+= 0
+$ git commit -m "Code"
+1 [main (root-commit) 49bf034] Code
+1  5 files changed, 6 insertions(+)
+1  create mode 100644 .gitignore
+1  create mode 100644 README.md
+1  create mode 100644 src/app.py
+1  create mode 100644 src/modeles/client.py
+1  create mode 100644 src/modeles/facture.py
+= 0
+$ cd ..
+= 0
+$ git switch -c long
+2 Switched to a new branch 'long'
+= 0
+$ git add .
+= 0
+$ git commit -m "Long"
+1 [long c699fbe] Long
+1  2 files changed, 53 insertions(+), 1 deletion(-)
+1  create mode 100644 src/un_nom_de_fichier_vraiment_tres_long_pour_voir_comment_git_le_coupe.txt
+= 0
+$ git switch main
+2 Switched to branch 'main'
+= 0
+$ git merge long
+1 Updating 49bf034..c699fbe
+1 Fast-forward
+1  src/modeles/client.py                              |  4 \e[32m+\e[m\e[31m-\e[m
+1  ...nt_tres_long_pour_voir_comment_git_le_coupe.txt | 50 \e[32m++++++++++++++++++++++\e[m
+1  2 files changed, 53 insertions(+), 1 deletion(-)
+1  create mode 100644 src/un_nom_de_fichier_vraiment_tres_long_pour_voir_comment_git_le_coupe.txt
+= 0
+$ git status
+1 On branch main
+1 nothing to commit, working tree clean
+= 0
+$ git add notes.log
+2 The following paths are ignored by one of your .gitignore files:
+2 notes.log
+2 \e[33mhint: Use -f if you really want to add them.\e[m
+2 \e[33mhint: Disable this message with "git config set advice.addIgnoredFile false"\e[m
+= 1
+$ git add -f notes.log
+= 0
+$ git status -s
+1 \e[32mA\e[m  notes.log
+= 0
+$ git rm -r src
+1 rm 'src/app.py'
+1 rm 'src/modeles/client.py'
+1 rm 'src/modeles/facture.py'
+1 rm 'src/un_nom_de_fichier_vraiment_tres_long_pour_voir_comment_git_le_coupe.txt'
+= 0
+$ git status -s
+1 \e[32mA\e[m  notes.log
+1 \e[32mD\e[m  src/app.py
+1 \e[32mD\e[m  src/modeles/client.py
+1 \e[32mD\e[m  src/modeles/facture.py
+1 \e[32mD\e[m  src/un_nom_de_fichier_vraiment_tres_long_pour_voir_comment_git_le_coupe.txt
+= 0
+$ git reset --hard
+1 HEAD is now at c699fbe Long
+= 0
+$ git rm src
+2 fatal: not removing 'src' recursively without -r
+= 128

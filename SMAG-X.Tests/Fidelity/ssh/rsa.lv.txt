@@ -1,0 +1,12 @@
+3072 SHA256:AXaHdnlf7tpaUpyeM6OlyudPAjl92GkHOiXWug829GU bob@poste (RSA)
++---[RSA 3072]----+
+|      o ....     |
+|     . oo.o ..  .|
+|       ... .o.+o |
+|         . .o=+o+|
+|        S  +=o BE|
+|           .o++++|
+|            =.o@.|
+|          .. =Bo=|
+|           o+++o |
++----[SHA256]-----+

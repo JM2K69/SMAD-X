@@ -1,0 +1,217 @@
+$ git config --global user.name "Alice Martin"
+= 0
+$ git config --global user.email alice@lycee.example
+= 0
+$ git config --global init.defaultBranch main
+= 0
+$ git init
+1 Initialized empty Git repository in /home/alice/projet/.git/
+= 0
+$ git add .
+= 0
+$ git commit -m "Site"
+1 [main (root-commit) 843518d] Site
+1  3 files changed, 12 insertions(+)
+1  create mode 100644 contact.html
+1  create mode 100644 index.html
+1  create mode 100644 style.css
+= 0
+$ git switch -c design
+2 Switched to a new branch 'design'
+= 0
+$ git add .
+= 0
+$ git commit -m "Couleurs et logo"
+1 [design 2649b20] Couleurs et logo
+1  2 files changed, 5 insertions(+)
+1  create mode 100644 logo.svg
+= 0
+$ git switch main
+2 Switched to branch 'main'
+= 0
+$ git commit -am "Encodage"
+1 [main 0c1945d] Encodage
+1  1 file changed, 1 insertion(+)
+= 0
+$ git merge design
+1 Merge made by the 'ort' strategy.
+1  logo.svg  | 1 \e[32m+\e[m
+1  style.css | 4 \e[32m++++\e[m
+1  2 files changed, 5 insertions(+)
+1  create mode 100644 logo.svg
+= 0
+$ git log --oneline
+1 \e[33m3772a06\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Merge branch 'design'
+1 \e[33m0c1945d\e[m Encodage
+1 \e[33m2649b20\e[m\e[33m (\e[m\e[1;32mdesign\e[m\e[33m)\e[m Couleurs et logo
+1 \e[33m843518d\e[m Site
+= 0
+$ git switch -c pied
+2 Switched to a new branch 'pied'
+= 0
+$ git add .
+= 0
+$ git commit -m "Pied de page"
+1 [pied e693532] Pied de page
+1  2 files changed, 2 insertions(+)
+1  create mode 100644 mentions.html
+= 0
+$ git switch main
+2 Switched to branch 'main'
+= 0
+$ git rm contact.html
+1 rm 'contact.html'
+= 0
+$ git add .
+= 0
+$ git commit -m "Titre et mentions"
+1 [main 1607510] Titre et mentions
+1  3 files changed, 2 insertions(+), 2 deletions(-)
+1  delete mode 100644 contact.html
+1  create mode 100644 mentions.html
+= 0
+$ git merge pied
+1 Auto-merging index.html
+1 Auto-merging mentions.html
+1 CONFLICT (add/add): Merge conflict in mentions.html
+1 Automatic merge failed; fix conflicts and then commit the result.
+= 1
+$ git status
+1 On branch main
+1 You have unmerged paths.
+1   (fix conflicts and run "git commit")
+1   (use "git merge --abort" to abort the merge)
+1 
+1 Changes to be committed:
+1 \t\e[32mmodified:   index.html\e[m
+1 
+1 Unmerged paths:
+1   (use "git add <file>..." to mark resolution)
+1 \t\e[31mboth added:      mentions.html\e[m
+1 
+= 0
+$ git status -s
+1 \e[32mM\e[m  index.html
+1 \e[31mAA\e[m mentions.html
+= 0
+$ git merge --abort
+= 0
+$ git status
+1 On branch main
+1 nothing to commit, working tree clean
+= 0
+$ git merge --abort
+2 fatal: There is no merge to abort (MERGE_HEAD missing).
+= 128
+$ git switch pied
+2 Switched to branch 'pied'
+= 0
+$ git add contact.html
+= 0
+$ git commit -m "Telephone"
+1 [pied bc9ba19] Telephone
+1  1 file changed, 1 insertion(+), 1 deletion(-)
+= 0
+$ git switch main
+2 Switched to branch 'main'
+= 0
+$ git merge pied
+1 CONFLICT (modify/delete): contact.html deleted in HEAD and modified in pied.  Version pied of contact.html left in tree.
+1 Auto-merging index.html
+1 Auto-merging mentions.html
+1 CONFLICT (add/add): Merge conflict in mentions.html
+1 Automatic merge failed; fix conflicts and then commit the result.
+= 1
+$ git status
+1 On branch main
+1 You have unmerged paths.
+1   (fix conflicts and run "git commit")
+1   (use "git merge --abort" to abort the merge)
+1 
+1 Changes to be committed:
+1 \t\e[32mmodified:   index.html\e[m
+1 
+1 Unmerged paths:
+1   (use "git add/rm <file>..." as appropriate to mark resolution)
+1 \t\e[31mdeleted by us:   contact.html\e[m
+1 \t\e[31mboth added:      mentions.html\e[m
+1 
+= 0
+$ git merge --abort
+= 0
+$ git switch -c dev
+2 Switched to a new branch 'dev'
+= 0
+$ git add dev.txt
+= 0
+$ git commit -m "Dev"
+1 [dev 4448302] Dev
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 dev.txt
+= 0
+$ git switch -c fonction
+2 Switched to a new branch 'fonction'
+= 0
+$ git add fonction.txt
+= 0
+$ git commit -m "Fonction"
+1 [fonction d0d397e] Fonction
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 fonction.txt
+= 0
+$ git switch dev
+2 Switched to branch 'dev'
+= 0
+$ git add dev2.txt
+= 0
+$ git commit -m "Dev 2"
+1 [dev 56ee3db] Dev 2
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 dev2.txt
+= 0
+$ git merge fonction -m "Fusion de fonction"
+1 Merge made by the 'ort' strategy.
+1  fonction.txt | 1 \e[32m+\e[m
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 fonction.txt
+= 0
+$ git log --oneline -3
+1 \e[33me9ddf5b\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mdev\e[m\e[33m)\e[m Fusion de fonction
+1 \e[33m56ee3db\e[m Dev 2
+1 \e[33md0d397e\e[m\e[33m (\e[m\e[1;32mfonction\e[m\e[33m)\e[m Fonction
+= 0
+$ git log -1
+1 \e[33mcommit e9ddf5b8108b39ffbc586e067906213ba13c527c\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mdev\e[m\e[33m)\e[m
+1 Merge: 56ee3db d0d397e
+1 Author: Alice Martin <alice@lycee.example>
+1 Date:   Fri Nov 27 10:42:00 2026 +0100
+1 
+1     Fusion de fonction
+= 0
+$ git switch main
+2 Switched to branch 'main'
+= 0
+$ git merge --no-ff dev
+1 Merge made by the 'ort' strategy.
+1  dev.txt      | 1 \e[32m+\e[m
+1  dev2.txt     | 1 \e[32m+\e[m
+1  fonction.txt | 1 \e[32m+\e[m
+1  3 files changed, 3 insertions(+)
+1  create mode 100644 dev.txt
+1  create mode 100644 dev2.txt
+1  create mode 100644 fonction.txt
+= 0
+$ git log -1
+1 \e[33mcommit 1f51b6abd8d9aa9a7e4286f6869dd1d0050ff11d\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m
+1 Merge: 1607510 e9ddf5b
+1 Author: Alice Martin <alice@lycee.example>
+1 Date:   Fri Nov 27 10:46:00 2026 +0100
+1 
+1     Merge branch 'dev'
+= 0
+$ git merge dev
+1 Already up to date.
+= 0
+$ git merge nexistepas
+2 merge: nexistepas - not something we can merge
+= 1

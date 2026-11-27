@@ -1,0 +1,77 @@
+$ git status
+2 fatal: not a git repository (or any of the parent directories): .git
+= 128
+$ git log
+2 fatal: not a git repository (or any of the parent directories): .git
+= 128
+$ git init
+1 Initialized empty Git repository in /home/alice/projet/.git/
+2 hint: Using 'master' as the name for the initial branch. This default branch name
+2 hint: will change to "main" in Git 3.0. To configure the initial branch name
+2 hint: to use in all of your new repositories, which will suppress this warning,
+2 hint: call:
+2 hint:
+2 hint: \tgit config --global init.defaultBranch <name>
+2 hint:
+2 hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2 hint: 'development'. The just-created branch can be renamed via this command:
+2 hint:
+2 hint: \tgit branch -m <name>
+2 hint:
+2 hint: Disable this message with "git config set advice.defaultBranchName false"
+= 0
+$ git status
+1 On branch master
+1 
+1 No commits yet
+1 
+1 nothing to commit (create/copy files and use "git add" to track)
+= 0
+$ git add a.txt
+= 0
+$ git commit -m "Sans identité"
+2 Author identity unknown
+2 
+2 *** Please tell me who you are.
+2 
+2 Run
+2 
+2   git config --global user.email "you@example.com"
+2   git config --global user.name "Your Name"
+2 
+2 to set your account's default identity.
+2 Omit --global to set the identity only in this repository.
+2 
+2 fatal: unable to auto-detect email address (got 'alice@poste.(none)')
+= 128
+$ git config --global user.name "Bob Durand"
+= 0
+$ git config --global user.email bob@lycee.example
+= 0
+$ git commit -m "Avec identité"
+1 [master (root-commit) f45656c] Avec identité
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 a.txt
+= 0
+$ git add b.txt
+2 fatal: pathspec 'b.txt' did not match any files
+= 128
+$ git comit -m "faute de frappe"
+2 git: 'comit' is not a git command. See 'git --help'.
+2 
+2 The most similar command is
+2 \tcommit
+= 1
+$ git log --oneline
+1 \e[33mf45656c\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmaster\e[m\e[33m)\e[m Avec identité
+= 0
+$ git branch -m main
+= 0
+$ git branch
+1 * \e[32mmain\e[m
+= 0
+$ git switch -c "mauvais nom"
+2 fatal: 'mauvais nom' is not a valid branch name
+2 hint: See 'git help check-ref-format'
+2 hint: Disable this message with "git config set advice.refSyntax false"
+= 128

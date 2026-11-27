@@ -1,0 +1,73 @@
+# Le dépôt distant à deux : clone d'un projet vide, push, suivi des branches, push refusé, fetch, pull divergent, branche partagée
+forge classe/projet
+$ git config --global user.name "Alice Martin"
+$ git config --global user.email alice@lycee.example
+$ cd ..
+$ git clone git@gitlab.example:classe/projet.git
+$ cd projet
+$ git status
+$ git remote
+$ git remote -v
+write index.html <h1>Accueil</h1>\n
+$ git add index.html
+$ git commit -m "Accueil"
+$ git status
+$ git branch -vv
+$ git push
+$ git status
+$ git branch -vv
+$ git push -u origin main
+append index.html <p>Bienvenue</p>\n
+$ git commit -am "Bienvenue"
+$ git status
+$ git branch -v
+$ git branch -vv
+$ git push
+$ git push
+@bob
+$ git config --global user.name "Bob Durand"
+$ git config --global user.email bob@lycee.example
+$ cd ..
+$ git clone git@gitlab.example:classe/projet.git
+$ cd projet
+$ git status
+$ git log --oneline --all
+$ git branch -a
+write contact.html <p>Contact</p>\n
+$ git add contact.html
+$ git commit -m "Contact"
+$ git push
+$ git switch -c tarifs
+write tarifs.html <p>Tarifs</p>\n
+$ git add tarifs.html
+$ git commit -m "Tarifs"
+$ git push
+$ git push -u origin tarifs
+@alice
+append index.html <p>Nouveautés</p>\n
+$ git commit -am "Nouveautés"
+$ git push
+$ git status
+$ git fetch
+$ git status
+$ git branch -a
+$ git log --oneline --all
+$ git pull
+$ git pull --no-rebase
+# Le message de cette fusion contient l'adresse du dépôt (file:// pour le vrai Git mesuré) : Alice le remplace
+$ git commit --amend -m "Fusion du travail de Bob"
+$ git log --oneline -3
+$ git status
+$ git push
+$ git switch tarifs
+$ git branch -vv
+$ git switch main
+@bob
+$ git switch main
+$ git status
+$ git fetch
+$ git status
+$ git pull
+$ git log --oneline -1
+$ git push origin nexistepas
+$ git push autre main

@@ -1,0 +1,155 @@
+$ git config --global user.name "Alice Martin"
+= 0
+$ git config --global user.email alice@lycee.example
+= 0
+$ git config --global init.defaultBranch main
+= 0
+$ git config user.name
+1 Alice Martin
+= 0
+$ git init
+1 Initialized empty Git repository in /home/alice/projet/.git/
+= 0
+$ git status
+1 On branch main
+1 
+1 No commits yet
+1 
+1 nothing to commit (create/copy files and use "git add" to track)
+= 0
+$ git status
+1 On branch main
+1 
+1 No commits yet
+1 
+1 Untracked files:
+1   (use "git add <file>..." to include in what will be committed)
+1 \t\e[31mindex.html\e[m
+1 \t\e[31mstyle.css\e[m
+1 
+1 nothing added to commit but untracked files present (use "git add" to track)
+= 0
+$ git status -s
+1 \e[31m??\e[m index.html
+1 \e[31m??\e[m style.css
+= 0
+$ git add index.html
+= 0
+$ git status
+1 On branch main
+1 
+1 No commits yet
+1 
+1 Changes to be committed:
+1   (use "git rm --cached <file>..." to unstage)
+1 \t\e[32mnew file:   index.html\e[m
+1 
+1 Untracked files:
+1   (use "git add <file>..." to include in what will be committed)
+1 \t\e[31mstyle.css\e[m
+1 
+= 0
+$ git status -s
+1 \e[32mA\e[m  index.html
+1 \e[31m??\e[m style.css
+= 0
+$ git commit -m "Page d'accueil"
+1 [main (root-commit) d475329] Page d'accueil
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 index.html
+= 0
+$ git status
+1 On branch main
+1 Untracked files:
+1   (use "git add <file>..." to include in what will be committed)
+1 \t\e[31mstyle.css\e[m
+1 
+1 nothing added to commit but untracked files present (use "git add" to track)
+= 0
+$ git add .
+= 0
+$ git commit -m "Ajoute la feuille de style"
+1 [main b82ddeb] Ajoute la feuille de style
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 style.css
+= 0
+$ git log
+1 \e[33mcommit b82ddeb8b088fc0e78513edd258c0eb0081a21a3\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m
+1 Author: Alice Martin <alice@lycee.example>
+1 Date:   Fri Nov 27 10:14:00 2026 +0100
+1 
+1     Ajoute la feuille de style
+1 
+1 \e[33mcommit d4753297fb010e856124cdd4e5f1b58c8b841222\e[m
+1 Author: Alice Martin <alice@lycee.example>
+1 Date:   Fri Nov 27 10:11:00 2026 +0100
+1 
+1     Page d'accueil
+= 0
+$ git log --oneline
+1 \e[33mb82ddeb\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Ajoute la feuille de style
+1 \e[33md475329\e[m Page d'accueil
+= 0
+$ git status
+1 On branch main
+1 Changes not staged for commit:
+1   (use "git add <file>..." to update what will be committed)
+1   (use "git restore <file>..." to discard changes in working directory)
+1 \t\e[31mmodified:   index.html\e[m
+1 
+1 no changes added to commit (use "git add" and/or "git commit -a")
+= 0
+$ git status -s
+1  \e[31mM\e[m index.html
+= 0
+$ git commit -am "Message de bienvenue"
+1 [main 4f60cfe] Message de bienvenue
+1  1 file changed, 1 insertion(+)
+= 0
+$ git log --oneline
+1 \e[33m4f60cfe\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Message de bienvenue
+1 \e[33mb82ddeb\e[m Ajoute la feuille de style
+1 \e[33md475329\e[m Page d'accueil
+= 0
+$ git log --oneline -2
+1 \e[33m4f60cfe\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Message de bienvenue
+1 \e[33mb82ddeb\e[m Ajoute la feuille de style
+= 0
+$ git commit -m "Rien à valider"
+1 On branch main
+1 nothing to commit, working tree clean
+= 1
+$ git init
+1 Reinitialized existing Git repository in /home/alice/projet/.git/
+= 0
+$ git status
+1 On branch main
+1 Untracked files:
+1   (use "git add <file>..." to include in what will be committed)
+1 \t\e[31mimages/\e[m
+1 
+1 nothing added to commit but untracked files present (use "git add" to track)
+= 0
+$ git add images
+= 0
+$ git status
+1 On branch main
+1 Changes to be committed:
+1   (use "git restore --staged <file>..." to unstage)
+1 \t\e[32mnew file:   images/logo.svg\e[m
+1 \t\e[32mnew file:   images/plan.svg\e[m
+1 
+= 0
+$ git commit -m "Images"
+1 [main 0680eab] Images
+1  2 files changed, 2 insertions(+)
+1  create mode 100644 images/logo.svg
+1  create mode 100644 images/plan.svg
+= 0
+$ git log -1
+1 \e[33mcommit 0680eab90d518b1c75bb48d7bd094836f48a6e02\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m
+1 Author: Alice Martin <alice@lycee.example>
+1 Date:   Fri Nov 27 10:27:00 2026 +0100
+1 
+1     Images
+= 0

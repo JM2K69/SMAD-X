@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SMAGX.ViewModels"
+             x:Class="SMAGX.Views.TerminalView"
+             x:DataType="vm:StationViewModel">
+    <Border Background="{StaticResource TerminalBg}" CornerRadius="10" Padding="14,12">
+        <Grid RowDefinitions="*,Auto,Auto">
+            <ScrollViewer x:Name="Scroller" HorizontalScrollBarVisibility="Auto">
+                <SelectableTextBlock x:Name="Output" FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace"
+                                     FontSize="13" Foreground="{StaticResource TerminalFg}" TextWrapping="NoWrap"/>
+            </ScrollViewer>
+            <DockPanel Grid.Row="1" Margin="0,2,0,0">
+                <TextBlock x:Name="PromptText" DockPanel.Dock="Left" VerticalAlignment="Center"
+                           FontFamily="Cascadia Mono, Consolas, Menlo, DejaVu Sans Mono, monospace" FontSize="13"/>
+                <TextBox x:Name="InputBox" Classes="terminal" Text="{Binding Input}" IsEnabled="{Binding CanType}" PasswordChar="{Binding Mask}"
+                         KeyDown="OnKeyDown" VerticalAlignment="Center"/>
+            </DockPanel>
+            <TextBlock Grid.Row="2" Text="{DynamicResource Terminal.Hint}" Foreground="#8B949E" FontSize="11"
+                       TextWrapping="Wrap" Margin="0,10,0,0"/>
+        </Grid>
+    </Border>
+</UserControl>

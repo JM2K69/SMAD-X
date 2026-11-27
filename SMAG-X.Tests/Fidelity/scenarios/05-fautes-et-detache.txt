@@ -1,0 +1,39 @@
+# Fautes de frappe courantes, HEAD détachée, commits perdus, retour sur une branche
+$ git stauts
+$ git chekout
+$ git brnach
+$ git swich
+$ git psuh
+$ git comit
+$ git ad
+$ git lg
+$ git config --global user.name "Alice Martin"
+$ git config --global user.email alice@lycee.example
+$ git config --global init.defaultBranch main
+$ git init
+write a.txt 1\n
+$ git add a.txt
+$ git commit -m "Un"
+append a.txt 2\n
+$ git commit -am "Deux"
+append a.txt 3\n
+$ git commit -am "Trois"
+$ git log --oneline
+$ git checkout HEAD~2
+$ git status
+$ git log --oneline --all
+$ git branch
+append a.txt essai\n
+$ git commit -am "Essai détaché"
+$ git log --oneline --all
+$ git switch main
+$ git log --oneline --all
+$ git switch --detach HEAD~1
+$ git switch -
+$ git switch -c test HEAD~1
+$ git branch -v
+$ git switch main
+$ git checkout -b autre
+$ git checkout main
+$ git checkout nexistepas
+$ git switch HEAD~1

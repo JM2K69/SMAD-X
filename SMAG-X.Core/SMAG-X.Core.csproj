@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Moteur de SMAG-X (Simulate, Model and Audit Git eXpert), sans interface : postes de travail simulés,
+       dépôts Git en mémoire (objets, index, références) et commandes, avec les sorties du vrai Git
+       (vérifiées par les tests de fidélité, produits par tools/SmagxGitCheck). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SMAG-X.Core</AssemblyName>
+    <RootNamespace>SMAGX</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Le socle des exercices de la suite : textes localisés, niveaux, questions de compréhension, copies scellées -->
+    <ProjectReference Include="..\SMAD-X.Labs\SMAD-X.Labs.csproj" />
+  </ItemGroup>
+</Project>

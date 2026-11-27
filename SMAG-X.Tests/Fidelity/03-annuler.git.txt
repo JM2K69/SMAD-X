@@ -1,0 +1,138 @@
+$ git config --global user.name "Alice Martin"
+= 0
+$ git config --global user.email alice@lycee.example
+= 0
+$ git config --global init.defaultBranch main
+= 0
+$ git init
+1 Initialized empty Git repository in /home/alice/projet/.git/
+= 0
+$ git add notes.txt
+= 0
+$ git commit -m "Notes"
+1 [main (root-commit) 1bbf1e0] Notes
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 notes.txt
+= 0
+$ git restore notes.txt
+= 0
+$ git status -s
+1 \e[31m??\e[m secret.env
+= 0
+$ git add notes.txt
+= 0
+$ git restore --staged notes.txt
+= 0
+$ git status -s
+1  \e[31mM\e[m notes.txt
+1 \e[31m??\e[m secret.env
+= 0
+$ git add .
+= 0
+$ git status
+1 On branch main
+1 Changes to be committed:
+1   (use "git restore --staged <file>..." to unstage)
+1 \t\e[32mmodified:   notes.txt\e[m
+1 \t\e[32mnew file:   secret.env\e[m
+1 
+= 0
+$ git reset secret.env
+= 0
+$ git status -s
+1 \e[32mM\e[m  notes.txt
+1 \e[31m??\e[m secret.env
+= 0
+$ git commit -am "Ligne 2"
+1 [main 0a3abac] Ligne 2
+1  1 file changed, 1 insertion(+)
+= 0
+$ git commit --amend -m "Deuxième ligne"
+1 [main c08f775] Deuxième ligne
+1  Date: Fri Nov 27 10:15:00 2026 +0100
+1  1 file changed, 1 insertion(+)
+= 0
+$ git log --oneline
+1 \e[33mc08f775\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Deuxième ligne
+1 \e[33m1bbf1e0\e[m Notes
+= 0
+$ git add secret.env
+= 0
+$ git commit -m "Oups, le mot de passe"
+1 [main 0e1b9af] Oups, le mot de passe
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 secret.env
+= 0
+$ git rm --cached secret.env
+1 rm 'secret.env'
+= 0
+$ git status
+1 On branch main
+1 Changes to be committed:
+1   (use "git restore --staged <file>..." to unstage)
+1 \t\e[32mdeleted:    secret.env\e[m
+1 
+1 Untracked files:
+1   (use "git add <file>..." to include in what will be committed)
+1 \t\e[31msecret.env\e[m
+1 
+= 0
+$ git add .gitignore
+= 0
+$ git status -s
+1 \e[32mA\e[m  .gitignore
+1 \e[32mD\e[m  secret.env
+= 0
+$ git commit -m "Ignore le mot de passe"
+1 [main d2fe8aa] Ignore le mot de passe
+1  2 files changed, 1 insertion(+), 1 deletion(-)
+1  create mode 100644 .gitignore
+1  delete mode 100644 secret.env
+= 0
+$ git add secret.env
+2 The following paths are ignored by one of your .gitignore files:
+2 secret.env
+2 \e[33mhint: Use -f if you really want to add them.\e[m
+2 \e[33mhint: Disable this message with "git config set advice.addIgnoredFile false"\e[m
+= 1
+$ git rm notes.txt
+1 rm 'notes.txt'
+= 0
+$ git status -s
+1 \e[32mD\e[m  notes.txt
+= 0
+$ git reset --hard HEAD
+1 HEAD is now at d2fe8aa Ignore le mot de passe
+= 0
+$ git status -s
+= 0
+$ git rm notes.txt
+2 error: the following file has local modifications:
+2     notes.txt
+2 (use --cached to keep the file, or -f to force removal)
+= 1
+$ git checkout -- notes.txt
+= 0
+$ git status -s
+= 0
+$ git reset --hard HEAD~1
+1 HEAD is now at 0e1b9af Oups, le mot de passe
+= 0
+$ git log --oneline
+1 \e[33m0e1b9af\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Oups, le mot de passe
+1 \e[33mc08f775\e[m Deuxième ligne
+1 \e[33m1bbf1e0\e[m Notes
+= 0
+$ git reset HEAD~1
+= 0
+$ git status
+1 On branch main
+1 Untracked files:
+1   (use "git add <file>..." to include in what will be committed)
+1 \t\e[31msecret.env\e[m
+1 
+1 nothing added to commit but untracked files present (use "git add" to track)
+= 0
+$ git restore nexistepas.txt
+2 error: pathspec 'nexistepas.txt' did not match any file(s) known to git
+= 1

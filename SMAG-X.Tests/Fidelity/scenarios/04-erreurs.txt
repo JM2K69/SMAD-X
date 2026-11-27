@@ -1,0 +1,17 @@
+# Les messages d'erreur et d'aide : hors dépôt, branche par défaut, identité manquante, commande inconnue
+$ git status
+$ git log
+$ git init
+$ git status
+write a.txt a\n
+$ git add a.txt
+$ git commit -m "Sans identité"
+$ git config --global user.name "Bob Durand"
+$ git config --global user.email bob@lycee.example
+$ git commit -m "Avec identité"
+$ git add b.txt
+$ git comit -m "faute de frappe"
+$ git log --oneline
+$ git branch -m main
+$ git branch
+$ git switch -c "mauvais nom"

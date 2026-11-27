@@ -1,0 +1,36 @@
+# Premiers pas : les trois zones (répertoire de travail, index, dépôt)
+$ git config --global user.name "Alice Martin"
+$ git config --global user.email alice@lycee.example
+$ git config --global init.defaultBranch main
+$ git config user.name
+$ git init
+$ git status
+write index.html <h1>Agence Méridien</h1>\n
+write style.css body { margin: 0; }\n
+$ git status
+$ git status -s
+$ git add index.html
+$ git status
+$ git status -s
+$ git commit -m "Page d'accueil"
+$ git status
+$ git add .
+$ git commit -m "Ajoute la feuille de style"
+$ git log
+$ git log --oneline
+append index.html <p>Bienvenue</p>\n
+$ git status
+$ git status -s
+$ git commit -am "Message de bienvenue"
+$ git log --oneline
+$ git log --oneline -2
+$ git commit -m "Rien à valider"
+$ git init
+mkdir images
+write images/logo.svg <svg/>\n
+write images/plan.svg <svg/>\n
+$ git status
+$ git add images
+$ git status
+$ git commit -m "Images"
+$ git log -1

@@ -1,0 +1,169 @@
+$ git stauts
+2 git: 'stauts' is not a git command. See 'git --help'.
+2 
+2 The most similar command is
+2 \tstatus
+= 1
+$ git chekout
+2 git: 'chekout' is not a git command. See 'git --help'.
+2 
+2 The most similar command is
+2 \tcheckout
+= 1
+$ git brnach
+2 git: 'brnach' is not a git command. See 'git --help'.
+2 
+2 The most similar command is
+2 \tbranch
+= 1
+$ git swich
+2 git: 'swich' is not a git command. See 'git --help'.
+2 
+2 The most similar command is
+2 \tswitch
+= 1
+$ git psuh
+2 git: 'psuh' is not a git command. See 'git --help'.
+2 
+2 The most similar command is
+2 \tpush
+= 1
+$ git comit
+2 git: 'comit' is not a git command. See 'git --help'.
+2 
+2 The most similar command is
+2 \tcommit
+= 1
+$ git ad
+2 git: 'ad' is not a git command. See 'git --help'.
+2 
+2 The most similar commands are
+2 \tadd
+2 \tam
+= 1
+$ git lg
+2 git: 'lg' is not a git command. See 'git --help'.
+2 
+2 The most similar command is
+2 \tlog
+= 1
+$ git config --global user.name "Alice Martin"
+= 0
+$ git config --global user.email alice@lycee.example
+= 0
+$ git config --global init.defaultBranch main
+= 0
+$ git init
+1 Initialized empty Git repository in /home/alice/projet/.git/
+= 0
+$ git add a.txt
+= 0
+$ git commit -m "Un"
+1 [main (root-commit) fef817d] Un
+1  1 file changed, 1 insertion(+)
+1  create mode 100644 a.txt
+= 0
+$ git commit -am "Deux"
+1 [main 7f3815c] Deux
+1  1 file changed, 1 insertion(+)
+= 0
+$ git commit -am "Trois"
+1 [main 5052818] Trois
+1  1 file changed, 1 insertion(+)
+= 0
+$ git log --oneline
+1 \e[33m5052818\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Trois
+1 \e[33m7f3815c\e[m Deux
+1 \e[33mfef817d\e[m Un
+= 0
+$ git checkout HEAD~2
+2 Note: switching to 'HEAD~2'.
+2 
+2 You are in 'detached HEAD' state. You can look around, make experimental
+2 changes and commit them, and you can discard any commits you make in this
+2 state without impacting any branches by switching back to a branch.
+2 
+2 If you want to create a new branch to retain commits you create, you may
+2 do so (now or later) by using -c with the switch command. Example:
+2 
+2   git switch -c <new-branch-name>
+2 
+2 Or undo this operation with:
+2 
+2   git switch -
+2 
+2 Turn off this advice by setting config variable advice.detachedHead to false
+2 
+2 HEAD is now at fef817d Un
+= 0
+$ git status
+1 \e[31mHEAD detached at \e[mfef817d
+1 nothing to commit, working tree clean
+= 0
+$ git log --oneline --all
+1 \e[33m5052818\e[m\e[33m (\e[m\e[1;32mmain\e[m\e[33m)\e[m Trois
+1 \e[33m7f3815c\e[m Deux
+1 \e[33mfef817d\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m)\e[m Un
+= 0
+$ git branch
+1 * \e[32m(HEAD detached at fef817d)\e[m
+1   main\e[m
+= 0
+$ git commit -am "Essai détaché"
+1 [detached HEAD 113a672] Essai détaché
+1  1 file changed, 1 insertion(+)
+= 0
+$ git log --oneline --all
+1 \e[33m113a672\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m)\e[m Essai détaché
+1 \e[33m5052818\e[m\e[33m (\e[m\e[1;32mmain\e[m\e[33m)\e[m Trois
+1 \e[33m7f3815c\e[m Deux
+1 \e[33mfef817d\e[m Un
+= 0
+$ git switch main
+2 Warning: you are leaving 1 commit behind, not connected to
+2 any of your branches:
+2 
+2   113a672 Essai détaché
+2 
+2 If you want to keep it by creating a new branch, this may be a good time
+2 to do so with:
+2 
+2  git branch <new-branch-name> 113a672
+2 
+2 Switched to branch 'main'
+= 0
+$ git log --oneline --all
+1 \e[33m5052818\e[m\e[33m (\e[m\e[1;36mHEAD\e[m\e[33m -> \e[m\e[1;32mmain\e[m\e[33m)\e[m Trois
+1 \e[33m7f3815c\e[m Deux
+1 \e[33mfef817d\e[m Un
+= 0
+$ git switch --detach HEAD~1
+2 HEAD is now at 7f3815c Deux
+= 0
+$ git switch -
+2 Previous HEAD position was 7f3815c Deux
+2 Switched to branch 'main'
+= 0
+$ git switch -c test HEAD~1
+2 Switched to a new branch 'test'
+= 0
+$ git branch -v
+1   main\e[m 5052818 Trois
+1 * \e[32mtest\e[m 7f3815c Deux
+= 0
+$ git switch main
+2 Switched to branch 'main'
+= 0
+$ git checkout -b autre
+2 Switched to a new branch 'autre'
+= 0
+$ git checkout main
+2 Switched to branch 'main'
+= 0
+$ git checkout nexistepas
+2 error: pathspec 'nexistepas' did not match any file(s) known to git
+= 1
+$ git switch HEAD~1
+2 fatal: a branch is expected, got commit 'HEAD~1'
+2 hint: If you want to detach HEAD at the commit, try again with the --detach option.
+= 128
